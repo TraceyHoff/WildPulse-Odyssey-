@@ -149,15 +149,16 @@ window.baseCreatures = [
     {
         "id": 1,
         "name": "Flamebeast",
-        "description": "A fire creature known as Flamebeast, possessing fangs and scales.",
+        "description": "A formidable fire creature named Flamebeast. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "scales"
+            "horns",
+            "claws",
+            "fur"
         ],
         "type": "Fire",
         "stats": {
-            "health": 112,
-            "attack": 50
+            "health": 88,
+            "attack": 49
         },
         "generation": 1,
         "color": 16711680
@@ -165,15 +166,15 @@ window.baseCreatures = [
     {
         "id": 2,
         "name": "Aquabeast",
-        "description": "A water creature known as Aquabeast, possessing shell and fur.",
+        "description": "A formidable water creature named Aquabeast. It is known for its distinct features.",
         "features": [
-            "shell",
-            "fur"
+            "glowing",
+            "shell"
         ],
         "type": "Water",
         "stats": {
-            "health": 105,
-            "attack": 69
+            "health": 82,
+            "attack": 66
         },
         "generation": 1,
         "color": 255
@@ -181,15 +182,15 @@ window.baseCreatures = [
     {
         "id": 3,
         "name": "Leafbeast",
-        "description": "A nature creature known as Leafbeast, possessing fangs and horns.",
+        "description": "A formidable nature creature named Leafbeast. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "horns"
+            "shell",
+            "glowing"
         ],
         "type": "Nature",
         "stats": {
-            "health": 83,
-            "attack": 37
+            "health": 89,
+            "attack": 63
         },
         "generation": 1,
         "color": 65280
@@ -197,15 +198,16 @@ window.baseCreatures = [
     {
         "id": 4,
         "name": "Zapbeast",
-        "description": "A electric creature known as Zapbeast, possessing fur and scales.",
+        "description": "A formidable electric creature named Zapbeast. It is known for its distinct features.",
         "features": [
-            "fur",
-            "scales"
+            "fangs",
+            "shell",
+            "glowing"
         ],
         "type": "Electric",
         "stats": {
-            "health": 85,
-            "attack": 59
+            "health": 90,
+            "attack": 31
         },
         "generation": 1,
         "color": 16776960
@@ -213,15 +215,15 @@ window.baseCreatures = [
     {
         "id": 5,
         "name": "Frostbeast",
-        "description": "A ice creature known as Frostbeast, possessing tail and shell.",
+        "description": "A formidable ice creature named Frostbeast. It is known for its distinct features.",
         "features": [
             "tail",
-            "shell"
+            "fangs"
         ],
         "type": "Ice",
         "stats": {
-            "health": 108,
-            "attack": 69
+            "health": 111,
+            "attack": 65
         },
         "generation": 1,
         "color": 65535
@@ -229,15 +231,15 @@ window.baseCreatures = [
     {
         "id": 6,
         "name": "Rockbeast",
-        "description": "A earth creature known as Rockbeast, possessing shell and tail.",
+        "description": "A formidable earth creature named Rockbeast. It is known for its distinct features.",
         "features": [
-            "shell",
-            "tail"
+            "scales",
+            "shell"
         ],
         "type": "Earth",
         "stats": {
-            "health": 103,
-            "attack": 40
+            "health": 82,
+            "attack": 68
         },
         "generation": 1,
         "color": 9127187
@@ -245,15 +247,16 @@ window.baseCreatures = [
     {
         "id": 7,
         "name": "Aerobeast",
-        "description": "A wind creature known as Aerobeast, possessing glowing and shell.",
+        "description": "A formidable wind creature named Aerobeast. It is known for its distinct features.",
         "features": [
-            "glowing",
+            "scales",
+            "claws",
             "shell"
         ],
         "type": "Wind",
         "stats": {
-            "health": 104,
-            "attack": 30
+            "health": 98,
+            "attack": 53
         },
         "generation": 1,
         "color": 13882323
@@ -261,15 +264,16 @@ window.baseCreatures = [
     {
         "id": 8,
         "name": "Sunbeast",
-        "description": "A light creature known as Sunbeast, possessing horns and fangs.",
+        "description": "A formidable light creature named Sunbeast. It is known for its distinct features.",
         "features": [
             "horns",
-            "fangs"
+            "shell",
+            "tail"
         ],
         "type": "Light",
         "stats": {
-            "health": 84,
-            "attack": 41
+            "health": 103,
+            "attack": 62
         },
         "generation": 1,
         "color": 16777215
@@ -277,15 +281,16 @@ window.baseCreatures = [
     {
         "id": 9,
         "name": "Voidbeast",
-        "description": "A dark creature known as Voidbeast, possessing flying and scales.",
+        "description": "A formidable dark creature named Voidbeast. It is known for its distinct features.",
         "features": [
-            "flying",
-            "scales"
+            "fur",
+            "fangs",
+            "horns"
         ],
         "type": "Dark",
         "stats": {
-            "health": 116,
-            "attack": 55
+            "health": 92,
+            "attack": 32
         },
         "generation": 1,
         "color": 4473924
@@ -293,174 +298,181 @@ window.baseCreatures = [
     {
         "id": 10,
         "name": "Starbeast",
-        "description": "A cosmic creature known as Starbeast, possessing shell and horns.",
+        "description": "A formidable cosmic creature named Starbeast. It is known for its distinct features.",
         "features": [
             "shell",
-            "horns"
+            "scales",
+            "glowing"
         ],
         "type": "Cosmic",
         "stats": {
-            "health": 113,
-            "attack": 40
+            "health": 111,
+            "attack": 59
         },
         "generation": 1,
         "color": 8388736
     },
     {
         "id": 11,
-        "name": "Flamewing 11",
-        "description": "A fire creature known as Flamewing, possessing shell and scales.",
+        "name": "Pyrowing",
+        "description": "A formidable fire creature named Pyrowing. It is known for its distinct features.",
         "features": [
-            "shell",
-            "scales"
+            "flying",
+            "fangs",
+            "shell"
         ],
         "type": "Fire",
         "stats": {
-            "health": 84,
-            "attack": 47
+            "health": 83,
+            "attack": 44
         },
         "generation": 1,
         "color": 16711680
     },
     {
         "id": 12,
-        "name": "Aquawing 12",
-        "description": "A water creature known as Aquawing, possessing fur and flying.",
+        "name": "Hydrowing",
+        "description": "A formidable water creature named Hydrowing. It is known for its distinct features.",
         "features": [
-            "fur",
-            "flying"
+            "shell",
+            "claws"
         ],
         "type": "Water",
         "stats": {
-            "health": 112,
-            "attack": 39
+            "health": 115,
+            "attack": 65
         },
         "generation": 1,
         "color": 255
     },
     {
         "id": 13,
-        "name": "Leafwing 13",
-        "description": "A nature creature known as Leafwing, possessing tail and scales.",
+        "name": "Flora wing",
+        "description": "A formidable nature creature named Flora wing. It is known for its distinct features.",
         "features": [
             "tail",
-            "scales"
+            "flying"
         ],
         "type": "Nature",
         "stats": {
-            "health": 118,
-            "attack": 56
+            "health": 98,
+            "attack": 69
         },
         "generation": 1,
         "color": 65280
     },
     {
         "id": 14,
-        "name": "Zapwing 14",
-        "description": "A electric creature known as Zapwing, possessing shell and wings.",
+        "name": "Voltawing",
+        "description": "A formidable electric creature named Voltawing. It is known for its distinct features.",
         "features": [
-            "shell",
-            "wings"
+            "fur",
+            "claws",
+            "scales"
         ],
         "type": "Electric",
         "stats": {
-            "health": 105,
-            "attack": 50
+            "health": 99,
+            "attack": 56
         },
         "generation": 1,
         "color": 16776960
     },
     {
         "id": 15,
-        "name": "Frostwing 15",
-        "description": "A ice creature known as Frostwing, possessing scales and horns.",
+        "name": "Glacierwing",
+        "description": "A formidable ice creature named Glacierwing. It is known for its distinct features.",
         "features": [
-            "scales",
+            "fur",
+            "glowing",
             "horns"
         ],
         "type": "Ice",
         "stats": {
-            "health": 83,
-            "attack": 45
+            "health": 94,
+            "attack": 48
         },
         "generation": 1,
         "color": 65535
     },
     {
         "id": 16,
-        "name": "Rockwing 16",
-        "description": "A earth creature known as Rockwing, possessing horns and tail.",
+        "name": "Terra wing",
+        "description": "A formidable earth creature named Terra wing. It is known for its distinct features.",
         "features": [
-            "horns",
+            "flying",
+            "shell",
             "tail"
         ],
         "type": "Earth",
         "stats": {
-            "health": 109,
-            "attack": 51
+            "health": 82,
+            "attack": 38
         },
         "generation": 1,
         "color": 9127187
     },
     {
         "id": 17,
-        "name": "Aerowing 17",
-        "description": "A wind creature known as Aerowing, possessing fur and horns.",
+        "name": "Zephyrwing",
+        "description": "A formidable wind creature named Zephyrwing. It is known for its distinct features.",
         "features": [
-            "fur",
-            "horns"
+            "claws",
+            "horns",
+            "glowing"
         ],
         "type": "Wind",
         "stats": {
-            "health": 108,
-            "attack": 69
+            "health": 111,
+            "attack": 37
         },
         "generation": 1,
         "color": 13882323
     },
     {
         "id": 18,
-        "name": "Sunwing 18",
-        "description": "A light creature known as Sunwing, possessing fangs and horns.",
+        "name": "Luxwing",
+        "description": "A formidable light creature named Luxwing. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "horns"
+            "wings",
+            "glowing"
         ],
         "type": "Light",
         "stats": {
-            "health": 97,
-            "attack": 62
+            "health": 110,
+            "attack": 50
         },
         "generation": 1,
         "color": 16777215
     },
     {
         "id": 19,
-        "name": "Voidwing 19",
-        "description": "A dark creature known as Voidwing, possessing fur and scales.",
+        "name": "Shadowing",
+        "description": "A formidable dark creature named Shadowing. It is known for its distinct features.",
         "features": [
-            "fur",
-            "scales"
+            "shell",
+            "claws",
+            "wings"
         ],
         "type": "Dark",
         "stats": {
-            "health": 119,
-            "attack": 62
+            "health": 98,
+            "attack": 31
         },
         "generation": 1,
         "color": 4473924
     },
     {
         "id": 20,
-        "name": "Starwing 20",
-        "description": "A cosmic creature known as Starwing, possessing claws and glowing.",
+        "name": "Nova wing",
+        "description": "A formidable cosmic creature named Nova wing. It is known for its distinct features.",
         "features": [
-            "claws",
-            "glowing"
+            "flying",
+            "horns"
         ],
         "type": "Cosmic",
         "stats": {
-            "health": 93,
+            "health": 91,
             "attack": 43
         },
         "generation": 1,
@@ -468,363 +480,382 @@ window.baseCreatures = [
     },
     {
         "id": 21,
-        "name": "Flameclaw 21",
-        "description": "A fire creature known as Flameclaw, possessing fangs and fur.",
+        "name": "Cinderclaw",
+        "description": "A formidable fire creature named Cinderclaw. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "fur"
+            "horns",
+            "claws",
+            "glowing"
         ],
         "type": "Fire",
         "stats": {
             "health": 102,
-            "attack": 31
+            "attack": 41
         },
         "generation": 1,
         "color": 16711680
     },
     {
         "id": 22,
-        "name": "Aquaclaw 22",
-        "description": "A water creature known as Aquaclaw, possessing flying and tail.",
+        "name": "Tideclaw",
+        "description": "A formidable water creature named Tideclaw. It is known for its distinct features.",
         "features": [
-            "flying",
-            "tail"
+            "horns",
+            "fur",
+            "shell"
         ],
         "type": "Water",
         "stats": {
-            "health": 93,
-            "attack": 53
+            "health": 86,
+            "attack": 33
         },
         "generation": 1,
         "color": 255
     },
     {
         "id": 23,
-        "name": "Leafclaw 23",
-        "description": "A nature creature known as Leafclaw, possessing claws and fur.",
+        "name": "Thornclaw",
+        "description": "A formidable nature creature named Thornclaw. It is known for its distinct features.",
         "features": [
-            "claws",
-            "fur"
+            "fur",
+            "scales"
         ],
         "type": "Nature",
         "stats": {
-            "health": 91,
-            "attack": 50
+            "health": 103,
+            "attack": 63
         },
         "generation": 1,
         "color": 65280
     },
     {
         "id": 24,
-        "name": "Zapclaw 24",
-        "description": "A electric creature known as Zapclaw, possessing claws and fur.",
+        "name": "Sparkclaw",
+        "description": "A formidable electric creature named Sparkclaw. It is known for its distinct features.",
         "features": [
-            "claws",
-            "fur"
+            "horns",
+            "fur",
+            "wings"
         ],
         "type": "Electric",
         "stats": {
-            "health": 86,
-            "attack": 40
+            "health": 99,
+            "attack": 66
         },
         "generation": 1,
         "color": 16776960
     },
     {
         "id": 25,
-        "name": "Frostclaw 25",
-        "description": "A ice creature known as Frostclaw, possessing wings and shell.",
+        "name": "Snowclaw",
+        "description": "A formidable ice creature named Snowclaw. It is known for its distinct features.",
         "features": [
-            "wings",
-            "shell"
+            "flying",
+            "glowing",
+            "fangs"
         ],
         "type": "Ice",
         "stats": {
-            "health": 85,
-            "attack": 64
+            "health": 115,
+            "attack": 62
         },
         "generation": 1,
         "color": 65535
     },
     {
         "id": 26,
-        "name": "Rockclaw 26",
-        "description": "A earth creature known as Rockclaw, possessing fangs and glowing.",
+        "name": "Stoneclaw",
+        "description": "A formidable earth creature named Stoneclaw. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "glowing"
+            "horns",
+            "wings",
+            "claws"
         ],
         "type": "Earth",
         "stats": {
-            "health": 117,
-            "attack": 32
+            "health": 82,
+            "attack": 44
         },
         "generation": 1,
         "color": 9127187
     },
     {
         "id": 27,
-        "name": "Aeroclaw 27",
-        "description": "A wind creature known as Aeroclaw, possessing horns and glowing.",
+        "name": "Breezeclaw",
+        "description": "A formidable wind creature named Breezeclaw. It is known for its distinct features.",
         "features": [
+            "fur",
             "horns",
-            "glowing"
+            "flying"
         ],
         "type": "Wind",
         "stats": {
-            "health": 112,
-            "attack": 51
+            "health": 83,
+            "attack": 69
         },
         "generation": 1,
         "color": 13882323
     },
     {
         "id": 28,
-        "name": "Sunclaw 28",
-        "description": "A light creature known as Sunclaw, possessing shell and horns.",
+        "name": "Dawnclaw",
+        "description": "A formidable light creature named Dawnclaw. It is known for its distinct features.",
         "features": [
-            "shell",
+            "scales",
             "horns"
         ],
         "type": "Light",
         "stats": {
-            "health": 104,
-            "attack": 62
+            "health": 98,
+            "attack": 65
         },
         "generation": 1,
         "color": 16777215
     },
     {
         "id": 29,
-        "name": "Voidclaw 29",
-        "description": "A dark creature known as Voidclaw, possessing fangs and wings.",
+        "name": "Duskclaw",
+        "description": "A formidable dark creature named Duskclaw. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "wings"
+            "fur",
+            "flying",
+            "shell"
         ],
         "type": "Dark",
         "stats": {
-            "health": 104,
-            "attack": 56
+            "health": 105,
+            "attack": 61
         },
         "generation": 1,
         "color": 4473924
     },
     {
         "id": 30,
-        "name": "Starclaw 30",
-        "description": "A cosmic creature known as Starclaw, possessing glowing and tail.",
+        "name": "Meteorclaw",
+        "description": "A formidable cosmic creature named Meteorclaw. It is known for its distinct features.",
         "features": [
-            "glowing",
+            "horns",
+            "scales",
             "tail"
         ],
         "type": "Cosmic",
         "stats": {
-            "health": 80,
-            "attack": 35
+            "health": 83,
+            "attack": 66
         },
         "generation": 1,
         "color": 8388736
     },
     {
         "id": 31,
-        "name": "Flamefang 31",
-        "description": "A fire creature known as Flamefang, possessing flying and shell.",
+        "name": "Emberfang",
+        "description": "A formidable fire creature named Emberfang. It is known for its distinct features.",
         "features": [
-            "flying",
+            "horns",
+            "tail",
             "shell"
         ],
         "type": "Fire",
         "stats": {
-            "health": 96,
-            "attack": 30
+            "health": 107,
+            "attack": 40
         },
         "generation": 1,
         "color": 16711680
     },
     {
         "id": 32,
-        "name": "Aquafang 32",
-        "description": "A water creature known as Aquafang, possessing shell and scales.",
+        "name": "Riverfang",
+        "description": "A formidable water creature named Riverfang. It is known for its distinct features.",
         "features": [
             "shell",
-            "scales"
+            "tail",
+            "horns"
         ],
         "type": "Water",
         "stats": {
-            "health": 94,
-            "attack": 68
+            "health": 112,
+            "attack": 32
         },
         "generation": 1,
         "color": 255
     },
     {
         "id": 33,
-        "name": "Leaffang 33",
-        "description": "A nature creature known as Leaffang, possessing glowing and horns.",
+        "name": "Vinefang",
+        "description": "A formidable nature creature named Vinefang. It is known for its distinct features.",
         "features": [
-            "glowing",
-            "horns"
+            "claws",
+            "flying",
+            "fur"
         ],
         "type": "Nature",
         "stats": {
-            "health": 108,
-            "attack": 30
+            "health": 87,
+            "attack": 45
         },
         "generation": 1,
         "color": 65280
     },
     {
         "id": 34,
-        "name": "Zapfang 34",
-        "description": "A electric creature known as Zapfang, possessing shell and fangs.",
+        "name": "Stormfang",
+        "description": "A formidable electric creature named Stormfang. It is known for its distinct features.",
         "features": [
-            "shell",
-            "fangs"
+            "fur",
+            "scales",
+            "claws"
         ],
         "type": "Electric",
         "stats": {
-            "health": 105,
-            "attack": 62
+            "health": 82,
+            "attack": 57
         },
         "generation": 1,
         "color": 16776960
     },
     {
         "id": 35,
-        "name": "Frostfang 35",
-        "description": "A ice creature known as Frostfang, possessing glowing and scales.",
+        "name": "Hailfang",
+        "description": "A formidable ice creature named Hailfang. It is known for its distinct features.",
         "features": [
-            "glowing",
-            "scales"
+            "shell",
+            "scales",
+            "wings"
         ],
         "type": "Ice",
         "stats": {
-            "health": 102,
-            "attack": 52
+            "health": 92,
+            "attack": 40
         },
         "generation": 1,
         "color": 65535
     },
     {
         "id": 36,
-        "name": "Rockfang 36",
-        "description": "A earth creature known as Rockfang, possessing flying and shell.",
+        "name": "Quakefang",
+        "description": "A formidable earth creature named Quakefang. It is known for its distinct features.",
         "features": [
-            "flying",
+            "horns",
+            "fur",
             "shell"
         ],
         "type": "Earth",
         "stats": {
-            "health": 104,
-            "attack": 60
+            "health": 114,
+            "attack": 50
         },
         "generation": 1,
         "color": 9127187
     },
     {
         "id": 37,
-        "name": "Aerofang 37",
-        "description": "A wind creature known as Aerofang, possessing flying and horns.",
+        "name": "Gale fang",
+        "description": "A formidable wind creature named Gale fang. It is known for its distinct features.",
         "features": [
-            "flying",
-            "horns"
+            "fur",
+            "scales",
+            "claws"
         ],
         "type": "Wind",
         "stats": {
             "health": 99,
-            "attack": 64
+            "attack": 69
         },
         "generation": 1,
         "color": 13882323
     },
     {
         "id": 38,
-        "name": "Sunfang 38",
-        "description": "A light creature known as Sunfang, possessing glowing and shell.",
+        "name": "Aura fang",
+        "description": "A formidable light creature named Aura fang. It is known for its distinct features.",
         "features": [
-            "glowing",
-            "shell"
+            "wings",
+            "flying",
+            "glowing"
         ],
         "type": "Light",
         "stats": {
-            "health": 106,
-            "attack": 36
+            "health": 101,
+            "attack": 48
         },
         "generation": 1,
         "color": 16777215
     },
     {
         "id": 39,
-        "name": "Voidfang 39",
-        "description": "A dark creature known as Voidfang, possessing wings and scales.",
+        "name": "Gloomfang",
+        "description": "A formidable dark creature named Gloomfang. It is known for its distinct features.",
         "features": [
             "wings",
-            "scales"
+            "flying"
         ],
         "type": "Dark",
         "stats": {
-            "health": 89,
-            "attack": 32
+            "health": 109,
+            "attack": 48
         },
         "generation": 1,
         "color": 4473924
     },
     {
         "id": 40,
-        "name": "Starfang 40",
-        "description": "A cosmic creature known as Starfang, possessing fangs and claws.",
+        "name": "Astral fang",
+        "description": "A formidable cosmic creature named Astral fang. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "claws"
+            "wings",
+            "claws",
+            "flying"
         ],
         "type": "Cosmic",
         "stats": {
-            "health": 93,
-            "attack": 48
+            "health": 105,
+            "attack": 40
         },
         "generation": 1,
         "color": 8388736
     },
     {
         "id": 41,
-        "name": "Flametail 41",
-        "description": "A fire creature known as Flametail, possessing fangs and scales.",
+        "name": "Blazetail",
+        "description": "A formidable fire creature named Blazetail. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "scales"
+            "shell",
+            "fur"
         ],
         "type": "Fire",
         "stats": {
             "health": 91,
-            "attack": 68
+            "attack": 59
         },
         "generation": 1,
         "color": 16711680
     },
     {
         "id": 42,
-        "name": "Aquatail 42",
-        "description": "A water creature known as Aquatail, possessing scales and horns.",
+        "name": "Oceantail",
+        "description": "A formidable water creature named Oceantail. It is known for its distinct features.",
         "features": [
-            "scales",
-            "horns"
+            "claws",
+            "horns",
+            "tail"
         ],
         "type": "Water",
         "stats": {
-            "health": 105,
-            "attack": 41
+            "health": 86,
+            "attack": 63
         },
         "generation": 1,
         "color": 255
     },
     {
         "id": 43,
-        "name": "Leaftail 43",
-        "description": "A nature creature known as Leaftail, possessing fur and scales.",
+        "name": "Root tail",
+        "description": "A formidable nature creature named Root tail. It is known for its distinct features.",
         "features": [
+            "horns",
             "fur",
-            "scales"
+            "flying"
         ],
         "type": "Nature",
         "stats": {
@@ -836,117 +867,121 @@ window.baseCreatures = [
     },
     {
         "id": 44,
-        "name": "Zaptail 44",
-        "description": "A electric creature known as Zaptail, possessing scales and glowing.",
+        "name": "Bolt tail",
+        "description": "A formidable electric creature named Bolt tail. It is known for its distinct features.",
         "features": [
-            "scales",
-            "glowing"
+            "flying",
+            "tail"
         ],
         "type": "Electric",
         "stats": {
-            "health": 113,
-            "attack": 65
+            "health": 107,
+            "attack": 48
         },
         "generation": 1,
         "color": 16776960
     },
     {
         "id": 45,
-        "name": "Frosttail 45",
-        "description": "A ice creature known as Frosttail, possessing glowing and fangs.",
+        "name": "Chilltail",
+        "description": "A formidable ice creature named Chilltail. It is known for its distinct features.",
         "features": [
-            "glowing",
+            "scales",
+            "horns",
             "fangs"
         ],
         "type": "Ice",
         "stats": {
-            "health": 99,
-            "attack": 32
+            "health": 85,
+            "attack": 58
         },
         "generation": 1,
         "color": 65535
     },
     {
         "id": 46,
-        "name": "Rocktail 46",
-        "description": "A earth creature known as Rocktail, possessing fangs and fur.",
+        "name": "Cragtail",
+        "description": "A formidable earth creature named Cragtail. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "fur"
+            "wings",
+            "scales"
         ],
         "type": "Earth",
         "stats": {
-            "health": 85,
-            "attack": 52
+            "health": 110,
+            "attack": 35
         },
         "generation": 1,
         "color": 9127187
     },
     {
         "id": 47,
-        "name": "Aerotail 47",
-        "description": "A wind creature known as Aerotail, possessing glowing and horns.",
+        "name": "Gust tail",
+        "description": "A formidable wind creature named Gust tail. It is known for its distinct features.",
         "features": [
-            "glowing",
-            "horns"
+            "flying",
+            "horns",
+            "fangs"
         ],
         "type": "Wind",
         "stats": {
-            "health": 108,
-            "attack": 56
+            "health": 111,
+            "attack": 63
         },
         "generation": 1,
         "color": 13882323
     },
     {
         "id": 48,
-        "name": "Suntail 48",
-        "description": "A light creature known as Suntail, possessing fur and scales.",
+        "name": "Halo tail",
+        "description": "A formidable light creature named Halo tail. It is known for its distinct features.",
         "features": [
-            "fur",
+            "fangs",
             "scales"
         ],
         "type": "Light",
         "stats": {
-            "health": 96,
-            "attack": 32
+            "health": 114,
+            "attack": 42
         },
         "generation": 1,
         "color": 16777215
     },
     {
         "id": 49,
-        "name": "Voidtail 49",
-        "description": "A dark creature known as Voidtail, possessing fangs and shell.",
+        "name": "Night tail",
+        "description": "A formidable dark creature named Night tail. It is known for its distinct features.",
         "features": [
-            "fangs",
-            "shell"
+            "horns",
+            "tail"
         ],
         "type": "Dark",
         "stats": {
-            "health": 87,
-            "attack": 45
+            "health": 97,
+            "attack": 31
         },
         "generation": 1,
         "color": 4473924
     },
     {
         "id": 50,
-        "name": "Startail 50",
-        "description": "A cosmic creature known as Startail, possessing tail and flying.",
+        "name": "Nebula tail",
+        "description": "A formidable cosmic creature named Nebula tail. It is known for its distinct features.",
         "features": [
-            "tail",
-            "flying"
+            "horns",
+            "glowing",
+            "fangs"
         ],
         "type": "Cosmic",
         "stats": {
-            "health": 99,
-            "attack": 45
+            "health": 110,
+            "attack": 60
         },
         "generation": 1,
         "color": 8388736
     }
-];
+]
+;
 
 window.natures = [{"name":"Neutral","increase":null,"decrease":null},{"name":"Balanced","increase":null,"decrease":null},{"name":"Stable","increase":null,"decrease":null},{"name":"Even","increase":null,"decrease":null},{"name":"Placid","increase":null,"decrease":null},{"name":"Brave Heart","increase":"defense","decrease":"speed"},{"name":"Brave Soul","increase":"specialDefense","decrease":"attack"},{"name":"Brave Mind","increase":"health","decrease":"specialAttack"},{"name":"Brave Spirit","increase":"specialDefense","decrease":"health"},{"name":"Brave Claw","increase":"specialDefense","decrease":"defense"},{"name":"Brave Fang","increase":"attack","decrease":"defense"},{"name":"Brave Tail","increase":"speed","decrease":"defense"},{"name":"Brave Eye","increase":"speed","decrease":"specialDefense"},{"name":"Brave Wing","increase":"specialAttack","decrease":"defense"},{"name":"Brave Foot","increase":"speed","decrease":"health"},{"name":"Bold Heart","increase":"specialDefense","decrease":"speed"},{"name":"Bold Soul","increase":"defense","decrease":"specialDefense"},{"name":"Bold Mind","increase":"defense","decrease":"health"},{"name":"Bold Spirit","increase":"health","decrease":"speed"},{"name":"Bold Claw","increase":"speed","decrease":"health"},{"name":"Bold Fang","increase":"speed","decrease":"defense"},{"name":"Bold Tail","increase":"specialAttack","decrease":"speed"},{"name":"Bold Eye","increase":"defense","decrease":"health"},{"name":"Bold Wing","increase":"speed","decrease":"attack"},{"name":"Bold Foot","increase":"specialAttack","decrease":"speed"},{"name":"Calm Heart","increase":"health","decrease":"defense"},{"name":"Calm Soul","increase":"health","decrease":"specialDefense"},{"name":"Calm Mind","increase":"specialDefense","decrease":"attack"},{"name":"Calm Spirit","increase":"specialDefense","decrease":"defense"},{"name":"Calm Claw","increase":null,"decrease":null},{"name":"Calm Fang","increase":"specialDefense","decrease":"specialAttack"},{"name":"Calm Tail","increase":null,"decrease":null},{"name":"Calm Eye","increase":"speed","decrease":"specialAttack"},{"name":"Calm Wing","increase":null,"decrease":null},{"name":"Calm Foot","increase":"health","decrease":"attack"},{"name":"Careful Heart","increase":null,"decrease":null},{"name":"Careful Soul","increase":null,"decrease":null},{"name":"Careful Mind","increase":"specialDefense","decrease":"health"},{"name":"Careful Spirit","increase":"attack","decrease":"specialAttack"},{"name":"Careful Claw","increase":"defense","decrease":"specialDefense"},{"name":"Careful Fang","increase":"specialDefense","decrease":"defense"},{"name":"Careful Tail","increase":null,"decrease":null},{"name":"Careful Eye","increase":"defense","decrease":"speed"},{"name":"Careful Wing","increase":"specialDefense","decrease":"health"},{"name":"Careful Foot","increase":"specialDefense","decrease":"defense"},{"name":"Gentle Heart","increase":"health","decrease":"specialAttack"},{"name":"Gentle Soul","increase":"speed","decrease":"specialDefense"},{"name":"Gentle Mind","increase":"attack","decrease":"defense"},{"name":"Gentle Spirit","increase":"defense","decrease":"attack"},{"name":"Gentle Claw","increase":null,"decrease":null},{"name":"Gentle Fang","increase":null,"decrease":null},{"name":"Gentle Tail","increase":null,"decrease":null},{"name":"Gentle Eye","increase":"specialAttack","decrease":"specialDefense"},{"name":"Gentle Wing","increase":"specialDefense","decrease":"specialAttack"},{"name":"Gentle Foot","increase":null,"decrease":null},{"name":"Hasty Heart","increase":null,"decrease":null},{"name":"Hasty Soul","increase":"defense","decrease":"specialDefense"},{"name":"Hasty Mind","increase":"specialDefense","decrease":"defense"},{"name":"Hasty Spirit","increase":"attack","decrease":"specialDefense"},{"name":"Hasty Claw","increase":"defense","decrease":"attack"},{"name":"Hasty Fang","increase":"specialAttack","decrease":"speed"},{"name":"Hasty Tail","increase":"specialDefense","decrease":"health"},{"name":"Hasty Eye","increase":"specialDefense","decrease":"specialAttack"},{"name":"Hasty Wing","increase":"specialDefense","decrease":"attack"},{"name":"Hasty Foot","increase":"attack","decrease":"specialAttack"},{"name":"Jolly Heart","increase":"speed","decrease":"specialAttack"},{"name":"Jolly Soul","increase":"attack","decrease":"defense"},{"name":"Jolly Mind","increase":"health","decrease":"specialDefense"},{"name":"Jolly Spirit","increase":"specialDefense","decrease":"specialAttack"},{"name":"Jolly Claw","increase":"health","decrease":"specialDefense"},{"name":"Jolly Fang","increase":"specialAttack","decrease":"speed"},{"name":"Jolly Tail","increase":null,"decrease":null},{"name":"Jolly Eye","increase":null,"decrease":null},{"name":"Jolly Wing","increase":"defense","decrease":"specialDefense"},{"name":"Jolly Foot","increase":"specialDefense","decrease":"defense"},{"name":"Lax Heart","increase":"speed","decrease":"specialAttack"},{"name":"Lax Soul","increase":"specialDefense","decrease":"specialAttack"},{"name":"Lax Mind","increase":"attack","decrease":"specialAttack"},{"name":"Lax Spirit","increase":"health","decrease":"specialDefense"},{"name":"Lax Claw","increase":"defense","decrease":"attack"},{"name":"Lax Fang","increase":"attack","decrease":"health"},{"name":"Lax Tail","increase":"speed","decrease":"specialDefense"},{"name":"Lax Eye","increase":"specialDefense","decrease":"health"},{"name":"Lax Wing","increase":"specialDefense","decrease":"speed"},{"name":"Lax Foot","increase":"speed","decrease":"specialDefense"},{"name":"Lonely Heart","increase":"attack","decrease":"speed"},{"name":"Lonely Soul","increase":"defense","decrease":"specialDefense"},{"name":"Lonely Mind","increase":"health","decrease":"speed"},{"name":"Lonely Spirit","increase":"defense","decrease":"attack"},{"name":"Lonely Claw","increase":"attack","decrease":"specialAttack"},{"name":"Lonely Fang","increase":"specialAttack","decrease":"health"},{"name":"Lonely Tail","increase":"attack","decrease":"speed"},{"name":"Lonely Eye","increase":"specialDefense","decrease":"speed"},{"name":"Lonely Wing","increase":"speed","decrease":"defense"},{"name":"Lonely Foot","increase":"attack","decrease":"specialDefense"},{"name":"Mild Heart","increase":"speed","decrease":"defense"},{"name":"Mild Soul","increase":"health","decrease":"specialAttack"},{"name":"Mild Mind","increase":null,"decrease":null},{"name":"Mild Spirit","increase":"speed","decrease":"specialDefense"},{"name":"Mild Claw","increase":"specialDefense","decrease":"attack"},{"name":"Mild Fang","increase":"health","decrease":"speed"},{"name":"Mild Tail","increase":"speed","decrease":"attack"},{"name":"Mild Eye","increase":"specialDefense","decrease":"attack"},{"name":"Mild Wing","increase":"speed","decrease":"specialDefense"},{"name":"Mild Foot","increase":"health","decrease":"defense"},{"name":"Modest Heart","increase":"attack","decrease":"health"},{"name":"Modest Soul","increase":"specialDefense","decrease":"attack"},{"name":"Modest Mind","increase":"specialAttack","decrease":"speed"},{"name":"Modest Spirit","increase":"specialAttack","decrease":"specialDefense"},{"name":"Modest Claw","increase":"specialDefense","decrease":"health"},{"name":"Modest Fang","increase":"attack","decrease":"health"},{"name":"Modest Tail","increase":"specialAttack","decrease":"health"},{"name":"Modest Eye","increase":"health","decrease":"specialDefense"},{"name":"Modest Wing","increase":"specialAttack","decrease":"health"},{"name":"Modest Foot","increase":"specialAttack","decrease":"health"},{"name":"Naive Heart","increase":"specialAttack","decrease":"specialDefense"},{"name":"Naive Soul","increase":"health","decrease":"specialDefense"},{"name":"Naive Mind","increase":"speed","decrease":"specialAttack"},{"name":"Naive Spirit","increase":"specialDefense","decrease":"specialAttack"},{"name":"Naive Claw","increase":"speed","decrease":"specialDefense"},{"name":"Naive Fang","increase":"defense","decrease":"specialDefense"},{"name":"Naive Tail","increase":"speed","decrease":"defense"},{"name":"Naive Eye","increase":"specialDefense","decrease":"defense"},{"name":"Naive Wing","increase":"attack","decrease":"specialAttack"},{"name":"Naive Foot","increase":"specialAttack","decrease":"attack"},{"name":"Naughty Heart","increase":"health","decrease":"specialAttack"},{"name":"Naughty Soul","increase":"attack","decrease":"speed"},{"name":"Naughty Mind","increase":null,"decrease":null},{"name":"Naughty Spirit","increase":null,"decrease":null},{"name":"Naughty Claw","increase":"health","decrease":"attack"},{"name":"Naughty Fang","increase":"speed","decrease":"specialAttack"},{"name":"Naughty Tail","increase":null,"decrease":null},{"name":"Naughty Eye","increase":"defense","decrease":"health"},{"name":"Naughty Wing","increase":"specialDefense","decrease":"speed"},{"name":"Naughty Foot","increase":"speed","decrease":"health"},{"name":"Quiet Heart","increase":"defense","decrease":"speed"},{"name":"Quiet Soul","increase":"defense","decrease":"health"},{"name":"Quiet Mind","increase":"speed","decrease":"specialAttack"},{"name":"Quiet Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Quiet Claw","increase":null,"decrease":null},{"name":"Quiet Fang","increase":"specialAttack","decrease":"speed"},{"name":"Quiet Tail","increase":"speed","decrease":"attack"},{"name":"Quiet Eye","increase":"specialDefense","decrease":"specialAttack"},{"name":"Quiet Wing","increase":"attack","decrease":"speed"},{"name":"Quiet Foot","increase":"specialAttack","decrease":"defense"},{"name":"Quirky Heart","increase":"attack","decrease":"health"},{"name":"Quirky Soul","increase":"specialAttack","decrease":"health"},{"name":"Quirky Mind","increase":"specialAttack","decrease":"health"},{"name":"Quirky Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Quirky Claw","increase":"specialAttack","decrease":"attack"},{"name":"Quirky Fang","increase":"attack","decrease":"health"},{"name":"Quirky Tail","increase":"specialDefense","decrease":"specialAttack"},{"name":"Quirky Eye","increase":"speed","decrease":"defense"},{"name":"Quirky Wing","increase":"speed","decrease":"specialDefense"},{"name":"Quirky Foot","increase":null,"decrease":null},{"name":"Rash Heart","increase":null,"decrease":null},{"name":"Rash Soul","increase":"speed","decrease":"health"},{"name":"Rash Mind","increase":null,"decrease":null},{"name":"Rash Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Rash Claw","increase":"defense","decrease":"specialAttack"},{"name":"Rash Fang","increase":"speed","decrease":"attack"},{"name":"Rash Tail","increase":"specialDefense","decrease":"attack"},{"name":"Rash Eye","increase":"defense","decrease":"specialDefense"},{"name":"Rash Wing","increase":"defense","decrease":"specialAttack"},{"name":"Rash Foot","increase":"attack","decrease":"specialDefense"},{"name":"Relaxed Heart","increase":"defense","decrease":"speed"},{"name":"Relaxed Soul","increase":"defense","decrease":"speed"},{"name":"Relaxed Mind","increase":"health","decrease":"attack"},{"name":"Relaxed Spirit","increase":"speed","decrease":"specialAttack"},{"name":"Relaxed Claw","increase":null,"decrease":null},{"name":"Relaxed Fang","increase":"attack","decrease":"specialDefense"},{"name":"Relaxed Tail","increase":"specialDefense","decrease":"speed"},{"name":"Relaxed Eye","increase":"specialDefense","decrease":"attack"},{"name":"Relaxed Wing","increase":null,"decrease":null},{"name":"Relaxed Foot","increase":"specialAttack","decrease":"attack"},{"name":"Sassy Heart","increase":null,"decrease":null},{"name":"Sassy Soul","increase":"defense","decrease":"speed"},{"name":"Sassy Mind","increase":"attack","decrease":"defense"},{"name":"Sassy Spirit","increase":"attack","decrease":"specialAttack"},{"name":"Sassy Claw","increase":"health","decrease":"speed"},{"name":"Sassy Fang","increase":"health","decrease":"speed"},{"name":"Sassy Tail","increase":"health","decrease":"speed"},{"name":"Sassy Eye","increase":null,"decrease":null},{"name":"Sassy Wing","increase":"specialAttack","decrease":"defense"},{"name":"Sassy Foot","increase":"defense","decrease":"health"},{"name":"Serious Heart","increase":null,"decrease":null},{"name":"Serious Soul","increase":"specialDefense","decrease":"attack"},{"name":"Serious Mind","increase":"specialAttack","decrease":"defense"},{"name":"Serious Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Serious Claw","increase":null,"decrease":null},{"name":"Serious Fang","increase":null,"decrease":null},{"name":"Serious Tail","increase":"specialDefense","decrease":"defense"},{"name":"Serious Eye","increase":"attack","decrease":"speed"},{"name":"Serious Wing","increase":"speed","decrease":"specialDefense"},{"name":"Serious Foot","increase":"speed","decrease":"defense"},{"name":"Timid Heart","increase":"specialDefense","decrease":"speed"},{"name":"Timid Soul","increase":"speed","decrease":"specialAttack"},{"name":"Timid Mind","increase":"health","decrease":"specialAttack"},{"name":"Timid Spirit","increase":"defense","decrease":"attack"},{"name":"Timid Claw","increase":"specialAttack","decrease":"speed"}];
 window.getRandomNature = function() {
@@ -1116,14 +1151,22 @@ window.deleteProgress = function() {
 
 // ==================== BREEDING ====================
 window.breed = function(parent1, parent2) {
-    const p1Prefix = parent1.name.substring(0, Math.ceil(parent1.name.length / 2));
-    const p2Suffix = parent2.name.substring(Math.floor(parent2.name.length / 2));
-    const childName = p1Prefix + p2Suffix;
+    let p1Prefix = parent1.name.substring(0, Math.ceil(parent1.name.length / 2));
+    let p2Suffix = parent2.name.substring(Math.floor(parent2.name.length / 2));
+    let childName = p1Prefix + p2Suffix;
 
-    const childDesc = `A hybrid of ${parent1.name} and ${parent2.name}. ${parent1.description} Blended with: ${parent2.description}`;
+    // Prevent duplicate names
+    if (childName === parent1.name || childName === parent2.name) {
+        childName = parent1.name.substring(0, 3) + parent2.name.substring(parent2.name.length - 3);
+    }
+
+    const childDesc = `A unique hybrid born from the union of ${parent1.name} and ${parent2.name}. It inherits the best traits of its ${parent1.type} and ${parent2.type} ancestors, possessing a blend of their distinct features.`;
 
     const combinedFeatures = [...parent1.features, ...parent2.features];
-    const childFeatures = Array.from(new Set(combinedFeatures));
+
+    // Shuffle and pick a random subset to avoid feature bloat
+    const uniqueFeatures = Array.from(new Set(combinedFeatures)).sort(() => 0.5 - Math.random());
+    const childFeatures = uniqueFeatures.slice(0, Math.min(4, Math.max(2, Math.floor(uniqueFeatures.length / 2))));
 
     const childType = (parent1.type === parent2.type) ? parent1.type : `${parent1.type}-${parent2.type}`;
 
@@ -1211,6 +1254,14 @@ window.doBreed = function() {
     if (p1Index !== -1 && p2Index !== -1) {
         const p1 = collectedCreatures[p1Index];
         const p2 = collectedCreatures[p2Index];
+
+        // Ensure compatibility - either same type, or based on typeChart if they are somewhat compatible
+        // Let's use the type modifier. If it's 0, they can't breed.
+        const compatibility = window.getTypeModifier(p1.type, p2.type);
+        if (compatibility === 0) {
+             document.getElementById('breedResult').innerText = `Incompatible types: ${p1.type} cannot breed with ${p2.type}.`;
+             return;
+        }
 
         const child = window.breed(p1, p2);
 
@@ -1427,8 +1478,13 @@ function collectCreature(player, creatureSprite) {
     // Despawn
     creatureSprite.destroy();
 
+    // Remove dynamic state properties like instance specific ID before respawning
+    // so it acts like a clean base creature
+    const respawnData = JSON.parse(JSON.stringify(data));
+    delete respawnData.nature;
+
     // Respawn an exact copy of the creature immediately to keep the 50 in world
-    spawnCreature(this, data);
+    spawnCreature(this, respawnData);
 }
 
 function update() {
