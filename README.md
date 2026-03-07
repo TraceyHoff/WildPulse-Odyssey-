@@ -8,3 +8,4 @@ WildPulse Odyssey Creature Collecting Game
 - **Menu & Party UI**: Added a new Menu overlay accessible from the main screen. The Party window lets you view your collected creatures, their effective stats, natures, and lineage (parents).
 - **Party Management**: Players can now reorder their party or release creatures back into the wild.
 - **Data Wipe**: A "Delete Progress" option is available in the Menu to clear local storage and start fresh.
+ 
