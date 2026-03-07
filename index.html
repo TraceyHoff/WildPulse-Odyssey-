@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WildPulse Odyssey</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<script>
+// ==================== CREATURE GENERATION (EXACTLY 1,275 uniques) ====================
+const speciesList = ["Dragon", "Phoenix", "Unicorn", "Griffin", "Wolf", "Eagle", "Shark", "Serpent", "Bear", "Lion", "Tiger", "Fox", "Owl", "Bat", "Turtle", "Spider", "Octopus"]; // 17
+const dietList = ["Herbivore", "Carnivore", "Omnivore", "Insectivore", "Scavenger"]; // 5
+const habitatList = ["Forest", "Desert", "Ocean"]; // 3
+const coveringList = ["fur", "hair", "scales", "skin", "exoskeleton"]; // 5
+
+// 17 * 5 * 3 * 5 = 1275 combinations
+
+const coveringColors = {
+    "fur": 0x8B4513,      // SaddleBrown
+    "hair": 0xFFD700,     // Gold
+    "scales": 0x4682B4,   // SteelBlue
+    "skin": 0xFFC0CB,     // Pink
+    "exoskeleton": 0x800080 // Purple
+};
+
+function getCreatureDescription(id) {
+    if (id < 0 || id >= 1275) return null;
+
+    let temp = id;
+    const coveringIdx = temp % 5;
+    temp = Math.floor(temp / 5);
+
+    const habitatIdx = temp % 3;
+    temp = Math.floor(temp / 3);
+
+    const dietIdx = temp % 5;
+    temp = Math.floor(temp / 5);
+
+    const speciesIdx = temp % 17;
+
+    const species = speciesList[speciesIdx];
+    const diet = dietList[dietIdx];
+    const habitat = habitatList[habitatIdx];
+    const covering = coveringList[coveringIdx];
+
+    const eyesList = ["glowing red eyes", "piercing blue eyes", "multiple compound eyes", "blind, milky eyes", "golden slit eyes"];
+    const teethList = ["razor-sharp teeth", "flat grinding teeth", "venomous fangs", "no teeth, only a beak", "rows of serrated teeth"];
+    const clawsList = ["retractable claws", "long curved talons", "blunt digging claws", "webbed appendages", "venomous stingers"];
+    const ageList = ["Juvenile", "Adult", "Elder", "Ancient"];
+
+    const eyes = eyesList[id % eyesList.length];
+    const teeth = teethList[(id * 7) % teethList.length];
+    const claws = clawsList[(id * 13) % clawsList.length];
+    const age = ageList[(id * 17) % ageList.length];
+
+    const name = `${habitat} ${species} #${id}`;
+    const desc = `A fascinating creature covered in ${covering}. It is a ${diet} that survives in the ${habitat}. ` +
+                 `It features ${eyes}, ${teeth}, and ${claws}. Age: ${age}.`;
+
+    return {
+        id,
+        name,
+        desc,
+        covering,
+        color: coveringColors[covering]
+    };
+}
+
+// ==================== PERSISTENCE ====================
+const STORAGE_KEY = 'wildpulse_collected_creatures';
+let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+function saveCollected(id) {
+    if (!collectedCreatures.includes(id)) {
+        collectedCreatures.push(id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+    }
+}
+
+// ==================== PHASER GAME ====================
+const WORLD_SIZE = 6000;
+
+const config = {
+    type: Phaser.AUTO,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    physics: {
+        default: 'arcade',
+        arcade: { debug: false }
+    },
+    scene: { preload: preload, create: create, update: update },
+    scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    }
+};
+
+const game = new Phaser.Game(config);
+
+let player;
+let cursors;
+let pointerTarget = null;
+let creaturesGroup;
+let uiText;
+let popupText;
+let popupBackground;
+let popupTimer;
+
+function preload() {
+    // Generate procedural grass background
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#228B22'; // ForestGreen
+    ctx.fillRect(0, 0, 64, 64);
+
+    // Add some details to the grass
+    for (let i = 0; i < 20; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#006400' : '#32CD32';
+        ctx.fillRect(Math.random() * 64, Math.random() * 64, 2, 8);
+    }
+
+    this.textures.addCanvas('grass', canvas);
+}
+
+function create() {
+    // Background repeating tile
+    this.add.tileSprite(0, 0, WORLD_SIZE, WORLD_SIZE, 'grass').setOrigin(0, 0);
+
+    // Player setup
+    player = this.add.rectangle(WORLD_SIZE / 2, WORLD_SIZE / 2, 40, 40, 0xFFFFFF);
+    this.physics.add.existing(player);
+    player.body.setCollideWorldBounds(true);
+
+    this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
+    this.cameras.main.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
+    this.cameras.main.startFollow(player);
+
+    // UI Layer
+    uiText = this.add.text(20, 20, `Collected: ${collectedCreatures.length} / 1275`, {
+        fontSize: '24px',
+        fill: '#FFF',
+        backgroundColor: '#000000',
+        padding: {x: 10, y: 10}
+    }).setScrollFactor(0);
+
+    // Popup Layer
+    popupBackground = this.add.rectangle(window.innerWidth / 2, window.innerHeight - 100, 600, 150, 0x000000, 0.8)
+        .setScrollFactor(0)
+        .setOrigin(0.5);
+    popupText = this.add.text(window.innerWidth / 2, window.innerHeight - 100, "", {
+        fontSize: '18px',
+        fill: '#FFF',
+        align: 'center',
+        wordWrap: { width: 560 }
+    }).setScrollFactor(0).setOrigin(0.5);
+
+    popupBackground.setVisible(false);
+    popupText.setVisible(false);
+
+    // Controls
+    cursors = this.input.keyboard.createCursorKeys();
+
+    this.input.on('pointerdown', (pointer) => {
+        pointerTarget = { x: pointer.worldX, y: pointer.worldY };
+    });
+
+    this.input.on('pointermove', (pointer) => {
+        if (pointer.isDown) {
+            pointerTarget = { x: pointer.worldX, y: pointer.worldY };
+        }
+    });
+
+    this.input.on('pointerup', () => {
+        pointerTarget = null;
+    });
+
+    // Resize handling for popup
+    this.scale.on('resize', (gameSize) => {
+        popupBackground.setPosition(gameSize.width / 2, gameSize.height - 100);
+        popupText.setPosition(gameSize.width / 2, gameSize.height - 100);
+    });
+
+    // Creatures setup
+    creaturesGroup = this.physics.add.group();
+
+    // Spawn random creatures between 50 and 200
+    const numCreatures = Phaser.Math.Between(50, 200);
+    for (let i = 0; i < numCreatures; i++) {
+        spawnRandomCreature(this);
+    }
+
+    // Overlap physics
+    this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
+}
+
+function spawnRandomCreature(scene) {
+    const id = Phaser.Math.Between(0, 1274);
+    // Don't spawn already collected ones if we want, or do spawn them.
+    // For now we spawn any, but we track unique IDs.
+
+    const creatureData = getCreatureDescription(id);
+    const x = Phaser.Math.Between(100, WORLD_SIZE - 100);
+    const y = Phaser.Math.Between(100, WORLD_SIZE - 100);
+
+    const sprite = scene.add.rectangle(x, y, 30, 30, creatureData.color);
+    scene.physics.add.existing(sprite);
+    sprite.setData('creatureData', creatureData);
+    creaturesGroup.add(sprite);
+}
+
+function collectCreature(player, creatureSprite) {
+    const data = creatureSprite.getData('creatureData');
+
+    // Save
+    saveCollected(data.id);
+
+    // Update UI
+    uiText.setText(`Collected: ${collectedCreatures.length} / 1275`);
+
+    // Show Popup
+    if (popupTimer) popupTimer.remove();
+
+    popupText.setText(`${data.name}\n\n${data.desc}`);
+    popupBackground.setVisible(true);
+    popupText.setVisible(true);
+
+    popupTimer = this.time.delayedCall(3000, () => {
+        popupBackground.setVisible(false);
+        popupText.setVisible(false);
+    });
+
+    // Despawn
+    creatureSprite.destroy();
+
+    // Optionally spawn another one to keep the world populated
+    spawnRandomCreature(this);
+}
+
+function update() {
+    const speed = 400;
+
+    player.body.setVelocity(0);
+
+    // Keyboard movement
+    let movedX = false;
+    let movedY = false;
+
+    if (cursors.left.isDown) {
+        player.body.setVelocityX(-speed);
+        movedX = true;
+    } else if (cursors.right.isDown) {
+        player.body.setVelocityX(speed);
+        movedX = true;
+    }
+
+    if (cursors.up.isDown) {
+        player.body.setVelocityY(-speed);
+        movedY = true;
+    } else if (cursors.down.isDown) {
+        player.body.setVelocityY(speed);
+        movedY = true;
+    }
+
+    // Pointer movement (if active and overriding keyboard or not moving via keyboard)
+    if (pointerTarget) {
+        const dx = pointerTarget.x - player.x;
+        const dy = pointerTarget.y - player.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 10) {
+            player.body.setVelocity((dx / distance) * speed, (dy / distance) * speed);
+        } else {
+            // Reached target
+            player.body.setVelocity(0);
+        }
+    } else if (!movedX && !movedY) {
+        player.body.setVelocity(0);
+    }
+}
+</script>
+</body>
+</html>
