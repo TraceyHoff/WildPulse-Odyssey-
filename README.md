@@ -9,3 +9,4 @@ WildPulse Odyssey Creature Collecting Game
 - **Party Management**: Players can now reorder their party or release creatures back into the wild.
 - **Data Wipe**: A "Delete Progress" option is available in the Menu to clear local storage and start fresh.
  
+.
