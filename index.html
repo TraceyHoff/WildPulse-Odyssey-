@@ -79,6 +79,11 @@ function getCreatureDescription(id) {
     };
 }
 
+// Verify exactly 1,275 descriptions by logging getCreatureDescription(i) for i=0..1274
+for (let i = 0; i < 1275; i++) {
+    console.log(getCreatureDescription(i));
+}
+
 // ==================== PERSISTENCE ====================
 const STORAGE_KEY = 'wildpulse_collected_creatures';
 let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -118,28 +123,50 @@ let uiText;
 let popupText;
 let popupBackground;
 let popupTimer;
+let bgGrass;
 
 function preload() {
-    // Generate procedural grass background
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#228B22'; // ForestGreen
-    ctx.fillRect(0, 0, 64, 64);
-
-    // Add some details to the grass
+    // Pre-generate grass blades so they remain consistent across frames
+    const blades = [];
     for (let i = 0; i < 20; i++) {
-        ctx.fillStyle = Math.random() > 0.5 ? '#006400' : '#32CD32';
-        ctx.fillRect(Math.random() * 64, Math.random() * 64, 2, 8);
+        blades.push({
+            x: Math.random() * 64,
+            y: Math.random() * 64,
+            color: Math.random() > 0.5 ? '#006400' : '#32CD32'
+        });
     }
 
-    this.textures.addCanvas('grass', canvas);
+    // Generate procedural animated grass background frames
+    const numFrames = 4;
+    for (let frame = 0; frame < numFrames; frame++) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#228B22'; // ForestGreen
+        ctx.fillRect(0, 0, 64, 64);
+
+        // Calculate offset for waving effect
+        const offsetX = Math.round(Math.sin(frame * (Math.PI / 2)) * 2);
+
+        // Add details to the grass
+        for (let i = 0; i < blades.length; i++) {
+            ctx.fillStyle = blades[i].color;
+            const drawX = (blades[i].x + offsetX + 64) % 64;
+            ctx.fillRect(drawX, blades[i].y, 2, 8);
+            if (drawX > 62) {
+                ctx.fillRect(drawX - 64, blades[i].y, 2, 8);
+            }
+        }
+
+        this.textures.addCanvas('grass_' + frame, canvas);
+    }
 }
 
 function create() {
     // Background repeating tile
-    this.add.tileSprite(0, 0, WORLD_SIZE, WORLD_SIZE, 'grass').setOrigin(0, 0);
+    bgGrass = this.add.tileSprite(0, 0, WORLD_SIZE, WORLD_SIZE, 'grass_0').setOrigin(0, 0);
 
     // Player setup
     player = this.add.rectangle(WORLD_SIZE / 2, WORLD_SIZE / 2, 40, 40, 0xFFFFFF);
@@ -253,6 +280,10 @@ function collectCreature(player, creatureSprite) {
 
 function update() {
     const speed = 400;
+
+    // Animate background
+    const frame = Math.floor(this.time.now / 300) % 4;
+    bgGrass.setTexture('grass_' + frame);
 
     player.body.setVelocity(0);
 
