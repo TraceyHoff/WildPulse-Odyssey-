@@ -16,84 +16,985 @@
         canvas {
             display: block;
         }
+        #breedBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+        }
+        #breedingModal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border: 2px solid white;
+            z-index: 200;
+            text-align: center;
+        }
+        #breedingModal select, #breedingModal button {
+            margin: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
+<button id="breedBtn" onclick="openBreedingModal()">Breeding Center</button>
+<div id="breedingModal">
+    <h2>Breeding Center</h2>
+    <div>
+        <label>Parent 1:</label>
+        <select id="parent1Select"></select>
+    </div>
+    <div>
+        <label>Parent 2:</label>
+        <select id="parent2Select"></select>
+    </div>
+    <button onclick="doBreed()">Breed!</button>
+    <button onclick="closeBreedingModal()">Close</button>
+    <p id="breedResult"></p>
+</div>
 <script>
-// ==================== CREATURE GENERATION (EXACTLY 1,275 uniques) ====================
-const speciesList = ["Dragon", "Phoenix", "Unicorn", "Griffin", "Wolf", "Eagle", "Shark", "Serpent", "Bear", "Lion", "Tiger", "Fox", "Owl", "Bat", "Turtle", "Spider", "Octopus"]; // 17
-const dietList = ["Herbivore", "Carnivore", "Omnivore", "Insectivore", "Scavenger"]; // 5
-const habitatList = ["Forest", "Desert", "Ocean"]; // 3
-const coveringList = ["fur", "hair", "scales", "skin", "exoskeleton"]; // 5
-
-// 17 * 5 * 3 * 5 = 1275 combinations
-
-const coveringColors = {
-    "fur": 0x8B4513,      // SaddleBrown
-    "hair": 0xFFD700,     // Gold
-    "scales": 0x4682B4,   // SteelBlue
-    "skin": 0xFFC0CB,     // Pink
-    "exoskeleton": 0x800080 // Purple
-};
-
-function getCreatureDescription(id) {
-    if (id < 0 || id >= 1275) return null;
-
-    let temp = id;
-    const coveringIdx = temp % 5;
-    temp = Math.floor(temp / 5);
-
-    const habitatIdx = temp % 3;
-    temp = Math.floor(temp / 3);
-
-    const dietIdx = temp % 5;
-    temp = Math.floor(temp / 5);
-
-    const speciesIdx = temp % 17;
-
-    const species = speciesList[speciesIdx];
-    const diet = dietList[dietIdx];
-    const habitat = habitatList[habitatIdx];
-    const covering = coveringList[coveringIdx];
-
-    const eyesList = ["glowing red eyes", "piercing blue eyes", "multiple compound eyes", "blind, milky eyes", "golden slit eyes"];
-    const teethList = ["razor-sharp teeth", "flat grinding teeth", "venomous fangs", "no teeth, only a beak", "rows of serrated teeth"];
-    const clawsList = ["retractable claws", "long curved talons", "blunt digging claws", "webbed appendages", "venomous stingers"];
-    const ageList = ["Juvenile", "Adult", "Elder", "Ancient"];
-
-    const eyes = eyesList[id % eyesList.length];
-    const teeth = teethList[(id * 7) % teethList.length];
-    const claws = clawsList[(id * 13) % clawsList.length];
-    const age = ageList[(id * 17) % ageList.length];
-
-    const name = `${habitat} ${species} #${id}`;
-    const desc = `A fascinating creature covered in ${covering}. It is a ${diet} that survives in the ${habitat}. ` +
-                 `It features ${eyes}, ${teeth}, and ${claws}. Age: ${age}.`;
-
-    return {
-        id,
-        name,
-        desc,
-        covering,
-        color: coveringColors[covering]
-    };
-}
-
-// Verify exactly 1,275 descriptions by logging getCreatureDescription(i) for i=0..1274
-for (let i = 0; i < 1275; i++) {
-    console.log(getCreatureDescription(i));
-}
-
+window.baseCreatures = [
+    {
+        "id": 1,
+        "name": "Flamebeast",
+        "description": "A fire creature known as Flamebeast, possessing fangs and scales.",
+        "features": [
+            "fangs",
+            "scales"
+        ],
+        "type": "Fire",
+        "stats": {
+            "health": 112,
+            "attack": 50
+        },
+        "generation": 1,
+        "color": 16711680
+    },
+    {
+        "id": 2,
+        "name": "Aquabeast",
+        "description": "A water creature known as Aquabeast, possessing shell and fur.",
+        "features": [
+            "shell",
+            "fur"
+        ],
+        "type": "Water",
+        "stats": {
+            "health": 105,
+            "attack": 69
+        },
+        "generation": 1,
+        "color": 255
+    },
+    {
+        "id": 3,
+        "name": "Leafbeast",
+        "description": "A nature creature known as Leafbeast, possessing fangs and horns.",
+        "features": [
+            "fangs",
+            "horns"
+        ],
+        "type": "Nature",
+        "stats": {
+            "health": 83,
+            "attack": 37
+        },
+        "generation": 1,
+        "color": 65280
+    },
+    {
+        "id": 4,
+        "name": "Zapbeast",
+        "description": "A electric creature known as Zapbeast, possessing fur and scales.",
+        "features": [
+            "fur",
+            "scales"
+        ],
+        "type": "Electric",
+        "stats": {
+            "health": 85,
+            "attack": 59
+        },
+        "generation": 1,
+        "color": 16776960
+    },
+    {
+        "id": 5,
+        "name": "Frostbeast",
+        "description": "A ice creature known as Frostbeast, possessing tail and shell.",
+        "features": [
+            "tail",
+            "shell"
+        ],
+        "type": "Ice",
+        "stats": {
+            "health": 108,
+            "attack": 69
+        },
+        "generation": 1,
+        "color": 65535
+    },
+    {
+        "id": 6,
+        "name": "Rockbeast",
+        "description": "A earth creature known as Rockbeast, possessing shell and tail.",
+        "features": [
+            "shell",
+            "tail"
+        ],
+        "type": "Earth",
+        "stats": {
+            "health": 103,
+            "attack": 40
+        },
+        "generation": 1,
+        "color": 9127187
+    },
+    {
+        "id": 7,
+        "name": "Aerobeast",
+        "description": "A wind creature known as Aerobeast, possessing glowing and shell.",
+        "features": [
+            "glowing",
+            "shell"
+        ],
+        "type": "Wind",
+        "stats": {
+            "health": 104,
+            "attack": 30
+        },
+        "generation": 1,
+        "color": 13882323
+    },
+    {
+        "id": 8,
+        "name": "Sunbeast",
+        "description": "A light creature known as Sunbeast, possessing horns and fangs.",
+        "features": [
+            "horns",
+            "fangs"
+        ],
+        "type": "Light",
+        "stats": {
+            "health": 84,
+            "attack": 41
+        },
+        "generation": 1,
+        "color": 16777215
+    },
+    {
+        "id": 9,
+        "name": "Voidbeast",
+        "description": "A dark creature known as Voidbeast, possessing flying and scales.",
+        "features": [
+            "flying",
+            "scales"
+        ],
+        "type": "Dark",
+        "stats": {
+            "health": 116,
+            "attack": 55
+        },
+        "generation": 1,
+        "color": 4473924
+    },
+    {
+        "id": 10,
+        "name": "Starbeast",
+        "description": "A cosmic creature known as Starbeast, possessing shell and horns.",
+        "features": [
+            "shell",
+            "horns"
+        ],
+        "type": "Cosmic",
+        "stats": {
+            "health": 113,
+            "attack": 40
+        },
+        "generation": 1,
+        "color": 8388736
+    },
+    {
+        "id": 11,
+        "name": "Flamewing 11",
+        "description": "A fire creature known as Flamewing, possessing shell and scales.",
+        "features": [
+            "shell",
+            "scales"
+        ],
+        "type": "Fire",
+        "stats": {
+            "health": 84,
+            "attack": 47
+        },
+        "generation": 1,
+        "color": 16711680
+    },
+    {
+        "id": 12,
+        "name": "Aquawing 12",
+        "description": "A water creature known as Aquawing, possessing fur and flying.",
+        "features": [
+            "fur",
+            "flying"
+        ],
+        "type": "Water",
+        "stats": {
+            "health": 112,
+            "attack": 39
+        },
+        "generation": 1,
+        "color": 255
+    },
+    {
+        "id": 13,
+        "name": "Leafwing 13",
+        "description": "A nature creature known as Leafwing, possessing tail and scales.",
+        "features": [
+            "tail",
+            "scales"
+        ],
+        "type": "Nature",
+        "stats": {
+            "health": 118,
+            "attack": 56
+        },
+        "generation": 1,
+        "color": 65280
+    },
+    {
+        "id": 14,
+        "name": "Zapwing 14",
+        "description": "A electric creature known as Zapwing, possessing shell and wings.",
+        "features": [
+            "shell",
+            "wings"
+        ],
+        "type": "Electric",
+        "stats": {
+            "health": 105,
+            "attack": 50
+        },
+        "generation": 1,
+        "color": 16776960
+    },
+    {
+        "id": 15,
+        "name": "Frostwing 15",
+        "description": "A ice creature known as Frostwing, possessing scales and horns.",
+        "features": [
+            "scales",
+            "horns"
+        ],
+        "type": "Ice",
+        "stats": {
+            "health": 83,
+            "attack": 45
+        },
+        "generation": 1,
+        "color": 65535
+    },
+    {
+        "id": 16,
+        "name": "Rockwing 16",
+        "description": "A earth creature known as Rockwing, possessing horns and tail.",
+        "features": [
+            "horns",
+            "tail"
+        ],
+        "type": "Earth",
+        "stats": {
+            "health": 109,
+            "attack": 51
+        },
+        "generation": 1,
+        "color": 9127187
+    },
+    {
+        "id": 17,
+        "name": "Aerowing 17",
+        "description": "A wind creature known as Aerowing, possessing fur and horns.",
+        "features": [
+            "fur",
+            "horns"
+        ],
+        "type": "Wind",
+        "stats": {
+            "health": 108,
+            "attack": 69
+        },
+        "generation": 1,
+        "color": 13882323
+    },
+    {
+        "id": 18,
+        "name": "Sunwing 18",
+        "description": "A light creature known as Sunwing, possessing fangs and horns.",
+        "features": [
+            "fangs",
+            "horns"
+        ],
+        "type": "Light",
+        "stats": {
+            "health": 97,
+            "attack": 62
+        },
+        "generation": 1,
+        "color": 16777215
+    },
+    {
+        "id": 19,
+        "name": "Voidwing 19",
+        "description": "A dark creature known as Voidwing, possessing fur and scales.",
+        "features": [
+            "fur",
+            "scales"
+        ],
+        "type": "Dark",
+        "stats": {
+            "health": 119,
+            "attack": 62
+        },
+        "generation": 1,
+        "color": 4473924
+    },
+    {
+        "id": 20,
+        "name": "Starwing 20",
+        "description": "A cosmic creature known as Starwing, possessing claws and glowing.",
+        "features": [
+            "claws",
+            "glowing"
+        ],
+        "type": "Cosmic",
+        "stats": {
+            "health": 93,
+            "attack": 43
+        },
+        "generation": 1,
+        "color": 8388736
+    },
+    {
+        "id": 21,
+        "name": "Flameclaw 21",
+        "description": "A fire creature known as Flameclaw, possessing fangs and fur.",
+        "features": [
+            "fangs",
+            "fur"
+        ],
+        "type": "Fire",
+        "stats": {
+            "health": 102,
+            "attack": 31
+        },
+        "generation": 1,
+        "color": 16711680
+    },
+    {
+        "id": 22,
+        "name": "Aquaclaw 22",
+        "description": "A water creature known as Aquaclaw, possessing flying and tail.",
+        "features": [
+            "flying",
+            "tail"
+        ],
+        "type": "Water",
+        "stats": {
+            "health": 93,
+            "attack": 53
+        },
+        "generation": 1,
+        "color": 255
+    },
+    {
+        "id": 23,
+        "name": "Leafclaw 23",
+        "description": "A nature creature known as Leafclaw, possessing claws and fur.",
+        "features": [
+            "claws",
+            "fur"
+        ],
+        "type": "Nature",
+        "stats": {
+            "health": 91,
+            "attack": 50
+        },
+        "generation": 1,
+        "color": 65280
+    },
+    {
+        "id": 24,
+        "name": "Zapclaw 24",
+        "description": "A electric creature known as Zapclaw, possessing claws and fur.",
+        "features": [
+            "claws",
+            "fur"
+        ],
+        "type": "Electric",
+        "stats": {
+            "health": 86,
+            "attack": 40
+        },
+        "generation": 1,
+        "color": 16776960
+    },
+    {
+        "id": 25,
+        "name": "Frostclaw 25",
+        "description": "A ice creature known as Frostclaw, possessing wings and shell.",
+        "features": [
+            "wings",
+            "shell"
+        ],
+        "type": "Ice",
+        "stats": {
+            "health": 85,
+            "attack": 64
+        },
+        "generation": 1,
+        "color": 65535
+    },
+    {
+        "id": 26,
+        "name": "Rockclaw 26",
+        "description": "A earth creature known as Rockclaw, possessing fangs and glowing.",
+        "features": [
+            "fangs",
+            "glowing"
+        ],
+        "type": "Earth",
+        "stats": {
+            "health": 117,
+            "attack": 32
+        },
+        "generation": 1,
+        "color": 9127187
+    },
+    {
+        "id": 27,
+        "name": "Aeroclaw 27",
+        "description": "A wind creature known as Aeroclaw, possessing horns and glowing.",
+        "features": [
+            "horns",
+            "glowing"
+        ],
+        "type": "Wind",
+        "stats": {
+            "health": 112,
+            "attack": 51
+        },
+        "generation": 1,
+        "color": 13882323
+    },
+    {
+        "id": 28,
+        "name": "Sunclaw 28",
+        "description": "A light creature known as Sunclaw, possessing shell and horns.",
+        "features": [
+            "shell",
+            "horns"
+        ],
+        "type": "Light",
+        "stats": {
+            "health": 104,
+            "attack": 62
+        },
+        "generation": 1,
+        "color": 16777215
+    },
+    {
+        "id": 29,
+        "name": "Voidclaw 29",
+        "description": "A dark creature known as Voidclaw, possessing fangs and wings.",
+        "features": [
+            "fangs",
+            "wings"
+        ],
+        "type": "Dark",
+        "stats": {
+            "health": 104,
+            "attack": 56
+        },
+        "generation": 1,
+        "color": 4473924
+    },
+    {
+        "id": 30,
+        "name": "Starclaw 30",
+        "description": "A cosmic creature known as Starclaw, possessing glowing and tail.",
+        "features": [
+            "glowing",
+            "tail"
+        ],
+        "type": "Cosmic",
+        "stats": {
+            "health": 80,
+            "attack": 35
+        },
+        "generation": 1,
+        "color": 8388736
+    },
+    {
+        "id": 31,
+        "name": "Flamefang 31",
+        "description": "A fire creature known as Flamefang, possessing flying and shell.",
+        "features": [
+            "flying",
+            "shell"
+        ],
+        "type": "Fire",
+        "stats": {
+            "health": 96,
+            "attack": 30
+        },
+        "generation": 1,
+        "color": 16711680
+    },
+    {
+        "id": 32,
+        "name": "Aquafang 32",
+        "description": "A water creature known as Aquafang, possessing shell and scales.",
+        "features": [
+            "shell",
+            "scales"
+        ],
+        "type": "Water",
+        "stats": {
+            "health": 94,
+            "attack": 68
+        },
+        "generation": 1,
+        "color": 255
+    },
+    {
+        "id": 33,
+        "name": "Leaffang 33",
+        "description": "A nature creature known as Leaffang, possessing glowing and horns.",
+        "features": [
+            "glowing",
+            "horns"
+        ],
+        "type": "Nature",
+        "stats": {
+            "health": 108,
+            "attack": 30
+        },
+        "generation": 1,
+        "color": 65280
+    },
+    {
+        "id": 34,
+        "name": "Zapfang 34",
+        "description": "A electric creature known as Zapfang, possessing shell and fangs.",
+        "features": [
+            "shell",
+            "fangs"
+        ],
+        "type": "Electric",
+        "stats": {
+            "health": 105,
+            "attack": 62
+        },
+        "generation": 1,
+        "color": 16776960
+    },
+    {
+        "id": 35,
+        "name": "Frostfang 35",
+        "description": "A ice creature known as Frostfang, possessing glowing and scales.",
+        "features": [
+            "glowing",
+            "scales"
+        ],
+        "type": "Ice",
+        "stats": {
+            "health": 102,
+            "attack": 52
+        },
+        "generation": 1,
+        "color": 65535
+    },
+    {
+        "id": 36,
+        "name": "Rockfang 36",
+        "description": "A earth creature known as Rockfang, possessing flying and shell.",
+        "features": [
+            "flying",
+            "shell"
+        ],
+        "type": "Earth",
+        "stats": {
+            "health": 104,
+            "attack": 60
+        },
+        "generation": 1,
+        "color": 9127187
+    },
+    {
+        "id": 37,
+        "name": "Aerofang 37",
+        "description": "A wind creature known as Aerofang, possessing flying and horns.",
+        "features": [
+            "flying",
+            "horns"
+        ],
+        "type": "Wind",
+        "stats": {
+            "health": 99,
+            "attack": 64
+        },
+        "generation": 1,
+        "color": 13882323
+    },
+    {
+        "id": 38,
+        "name": "Sunfang 38",
+        "description": "A light creature known as Sunfang, possessing glowing and shell.",
+        "features": [
+            "glowing",
+            "shell"
+        ],
+        "type": "Light",
+        "stats": {
+            "health": 106,
+            "attack": 36
+        },
+        "generation": 1,
+        "color": 16777215
+    },
+    {
+        "id": 39,
+        "name": "Voidfang 39",
+        "description": "A dark creature known as Voidfang, possessing wings and scales.",
+        "features": [
+            "wings",
+            "scales"
+        ],
+        "type": "Dark",
+        "stats": {
+            "health": 89,
+            "attack": 32
+        },
+        "generation": 1,
+        "color": 4473924
+    },
+    {
+        "id": 40,
+        "name": "Starfang 40",
+        "description": "A cosmic creature known as Starfang, possessing fangs and claws.",
+        "features": [
+            "fangs",
+            "claws"
+        ],
+        "type": "Cosmic",
+        "stats": {
+            "health": 93,
+            "attack": 48
+        },
+        "generation": 1,
+        "color": 8388736
+    },
+    {
+        "id": 41,
+        "name": "Flametail 41",
+        "description": "A fire creature known as Flametail, possessing fangs and scales.",
+        "features": [
+            "fangs",
+            "scales"
+        ],
+        "type": "Fire",
+        "stats": {
+            "health": 91,
+            "attack": 68
+        },
+        "generation": 1,
+        "color": 16711680
+    },
+    {
+        "id": 42,
+        "name": "Aquatail 42",
+        "description": "A water creature known as Aquatail, possessing scales and horns.",
+        "features": [
+            "scales",
+            "horns"
+        ],
+        "type": "Water",
+        "stats": {
+            "health": 105,
+            "attack": 41
+        },
+        "generation": 1,
+        "color": 255
+    },
+    {
+        "id": 43,
+        "name": "Leaftail 43",
+        "description": "A nature creature known as Leaftail, possessing fur and scales.",
+        "features": [
+            "fur",
+            "scales"
+        ],
+        "type": "Nature",
+        "stats": {
+            "health": 95,
+            "attack": 62
+        },
+        "generation": 1,
+        "color": 65280
+    },
+    {
+        "id": 44,
+        "name": "Zaptail 44",
+        "description": "A electric creature known as Zaptail, possessing scales and glowing.",
+        "features": [
+            "scales",
+            "glowing"
+        ],
+        "type": "Electric",
+        "stats": {
+            "health": 113,
+            "attack": 65
+        },
+        "generation": 1,
+        "color": 16776960
+    },
+    {
+        "id": 45,
+        "name": "Frosttail 45",
+        "description": "A ice creature known as Frosttail, possessing glowing and fangs.",
+        "features": [
+            "glowing",
+            "fangs"
+        ],
+        "type": "Ice",
+        "stats": {
+            "health": 99,
+            "attack": 32
+        },
+        "generation": 1,
+        "color": 65535
+    },
+    {
+        "id": 46,
+        "name": "Rocktail 46",
+        "description": "A earth creature known as Rocktail, possessing fangs and fur.",
+        "features": [
+            "fangs",
+            "fur"
+        ],
+        "type": "Earth",
+        "stats": {
+            "health": 85,
+            "attack": 52
+        },
+        "generation": 1,
+        "color": 9127187
+    },
+    {
+        "id": 47,
+        "name": "Aerotail 47",
+        "description": "A wind creature known as Aerotail, possessing glowing and horns.",
+        "features": [
+            "glowing",
+            "horns"
+        ],
+        "type": "Wind",
+        "stats": {
+            "health": 108,
+            "attack": 56
+        },
+        "generation": 1,
+        "color": 13882323
+    },
+    {
+        "id": 48,
+        "name": "Suntail 48",
+        "description": "A light creature known as Suntail, possessing fur and scales.",
+        "features": [
+            "fur",
+            "scales"
+        ],
+        "type": "Light",
+        "stats": {
+            "health": 96,
+            "attack": 32
+        },
+        "generation": 1,
+        "color": 16777215
+    },
+    {
+        "id": 49,
+        "name": "Voidtail 49",
+        "description": "A dark creature known as Voidtail, possessing fangs and shell.",
+        "features": [
+            "fangs",
+            "shell"
+        ],
+        "type": "Dark",
+        "stats": {
+            "health": 87,
+            "attack": 45
+        },
+        "generation": 1,
+        "color": 4473924
+    },
+    {
+        "id": 50,
+        "name": "Startail 50",
+        "description": "A cosmic creature known as Startail, possessing tail and flying.",
+        "features": [
+            "tail",
+            "flying"
+        ],
+        "type": "Cosmic",
+        "stats": {
+            "health": 99,
+            "attack": 45
+        },
+        "generation": 1,
+        "color": 8388736
+    }
+];
 // ==================== PERSISTENCE ====================
 const STORAGE_KEY = 'wildpulse_collected_creatures';
 let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
-function saveCollected(id) {
-    if (!collectedCreatures.includes(id)) {
-        collectedCreatures.push(id);
+function saveCollected(creature) {
+    if (!collectedCreatures.find(c => c.id === creature.id)) {
+        collectedCreatures.push(creature);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
     }
 }
+
+// ==================== BREEDING ====================
+window.breed = function(parent1, parent2) {
+    const p1Prefix = parent1.name.substring(0, Math.ceil(parent1.name.length / 2));
+    const p2Suffix = parent2.name.substring(Math.floor(parent2.name.length / 2));
+    const childName = p1Prefix + p2Suffix;
+
+    const childDesc = `A hybrid of ${parent1.name} and ${parent2.name}. ${parent1.description} Blended with: ${parent2.description}`;
+
+    const combinedFeatures = [...parent1.features, ...parent2.features];
+    const childFeatures = Array.from(new Set(combinedFeatures));
+
+    const childType = (parent1.type === parent2.type) ? parent1.type : `${parent1.type}-${parent2.type}`;
+
+    const childStats = {
+        health: Math.floor((parent1.stats.health + parent2.stats.health) / 2),
+        attack: Math.floor((parent1.stats.attack + parent2.stats.attack) / 2)
+    };
+
+    const childGeneration = Math.max(parent1.generation, parent2.generation) + 1;
+
+    // Unique ID combining parent IDs and timestamp to avoid collisions
+    const childId = `gen${childGeneration}_${parent1.id}_${parent2.id}_${Date.now()}`;
+
+    // Blend colors simply by averaging RGB
+    const c1 = parent1.color;
+    const c2 = parent2.color;
+    const r = Math.floor((((c1 >> 16) & 0xFF) + ((c2 >> 16) & 0xFF)) / 2);
+    const g = Math.floor((((c1 >> 8) & 0xFF) + ((c2 >> 8) & 0xFF)) / 2);
+    const b = Math.floor(((c1 & 0xFF) + (c2 & 0xFF)) / 2);
+    const childColor = (r << 16) | (g << 8) | b;
+
+    return {
+        id: childId,
+        name: childName,
+        description: childDesc,
+        features: childFeatures,
+        type: childType,
+        stats: childStats,
+        generation: childGeneration,
+        color: childColor
+    };
+};
+
+function populateSelect(selectElement) {
+    selectElement.innerHTML = '';
+    collectedCreatures.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.id;
+        option.text = `${c.name} (Gen ${c.generation})`;
+        selectElement.appendChild(option);
+    });
+}
+
+window.openBreedingModal = function() {
+    document.getElementById('breedingModal').style.display = 'block';
+    const s1 = document.getElementById('parent1Select');
+    const s2 = document.getElementById('parent2Select');
+    populateSelect(s1);
+    populateSelect(s2);
+    document.getElementById('breedResult').innerText = '';
+};
+
+window.closeBreedingModal = function() {
+    document.getElementById('breedingModal').style.display = 'none';
+};
+
+window.doBreed = function() {
+    const id1 = document.getElementById('parent1Select').value;
+    const id2 = document.getElementById('parent2Select').value;
+
+    if (!id1 || !id2) {
+        document.getElementById('breedResult').innerText = 'Please collect and select two parents.';
+        return;
+    }
+
+    if (id1 === id2) {
+        document.getElementById('breedResult').innerText = 'Cannot breed a creature with itself.';
+        return;
+    }
+
+    const p1Index = collectedCreatures.findIndex(c => String(c.id) === String(id1));
+    const p2Index = collectedCreatures.findIndex(c => String(c.id) === String(id2));
+
+    if (p1Index !== -1 && p2Index !== -1) {
+        const p1 = collectedCreatures[p1Index];
+        const p2 = collectedCreatures[p2Index];
+
+        const child = window.breed(p1, p2);
+
+        // Remove parents temporarily to simulate them returning to the wild or being consumed by breeding
+        // Make sure to remove the higher index first to avoid shifting issues
+        if (p1Index > p2Index) {
+            collectedCreatures.splice(p1Index, 1);
+            collectedCreatures.splice(p2Index, 1);
+        } else {
+            collectedCreatures.splice(p2Index, 1);
+            collectedCreatures.splice(p1Index, 1);
+        }
+
+        // Save state after removing parents
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+
+        // Add the child
+        saveCollected(child);
+
+        // Update UI Text if it exists
+        if (typeof uiText !== 'undefined' && uiText) {
+            uiText.setText(`Collected: ${collectedCreatures.length} / 50`);
+        }
+
+        document.getElementById('breedResult').innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents have returned to the wild.`;
+
+        // Re-populate to show new child and removed parents
+        populateSelect(document.getElementById('parent1Select'));
+        populateSelect(document.getElementById('parent2Select'));
+    }
+};
 
 // ==================== PHASER GAME ====================
 const WORLD_SIZE = 6000;
@@ -178,7 +1079,7 @@ function create() {
     this.cameras.main.startFollow(player);
 
     // UI Layer
-    uiText = this.add.text(20, 20, `Collected: ${collectedCreatures.length} / 1275`, {
+    uiText = this.add.text(20, 20, `Collected: ${collectedCreatures.length} / 50`, {
         fontSize: '24px',
         fill: '#FFF',
         backgroundColor: '#000000',
@@ -225,22 +1126,16 @@ function create() {
     // Creatures setup
     creaturesGroup = this.physics.add.group();
 
-    // Spawn random creatures between 50 and 200
-    const numCreatures = Phaser.Math.Between(50, 200);
-    for (let i = 0; i < numCreatures; i++) {
-        spawnRandomCreature(this);
+    // Spawn exactly the 50 base creatures
+    for (let i = 0; i < baseCreatures.length; i++) {
+        spawnCreature(this, baseCreatures[i]);
     }
 
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
 }
 
-function spawnRandomCreature(scene) {
-    const id = Phaser.Math.Between(0, 1274);
-    // Don't spawn already collected ones if we want, or do spawn them.
-    // For now we spawn any, but we track unique IDs.
-
-    const creatureData = getCreatureDescription(id);
+function spawnCreature(scene, creatureData) {
     const x = Phaser.Math.Between(100, WORLD_SIZE - 100);
     const y = Phaser.Math.Between(100, WORLD_SIZE - 100);
 
@@ -253,16 +1148,16 @@ function spawnRandomCreature(scene) {
 function collectCreature(player, creatureSprite) {
     const data = creatureSprite.getData('creatureData');
 
-    // Save
-    saveCollected(data.id);
+    // Save full object
+    saveCollected(data);
 
     // Update UI
-    uiText.setText(`Collected: ${collectedCreatures.length} / 1275`);
+    uiText.setText(`Collected: ${collectedCreatures.length} / 50`);
 
     // Show Popup
     if (popupTimer) popupTimer.remove();
 
-    popupText.setText(`${data.name}\n\n${data.desc}`);
+    popupText.setText(`${data.name}\n\n${data.description || data.desc}`);
     popupBackground.setVisible(true);
     popupText.setVisible(true);
 
@@ -274,8 +1169,8 @@ function collectCreature(player, creatureSprite) {
     // Despawn
     creatureSprite.destroy();
 
-    // Optionally spawn another one to keep the world populated
-    spawnRandomCreature(this);
+    // Respawn an exact copy of the creature immediately to keep the 50 in world
+    spawnCreature(this, data);
 }
 
 function update() {
