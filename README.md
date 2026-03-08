@@ -38,3 +38,10 @@ WildPulse Odyssey Creature Collecting Game
 - **Enhanced UI Styling**: Full text colorization across UI elements, consistent modern button styling, and color-coded battle log entries for better readability.
 - **Quality of Life**: Implemented a 5-second post-battle grace period to prevent immediate re-encounters.
 - **Expanded Scope**: Doubled the world size to a 200x200 tile space (20000x20000 pixels) and increased the size of party/battle windows.
+
+### New Features (v6)
+
+- **Multiplayer Robustness**: Added automatic WebRTC lobby reconnection handling and implemented a ping/heartbeat system to gracefully detect and drop dead connections.
+- **Latency Compensation**: Replaced simple linear interpolation with dead-reckoning movement extrapolation to keep remote players moving smoothly during lag spikes or dropped packets.
+- **Data Optimization**: Optimized WebRTC payload sizes using delta compression and integer conversion for position synchronization.
+- **Anti-Cheat Mechanics**: Added client-side sanity checks to prevent remote players from teleporting across the map during normal play.
