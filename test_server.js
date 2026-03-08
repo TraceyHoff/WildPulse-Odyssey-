@@ -1,10 +1,11 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { Server } = require("socket.io");
 
 const PORT = 3000;
 
-http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
     let filePath = '.' + req.url;
     if (filePath === './') filePath = './index.html';
 
@@ -36,6 +37,45 @@ http.createServer((req, res) => {
             res.end(content, 'utf-8');
         }
     });
-}).listen(PORT, () => {
+});
+
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+    console.log('a user connected', socket.id);
+
+    socket.on('join-room', (roomId) => {
+        socket.join(roomId);
+        console.log(`user ${socket.id} joined room ${roomId}`);
+
+        // Notify others in the room
+        socket.to(roomId).emit('user-joined', socket.id);
+
+        // Send list of existing users to the new user
+        const clients = io.sockets.adapter.rooms.get(roomId);
+        const users = clients ? Array.from(clients).filter(id => id !== socket.id) : [];
+        socket.emit('room-users', users);
+
+        // Store room id for disconnect handling
+        socket.roomId = roomId;
+    });
+
+    socket.on('signal', (data) => {
+        // Send the signal to the specific target peer
+        io.to(data.target).emit('signal', {
+            sender: socket.id,
+            signal: data.signal
+        });
+    });
+
+    socket.on('disconnect', () => {
+        console.log('user disconnected', socket.id);
+        if (socket.roomId) {
+            socket.to(socket.roomId).emit('user-left', socket.id);
+        }
+    });
+});
+
+server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
 });
