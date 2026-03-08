@@ -41,10 +41,60 @@
             font-size: 16px;
         }
 
+
+        #battleModal {
+            display: none;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; height: 80%;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: white; border: 4px solid #fff;
+            z-index: 500; font-family: monospace;
+            padding: 20px; box-sizing: border-box;
+        }
+        .battle-area { display: flex; justify-content: space-between; height: 60%; margin-bottom: 20px; }
+        .combatant { width: 45%; border: 1px solid #555; padding: 15px; background: #222; position: relative; }
+        .combatant h3 { margin-top: 0; }
+        .hp-bar-container { width: 100%; height: 20px; background: #444; margin-top: 10px; border: 1px solid #fff; }
+        .hp-bar { height: 100%; background: #4caf50; width: 100%; transition: width 0.3s ease; }
+        .battle-log { height: 20%; overflow-y: auto; background: #111; border: 1px solid #555; padding: 10px; margin-bottom: 20px; }
+        .battle-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 15%; }
+        .battle-controls button { font-size: 18px; padding: 10px; cursor: pointer; border: none; font-family: monospace; }
+        .btn-attack { background-color: #f44336; color: white; }
+        .btn-defend { background-color: #2196F3; color: white; }
+        .btn-catch { background-color: #4CAF50; color: white; }
+        .btn-run { background-color: #9e9e9e; color: white; }
+
+
+        #battleModal {
+            display: none;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; height: 80%;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: white; border: 4px solid #fff;
+            z-index: 500; font-family: monospace;
+            padding: 20px; box-sizing: border-box;
+        }
+        .battle-area { display: flex; justify-content: space-between; height: 60%; margin-bottom: 20px; }
+        .combatant { width: 45%; border: 1px solid #555; padding: 15px; background: #222; position: relative; }
+        .combatant h3 { margin-top: 0; }
+        .hp-bar-container { width: 100%; height: 20px; background: #444; margin-top: 10px; border: 1px solid #fff; }
+        .hp-bar { height: 100%; background: #4caf50; width: 100%; transition: width 0.3s ease; }
+        .battle-log { height: 20%; overflow-y: auto; background: #111; border: 1px solid #555; padding: 10px; margin-bottom: 20px; }
+        .battle-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; height: 15%; }
+        .battle-controls button { font-size: 18px; padding: 10px; cursor: pointer; border: none; font-family: monospace; }
+        .btn-attack { background-color: #f44336; color: white; }
+        .btn-defend { background-color: #2196F3; color: white; }
+        .btn-catch { background-color: #4CAF50; color: white; }
+        .btn-run { background-color: #9e9e9e; color: white; }
+
         #menuBtn {
             position: absolute;
             top: 20px;
-            right: 200px;
+            right: 20px;
             padding: 10px 20px;
             font-size: 18px;
             background-color: #2196F3;
@@ -117,6 +167,60 @@
 </head>
 <body>
 
+
+<div id="battleModal">
+    <div class="battle-area">
+        <div class="combatant" id="playerCombatant">
+            <h3 id="pName">Player Creature</h3>
+            <p>Level: <span id="pLevel"></span> <span id="pStatus" style="font-weight:bold; color:#ff9800;"></span></p>
+            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="pSprite"></div>
+            <p>HP: <span id="pHPText"></span></p>
+            <div class="hp-bar-container"><div class="hp-bar" id="pHPBar"></div></div>
+        </div>
+        <div class="combatant" id="enemyCombatant">
+            <h3 id="eName">Enemy Creature</h3>
+            <p>Level: <span id="eLevel"></span> <span id="eStatus" style="font-weight:bold; color:#ff9800;"></span></p>
+            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="eSprite"></div>
+            <p>HP: <span id="eHPText"></span></p>
+            <div class="hp-bar-container"><div class="hp-bar" id="eHPBar"></div></div>
+        </div>
+    </div>
+    <div class="battle-log" id="battleLog">Wild creature appeared!</div>
+    <div class="battle-controls" id="battleControls">
+        <button class="btn-attack" onclick="handlePlayerTurn('attack')">Attack</button>
+        <button class="btn-defend" onclick="handlePlayerTurn('defend')">Defend</button>
+        <button class="btn-catch" onclick="handlePlayerTurn('catch')">Catch</button>
+        <button class="btn-run" onclick="handlePlayerTurn('run')">Run</button>
+    </div>
+</div>
+
+
+<div id="battleModal">
+    <div class="battle-area">
+        <div class="combatant" id="playerCombatant">
+            <h3 id="pName">Player Creature</h3>
+            <p>Level: <span id="pLevel"></span> <span id="pStatus" style="font-weight:bold; color:#ff9800;"></span></p>
+            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="pSprite"></div>
+            <p>HP: <span id="pHPText"></span></p>
+            <div class="hp-bar-container"><div class="hp-bar" id="pHPBar"></div></div>
+        </div>
+        <div class="combatant" id="enemyCombatant">
+            <h3 id="eName">Enemy Creature</h3>
+            <p>Level: <span id="eLevel"></span> <span id="eStatus" style="font-weight:bold; color:#ff9800;"></span></p>
+            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="eSprite"></div>
+            <p>HP: <span id="eHPText"></span></p>
+            <div class="hp-bar-container"><div class="hp-bar" id="eHPBar"></div></div>
+        </div>
+    </div>
+    <div class="battle-log" id="battleLog">Wild creature appeared!</div>
+    <div class="battle-controls" id="battleControls">
+        <button class="btn-attack" onclick="handlePlayerTurn('attack')">Attack</button>
+        <button class="btn-defend" onclick="handlePlayerTurn('defend')">Defend</button>
+        <button class="btn-catch" onclick="handlePlayerTurn('catch')">Catch</button>
+        <button class="btn-run" onclick="handlePlayerTurn('run')">Run</button>
+    </div>
+</div>
+
 <button id="menuBtn" onclick="openMenuModal()">Menu</button>
 <div id="menuModal">
     <h2>Menu</h2>
@@ -138,8 +242,17 @@
     <p>• Menu: View Party, Breed creatures, or Delete Progress.</p>
     <h3>Stats</h3>
     <p>HP: Health | Atk: Physical dmg | Def: Physical resist<br>Spe: Speed | SpA: Special dmg | SpD: Special resist</p>
+
+
+
     <h3>Natures</h3>
     <p>250+ Natures modify stats (±10%). These include pure buffs and pure debuffs!</p>
+    <div id="naturesListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+
+    <div id="naturesListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+
+    <div id="naturesListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+
     <h3>Breeding & Shinies</h3>
     <p>Offspring blend parents' stats and natures. There is a 0.1% chance to find a Shiny creature (+20% stats). Shinies have a 25% chance to pass down their rarity to offspring.</p>
     <button onclick="closeHelpModal()" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer;">Close</button>
@@ -1012,10 +1125,19 @@ window.getRandomNature = function() {
 };
 window.getEffectiveStat = function(creature, statName) {
     let base = creature.stats[statName] || 50; // Fallback
-    if (!creature.nature) return base;
-    if (creature.nature.increase === statName) return base * 1.1;
-    if (creature.nature.decrease === statName) return base * 0.9;
-    return base;
+    let lvl = creature.level || 1;
+    let scaledBase = base + (base * (lvl - 1) * 0.05);
+
+    if (!creature.nature) return scaledBase;
+    if (creature.nature.increase === statName) return scaledBase * 1.1;
+    if (creature.nature.decrease === statName) return scaledBase * 0.9;
+    return scaledBase;
+};
+
+window.getScaledBaseStat = function(creature, statName) {
+    let base = creature.stats[statName] || 50;
+    let lvl = creature.level || 1;
+    return base + (base * (lvl - 1) * 0.05);
 };
 
 window.typeChart = {
@@ -1053,6 +1175,23 @@ window.calculateDamage = function(attacker, defender, power = 50) {
     return damage;
 };
 
+
+
+window.getXpRequirement = function(level) {
+    return 100 * Math.pow(level, 2);
+};
+
+window.gainXp = function(creature, amount) {
+    creature.xp = (creature.xp || 0) + amount;
+    let leveledUp = false;
+    while (creature.xp >= window.getXpRequirement(creature.level || 1)) {
+        creature.xp -= window.getXpRequirement(creature.level || 1);
+        creature.level = (creature.level || 1) + 1;
+        leveledUp = true;
+    }
+    return leveledUp;
+};
+
 // Augment base creatures with new stats and a nature
 window.baseCreatures.forEach(c => {
     c.stats.defense = c.stats.defense || Math.floor(Math.random() * 50 + 30);
@@ -1080,10 +1219,25 @@ window.openMenuModal = function() {
 window.closeMenuModal = function() {
     document.getElementById('menuModal').style.display = 'none';
 };
+
+
+
 window.openHelpModal = function() {
     closeMenuModal();
+    let naturesHtml = window.natures.map(n => {
+        let text = n.name + ': ';
+        if (n.increase) text += '+' + n.increase + ' ';
+        if (n.decrease) text += '-' + n.decrease;
+        if (!n.increase && !n.decrease) text += 'Neutral';
+        return '<li>' + text + '</li>';
+    }).join('');
+    let container = document.getElementById('naturesListContainer');
+    if(container) container.innerHTML = '<ul style="margin:0; padding-left:20px; font-size:14px; color:#ddd;">' + naturesHtml + '</ul>';
     document.getElementById('helpModal').style.display = 'block';
 };
+
+
+
 window.closeHelpModal = function() {
     document.getElementById('helpModal').style.display = 'none';
 };
@@ -1110,7 +1264,8 @@ window.renderPartyList = function() {
         const statsHtml = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].map(stat => {
             let base = c.stats[stat] || 50;
             let eff = window.getEffectiveStat(c, stat).toFixed(1);
-            let color = eff > base ? 'green' : (eff < base ? 'red' : 'white');
+            let scaled = window.getScaledBaseStat(c, stat).toFixed(1);
+            let color = parseFloat(eff) > parseFloat(scaled) ? 'green' : (parseFloat(eff) < parseFloat(scaled) ? 'red' : 'white');
             return `<div>${stat}: ${base} <span style="color:${color}">(Eff: ${eff})</span></div>`;
         }).join('');
 
@@ -1124,7 +1279,8 @@ window.renderPartyList = function() {
 
         card.innerHTML = `
             <div>
-                <h3>${shinyPrefix}<input class="creature-name" value="${c.nickname || c.name}" maxlength="20"> <button onclick="window.saveName(this, ${index})">Save</button> (Lvl ${c.generation}) - ${c.type}</h3>
+                <h3>${shinyPrefix}<input class="creature-name" value="${c.nickname || c.name}" maxlength="20"> <button onclick="window.saveName(this, ${index})">Save</button> - ${c.type}</h3>
+                <p><strong>Level ${c.level || 1}</strong> (Gen ${c.generation}) | XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</p>
                 <p>${c.description}</p>
                 ${natureHtml}
                 ${parentsHtml}
@@ -1179,6 +1335,8 @@ window.releaseCreature = function(index) {
 window.deleteProgress = function() {
     if (confirm('Are you sure? This will erase all save data.')) {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('wildpulse_player_x');
+        localStorage.removeItem('wildpulse_player_y');
         location.reload();
     }
 };
@@ -1242,6 +1400,10 @@ window.breed = function(parent1, parent2) {
         stats: childStats,
         generation: childGeneration,
         color: childColor,
+        level: 1,
+        xp: 0,
+        level: 1,
+        xp: 0,
         nature: window.getRandomNature(),
         isShiny: childShiny,
         parents: {
@@ -1359,15 +1521,46 @@ let popupText;
 let popupBackground;
 let popupTimer;
 let bgGrass;
+let inBattle = false;
+let currentEnemy = null;
+let currentPlayer = null;
+let currentEnemySprite = null;
+
+function logBattle(msg) {
+    const log = document.getElementById('battleLog');
+    log.innerHTML += '<div>' + msg + '</div>';
+    log.scrollTop = log.scrollHeight;
+}
+
+function updateBattleUI() {
+    // Player
+    document.getElementById('pName').innerText = currentPlayer.nickname || currentPlayer.name;
+    document.getElementById('pLevel').innerText = currentPlayer.level || 1;
+    document.getElementById('pStatus').innerText = currentPlayer.status ? `[${currentPlayer.status}]` : '';
+    document.getElementById('pHPText').innerText = Math.max(0, currentPlayer.currentHp).toFixed(1) + ' / ' + currentPlayer.maxHp.toFixed(1);
+    document.getElementById('pHPBar').style.width = (Math.max(0, currentPlayer.currentHp) / currentPlayer.maxHp * 100) + '%';
+    if(currentPlayer.color) document.getElementById('pSprite').style.backgroundColor = '#' + currentPlayer.color.toString(16).padStart(6, '0');
+
+    // Enemy
+    document.getElementById('eName').innerText = currentEnemy.name;
+    document.getElementById('eLevel').innerText = currentEnemy.level || 1;
+    document.getElementById('eStatus').innerText = currentEnemy.status ? `[${currentEnemy.status}]` : '';
+    document.getElementById('eHPText').innerText = Math.max(0, currentEnemy.currentHp).toFixed(1) + ' / ' + currentEnemy.maxHp.toFixed(1);
+    document.getElementById('eHPBar').style.width = (Math.max(0, currentEnemy.currentHp) / currentEnemy.maxHp * 100) + '%';
+    if(currentEnemy.color) document.getElementById('eSprite').style.backgroundColor = '#' + currentEnemy.color.toString(16).padStart(6, '0');
+}
+
+
 
 function preload() {
-    // Pre-generate grass blades so they remain consistent across frames
+    // Pre-generate detailed grass blades so they remain consistent across frames
     const blades = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 60; i++) {
         blades.push({
             x: Math.random() * 64,
             y: Math.random() * 64,
-            color: Math.random() > 0.5 ? '#006400' : '#32CD32'
+            height: Math.random() * 10 + 5,
+            color: Math.random() > 0.6 ? '#006400' : (Math.random() > 0.3 ? '#2E8B57' : '#32CD32')
         });
     }
 
@@ -1379,42 +1572,60 @@ function preload() {
         canvas.height = 64;
         const ctx = canvas.getContext('2d');
 
-        ctx.fillStyle = '#228B22'; // ForestGreen
+        // Better base grass color gradient
+        let gradient = ctx.createLinearGradient(0, 0, 0, 64);
+        gradient.addColorStop(0, '#1a661a');
+        gradient.addColorStop(1, '#228B22');
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 64, 64);
 
-        // Calculate offset for waving effect
-        const offsetX = Math.round(Math.sin(frame * (Math.PI / 2)) * 2);
+        // Calculate offset for wind waving effect
+        const windOffset = Math.sin((frame / numFrames) * Math.PI * 2) * 3;
 
-        // Add details to the grass
+        // Draw multiple layers of grass for depth
         for (let i = 0; i < blades.length; i++) {
             ctx.fillStyle = blades[i].color;
-            const drawX = (blades[i].x + offsetX + 64) % 64;
-            ctx.fillRect(drawX, blades[i].y, 2, 8);
-            if (drawX > 62) {
-                ctx.fillRect(drawX - 64, blades[i].y, 2, 8);
+            let drawX = blades[i].x;
+
+            ctx.beginPath();
+            ctx.moveTo(drawX, blades[i].y + blades[i].height);
+            // Bend the blade of grass at the top based on wind
+            ctx.quadraticCurveTo(drawX, blades[i].y + blades[i].height / 2, drawX + windOffset * (blades[i].height / 15), blades[i].y);
+            ctx.lineTo(drawX + 2, blades[i].y + blades[i].height);
+            ctx.fill();
+
+            // Handle wrap around
+            if (drawX + windOffset > 60) {
+                 ctx.beginPath();
+                 ctx.moveTo(drawX - 64, blades[i].y + blades[i].height);
+                 ctx.quadraticCurveTo(drawX - 64, blades[i].y + blades[i].height / 2, drawX - 64 + windOffset * (blades[i].height / 15), blades[i].y);
+                 ctx.lineTo(drawX - 64 + 2, blades[i].y + blades[i].height);
+                 ctx.fill();
             }
         }
 
         this.textures.addCanvas('grass_' + frame, canvas);
     }
 
-    // Generate path texture
-    const pathCanvas = document.createElement('canvas');
-    pathCanvas.width = 100;
-    pathCanvas.height = 100;
-    const pathCtx = pathCanvas.getContext('2d');
-    pathCtx.fillStyle = '#D2B48C'; // Tan path
-    pathCtx.fillRect(0, 0, 100, 100);
-    this.textures.addCanvas('path_tex', pathCanvas);
 
-    // Generate obstacle texture
-    const obsCanvas = document.createElement('canvas');
-    obsCanvas.width = 100;
-    obsCanvas.height = 100;
-    const obsCtx = obsCanvas.getContext('2d');
-    obsCtx.fillStyle = '#1E90FF'; // Water/obstacle
-    obsCtx.fillRect(0, 0, 100, 100);
-    this.textures.addCanvas('obs_tex', obsCanvas);
+
+    // Generate animated water obstacle textures
+    for (let frame = 0; frame < 4; frame++) {
+        const obsCanvas = document.createElement('canvas');
+        obsCanvas.width = 100;
+        obsCanvas.height = 100;
+        const obsCtx = obsCanvas.getContext('2d');
+        obsCtx.fillStyle = '#1E90FF'; // Water/obstacle
+        obsCtx.fillRect(0, 0, 100, 100);
+
+        // Add rippling wave lines
+        obsCtx.fillStyle = '#87CEFA'; // Light blue ripples
+        const offset = Math.round(Math.sin(frame * (Math.PI / 2)) * 10);
+        for (let i = 0; i < 5; i++) {
+            obsCtx.fillRect((20 * i + offset + 100) % 100, 20 * i, 15, 4);
+        }
+        this.textures.addCanvas('obs_tex_' + frame, obsCanvas);
+    }
 }
 
 let mapData = []; // To store 100x100 grid data
@@ -1430,18 +1641,54 @@ function create() {
     bgGrass = this.add.tileSprite(0, 0, WORLD_SIZE, WORLD_SIZE, 'grass_0').setOrigin(0, 0);
     obstaclesGroup = this.physics.add.staticGroup();
 
+    // Create water animation globally so it can be played on sprites
+    this.anims.create({
+        key: 'water_anim',
+        frames: [
+            { key: 'obs_tex_0' },
+            { key: 'obs_tex_1' },
+            { key: 'obs_tex_2' },
+            { key: 'obs_tex_3' }
+        ],
+        frameRate: 2,
+        repeat: -1
+    });
+
+    // Create water animation globally so it can be played on sprites
+    this.anims.create({
+        key: 'water_anim',
+        frames: [
+            { key: 'obs_tex_0' },
+            { key: 'obs_tex_1' },
+            { key: 'obs_tex_2' },
+            { key: 'obs_tex_3' }
+        ],
+        frameRate: 2,
+        repeat: -1
+    });
+
+    // Create water animation globally so it can be played on sprites
+    this.anims.create({
+        key: 'water_anim',
+        frames: [
+            { key: 'obs_tex_0' },
+            { key: 'obs_tex_1' },
+            { key: 'obs_tex_2' },
+            { key: 'obs_tex_3' }
+        ],
+        frameRate: 2,
+        repeat: -1
+    });
+
     // Procedural generation
     for (let r = 0; r < rows; r++) {
         mapData[r] = [];
         for (let c = 0; c < cols; c++) {
             let rnd = Math.random();
-            if (rnd < 0.20) {
-                // Path
-                this.add.image(c * TILE_SIZE, r * TILE_SIZE, 'path_tex').setOrigin(0, 0);
-                mapData[r][c] = 'path';
-            } else if (rnd < 0.30) {
+            if (rnd < 0.10) {
                 // Obstacle (Water)
-                let obs = obstaclesGroup.create(c * TILE_SIZE + TILE_SIZE/2, r * TILE_SIZE + TILE_SIZE/2, 'obs_tex');
+                let obs = obstaclesGroup.create(c * TILE_SIZE + TILE_SIZE/2, r * TILE_SIZE + TILE_SIZE/2, 'obs_tex_0');
+                obs.anims.play('water_anim', true);
                 mapData[r][c] = 'obs';
             } else {
                 // Grass
@@ -1537,6 +1784,10 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
 
     // Assign random nature and unique ID on spawn
     clonedData.nature = window.getRandomNature();
+    clonedData.level = Math.floor(Math.random() * 5) + 1; // Spawn level 1-5
+    clonedData.xp = 0;
+    clonedData.level = Math.floor(Math.random() * 5) + 1; // Spawn level 1-5
+    clonedData.xp = 0;
     clonedData.id = Date.now().toString() + "_" + Math.floor(Math.random() * 1000000).toString();
 
     const sprite = scene.add.rectangle(x, y, 30, 30, clonedData.color);
@@ -1545,52 +1796,246 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
     creaturesGroup.add(sprite);
 }
 
-function collectCreature(player, creatureSprite) {
-    // Clone data to avoid mutating base prototype directly in group
-    const data = JSON.parse(JSON.stringify(creatureSprite.getData('creatureData')));
+function collectCreature(playerCollider, creatureSprite) {
+    if (inBattle) return;
 
-    let battleText = "";
-    if (collectedCreatures.length > 0) {
-        const leadCreature = collectedCreatures[0];
-        const damage = window.calculateDamage(leadCreature, data, 50);
-        const leadName = leadCreature.nickname || leadCreature.name;
-        battleText = `Your ${leadName} dealt ${damage.toFixed(2)} damage to ${data.nickname || data.name}!\n\n`;
+    if (collectedCreatures.length === 0) {
+        const data = JSON.parse(JSON.stringify(creatureSprite.getData('creatureData')));
+        saveCollected(data);
+        creatureSprite.destroy();
+        const basePrototype = window.baseCreatures.find(c => c.name === data.name);
+        spawnCreature(this, basePrototype || data, 500, 500);
+        return;
     }
 
-    // Save full object
-    saveCollected(data);
+    inBattle = true;
+    playerCollider.body.setVelocity(0);
+    playerCollider.body.moves = false;
 
-    // Show Popup
-    if (popupTimer) popupTimer.remove();
+    currentEnemy = JSON.parse(JSON.stringify(creatureSprite.getData('creatureData')));
+    currentEnemySprite = creatureSprite;
 
-    popupText.setText(`${battleText}You caught ${data.nickname || data.name}!\n\n${data.description || data.desc}`);
-    popupBackground.setVisible(true);
-    popupText.setVisible(true);
+    currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
+    currentEnemy.currentHp = currentEnemy.maxHp;
+    currentEnemy.isDefending = false;
 
-    popupTimer = this.time.delayedCall(3000, () => {
-        popupBackground.setVisible(false);
-        popupText.setVisible(false);
-    });
+    currentPlayer = JSON.parse(JSON.stringify(collectedCreatures[0]));
+    currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
+    currentPlayer.currentHp = currentPlayer.maxHp;
+    currentPlayer.isDefending = false;
 
-    // Despawn
-    creatureSprite.destroy();
+    document.getElementById('battleModal').style.display = 'block';
+    document.getElementById('battleLog').innerHTML = '';
 
-    // We respawn using the base prototype so we get fresh stats and ID
-    const basePrototype = window.baseCreatures.find(c => c.name === data.name);
+    let shinyPrefix = currentEnemy.isShiny ? "Shiny " : "";
+    logBattle(`A wild ${shinyPrefix}${currentEnemy.name} appeared!`);
+    logBattle(`Go, ${currentPlayer.nickname || currentPlayer.name}!`);
 
-    // Respawn far away from the player
+    if (currentEnemy.isShiny) {
+        const flash = this.add.rectangle(playerCollider.x, playerCollider.y, window.innerWidth * 2, window.innerHeight * 2, 0xFFFFFF, 0.8).setScrollFactor(0);
+        this.tweens.add({
+            targets: flash,
+            alpha: 0,
+            duration: 1000,
+            onComplete: () => flash.destroy()
+        });
+    }
+
+    updateBattleUI();
+}
+
+function applyStatusEffect(target, status) {
+    if (target.status) return;
+    if (Math.random() < 0.20) {
+        target.status = status;
+        logBattle(`<b>${target.nickname || target.name} was inflicted with ${status}!</b>`);
+    }
+}
+
+function processStatuses(creature) {
+    if (!creature.status) return true;
+
+    if (creature.status === 'Poison') {
+        let dmg = creature.maxHp * 0.10;
+        creature.currentHp -= dmg;
+        logBattle(`${creature.nickname || creature.name} is hurt by Poison for ${dmg.toFixed(1)} damage!`);
+    } else if (creature.status === 'Burn') {
+        let dmg = creature.maxHp * 0.05;
+        creature.currentHp -= dmg;
+        logBattle(`${creature.nickname || creature.name} is hurt by Burn for ${dmg.toFixed(1)} damage!`);
+    } else if (creature.status === 'Sleep') {
+        if (Math.random() < 0.40) {
+            creature.status = null;
+            logBattle(`${creature.nickname || creature.name} woke up!`);
+            return true;
+        } else {
+            logBattle(`${creature.nickname || creature.name} is fast asleep...`);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+window.handlePlayerTurn = function(action) {
+    if (!inBattle) return;
+
+    currentPlayer.isDefending = false;
+
+    let canMove = processStatuses(currentPlayer);
+    if (!canMove) {
+        updateBattleUI();
+        setTimeout(() => { enemyTurn(); }, 1000);
+        return;
+    }
+
+    if (action === 'attack') {
+        let pAtk = window.getEffectiveStat(currentPlayer, 'attack');
+        let eDef = window.getEffectiveStat(currentEnemy, 'defense');
+        if (currentEnemy.isDefending) eDef *= 1.5;
+
+        let damage = window.calculateDamage(currentPlayer, currentEnemy, 50);
+
+        if (Math.random() < 0.10) {
+            damage *= 1.5;
+            logBattle("<b>Critical Hit!</b>");
+        }
+
+        currentEnemy.currentHp -= damage;
+        logBattle(`${currentPlayer.nickname || currentPlayer.name} used Attack! Dealt ${damage.toFixed(1)} damage.`);
+
+        if (currentPlayer.type === 'Fire') applyStatusEffect(currentEnemy, 'Burn');
+        else if (currentPlayer.type === 'Nature') applyStatusEffect(currentEnemy, 'Poison');
+        else if (currentPlayer.type === 'Water') applyStatusEffect(currentEnemy, 'Sleep');
+    } else if (action === 'defend') {
+        currentPlayer.isDefending = true;
+        logBattle(`${currentPlayer.nickname || currentPlayer.name} is defending.`);
+    } else if (action === 'catch') {
+        let hpPct = currentEnemy.currentHp / currentEnemy.maxHp;
+        let catchChance = 0.3 + (1 - hpPct) * 0.6;
+        if (Math.random() < catchChance) {
+            logBattle(`<b>Success! Caught ${currentEnemy.name}!</b>`);
+            endBattle('caught');
+            return;
+        } else {
+            logBattle(`Oh no! The wild ${currentEnemy.name} broke free!`);
+        }
+    } else if (action === 'run') {
+        let pSpe = window.getEffectiveStat(currentPlayer, 'speed');
+        let eSpe = window.getEffectiveStat(currentEnemy, 'speed');
+        let runChance = 0.5 + (pSpe - eSpe) * 0.01;
+        if (Math.random() < runChance) {
+            logBattle("<b>Got away safely!</b>");
+            endBattle('run');
+            return;
+        } else {
+            logBattle("Failed to run away!");
+        }
+    }
+
+    updateBattleUI();
+
+    if (currentEnemy.currentHp <= 0) {
+        logBattle(`The wild ${currentEnemy.name} fainted!`);
+        endBattle('win');
+        return;
+    }
+
+    setTimeout(() => {
+        enemyTurn();
+    }, 1000);
+};
+
+window.enemyTurn = function() {
+    if (!inBattle) return;
+
+    currentEnemy.isDefending = false;
+
+    let canMove = processStatuses(currentEnemy);
+    if (!canMove) {
+        updateBattleUI();
+        if (currentPlayer.currentHp <= 0) {
+            logBattle(`${currentPlayer.nickname || currentPlayer.name} fainted!`);
+            endBattle('loss');
+        } else if (currentEnemy.currentHp <= 0) {
+            logBattle(`The wild ${currentEnemy.name} fainted!`);
+            endBattle('win');
+        }
+        return;
+    }
+
+    if (Math.random() < 0.20) {
+        currentEnemy.isDefending = true;
+        logBattle(`Wild ${currentEnemy.name} is defending.`);
+    } else {
+        let damage = window.calculateDamage(currentEnemy, currentPlayer, 50);
+        if (currentPlayer.isDefending) damage *= 0.5;
+
+        if (Math.random() < 0.10) {
+            damage *= 1.5;
+            logBattle("<b>Critical Hit by enemy!</b>");
+        }
+
+        currentPlayer.currentHp -= damage;
+        logBattle(`Wild ${currentEnemy.name} used Attack! Dealt ${damage.toFixed(1)} damage.`);
+
+        if (currentEnemy.type === 'Fire') applyStatusEffect(currentPlayer, 'Burn');
+        else if (currentEnemy.type === 'Nature') applyStatusEffect(currentPlayer, 'Poison');
+        else if (currentEnemy.type === 'Water') applyStatusEffect(currentPlayer, 'Sleep');
+    }
+
+    updateBattleUI();
+
+    if (currentPlayer.currentHp <= 0) {
+        logBattle(`${currentPlayer.nickname || currentPlayer.name} fainted!`);
+        endBattle('loss');
+    }
+};
+
+window.endBattle = function(result) {
+    setTimeout(() => {
+        document.getElementById('battleModal').style.display = 'none';
+        inBattle = false;
+        player.body.moves = true; // Restore player physics movement
+
+        if (result === 'caught') {
+            saveCollected(currentEnemy);
+            currentEnemySprite.destroy();
+            respawnEnemyBase();
+        } else if (result === 'win') {
+            let xpGained = Math.floor(currentEnemy.level * 50);
+            logBattle(`Gained ${xpGained} XP!`);
+            let leveledUp = window.gainXp(collectedCreatures[0], xpGained);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+
+            if (leveledUp) {
+                alert(`${collectedCreatures[0].nickname || collectedCreatures[0].name} leveled up to Level ${collectedCreatures[0].level}!`);
+            }
+
+            currentEnemySprite.destroy();
+            respawnEnemyBase();
+        } else if (result === 'run') {
+            player.x += 100;
+        } else if (result === 'loss') {
+            alert('Your lead creature fainted. Healing up...');
+            player.x += 100;
+        }
+    }, 1500);
+};
+
+function respawnEnemyBase() {
+    const basePrototype = window.baseCreatures.find(c => c.name === currentEnemy.name);
     let rx, ry, d;
     do {
         rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
         ry = Phaser.Math.Between(100, WORLD_SIZE - 100);
         d = Math.hypot(player.x - rx, player.y - ry);
     } while (d < 500);
-
-    // Respawn an exact copy of the creature immediately to keep the 50 in world
-    spawnCreature(this, basePrototype || data, rx, ry);
+    spawnCreature(game.scene.scenes[0], basePrototype || currentEnemy, rx, ry);
 }
 
 function update() {
+    if (inBattle) return;
     const speed = 400;
 
     // Animate background
