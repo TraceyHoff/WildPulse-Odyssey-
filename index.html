@@ -1545,6 +1545,37 @@ let multiplayerRoom = null;
 let socket = null;
 let peers = {};
 let dataChannels = {};
+let lastPing = {}; // userId -> timestamp
+
+// Periodically broadcast ping to keep connections alive and check for dead peers
+setInterval(() => {
+    const now = Date.now();
+    // Check for dead connections
+    for (let userId in lastPing) {
+        if (now - lastPing[userId] > 10000) { // 10 seconds timeout
+            console.warn(`[Multiplayer] Connection to ${userId} timed out. Removing.`);
+            if (peers[userId]) {
+                peers[userId].close();
+                delete peers[userId];
+            }
+            if (dataChannels[userId]) {
+                delete dataChannels[userId];
+            }
+            delete lastPing[userId];
+            if (window.removeRemotePlayer) {
+                window.removeRemotePlayer(userId);
+            }
+        }
+    }
+
+    // Send ping
+    const pingMsg = JSON.stringify({ type: 'ping' });
+    Object.values(dataChannels).forEach(dc => {
+        if (dc.readyState === 'open') {
+            dc.send(pingMsg);
+        }
+    });
+}, 3000);
 
 window.joinMultiplayerRoom = function() {
     const code = document.getElementById('roomCodeInput').value.trim();
@@ -1563,6 +1594,18 @@ window.initializeMultiplayer = function(roomCode) {
     socket = io();
 
     socket.emit('join-room', roomCode);
+
+    socket.on('disconnect', () => {
+        console.warn("[Multiplayer] Disconnected from server. Reconnecting...");
+    });
+
+    socket.on('connect', () => {
+        console.log("[Multiplayer] Connected to server.");
+        if (multiplayerRoom) {
+            console.log(`[Multiplayer] Rejoining room ${multiplayerRoom}`);
+            socket.emit('join-room', multiplayerRoom);
+        }
+    });
 
     socket.on('room-users', (users) => {
         users.forEach(userId => {
@@ -1655,21 +1698,27 @@ function setupDataChannel(dc, userId) {
     dataChannels[userId] = dc;
 
     dc.onopen = () => {
-        console.log("Data channel open with", userId);
+        console.log("[Multiplayer] Data channel open with", userId);
+        lastPing[userId] = Date.now();
     };
 
     dc.onclose = () => {
-        console.log("Data channel closed with", userId);
+        console.log("[Multiplayer] Data channel closed with", userId);
+        delete lastPing[userId];
     };
 
     dc.onmessage = (event) => {
         try {
             const msg = JSON.parse(event.data);
+            lastPing[userId] = Date.now(); // update on ANY message to keep backward compatibility
+            if (msg.type === 'ping') {
+                return;
+            }
             if (window.handleMultiplayerMessage) {
                 window.handleMultiplayerMessage(userId, msg);
             }
         } catch (e) {
-            console.error("Failed to parse msg:", e);
+            console.error("[Multiplayer] Failed to parse msg:", e);
         }
     };
 }
@@ -2023,18 +2072,33 @@ function create() {
 
     // Set up multiplayer message handler for Phaser scene
     window.handleMultiplayerMessage = (userId, msg) => {
-        if (msg.type === 'position') {
+        if (msg.type === 'pos' || msg.type === 'position') { // accept both for backwards compatibility if needed
             if (!remotePlayers[userId]) {
                 // Create new remote player
                 let remotePlayer = this.add.rectangle(msg.x, msg.y, 40, 40, 0xFF0000); // Red for other players
                 this.physics.add.existing(remotePlayer);
                 remotePlayer.setData('targetX', msg.x);
                 remotePlayer.setData('targetY', msg.y);
+                remotePlayer.setData('vx', msg.vx || 0);
+                remotePlayer.setData('vy', msg.vy || 0);
+                remotePlayer.setData('lastUpdate', Date.now());
                 remotePlayers[userId] = remotePlayer;
             } else {
-                // Update target position
-                remotePlayers[userId].setData('targetX', msg.x);
-                remotePlayers[userId].setData('targetY', msg.y);
+                const rp = remotePlayers[userId];
+
+                // Ignore large unexpected jumps to prevent cheating
+                const dist = Math.hypot(rp.x - msg.x, rp.y - msg.y);
+                if (dist > 1500) {
+                    console.warn(`[Multiplayer] Dropping impossible movement update from ${userId} (${dist}px jump)`);
+                    return; // Reject movement
+                }
+
+                // Update target position and velocity
+                rp.setData('targetX', msg.x);
+                rp.setData('targetY', msg.y);
+                rp.setData('vx', msg.vx || 0);
+                rp.setData('vy', msg.vy || 0);
+                rp.setData('lastUpdate', Date.now());
             }
         }
     };
@@ -2381,9 +2445,18 @@ function update() {
 
     // Broadcast position over WebRTC if changed significantly
     if (!this.lastBroadcastTime || this.time.now - this.lastBroadcastTime > 100) { // 10 times a sec
+        const dt = this.time.now - (this.lastBroadcastTime || this.time.now - 100);
         const dist = Math.hypot(player.x - (this.lastX || player.x), player.y - (this.lastY || player.y));
         if (dist > 1 || !this.lastBroadcastTime) {
-            const msg = JSON.stringify({ type: 'position', x: player.x, y: player.y });
+            // Calculate velocity since last broadcast
+            let vx = 0;
+            let vy = 0;
+            if (dt > 0 && this.lastX !== undefined && this.lastY !== undefined) {
+                vx = (player.x - this.lastX) / (dt / 1000); // pixels per second
+                vy = (player.y - this.lastY) / (dt / 1000);
+            }
+            // Use shortened keys and integer values for payload compression
+            const msg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: Math.round(vx), vy: Math.round(vy) });
             Object.values(dataChannels).forEach(dc => {
                 if (dc.readyState === 'open') {
                     dc.send(msg);
@@ -2396,12 +2469,33 @@ function update() {
     }
 
     // Interpolate remote players
+    const now = Date.now();
     Object.values(remotePlayers).forEach(rp => {
         const tx = rp.getData('targetX');
         const ty = rp.getData('targetY');
+        const lastUpdate = rp.getData('lastUpdate') || now;
+        const dt = now - lastUpdate;
+
         if (tx !== undefined && ty !== undefined) {
-            rp.x += (tx - rp.x) * 0.2; // Simple linear interpolation
-            rp.y += (ty - rp.y) * 0.2;
+            if (dt > 200) {
+                // If it's been more than 200ms since the last update,
+                // extrapolate position based on their last known velocity
+                const vx = rp.getData('vx') || 0;
+                const vy = rp.getData('vy') || 0;
+                // Cap extrapolation time to avoid wandering off into infinity
+                const extrapolationTime = Math.min(dt / 1000, 1.0);
+
+                // Gradually approach extrapolated target
+                const projectedX = tx + (vx * extrapolationTime);
+                const projectedY = ty + (vy * extrapolationTime);
+
+                rp.x += (projectedX - rp.x) * 0.1;
+                rp.y += (projectedY - rp.y) * 0.1;
+            } else {
+                // Standard linear interpolation if updates are flowing normally
+                rp.x += (tx - rp.x) * 0.2;
+                rp.y += (ty - rp.y) * 0.2;
+            }
         }
     });
 
