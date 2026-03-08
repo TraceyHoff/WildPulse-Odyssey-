@@ -29,4 +29,12 @@ WildPulse Odyssey Creature Collecting Game
 - **Professional UI**: Overhauled all menus, buttons, and modals with modern linear gradients, rounded corners, drop shadows, hover animations, and semi-transparent blur backdrops to fit the wild/nature theme.
 - **Living World**: Creatures now possess wandering AI and slowly roam across the grass tiles organically over time.
 - **Immersive Descriptions**: Replaced instant battle logs with an animated typewriter effect and added dynamic flavor text variations to wild encounters.
- 
+
+### New Features (v5)
+
+- **Balanced Encounters**: Wild creature levels are now capped at your party's maximum level +2.
+- **Improved Visuals**: Enhanced fluid grass and multi-layered wave/ripple animations. Removed dark pixel artifacts from grass generation.
+- **Fantasy Natures & Names**: Replaced placeholder nature names with adjective-noun combinations and added copyright-safe fantasy-style creature name generation.
+- **Enhanced UI Styling**: Full text colorization across UI elements, consistent modern button styling, and color-coded battle log entries for better readability.
+- **Quality of Life**: Implemented a 5-second post-battle grace period to prevent immediate re-encounters.
+- **Expanded Scope**: Doubled the world size to a 200x200 tile space (20000x20000 pixels) and increased the size of party/battle windows.
