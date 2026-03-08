@@ -17,16 +17,10 @@
             display: block;
         }
         #breedBtn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            font-size: 18px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
-            z-index: 100;
         }
         #breedingModal {
             display: none;
@@ -111,7 +105,14 @@
             padding: 5px;
             cursor: pointer;
         }
-
+        .shiny {
+            color: gold;
+            border: gold solid 2px;
+        }
+        .shiny-star {
+            color: gold;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -120,6 +121,8 @@
 <div id="menuModal">
     <h2>Menu</h2>
     <button onclick="openPartyModal()">Party</button>
+    <button id="breedBtn" onclick="openBreedingModal()">Breeding Center</button>
+    <button onclick="openHelpModal()">Help</button>
     <button onclick="deleteProgress()">Delete Progress</button>
     <button onclick="closeMenuModal()">Close</button>
 </div>
@@ -129,7 +132,19 @@
     <button onclick="closePartyModal()">Close</button>
 </div>
 
-<button id="breedBtn" onclick="openBreedingModal()">Breeding Center</button>
+<div id="helpModal" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,0.95); padding:20px; border:2px solid white; z-index:400; color:white; max-width:80%; max-height:80%; overflow-y:auto; font-size:16px;">
+    <h2>How to Play</h2>
+    <p>• Roam grass to encounter creatures. Move with ARROWS or WASD.</p>
+    <p>• Menu: View Party, Breed creatures, or Delete Progress.</p>
+    <h3>Stats</h3>
+    <p>HP: Health | Atk: Physical dmg | Def: Physical resist<br>Spe: Speed | SpA: Special dmg | SpD: Special resist</p>
+    <h3>Natures</h3>
+    <p>250+ Natures modify stats (±10%). These include pure buffs and pure debuffs!</p>
+    <h3>Breeding & Shinies</h3>
+    <p>Offspring blend parents' stats and natures. There is a 0.1% chance to find a Shiny creature (+20% stats). Shinies have a 25% chance to pass down their rarity to offspring.</p>
+    <button onclick="closeHelpModal()" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer;">Close</button>
+</div>
+
 <div id="breedingModal">
     <h2>Breeding Center</h2>
     <div>
@@ -984,6 +999,14 @@ window.baseCreatures = [
 ;
 
 window.natures = [{"name":"Neutral","increase":null,"decrease":null},{"name":"Balanced","increase":null,"decrease":null},{"name":"Stable","increase":null,"decrease":null},{"name":"Even","increase":null,"decrease":null},{"name":"Placid","increase":null,"decrease":null},{"name":"Brave Heart","increase":"defense","decrease":"speed"},{"name":"Brave Soul","increase":"specialDefense","decrease":"attack"},{"name":"Brave Mind","increase":"health","decrease":"specialAttack"},{"name":"Brave Spirit","increase":"specialDefense","decrease":"health"},{"name":"Brave Claw","increase":"specialDefense","decrease":"defense"},{"name":"Brave Fang","increase":"attack","decrease":"defense"},{"name":"Brave Tail","increase":"speed","decrease":"defense"},{"name":"Brave Eye","increase":"speed","decrease":"specialDefense"},{"name":"Brave Wing","increase":"specialAttack","decrease":"defense"},{"name":"Brave Foot","increase":"speed","decrease":"health"},{"name":"Bold Heart","increase":"specialDefense","decrease":"speed"},{"name":"Bold Soul","increase":"defense","decrease":"specialDefense"},{"name":"Bold Mind","increase":"defense","decrease":"health"},{"name":"Bold Spirit","increase":"health","decrease":"speed"},{"name":"Bold Claw","increase":"speed","decrease":"health"},{"name":"Bold Fang","increase":"speed","decrease":"defense"},{"name":"Bold Tail","increase":"specialAttack","decrease":"speed"},{"name":"Bold Eye","increase":"defense","decrease":"health"},{"name":"Bold Wing","increase":"speed","decrease":"attack"},{"name":"Bold Foot","increase":"specialAttack","decrease":"speed"},{"name":"Calm Heart","increase":"health","decrease":"defense"},{"name":"Calm Soul","increase":"health","decrease":"specialDefense"},{"name":"Calm Mind","increase":"specialDefense","decrease":"attack"},{"name":"Calm Spirit","increase":"specialDefense","decrease":"defense"},{"name":"Calm Claw","increase":null,"decrease":null},{"name":"Calm Fang","increase":"specialDefense","decrease":"specialAttack"},{"name":"Calm Tail","increase":null,"decrease":null},{"name":"Calm Eye","increase":"speed","decrease":"specialAttack"},{"name":"Calm Wing","increase":null,"decrease":null},{"name":"Calm Foot","increase":"health","decrease":"attack"},{"name":"Careful Heart","increase":null,"decrease":null},{"name":"Careful Soul","increase":null,"decrease":null},{"name":"Careful Mind","increase":"specialDefense","decrease":"health"},{"name":"Careful Spirit","increase":"attack","decrease":"specialAttack"},{"name":"Careful Claw","increase":"defense","decrease":"specialDefense"},{"name":"Careful Fang","increase":"specialDefense","decrease":"defense"},{"name":"Careful Tail","increase":null,"decrease":null},{"name":"Careful Eye","increase":"defense","decrease":"speed"},{"name":"Careful Wing","increase":"specialDefense","decrease":"health"},{"name":"Careful Foot","increase":"specialDefense","decrease":"defense"},{"name":"Gentle Heart","increase":"health","decrease":"specialAttack"},{"name":"Gentle Soul","increase":"speed","decrease":"specialDefense"},{"name":"Gentle Mind","increase":"attack","decrease":"defense"},{"name":"Gentle Spirit","increase":"defense","decrease":"attack"},{"name":"Gentle Claw","increase":null,"decrease":null},{"name":"Gentle Fang","increase":null,"decrease":null},{"name":"Gentle Tail","increase":null,"decrease":null},{"name":"Gentle Eye","increase":"specialAttack","decrease":"specialDefense"},{"name":"Gentle Wing","increase":"specialDefense","decrease":"specialAttack"},{"name":"Gentle Foot","increase":null,"decrease":null},{"name":"Hasty Heart","increase":null,"decrease":null},{"name":"Hasty Soul","increase":"defense","decrease":"specialDefense"},{"name":"Hasty Mind","increase":"specialDefense","decrease":"defense"},{"name":"Hasty Spirit","increase":"attack","decrease":"specialDefense"},{"name":"Hasty Claw","increase":"defense","decrease":"attack"},{"name":"Hasty Fang","increase":"specialAttack","decrease":"speed"},{"name":"Hasty Tail","increase":"specialDefense","decrease":"health"},{"name":"Hasty Eye","increase":"specialDefense","decrease":"specialAttack"},{"name":"Hasty Wing","increase":"specialDefense","decrease":"attack"},{"name":"Hasty Foot","increase":"attack","decrease":"specialAttack"},{"name":"Jolly Heart","increase":"speed","decrease":"specialAttack"},{"name":"Jolly Soul","increase":"attack","decrease":"defense"},{"name":"Jolly Mind","increase":"health","decrease":"specialDefense"},{"name":"Jolly Spirit","increase":"specialDefense","decrease":"specialAttack"},{"name":"Jolly Claw","increase":"health","decrease":"specialDefense"},{"name":"Jolly Fang","increase":"specialAttack","decrease":"speed"},{"name":"Jolly Tail","increase":null,"decrease":null},{"name":"Jolly Eye","increase":null,"decrease":null},{"name":"Jolly Wing","increase":"defense","decrease":"specialDefense"},{"name":"Jolly Foot","increase":"specialDefense","decrease":"defense"},{"name":"Lax Heart","increase":"speed","decrease":"specialAttack"},{"name":"Lax Soul","increase":"specialDefense","decrease":"specialAttack"},{"name":"Lax Mind","increase":"attack","decrease":"specialAttack"},{"name":"Lax Spirit","increase":"health","decrease":"specialDefense"},{"name":"Lax Claw","increase":"defense","decrease":"attack"},{"name":"Lax Fang","increase":"attack","decrease":"health"},{"name":"Lax Tail","increase":"speed","decrease":"specialDefense"},{"name":"Lax Eye","increase":"specialDefense","decrease":"health"},{"name":"Lax Wing","increase":"specialDefense","decrease":"speed"},{"name":"Lax Foot","increase":"speed","decrease":"specialDefense"},{"name":"Lonely Heart","increase":"attack","decrease":"speed"},{"name":"Lonely Soul","increase":"defense","decrease":"specialDefense"},{"name":"Lonely Mind","increase":"health","decrease":"speed"},{"name":"Lonely Spirit","increase":"defense","decrease":"attack"},{"name":"Lonely Claw","increase":"attack","decrease":"specialAttack"},{"name":"Lonely Fang","increase":"specialAttack","decrease":"health"},{"name":"Lonely Tail","increase":"attack","decrease":"speed"},{"name":"Lonely Eye","increase":"specialDefense","decrease":"speed"},{"name":"Lonely Wing","increase":"speed","decrease":"defense"},{"name":"Lonely Foot","increase":"attack","decrease":"specialDefense"},{"name":"Mild Heart","increase":"speed","decrease":"defense"},{"name":"Mild Soul","increase":"health","decrease":"specialAttack"},{"name":"Mild Mind","increase":null,"decrease":null},{"name":"Mild Spirit","increase":"speed","decrease":"specialDefense"},{"name":"Mild Claw","increase":"specialDefense","decrease":"attack"},{"name":"Mild Fang","increase":"health","decrease":"speed"},{"name":"Mild Tail","increase":"speed","decrease":"attack"},{"name":"Mild Eye","increase":"specialDefense","decrease":"attack"},{"name":"Mild Wing","increase":"speed","decrease":"specialDefense"},{"name":"Mild Foot","increase":"health","decrease":"defense"},{"name":"Modest Heart","increase":"attack","decrease":"health"},{"name":"Modest Soul","increase":"specialDefense","decrease":"attack"},{"name":"Modest Mind","increase":"specialAttack","decrease":"speed"},{"name":"Modest Spirit","increase":"specialAttack","decrease":"specialDefense"},{"name":"Modest Claw","increase":"specialDefense","decrease":"health"},{"name":"Modest Fang","increase":"attack","decrease":"health"},{"name":"Modest Tail","increase":"specialAttack","decrease":"health"},{"name":"Modest Eye","increase":"health","decrease":"specialDefense"},{"name":"Modest Wing","increase":"specialAttack","decrease":"health"},{"name":"Modest Foot","increase":"specialAttack","decrease":"health"},{"name":"Naive Heart","increase":"specialAttack","decrease":"specialDefense"},{"name":"Naive Soul","increase":"health","decrease":"specialDefense"},{"name":"Naive Mind","increase":"speed","decrease":"specialAttack"},{"name":"Naive Spirit","increase":"specialDefense","decrease":"specialAttack"},{"name":"Naive Claw","increase":"speed","decrease":"specialDefense"},{"name":"Naive Fang","increase":"defense","decrease":"specialDefense"},{"name":"Naive Tail","increase":"speed","decrease":"defense"},{"name":"Naive Eye","increase":"specialDefense","decrease":"defense"},{"name":"Naive Wing","increase":"attack","decrease":"specialAttack"},{"name":"Naive Foot","increase":"specialAttack","decrease":"attack"},{"name":"Naughty Heart","increase":"health","decrease":"specialAttack"},{"name":"Naughty Soul","increase":"attack","decrease":"speed"},{"name":"Naughty Mind","increase":null,"decrease":null},{"name":"Naughty Spirit","increase":null,"decrease":null},{"name":"Naughty Claw","increase":"health","decrease":"attack"},{"name":"Naughty Fang","increase":"speed","decrease":"specialAttack"},{"name":"Naughty Tail","increase":null,"decrease":null},{"name":"Naughty Eye","increase":"defense","decrease":"health"},{"name":"Naughty Wing","increase":"specialDefense","decrease":"speed"},{"name":"Naughty Foot","increase":"speed","decrease":"health"},{"name":"Quiet Heart","increase":"defense","decrease":"speed"},{"name":"Quiet Soul","increase":"defense","decrease":"health"},{"name":"Quiet Mind","increase":"speed","decrease":"specialAttack"},{"name":"Quiet Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Quiet Claw","increase":null,"decrease":null},{"name":"Quiet Fang","increase":"specialAttack","decrease":"speed"},{"name":"Quiet Tail","increase":"speed","decrease":"attack"},{"name":"Quiet Eye","increase":"specialDefense","decrease":"specialAttack"},{"name":"Quiet Wing","increase":"attack","decrease":"speed"},{"name":"Quiet Foot","increase":"specialAttack","decrease":"defense"},{"name":"Quirky Heart","increase":"attack","decrease":"health"},{"name":"Quirky Soul","increase":"specialAttack","decrease":"health"},{"name":"Quirky Mind","increase":"specialAttack","decrease":"health"},{"name":"Quirky Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Quirky Claw","increase":"specialAttack","decrease":"attack"},{"name":"Quirky Fang","increase":"attack","decrease":"health"},{"name":"Quirky Tail","increase":"specialDefense","decrease":"specialAttack"},{"name":"Quirky Eye","increase":"speed","decrease":"defense"},{"name":"Quirky Wing","increase":"speed","decrease":"specialDefense"},{"name":"Quirky Foot","increase":null,"decrease":null},{"name":"Rash Heart","increase":null,"decrease":null},{"name":"Rash Soul","increase":"speed","decrease":"health"},{"name":"Rash Mind","increase":null,"decrease":null},{"name":"Rash Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Rash Claw","increase":"defense","decrease":"specialAttack"},{"name":"Rash Fang","increase":"speed","decrease":"attack"},{"name":"Rash Tail","increase":"specialDefense","decrease":"attack"},{"name":"Rash Eye","increase":"defense","decrease":"specialDefense"},{"name":"Rash Wing","increase":"defense","decrease":"specialAttack"},{"name":"Rash Foot","increase":"attack","decrease":"specialDefense"},{"name":"Relaxed Heart","increase":"defense","decrease":"speed"},{"name":"Relaxed Soul","increase":"defense","decrease":"speed"},{"name":"Relaxed Mind","increase":"health","decrease":"attack"},{"name":"Relaxed Spirit","increase":"speed","decrease":"specialAttack"},{"name":"Relaxed Claw","increase":null,"decrease":null},{"name":"Relaxed Fang","increase":"attack","decrease":"specialDefense"},{"name":"Relaxed Tail","increase":"specialDefense","decrease":"speed"},{"name":"Relaxed Eye","increase":"specialDefense","decrease":"attack"},{"name":"Relaxed Wing","increase":null,"decrease":null},{"name":"Relaxed Foot","increase":"specialAttack","decrease":"attack"},{"name":"Sassy Heart","increase":null,"decrease":null},{"name":"Sassy Soul","increase":"defense","decrease":"speed"},{"name":"Sassy Mind","increase":"attack","decrease":"defense"},{"name":"Sassy Spirit","increase":"attack","decrease":"specialAttack"},{"name":"Sassy Claw","increase":"health","decrease":"speed"},{"name":"Sassy Fang","increase":"health","decrease":"speed"},{"name":"Sassy Tail","increase":"health","decrease":"speed"},{"name":"Sassy Eye","increase":null,"decrease":null},{"name":"Sassy Wing","increase":"specialAttack","decrease":"defense"},{"name":"Sassy Foot","increase":"defense","decrease":"health"},{"name":"Serious Heart","increase":null,"decrease":null},{"name":"Serious Soul","increase":"specialDefense","decrease":"attack"},{"name":"Serious Mind","increase":"specialAttack","decrease":"defense"},{"name":"Serious Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Serious Claw","increase":null,"decrease":null},{"name":"Serious Fang","increase":null,"decrease":null},{"name":"Serious Tail","increase":"specialDefense","decrease":"defense"},{"name":"Serious Eye","increase":"attack","decrease":"speed"},{"name":"Serious Wing","increase":"speed","decrease":"specialDefense"},{"name":"Serious Foot","increase":"speed","decrease":"defense"},{"name":"Timid Heart","increase":"specialDefense","decrease":"speed"},{"name":"Timid Soul","increase":"speed","decrease":"specialAttack"},{"name":"Timid Mind","increase":"health","decrease":"specialAttack"},{"name":"Timid Spirit","increase":"defense","decrease":"attack"},{"name":"Timid Claw","increase":"specialAttack","decrease":"speed"}];
+const statsArr = ['attack', 'defense', 'speed', 'specialAttack', 'specialDefense', 'health'];
+for (let i = 1; i <= 50; i++) {
+    window.natures.push({ name: 'Buff_' + i, increase: statsArr[i % 6], decrease: null });
+}
+for (let i = 1; i <= 50; i++) {
+    window.natures.push({ name: 'Debuff_' + i, increase: null, decrease: statsArr[i % 6] });
+}
+
 window.getRandomNature = function() {
     return window.natures[Math.floor(Math.random() * window.natures.length)];
 };
@@ -1057,6 +1080,13 @@ window.openMenuModal = function() {
 window.closeMenuModal = function() {
     document.getElementById('menuModal').style.display = 'none';
 };
+window.openHelpModal = function() {
+    closeMenuModal();
+    document.getElementById('helpModal').style.display = 'block';
+};
+window.closeHelpModal = function() {
+    document.getElementById('helpModal').style.display = 'none';
+};
 window.openPartyModal = function() {
     closeMenuModal();
     document.getElementById('partyModal').style.display = 'block';
@@ -1075,7 +1105,7 @@ window.renderPartyList = function() {
     }
     collectedCreatures.forEach((c, index) => {
         const card = document.createElement('div');
-        card.className = 'party-card';
+        card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
         const statsHtml = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].map(stat => {
             let base = c.stats[stat] || 50;
@@ -1090,10 +1120,11 @@ window.renderPartyList = function() {
         }
 
         let natureHtml = c.nature ? `<p>Nature: ${c.nature.name}</p>` : '<p>Nature: None</p>';
+        let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
 
         card.innerHTML = `
             <div>
-                <h3>${c.name} (Lvl ${c.generation}) - ${c.type}</h3>
+                <h3>${shinyPrefix}<input class="creature-name" value="${c.nickname || c.name}" maxlength="20"> <button onclick="window.saveName(this, ${index})">Save</button> (Lvl ${c.generation}) - ${c.type}</h3>
                 <p>${c.description}</p>
                 ${natureHtml}
                 ${parentsHtml}
@@ -1109,6 +1140,12 @@ window.renderPartyList = function() {
         `;
         list.appendChild(card);
     });
+};
+
+window.saveName = function(btn, index) {
+    collectedCreatures[index].nickname = btn.previousElementSibling.value || collectedCreatures[index].name;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+    window.renderPartyList();
 };
 
 window.moveUp = function(index) {
@@ -1136,9 +1173,6 @@ window.releaseCreature = function(index) {
         collectedCreatures.splice(index, 1);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
         renderPartyList();
-        if (typeof uiText !== 'undefined' && uiText) {
-            uiText.setText(`Collected: ${collectedCreatures.length} / 50`);
-        }
     }
 };
 
@@ -1192,6 +1226,13 @@ window.breed = function(parent1, parent2) {
     const b = Math.floor(((c1 & 0xFF) + (c2 & 0xFF)) / 2);
     const childColor = (r << 16) | (g << 8) | b;
 
+    const childShiny = (parent1.isShiny || parent2.isShiny) && Math.random() < 0.25;
+    if (childShiny) {
+        for (let stat in childStats) {
+            childStats[stat] = Math.floor(childStats[stat] * 1.2);
+        }
+    }
+
     return {
         id: childId,
         name: childName,
@@ -1202,6 +1243,7 @@ window.breed = function(parent1, parent2) {
         generation: childGeneration,
         color: childColor,
         nature: window.getRandomNature(),
+        isShiny: childShiny,
         parents: {
             name1: parent1.name,
             type1: parent1.type,
@@ -1281,11 +1323,6 @@ window.doBreed = function() {
         // Add the child
         saveCollected(child);
 
-        // Update UI Text if it exists
-        if (typeof uiText !== 'undefined' && uiText) {
-            uiText.setText(`Collected: ${collectedCreatures.length} / 50`);
-        }
-
         document.getElementById('breedResult').innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents have returned to the wild.`;
 
         // Re-populate to show new child and removed parents
@@ -1295,7 +1332,7 @@ window.doBreed = function() {
 };
 
 // ==================== PHASER GAME ====================
-const WORLD_SIZE = 6000;
+const WORLD_SIZE = 10000;
 
 const config = {
     type: Phaser.AUTO,
@@ -1318,7 +1355,6 @@ let player;
 let cursors;
 let pointerTarget = null;
 let creaturesGroup;
-let uiText;
 let popupText;
 let popupBackground;
 let popupTimer;
@@ -1361,28 +1397,73 @@ function preload() {
 
         this.textures.addCanvas('grass_' + frame, canvas);
     }
+
+    // Generate path texture
+    const pathCanvas = document.createElement('canvas');
+    pathCanvas.width = 100;
+    pathCanvas.height = 100;
+    const pathCtx = pathCanvas.getContext('2d');
+    pathCtx.fillStyle = '#D2B48C'; // Tan path
+    pathCtx.fillRect(0, 0, 100, 100);
+    this.textures.addCanvas('path_tex', pathCanvas);
+
+    // Generate obstacle texture
+    const obsCanvas = document.createElement('canvas');
+    obsCanvas.width = 100;
+    obsCanvas.height = 100;
+    const obsCtx = obsCanvas.getContext('2d');
+    obsCtx.fillStyle = '#1E90FF'; // Water/obstacle
+    obsCtx.fillRect(0, 0, 100, 100);
+    this.textures.addCanvas('obs_tex', obsCanvas);
 }
 
+let mapData = []; // To store 100x100 grid data
+let obstaclesGroup;
+
 function create() {
-    // Background repeating tile
+    // Generate map terrain
+    const TILE_SIZE = 100;
+    const cols = WORLD_SIZE / TILE_SIZE; // 100
+    const rows = WORLD_SIZE / TILE_SIZE; // 100
+
+    // Fill background with grass
     bgGrass = this.add.tileSprite(0, 0, WORLD_SIZE, WORLD_SIZE, 'grass_0').setOrigin(0, 0);
+    obstaclesGroup = this.physics.add.staticGroup();
+
+    // Procedural generation
+    for (let r = 0; r < rows; r++) {
+        mapData[r] = [];
+        for (let c = 0; c < cols; c++) {
+            let rnd = Math.random();
+            if (rnd < 0.20) {
+                // Path
+                this.add.image(c * TILE_SIZE, r * TILE_SIZE, 'path_tex').setOrigin(0, 0);
+                mapData[r][c] = 'path';
+            } else if (rnd < 0.30) {
+                // Obstacle (Water)
+                let obs = obstaclesGroup.create(c * TILE_SIZE + TILE_SIZE/2, r * TILE_SIZE + TILE_SIZE/2, 'obs_tex');
+                mapData[r][c] = 'obs';
+            } else {
+                // Grass
+                mapData[r][c] = 'grass';
+            }
+        }
+    }
 
     // Player setup
-    player = this.add.rectangle(WORLD_SIZE / 2, WORLD_SIZE / 2, 40, 40, 0xFFFFFF);
+    const savedX = localStorage.getItem('wildpulse_player_x');
+    const savedY = localStorage.getItem('wildpulse_player_y');
+    const startX = savedX ? parseFloat(savedX) : WORLD_SIZE / 2;
+    const startY = savedY ? parseFloat(savedY) : WORLD_SIZE / 2;
+
+    player = this.add.rectangle(startX, startY, 40, 40, 0xFFFFFF);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
+    this.physics.add.collider(player, obstaclesGroup);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.startFollow(player);
-
-    // UI Layer
-    uiText = this.add.text(20, 20, `Collected: ${collectedCreatures.length} / 50`, {
-        fontSize: '24px',
-        fill: '#FFF',
-        backgroundColor: '#000000',
-        padding: {x: 10, y: 10}
-    }).setScrollFactor(0);
 
     // Popup Layer
     popupBackground = this.add.rectangle(window.innerWidth / 2, window.innerHeight - 100, 600, 150, 0x000000, 0.8)
@@ -1433,13 +1514,34 @@ function create() {
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
 }
 
-function spawnCreature(scene, creatureData) {
-    const x = Phaser.Math.Between(100, WORLD_SIZE - 100);
-    const y = Phaser.Math.Between(100, WORLD_SIZE - 100);
+function spawnCreature(scene, creatureData, forceX, forceY) {
+    const x = forceX !== undefined ? forceX : Phaser.Math.Between(100, WORLD_SIZE - 100);
+    const y = forceY !== undefined ? forceY : Phaser.Math.Between(100, WORLD_SIZE - 100);
 
-    const sprite = scene.add.rectangle(x, y, 30, 30, creatureData.color);
+    let clonedData = JSON.parse(JSON.stringify(creatureData));
+
+    // Randomize stats with IVs (0-31)
+    if (clonedData.stats) {
+        for (let stat in clonedData.stats) {
+            clonedData.stats[stat] += Math.floor(Math.random() * 32);
+        }
+    }
+
+    // 0.1% Shiny Chance
+    clonedData.isShiny = Math.random() < 0.001;
+    if (clonedData.isShiny && clonedData.stats) {
+        for (let stat in clonedData.stats) {
+            clonedData.stats[stat] = Math.floor(clonedData.stats[stat] * 1.2);
+        }
+    }
+
+    // Assign random nature and unique ID on spawn
+    clonedData.nature = window.getRandomNature();
+    clonedData.id = Date.now().toString() + "_" + Math.floor(Math.random() * 1000000).toString();
+
+    const sprite = scene.add.rectangle(x, y, 30, 30, clonedData.color);
     scene.physics.add.existing(sprite);
-    sprite.setData('creatureData', creatureData);
+    sprite.setData('creatureData', clonedData);
     creaturesGroup.add(sprite);
 }
 
@@ -1447,26 +1549,21 @@ function collectCreature(player, creatureSprite) {
     // Clone data to avoid mutating base prototype directly in group
     const data = JSON.parse(JSON.stringify(creatureSprite.getData('creatureData')));
 
-    // Assign nature if it doesn't have one
-    if (!data.nature) data.nature = window.getRandomNature();
-
     let battleText = "";
     if (collectedCreatures.length > 0) {
         const leadCreature = collectedCreatures[0];
         const damage = window.calculateDamage(leadCreature, data, 50);
-        battleText = `Your ${leadCreature.name} dealt ${damage.toFixed(2)} damage to ${data.name}!\n\n`;
+        const leadName = leadCreature.nickname || leadCreature.name;
+        battleText = `Your ${leadName} dealt ${damage.toFixed(2)} damage to ${data.nickname || data.name}!\n\n`;
     }
 
     // Save full object
     saveCollected(data);
 
-    // Update UI
-    uiText.setText(`Collected: ${collectedCreatures.length} / 50`);
-
     // Show Popup
     if (popupTimer) popupTimer.remove();
 
-    popupText.setText(`${battleText}You caught ${data.name}!\n\n${data.description || data.desc}`);
+    popupText.setText(`${battleText}You caught ${data.nickname || data.name}!\n\n${data.description || data.desc}`);
     popupBackground.setVisible(true);
     popupText.setVisible(true);
 
@@ -1478,13 +1575,19 @@ function collectCreature(player, creatureSprite) {
     // Despawn
     creatureSprite.destroy();
 
-    // Remove dynamic state properties like instance specific ID before respawning
-    // so it acts like a clean base creature
-    const respawnData = JSON.parse(JSON.stringify(data));
-    delete respawnData.nature;
+    // We respawn using the base prototype so we get fresh stats and ID
+    const basePrototype = window.baseCreatures.find(c => c.name === data.name);
+
+    // Respawn far away from the player
+    let rx, ry, d;
+    do {
+        rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
+        ry = Phaser.Math.Between(100, WORLD_SIZE - 100);
+        d = Math.hypot(player.x - rx, player.y - ry);
+    } while (d < 500);
 
     // Respawn an exact copy of the creature immediately to keep the 50 in world
-    spawnCreature(this, respawnData);
+    spawnCreature(this, basePrototype || data, rx, ry);
 }
 
 function update() {
@@ -1499,6 +1602,13 @@ function update() {
     // Keyboard movement
     let movedX = false;
     let movedY = false;
+
+    // Periodically save player position (every ~1000ms)
+    if (!this.lastSaveTime || this.time.now - this.lastSaveTime > 1000) {
+        localStorage.setItem('wildpulse_player_x', player.x);
+        localStorage.setItem('wildpulse_player_y', player.y);
+        this.lastSaveTime = this.time.now;
+    }
 
     if (cursors.left.isDown) {
         player.body.setVelocityX(-speed);
