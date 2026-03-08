@@ -8,4 +8,16 @@ WildPulse Odyssey Creature Collecting Game
 - **Menu & Party UI**: Added a new Menu overlay accessible from the main screen. The Party window lets you view your collected creatures, their effective stats, natures, and lineage (parents).
 - **Party Management**: Players can now reorder their party or release creatures back into the wild.
 - **Data Wipe**: A "Delete Progress" option is available in the Menu to clear local storage and start fresh.
+
+### New Features (v3)
+
+- Removed capture count display to declutter the game interface.
+- Moved the breeding center button to the main menu for better accessibility.
+- Multiple creatures of the same species now have uniquely generated stats and natures when encountered.
+- Expanded the world significantly to a 100x100 tile space (10000x10000 pixels), allowing for deeper exploration.
+- Added the ability to rename captured creatures directly in the Party window.
+- When a creature is caught, its replacement will now spawn far away from the player instead of nearby.
+- Added an extremely rare Shiny mechanic (0.1% chance) granting +20% base stats, and shinies can pass down their rarity to offspring at a 25% rate.
+- Added 50 new pure buff and 50 new pure debuff natures to the generation pool.
+- Added a detailed Help window to the main menu explaining game mechanics and controls.
  

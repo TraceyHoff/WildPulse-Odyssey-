@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <script>
+        let testStr = `let c = window.baseCreatures[0];
+            let shinyTest = JSON.parse(JSON.stringify(c));
+            shinyTest.id = "shiny123";
+            shinyTest.nickname = "Goldie";
+            shinyTest.isShiny = true;
+            collectedCreatures.push(shinyTest);
+            renderPartyList();`;
+        console.log("Just running script directly is harder due to closures in index.html");
+    </script>
+</body>
+</html>
