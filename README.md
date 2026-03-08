@@ -20,4 +20,13 @@ WildPulse Odyssey Creature Collecting Game
 - Added an extremely rare Shiny mechanic (0.1% chance) granting +20% base stats, and shinies can pass down their rarity to offspring at a 25% rate.
 - Added 50 new pure buff and 50 new pure debuff natures to the generation pool.
 - Added a detailed Help window to the main menu explaining game mechanics and controls.
+
+### New Features (v4)
+
+- **Balanced Gameplay**: Halved player movement speed for better pacing.
+- **Color-Coded Stats**: All stats including Health, XP, and Levels are now visually distinct with thematic colors to improve readability.
+- **Enhanced Environment**: Replaced random water tiles with procedurally generated seamless lakes (2-8 tiles). Added realistic water rippling animations and seamless wind-swayed grass generation.
+- **Professional UI**: Overhauled all menus, buttons, and modals with modern linear gradients, rounded corners, drop shadows, hover animations, and semi-transparent blur backdrops to fit the wild/nature theme.
+- **Living World**: Creatures now possess wandering AI and slowly roam across the grass tiles organically over time.
+- **Immersive Descriptions**: Replaced instant battle logs with an animated typewriter effect and added dynamic flavor text variations to wild encounters.
  
