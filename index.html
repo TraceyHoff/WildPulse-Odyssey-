@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WildPulse Odyssey</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         body {
             margin: 0;
@@ -136,6 +137,39 @@
         #partyModal > button, #breedingModal button:last-of-type, #helpModal button { background: linear-gradient(180deg, #555, #222); border-color: #777; }
         #breedingModal button:first-of-type { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
 
+        #lobbyModal {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            padding: 30px;
+            z-index: 1000;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            border: 2px solid #87CEEB;
+            background: linear-gradient(135deg, rgba(10,40,20,0.95), rgba(0,20,40,0.95));
+            backdrop-filter: blur(5px);
+        }
+        #lobbyModal input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #lobbyModal button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: linear-gradient(180deg, #42a5f5, #1565c0);
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
         #partyModal {
             display: none;
             position: absolute;
@@ -183,6 +217,14 @@
 </head>
 <body>
 
+
+<div id="lobbyModal">
+    <h2>Multiplayer Lobby</h2>
+    <p>Enter a room code to join other players.</p>
+    <input type="text" id="roomCodeInput" placeholder="Room Code" value="public">
+    <br>
+    <button onclick="joinMultiplayerRoom()">Join Room</button>
+</div>
 
 <div id="battleModal">
     <div class="battle-area">
@@ -1498,6 +1540,140 @@ window.doBreed = function() {
     }
 };
 
+// ==================== MULTIPLAYER LOBBY ====================
+let multiplayerRoom = null;
+let socket = null;
+let peers = {};
+let dataChannels = {};
+
+window.joinMultiplayerRoom = function() {
+    const code = document.getElementById('roomCodeInput').value.trim();
+    if (code) {
+        multiplayerRoom = code;
+        document.getElementById('lobbyModal').style.display = 'none';
+
+        // Signal intention to start multiplayer setup in the game config
+        if (window.initializeMultiplayer) {
+            window.initializeMultiplayer(multiplayerRoom);
+        }
+    }
+};
+
+window.initializeMultiplayer = function(roomCode) {
+    socket = io();
+
+    socket.emit('join-room', roomCode);
+
+    socket.on('room-users', (users) => {
+        users.forEach(userId => {
+            createPeerConnection(userId, true);
+        });
+    });
+
+    socket.on('user-joined', (userId) => {
+        console.log("User joined:", userId);
+        // Will receive offer from this user
+    });
+
+    socket.on('user-left', (userId) => {
+        if (peers[userId]) {
+            peers[userId].close();
+            delete peers[userId];
+        }
+        if (dataChannels[userId]) {
+            delete dataChannels[userId];
+        }
+        if (window.removeRemotePlayer) {
+            window.removeRemotePlayer(userId);
+        }
+    });
+
+    socket.on('signal', async (data) => {
+        const { sender, signal } = data;
+        let peer = peers[sender];
+
+        if (!peer) {
+            peer = createPeerConnection(sender, false);
+        }
+
+        if (signal.type === 'offer') {
+            await peer.setRemoteDescription(new RTCSessionDescription(signal));
+            const answer = await peer.createAnswer();
+            await peer.setLocalDescription(answer);
+            socket.emit('signal', {
+                target: sender,
+                signal: peer.localDescription
+            });
+        } else if (signal.type === 'answer') {
+            await peer.setRemoteDescription(new RTCSessionDescription(signal));
+        } else if (signal.candidate) {
+            await peer.addIceCandidate(new RTCIceCandidate(signal));
+        }
+    });
+};
+
+function createPeerConnection(userId, initiator) {
+    const pc = new RTCPeerConnection({
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+        ]
+    });
+
+    peers[userId] = pc;
+
+    pc.onicecandidate = (event) => {
+        if (event.candidate) {
+            socket.emit('signal', {
+                target: userId,
+                signal: event.candidate
+            });
+        }
+    };
+
+    if (initiator) {
+        const dc = pc.createDataChannel('gameData');
+        setupDataChannel(dc, userId);
+
+        pc.createOffer().then(offer => {
+            return pc.setLocalDescription(offer);
+        }).then(() => {
+            socket.emit('signal', {
+                target: userId,
+                signal: pc.localDescription
+            });
+        });
+    } else {
+        pc.ondatachannel = (event) => {
+            setupDataChannel(event.channel, userId);
+        };
+    }
+
+    return pc;
+}
+
+function setupDataChannel(dc, userId) {
+    dataChannels[userId] = dc;
+
+    dc.onopen = () => {
+        console.log("Data channel open with", userId);
+    };
+
+    dc.onclose = () => {
+        console.log("Data channel closed with", userId);
+    };
+
+    dc.onmessage = (event) => {
+        try {
+            const msg = JSON.parse(event.data);
+            if (window.handleMultiplayerMessage) {
+                window.handleMultiplayerMessage(userId, msg);
+            }
+        } catch (e) {
+            console.error("Failed to parse msg:", e);
+        }
+    };
+}
+
 // ==================== PHASER GAME ====================
 const WORLD_SIZE = 20000;
 
@@ -1530,6 +1706,7 @@ let inBattle = false;
 let currentEnemy = null;
 let currentPlayer = null;
 let currentEnemySprite = null;
+let remotePlayers = {}; // userId -> Phaser sprite
 
 let battleLogQueue = [];
 let isTyping = false;
@@ -1843,6 +2020,31 @@ function create() {
         popupBackground.setPosition(gameSize.width / 2, gameSize.height - 100);
         popupText.setPosition(gameSize.width / 2, gameSize.height - 100);
     });
+
+    // Set up multiplayer message handler for Phaser scene
+    window.handleMultiplayerMessage = (userId, msg) => {
+        if (msg.type === 'position') {
+            if (!remotePlayers[userId]) {
+                // Create new remote player
+                let remotePlayer = this.add.rectangle(msg.x, msg.y, 40, 40, 0xFF0000); // Red for other players
+                this.physics.add.existing(remotePlayer);
+                remotePlayer.setData('targetX', msg.x);
+                remotePlayer.setData('targetY', msg.y);
+                remotePlayers[userId] = remotePlayer;
+            } else {
+                // Update target position
+                remotePlayers[userId].setData('targetX', msg.x);
+                remotePlayers[userId].setData('targetY', msg.y);
+            }
+        }
+    };
+
+    window.removeRemotePlayer = (userId) => {
+        if (remotePlayers[userId]) {
+            remotePlayers[userId].destroy();
+            delete remotePlayers[userId];
+        }
+    };
 
     // Creatures setup
     creaturesGroup = this.physics.add.group();
@@ -2176,6 +2378,32 @@ function update() {
     // Keyboard movement
     let movedX = false;
     let movedY = false;
+
+    // Broadcast position over WebRTC if changed significantly
+    if (!this.lastBroadcastTime || this.time.now - this.lastBroadcastTime > 100) { // 10 times a sec
+        const dist = Math.hypot(player.x - (this.lastX || player.x), player.y - (this.lastY || player.y));
+        if (dist > 1 || !this.lastBroadcastTime) {
+            const msg = JSON.stringify({ type: 'position', x: player.x, y: player.y });
+            Object.values(dataChannels).forEach(dc => {
+                if (dc.readyState === 'open') {
+                    dc.send(msg);
+                }
+            });
+            this.lastX = player.x;
+            this.lastY = player.y;
+        }
+        this.lastBroadcastTime = this.time.now;
+    }
+
+    // Interpolate remote players
+    Object.values(remotePlayers).forEach(rp => {
+        const tx = rp.getData('targetX');
+        const ty = rp.getData('targetY');
+        if (tx !== undefined && ty !== undefined) {
+            rp.x += (tx - rp.x) * 0.2; // Simple linear interpolation
+            rp.y += (ty - rp.y) * 0.2;
+        }
+    });
 
     // Periodically save player position (every ~1000ms)
     if (!this.lastSaveTime || this.time.now - this.lastSaveTime > 1000) {

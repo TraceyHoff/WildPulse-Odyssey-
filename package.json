@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "jsdom": "^28.1.0"
+    "jsdom": "^28.1.0",
+    "playwright": "^1.58.2",
+    "simple-peer": "^9.11.1",
+    "socket.io": "^4.8.3"
   }
 }
