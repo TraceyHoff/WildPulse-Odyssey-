@@ -277,16 +277,16 @@
 
 
 <div id="lobbyModal">
-    <button class="close-btn lobby-close-btn">X</button>
+    <button class="close-btn lobby-close-btn" aria-label="Close Lobby">X</button>
     <h2>Multiplayer Lobby</h2>
     <p>Enter a room code to join other players.</p>
-    <input type="text" id="roomCodeInput" placeholder="Room Code" value="public">
+    <input type="text" id="roomCodeInput" aria-label="Room Code" placeholder="Room Code" value="public">
     <br>
     <button id="joinBtn">Join Room</button>
 </div>
 
 <div id="battleModal">
-    <button class="close-btn battle-close-btn">X</button>
+    <button class="close-btn battle-close-btn" aria-label="Close Battle">X</button>
     <div class="battle-area">
         <div class="combatant" id="playerCombatant">
             <h3 id="pName">Player Creature</h3>
@@ -314,7 +314,7 @@
 
 <button id="menuBtn">Menu</button>
 <div id="menuModal">
-    <button class="close-btn close-menu-btn">X</button>
+    <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <h2>Menu</h2>
     <button id="menuPartyBtn">Party</button>
     <button id="breedBtn">Breeding Center</button>
@@ -323,14 +323,14 @@
     <button class="close-menu-btn">Close</button>
 </div>
 <div id="partyModal">
-    <button class="close-btn close-party-btn">X</button>
+    <button class="close-btn close-party-btn" aria-label="Close Party">X</button>
     <h2>Party</h2>
     <div id="partyList"></div>
     <button class="close-party-btn">Close</button>
 </div>
 
 <div id="helpModal" style="display:none; position:absolute; background:rgba(0,0,0,0.95); padding:20px; z-index:400; color:white; overflow-y:auto; font-size:16px;">
-    <button class="close-btn close-help-btn">X</button>
+    <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
     <h2>How to Play</h2>
     <p>• Roam grass to encounter creatures. Move with ARROWS or WASD.</p>
     <p>• Menu: View Party, Breed creatures, or Delete Progress.</p>
@@ -349,7 +349,7 @@
 </div>
 
 <div id="breedingModal">
-    <button class="close-btn close-breeding-btn">X</button>
+    <button class="close-btn close-breeding-btn" aria-label="Close Breeding Center">X</button>
     <h2>Breeding Center</h2>
     <div>
         <label>Parent 1:</label>
@@ -1477,7 +1477,7 @@ window.renderPartyList = function() {
 
         card.innerHTML = `
             <div>
-                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" value="${c.nickname || c.name}" maxlength="20"> <button class="save-name-btn" data-index="${index}">Save</button> - ${c.type}</h3>
+                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20"> <button class="save-name-btn" data-index="${index}">Save</button> - ${c.type}</h3>
                 <p><strong>Level <span style="color:#2196F3">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:#2196F3">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span></p>
                 <div class="creature-description">
                     <p style="color: #ccc; font-style: italic;">${c.description}</p>
@@ -1492,8 +1492,8 @@ window.renderPartyList = function() {
                 </div>
             </div>
             <div class="party-controls">
-                <button class="move-up-btn" data-index="${index}">▲</button>
-                <button class="move-down-btn" data-index="${index}">▼</button>
+                <button class="move-up-btn" data-index="${index}" aria-label="Move Up">▲</button>
+                <button class="move-down-btn" data-index="${index}" aria-label="Move Down">▼</button>
                 <button class="release-btn" data-index="${index}" style="background-color: #f44336; color: white;">Release</button>
             </div>
         `;
