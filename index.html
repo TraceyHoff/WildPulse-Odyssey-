@@ -1326,7 +1326,8 @@ let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
 // Provide a starting creature if the player is new
 if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
-    let starter = JSON.parse(JSON.stringify(window.baseCreatures[0]));
+    let randomIndex = Math.floor(Math.random() * window.baseCreatures.length);
+    let starter = JSON.parse(JSON.stringify(window.baseCreatures[randomIndex]));
 
     // Assign IVs
     if (starter.stats) {
@@ -2448,6 +2449,8 @@ function create() {
 
     // Creatures setup
     creaturesGroup = this.physics.add.group();
+    creaturesGroup.setDepth(1);
+    this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
     // Spawn exactly the 50 base creatures (increased by 50% for density)
     let spawnCount = Math.floor(baseCreatures.length * 1.5);
@@ -2849,6 +2852,14 @@ function update() {
     if (inBattle) return;
     const speed = 200;
 
+    if (!window.lastSaveTime) window.lastSaveTime = 0;
+    const now = Date.now();
+    const shouldSave = (now - window.lastSaveTime > 2000);
+
+    if (!window.aiFrameCounter) window.aiFrameCounter = 0;
+    window.aiFrameCounter++;
+    const updateAIThisFrame = (window.aiFrameCounter % 12 === 0);
+
     // Animate background
     const frame = Math.floor(this.time.now / 150) % 12;
     bgGrass.setTexture('grass_' + frame);
@@ -2916,10 +2927,10 @@ function update() {
     });
 
     // Periodically save player position (every ~1000ms)
-    if (!this.lastSaveTime || this.time.now - this.lastSaveTime > 1000) {
+    if (shouldSave) {
         localStorage.setItem('wildpulse_player_x', player.x);
         localStorage.setItem('wildpulse_player_y', player.y);
-        this.lastSaveTime = this.time.now;
+        window.lastSaveTime = now;
     }
 
     if (cursors.left.isDown) {
@@ -2955,33 +2966,35 @@ function update() {
     }
 
     // Creature wandering logic
-    creaturesGroup.getChildren().forEach(creature => {
-        if (Math.random() < 0.02) {
-            const rx = (Math.random() - 0.5) * 200;
-            const ry = (Math.random() - 0.5) * 200;
-            const targetX = Phaser.Math.Clamp(creature.x + rx, 100, WORLD_SIZE - 100);
-            const targetY = Phaser.Math.Clamp(creature.y + ry, 100, WORLD_SIZE - 100);
+    if (updateAIThisFrame) {
+        creaturesGroup.getChildren().forEach(creature => {
+            if (Math.random() < 0.02) {
+                const rx = (Math.random() - 0.5) * 200;
+                const ry = (Math.random() - 0.5) * 200;
+                const targetX = Phaser.Math.Clamp(creature.x + rx, 100, WORLD_SIZE - 100);
+                const targetY = Phaser.Math.Clamp(creature.y + ry, 100, WORLD_SIZE - 100);
 
-            // Only move if target isn't water
-            const col = Math.floor(targetX / 100); // TILE_SIZE is 100
-            const row = Math.floor(targetY / 100);
-            if (mapData[row] && mapData[row][col] === 'grass') {
-                creature.setData('targetX', targetX);
-                creature.setData('targetY', targetY);
-            } else {
-                creature.setData('targetX', creature.x);
-                creature.setData('targetY', creature.y);
+                // Only move if target isn't water
+                const col = Math.floor(targetX / 100); // TILE_SIZE is 100
+                const row = Math.floor(targetY / 100);
+                if (mapData[row] && mapData[row][col] === 'grass') {
+                    creature.setData('targetX', targetX);
+                    creature.setData('targetY', targetY);
+                } else {
+                    creature.setData('targetX', creature.x);
+                    creature.setData('targetY', creature.y);
+                }
             }
-        }
 
-        const tx = creature.getData('targetX');
-        const ty = creature.getData('targetY');
+            const tx = creature.getData('targetX');
+            const ty = creature.getData('targetY');
 
-        if (tx !== undefined && ty !== undefined) {
-            creature.x += (tx - creature.x) * 0.05;
-            creature.y += (ty - creature.y) * 0.05;
-        }
-    });
+            if (tx !== undefined && ty !== undefined) {
+                creature.x += (tx - creature.x) * 0.05;
+                creature.y += (ty - creature.y) * 0.05;
+            }
+        });
+    }
 }
 </script>
 </body>
