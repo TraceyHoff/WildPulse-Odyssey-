@@ -255,22 +255,38 @@
             color: gold;
             margin-right: 5px;
         }
-    </style>
+
+    .creature-description {
+        max-height: 120px;
+        overflow-y: auto;
+        padding-right: 8px;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #333;
+    }
+    .creature-description::-webkit-scrollbar {
+        width: 6px;
+    }
+    .creature-description::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+</style>
 </head>
 <body>
 
 
 <div id="lobbyModal">
-    <button class="close-btn" onclick="document.getElementById('lobbyModal').style.display='none'">X</button>
+    <button class="close-btn lobby-close-btn">X</button>
     <h2>Multiplayer Lobby</h2>
     <p>Enter a room code to join other players.</p>
     <input type="text" id="roomCodeInput" placeholder="Room Code" value="public">
     <br>
-    <button onclick="joinMultiplayerRoom()">Join Room</button>
+    <button id="joinBtn">Join Room</button>
 </div>
 
 <div id="battleModal">
-    <button class="close-btn" onclick="document.getElementById('battleModal').style.display='none'">X</button>
+    <button class="close-btn battle-close-btn">X</button>
     <div class="battle-area">
         <div class="combatant" id="playerCombatant">
             <h3 id="pName">Player Creature</h3>
@@ -289,32 +305,32 @@
     </div>
     <div class="battle-log" id="battleLog">Wild creature appeared!</div>
     <div class="battle-controls" id="battleControls">
-        <button class="btn-attack" onclick="handlePlayerTurn('attack')">Attack</button>
+        <button class="btn-attack">Attack</button>
 
-        <button class="btn-catch" onclick="handlePlayerTurn('catch')">Catch</button>
-        <button class="btn-run" onclick="handlePlayerTurn('run')">Run</button>
+        <button class="btn-catch">Catch</button>
+        <button class="btn-run">Run</button>
     </div>
 </div>
 
-<button id="menuBtn" onclick="openMenuModal()">Menu</button>
+<button id="menuBtn">Menu</button>
 <div id="menuModal">
-    <button class="close-btn" onclick="closeMenuModal()">X</button>
+    <button class="close-btn close-menu-btn">X</button>
     <h2>Menu</h2>
-    <button onclick="openPartyModal()">Party</button>
-    <button id="breedBtn" onclick="openBreedingModal()">Breeding Center</button>
-    <button onclick="openHelpModal()">Help</button>
-    <button onclick="deleteProgress()">Delete Progress</button>
-    <button onclick="closeMenuModal()">Close</button>
+    <button id="menuPartyBtn">Party</button>
+    <button id="breedBtn">Breeding Center</button>
+    <button id="menuHelpBtn">Help</button>
+    <button id="menuDeleteBtn">Delete Progress</button>
+    <button class="close-menu-btn">Close</button>
 </div>
 <div id="partyModal">
-    <button class="close-btn" onclick="closePartyModal()">X</button>
+    <button class="close-btn close-party-btn">X</button>
     <h2>Party</h2>
     <div id="partyList"></div>
-    <button onclick="closePartyModal()">Close</button>
+    <button class="close-party-btn">Close</button>
 </div>
 
 <div id="helpModal" style="display:none; position:absolute; background:rgba(0,0,0,0.95); padding:20px; z-index:400; color:white; overflow-y:auto; font-size:16px;">
-    <button class="close-btn" onclick="closeHelpModal()">X</button>
+    <button class="close-btn close-help-btn">X</button>
     <h2>How to Play</h2>
     <p>• Roam grass to encounter creatures. Move with ARROWS or WASD.</p>
     <p>• Menu: View Party, Breed creatures, or Delete Progress.</p>
@@ -327,17 +343,13 @@
     <p>250+ Natures modify stats (±10%). These include pure buffs and pure debuffs!</p>
     <div id="naturesListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
 
-    <div id="naturesListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
-
-    <div id="naturesListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
-
     <h3>Breeding & Shinies</h3>
     <p>Offspring blend parents' stats and natures. There is a 0.1% chance to find a Shiny creature (+20% stats). Shinies have a 25% chance to pass down their rarity to offspring.</p>
-    <button onclick="closeHelpModal()" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer;">Close</button>
+    <button class="close-help-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer;">Close</button>
 </div>
 
 <div id="breedingModal">
-    <button class="close-btn" onclick="closeBreedingModal()">X</button>
+    <button class="close-btn close-breeding-btn">X</button>
     <h2>Breeding Center</h2>
     <div>
         <label>Parent 1:</label>
@@ -347,16 +359,58 @@
         <label>Parent 2:</label>
         <select id="parent2Select"></select>
     </div>
-    <button onclick="doBreed()">Breed!</button>
-    <button onclick="closeBreedingModal()">Close</button>
+    <button id="doBreedBtn">Breed!</button>
+    <button class="close-breeding-btn">Close</button>
     <p id="breedResult"></p>
 </div>
 <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('.lobby-close-btn')?.addEventListener('click', () => document.getElementById('lobbyModal').style.display='none');
+    document.getElementById('joinBtn')?.addEventListener('click', joinMultiplayerRoom);
+
+    document.querySelector('.battle-close-btn')?.addEventListener('click', () => document.getElementById('battleModal').style.display='none');
+    document.querySelector('.btn-attack')?.addEventListener('click', () => handlePlayerTurn('attack'));
+    document.querySelector('.btn-catch')?.addEventListener('click', () => handlePlayerTurn('catch'));
+    document.querySelector('.btn-run')?.addEventListener('click', () => handlePlayerTurn('run'));
+
+    document.getElementById('menuBtn')?.addEventListener('click', openMenuModal);
+
+    document.getElementById('menuPartyBtn')?.addEventListener('click', openPartyModal);
+    document.getElementById('breedBtn')?.addEventListener('click', openBreedingModal);
+    document.getElementById('menuHelpBtn')?.addEventListener('click', openHelpModal);
+    document.getElementById('menuDeleteBtn')?.addEventListener('click', deleteProgress);
+
+    document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', closeMenuModal));
+    document.querySelectorAll('.close-party-btn').forEach(btn => btn.addEventListener('click', closePartyModal));
+    document.querySelectorAll('.close-help-btn').forEach(btn => btn.addEventListener('click', closeHelpModal));
+
+    document.getElementById('doBreedBtn')?.addEventListener('click', doBreed);
+    document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', closeBreedingModal));
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.matches('.save-name-btn')) {
+        const index = e.target.getAttribute('data-index');
+        window.saveName(e.target, parseInt(index));
+    } else if (e.target.matches('.move-up-btn')) {
+        const index = e.target.getAttribute('data-index');
+        window.moveUp(parseInt(index));
+    } else if (e.target.matches('.move-down-btn')) {
+        const index = e.target.getAttribute('data-index');
+        window.moveDown(parseInt(index));
+    } else if (e.target.matches('.release-btn')) {
+        const index = e.target.getAttribute('data-index');
+        window.releaseCreature(parseInt(index));
+    }
+});
+
+
 window.baseCreatures = [
     {
         "id": 1,
         "name": "Flamebeast",
-        "description": "Radiates an intense, searing heat that turns the very air around it into a shimmering mirage. Its fiery aura leaves a trail of scorched earth wherever it roams, a wild embodiment of the untamed flame.",
+        "description": "Radiates an intense, searing heat that turns the very air around it into a shimmering mirage. Its fiery aura leaves a trail of scorched earth wherever it roams, a wild embodiment of the untamed flame. Its stout build gleams with bristly silver accents and pale swirls. Gentle eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, razor-sharp claws extending from its agile limbs, and thick, shimmering fur cascading down its back.",
         "features": [
             "horns",
             "claws",
@@ -373,7 +427,7 @@ window.baseCreatures = [
     {
         "id": 2,
         "name": "Aquabeast",
-        "description": "A graceful entity that seems to flow like a rushing river, constantly veiled in a fine, shimmering mist. It moves with a serene, aquatic elegance, leaving a gentle trail of pure water in its wake.",
+        "description": "A graceful entity that seems to flow like a rushing river, constantly veiled in a fine, shimmering mist. It moves with a serene, aquatic elegance, leaving a gentle trail of pure water in its wake. Its slender build gleams with smooth pale accents and vibrant spots. Piercing eyes gaze out with keen intelligence from beneath a body that softly pulses with a warm, ethereal light and a lightweight, translucent shell encasing its core.",
         "features": [
             "glowing",
             "shell"
@@ -389,7 +443,7 @@ window.baseCreatures = [
     {
         "id": 3,
         "name": "Leafbeast",
-        "description": "A living manifestation of the ancient forest, its body intertwined with thick vines and blooming flora. It moves with the quiet rustle of autumn leaves, a guardian of the deep woods that breathes life into the soil.",
+        "description": "A living manifestation of the ancient forest, its body intertwined with thick vines and blooming flora. It moves with the quiet rustle of autumn leaves, a guardian of the deep woods that breathes life into the soil. Its slender build gleams with smooth azure accents and emerald-green spots. Piercing eyes gaze out with keen intelligence from beneath a lightweight, translucent shell encasing its core and a body that softly pulses with a warm, ethereal light.",
         "features": [
             "shell",
             "glowing"
@@ -405,7 +459,7 @@ window.baseCreatures = [
     {
         "id": 4,
         "name": "Zapbeast",
-        "description": "Crackling with raw, unbridled static, this creature moves with the blinding speed of a thunderbolt. Its aura bristles with an intense electrical charge, leaving the distinct scent of ozone in the air.",
+        "description": "Crackling with raw, unbridled static, this creature moves with the blinding speed of a thunderbolt. Its aura bristles with an intense electrical charge, leaving the distinct scent of ozone in the air. Its graceful build gleams with silky emerald-green accents and golden patches. Narrow eyes gaze out with keen intelligence from beneath wicked fangs glinting menacingly in the light, a lightweight, translucent shell encasing its core, and a body that softly pulses with a warm, ethereal light.",
         "features": [
             "fangs",
             "shell",
@@ -422,7 +476,7 @@ window.baseCreatures = [
     {
         "id": 5,
         "name": "Frostbeast",
-        "description": "A pristine, crystalline entity that chills the air around it to the bone, leaving delicate frost patterns on the ground it touches. It is a silent wanderer of the frozen tundras, moving with glacial grace.",
+        "description": "A pristine, crystalline entity that chills the air around it to the bone, leaving delicate frost patterns on the ground it touches. It is a silent wanderer of the frozen tundras, moving with glacial grace. Its sleek build gleams with rough pale accents and vibrant bands. Wide eyes gaze out with keen intelligence from beneath a long, sweeping tail trailing gracefully behind it and wicked fangs glinting menacingly in the light.",
         "features": [
             "tail",
             "fangs"
@@ -438,7 +492,7 @@ window.baseCreatures = [
     {
         "id": 6,
         "name": "Rockbeast",
-        "description": "A rugged, formidable titan composed of jagged stone and dense, unyielding rock. Every heavy step it takes resonates like a minor earthquake, an unstoppable force born from the deep bedrock.",
+        "description": "A rugged, formidable titan composed of jagged stone and dense, unyielding rock. Every heavy step it takes resonates like a minor earthquake, an unstoppable force born from the deep bedrock. Its graceful build gleams with silky emerald-green accents and golden patches. Narrow eyes gaze out with keen intelligence from beneath delicate, iridescent scales that ripple with every movement and a lightweight, translucent shell encasing its core.",
         "features": [
             "scales",
             "shell"
@@ -454,7 +508,7 @@ window.baseCreatures = [
     {
         "id": 7,
         "name": "Aerobeast",
-        "description": "A fleeting, ethereal being that rides the highest atmospheric currents with effortless grace. It is constantly surrounded by swirling updrafts, a gentle yet swift entity that brings a breath of fresh air.",
+        "description": "A fleeting, ethereal being that rides the highest atmospheric currents with effortless grace. It is constantly surrounded by swirling updrafts, a gentle yet swift entity that brings a breath of fresh air. Its bulky build gleams with scaly emerald-green accents and golden stripes. Mysterious eyes gaze out with keen intelligence from beneath delicate, iridescent scales that ripple with every movement, razor-sharp claws extending from its agile limbs, and a lightweight, translucent shell encasing its core.",
         "features": [
             "scales",
             "claws",
@@ -471,7 +525,7 @@ window.baseCreatures = [
     {
         "id": 8,
         "name": "Sunbeast",
-        "description": "A radiant, divine entity that shines with the pure, comforting brilliance of the morning sun. Its very presence dispels shadows, wrapping the area in a warm, ethereal glow that invigorates all nearby.",
+        "description": "A radiant, divine entity that shines with the pure, comforting brilliance of the morning sun. Its very presence dispels shadows, wrapping the area in a warm, ethereal glow that invigorates all nearby. Its agile build gleams with soft pale accents and vibrant runes. Glowing eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, a lightweight, translucent shell encasing its core, and a long, sweeping tail trailing gracefully behind it.",
         "features": [
             "horns",
             "shell",
@@ -488,7 +542,7 @@ window.baseCreatures = [
     {
         "id": 9,
         "name": "Voidbeast",
-        "description": "A mysterious, elusive entity that thrives in the pitch black, its form seeming to absorb the light around it. It moves with a silent, predatory grace, an embodiment of the deep, unseen horrors of the night.",
+        "description": "A mysterious, elusive entity that thrives in the pitch black, its form seeming to absorb the light around it. It moves with a silent, predatory grace, an embodiment of the deep, unseen horrors of the night. Its agile build gleams with soft golden accents and silver runes. Glowing eyes gaze out with keen intelligence from beneath thick, shimmering fur cascading down its back, wicked fangs glinting menacingly in the light, and majestic, spiraling horns crowning its head.",
         "features": [
             "fur",
             "fangs",
@@ -505,7 +559,7 @@ window.baseCreatures = [
     {
         "id": 10,
         "name": "Starbeast",
-        "description": "A transcendent, otherworldly being that seems to contain a miniature galaxy within its very form. It floats with a slow, low-gravity elegance, surrounded by a subtle, stardust-like shimmer.",
+        "description": "A transcendent, otherworldly being that seems to contain a miniature galaxy within its very form. It floats with a slow, low-gravity elegance, surrounded by a subtle, stardust-like shimmer. Its sleek build gleams with rough golden accents and silver bands. Wide eyes gaze out with keen intelligence from beneath a lightweight, translucent shell encasing its core, delicate, iridescent scales that ripple with every movement, and a body that softly pulses with a warm, ethereal light.",
         "features": [
             "shell",
             "scales",
@@ -522,7 +576,7 @@ window.baseCreatures = [
     {
         "id": 11,
         "name": "Pyrowing",
-        "description": "Embers constantly cascade from its form like a miniature volcanic eruption. It is said to draw power from molten earth, its blazing eyes piercing through the darkest nights with an unyielding, aggressive energy.",
+        "description": "Embers constantly cascade from its form like a miniature volcanic eruption. It is said to draw power from molten earth, its blazing eyes piercing through the darkest nights with an unyielding, aggressive energy. Its slender build gleams with smooth midnight-black accents and crimson spots. Piercing eyes gaze out with keen intelligence from beneath the ability to constantly hover just above the ground, wicked fangs glinting menacingly in the light, and a lightweight, translucent shell encasing its core.",
         "features": [
             "flying",
             "fangs",
@@ -539,7 +593,7 @@ window.baseCreatures = [
     {
         "id": 12,
         "name": "Hydrowing",
-        "description": "Its surface shimmers with the iridescent colors of the deep ocean, rippling as if made of liquid sapphire. It brings the scent of fresh rain and the rhythmic soothing sound of ocean waves wherever it travels.",
+        "description": "Its surface shimmers with the iridescent colors of the deep ocean, rippling as if made of liquid sapphire. It brings the scent of fresh rain and the rhythmic soothing sound of ocean waves wherever it travels. Its sleek build gleams with rough golden accents and silver bands. Wide eyes gaze out with keen intelligence from beneath a lightweight, translucent shell encasing its core and razor-sharp claws extending from its agile limbs.",
         "features": [
             "shell",
             "claws"
@@ -555,7 +609,7 @@ window.baseCreatures = [
     {
         "id": 13,
         "name": "Flora wing",
-        "description": "Leaves and petals constantly drift from its majestic form, spreading the rich, earthy scent of a forest after rain. It is deeply connected to the earth, drawing strength from the ancient roots of the world.",
+        "description": "Leaves and petals constantly drift from its majestic form, spreading the rich, earthy scent of a forest after rain. It is deeply connected to the earth, drawing strength from the ancient roots of the world. Its slender build gleams with smooth pale accents and vibrant spots. Piercing eyes gaze out with keen intelligence from beneath a long, sweeping tail trailing gracefully behind it and the ability to constantly hover just above the ground.",
         "features": [
             "tail",
             "flying"
@@ -571,7 +625,7 @@ window.baseCreatures = [
     {
         "id": 14,
         "name": "Voltawing",
-        "description": "A volatile entity born from the heart of a severe thunderstorm, constantly surrounded by arcs of vivid lightning. It is a hyperactive force of nature, its erratic movements leaving glowing afterimages.",
+        "description": "A volatile entity born from the heart of a severe thunderstorm, constantly surrounded by arcs of vivid lightning. It is a hyperactive force of nature, its erratic movements leaving glowing afterimages. Its slender build gleams with smooth pale accents and vibrant spots. Piercing eyes gaze out with keen intelligence from beneath thick, shimmering fur cascading down its back, razor-sharp claws extending from its agile limbs, and delicate, iridescent scales that ripple with every movement.",
         "features": [
             "fur",
             "claws",
@@ -588,7 +642,7 @@ window.baseCreatures = [
     {
         "id": 15,
         "name": "Glacierwing",
-        "description": "Surrounded by a perpetual flurry of sparkling snow, this creature embodies the harsh, biting beauty of a winter storm. Its body glimmers like a masterfully carved diamond catching the pale moonlight.",
+        "description": "Surrounded by a perpetual flurry of sparkling snow, this creature embodies the harsh, biting beauty of a winter storm. Its body glimmers like a masterfully carved diamond catching the pale moonlight. Its stout build gleams with bristly emerald-green accents and golden swirls. Gentle eyes gaze out with keen intelligence from beneath thick, shimmering fur cascading down its back, a body that softly pulses with a warm, ethereal light, and majestic, spiraling horns crowning its head.",
         "features": [
             "fur",
             "glowing",
@@ -605,7 +659,7 @@ window.baseCreatures = [
     {
         "id": 16,
         "name": "Terra wing",
-        "description": "Covered in sturdy, mineral-rich armor, this creature is a steadfast protector of the subterranean realms. It moves with a slow, deliberate strength, unbothered by the most ferocious of attacks.",
+        "description": "Covered in sturdy, mineral-rich armor, this creature is a steadfast protector of the subterranean realms. It moves with a slow, deliberate strength, unbothered by the most ferocious of attacks. Its agile build gleams with soft golden accents and silver runes. Glowing eyes gaze out with keen intelligence from beneath the ability to constantly hover just above the ground, a lightweight, translucent shell encasing its core, and a long, sweeping tail trailing gracefully behind it.",
         "features": [
             "flying",
             "shell",
@@ -622,7 +676,7 @@ window.baseCreatures = [
     {
         "id": 17,
         "name": "Zephyrwing",
-        "description": "Moving faster than the eye can follow, this creature commands the fierce, howling gales of a storm. It leaves behind a turbulent wake, its form almost transparent as it seamlessly blends with the sky.",
+        "description": "Moving faster than the eye can follow, this creature commands the fierce, howling gales of a storm. It leaves behind a turbulent wake, its form almost transparent as it seamlessly blends with the sky. Its slender build gleams with smooth midnight-black accents and crimson spots. Piercing eyes gaze out with keen intelligence from beneath razor-sharp claws extending from its agile limbs, majestic, spiraling horns crowning its head, and a body that softly pulses with a warm, ethereal light.",
         "features": [
             "claws",
             "horns",
@@ -639,7 +693,7 @@ window.baseCreatures = [
     {
         "id": 18,
         "name": "Luxwing",
-        "description": "A spectacular being composed of concentrated luminescence, shimmering like a captured star. It moves with an elegant, almost holy serenity, a beacon of hope in the darkest of the world's corners.",
+        "description": "A spectacular being composed of concentrated luminescence, shimmering like a captured star. It moves with an elegant, almost holy serenity, a beacon of hope in the darkest of the world's corners. Its bulky build gleams with scaly emerald-green accents and golden stripes. Mysterious eyes gaze out with keen intelligence from beneath magnificent, gossamer wings stretching outwards from its back and a body that softly pulses with a warm, ethereal light.",
         "features": [
             "wings",
             "glowing"
@@ -655,7 +709,7 @@ window.baseCreatures = [
     {
         "id": 19,
         "name": "Shadowing",
-        "description": "Wreathed in swirling, inky shadows, this creature watches with cold, glowing eyes from the periphery of vision. It is a master of stealth, bringing a sudden, chilling drop in temperature to the darkest places.",
+        "description": "Wreathed in swirling, inky shadows, this creature watches with cold, glowing eyes from the periphery of vision. It is a master of stealth, bringing a sudden, chilling drop in temperature to the darkest places. Its graceful build gleams with silky emerald-green accents and golden patches. Narrow eyes gaze out with keen intelligence from beneath a lightweight, translucent shell encasing its core, razor-sharp claws extending from its agile limbs, and magnificent, gossamer wings stretching outwards from its back.",
         "features": [
             "shell",
             "claws",
@@ -672,7 +726,7 @@ window.baseCreatures = [
     {
         "id": 20,
         "name": "Nova wing",
-        "description": "Born from the chaotic heart of a nebula, this creature radiates strange, colorful energies from beyond the stars. It is an enigma of the universe, occasionally phasing out of the physical dimension.",
+        "description": "Born from the chaotic heart of a nebula, this creature radiates strange, colorful energies from beyond the stars. It is an enigma of the universe, occasionally phasing out of the physical dimension. Its agile build gleams with soft midnight-black accents and crimson runes. Glowing eyes gaze out with keen intelligence from beneath the ability to constantly hover just above the ground and majestic, spiraling horns crowning its head.",
         "features": [
             "flying",
             "horns"
@@ -688,7 +742,7 @@ window.baseCreatures = [
     {
         "id": 21,
         "name": "Cinderclaw",
-        "description": "A blazing entity cloaked in perpetual flame, illuminating the darkness with its brilliant, flickering glow. It thrives in the most scorching environments, its fiery temperament matching its explosive power.",
+        "description": "A blazing entity cloaked in perpetual flame, illuminating the darkness with its brilliant, flickering glow. It thrives in the most scorching environments, its fiery temperament matching its explosive power. Its stout build gleams with bristly crimson accents and azure swirls. Gentle eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, razor-sharp claws extending from its agile limbs, and a body that softly pulses with a warm, ethereal light.",
         "features": [
             "horns",
             "claws",
@@ -705,7 +759,7 @@ window.baseCreatures = [
     {
         "id": 22,
         "name": "Tideclaw",
-        "description": "Born from the depths of tranquil lakes, this majestic creature commands the gentle yet relentless power of the tide. Its presence is calming, yet it harbors the immense, crushing strength of a tidal wave.",
+        "description": "Born from the depths of tranquil lakes, this majestic creature commands the gentle yet relentless power of the tide. Its presence is calming, yet it harbors the immense, crushing strength of a tidal wave. Its slender build gleams with smooth golden accents and silver spots. Piercing eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, thick, shimmering fur cascading down its back, and a lightweight, translucent shell encasing its core.",
         "features": [
             "horns",
             "fur",
@@ -722,7 +776,7 @@ window.baseCreatures = [
     {
         "id": 23,
         "name": "Thornclaw",
-        "description": "An arboreal wanderer adorned with vibrant, ever-blooming flowers and sturdy, bark-like armor. It radiates a soothing, verdant energy that accelerates the growth of plant life in its vicinity.",
+        "description": "An arboreal wanderer adorned with vibrant, ever-blooming flowers and sturdy, bark-like armor. It radiates a soothing, verdant energy that accelerates the growth of plant life in its vicinity. Its graceful build gleams with silky emerald-green accents and golden patches. Narrow eyes gaze out with keen intelligence from beneath thick, shimmering fur cascading down its back and delicate, iridescent scales that ripple with every movement.",
         "features": [
             "fur",
             "scales"
@@ -738,7 +792,7 @@ window.baseCreatures = [
     {
         "id": 24,
         "name": "Sparkclaw",
-        "description": "Pulsating with a relentless, high-voltage energy, it illuminates its surroundings with bright, jagged flashes. Its presence is marked by a constant, low electrical hum that sets the air vibrating.",
+        "description": "Pulsating with a relentless, high-voltage energy, it illuminates its surroundings with bright, jagged flashes. Its presence is marked by a constant, low electrical hum that sets the air vibrating. Its graceful build gleams with silky silver accents and pale patches. Narrow eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, thick, shimmering fur cascading down its back, and magnificent, gossamer wings stretching outwards from its back.",
         "features": [
             "horns",
             "fur",
@@ -755,7 +809,7 @@ window.baseCreatures = [
     {
         "id": 25,
         "name": "Snowclaw",
-        "description": "Born from ancient, unmeltable glaciers, it radiates an aura of profound, absolute zero cold. It moves with a stoic, unyielding demeanor, freezing moisture in the air into delicate ice crystals.",
+        "description": "Born from ancient, unmeltable glaciers, it radiates an aura of profound, absolute zero cold. It moves with a stoic, unyielding demeanor, freezing moisture in the air into delicate ice crystals. Its stout build gleams with bristly vibrant accents and midnight-black swirls. Gentle eyes gaze out with keen intelligence from beneath the ability to constantly hover just above the ground, a body that softly pulses with a warm, ethereal light, and wicked fangs glinting menacingly in the light.",
         "features": [
             "flying",
             "glowing",
@@ -772,7 +826,7 @@ window.baseCreatures = [
     {
         "id": 26,
         "name": "Stoneclaw",
-        "description": "An ancient wanderer of the canyons and deserts, its body etched with the weathering of countless centuries. It is deeply attuned to the seismic vibrations of the earth, drawing power from the ground itself.",
+        "description": "An ancient wanderer of the canyons and deserts, its body etched with the weathering of countless centuries. It is deeply attuned to the seismic vibrations of the earth, drawing power from the ground itself. Its graceful build gleams with silky silver accents and pale patches. Narrow eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, magnificent, gossamer wings stretching outwards from its back, and razor-sharp claws extending from its agile limbs.",
         "features": [
             "horns",
             "wings",
@@ -789,7 +843,7 @@ window.baseCreatures = [
     {
         "id": 27,
         "name": "Breezeclaw",
-        "description": "An avian-like marvel that dances through the clouds, wielding the playful, unpredictable nature of the breeze. It is a symbol of absolute freedom, unbound by the heavy constraints of the earth below.",
+        "description": "An avian-like marvel that dances through the clouds, wielding the playful, unpredictable nature of the breeze. It is a symbol of absolute freedom, unbound by the heavy constraints of the earth below. Its graceful build gleams with silky emerald-green accents and golden patches. Narrow eyes gaze out with keen intelligence from beneath thick, shimmering fur cascading down its back, majestic, spiraling horns crowning its head, and the ability to constantly hover just above the ground.",
         "features": [
             "fur",
             "horns",
@@ -806,7 +860,7 @@ window.baseCreatures = [
     {
         "id": 28,
         "name": "Dawnclaw",
-        "description": "It trails a breathtaking, prismatic aura wherever it goes, painting its surroundings with vibrant, shifting colors. A magnificent creature born from pure photons, blindingly fast and breathtakingly beautiful.",
+        "description": "It trails a breathtaking, prismatic aura wherever it goes, painting its surroundings with vibrant, shifting colors. A magnificent creature born from pure photons, blindingly fast and breathtakingly beautiful. Its sleek build gleams with rough golden accents and silver bands. Wide eyes gaze out with keen intelligence from beneath delicate, iridescent scales that ripple with every movement and majestic, spiraling horns crowning its head.",
         "features": [
             "scales",
             "horns"
@@ -822,7 +876,7 @@ window.baseCreatures = [
     {
         "id": 29,
         "name": "Duskclaw",
-        "description": "An enigmatic wanderer of the twilight hours, its sleek form blending perfectly into the creeping gloom. It commands the obscure, hidden forces of the void, a silent watcher shrouded in eternal mystery.",
+        "description": "An enigmatic wanderer of the twilight hours, its sleek form blending perfectly into the creeping gloom. It commands the obscure, hidden forces of the void, a silent watcher shrouded in eternal mystery. Its stout build gleams with bristly crimson accents and azure swirls. Gentle eyes gaze out with keen intelligence from beneath thick, shimmering fur cascading down its back, the ability to constantly hover just above the ground, and a lightweight, translucent shell encasing its core.",
         "features": [
             "fur",
             "flying",
@@ -839,7 +893,7 @@ window.baseCreatures = [
     {
         "id": 30,
         "name": "Meteorclaw",
-        "description": "An ancient, stellar voyager that has witnessed the birth and death of distant suns. Its body is adorned with glowing, constellation-like patterns, harnessing the immense, crushing power of the cosmos.",
+        "description": "An ancient, stellar voyager that has witnessed the birth and death of distant suns. Its body is adorned with glowing, constellation-like patterns, harnessing the immense, crushing power of the cosmos. Its slender build gleams with smooth pale accents and vibrant spots. Piercing eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, delicate, iridescent scales that ripple with every movement, and a long, sweeping tail trailing gracefully behind it.",
         "features": [
             "horns",
             "scales",
@@ -856,7 +910,7 @@ window.baseCreatures = [
     {
         "id": 31,
         "name": "Emberfang",
-        "description": "Radiates an intense, searing heat that turns the very air around it into a shimmering mirage. Its fiery aura leaves a trail of scorched earth wherever it roams, a wild embodiment of the untamed flame.",
+        "description": "Radiates an intense, searing heat that turns the very air around it into a shimmering mirage. Its fiery aura leaves a trail of scorched earth wherever it roams, a wild embodiment of the untamed flame. Its slender build gleams with smooth golden accents and silver spots. Piercing eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, a long, sweeping tail trailing gracefully behind it, and a lightweight, translucent shell encasing its core.",
         "features": [
             "horns",
             "tail",
@@ -873,7 +927,7 @@ window.baseCreatures = [
     {
         "id": 32,
         "name": "Riverfang",
-        "description": "A graceful entity that seems to flow like a rushing river, constantly veiled in a fine, shimmering mist. It moves with a serene, aquatic elegance, leaving a gentle trail of pure water in its wake.",
+        "description": "A graceful entity that seems to flow like a rushing river, constantly veiled in a fine, shimmering mist. It moves with a serene, aquatic elegance, leaving a gentle trail of pure water in its wake. Its stout build gleams with bristly crimson accents and azure swirls. Gentle eyes gaze out with keen intelligence from beneath a lightweight, translucent shell encasing its core, a long, sweeping tail trailing gracefully behind it, and majestic, spiraling horns crowning its head.",
         "features": [
             "shell",
             "tail",
@@ -890,7 +944,7 @@ window.baseCreatures = [
     {
         "id": 33,
         "name": "Vinefang",
-        "description": "A living manifestation of the ancient forest, its body intertwined with thick vines and blooming flora. It moves with the quiet rustle of autumn leaves, a guardian of the deep woods that breathes life into the soil.",
+        "description": "A living manifestation of the ancient forest, its body intertwined with thick vines and blooming flora. It moves with the quiet rustle of autumn leaves, a guardian of the deep woods that breathes life into the soil. Its graceful build gleams with silky emerald-green accents and golden patches. Narrow eyes gaze out with keen intelligence from beneath razor-sharp claws extending from its agile limbs, the ability to constantly hover just above the ground, and thick, shimmering fur cascading down its back.",
         "features": [
             "claws",
             "flying",
@@ -907,7 +961,7 @@ window.baseCreatures = [
     {
         "id": 34,
         "name": "Stormfang",
-        "description": "Crackling with raw, unbridled static, this creature moves with the blinding speed of a thunderbolt. Its aura bristles with an intense electrical charge, leaving the distinct scent of ozone in the air.",
+        "description": "Crackling with raw, unbridled static, this creature moves with the blinding speed of a thunderbolt. Its aura bristles with an intense electrical charge, leaving the distinct scent of ozone in the air. Its agile build gleams with soft golden accents and silver runes. Glowing eyes gaze out with keen intelligence from beneath thick, shimmering fur cascading down its back, delicate, iridescent scales that ripple with every movement, and razor-sharp claws extending from its agile limbs.",
         "features": [
             "fur",
             "scales",
@@ -924,7 +978,7 @@ window.baseCreatures = [
     {
         "id": 35,
         "name": "Hailfang",
-        "description": "A pristine, crystalline entity that chills the air around it to the bone, leaving delicate frost patterns on the ground it touches. It is a silent wanderer of the frozen tundras, moving with glacial grace.",
+        "description": "A pristine, crystalline entity that chills the air around it to the bone, leaving delicate frost patterns on the ground it touches. It is a silent wanderer of the frozen tundras, moving with glacial grace. Its stout build gleams with bristly crimson accents and azure swirls. Gentle eyes gaze out with keen intelligence from beneath a lightweight, translucent shell encasing its core, delicate, iridescent scales that ripple with every movement, and magnificent, gossamer wings stretching outwards from its back.",
         "features": [
             "shell",
             "scales",
@@ -941,7 +995,7 @@ window.baseCreatures = [
     {
         "id": 36,
         "name": "Quakefang",
-        "description": "A rugged, formidable titan composed of jagged stone and dense, unyielding rock. Every heavy step it takes resonates like a minor earthquake, an unstoppable force born from the deep bedrock.",
+        "description": "A rugged, formidable titan composed of jagged stone and dense, unyielding rock. Every heavy step it takes resonates like a minor earthquake, an unstoppable force born from the deep bedrock. Its agile build gleams with soft golden accents and silver runes. Glowing eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, thick, shimmering fur cascading down its back, and a lightweight, translucent shell encasing its core.",
         "features": [
             "horns",
             "fur",
@@ -958,7 +1012,7 @@ window.baseCreatures = [
     {
         "id": 37,
         "name": "Gale fang",
-        "description": "A fleeting, ethereal being that rides the highest atmospheric currents with effortless grace. It is constantly surrounded by swirling updrafts, a gentle yet swift entity that brings a breath of fresh air.",
+        "description": "A fleeting, ethereal being that rides the highest atmospheric currents with effortless grace. It is constantly surrounded by swirling updrafts, a gentle yet swift entity that brings a breath of fresh air. Its sleek build gleams with rough azure accents and emerald-green bands. Wide eyes gaze out with keen intelligence from beneath thick, shimmering fur cascading down its back, delicate, iridescent scales that ripple with every movement, and razor-sharp claws extending from its agile limbs.",
         "features": [
             "fur",
             "scales",
@@ -975,7 +1029,7 @@ window.baseCreatures = [
     {
         "id": 38,
         "name": "Aura fang",
-        "description": "A radiant, divine entity that shines with the pure, comforting brilliance of the morning sun. Its very presence dispels shadows, wrapping the area in a warm, ethereal glow that invigorates all nearby.",
+        "description": "A radiant, divine entity that shines with the pure, comforting brilliance of the morning sun. Its very presence dispels shadows, wrapping the area in a warm, ethereal glow that invigorates all nearby. Its agile build gleams with soft midnight-black accents and crimson runes. Glowing eyes gaze out with keen intelligence from beneath magnificent, gossamer wings stretching outwards from its back, the ability to constantly hover just above the ground, and a body that softly pulses with a warm, ethereal light.",
         "features": [
             "wings",
             "flying",
@@ -992,7 +1046,7 @@ window.baseCreatures = [
     {
         "id": 39,
         "name": "Gloomfang",
-        "description": "A mysterious, elusive entity that thrives in the pitch black, its form seeming to absorb the light around it. It moves with a silent, predatory grace, an embodiment of the deep, unseen horrors of the night.",
+        "description": "A mysterious, elusive entity that thrives in the pitch black, its form seeming to absorb the light around it. It moves with a silent, predatory grace, an embodiment of the deep, unseen horrors of the night. Its graceful build gleams with silky silver accents and pale patches. Narrow eyes gaze out with keen intelligence from beneath magnificent, gossamer wings stretching outwards from its back and the ability to constantly hover just above the ground.",
         "features": [
             "wings",
             "flying"
@@ -1008,7 +1062,7 @@ window.baseCreatures = [
     {
         "id": 40,
         "name": "Astral fang",
-        "description": "A transcendent, otherworldly being that seems to contain a miniature galaxy within its very form. It floats with a slow, low-gravity elegance, surrounded by a subtle, stardust-like shimmer.",
+        "description": "A transcendent, otherworldly being that seems to contain a miniature galaxy within its very form. It floats with a slow, low-gravity elegance, surrounded by a subtle, stardust-like shimmer. Its agile build gleams with soft midnight-black accents and crimson runes. Glowing eyes gaze out with keen intelligence from beneath magnificent, gossamer wings stretching outwards from its back, razor-sharp claws extending from its agile limbs, and the ability to constantly hover just above the ground.",
         "features": [
             "wings",
             "claws",
@@ -1025,7 +1079,7 @@ window.baseCreatures = [
     {
         "id": 41,
         "name": "Blazetail",
-        "description": "Embers constantly cascade from its form like a miniature volcanic eruption. It is said to draw power from molten earth, its blazing eyes piercing through the darkest nights with an unyielding, aggressive energy.",
+        "description": "Embers constantly cascade from its form like a miniature volcanic eruption. It is said to draw power from molten earth, its blazing eyes piercing through the darkest nights with an unyielding, aggressive energy. Its graceful build gleams with silky vibrant accents and midnight-black patches. Narrow eyes gaze out with keen intelligence from beneath a lightweight, translucent shell encasing its core and thick, shimmering fur cascading down its back.",
         "features": [
             "shell",
             "fur"
@@ -1041,7 +1095,7 @@ window.baseCreatures = [
     {
         "id": 42,
         "name": "Oceantail",
-        "description": "Its surface shimmers with the iridescent colors of the deep ocean, rippling as if made of liquid sapphire. It brings the scent of fresh rain and the rhythmic soothing sound of ocean waves wherever it travels.",
+        "description": "Its surface shimmers with the iridescent colors of the deep ocean, rippling as if made of liquid sapphire. It brings the scent of fresh rain and the rhythmic soothing sound of ocean waves wherever it travels. Its graceful build gleams with silky emerald-green accents and golden patches. Narrow eyes gaze out with keen intelligence from beneath razor-sharp claws extending from its agile limbs, majestic, spiraling horns crowning its head, and a long, sweeping tail trailing gracefully behind it.",
         "features": [
             "claws",
             "horns",
@@ -1058,7 +1112,7 @@ window.baseCreatures = [
     {
         "id": 43,
         "name": "Root tail",
-        "description": "Leaves and petals constantly drift from its majestic form, spreading the rich, earthy scent of a forest after rain. It is deeply connected to the earth, drawing strength from the ancient roots of the world.",
+        "description": "Leaves and petals constantly drift from its majestic form, spreading the rich, earthy scent of a forest after rain. It is deeply connected to the earth, drawing strength from the ancient roots of the world. Its stout build gleams with bristly vibrant accents and midnight-black swirls. Gentle eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, thick, shimmering fur cascading down its back, and the ability to constantly hover just above the ground.",
         "features": [
             "horns",
             "fur",
@@ -1075,7 +1129,7 @@ window.baseCreatures = [
     {
         "id": 44,
         "name": "Bolt tail",
-        "description": "A volatile entity born from the heart of a severe thunderstorm, constantly surrounded by arcs of vivid lightning. It is a hyperactive force of nature, its erratic movements leaving glowing afterimages.",
+        "description": "A volatile entity born from the heart of a severe thunderstorm, constantly surrounded by arcs of vivid lightning. It is a hyperactive force of nature, its erratic movements leaving glowing afterimages. Its sleek build gleams with rough pale accents and vibrant bands. Wide eyes gaze out with keen intelligence from beneath the ability to constantly hover just above the ground and a long, sweeping tail trailing gracefully behind it.",
         "features": [
             "flying",
             "tail"
@@ -1091,7 +1145,7 @@ window.baseCreatures = [
     {
         "id": 45,
         "name": "Chilltail",
-        "description": "Surrounded by a perpetual flurry of sparkling snow, this creature embodies the harsh, biting beauty of a winter storm. Its body glimmers like a masterfully carved diamond catching the pale moonlight.",
+        "description": "Surrounded by a perpetual flurry of sparkling snow, this creature embodies the harsh, biting beauty of a winter storm. Its body glimmers like a masterfully carved diamond catching the pale moonlight. Its bulky build gleams with scaly silver accents and pale stripes. Mysterious eyes gaze out with keen intelligence from beneath delicate, iridescent scales that ripple with every movement, majestic, spiraling horns crowning its head, and wicked fangs glinting menacingly in the light.",
         "features": [
             "scales",
             "horns",
@@ -1108,7 +1162,7 @@ window.baseCreatures = [
     {
         "id": 46,
         "name": "Cragtail",
-        "description": "Covered in sturdy, mineral-rich armor, this creature is a steadfast protector of the subterranean realms. It moves with a slow, deliberate strength, unbothered by the most ferocious of attacks.",
+        "description": "Covered in sturdy, mineral-rich armor, this creature is a steadfast protector of the subterranean realms. It moves with a slow, deliberate strength, unbothered by the most ferocious of attacks. Its slender build gleams with smooth pale accents and vibrant spots. Piercing eyes gaze out with keen intelligence from beneath magnificent, gossamer wings stretching outwards from its back and delicate, iridescent scales that ripple with every movement.",
         "features": [
             "wings",
             "scales"
@@ -1124,7 +1178,7 @@ window.baseCreatures = [
     {
         "id": 47,
         "name": "Gust tail",
-        "description": "Moving faster than the eye can follow, this creature commands the fierce, howling gales of a storm. It leaves behind a turbulent wake, its form almost transparent as it seamlessly blends with the sky.",
+        "description": "Moving faster than the eye can follow, this creature commands the fierce, howling gales of a storm. It leaves behind a turbulent wake, its form almost transparent as it seamlessly blends with the sky. Its agile build gleams with soft azure accents and emerald-green runes. Glowing eyes gaze out with keen intelligence from beneath the ability to constantly hover just above the ground, majestic, spiraling horns crowning its head, and wicked fangs glinting menacingly in the light.",
         "features": [
             "flying",
             "horns",
@@ -1141,7 +1195,7 @@ window.baseCreatures = [
     {
         "id": 48,
         "name": "Halo tail",
-        "description": "A spectacular being composed of concentrated luminescence, shimmering like a captured star. It moves with an elegant, almost holy serenity, a beacon of hope in the darkest of the world's corners.",
+        "description": "A spectacular being composed of concentrated luminescence, shimmering like a captured star. It moves with an elegant, almost holy serenity, a beacon of hope in the darkest of the world's corners. Its bulky build gleams with scaly silver accents and pale stripes. Mysterious eyes gaze out with keen intelligence from beneath wicked fangs glinting menacingly in the light and delicate, iridescent scales that ripple with every movement.",
         "features": [
             "fangs",
             "scales"
@@ -1157,7 +1211,7 @@ window.baseCreatures = [
     {
         "id": 49,
         "name": "Night tail",
-        "description": "Wreathed in swirling, inky shadows, this creature watches with cold, glowing eyes from the periphery of vision. It is a master of stealth, bringing a sudden, chilling drop in temperature to the darkest places.",
+        "description": "Wreathed in swirling, inky shadows, this creature watches with cold, glowing eyes from the periphery of vision. It is a master of stealth, bringing a sudden, chilling drop in temperature to the darkest places. Its stout build gleams with bristly crimson accents and azure swirls. Gentle eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head and a long, sweeping tail trailing gracefully behind it.",
         "features": [
             "horns",
             "tail"
@@ -1173,7 +1227,7 @@ window.baseCreatures = [
     {
         "id": 50,
         "name": "Nebula tail",
-        "description": "Born from the chaotic heart of a nebula, this creature radiates strange, colorful energies from beyond the stars. It is an enigma of the universe, occasionally phasing out of the physical dimension.",
+        "description": "Born from the chaotic heart of a nebula, this creature radiates strange, colorful energies from beyond the stars. It is an enigma of the universe, occasionally phasing out of the physical dimension. Its agile build gleams with soft azure accents and emerald-green runes. Glowing eyes gaze out with keen intelligence from beneath majestic, spiraling horns crowning its head, a body that softly pulses with a warm, ethereal light, and wicked fangs glinting menacingly in the light.",
         "features": [
             "horns",
             "glowing",
@@ -1300,25 +1354,7 @@ window.baseCreatures.forEach(c => {
 });
 
 
-// Augment descriptions with features
-window.baseCreatures.forEach(c => {
-    if (c.features && c.features.length > 0) {
-        const textures = ['silky', 'rough', 'scaly', 'smooth', 'bristly', 'soft'];
-        const colors = ['midnight-black', 'crimson', 'azure', 'emerald-green', 'golden', 'silver', 'pale', 'vibrant'];
-        const eyes = ['piercing', 'gentle', 'glowing', 'narrow', 'wide', 'mysterious'];
-        const markings = ['stripes', 'spots', 'swirls', 'runes', 'patches', 'bands'];
-        const proportions = ['sleek', 'bulky', 'slender', 'stout', 'agile', 'graceful'];
-
-        const t = textures[Math.floor(Math.random() * textures.length)];
-        const c1 = colors[Math.floor(Math.random() * colors.length)];
-        const c2 = colors[Math.floor(Math.random() * colors.length)];
-        const e = eyes[Math.floor(Math.random() * eyes.length)];
-        const m = markings[Math.floor(Math.random() * markings.length)];
-        const p = proportions[Math.floor(Math.random() * proportions.length)];
-
-        c.description += ` It has a ${p} build with ${t} ${c1} accents and ${c2} ${m}. Its ${e} eyes stand out alongside unique features, including ${c.features.join(", ")}.`;
-    }
-});
+// Descriptions are fully formed.
 
 // ==================== PERSISTENCE ====================
 const STORAGE_KEY = 'wildpulse_collected_creatures';
@@ -1403,6 +1439,7 @@ window.closePartyModal = function() {
 window.renderPartyList = function() {
     const list = document.getElementById('partyList');
     list.innerHTML = '';
+    const fragment = document.createDocumentFragment();
     if (collectedCreatures.length === 0) {
         list.innerHTML = '<p>Your party is empty.</p>';
         return;
@@ -1437,9 +1474,11 @@ window.renderPartyList = function() {
 
         card.innerHTML = `
             <div>
-                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" value="${c.nickname || c.name}" maxlength="20"> <button onclick="window.saveName(this, ${index})">Save</button> - ${c.type}</h3>
+                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" value="${c.nickname || c.name}" maxlength="20"> <button class="save-name-btn" data-index="${index}">Save</button> - ${c.type}</h3>
                 <p><strong>Level <span style="color:#2196F3">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:#2196F3">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span></p>
-                <p style="color: #ccc; font-style: italic;">${c.description}</p>
+                <div class="creature-description">
+                    <p style="color: #ccc; font-style: italic;">${c.description}</p>
+                </div>
                 ${natureHtml}
                 ${parentsHtml}
                 <div style="border-top: 1px solid #555; padding-top: 10px; margin-top: 10px;">
@@ -1450,13 +1489,14 @@ window.renderPartyList = function() {
                 </div>
             </div>
             <div class="party-controls">
-                <button onclick="moveUp(${index})">▲</button>
-                <button onclick="moveDown(${index})">▼</button>
-                <button onclick="releaseCreature(${index})" style="background-color: #f44336; color: white;">Release</button>
+                <button class="move-up-btn" data-index="${index}">▲</button>
+                <button class="move-down-btn" data-index="${index}">▼</button>
+                <button class="release-btn" data-index="${index}" style="background-color: #f44336; color: white;">Release</button>
             </div>
         `;
-        list.appendChild(card);
+        fragment.appendChild(card);
     });
+    list.appendChild(fragment);
 };
 
 window.saveName = function(btn, index) {
@@ -2463,6 +2503,7 @@ function create() {
 }
 
 function spawnCreature(scene, creatureData, forceX, forceY) {
+    if (creaturesGroup && creaturesGroup.getChildren().length >= 100) return;
     let x = forceX;
     let y = forceY;
     if (x === undefined || y === undefined) {
