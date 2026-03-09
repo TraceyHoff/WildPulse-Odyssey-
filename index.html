@@ -19,7 +19,7 @@
         }
         /* Shared button styles for professional UI */
         button {
-            border-radius: 8px;
+            border-radius: 0 12px 0 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
@@ -38,45 +38,49 @@
 
         /* Modals */
         #breedingModal, #menuModal, #partyModal, #battleModal, #helpModal, #lobbyModal {
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: 100vw !important;
-            max-height: 100vh !important;
-            top: 0 !important;
-            left: 0 !important;
-            transform: none !important;
-            border-radius: 0 !important;
-            border: none !important;
+            width: 90vw !important;
+            max-width: 800px !important;
+            max-height: 90vh !important;
+            height: auto !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
             box-sizing: border-box;
             margin: 0;
             overflow-y: auto;
+            padding: 15px !important;
 
-            box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 0 30px rgba(0, 200, 255, 0.5), inset 0 0 15px rgba(255,255,255,0.1);
 
             background: linear-gradient(135deg, rgba(10,40,20,0.95), rgba(0,20,40,0.95)) !important;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
         }
 
         .close-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 0;
+            right: 0;
             width: 35px;
             height: 35px;
-            border-radius: 8px;
+            border-radius: 0 12px 0 12px;
             background: linear-gradient(180deg, #ef5350, #c62828);
             color: white;
             font-weight: bold;
-            border: 1px solid #ff8a80;
+            border: none;
             cursor: pointer;
             z-index: 9999;
             transition: transform 0.2s, filter 0.2s;
+            line-height: 35px;
+            text-align: center;
+            padding: 0;
+            margin: 0;
         }
 
         .close-btn:hover {
-            transform: scale(1.1);
-            filter: brightness(1.3);
+            filter: brightness(1.5);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
         }
 
         #breedBtn {
@@ -88,11 +92,7 @@
         #breedingModal {
             display: none;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             color: white;
-            padding: 30px;
             z-index: 200;
             text-align: center;
         }
@@ -106,26 +106,22 @@
         #battleModal {
             display: none;
             position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90vw; height: 85vh;
-            color: white;
             z-index: 500; font-family: monospace;
-            padding: 20px; box-sizing: border-box;
         }
-        .battle-area { display: flex; justify-content: space-between; height: 70%; margin-bottom: 20px; }
-        .combatant { width: 45%; border: 1px solid #87CEEB; border-radius: 8px; padding: 15px; background: rgba(0,0,0,0.5); position: relative; box-shadow: inset 0 0 10px rgba(255,255,255,0.1); }
-        .combatant h3 { margin-top: 0; }
-        .hp-bar-container { width: 100%; height: 20px; background: #444; margin-top: 10px; border: 1px solid #fff; border-radius: 4px; overflow: hidden; }
+        .battle-area { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 8px;}
+        .combatant { width: 48%; border: 1px solid #87CEEB; border-radius: 12px; padding: 10px; background: rgba(0,0,0,0.5); position: relative; box-shadow: inset 0 0 10px rgba(255,255,255,0.1); }
+        .combatant h3 { margin-top: 0; margin-bottom: 5px; }
+        .hp-bar-container { width: 100%; height: 15px; background: #444; margin-top: 5px; border: 1px solid #fff; border-radius: 4px; overflow: hidden; }
         .hp-bar { height: 100%; background: linear-gradient(90deg, #4caf50, #81c784); width: 100%; transition: width 0.3s ease; }
-        .battle-log { height: 20%; overflow-y: auto; background: rgba(0,0,0,0.6); border: 1px solid #87CEEB; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .battle-log { height: 150px; overflow-y: auto; background: rgba(0,0,0,0.6); border: 1px solid #87CEEB; border-radius: 12px; padding: 10px; margin-bottom: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
         .battle-log .damage { color: #ff5555; }
         .battle-log .heal { color: #55ff55; }
         .battle-log .status { color: #d500f9; }
         .battle-log .critical { color: #ff9800; font-weight: bold; }
         .battle-log .miss { color: #aaaaaa; font-style: italic; }
-        .battle-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; height: 20%; }
-        .battle-controls button { font-size: 18px; padding: 10px; cursor: pointer; border: none; font-family: monospace; font-weight: bold; }
+        .battle-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .battle-controls button { font-size: 16px; padding: 8px; cursor: pointer; border: none; font-family: monospace; font-weight: bold; border-radius: 8px; transition: all 0.2s ease; }
+        .battle-controls button:hover { transform: scale(1.05); filter: brightness(1.2); box-shadow: 0 0 10px rgba(0,255,255,0.8); }
         .btn-attack { background: linear-gradient(180deg, #ef5350, #c62828); color: white; }
         .btn-defend { background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; }
         .btn-catch { background: linear-gradient(180deg, #66bb6a, #2e7d32); color: white; }
@@ -146,11 +142,7 @@
         #menuModal {
             display: none;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             color: white;
-            padding: 30px;
             z-index: 200;
             text-align: center;
             min-width: 250px;
@@ -158,13 +150,20 @@
         #menuModal button, #partyModal > button, #breedingModal button, #helpModal button {
             display: block;
             width: 100%;
-            margin: 15px 0;
-            padding: 12px;
+            margin: 10px 0;
+            padding: 10px;
             font-size: 16px;
             background: linear-gradient(180deg, #42a5f5, #1565c0);
             color: white;
             border: 1px solid #87CEEB;
             cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        #menuModal button:hover, #partyModal > button:hover, #breedingModal button:hover, #helpModal button:hover {
+            transform: scale(1.02);
+            filter: brightness(1.2);
+            box-shadow: 0 0 10px rgba(0,255,255,0.8);
         }
         #menuModal button:nth-child(2) { background: linear-gradient(180deg, #ab47bc, #6a1b9a); border-color: #ce93d8; }
         #menuModal button#breedBtn { background: linear-gradient(180deg, #ffca28, #ff8f00); border-color: #ffe082; color: #333; text-shadow: none; }
@@ -174,18 +173,9 @@
         #lobbyModal {
             display: block;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             color: white;
-            padding: 30px;
             z-index: 1000;
             text-align: center;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            border: 2px solid #87CEEB;
-            background: linear-gradient(135deg, rgba(10,40,20,0.95), rgba(0,20,40,0.95));
-            backdrop-filter: blur(5px);
         }
         #lobbyModal input {
             padding: 10px;
@@ -207,20 +197,14 @@
         #partyModal {
             display: none;
             position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90vw; height: 85vh;
             color: white;
-            padding: 25px;
             z-index: 300;
-            overflow-y: auto;
-            box-sizing: border-box;
         }
         .party-card {
             border: 1px solid #87CEEB;
             border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -228,6 +212,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.4);
             word-wrap: break-word;
             flex-wrap: wrap;
+            gap: 8px;
         }
         .party-controls {
             display: flex;
@@ -238,7 +223,7 @@
         .party-card > div:first-child {
             flex: 1;
             min-width: 0;
-            padding-right: 15px;
+            padding-right: 0;
         }
         .party-controls button {
             padding: 8px 12px;
@@ -271,10 +256,27 @@
         border-radius: 3px;
     }
 
+    #tooltip {
+        position: absolute;
+        display: none;
+        background: rgba(0,0,0,0.9);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 6px;
+        z-index: 10000;
+        pointer-events: none;
+        border: 1px solid #42a5f5;
+        font-size: 14px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        white-space: pre-wrap;
+        max-width: 300px;
+    }
+
 </style>
 </head>
 <body>
 
+<div id="tooltip"></div>
 
 <div id="lobbyModal">
     <button class="close-btn lobby-close-btn" aria-label="Close Lobby">X</button>
@@ -305,21 +307,21 @@
     </div>
     <div class="battle-log" id="battleLog">Wild creature appeared!</div>
     <div class="battle-controls" id="battleControls">
-        <button class="btn-attack">Attack</button>
+        <button class="btn-attack" data-tooltip="Deal physical damage based on Attack and Type.">Attack</button>
 
-        <button class="btn-catch">Catch</button>
-        <button class="btn-run">Run</button>
+        <button class="btn-catch" data-tooltip="Attempt to catch the wild creature. Lower HP increases success.">Catch</button>
+        <button class="btn-run" data-tooltip="Flee from battle. Success is based on Speed.">Run</button>
     </div>
 </div>
 
-<button id="menuBtn">Menu</button>
+<button id="menuBtn" data-tooltip="Open the main menu.">Menu</button>
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <h2>Menu</h2>
-    <button id="menuPartyBtn">Party</button>
-    <button id="breedBtn">Breeding Center</button>
-    <button id="menuHelpBtn">Help</button>
-    <button id="menuDeleteBtn">Delete Progress</button>
+    <button id="menuPartyBtn" data-tooltip="View and manage your collected creatures.">Party</button>
+    <button id="breedBtn" data-tooltip="Combine two creatures to create a new offspring.">Breeding Center</button>
+    <button id="menuHelpBtn" data-tooltip="Learn how to play and view game mechanics.">Help</button>
+    <button id="menuDeleteBtn" data-tooltip="Permanently erase all save data.">Delete Progress</button>
     <button class="close-menu-btn">Close</button>
 </div>
 <div id="partyModal">
@@ -329,7 +331,7 @@
     <button class="close-party-btn">Close</button>
 </div>
 
-<div id="helpModal" style="display:none; position:absolute; background:rgba(0,0,0,0.95); padding:20px; z-index:400; color:white; overflow-y:auto; font-size:16px;">
+<div id="helpModal" style="display:none; position:absolute; z-index:400; color:white; overflow-y:auto; font-size:16px;">
     <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
     <h2>How to Play</h2>
     <p>• Roam grass to encounter creatures. Move with ARROWS or WASD.</p>
@@ -387,6 +389,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('doBreedBtn')?.addEventListener('click', doBreed);
     document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', closeBreedingModal));
+
+    // Tooltip Logic
+    const tooltip = document.getElementById('tooltip');
+    document.addEventListener('mouseover', function(e) {
+        const target = e.target.closest('[data-tooltip]');
+        if (target) {
+            tooltip.innerText = target.getAttribute('data-tooltip');
+            tooltip.style.display = 'block';
+        }
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (tooltip.style.display === 'block') {
+            tooltip.style.left = e.pageX + 10 + 'px';
+            tooltip.style.top = e.pageY + 10 + 'px';
+        }
+    });
+
+    document.addEventListener('mouseout', function(e) {
+        const target = e.target.closest('[data-tooltip]');
+        if (target) {
+            tooltip.style.display = 'none';
+        }
+    });
 });
 
 document.addEventListener('click', function(e) {
@@ -1452,13 +1478,22 @@ window.renderPartyList = function() {
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
         const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
+        const statTooltips = {
+            health: "Maximum hit points.",
+            attack: "Increases physical damage dealt.",
+            defense: "Reduces physical damage taken.",
+            speed: "Determines turn order and run away success.",
+            specialAttack: "Increases special/elemental damage dealt.",
+            specialDefense: "Reduces special/elemental damage taken."
+        };
+
         const statsHtml = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].map(stat => {
             let base = c.stats[stat] || 50;
             let eff = window.getEffectiveStat(c, stat).toFixed(1);
             let scaled = window.getScaledBaseStat(c, stat).toFixed(1);
             let effColor = parseFloat(eff) > parseFloat(scaled) ? 'green' : (parseFloat(eff) < parseFloat(scaled) ? 'red' : 'white');
             let statColor = statColors[stat] || 'white';
-            return `<div><span style="color:${statColor}">${stat}</span>: ${base} <span style="color:${effColor}">(Eff: ${eff})</span></div>`;
+            return `<div data-tooltip="${statTooltips[stat]}"><span style="color:${statColor}; text-decoration: underline dotted; cursor: help;">${stat}</span>: ${base} <span style="color:${effColor}">(Eff: ${eff})</span></div>`;
         }).join('');
 
         let parentsHtml = '';
@@ -1467,13 +1502,23 @@ window.renderPartyList = function() {
         }
 
         let natureColor = 'white';
+        let natureTooltip = 'No stat changes.';
         if (c.nature) {
-            if (c.nature.increase && !c.nature.decrease) natureColor = '#4caf50';
-            else if (!c.nature.increase && c.nature.decrease) natureColor = '#f44336';
-            else if (c.nature.increase && c.nature.decrease) natureColor = '#ff9800';
+            if (c.nature.increase && !c.nature.decrease) {
+                natureColor = '#4caf50';
+                natureTooltip = `+10% ${c.nature.increase}`;
+            }
+            else if (!c.nature.increase && c.nature.decrease) {
+                natureColor = '#f44336';
+                natureTooltip = `-10% ${c.nature.decrease}`;
+            }
+            else if (c.nature.increase && c.nature.decrease) {
+                natureColor = '#ff9800';
+                natureTooltip = `+10% ${c.nature.increase}, -10% ${c.nature.decrease}`;
+            }
         }
-        let natureHtml = c.nature ? `<p>Nature: <span style="color:${natureColor}">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
-        let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
+        let natureHtml = c.nature ? `<p data-tooltip="${natureTooltip}">Nature: <span style="color:${natureColor}; text-decoration: underline dotted; cursor: help;">${c.nature.name}</span></p>` : '<p data-tooltip="Neutral nature">Nature: None</p>';
+        let shinyPrefix = c.isShiny ? '<span class="shiny-star" data-tooltip="Extremely rare Shiny creature with +20% base stats!">⭐</span>' : '';
 
         card.innerHTML = `
             <div>
@@ -2523,8 +2568,8 @@ function create() {
     creaturesGroup.setDepth(1);
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
-    // Spawn exactly the 50 base creatures (increased by 50% for density)
-    let spawnCount = Math.floor(baseCreatures.length * 1.5);
+    // Spawn base creatures (increased by 300% for density)
+    let spawnCount = Math.floor(baseCreatures.length * 3.0);
     for (let i = 0; i < spawnCount; i++) {
         spawnCreature(this, baseCreatures[i % baseCreatures.length]);
     }
@@ -2534,7 +2579,7 @@ function create() {
 }
 
 function spawnCreature(scene, creatureData, forceX, forceY) {
-    if (creaturesGroup && creaturesGroup.getChildren().length >= 100) return;
+    if (creaturesGroup && creaturesGroup.getChildren().length >= 150) return;
     let x = forceX;
     let y = forceY;
     if (x === undefined || y === undefined) {
@@ -2592,14 +2637,13 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
     // Assign random nature and unique ID on spawn
     clonedData.nature = window.getRandomNature();
 
-    let baseLevel = Math.floor(Math.random() * 5) + 1;
-    if (collectedCreatures.length > 0) {
-        let maxPossibleLevel = Math.max(...collectedCreatures.map(c => c.level || 1)) + 2;
-        // Level cap: wild creatures max player highest +2
-        let wildLevel = Math.min(baseLevel + Math.floor(Math.random() * 3), maxPossibleLevel);
-        clonedData.level = Math.max(1, wildLevel);
+    let maxPossibleLevel = collectedCreatures.length > 0 ? Math.max(...collectedCreatures.map(c => c.level || 1)) : 1;
+    if (maxPossibleLevel === 1) {
+        clonedData.level = 1;
     } else {
-        clonedData.level = baseLevel;
+        let baseLevel = Math.floor(Math.random() * 5) + 1;
+        let wildLevel = Math.min(baseLevel + Math.floor(Math.random() * 3), maxPossibleLevel + 2);
+        clonedData.level = Math.max(1, wildLevel);
     }
     clonedData.xp = 0;
 
