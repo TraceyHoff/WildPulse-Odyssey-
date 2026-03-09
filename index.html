@@ -2210,6 +2210,127 @@ function preload() {
 
 let mapData = []; // To store 100x100 grid data
 let obstaclesGroup;
+let activeTiles = {}; // Track active viewport tiles to cull
+
+function spawnTile(scene, r, c, tileSize, cols, rows) {
+    let sprites = [];
+    let posX = c * tileSize + tileSize / 2;
+    let posY = r * tileSize + tileSize / 2;
+
+    // Add drop shadow
+    let shadow = scene.add.rectangle(posX + 6, posY + 4, 100, 100, 0x000000, 0.5);
+    shadow.setDepth(0);
+    sprites.push(shadow);
+
+    // Create obstacle
+    let obs = obstaclesGroup.create(posX, posY, 'obs_tex_0');
+    let gridX = (c * tileSize) % 400;
+    let gridY = (r * tileSize) % 400;
+    obs.setCrop(gridX, gridY, 100, 100);
+    obs.setDisplayOrigin(gridX + 50, gridY + 50);
+    obs.body.setSize(100, 100);
+    obs.body.x = posX - 50;
+    obs.body.y = posY - 50;
+    obs.anims.play('water_anim', true);
+    obs.setDepth(0);
+    sprites.push(obs);
+
+    // Add overlay
+    let overlay = scene.add.sprite(posX, posY, 'water_overlay');
+    overlay.setBlendMode(Phaser.BlendModes.MULTIPLY);
+    overlay.setDepth(0);
+    sprites.push(overlay);
+
+    // Convex corners
+    if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
+        let corner = scene.add.sprite(posX - 50 + 4, posY - 50 + 4, 'grass_corner_convex');
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
+        let corner = scene.add.sprite(posX + 50 - 4, posY - 50 + 4, 'grass_corner_convex');
+        corner.setAngle(90);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
+        let corner = scene.add.sprite(posX + 50 - 4, posY + 50 - 4, 'grass_corner_convex');
+        corner.setAngle(180);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
+        let corner = scene.add.sprite(posX - 50 + 4, posY + 50 - 4, 'grass_corner_convex');
+        corner.setAngle(270);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+
+    // Concave corners
+    if (c > 0 && mapData[r][c-1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c-1] === 'grass') {
+        let corner = scene.add.sprite(posX - 50 + 4, posY - 50 + 4, 'grass_corner_concave');
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c < cols-1 && mapData[r][c+1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c+1] === 'grass') {
+        let corner = scene.add.sprite(posX + 50 - 4, posY - 50 + 4, 'grass_corner_concave');
+        corner.setAngle(90);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c < cols-1 && mapData[r][c+1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c+1] === 'grass') {
+        let corner = scene.add.sprite(posX + 50 - 4, posY + 50 - 4, 'grass_corner_concave');
+        corner.setAngle(180);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c > 0 && mapData[r][c-1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c-1] === 'grass') {
+        let corner = scene.add.sprite(posX - 50 + 4, posY + 50 - 4, 'grass_corner_concave');
+        corner.setAngle(270);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+
+    // Foams
+    if (c > 0 && mapData[r][c-1] === 'grass') {
+        let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
+        foam.anims.play('foam_anim', true);
+        foam.setDepth(0);
+        sprites.push(foam);
+    }
+    if (c < cols-1 && mapData[r][c+1] === 'grass') {
+        let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
+        foam.setAngle(180);
+        foam.anims.play('foam_anim', true);
+        foam.setDepth(0);
+        sprites.push(foam);
+    }
+    if (r > 0 && mapData[r-1][c] === 'grass') {
+        let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
+        foam.setAngle(90);
+        foam.anims.play('foam_anim', true);
+        foam.setDepth(0);
+        sprites.push(foam);
+    }
+    if (r < rows-1 && mapData[r+1][c] === 'grass') {
+        let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
+        foam.setAngle(-90);
+        foam.anims.play('foam_anim', true);
+        foam.setDepth(0);
+        sprites.push(foam);
+    }
+
+    return sprites;
+}
+
+function destroyTile(key) {
+    if (activeTiles[key]) {
+        activeTiles[key].forEach(sprite => {
+            if (sprite && sprite.destroy) sprite.destroy();
+        });
+        delete activeTiles[key];
+    }
+}
 
 function create() {
     // Generate map terrain
@@ -2219,6 +2340,7 @@ function create() {
 
     // Fill background with grass
     bgGrass = this.add.tileSprite(0, 0, WORLD_SIZE, WORLD_SIZE, 'grass_0').setOrigin(0, 0);
+    bgGrass.setDepth(-1);
     obstaclesGroup = this.physics.add.staticGroup();
 
     // Create water animation globally so it can be played on sprites
@@ -2290,107 +2412,8 @@ function create() {
         }
     }
 
-    // First pass: create drop shadows for the entire water body
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            if (mapData[r][c] === 'obs') {
-                let posX = c * TILE_SIZE + TILE_SIZE/2;
-                let posY = r * TILE_SIZE + TILE_SIZE/2;
-                // Add a black rectangle offset by 4px down, 6px right (mimicking box-shadow)
-                this.add.rectangle(posX + 6, posY + 4, 100, 100, 0x000000, 0.5);
-            }
-        }
-    }
-
-    // Now instantiate tiles based on mapData
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            if (mapData[r][c] === 'obs') {
-                let posX = c * TILE_SIZE + TILE_SIZE/2;
-                let posY = r * TILE_SIZE + TILE_SIZE/2;
-
-                let obs = obstaclesGroup.create(posX, posY, 'obs_tex_0');
-
-                // To create seamless tiles, tell Phaser that the frame itself is large
-                // and we crop it to the 100x100 tile segment based on global position
-                let gridX = (c * TILE_SIZE) % 400;
-                let gridY = (r * TILE_SIZE) % 400;
-                obs.setCrop(gridX, gridY, 100, 100);
-
-                // Phaser's setCrop adjusts the rendering size but keeps the texture origin at the center.
-                // We need to shift the sprite so the cropped region aligns perfectly over the collision box.
-                obs.setDisplayOrigin(gridX + 50, gridY + 50);
-                obs.body.setSize(100, 100);
-                obs.body.x = posX - 50;
-                obs.body.y = posY - 50;
-
-                obs.anims.play('water_anim', true);
-
-                // Add linear gradient overlay to match button style
-                let overlay = this.add.sprite(posX, posY, 'water_overlay');
-                overlay.setBlendMode(Phaser.BlendModes.MULTIPLY);
-
-                // Add convex rounded corners (outer edges of the lake)
-                if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-                    this.add.sprite(posX - 50 + 4, posY - 50 + 4, 'grass_corner_convex');
-                }
-                if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-                    let corner = this.add.sprite(posX + 50 - 4, posY - 50 + 4, 'grass_corner_convex');
-                    corner.setAngle(90);
-                }
-                if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-                    let corner = this.add.sprite(posX + 50 - 4, posY + 50 - 4, 'grass_corner_convex');
-                    corner.setAngle(180);
-                }
-                if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-                    let corner = this.add.sprite(posX - 50 + 4, posY + 50 - 4, 'grass_corner_convex');
-                    corner.setAngle(270);
-                }
-
-                // Add concave rounded corners (inner edges of the lake)
-                if (c > 0 && mapData[r][c-1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c-1] === 'grass') {
-                    let corner = this.add.sprite(posX - 50 + 4, posY - 50 + 4, 'grass_corner_concave');
-                }
-                if (c < cols-1 && mapData[r][c+1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c+1] === 'grass') {
-                    let corner = this.add.sprite(posX + 50 - 4, posY - 50 + 4, 'grass_corner_concave');
-                    corner.setAngle(90);
-                }
-                if (c < cols-1 && mapData[r][c+1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c+1] === 'grass') {
-                    let corner = this.add.sprite(posX + 50 - 4, posY + 50 - 4, 'grass_corner_concave');
-                    corner.setAngle(180);
-                }
-                if (c > 0 && mapData[r][c-1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c-1] === 'grass') {
-                    let corner = this.add.sprite(posX - 50 + 4, posY + 50 - 4, 'grass_corner_concave');
-                    corner.setAngle(270);
-                }
-
-                // Add foam edges if adjacent to grass
-                // Left
-                if (c > 0 && mapData[r][c-1] === 'grass') {
-                    let foam = this.add.sprite(posX, posY, 'foam_tex_0');
-                    foam.anims.play('foam_anim', true);
-                }
-                // Right
-                if (c < cols-1 && mapData[r][c+1] === 'grass') {
-                    let foam = this.add.sprite(posX, posY, 'foam_tex_0');
-                    foam.setAngle(180);
-                    foam.anims.play('foam_anim', true);
-                }
-                // Top
-                if (r > 0 && mapData[r-1][c] === 'grass') {
-                    let foam = this.add.sprite(posX, posY, 'foam_tex_0');
-                    foam.setAngle(90);
-                    foam.anims.play('foam_anim', true);
-                }
-                // Bottom
-                if (r < rows-1 && mapData[r+1][c] === 'grass') {
-                    let foam = this.add.sprite(posX, posY, 'foam_tex_0');
-                    foam.setAngle(-90);
-                    foam.anims.play('foam_anim', true);
-                }
-            }
-        }
-    }
+    // Tiles are no longer instantiated upfront. They will be instantiated
+    // dynamically in the update() loop based on the viewport.
 
     // Player setup
     const savedX = localStorage.getItem('wildpulse_player_x');
@@ -2408,6 +2431,7 @@ function create() {
     }
 
     player = this.add.rectangle(startX, startY, 40, 40, 0xFFFFFF);
+    player.setDepth(10);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
     this.physics.add.collider(player, obstaclesGroup);
@@ -2460,6 +2484,7 @@ function create() {
                 // Create new remote player
                 let remotePlayer = this.add.rectangle(msg.x, msg.y, 40, 40, 0xFF0000); // Red for other players
                 this.physics.add.existing(remotePlayer);
+                remotePlayer.setDepth(10);
                 remotePlayer.setData('targetX', msg.x);
                 remotePlayer.setData('targetY', msg.y);
                 remotePlayer.setData('vx', msg.vx || 0);
@@ -2582,6 +2607,7 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
 
     const sprite = scene.add.rectangle(x, y, 30, 30, clonedData.color);
     scene.physics.add.existing(sprite);
+    sprite.setDepth(10);
     sprite.setData('creatureData', clonedData);
     creaturesGroup.add(sprite);
 }
@@ -2915,6 +2941,38 @@ function update() {
     const frame = Math.floor(this.time.now / 150) % 12;
     bgGrass.setTexture('grass_' + frame);
 
+    // Dynamic Tile Viewport Culling
+    const cam = this.cameras.main;
+    const TILE_SIZE = 100;
+    const buffer = 2; // Render 2 tiles outside view
+
+    const minCol = Math.max(0, Math.floor(cam.scrollX / TILE_SIZE) - buffer);
+    const maxCol = Math.min((mapData[0] || []).length - 1, Math.floor((cam.scrollX + cam.width) / TILE_SIZE) + buffer);
+    const minRow = Math.max(0, Math.floor(cam.scrollY / TILE_SIZE) - buffer);
+    const maxRow = Math.min(mapData.length - 1, Math.floor((cam.scrollY + cam.height) / TILE_SIZE) + buffer);
+
+    // Track which tiles we need this frame
+    let neededTiles = new Set();
+
+    for (let r = minRow; r <= maxRow; r++) {
+        for (let c = minCol; c <= maxCol; c++) {
+            if (mapData[r] && mapData[r][c] === 'obs') {
+                const key = `${r},${c}`;
+                neededTiles.add(key);
+                if (!activeTiles[key]) {
+                    activeTiles[key] = spawnTile(this, r, c, TILE_SIZE, mapData[0].length, mapData.length);
+                }
+            }
+        }
+    }
+
+    // Destroy tiles no longer in view
+    for (const key of Object.keys(activeTiles)) {
+        if (!neededTiles.has(key)) {
+            destroyTile(key);
+        }
+    }
+
     player.body.setVelocity(0);
 
     // Keyboard movement
@@ -3015,9 +3073,26 @@ function update() {
         player.body.setVelocity(0);
     }
 
-    // Creature wandering logic
-    if (updateAIThisFrame) {
-        creaturesGroup.getChildren().forEach(creature => {
+    // Entity Viewport Culling Bounds (Pixels)
+    const viewPadding = 300;
+    const viewLeft = cam.scrollX - viewPadding;
+    const viewRight = cam.scrollX + cam.width + viewPadding;
+    const viewTop = cam.scrollY - viewPadding;
+    const viewBottom = cam.scrollY + cam.height + viewPadding;
+
+    // Remote Players Culling
+    Object.values(remotePlayers).forEach(rp => {
+        const isVisible = (rp.x >= viewLeft && rp.x <= viewRight && rp.y >= viewTop && rp.y <= viewBottom);
+        rp.setVisible(isVisible);
+    });
+
+    // Creature wandering logic & culling
+    creaturesGroup.getChildren().forEach(creature => {
+        const isVisible = (creature.x >= viewLeft && creature.x <= viewRight && creature.y >= viewTop && creature.y <= viewBottom);
+        creature.setVisible(isVisible);
+
+        if (updateAIThisFrame) {
+            // Background wandering continues even if invisible
             if (Math.random() < 0.02) {
                 const rx = (Math.random() - 0.5) * 200;
                 const ry = (Math.random() - 0.5) * 200;
@@ -3043,7 +3118,16 @@ function update() {
                 creature.x += (tx - creature.x) * 0.05;
                 creature.y += (ty - creature.y) * 0.05;
             }
-        });
+        }
+    });
+
+    // Performance Logging
+    if (!window.logFrameCounter) window.logFrameCounter = 0;
+    window.logFrameCounter++;
+    if (window.logFrameCounter % 60 === 0) {
+        let visibleCreatures = creaturesGroup.getChildren().filter(c => c.visible).length;
+        let visiblePlayers = Object.values(remotePlayers).filter(p => p.visible).length;
+        console.log(`[Viewport Performance] Active Tiles: ${Object.keys(activeTiles).length} | Visible Entities: ${visibleCreatures + visiblePlayers + 1}`);
     }
 }
 </script>

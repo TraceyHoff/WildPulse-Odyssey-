@@ -65,3 +65,10 @@ WildPulse Odyssey Creature Collecting Game
 - **Safe Player Respawn**: Following a battle loss, players are now guaranteed to respawn safely on dry land at least 10 tiles away from the enemy and 8 tiles from any water.
 - **Responsive UI Overhaul**: All game modals are now fully responsive to gracefully fit smaller screens, featuring a clearly visible 'X' close button in the top-right corner with a hover animation.
 - **Modern Window Design**: Menus and modals now feature a consistent glassmorphism effect (blur backdrop + subtle border glow) and professional layout adjustments.
+
+### New Features (v9)
+
+- **Rendering Optimizations**: Implemented a dynamic camera culling system (viewport-based rendering).
+  - The game no longer instantiates the entire 200x200 tile world upfront, saving massive amounts of memory and preventing initial load hanging.
+  - Background tiles, animated water, corners, and drop shadows are dynamically created and destroyed in real-time as the player moves.
+  - Off-screen creatures and remote multiplayer entities are culled from rendering while preserving their background AI and wandering behaviors, leading to substantially improved framerates on large maps.
