@@ -47,6 +47,22 @@
             }
         }
 
+        /* Tooltips */
+        #tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 10000;
+            border: 1px solid #444;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            max-width: 250px;
+        }
+
         /* Modals */
         #breedingModal, #menuModal, #partyModal, #battleModal, #helpModal, #lobbyModal {
             width: 90vw !important;
@@ -274,6 +290,7 @@
 </style>
 </head>
 <body>
+<div id="tooltip"></div>
 
 <div id="lobbyModal">
     <button class="close-btn lobby-close-btn" aria-label="Close Lobby">X</button>
@@ -1446,7 +1463,17 @@ window.renderPartyList = function() {
         list.innerHTML = '<p>Your party is empty.</p>';
         return;
     }
-    collectedCreatures.forEach((c, index) => {
+
+    const activeParty = collectedCreatures.slice(0, 6);
+    const storageBox = collectedCreatures.slice(6);
+
+    const partyHeader = document.createElement('h3');
+    partyHeader.innerText = "Active Party";
+    partyHeader.style.color = "#e0e0ff";
+    partyHeader.style.marginTop = "0";
+    fragment.appendChild(partyHeader);
+
+    activeParty.forEach((c, index) => {
         const card = document.createElement('div');
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
@@ -1458,7 +1485,7 @@ window.renderPartyList = function() {
             let scaled = window.getScaledBaseStat(c, stat).toFixed(1);
             let effColor = parseFloat(eff) > parseFloat(scaled) ? 'green' : (parseFloat(eff) < parseFloat(scaled) ? 'red' : 'white');
             let statColor = statColors[stat] || 'white';
-            return `<div><span style="color:${statColor};">${stat}</span>: ${base} <span style="color:${effColor}">(Eff: ${eff})</span></div>`;
+            return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature modifications."><span style="color:${statColor};">${stat}</span>: ${base} <span style="color:${effColor}">(Eff: ${eff})</span></div>`;
         }).join('');
 
         let parentsHtml = '';
@@ -1478,7 +1505,7 @@ window.renderPartyList = function() {
                 natureColor = '#ff9800';
             }
         }
-        let natureHtml = c.nature ? `<p>Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
+        let natureHtml = c.nature ? `<p data-tooltip="${c.nature.name}: Increases ${c.nature.increase || 'Nothing'} and decreases ${c.nature.decrease || 'Nothing'}">Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
         let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
 
         card.innerHTML = `
@@ -1505,6 +1532,41 @@ window.renderPartyList = function() {
         `;
         fragment.appendChild(card);
     });
+
+    if (storageBox.length > 0) {
+        const storageHeader = document.createElement('h3');
+        storageHeader.innerText = "Storage Box";
+        storageHeader.style.color = "#e0e0ff";
+        storageHeader.style.marginTop = "20px";
+        fragment.appendChild(storageHeader);
+
+        const storageGrid = document.createElement('div');
+        storageGrid.style.display = 'grid';
+        storageGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+        storageGrid.style.gap = '15px';
+        storageGrid.style.maxHeight = '400px';
+        storageGrid.style.overflowY = 'auto';
+        storageGrid.style.padding = '10px';
+
+        storageBox.forEach((c, i) => {
+            const index = i + 6;
+            const card = document.createElement('div');
+            card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
+
+            const nameHtml = `<h4>${window.escapeHtml(c.name)} ${c.nickname ? `("${window.escapeHtml(c.nickname)}")` : ''}</h4>`;
+            const typeHtml = `<p>Lvl ${c.level} | Type: ${c.type} | Gen ${c.generation}</p>`;
+
+            let actionHtml = `<div class="party-controls">`;
+            actionHtml += `<button onclick="window.moveToParty(${index})">Move to Party</button>`;
+            actionHtml += `<button onclick="window.releaseCreature(${index})">Release</button>`;
+            actionHtml += `</div>`;
+
+            card.innerHTML = nameHtml + typeHtml + actionHtml;
+            storageGrid.appendChild(card);
+        });
+        fragment.appendChild(storageGrid);
+    }
+
     list.appendChild(fragment);
 };
 
@@ -1529,6 +1591,18 @@ window.moveDown = function(index) {
         let temp = collectedCreatures[index];
         collectedCreatures[index] = collectedCreatures[index + 1];
         collectedCreatures[index + 1] = temp;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+        renderPartyList();
+    }
+};
+
+window.moveToParty = function(index) {
+    if (index >= 6 && index < collectedCreatures.length) {
+        // Swap with the 6th slot (index 5)
+        let targetIndex = 5;
+        let temp = collectedCreatures[targetIndex];
+        collectedCreatures[targetIndex] = collectedCreatures[index];
+        collectedCreatures[index] = temp;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
         renderPartyList();
     }
@@ -1573,10 +1647,12 @@ window.breed = function(parent1, parent2) {
     const uniqueFeatures = Array.from(new Set(combinedFeatures)).sort(() => 0.5 - Math.random());
     const childFeatures = uniqueFeatures.slice(0, Math.min(4, Math.max(2, Math.floor(uniqueFeatures.length / 2))));
 
-    let childDesc = `A unique hybrid born from the union of ${parent1.name} and ${parent2.name}. It inherits the best traits of its ${parent1.type} and ${parent2.type} ancestors, possessing a blend of their distinct features.`;
-    if (childFeatures && childFeatures.length > 0) {
-        childDesc += " Its appearance is distinguished by unique bodily features, including " + childFeatures.join(", ") + ".";
-    }
+    const descTemplates = [
+        `A stunning ${parent1.type}-${parent2.type} hybrid, ${childName} possesses a mesmerizing blend of features. Its form echoes ${parent1.name}'s structure, while radiating ${parent2.name}'s signature energy. ${childFeatures.length > 0 ? `Striking ${childFeatures.join(" and ")} adorn its body, ` : ""}hinting at a fierce yet balanced nature.`,
+        `Born of ${parent1.name} and ${parent2.name}, ${childName} is a rare marvel. Its ${parent1.type} heritage manifests in deep, textured hues, contrasting sharply with the bright, glowing elements of its ${parent2.type} lineage. ${childFeatures.length > 0 ? `It proudly displays ${childFeatures.join(", ")}, ` : ""}making it a truly formidable presence.`,
+        `${childName} moves with the grace of ${parent1.name} and the power of ${parent2.name}. The convergence of ${parent1.type} and ${parent2.type} energies gives it a wholly unique aura. ${childFeatures.length > 0 ? `Distinctive ${childFeatures.join(" and ")} mark its silhouette, ` : ""}suggesting a complex and unpredictable personality.`
+    ];
+    let childDesc = descTemplates[Math.floor(Math.random() * descTemplates.length)];
 
     const childType = (parent1.type === parent2.type) ? parent1.type : `${parent1.type}-${parent2.type}`;
 
@@ -1687,27 +1763,12 @@ window.doBreed = function() {
 
         const child = window.breed(p1, p2);
 
-        // Remove parents temporarily to simulate them returning to the wild or being consumed by breeding
-        // Make sure to remove the higher index first to avoid shifting issues
-        collectedCreaturesIds.delete(p1.id);
-        collectedCreaturesIds.delete(p2.id);
-        if (p1Index > p2Index) {
-            collectedCreatures.splice(p1Index, 1);
-            collectedCreatures.splice(p2Index, 1);
-        } else {
-            collectedCreatures.splice(p2Index, 1);
-            collectedCreatures.splice(p1Index, 1);
-        }
-
-        // Save state after removing parents
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-
         // Add the child
         saveCollected(child);
 
-        document.getElementById('breedResult').innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents have returned to the wild.`;
+        document.getElementById('breedResult').innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents remain in your party.`;
 
-        // Re-populate to show new child and removed parents
+        // Re-populate to show new child
         populateSelect(document.getElementById('parent1Select'));
         populateSelect(document.getElementById('parent2Select'));
     }
@@ -2733,8 +2794,8 @@ window.doPlayerAction = function(action, callback) {
         else if (currentPlayer.type === 'Nature') applyStatusEffect(currentEnemy, 'Poison');
         else if (currentPlayer.type === 'Water') applyStatusEffect(currentEnemy, 'Sleep');
     } else if (action === 'catch') {
-        if (collectedCreatures.length >= 6) {
-            logBattle("<b>Your party is full! You cannot catch more creatures.</b>");
+        if (collectedCreatures.length >= 1375) {
+            logBattle("<b>Your storage is full! You cannot catch more creatures.</b>");
             updateBattleUI();
             if (callback) setTimeout(callback, 1500);
             return;
@@ -3135,6 +3196,29 @@ function update() {
         console.log(`[Viewport Performance] Active Tiles: ${Object.keys(activeTiles).length} | Visible Entities: ${visibleCreatures + visiblePlayers + 1}`);
     }
 }
+
+document.addEventListener('mouseover', (e) => {
+    const tooltipTarget = e.target.closest('[data-tooltip]');
+    if (tooltipTarget) {
+        const tooltip = document.getElementById('tooltip');
+        tooltip.innerHTML = tooltipTarget.getAttribute('data-tooltip');
+        tooltip.style.display = 'block';
+    }
+});
+document.addEventListener('mousemove', (e) => {
+    const tooltip = document.getElementById('tooltip');
+    if (tooltip.style.display === 'block') {
+        tooltip.style.left = e.pageX + 10 + 'px';
+        tooltip.style.top = e.pageY + 10 + 'px';
+    }
+});
+document.addEventListener('mouseout', (e) => {
+    const tooltipTarget = e.target.closest('[data-tooltip]');
+    if (tooltipTarget) {
+        const tooltip = document.getElementById('tooltip');
+        tooltip.style.display = 'none';
+    }
+});
 </script>
 </body>
 </html>
