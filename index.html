@@ -36,6 +36,17 @@
             box-shadow: 0 6px 12px rgba(0,0,0,0.5);
         }
 
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%) !important;
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) !important;
+            }
+        }
+
         /* Modals */
         #breedingModal, #menuModal, #partyModal, #battleModal, #helpModal, #lobbyModal {
             width: 90vw !important;
@@ -45,37 +56,41 @@
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            border-radius: 12px !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
             box-sizing: border-box;
             margin: 0;
             overflow-y: auto;
-            padding: 15px !important;
+            padding: 50px 15px 15px 15px !important;
 
-            box-shadow: 0 0 30px rgba(0, 200, 255, 0.5), inset 0 0 15px rgba(255,255,255,0.1);
+            box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1);
 
-            background: linear-gradient(135deg, rgba(10,40,20,0.95), rgba(0,20,40,0.95)) !important;
-            backdrop-filter: blur(15px);
+            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
+            backdrop-filter: blur(25px);
+            animation: modalFadeIn 0.2s ease-out;
         }
 
         .close-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 35px;
-            height: 35px;
-            border-radius: 0 12px 0 12px;
-            background: linear-gradient(180deg, #ef5350, #c62828);
-            color: white;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            z-index: 9999;
-            transition: transform 0.2s, filter 0.2s;
-            line-height: 35px;
-            text-align: center;
-            padding: 0;
-            margin: 0;
+            position: absolute !important;
+            top: 15px !important;
+            right: 15px !important;
+            width: 25px !important;
+            height: 25px !important;
+            border-radius: 5px !important;
+            background: linear-gradient(180deg, #ef5350, #c62828) !important;
+            color: white !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+            border: 1px solid #c62828 !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            z-index: 1000 !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5) !important;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
         }
 
         .close-btn:hover {
@@ -153,19 +168,19 @@
             margin: 10px 0;
             padding: 10px;
             font-size: 16px;
-            background: linear-gradient(180deg, #42a5f5, #1565c0);
+            background: linear-gradient(180deg, #2e7d32, #1b5e20);
             color: white;
-            border: 1px solid #87CEEB;
+            border: 1px solid #a5d6a7;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         #menuModal button:hover, #partyModal > button:hover, #breedingModal button:hover, #helpModal button:hover {
-            transform: scale(1.02);
+            transform: scale(1.05);
             filter: brightness(1.2);
-            box-shadow: 0 0 10px rgba(0,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,255,100,0.6);
         }
-        #menuModal button:nth-child(2) { background: linear-gradient(180deg, #ab47bc, #6a1b9a); border-color: #ce93d8; }
         #menuModal button#breedBtn { background: linear-gradient(180deg, #ffca28, #ff8f00); border-color: #ffe082; color: #333; text-shadow: none; }
         #partyModal > button, #breedingModal button:last-of-type, #helpModal button { background: linear-gradient(180deg, #555, #222); border-color: #777; }
         #breedingModal button:first-of-type { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
@@ -256,27 +271,9 @@
         border-radius: 3px;
     }
 
-    #tooltip {
-        position: absolute;
-        display: none;
-        background: rgba(0,0,0,0.9);
-        color: #fff;
-        padding: 8px 12px;
-        border-radius: 6px;
-        z-index: 10000;
-        pointer-events: none;
-        border: 1px solid #42a5f5;
-        font-size: 14px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-        white-space: pre-wrap;
-        max-width: 300px;
-    }
-
 </style>
 </head>
 <body>
-
-<div id="tooltip"></div>
 
 <div id="lobbyModal">
     <button class="close-btn lobby-close-btn" aria-label="Close Lobby">X</button>
@@ -307,21 +304,21 @@
     </div>
     <div class="battle-log" id="battleLog">Wild creature appeared!</div>
     <div class="battle-controls" id="battleControls">
-        <button class="btn-attack" data-tooltip="Deal physical damage based on Attack and Type.">Attack</button>
+        <button class="btn-attack">Attack</button>
 
-        <button class="btn-catch" data-tooltip="Attempt to catch the wild creature. Lower HP increases success.">Catch</button>
-        <button class="btn-run" data-tooltip="Flee from battle. Success is based on Speed.">Run</button>
+        <button class="btn-catch">Catch</button>
+        <button class="btn-run">Run</button>
     </div>
 </div>
 
-<button id="menuBtn" data-tooltip="Open the main menu.">Menu</button>
+<button id="menuBtn">Menu</button>
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <h2>Menu</h2>
-    <button id="menuPartyBtn" data-tooltip="View and manage your collected creatures.">Party</button>
-    <button id="breedBtn" data-tooltip="Combine two creatures to create a new offspring.">Breeding Center</button>
-    <button id="menuHelpBtn" data-tooltip="Learn how to play and view game mechanics.">Help</button>
-    <button id="menuDeleteBtn" data-tooltip="Permanently erase all save data.">Delete Progress</button>
+    <button id="menuPartyBtn">Party</button>
+    <button id="breedBtn">Breeding Center</button>
+    <button id="menuHelpBtn">Help</button>
+    <button id="menuDeleteBtn">Delete Progress</button>
     <button class="close-menu-btn">Close</button>
 </div>
 <div id="partyModal">
@@ -389,30 +386,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('doBreedBtn')?.addEventListener('click', doBreed);
     document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', closeBreedingModal));
-
-    // Tooltip Logic
-    const tooltip = document.getElementById('tooltip');
-    document.addEventListener('mouseover', function(e) {
-        const target = e.target.closest('[data-tooltip]');
-        if (target) {
-            tooltip.innerText = target.getAttribute('data-tooltip');
-            tooltip.style.display = 'block';
-        }
-    });
-
-    document.addEventListener('mousemove', function(e) {
-        if (tooltip.style.display === 'block') {
-            tooltip.style.left = e.pageX + 10 + 'px';
-            tooltip.style.top = e.pageY + 10 + 'px';
-        }
-    });
-
-    document.addEventListener('mouseout', function(e) {
-        const target = e.target.closest('[data-tooltip]');
-        if (target) {
-            tooltip.style.display = 'none';
-        }
-    });
 });
 
 document.addEventListener('click', function(e) {
@@ -1432,7 +1405,7 @@ window.openMenuModal = function() {
     document.getElementById('menuModal').style.display = 'block';
 };
 window.closeMenuModal = function() {
-    document.getElementById('menuModal').style.display = 'none';
+    let _m_menuModal = document.getElementById('menuModal'); _m_menuModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_menuModal.style.display = 'none'; _m_menuModal.children[0].classList.remove('modal-fade-out'); }, 190);
 };
 
 
@@ -1454,7 +1427,7 @@ window.openHelpModal = function() {
 
 
 window.closeHelpModal = function() {
-    document.getElementById('helpModal').style.display = 'none';
+    let _m_helpModal = document.getElementById('helpModal'); _m_helpModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_helpModal.style.display = 'none'; _m_helpModal.children[0].classList.remove('modal-fade-out'); }, 190);
 };
 window.openPartyModal = function() {
     closeMenuModal();
@@ -1462,7 +1435,7 @@ window.openPartyModal = function() {
     renderPartyList();
 };
 window.closePartyModal = function() {
-    document.getElementById('partyModal').style.display = 'none';
+    let _m_partyModal = document.getElementById('partyModal'); _m_partyModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_partyModal.style.display = 'none'; _m_partyModal.children[0].classList.remove('modal-fade-out'); }, 190);
 };
 
 window.renderPartyList = function() {
@@ -1478,14 +1451,6 @@ window.renderPartyList = function() {
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
         const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
-        const statTooltips = {
-            health: "Maximum hit points.",
-            attack: "Increases physical damage dealt.",
-            defense: "Reduces physical damage taken.",
-            speed: "Determines turn order and run away success.",
-            specialAttack: "Increases special/elemental damage dealt.",
-            specialDefense: "Reduces special/elemental damage taken."
-        };
 
         const statsHtml = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].map(stat => {
             let base = c.stats[stat] || 50;
@@ -1493,7 +1458,7 @@ window.renderPartyList = function() {
             let scaled = window.getScaledBaseStat(c, stat).toFixed(1);
             let effColor = parseFloat(eff) > parseFloat(scaled) ? 'green' : (parseFloat(eff) < parseFloat(scaled) ? 'red' : 'white');
             let statColor = statColors[stat] || 'white';
-            return `<div data-tooltip="${statTooltips[stat]}"><span style="color:${statColor}; text-decoration: underline dotted; cursor: help;">${stat}</span>: ${base} <span style="color:${effColor}">(Eff: ${eff})</span></div>`;
+            return `<div><span style="color:${statColor};">${stat}</span>: ${base} <span style="color:${effColor}">(Eff: ${eff})</span></div>`;
         }).join('');
 
         let parentsHtml = '';
@@ -1502,23 +1467,19 @@ window.renderPartyList = function() {
         }
 
         let natureColor = 'white';
-        let natureTooltip = 'No stat changes.';
         if (c.nature) {
             if (c.nature.increase && !c.nature.decrease) {
                 natureColor = '#4caf50';
-                natureTooltip = `+10% ${c.nature.increase}`;
             }
             else if (!c.nature.increase && c.nature.decrease) {
                 natureColor = '#f44336';
-                natureTooltip = `-10% ${c.nature.decrease}`;
             }
             else if (c.nature.increase && c.nature.decrease) {
                 natureColor = '#ff9800';
-                natureTooltip = `+10% ${c.nature.increase}, -10% ${c.nature.decrease}`;
             }
         }
-        let natureHtml = c.nature ? `<p data-tooltip="${natureTooltip}">Nature: <span style="color:${natureColor}; text-decoration: underline dotted; cursor: help;">${c.nature.name}</span></p>` : '<p data-tooltip="Neutral nature">Nature: None</p>';
-        let shinyPrefix = c.isShiny ? '<span class="shiny-star" data-tooltip="Extremely rare Shiny creature with +20% base stats!">⭐</span>' : '';
+        let natureHtml = c.nature ? `<p>Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
+        let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
 
         card.innerHTML = `
             <div>
@@ -1692,7 +1653,7 @@ window.openBreedingModal = function() {
 };
 
 window.closeBreedingModal = function() {
-    document.getElementById('breedingModal').style.display = 'none';
+    let _m_breedingModal = document.getElementById('breedingModal'); _m_breedingModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_breedingModal.style.display = 'none'; _m_breedingModal.children[0].classList.remove('modal-fade-out'); }, 190);
 };
 
 window.doBreed = function() {
@@ -1793,7 +1754,7 @@ window.joinMultiplayerRoom = function() {
     const code = document.getElementById('roomCodeInput').value.trim();
     if (code) {
         multiplayerRoom = code;
-        document.getElementById('lobbyModal').style.display = 'none';
+        let _m_lobbyModal = document.getElementById('lobbyModal'); _m_lobbyModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_lobbyModal.style.display = 'none'; _m_lobbyModal.children[0].classList.remove('modal-fade-out'); }, 190);
 
         // Signal intention to start multiplayer setup in the game config
         if (window.initializeMultiplayer) {
@@ -2890,7 +2851,7 @@ window.handlePlayerTurn = function(action) {
 
 window.endBattle = function(result) {
     setTimeout(() => {
-        document.getElementById('battleModal').style.display = 'none';
+        let _m_battleModal = document.getElementById('battleModal'); _m_battleModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_battleModal.style.display = 'none'; _m_battleModal.children[0].classList.remove('modal-fade-out'); }, 190);
         inBattle = false;
         player.body.moves = true; // Restore player physics movement
         player.lastBattleTime = game.scene.scenes[0].time.now;

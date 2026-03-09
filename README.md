@@ -63,8 +63,8 @@ WildPulse Odyssey Creature Collecting Game
 - **Detailed Descriptions**: Creature generation descriptions are much more vivid, detailing fur/feather texture, specific colors, eye shapes, and distinctive markings while maintaining exact stat and generation parameters.
 - **Increased Spawns**: The maximum number of simultaneous wild creatures allowed in the world has been increased by 50%.
 - **Safe Player Respawn**: Following a battle loss, players are now guaranteed to respawn safely on dry land at least 10 tiles away from the enemy and 8 tiles from any water.
-- **Responsive UI Overhaul**: All game modals are now fully responsive to gracefully fit smaller screens, featuring a clearly visible 'X' close button in the top-right corner with a hover animation.
-- **Modern Window Design**: Menus and modals now feature a consistent glassmorphism effect (blur backdrop + subtle border glow) and professional layout adjustments.
+- **Responsive UI Overhaul**: All game modals are now fully responsive to gracefully fit smaller screens. The 'X' close buttons have been resized and repositioned to the absolute top-right to prevent overlap with header text or content. Tooltips have been completely removed across the entire application for a cleaner interface.
+- **Modern Window Design**: Completely redesigned all menus and modals (Menu, Party, Breeding, Help, Battle, Lobby) to feature enhanced glassmorphism (`backdrop-filter: blur`), deeper layered nature-themed gradients, larger 20px rounded corners, neon-accented drop shadows, and smooth 200ms fade-in/out animations. Button styling has been refined with bolder gradients and a 1.05x hover lift effect with a brighter glow.
 
 ### New Features (v9)
 
