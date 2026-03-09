@@ -90,7 +90,7 @@
         .battle-log .status { color: #d500f9; }
         .battle-log .critical { color: #ff9800; font-weight: bold; }
         .battle-log .miss { color: #aaaaaa; font-style: italic; }
-        .battle-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; height: 15%; }
+        .battle-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; height: 15%; }
         .battle-controls button { font-size: 18px; padding: 10px; cursor: pointer; border: none; font-family: monospace; font-weight: bold; }
         .btn-attack { background: linear-gradient(180deg, #ef5350, #c62828); color: white; }
         .btn-defend { background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; }
@@ -246,7 +246,7 @@
     <div class="battle-log" id="battleLog">Wild creature appeared!</div>
     <div class="battle-controls" id="battleControls">
         <button class="btn-attack" onclick="handlePlayerTurn('attack')">Attack</button>
-        <button class="btn-defend" onclick="handlePlayerTurn('defend')">Defend</button>
+
         <button class="btn-catch" onclick="handlePlayerTurn('catch')">Catch</button>
         <button class="btn-run" onclick="handlePlayerTurn('run')">Run</button>
     </div>
@@ -1166,10 +1166,17 @@ window.getEffectiveStat = function(creature, statName) {
     let lvl = creature.level || 1;
     let scaledBase = base + (base * (lvl - 1) * 0.05);
 
-    if (!creature.nature) return scaledBase;
-    if (creature.nature.increase === statName) return scaledBase * 1.1;
-    if (creature.nature.decrease === statName) return scaledBase * 0.9;
-    return scaledBase;
+    if (creature.nature) {
+        if (creature.nature.increase === statName) scaledBase *= 1.1;
+        if (creature.nature.decrease === statName) scaledBase *= 0.9;
+    }
+
+    // Diminishing returns for high stats
+    if (scaledBase > 500) {
+        scaledBase = 500 + (scaledBase - 500) * 0.5;
+    }
+    // Hard cap at 999
+    return Math.min(999, scaledBase);
 };
 
 window.getScaledBaseStat = function(creature, statName) {
@@ -1209,8 +1216,14 @@ window.calculateDamage = function(attacker, defender, power = 50) {
     const atk = window.getEffectiveStat(attacker, 'attack');
     const def = window.getEffectiveStat(defender, 'defense');
     const typeMod = window.getTypeModifier(attacker.type, defender.type);
-    const damage = (atk / def) * power * typeMod;
-    return damage;
+
+    // Scale damage by stat difference
+    let statDiff = atk - def;
+    let diffMultiplier = 1 + (statDiff > 0 ? Math.pow(statDiff, 0.8) : -Math.pow(Math.abs(statDiff), 0.8)) / 100;
+    diffMultiplier = Math.max(0.1, diffMultiplier); // Floor multiplier at 0.1x
+
+    const damage = power * diffMultiplier * typeMod;
+    return Math.max(1, damage); // Minimum 1 damage
 };
 
 
@@ -2029,6 +2042,18 @@ function preload() {
 
         this.textures.addCanvas('foam_tex_' + frame, foamCanvas);
     }
+
+    const cornerCanvas = document.createElement('canvas');
+    cornerCanvas.width = 16;
+    cornerCanvas.height = 16;
+    const cornerCtx = cornerCanvas.getContext('2d');
+    cornerCtx.fillStyle = '#1a661a';
+    cornerCtx.fillRect(0, 0, 16, 16);
+    cornerCtx.globalCompositeOperation = 'destination-out';
+    cornerCtx.beginPath();
+    cornerCtx.arc(16, 16, 16, 0, Math.PI * 2);
+    cornerCtx.fill();
+    this.textures.addCanvas('grass_corner', cornerCanvas);
 }
 
 let mapData = []; // To store 100x100 grid data
@@ -2131,8 +2156,27 @@ function create() {
                 // Phaser's setCrop adjusts the rendering size but keeps the texture origin at the center.
                 // We need to shift the sprite so the cropped region aligns perfectly over the collision box.
                 obs.setDisplayOrigin(gridX + 50, gridY + 50);
+                obs.body.setSize(100, 100);
+                obs.body.setOffset(gridX, gridY);
 
                 obs.anims.play('water_anim', true);
+
+                // Add rounded corners for convex edges
+                if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
+                    let corner = this.add.sprite(posX - 50 + 8, posY - 50 + 8, 'grass_corner');
+                }
+                if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
+                    let corner = this.add.sprite(posX + 50 - 8, posY - 50 + 8, 'grass_corner');
+                    corner.setAngle(90);
+                }
+                if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
+                    let corner = this.add.sprite(posX + 50 - 8, posY + 50 - 8, 'grass_corner');
+                    corner.setAngle(180);
+                }
+                if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
+                    let corner = this.add.sprite(posX - 50 + 8, posY + 50 - 8, 'grass_corner');
+                    corner.setAngle(270);
+                }
 
                 // Add foam edges if adjacent to grass
                 // Left
@@ -2165,8 +2209,24 @@ function create() {
     // Player setup
     const savedX = localStorage.getItem('wildpulse_player_x');
     const savedY = localStorage.getItem('wildpulse_player_y');
-    const startX = savedX ? parseFloat(savedX) : WORLD_SIZE / 2;
-    const startY = savedY ? parseFloat(savedY) : WORLD_SIZE / 2;
+    let startX = savedX ? parseFloat(savedX) : WORLD_SIZE / 2;
+    let startY = savedY ? parseFloat(savedY) : WORLD_SIZE / 2;
+
+    // Ensure player spawns on grass
+    let pCol = Math.floor(startX / 100);
+    let pRow = Math.floor(startY / 100);
+    if (!mapData[pRow] || mapData[pRow][pCol] !== 'grass') {
+        let found = false;
+        for (let r = 0; r < mapData.length && !found; r++) {
+            for (let c = 0; c < mapData[r].length && !found; c++) {
+                if (mapData[r][c] === 'grass') {
+                    startX = c * 100 + 50;
+                    startY = r * 100 + 50;
+                    found = true;
+                }
+            }
+        }
+    }
 
     player = this.add.rectangle(startX, startY, 40, 40, 0xFFFFFF);
     this.physics.add.existing(player);
@@ -2267,8 +2327,28 @@ function create() {
 }
 
 function spawnCreature(scene, creatureData, forceX, forceY) {
-    const x = forceX !== undefined ? forceX : Phaser.Math.Between(100, WORLD_SIZE - 100);
-    const y = forceY !== undefined ? forceY : Phaser.Math.Between(100, WORLD_SIZE - 100);
+    let x = forceX;
+    let y = forceY;
+    if (x === undefined || y === undefined) {
+        let found = false;
+        let attempts = 0;
+        while (!found && attempts < 100) {
+            let tryX = Phaser.Math.Between(100, WORLD_SIZE - 100);
+            let tryY = Phaser.Math.Between(100, WORLD_SIZE - 100);
+            let col = Math.floor(tryX / 100);
+            let row = Math.floor(tryY / 100);
+            if (mapData[row] && mapData[row][col] === 'grass') {
+                x = tryX;
+                y = tryY;
+                found = true;
+            }
+            attempts++;
+        }
+        if (!found) {
+            x = 500;
+            y = 500;
+        }
+    }
 
     let clonedData = JSON.parse(JSON.stringify(creatureData));
 
@@ -2415,23 +2495,16 @@ function processStatuses(creature) {
     return true;
 }
 
-window.handlePlayerTurn = function(action) {
+window.doPlayerAction = function(action, callback) {
     if (!inBattle) return;
-
-    currentPlayer.isDefending = false;
-
     let canMove = processStatuses(currentPlayer);
     if (!canMove) {
         updateBattleUI();
-        setTimeout(() => { enemyTurn(); }, 1000);
+        if (callback) setTimeout(callback, 1000);
         return;
     }
 
     if (action === 'attack') {
-        let pAtk = window.getEffectiveStat(currentPlayer, 'attack');
-        let eDef = window.getEffectiveStat(currentEnemy, 'defense');
-        if (currentEnemy.isDefending) eDef *= 1.5;
-
         let damage = window.calculateDamage(currentPlayer, currentEnemy, 50);
 
         if (Math.random() < 0.10) {
@@ -2445,20 +2518,21 @@ window.handlePlayerTurn = function(action) {
         if (currentPlayer.type === 'Fire') applyStatusEffect(currentEnemy, 'Burn');
         else if (currentPlayer.type === 'Nature') applyStatusEffect(currentEnemy, 'Poison');
         else if (currentPlayer.type === 'Water') applyStatusEffect(currentEnemy, 'Sleep');
-    } else if (action === 'defend') {
-        currentPlayer.isDefending = true;
-        logBattle(`${currentPlayer.nickname || currentPlayer.name} is defending.`);
     } else if (action === 'catch') {
         if (collectedCreatures.length >= 6) {
             logBattle("<b>Your party is full! You cannot catch more creatures.</b>");
             updateBattleUI();
-            setTimeout(() => { enemyTurn(); }, 1500);
+            if (callback) setTimeout(callback, 1500);
             return;
         }
         let hpPct = currentEnemy.currentHp / currentEnemy.maxHp;
-        let catchChance = 0.3 + (1 - hpPct) * 0.6;
-        if (Math.random() < catchChance) {
+        let base_rate = 1.0;
+        let chance = 100 * (1.1 - hpPct) * base_rate; // 10% at full HP, 110% at 0 HP
+        let catchChance = Math.max(1, Math.min(100, chance));
+
+        if ((Math.random() * 100) < catchChance) {
             logBattle(`<b>Success! Caught ${currentEnemy.name}!</b>`);
+            updateBattleUI();
             endBattle('caught');
             return;
         } else {
@@ -2470,6 +2544,7 @@ window.handlePlayerTurn = function(action) {
         let runChance = 0.5 + (pSpe - eSpe) * 0.01;
         if (Math.random() < runChance) {
             logBattle("<b>Got away safely!</b>");
+            updateBattleUI();
             endBattle('run');
             return;
         } else {
@@ -2485,16 +2560,11 @@ window.handlePlayerTurn = function(action) {
         return;
     }
 
-    setTimeout(() => {
-        enemyTurn();
-    }, 1000);
+    if (callback) setTimeout(callback, 1000);
 };
 
-window.enemyTurn = function() {
+window.doEnemyAction = function(callback) {
     if (!inBattle) return;
-
-    currentEnemy.isDefending = false;
-
     let canMove = processStatuses(currentEnemy);
     if (!canMove) {
         updateBattleUI();
@@ -2504,35 +2574,64 @@ window.enemyTurn = function() {
         } else if (currentEnemy.currentHp <= 0) {
             logBattle(`The wild ${currentEnemy.name} fainted!`);
             endBattle('win');
+        } else {
+            if (callback) setTimeout(callback, 1000);
         }
         return;
     }
 
-    if (Math.random() < 0.20) {
-        currentEnemy.isDefending = true;
-        logBattle(`Wild ${currentEnemy.name} is defending.`);
-    } else {
-        let damage = window.calculateDamage(currentEnemy, currentPlayer, 50);
-        if (currentPlayer.isDefending) damage *= 0.5;
+    let damage = window.calculateDamage(currentEnemy, currentPlayer, 50);
 
-        if (Math.random() < 0.10) {
-            damage *= 1.5;
-            logBattle("<span class=\"critical\">Critical Hit by enemy!</span>");
-        }
-
-        currentPlayer.currentHp -= damage;
-        logBattle(`Wild ${currentEnemy.name} used Attack! Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
-
-        if (currentEnemy.type === 'Fire') applyStatusEffect(currentPlayer, 'Burn');
-        else if (currentEnemy.type === 'Nature') applyStatusEffect(currentPlayer, 'Poison');
-        else if (currentEnemy.type === 'Water') applyStatusEffect(currentPlayer, 'Sleep');
+    if (Math.random() < 0.10) {
+        damage *= 1.5;
+        logBattle("<span class=\"critical\">Critical Hit by enemy!</span>");
     }
+
+    currentPlayer.currentHp -= damage;
+    logBattle(`Wild ${currentEnemy.name} used Attack! Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
+
+    if (currentEnemy.type === 'Fire') applyStatusEffect(currentPlayer, 'Burn');
+    else if (currentEnemy.type === 'Nature') applyStatusEffect(currentPlayer, 'Poison');
+    else if (currentEnemy.type === 'Water') applyStatusEffect(currentPlayer, 'Sleep');
 
     updateBattleUI();
 
     if (currentPlayer.currentHp <= 0) {
         logBattle(`${currentPlayer.nickname || currentPlayer.name} fainted!`);
         endBattle('loss');
+        return;
+    }
+
+    if (callback) setTimeout(callback, 1000);
+};
+
+window.handlePlayerTurn = function(action) {
+    if (!inBattle) return;
+
+    let pSpe = window.getEffectiveStat(currentPlayer, 'speed');
+    let eSpe = window.getEffectiveStat(currentEnemy, 'speed');
+
+    // Initiative roll (1-20 modifier)
+    let pRoll = pSpe + (Math.random() * 20);
+    let eRoll = eSpe + (Math.random() * 20);
+
+    let playerGoesFirst = pRoll >= eRoll;
+    if (action === 'catch' || action === 'run') {
+        playerGoesFirst = true; // Utility actions have priority
+    }
+
+    if (playerGoesFirst) {
+        window.doPlayerAction(action, () => {
+            if (inBattle && currentEnemy.currentHp > 0) {
+                window.doEnemyAction();
+            }
+        });
+    } else {
+        window.doEnemyAction(() => {
+            if (inBattle && currentPlayer.currentHp > 0) {
+                window.doPlayerAction(action);
+            }
+        });
     }
 };
 
@@ -2570,12 +2669,14 @@ window.endBattle = function(result) {
 
 function respawnEnemyBase() {
     const basePrototype = window.baseCreatures.find(c => c.id === currentEnemy.baseId) || window.baseCreatures.find(c => c.name === currentEnemy.name);
-    let rx, ry, d;
+    let rx, ry, d, col, row;
     do {
         rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
         ry = Phaser.Math.Between(100, WORLD_SIZE - 100);
+        col = Math.floor(rx / 100);
+        row = Math.floor(ry / 100);
         d = Math.hypot(player.x - rx, player.y - ry);
-    } while (d < 500);
+    } while (d < 500 || (mapData[row] && mapData[row][col] !== 'grass'));
     spawnCreature(game.scene.scenes[0], basePrototype || currentEnemy, rx, ry);
 }
 
