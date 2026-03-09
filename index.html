@@ -40,8 +40,8 @@
         #breedingModal, #menuModal, #partyModal, #battleModal, #helpModal, #lobbyModal {
             width: 100vw !important;
             height: 100vh !important;
-            max-width: 100% !important;
-            max-height: 100% !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
             top: 0 !important;
             left: 0 !important;
             transform: none !important;
@@ -49,11 +49,34 @@
             border: none !important;
             box-sizing: border-box;
             margin: 0;
+            overflow-y: auto;
 
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
 
             background: linear-gradient(135deg, rgba(10,40,20,0.95), rgba(0,20,40,0.95)) !important;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #ef5350, #c62828);
+            color: white;
+            font-weight: bold;
+            border: 1px solid #ff8a80;
+            cursor: pointer;
+            z-index: 9999;
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+            filter: brightness(1.3);
         }
 
         #breedBtn {
@@ -203,11 +226,19 @@
             align-items: center;
             background: rgba(30, 60, 90, 0.4);
             box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            word-wrap: break-word;
+            flex-wrap: wrap;
         }
         .party-controls {
             display: flex;
             flex-direction: column;
             gap: 8px;
+            min-width: 100px;
+        }
+        .party-card > div:first-child {
+            flex: 1;
+            min-width: 0;
+            padding-right: 15px;
         }
         .party-controls button {
             padding: 8px 12px;
@@ -230,6 +261,7 @@
 
 
 <div id="lobbyModal">
+    <button class="close-btn" onclick="document.getElementById('lobbyModal').style.display='none'">X</button>
     <h2>Multiplayer Lobby</h2>
     <p>Enter a room code to join other players.</p>
     <input type="text" id="roomCodeInput" placeholder="Room Code" value="public">
@@ -238,6 +270,7 @@
 </div>
 
 <div id="battleModal">
+    <button class="close-btn" onclick="document.getElementById('battleModal').style.display='none'">X</button>
     <div class="battle-area">
         <div class="combatant" id="playerCombatant">
             <h3 id="pName">Player Creature</h3>
@@ -265,6 +298,7 @@
 
 <button id="menuBtn" onclick="openMenuModal()">Menu</button>
 <div id="menuModal">
+    <button class="close-btn" onclick="closeMenuModal()">X</button>
     <h2>Menu</h2>
     <button onclick="openPartyModal()">Party</button>
     <button id="breedBtn" onclick="openBreedingModal()">Breeding Center</button>
@@ -273,12 +307,14 @@
     <button onclick="closeMenuModal()">Close</button>
 </div>
 <div id="partyModal">
+    <button class="close-btn" onclick="closePartyModal()">X</button>
     <h2>Party</h2>
     <div id="partyList"></div>
     <button onclick="closePartyModal()">Close</button>
 </div>
 
 <div id="helpModal" style="display:none; position:absolute; background:rgba(0,0,0,0.95); padding:20px; z-index:400; color:white; overflow-y:auto; font-size:16px;">
+    <button class="close-btn" onclick="closeHelpModal()">X</button>
     <h2>How to Play</h2>
     <p>• Roam grass to encounter creatures. Move with ARROWS or WASD.</p>
     <p>• Menu: View Party, Breed creatures, or Delete Progress.</p>
@@ -301,6 +337,7 @@
 </div>
 
 <div id="breedingModal">
+    <button class="close-btn" onclick="closeBreedingModal()">X</button>
     <h2>Breeding Center</h2>
     <div>
         <label>Parent 1:</label>
@@ -1266,7 +1303,20 @@ window.baseCreatures.forEach(c => {
 // Augment descriptions with features
 window.baseCreatures.forEach(c => {
     if (c.features && c.features.length > 0) {
-        c.description += " Its appearance is distinguished by unique bodily features, including " + c.features.join(", ") + ".";
+        const textures = ['silky', 'rough', 'scaly', 'smooth', 'bristly', 'soft'];
+        const colors = ['midnight-black', 'crimson', 'azure', 'emerald-green', 'golden', 'silver', 'pale', 'vibrant'];
+        const eyes = ['piercing', 'gentle', 'glowing', 'narrow', 'wide', 'mysterious'];
+        const markings = ['stripes', 'spots', 'swirls', 'runes', 'patches', 'bands'];
+        const proportions = ['sleek', 'bulky', 'slender', 'stout', 'agile', 'graceful'];
+
+        const t = textures[Math.floor(Math.random() * textures.length)];
+        const c1 = colors[Math.floor(Math.random() * colors.length)];
+        const c2 = colors[Math.floor(Math.random() * colors.length)];
+        const e = eyes[Math.floor(Math.random() * eyes.length)];
+        const m = markings[Math.floor(Math.random() * markings.length)];
+        const p = proportions[Math.floor(Math.random() * proportions.length)];
+
+        c.description += ` It has a ${p} build with ${t} ${c1} accents and ${c2} ${m}. Its ${e} eyes stand out alongside unique features, including ${c.features.join(", ")}.`;
     }
 });
 
@@ -1386,13 +1436,16 @@ window.renderPartyList = function() {
 
         card.innerHTML = `
             <div>
-                <h3>${shinyPrefix}<input class="creature-name" value="${c.nickname || c.name}" maxlength="20"> <button onclick="window.saveName(this, ${index})">Save</button> - ${c.type}</h3>
+                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" value="${c.nickname || c.name}" maxlength="20"> <button onclick="window.saveName(this, ${index})">Save</button> - ${c.type}</h3>
                 <p><strong>Level <span style="color:#2196F3">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:#2196F3">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span></p>
-                <p>${c.description}</p>
+                <p style="color: #ccc; font-style: italic;">${c.description}</p>
                 ${natureHtml}
                 ${parentsHtml}
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em;">
-                    ${statsHtml}
+                <div style="border-top: 1px solid #555; padding-top: 10px; margin-top: 10px;">
+                    <h4 style="margin: 0 0 5px 0;">Base Stats</h4>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em;">
+                        ${statsHtml}
+                    </div>
                 </div>
             </div>
             <div class="party-controls">
@@ -2065,17 +2118,47 @@ function preload() {
         this.textures.addCanvas('foam_tex_' + frame, foamCanvas);
     }
 
-    const cornerCanvas = document.createElement('canvas');
-    cornerCanvas.width = 16;
-    cornerCanvas.height = 16;
-    const cornerCtx = cornerCanvas.getContext('2d');
-    cornerCtx.fillStyle = '#1a661a';
-    cornerCtx.fillRect(0, 0, 16, 16);
-    cornerCtx.globalCompositeOperation = 'destination-out';
-    cornerCtx.beginPath();
-    cornerCtx.arc(16, 16, 16, 0, Math.PI * 2);
-    cornerCtx.fill();
-    this.textures.addCanvas('grass_corner', cornerCanvas);
+    // Generate rounded corner cutouts (8px radius to match buttons)
+    // Convex corner (outer edge of water, grass cuts into the water square)
+    const convexCanvas = document.createElement('canvas');
+    convexCanvas.width = 8;
+    convexCanvas.height = 8;
+    const convexCtx = convexCanvas.getContext('2d');
+    convexCtx.fillStyle = '#1a661a'; // Grass color
+    convexCtx.fillRect(0, 0, 8, 8);
+    convexCtx.globalCompositeOperation = 'destination-out';
+    convexCtx.beginPath();
+    convexCtx.arc(8, 8, 8, 0, Math.PI * 2);
+    convexCtx.fill();
+    this.textures.addCanvas('grass_corner_convex', convexCanvas);
+
+    // Concave corner (inner edge of water, water cuts into the grass square)
+    const concaveCanvas = document.createElement('canvas');
+    concaveCanvas.width = 8;
+    concaveCanvas.height = 8;
+    const concaveCtx = concaveCanvas.getContext('2d');
+    // Draw a water-colored square, then cut out a grass-colored circle
+    // Actually, it's easier to just draw the grass filling the corner
+    concaveCtx.fillStyle = '#1a661a'; // Grass color
+    concaveCtx.beginPath();
+    concaveCtx.moveTo(0, 0);
+    concaveCtx.lineTo(8, 0);
+    concaveCtx.arc(0, 0, 8, 0, Math.PI / 2, false);
+    concaveCtx.lineTo(0, 0);
+    concaveCtx.fill();
+    this.textures.addCanvas('grass_corner_concave', concaveCanvas);
+
+    // Pre-generate a water overlay texture to mimic the linear-gradient button style
+    const overlayCanvas = document.createElement('canvas');
+    overlayCanvas.width = 100;
+    overlayCanvas.height = 100;
+    const overlayCtx = overlayCanvas.getContext('2d');
+    let overlayGrad = overlayCtx.createLinearGradient(0, 0, 0, 100);
+    overlayGrad.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+    overlayGrad.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+    overlayCtx.fillStyle = overlayGrad;
+    overlayCtx.fillRect(0, 0, 100, 100);
+    this.textures.addCanvas('water_overlay', overlayCanvas);
 }
 
 let mapData = []; // To store 100x100 grid data
@@ -2160,6 +2243,18 @@ function create() {
         }
     }
 
+    // First pass: create drop shadows for the entire water body
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (mapData[r][c] === 'obs') {
+                let posX = c * TILE_SIZE + TILE_SIZE/2;
+                let posY = r * TILE_SIZE + TILE_SIZE/2;
+                // Add a black rectangle offset by 4px down, 6px right (mimicking box-shadow)
+                this.add.rectangle(posX + 6, posY + 4, 100, 100, 0x000000, 0.5);
+            }
+        }
+    }
+
     // Now instantiate tiles based on mapData
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -2184,20 +2279,41 @@ function create() {
 
                 obs.anims.play('water_anim', true);
 
-                // Add rounded corners for convex edges
+                // Add linear gradient overlay to match button style
+                let overlay = this.add.sprite(posX, posY, 'water_overlay');
+                overlay.setBlendMode(Phaser.BlendModes.MULTIPLY);
+
+                // Add convex rounded corners (outer edges of the lake)
                 if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-                    let corner = this.add.sprite(posX - 50 + 8, posY - 50 + 8, 'grass_corner');
+                    this.add.sprite(posX - 50 + 4, posY - 50 + 4, 'grass_corner_convex');
                 }
                 if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-                    let corner = this.add.sprite(posX + 50 - 8, posY - 50 + 8, 'grass_corner');
+                    let corner = this.add.sprite(posX + 50 - 4, posY - 50 + 4, 'grass_corner_convex');
                     corner.setAngle(90);
                 }
                 if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-                    let corner = this.add.sprite(posX + 50 - 8, posY + 50 - 8, 'grass_corner');
+                    let corner = this.add.sprite(posX + 50 - 4, posY + 50 - 4, 'grass_corner_convex');
                     corner.setAngle(180);
                 }
                 if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-                    let corner = this.add.sprite(posX - 50 + 8, posY + 50 - 8, 'grass_corner');
+                    let corner = this.add.sprite(posX - 50 + 4, posY + 50 - 4, 'grass_corner_convex');
+                    corner.setAngle(270);
+                }
+
+                // Add concave rounded corners (inner edges of the lake)
+                if (c > 0 && mapData[r][c-1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c-1] === 'grass') {
+                    let corner = this.add.sprite(posX - 50 + 4, posY - 50 + 4, 'grass_corner_concave');
+                }
+                if (c < cols-1 && mapData[r][c+1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c+1] === 'grass') {
+                    let corner = this.add.sprite(posX + 50 - 4, posY - 50 + 4, 'grass_corner_concave');
+                    corner.setAngle(90);
+                }
+                if (c < cols-1 && mapData[r][c+1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c+1] === 'grass') {
+                    let corner = this.add.sprite(posX + 50 - 4, posY + 50 - 4, 'grass_corner_concave');
+                    corner.setAngle(180);
+                }
+                if (c > 0 && mapData[r][c-1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c-1] === 'grass') {
+                    let corner = this.add.sprite(posX - 50 + 4, posY + 50 - 4, 'grass_corner_concave');
                     corner.setAngle(270);
                 }
 
@@ -2239,16 +2355,9 @@ function create() {
     let pCol = Math.floor(startX / 100);
     let pRow = Math.floor(startY / 100);
     if (!mapData[pRow] || mapData[pRow][pCol] !== 'grass') {
-        let found = false;
-        for (let r = 0; r < mapData.length && !found; r++) {
-            for (let c = 0; c < mapData[r].length && !found; c++) {
-                if (mapData[r][c] === 'grass') {
-                    startX = c * 100 + 50;
-                    startY = r * 100 + 50;
-                    found = true;
-                }
-            }
-        }
+        let safePos = window.getStrictSafeDryLandSpawn(null);
+        startX = safePos.x;
+        startY = safePos.y;
     }
 
     player = this.add.rectangle(startX, startY, 40, 40, 0xFFFFFF);
@@ -2340,9 +2449,10 @@ function create() {
     // Creatures setup
     creaturesGroup = this.physics.add.group();
 
-    // Spawn exactly the 50 base creatures
-    for (let i = 0; i < baseCreatures.length; i++) {
-        spawnCreature(this, baseCreatures[i]);
+    // Spawn exactly the 50 base creatures (increased by 50% for density)
+    let spawnCount = Math.floor(baseCreatures.length * 1.5);
+    for (let i = 0; i < spawnCount; i++) {
+        spawnCreature(this, baseCreatures[i % baseCreatures.length]);
     }
 
     // Overlap physics
@@ -2685,9 +2795,41 @@ window.endBattle = function(result) {
             player.x += 100;
         } else if (result === 'loss') {
             alert('Your lead creature fainted. Healing up...');
-            player.x += 100;
+            let safePos = window.getStrictSafeDryLandSpawn(currentEnemySprite);
+            player.x = safePos.x;
+            player.y = safePos.y;
         }
     }, 1500);
+};
+
+window.getStrictSafeDryLandSpawn = function(enemyObj) {
+    let rx, ry, d, col, row, d_water;
+    let attempts = 0;
+    do {
+        rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
+        ry = Phaser.Math.Between(100, WORLD_SIZE - 100);
+        col = Math.floor(rx / 100);
+        row = Math.floor(ry / 100);
+        d = enemyObj ? Math.hypot(enemyObj.x - rx, enemyObj.y - ry) : 1000;
+
+        d_water = 800; // start assuming safe
+        if (mapData && mapData.length > 0) {
+            for (let wr = Math.max(0, row - 8); wr <= Math.min(mapData.length - 1, row + 8); wr++) {
+                for (let wc = Math.max(0, col - 8); wc <= Math.min(mapData[0].length - 1, col + 8); wc++) {
+                    if (mapData[wr] && mapData[wr][wc] === 'obs') {
+                        let distW = Math.hypot(wc * 100 + 50 - rx, wr * 100 + 50 - ry);
+                        if (distW < d_water) d_water = distW;
+                    }
+                }
+            }
+        }
+        attempts++;
+        if (attempts > 500) {
+            console.warn("Could not find safe spawn within strict limits, falling back to center spawn.");
+            return {x: WORLD_SIZE / 2, y: WORLD_SIZE / 2};
+        }
+    } while ((enemyObj && d < 1000) || d_water < 800 || !mapData[row] || mapData[row][col] !== 'grass');
+    return {x: rx, y: ry};
 };
 
 function respawnEnemyBase() {

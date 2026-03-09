@@ -56,3 +56,12 @@ WildPulse Odyssey Creature Collecting Game
     - Removed the Defend button and action to streamline battles.
 - **Dynamic Capture Mechanics**: The chance to capture wild creatures now inverse-scales linearly with their current HP percent. Full health creatures will be difficult to catch, while low-health creatures are much easier.
 - **Spawn Logic Updates**: Both the player and newly spawned creatures are strictly forced to spawn on dry land, completely removing the issue of getting stuck or starting inside water tiles.
+
+### New Features (v8)
+
+- **Water Tile Polish**: Both inner and outer corners of water tiles are now consistently rounded. They also share the modern linear-gradient button style and drop-shadows seen in the UI.
+- **Detailed Descriptions**: Creature generation descriptions are much more vivid, detailing fur/feather texture, specific colors, eye shapes, and distinctive markings while maintaining exact stat and generation parameters.
+- **Increased Spawns**: The maximum number of simultaneous wild creatures allowed in the world has been increased by 50%.
+- **Safe Player Respawn**: Following a battle loss, players are now guaranteed to respawn safely on dry land at least 10 tiles away from the enemy and 8 tiles from any water.
+- **Responsive UI Overhaul**: All game modals are now fully responsive to gracefully fit smaller screens, featuring a clearly visible 'X' close button in the top-right corner with a hover animation.
+- **Modern Window Design**: Menus and modals now feature a consistent glassmorphism effect (blur backdrop + subtle border glow) and professional layout adjustments.
