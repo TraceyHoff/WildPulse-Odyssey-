@@ -1359,6 +1359,7 @@ window.baseCreatures.forEach(c => {
 // ==================== PERSISTENCE ====================
 const STORAGE_KEY = 'wildpulse_collected_creatures';
 let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+let collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
 // Provide a starting creature if the player is new
 if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
@@ -1386,12 +1387,14 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
     starter.xp = 0;
     starter.id = Date.now().toString() + "_starter";
 
+    collectedCreaturesIds.add(starter.id);
     collectedCreatures.push(starter);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
 }
 
 function saveCollected(creature) {
-    if (!collectedCreatures.find(c => c.id === creature.id)) {
+    if (!collectedCreaturesIds.has(creature.id)) {
+        collectedCreaturesIds.add(creature.id);
         collectedCreatures.push(creature);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
     }
@@ -1531,6 +1534,7 @@ window.releaseCreature = function(index) {
         return;
     }
     if (confirm('Are you sure you want to release ' + collectedCreatures[index].name + '?')) {
+        collectedCreaturesIds.delete(collectedCreatures[index].id);
         collectedCreatures.splice(index, 1);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
         renderPartyList();
@@ -1679,6 +1683,8 @@ window.doBreed = function() {
 
         // Remove parents temporarily to simulate them returning to the wild or being consumed by breeding
         // Make sure to remove the higher index first to avoid shifting issues
+        collectedCreaturesIds.delete(p1.id);
+        collectedCreaturesIds.delete(p2.id);
         if (p1Index > p2Index) {
             collectedCreatures.splice(p1Index, 1);
             collectedCreatures.splice(p2Index, 1);
