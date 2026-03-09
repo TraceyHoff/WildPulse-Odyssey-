@@ -2896,7 +2896,6 @@ function update() {
     }
 
     // Interpolate remote players
-    const now = Date.now();
     Object.values(remotePlayers).forEach(rp => {
         const tx = rp.getData('targetX');
         const ty = rp.getData('targetY');
