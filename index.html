@@ -1277,7 +1277,9 @@ for (let i = 1; i <= 50; i++) {
 }
 
 window.getRandomNature = function() {
-    return window.natures[Math.floor(Math.random() * window.natures.length)];
+    // Only return natures that actually have a buff AND debuff (removes Neutral / null entries)
+    const validNatures = window.natures.filter(n => n.increase && n.decrease);
+    return validNatures[Math.floor(Math.random() * validNatures.length)];
 };
 window.getEffectiveStat = function(creature, statName) {
     let base = creature.stats[statName] || 50; // Fallback
@@ -1648,9 +1650,9 @@ window.breed = function(parent1, parent2) {
     const childFeatures = uniqueFeatures.slice(0, Math.min(4, Math.max(2, Math.floor(uniqueFeatures.length / 2))));
 
     const descTemplates = [
-        `A stunning ${parent1.type}-${parent2.type} hybrid, ${childName} possesses a mesmerizing blend of features. Its form echoes ${parent1.name}'s structure, while radiating ${parent2.name}'s signature energy. ${childFeatures.length > 0 ? `Striking ${childFeatures.join(" and ")} adorn its body, ` : ""}hinting at a fierce yet balanced nature.`,
-        `Born of ${parent1.name} and ${parent2.name}, ${childName} is a rare marvel. Its ${parent1.type} heritage manifests in deep, textured hues, contrasting sharply with the bright, glowing elements of its ${parent2.type} lineage. ${childFeatures.length > 0 ? `It proudly displays ${childFeatures.join(", ")}, ` : ""}making it a truly formidable presence.`,
-        `${childName} moves with the grace of ${parent1.name} and the power of ${parent2.name}. The convergence of ${parent1.type} and ${parent2.type} energies gives it a wholly unique aura. ${childFeatures.length > 0 ? `Distinctive ${childFeatures.join(" and ")} mark its silhouette, ` : ""}suggesting a complex and unpredictable personality.`
+        `Born of ${parent1.name} and ${parent2.name}, ${childName} is a rare marvel. It beautifully blends the ${parent1.features.length ? parent1.features.join(' and ') : 'majestic form'} of its ${parent1.type} parent with the distinctive ${parent2.features.length ? parent2.features.join(' and ') : 'elegant traits'} of its ${parent2.type} lineage. The result is a striking hybrid whose unique ${childFeatures.join(', ')} create a powerful, one-of-a-kind silhouette that commands respect.`,
+        `A stunning fusion of ${parent1.name}'s robust qualities and ${parent2.name}'s agile essence, ${childName} showcases a breathtaking mixed appearance. Its ${parent1.type} heritage infuses textured strength and glowing accents, while its ${parent2.type} lineage adds flowing lines and vibrant markings. Proudly displaying ${childFeatures.join(', ')}, this creature paints a vivid picture of evolutionary synergy and formidable presence.`,
+        `${childName} moves with the grace of ${parent1.name} blended with the raw power of ${parent2.name}. The convergence of ${parent1.type} and ${parent2.type} energies has produced a wholly unique aura and hybrid physique. Distinctive ${childFeatures.join(' and ')} mark its body, giving it an unpredictable yet harmonious look that makes it truly formidable.`
     ];
     let childDesc = descTemplates[Math.floor(Math.random() * descTemplates.length)];
 
