@@ -331,7 +331,7 @@
 </div>
 
 <div id="battleModal">
-    <button class="close-btn battle-close-btn" aria-label="Close Battle">X</button>
+
     <div class="battle-area">
         <div class="combatant" id="playerCombatant">
             <h3 id="pName">Player Creature</h3>
@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('.lobby-close-btn')?.addEventListener('click', () => document.getElementById('lobbyModal').style.display='none');
     document.getElementById('joinBtn')?.addEventListener('click', joinMultiplayerRoom);
 
-    document.querySelector('.battle-close-btn')?.addEventListener('click', () => document.getElementById('battleModal').style.display='none');
+
     document.querySelector('.btn-attack')?.addEventListener('click', () => handlePlayerTurn('attack'));
     document.querySelector('.btn-catch')?.addEventListener('click', () => handlePlayerTurn('catch'));
     document.querySelector('.btn-run')?.addEventListener('click', () => handlePlayerTurn('run'));
@@ -3011,7 +3011,7 @@ const config = {
     width: window.innerWidth,
     height: window.innerHeight,
     render: {
-        roundPixels: true
+        roundPixels: false
     },
     physics: {
         default: 'arcade',
@@ -3284,29 +3284,29 @@ function preload() {
     // Generate rounded corner cutouts (12px radius to match buttons)
     // Convex corner (outer edge of water, grass cuts into the water square)
     const convexCanvas = document.createElement('canvas');
-    convexCanvas.width = 12;
-    convexCanvas.height = 12;
+    convexCanvas.width = 50;
+    convexCanvas.height = 50;
     const convexCtx = convexCanvas.getContext('2d');
     convexCtx.fillStyle = '#1a661a'; // Grass color
-    convexCtx.fillRect(0, 0, 12, 12);
+    convexCtx.fillRect(0, 0, 50, 50);
     convexCtx.globalCompositeOperation = 'destination-out';
     convexCtx.beginPath();
-    convexCtx.arc(12, 12, 12, 0, Math.PI * 2);
+    convexCtx.arc(50, 50, 50, 0, Math.PI * 2);
     convexCtx.fill();
     this.textures.addCanvas('grass_corner_convex', convexCanvas);
 
     // Concave corner (inner edge of water, water cuts into the grass square)
     const concaveCanvas = document.createElement('canvas');
-    concaveCanvas.width = 12;
-    concaveCanvas.height = 12;
+    concaveCanvas.width = 50;
+    concaveCanvas.height = 50;
     const concaveCtx = concaveCanvas.getContext('2d');
     // Draw a water-colored square, then cut out a grass-colored circle
     // Actually, it's easier to just draw the grass filling the corner
     concaveCtx.fillStyle = '#1a661a'; // Grass color
     concaveCtx.beginPath();
     concaveCtx.moveTo(0, 0);
-    concaveCtx.lineTo(12, 0);
-    concaveCtx.arc(0, 0, 12, 0, Math.PI / 2, false);
+    concaveCtx.lineTo(50, 0);
+    concaveCtx.arc(0, 0, 50, 0, Math.PI / 2, false);
     concaveCtx.lineTo(0, 0);
     concaveCtx.fill();
     this.textures.addCanvas('grass_corner_concave', concaveCanvas);
@@ -3334,9 +3334,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     let posY = r * tileSize + tileSize / 2;
 
     // Add drop shadow
-    let shadow = scene.add.rectangle(posX + 6, posY + 4, 100, 100, 0x000000, 0.5);
-    shadow.setDepth(0);
-    sprites.push(shadow);
+
 
     // Create obstacle
     let obs = obstaclesGroup.create(posX, posY, 'obs_tex_0');
@@ -3344,39 +3342,37 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     let gridY = (r * tileSize) % 400;
     obs.setCrop(gridX, gridY, 100, 100);
     obs.setDisplayOrigin(gridX + 50, gridY + 50);
-    obs.body.setSize(100, 100);
-    obs.body.x = posX - 50;
-    obs.body.y = posY - 50;
+    obs.body.setCircle(45);
+    obs.body.setOffset(5, 5);
+    obs.body.x = posX - 45;
+    obs.body.y = posY - 45;
     obs.anims.play('water_anim', true);
     obs.setDepth(0);
     sprites.push(obs);
 
     // Add overlay
-    let overlay = scene.add.sprite(posX, posY, 'water_overlay');
-    overlay.setBlendMode(Phaser.BlendModes.MULTIPLY);
-    overlay.setDepth(0);
-    sprites.push(overlay);
+
 
     // Convex corners
     if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 6, posY - 50 + 6, 'grass_corner_convex');
+        let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex');
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 6, posY - 50 + 6, 'grass_corner_convex');
+        let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex');
         corner.setAngle(90);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 6, posY + 50 - 6, 'grass_corner_convex');
+        let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex');
         corner.setAngle(180);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 6, posY + 50 - 6, 'grass_corner_convex');
+        let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex');
         corner.setAngle(270);
         corner.setDepth(0);
         sprites.push(corner);
@@ -3384,24 +3380,24 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
     // Concave corners
     if (c > 0 && mapData[r][c-1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c-1] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 6, posY - 50 + 6, 'grass_corner_concave');
+        let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_concave');
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c+1] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 6, posY - 50 + 6, 'grass_corner_concave');
+        let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_concave');
         corner.setAngle(90);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c+1] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 6, posY + 50 - 6, 'grass_corner_concave');
+        let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_concave');
         corner.setAngle(180);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c > 0 && mapData[r][c-1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c-1] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 6, posY + 50 - 6, 'grass_corner_concave');
+        let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_concave');
         corner.setAngle(270);
         corner.setDepth(0);
         sprites.push(corner);
@@ -3491,18 +3487,18 @@ function create() {
     }
 
     // Generate lakes (clusters of water) using overlapping circles
-    const numLakes = Math.floor((cols * rows) * 0.005); // Adjust density for larger features
+    const numLakes = Math.floor((cols * rows) * 0.01); // Adjust density for larger features
     for (let l = 0; l < numLakes; l++) {
         let cx = Math.floor(Math.random() * cols);
         let cy = Math.floor(Math.random() * rows);
 
-        let numCircles = Math.floor(Math.random() * 5) + 3; // 3 to 7 circles
+        let numCircles = Math.floor(Math.random() * 2) + 1; // 3 to 7 circles
 
         for (let i = 0; i < numCircles; i++) {
             // Offset from center to make overlapping
             let ox = cx + Math.floor(Math.random() * 9) - 4; // -4 to +4
             let oy = cy + Math.floor(Math.random() * 9) - 4; // -4 to +4
-            let radius = Math.floor(Math.random() * 3) + 2; // 2 to 4 radius
+            let radius = Math.floor(Math.random() * 2) + 1; // 2 to 4 radius
 
             // Draw circle
             for (let y = -radius; y <= radius; y++) {
@@ -3957,7 +3953,7 @@ window.endBattle = function(result) {
         let _m_battleModal = document.getElementById('battleModal'); _m_battleModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_battleModal.style.display = 'none'; _m_battleModal.children[0].classList.remove('modal-fade-out'); }, 190);
 
         if (result === 'win') {
-            let xpGained = Math.floor(currentEnemy.level * 50);
+            let xpGained = Math.floor(currentEnemy.level * 25);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
             // Record stats before level up
