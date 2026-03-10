@@ -64,7 +64,7 @@
         }
 
         /* Modals */
-        #breedingModal, #menuModal, #partyModal, #battleModal, #helpModal, #lobbyModal {
+        #breedingModal, #menuModal, #partyModal, #battleModal, #helpModal, #lobbyModal, #levelUpModal {
             width: 90vw !important;
             max-width: 800px !important;
             max-height: 90vh !important;
@@ -272,6 +272,35 @@
             margin-right: 5px;
         }
 
+        #levelUpModal {
+            display: none;
+            position: absolute;
+            color: white;
+            z-index: 600;
+            text-align: center;
+        }
+
+        #levelUpModal button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            background: linear-gradient(180deg, #42a5f5, #1565c0);
+            color: white;
+            border: 1px solid #90caf9;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        #levelUpModal button:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+            box-shadow: 0 0 15px rgba(0,255,100,0.6);
+        }
+
     .creature-description {
         max-height: 120px;
         overflow-y: auto;
@@ -365,6 +394,13 @@
     <button class="close-help-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer;">Close</button>
 </div>
 
+<div id="levelUpModal">
+    <button class="close-btn close-levelup-btn" aria-label="Close Level Up">X</button>
+    <h2 id="levelUpTitle">Level Up!</h2>
+    <div id="levelUpStats" style="font-size: 18px; margin: 20px 0;"></div>
+    <button class="close-levelup-btn">Awesome!</button>
+</div>
+
 <div id="breedingModal">
     <button class="close-btn close-breeding-btn" aria-label="Close Breeding Center">X</button>
     <h2>Breeding Center</h2>
@@ -404,6 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('doBreedBtn')?.addEventListener('click', doBreed);
     document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', closeBreedingModal));
+    document.querySelectorAll('.close-levelup-btn').forEach(btn => btn.addEventListener('click', closeLevelUpModal));
 });
 
 document.addEventListener('click', function(e) {
@@ -427,7 +464,7 @@ window.baseCreatures = [
     {
         "id": 1,
         "name": "Flamebeast",
-        "description": "A large, burly Fire-type creature. It is covered in ruby rough skin with distinct tiger-striped. Its crimson fierce eyes look out thoughtfully. It sports crimson medium leathery wings and moves gracefully. It defends itself with ruby spiraling horns. It flashes sharp teeth when threatened. It moves on 2 talons. A crimson short scaly tail trails behind it. Most notably, it possesses amber heat haze.",
+        "description": "A large, burly Fire-type creature. It is covered in ruby rough skin with distinct tiger stripes. Its crimson fierce eyes look out thoughtfully. It sports crimson medium leathery wings and moves gracefully. It defends itself with ruby spiraling horns. It flashes sharp teeth when threatened. It moves on 2 talons. A crimson short scaly tail trails behind it. Most notably, it possesses amber heat haze.",
         "features": [
             "horns",
             "claws",
@@ -445,7 +482,7 @@ window.baseCreatures = [
         "uniqueFeature": "heat haze",
         "eyes": "fierce",
         "skinFurType": "rough",
-        "pattern": "tiger-striped",
+        "pattern": "tiger stripes",
         "wings": "medium leathery wings",
         "clawHorn": "spiraling horns",
         "teeth": "sharp teeth",
@@ -461,7 +498,7 @@ window.baseCreatures = [
     {
         "id": 2,
         "name": "Aquabeast",
-        "description": "A rotund, sinuous Water-type creature. It is covered in turquoise scaly skin with distinct spots. Its sapphire watery eyes look out thoughtfully. It sports teal large fin-like wings and moves gracefully. It defends itself with teal smooth fins. A turquoise long fish-like tail trails behind it. Most notably, it possesses azure misty aura.",
+        "description": "A rotund, sinuous Water-type creature. It is covered in turquoise scaly skin with distinct bioluminescent spots. Its sapphire watery eyes look out thoughtfully. It sports teal large fin-like wings and moves gracefully. It defends itself with teal smooth fins. A turquoise long fish-like tail trails behind it. Most notably, it possesses azure misty aura.",
         "features": [
             "glowing",
             "shell"
@@ -478,7 +515,7 @@ window.baseCreatures = [
         "uniqueFeature": "misty aura",
         "eyes": "watery",
         "skinFurType": "scaly",
-        "pattern": "spots",
+        "pattern": "bioluminescent spots",
         "wings": "large fin-like wings",
         "clawHorn": "smooth fins",
         "teeth": "none",
@@ -494,7 +531,7 @@ window.baseCreatures = [
     {
         "id": 3,
         "name": "Leafbeast",
-        "description": "A tiny, slender Nature-type creature. It is covered in tan mossy skin with distinct patches. Its tan multiple eyes look out thoughtfully. It sports emerald vestigial insectoid wings and moves gracefully. It moves on 8 agile limbs. A brown prehensile bushy tail trails behind it. Most notably, it possesses lime blooming flora.",
+        "description": "A tiny, slender Nature-type creature. It is covered in tan mossy skin with distinct mossy patches. Its tan multiple eyes look out thoughtfully. It sports emerald vestigial insectoid wings and moves gracefully. It moves on 8 agile limbs. A brown prehensile bushy tail trails behind it. Most notably, it possesses lime blooming flora.",
         "features": [
             "shell",
             "glowing"
@@ -511,7 +548,7 @@ window.baseCreatures = [
         "uniqueFeature": "blooming flora",
         "eyes": "multiple",
         "skinFurType": "mossy",
-        "pattern": "patches",
+        "pattern": "mossy patches",
         "wings": "vestigial insectoid wings",
         "clawHorn": "none",
         "teeth": "none",
@@ -527,7 +564,7 @@ window.baseCreatures = [
     {
         "id": 4,
         "name": "Zapbeast",
-        "description": "A miniscule, sleek Electric-type creature. It is covered in yellow smooth skin with distinct bands. Its white piercing eyes look out thoughtfully. It flashes needle-like teeth when threatened. It moves on 4 mechanical legs. A magenta whip-like sparking tail trails behind it. Most notably, it possesses silver crackling energy.",
+        "description": "A miniscule, sleek Electric-type creature. It is covered in yellow smooth skin with distinct glowing bands. Its white piercing eyes look out thoughtfully. It flashes needle-like teeth when threatened. It moves on 4 mechanical legs. A magenta whip-like sparking tail trails behind it. Most notably, it possesses silver crackling energy.",
         "features": [
             "fangs",
             "shell",
@@ -545,7 +582,7 @@ window.baseCreatures = [
         "uniqueFeature": "crackling energy",
         "eyes": "piercing",
         "skinFurType": "smooth",
-        "pattern": "bands",
+        "pattern": "glowing bands",
         "wings": "none",
         "clawHorn": "none",
         "teeth": "needle-like teeth",
@@ -561,7 +598,7 @@ window.baseCreatures = [
     {
         "id": 5,
         "name": "Frostbeast",
-        "description": "A stout, floating Ice-type creature. It is covered in snow white woolly skin with distinct patches. Its cyan piercing eyes look out thoughtfully. It sports translucent blue medium crystal wings and moves gracefully. It defends itself with translucent blue crystal shards. It moves on 4 sturdy legs. A translucent blue stubby clubbed tail trails behind it. Most notably, it possesses cyan frozen crystals.",
+        "description": "A stout, floating Ice-type creature. It is covered in snow white woolly skin with distinct frost patches. Its cyan piercing eyes look out thoughtfully. It sports translucent blue medium crystal wings and moves gracefully. It defends itself with translucent blue crystal shards. It moves on 4 sturdy legs. A translucent blue stubby clubbed tail trails behind it. Most notably, it possesses cyan frozen crystals.",
         "features": [
             "tail",
             "fangs"
@@ -578,7 +615,7 @@ window.baseCreatures = [
         "uniqueFeature": "frozen crystals",
         "eyes": "piercing",
         "skinFurType": "woolly",
-        "pattern": "patches",
+        "pattern": "frost patches",
         "wings": "medium crystal wings",
         "clawHorn": "crystal shards",
         "teeth": "none",
@@ -594,7 +631,7 @@ window.baseCreatures = [
     {
         "id": 6,
         "name": "Rockbeast",
-        "description": "A medium, stout Earth-type creature. It is covered in copper thick skin with distinct bands. Its brown cyclopic eyes look out thoughtfully. It defends itself with amber blunt claws. It flashes blunt teeth when threatened. It moves on 4 sturdy legs. A amber massive clubbed tail trails behind it. Most notably, it possesses dusty grey muddy aura.",
+        "description": "A medium, stout Earth-type creature. It is covered in copper thick skin with distinct earthen bands. Its brown cyclopic eyes look out thoughtfully. It defends itself with amber blunt claws. It flashes blunt teeth when threatened. It moves on 4 sturdy legs. A amber massive clubbed tail trails behind it. Most notably, it possesses dusty grey muddy aura.",
         "features": [
             "scales",
             "shell"
@@ -611,7 +648,7 @@ window.baseCreatures = [
         "uniqueFeature": "muddy aura",
         "eyes": "cyclopic",
         "skinFurType": "thick",
-        "pattern": "bands",
+        "pattern": "earthen bands",
         "wings": "none",
         "clawHorn": "blunt claws",
         "teeth": "blunt teeth",
@@ -627,7 +664,7 @@ window.baseCreatures = [
     {
         "id": 7,
         "name": "Aerobeast",
-        "description": "A miniscule, graceful Wind-type creature. It is covered in pale gray smooth skin with distinct swirls. Its azure piercing eyes look out thoughtfully. It sports pale gray colossal feathered wings and moves gracefully. It defends itself with mint green hooked talons. It moves on 4 agile limbs. A cream long ribbon-like tail trails behind it. Most notably, it possesses silver updraft currents.",
+        "description": "A miniscule, graceful Wind-type creature. It is covered in pale gray smooth skin with distinct wind swirls. Its azure piercing eyes look out thoughtfully. It sports pale gray colossal feathered wings and moves gracefully. It defends itself with mint green hooked talons. It moves on 4 agile limbs. A cream long ribbon-like tail trails behind it. Most notably, it possesses silver updraft currents.",
         "features": [
             "scales",
             "claws",
@@ -645,7 +682,7 @@ window.baseCreatures = [
         "uniqueFeature": "updraft currents",
         "eyes": "piercing",
         "skinFurType": "smooth",
-        "pattern": "swirls",
+        "pattern": "wind swirls",
         "wings": "colossal feathered wings",
         "clawHorn": "hooked talons",
         "teeth": "none",
@@ -661,7 +698,7 @@ window.baseCreatures = [
     {
         "id": 8,
         "name": "Sunbeast",
-        "description": "A medium, slender Light-type creature. It is covered in yellow metallic skin with distinct runes. Its yellow gentle eyes look out thoughtfully. It sports pearl majestic crystal wings and moves gracefully. It flashes flat teeth when threatened. It moves on 2 ethereal limbs. A pearl long flowing tail trails behind it. Most notably, it possesses pale yellow ethereal aura.",
+        "description": "A medium, slender Light-type creature. It is covered in yellow metallic skin with distinct glowing runes. Its yellow gentle eyes look out thoughtfully. It sports pearl majestic crystal wings and moves gracefully. It flashes flat teeth when threatened. It moves on 2 ethereal limbs. A pearl long flowing tail trails behind it. Most notably, it possesses pale yellow ethereal aura.",
         "features": [
             "horns",
             "shell",
@@ -679,7 +716,7 @@ window.baseCreatures = [
         "uniqueFeature": "ethereal aura",
         "eyes": "gentle",
         "skinFurType": "metallic",
-        "pattern": "runes",
+        "pattern": "glowing runes",
         "wings": "majestic crystal wings",
         "clawHorn": "none",
         "teeth": "flat teeth",
@@ -695,7 +732,7 @@ window.baseCreatures = [
     {
         "id": 9,
         "name": "Voidbeast",
-        "description": "A immense, serpentine Dark-type creature. It is covered in obsidian armored skin with distinct tribal. Its indigo void-like eyes look out thoughtfully. It sports charcoal asymmetrical shadow wings and moves gracefully. It defends itself with blood red curved horns. It flashes sharp teeth when threatened. It moves on 8 jointed appendages. A midnight blue prehensile barbed tail trails behind it. Most notably, it possesses dark purple nightmare trails.",
+        "description": "A immense, serpentine Dark-type creature. It is covered in obsidian armored skin with distinct shadow tribal marks. Its indigo void-like eyes look out thoughtfully. It sports charcoal asymmetrical shadow wings and moves gracefully. It defends itself with blood red curved horns. It flashes sharp teeth when threatened. It moves on 8 jointed appendages. A midnight blue prehensile barbed tail trails behind it. Most notably, it possesses dark purple nightmare trails.",
         "features": [
             "fur",
             "fangs",
@@ -713,7 +750,7 @@ window.baseCreatures = [
         "uniqueFeature": "nightmare trails",
         "eyes": "void-like",
         "skinFurType": "armored",
-        "pattern": "tribal",
+        "pattern": "shadow tribal marks",
         "wings": "asymmetrical shadow wings",
         "clawHorn": "curved horns",
         "teeth": "sharp teeth",
@@ -729,7 +766,7 @@ window.baseCreatures = [
     {
         "id": 10,
         "name": "Starbeast",
-        "description": "A medium, graceful Cosmic-type creature. It is covered in starlight white metallic skin with distinct geometric. Its cyan blind eyes look out thoughtfully. It sports starlight white majestic energy wings and moves gracefully. It moves on 4 tentacles. A deep blue massive stardust tail trails behind it. Most notably, it possesses nebula pink starry aura.",
+        "description": "A medium, graceful Cosmic-type creature. It is covered in starlight white metallic skin with distinct geometric stars. Its cyan blind eyes look out thoughtfully. It sports starlight white majestic energy wings and moves gracefully. It moves on 4 tentacles. A deep blue massive stardust tail trails behind it. Most notably, it possesses nebula pink starry aura.",
         "features": [
             "shell",
             "scales",
@@ -747,7 +784,7 @@ window.baseCreatures = [
         "uniqueFeature": "starry aura",
         "eyes": "blind",
         "skinFurType": "metallic",
-        "pattern": "geometric",
+        "pattern": "geometric stars",
         "wings": "majestic energy wings",
         "clawHorn": "none",
         "teeth": "none",
@@ -763,7 +800,7 @@ window.baseCreatures = [
     {
         "id": 11,
         "name": "Pyrowing",
-        "description": "A stout, muscular Fire-type creature. It is covered in ruby scaly skin with distinct gradient. Its crimson fierce eyes look out thoughtfully. It sports scarlet majestic leathery wings and moves gracefully. It defends itself with charcoal curved horns. It flashes wicked fangs when threatened. It moves on 4 sturdy legs. A crimson long clubbed tail trails behind it. Most notably, it possesses charcoal flaming mane.",
+        "description": "A stout, muscular Fire-type creature. It is covered in ruby scaly skin with distinct gradient colors. Its crimson fierce eyes look out thoughtfully. It sports scarlet majestic leathery wings and moves gracefully. It defends itself with charcoal curved horns. It flashes wicked fangs when threatened. It moves on 4 sturdy legs. A crimson long clubbed tail trails behind it. Most notably, it possesses charcoal flaming mane.",
         "features": [
             "flying",
             "fangs",
@@ -781,7 +818,7 @@ window.baseCreatures = [
         "uniqueFeature": "flaming mane",
         "eyes": "fierce",
         "skinFurType": "scaly",
-        "pattern": "gradient",
+        "pattern": "gradient colors",
         "wings": "majestic leathery wings",
         "clawHorn": "curved horns",
         "teeth": "wicked fangs",
@@ -797,7 +834,7 @@ window.baseCreatures = [
     {
         "id": 12,
         "name": "Hydrowing",
-        "description": "A rotund, sinuous Water-type creature. It is covered in cyan translucent skin with distinct mottled. Its azure gentle eyes look out thoughtfully. It sports turquoise tiny webbed wings and moves gracefully. It defends itself with pearl hooked talons. It flashes sharp teeth when threatened. A cyan long paddle tail trails behind it. Most notably, it possesses sea green flowing water droplets.",
+        "description": "A rotund, sinuous Water-type creature. It is covered in cyan translucent skin with distinct mottled markings. Its azure gentle eyes look out thoughtfully. It sports turquoise tiny webbed wings and moves gracefully. It defends itself with pearl hooked talons. It flashes sharp teeth when threatened. A cyan long paddle tail trails behind it. Most notably, it possesses sea green flowing water droplets.",
         "features": [
             "shell",
             "claws"
@@ -814,7 +851,7 @@ window.baseCreatures = [
         "uniqueFeature": "flowing water droplets",
         "eyes": "gentle",
         "skinFurType": "translucent",
-        "pattern": "mottled",
+        "pattern": "mottled markings",
         "wings": "tiny webbed wings",
         "clawHorn": "hooked talons",
         "teeth": "sharp teeth",
@@ -830,7 +867,7 @@ window.baseCreatures = [
     {
         "id": 13,
         "name": "Flora wing",
-        "description": "A small, slender Nature-type creature. It is covered in brown furry skin with distinct camouflage. Its jade gentle eyes look out thoughtfully. It sports olive vestigial gossamer wings and moves gracefully. It moves on 4 paws. A tan stubby bushy tail trails behind it. Most notably, it possesses forest green blooming flora.",
+        "description": "A small, slender Nature-type creature. It is covered in brown furry skin with distinct natural camouflage. Its jade gentle eyes look out thoughtfully. It sports olive vestigial gossamer wings and moves gracefully. It moves on 4 paws. A tan stubby bushy tail trails behind it. Most notably, it possesses forest green blooming flora.",
         "features": [
             "tail",
             "flying"
@@ -847,7 +884,7 @@ window.baseCreatures = [
         "uniqueFeature": "blooming flora",
         "eyes": "gentle",
         "skinFurType": "furry",
-        "pattern": "camouflage",
+        "pattern": "natural camouflage",
         "wings": "vestigial gossamer wings",
         "clawHorn": "none",
         "teeth": "none",
@@ -863,7 +900,7 @@ window.baseCreatures = [
     {
         "id": 14,
         "name": "Voltawing",
-        "description": "A small, angular Electric-type creature. It is covered in white bristly skin with distinct stripes. Its neon green starry eyes look out thoughtfully. It flashes sharp teeth when threatened. It moves on 4 agile limbs. A neon green twin cable-like tail trails behind it. Most notably, it possesses silver magnetic repulsion.",
+        "description": "A small, angular Electric-type creature. It is covered in white bristly skin with distinct electric stripes. Its neon green starry eyes look out thoughtfully. It flashes sharp teeth when threatened. It moves on 4 agile limbs. A neon green twin cable-like tail trails behind it. Most notably, it possesses silver magnetic repulsion.",
         "features": [
             "fur",
             "claws",
@@ -881,7 +918,7 @@ window.baseCreatures = [
         "uniqueFeature": "magnetic repulsion",
         "eyes": "starry",
         "skinFurType": "bristly",
-        "pattern": "stripes",
+        "pattern": "electric stripes",
         "wings": "none",
         "clawHorn": "none",
         "teeth": "sharp teeth",
@@ -897,7 +934,7 @@ window.baseCreatures = [
     {
         "id": 15,
         "name": "Glacierwing",
-        "description": "A stout, floating Ice-type creature. It is covered in translucent blue thick skin with distinct patches. Its frost white cold eyes look out thoughtfully. It defends itself with pale blue icy tusks. It flashes sharp teeth when threatened. It moves on 4 sturdy legs. A silver short fluffy tail trails behind it. Most notably, it possesses silver chilling aura.",
+        "description": "A stout, floating Ice-type creature. It is covered in translucent blue thick skin with distinct frost patches. Its frost white cold eyes look out thoughtfully. It defends itself with pale blue icy tusks. It flashes sharp teeth when threatened. It moves on 4 sturdy legs. A silver short fluffy tail trails behind it. Most notably, it possesses silver chilling aura.",
         "features": [
             "fur",
             "glowing",
@@ -915,7 +952,7 @@ window.baseCreatures = [
         "uniqueFeature": "chilling aura",
         "eyes": "cold",
         "skinFurType": "thick",
-        "pattern": "patches",
+        "pattern": "frost patches",
         "wings": "none",
         "clawHorn": "icy tusks",
         "teeth": "sharp teeth",
@@ -931,7 +968,7 @@ window.baseCreatures = [
     {
         "id": 16,
         "name": "Terra wing",
-        "description": "A medium, bulky Earth-type creature. It is covered in amber leathery skin with distinct bands. Its brown blind eyes look out thoughtfully. It defends itself with amber ramming plates. It flashes crushing molars when threatened. It moves on 4 sturdy legs. A slate massive rocky tail trails behind it. Most notably, it possesses amber floating rocks.",
+        "description": "A medium, bulky Earth-type creature. It is covered in amber leathery skin with distinct earthen bands. Its brown blind eyes look out thoughtfully. It defends itself with amber ramming plates. It flashes crushing molars when threatened. It moves on 4 sturdy legs. A slate massive rocky tail trails behind it. Most notably, it possesses amber floating rocks.",
         "features": [
             "flying",
             "shell",
@@ -949,7 +986,7 @@ window.baseCreatures = [
         "uniqueFeature": "floating rocks",
         "eyes": "blind",
         "skinFurType": "leathery",
-        "pattern": "bands",
+        "pattern": "earthen bands",
         "wings": "none",
         "clawHorn": "ramming plates",
         "teeth": "crushing molars",
@@ -965,7 +1002,7 @@ window.baseCreatures = [
     {
         "id": 17,
         "name": "Zephyrwing",
-        "description": "A small, graceful Wind-type creature. It is covered in mint green feathered skin with distinct swirls. Its white piercing eyes look out thoughtfully. It sports white majestic feathered wings and moves gracefully. It defends itself with lavender smooth crest. It flashes sharp teeth when threatened. It moves on 2 agile limbs. A white long ribbon-like tail trails behind it. Most notably, it possesses cream updraft currents.",
+        "description": "A small, graceful Wind-type creature. It is covered in mint green feathered skin with distinct wind swirls. Its white piercing eyes look out thoughtfully. It sports white majestic feathered wings and moves gracefully. It defends itself with lavender smooth crest. It flashes sharp teeth when threatened. It moves on 2 agile limbs. A white long ribbon-like tail trails behind it. Most notably, it possesses cream updraft currents.",
         "features": [
             "claws",
             "horns",
@@ -983,7 +1020,7 @@ window.baseCreatures = [
         "uniqueFeature": "updraft currents",
         "eyes": "piercing",
         "skinFurType": "feathered",
-        "pattern": "swirls",
+        "pattern": "wind swirls",
         "wings": "majestic feathered wings",
         "clawHorn": "smooth crest",
         "teeth": "sharp teeth",
@@ -999,7 +1036,7 @@ window.baseCreatures = [
     {
         "id": 18,
         "name": "Luxwing",
-        "description": "A graceful, radiant Light-type creature. It is covered in diamond silky skin with distinct sunburst. Its ivory gentle eyes look out thoughtfully. It sports peach colossal crystal wings and moves gracefully. It flashes flat teeth when threatened. It moves on 4 hovering bases. A white sweeping flowing tail trails behind it. Most notably, it possesses silver glowing markings.",
+        "description": "A graceful, radiant Light-type creature. It is covered in diamond silky skin with distinct sunburst designs. Its ivory gentle eyes look out thoughtfully. It sports peach colossal crystal wings and moves gracefully. It flashes flat teeth when threatened. It moves on 4 hovering bases. A white sweeping flowing tail trails behind it. Most notably, it possesses silver glowing markings.",
         "features": [
             "wings",
             "glowing"
@@ -1016,7 +1053,7 @@ window.baseCreatures = [
         "uniqueFeature": "glowing markings",
         "eyes": "gentle",
         "skinFurType": "silky",
-        "pattern": "sunburst",
+        "pattern": "sunburst designs",
         "wings": "colossal crystal wings",
         "clawHorn": "none",
         "teeth": "flat teeth",
@@ -1032,7 +1069,7 @@ window.baseCreatures = [
     {
         "id": 19,
         "name": "Shadowing",
-        "description": "A medium, lanky Dark-type creature. It is covered in charcoal rough skin with distinct shadowy. Its indigo piercing eyes look out thoughtfully. It sports blood red majestic bat-like wings and moves gracefully. It defends itself with charcoal jagged spikes. It flashes wicked fangs when threatened. It moves on 8 paws. A midnight blue whip-like barbed tail trails behind it. Most notably, it possesses midnight blue light-absorbing scales.",
+        "description": "A medium, lanky Dark-type creature. It is covered in charcoal rough skin with distinct shadowy patches. Its indigo piercing eyes look out thoughtfully. It sports blood red majestic bat-like wings and moves gracefully. It defends itself with charcoal jagged spikes. It flashes wicked fangs when threatened. It moves on 8 paws. A midnight blue whip-like barbed tail trails behind it. Most notably, it possesses midnight blue light-absorbing scales.",
         "features": [
             "shell",
             "claws",
@@ -1050,7 +1087,7 @@ window.baseCreatures = [
         "uniqueFeature": "light-absorbing scales",
         "eyes": "piercing",
         "skinFurType": "rough",
-        "pattern": "shadowy",
+        "pattern": "shadowy patches",
         "wings": "majestic bat-like wings",
         "clawHorn": "jagged spikes",
         "teeth": "wicked fangs",
@@ -1066,7 +1103,7 @@ window.baseCreatures = [
     {
         "id": 20,
         "name": "Nova wing",
-        "description": "A medium, bipedal Cosmic-type creature. It is covered in starlight white translucent skin with distinct geometric. Its purple starry eyes look out thoughtfully. It flashes flat teeth when threatened. It moves on 4 pseudopods. A purple massive flowing tail trails behind it. Most notably, it possesses violet starry aura.",
+        "description": "A medium, bipedal Cosmic-type creature. It is covered in starlight white translucent skin with distinct geometric stars. Its purple starry eyes look out thoughtfully. It flashes flat teeth when threatened. It moves on 4 pseudopods. A purple massive flowing tail trails behind it. Most notably, it possesses violet starry aura.",
         "features": [
             "flying",
             "horns"
@@ -1083,7 +1120,7 @@ window.baseCreatures = [
         "uniqueFeature": "starry aura",
         "eyes": "starry",
         "skinFurType": "translucent",
-        "pattern": "geometric",
+        "pattern": "geometric stars",
         "wings": "none",
         "clawHorn": "none",
         "teeth": "flat teeth",
@@ -1099,7 +1136,7 @@ window.baseCreatures = [
     {
         "id": 21,
         "name": "Cinderclaw",
-        "description": "A medium, bipedal Fire-type creature. It is covered in obsidian leathery skin with distinct patches. Its obsidian piercing eyes look out thoughtfully. It sports amber medium leathery wings and moves gracefully. It defends itself with orange blunt claws. It flashes protruding fangs when threatened. It moves on 4 paws. A charcoal whip-like clubbed tail trails behind it. Most notably, it possesses orange ash clouds.",
+        "description": "A medium, bipedal Fire-type creature. It is covered in obsidian leathery skin with distinct ash patches. Its obsidian piercing eyes look out thoughtfully. It sports amber medium leathery wings and moves gracefully. It defends itself with orange blunt claws. It flashes protruding fangs when threatened. It moves on 4 paws. A charcoal whip-like clubbed tail trails behind it. Most notably, it possesses orange ash clouds.",
         "features": [
             "horns",
             "claws",
@@ -1117,7 +1154,7 @@ window.baseCreatures = [
         "uniqueFeature": "ash clouds",
         "eyes": "piercing",
         "skinFurType": "leathery",
-        "pattern": "patches",
+        "pattern": "ash patches",
         "wings": "medium leathery wings",
         "clawHorn": "blunt claws",
         "teeth": "protruding fangs",
@@ -1133,7 +1170,7 @@ window.baseCreatures = [
     {
         "id": 22,
         "name": "Tideclaw",
-        "description": "A colossal, sleek Water-type creature. It is covered in turquoise soft skin with distinct mottled. Its cyan wide eyes look out thoughtfully. It defends itself with turquoise smooth fins. It flashes needle-like teeth when threatened. A navy sweeping flowing tail trails behind it. Most notably, it possesses teal flowing water droplets.",
+        "description": "A colossal, sleek Water-type creature. It is covered in turquoise soft skin with distinct mottled markings. Its cyan wide eyes look out thoughtfully. It defends itself with turquoise smooth fins. It flashes needle-like teeth when threatened. A navy sweeping flowing tail trails behind it. Most notably, it possesses teal flowing water droplets.",
         "features": [
             "horns",
             "fur",
@@ -1151,7 +1188,7 @@ window.baseCreatures = [
         "uniqueFeature": "flowing water droplets",
         "eyes": "wide",
         "skinFurType": "soft",
-        "pattern": "mottled",
+        "pattern": "mottled markings",
         "wings": "none",
         "clawHorn": "smooth fins",
         "teeth": "needle-like teeth",
@@ -1167,7 +1204,7 @@ window.baseCreatures = [
     {
         "id": 23,
         "name": "Thornclaw",
-        "description": "A petite, lanky Nature-type creature. It is covered in forest green furry skin with distinct stippled. Its olive calm eyes look out thoughtfully. It sports olive small leafy wings and moves gracefully. It defends itself with floral pink thorny spikes. It flashes mandibles when threatened. It moves on 4 jointed appendages. Most notably, it possesses emerald blooming flora.",
+        "description": "A petite, lanky Nature-type creature. It is covered in forest green furry skin with distinct stippled marks. Its olive calm eyes look out thoughtfully. It sports olive small leafy wings and moves gracefully. It defends itself with floral pink thorny spikes. It flashes mandibles when threatened. It moves on 4 jointed appendages. Most notably, it possesses emerald blooming flora.",
         "features": [
             "fur",
             "scales"
@@ -1184,7 +1221,7 @@ window.baseCreatures = [
         "uniqueFeature": "blooming flora",
         "eyes": "calm",
         "skinFurType": "furry",
-        "pattern": "stippled",
+        "pattern": "stippled marks",
         "wings": "small leafy wings",
         "clawHorn": "thorny spikes",
         "teeth": "mandibles",
@@ -1200,7 +1237,7 @@ window.baseCreatures = [
     {
         "id": 24,
         "name": "Sparkclaw",
-        "description": "A small, agile Electric-type creature. It is covered in cyan bristly skin with distinct stripes. Its neon green electric eyes look out thoughtfully. It sports cyan asymmetrical mechanical wings and moves gracefully. It defends itself with silver crystal shards. It flashes sharp teeth when threatened. It moves on 6 agile limbs. A cyan twin barbed tail trails behind it. Most notably, it possesses yellow magnetic repulsion.",
+        "description": "A small, agile Electric-type creature. It is covered in cyan bristly skin with distinct electric stripes. Its neon green electric eyes look out thoughtfully. It sports cyan asymmetrical mechanical wings and moves gracefully. It defends itself with silver crystal shards. It flashes sharp teeth when threatened. It moves on 6 agile limbs. A cyan twin barbed tail trails behind it. Most notably, it possesses yellow magnetic repulsion.",
         "features": [
             "horns",
             "fur",
@@ -1218,7 +1255,7 @@ window.baseCreatures = [
         "uniqueFeature": "magnetic repulsion",
         "eyes": "electric",
         "skinFurType": "bristly",
-        "pattern": "stripes",
+        "pattern": "electric stripes",
         "wings": "asymmetrical mechanical wings",
         "clawHorn": "crystal shards",
         "teeth": "sharp teeth",
@@ -1234,7 +1271,7 @@ window.baseCreatures = [
     {
         "id": 25,
         "name": "Snowclaw",
-        "description": "A medium, blocky Ice-type creature. It is covered in frost white smooth skin with distinct checkerboard. Its pale blue cold eyes look out thoughtfully. It sports silver small snowy wings and moves gracefully. It defends itself with pale blue jagged spikes. It flashes sharp teeth when threatened. It moves on 2 paws. A translucent blue short crystalline tail trails behind it. Most notably, it possesses frost white chilling aura.",
+        "description": "A medium, blocky Ice-type creature. It is covered in frost white smooth skin with distinct checkerboard patterns. Its pale blue cold eyes look out thoughtfully. It sports silver small snowy wings and moves gracefully. It defends itself with pale blue jagged spikes. It flashes sharp teeth when threatened. It moves on 2 paws. A translucent blue short crystalline tail trails behind it. Most notably, it possesses frost white chilling aura.",
         "features": [
             "flying",
             "glowing",
@@ -1252,7 +1289,7 @@ window.baseCreatures = [
         "uniqueFeature": "chilling aura",
         "eyes": "cold",
         "skinFurType": "smooth",
-        "pattern": "checkerboard",
+        "pattern": "checkerboard patterns",
         "wings": "small snowy wings",
         "clawHorn": "jagged spikes",
         "teeth": "sharp teeth",
@@ -1268,7 +1305,7 @@ window.baseCreatures = [
     {
         "id": 26,
         "name": "Stoneclaw",
-        "description": "A medium, rounded Earth-type creature. It is covered in copper armored skin with distinct tribal. Its slate blind eyes look out thoughtfully. It sports bronze heavy stone wings and moves gracefully. It defends itself with amber blunt claws. It flashes blunt teeth when threatened. It moves on 4 mechanical legs. A amber stubby spiked mace tail trails behind it. Most notably, it possesses ochre muddy aura.",
+        "description": "A medium, rounded Earth-type creature. It is covered in copper armored skin with distinct tribal markings. Its slate blind eyes look out thoughtfully. It sports bronze heavy stone wings and moves gracefully. It defends itself with amber blunt claws. It flashes blunt teeth when threatened. It moves on 4 mechanical legs. A amber stubby spiked mace tail trails behind it. Most notably, it possesses ochre muddy aura.",
         "features": [
             "horns",
             "wings",
@@ -1286,7 +1323,7 @@ window.baseCreatures = [
         "uniqueFeature": "muddy aura",
         "eyes": "blind",
         "skinFurType": "armored",
-        "pattern": "tribal",
+        "pattern": "tribal markings",
         "wings": "heavy stone wings",
         "clawHorn": "blunt claws",
         "teeth": "blunt teeth",
@@ -1302,7 +1339,7 @@ window.baseCreatures = [
     {
         "id": 27,
         "name": "Breezeclaw",
-        "description": "A miniscule, graceful Wind-type creature. It is covered in pale gray soft skin with distinct stripes. Its azure piercing eyes look out thoughtfully. It sports silver large energy wings and moves gracefully. It defends itself with sky blue hooked talons. It moves on 4 ethereal limbs. A white twin feathered tail trails behind it. Most notably, it possesses lavender cloud rings.",
+        "description": "A miniscule, graceful Wind-type creature. It is covered in pale gray soft skin with distinct breezy stripes. Its azure piercing eyes look out thoughtfully. It sports silver large energy wings and moves gracefully. It defends itself with sky blue hooked talons. It moves on 4 ethereal limbs. A white twin feathered tail trails behind it. Most notably, it possesses lavender cloud rings.",
         "features": [
             "fur",
             "horns",
@@ -1320,7 +1357,7 @@ window.baseCreatures = [
         "uniqueFeature": "cloud rings",
         "eyes": "piercing",
         "skinFurType": "soft",
-        "pattern": "stripes",
+        "pattern": "breezy stripes",
         "wings": "large energy wings",
         "clawHorn": "hooked talons",
         "teeth": "none",
@@ -1336,7 +1373,7 @@ window.baseCreatures = [
     {
         "id": 28,
         "name": "Dawnclaw",
-        "description": "A medium, graceful Light-type creature. It is covered in ivory prismatic skin with distinct gradient. Its gold gentle eyes look out thoughtfully. It sports yellow oversized feathered wings and moves gracefully. It defends itself with gold glowing antlers. A ivory flowing flowing tail trails behind it. Most notably, it possesses diamond prismatic light.",
+        "description": "A medium, graceful Light-type creature. It is covered in ivory prismatic skin with distinct radiant gradient. Its gold gentle eyes look out thoughtfully. It sports yellow oversized feathered wings and moves gracefully. It defends itself with gold glowing antlers. A ivory flowing flowing tail trails behind it. Most notably, it possesses diamond prismatic light.",
         "features": [
             "scales",
             "horns"
@@ -1353,7 +1390,7 @@ window.baseCreatures = [
         "uniqueFeature": "prismatic light",
         "eyes": "gentle",
         "skinFurType": "prismatic",
-        "pattern": "gradient",
+        "pattern": "radiant gradient",
         "wings": "oversized feathered wings",
         "clawHorn": "glowing antlers",
         "teeth": "none",
@@ -1369,7 +1406,7 @@ window.baseCreatures = [
     {
         "id": 29,
         "name": "Duskclaw",
-        "description": "A medium, lanky Dark-type creature. It is covered in blood red leathery skin with distinct camouflage. Its pitch black glowing eyes look out thoughtfully. It sports blood red asymmetrical shadow wings and moves gracefully. It defends itself with dark purple curved horns. It flashes wicked fangs when threatened. It moves on 6 paws. A midnight blue whip-like stinger tail trails behind it. Most notably, it possesses pitch black void aura.",
+        "description": "A medium, lanky Dark-type creature. It is covered in blood red leathery skin with distinct dark camouflage. Its pitch black glowing eyes look out thoughtfully. It sports blood red asymmetrical shadow wings and moves gracefully. It defends itself with dark purple curved horns. It flashes wicked fangs when threatened. It moves on 6 paws. A midnight blue whip-like stinger tail trails behind it. Most notably, it possesses pitch black void aura.",
         "features": [
             "fur",
             "flying",
@@ -1387,7 +1424,7 @@ window.baseCreatures = [
         "uniqueFeature": "void aura",
         "eyes": "glowing",
         "skinFurType": "leathery",
-        "pattern": "camouflage",
+        "pattern": "dark camouflage",
         "wings": "asymmetrical shadow wings",
         "clawHorn": "curved horns",
         "teeth": "wicked fangs",
@@ -1403,7 +1440,7 @@ window.baseCreatures = [
     {
         "id": 30,
         "name": "Meteorclaw",
-        "description": "A tiny, graceful Cosmic-type creature. It is covered in deep blue smooth skin with distinct geometric. Its purple glowing eyes look out thoughtfully. It sports magenta colossal energy wings and moves gracefully. It defends itself with cyan crystal shards. It moves on 100 pseudopods. A nebula pink multiple stardust tail trails behind it. Most notably, it possesses magenta floating orbs.",
+        "description": "A tiny, graceful Cosmic-type creature. It is covered in deep blue smooth skin with distinct geometric stars. Its purple glowing eyes look out thoughtfully. It sports magenta colossal energy wings and moves gracefully. It defends itself with cyan crystal shards. It moves on 100 pseudopods. A nebula pink multiple stardust tail trails behind it. Most notably, it possesses magenta floating orbs.",
         "features": [
             "horns",
             "scales",
@@ -1421,7 +1458,7 @@ window.baseCreatures = [
         "uniqueFeature": "floating orbs",
         "eyes": "glowing",
         "skinFurType": "smooth",
-        "pattern": "geometric",
+        "pattern": "geometric stars",
         "wings": "colossal energy wings",
         "clawHorn": "crystal shards",
         "teeth": "none",
@@ -1437,7 +1474,7 @@ window.baseCreatures = [
     {
         "id": 31,
         "name": "Emberfang",
-        "description": "A massive, muscular Fire-type creature. It is covered in ruby leathery skin with distinct tiger-striped. Its obsidian fiery eyes look out thoughtfully. It defends itself with crimson curved horns. It flashes wicked fangs when threatened. It moves on 4 talons. A amber long scaly tail trails behind it. Most notably, it possesses charcoal magma veins.",
+        "description": "A massive, muscular Fire-type creature. It is covered in ruby leathery skin with distinct tiger stripes. Its obsidian fiery eyes look out thoughtfully. It defends itself with crimson curved horns. It flashes wicked fangs when threatened. It moves on 4 talons. A amber long scaly tail trails behind it. Most notably, it possesses charcoal magma veins.",
         "features": [
             "horns",
             "tail",
@@ -1455,7 +1492,7 @@ window.baseCreatures = [
         "uniqueFeature": "magma veins",
         "eyes": "fiery",
         "skinFurType": "leathery",
-        "pattern": "tiger-striped",
+        "pattern": "tiger stripes",
         "wings": "none",
         "clawHorn": "curved horns",
         "teeth": "wicked fangs",
@@ -1471,7 +1508,7 @@ window.baseCreatures = [
     {
         "id": 32,
         "name": "Riverfang",
-        "description": "A large, agile Water-type creature. It is covered in teal scaly skin with distinct dappled. Its pearl wide eyes look out thoughtfully. It defends itself with aquamarine hooked talons. It flashes needle-like teeth when threatened. A aquamarine sweeping flowing tail trails behind it. Most notably, it possesses cyan bubble clusters.",
+        "description": "A large, agile Water-type creature. It is covered in teal scaly skin with distinct dappled patterns. Its pearl wide eyes look out thoughtfully. It defends itself with aquamarine hooked talons. It flashes needle-like teeth when threatened. A aquamarine sweeping flowing tail trails behind it. Most notably, it possesses cyan bubble clusters.",
         "features": [
             "shell",
             "tail",
@@ -1489,7 +1526,7 @@ window.baseCreatures = [
         "uniqueFeature": "bubble clusters",
         "eyes": "wide",
         "skinFurType": "scaly",
-        "pattern": "dappled",
+        "pattern": "dappled patterns",
         "wings": "none",
         "clawHorn": "hooked talons",
         "teeth": "needle-like teeth",
@@ -1505,7 +1542,7 @@ window.baseCreatures = [
     {
         "id": 33,
         "name": "Vinefang",
-        "description": "A petite, graceful Nature-type creature. It is covered in emerald leafy skin with distinct speckles. Its emerald gentle eyes look out thoughtfully. It sports olive medium leafy wings and moves gracefully. It defends itself with brown thorny spikes. It flashes flat teeth when threatened. It moves on 8 paws. A brown prehensile bushy tail trails behind it. Most notably, it possesses olive vine wraps.",
+        "description": "A petite, graceful Nature-type creature. It is covered in emerald leafy skin with distinct leafy speckles. Its emerald gentle eyes look out thoughtfully. It sports olive medium leafy wings and moves gracefully. It defends itself with brown thorny spikes. It flashes flat teeth when threatened. It moves on 8 paws. A brown prehensile bushy tail trails behind it. Most notably, it possesses olive vine wraps.",
         "features": [
             "claws",
             "flying",
@@ -1523,7 +1560,7 @@ window.baseCreatures = [
         "uniqueFeature": "vine wraps",
         "eyes": "gentle",
         "skinFurType": "leafy",
-        "pattern": "speckles",
+        "pattern": "leafy speckles",
         "wings": "medium leafy wings",
         "clawHorn": "thorny spikes",
         "teeth": "flat teeth",
@@ -1539,7 +1576,7 @@ window.baseCreatures = [
     {
         "id": 34,
         "name": "Stormfang",
-        "description": "A tiny, agile Electric-type creature. It is covered in yellow smooth skin with distinct stripes. Its neon green glowing eyes look out thoughtfully. It flashes sharp teeth when threatened. It moves on 6 mechanical legs. A golden whip-like sparking tail trails behind it. Most notably, it possesses electric blue magnetic repulsion.",
+        "description": "A tiny, agile Electric-type creature. It is covered in yellow smooth skin with distinct electric stripes. Its neon green glowing eyes look out thoughtfully. It flashes sharp teeth when threatened. It moves on 6 mechanical legs. A golden whip-like sparking tail trails behind it. Most notably, it possesses electric blue magnetic repulsion.",
         "features": [
             "fur",
             "scales",
@@ -1557,7 +1594,7 @@ window.baseCreatures = [
         "uniqueFeature": "magnetic repulsion",
         "eyes": "glowing",
         "skinFurType": "smooth",
-        "pattern": "stripes",
+        "pattern": "electric stripes",
         "wings": "none",
         "clawHorn": "none",
         "teeth": "sharp teeth",
@@ -1573,7 +1610,7 @@ window.baseCreatures = [
     {
         "id": 35,
         "name": "Hailfang",
-        "description": "A stout, blocky Ice-type creature. It is covered in cyan woolly skin with distinct checkerboard. Its silver blind eyes look out thoughtfully. It sports snow white large crystal wings and moves gracefully. It defends itself with ice blue jagged spikes. It flashes tusks when threatened. It moves on 2 flippers. A snow white short fluffy tail trails behind it. Most notably, it possesses silver frost breath.",
+        "description": "A stout, blocky Ice-type creature. It is covered in cyan woolly skin with distinct checkerboard patterns. Its silver blind eyes look out thoughtfully. It sports snow white large crystal wings and moves gracefully. It defends itself with ice blue jagged spikes. It flashes tusks when threatened. It moves on 2 flippers. A snow white short fluffy tail trails behind it. Most notably, it possesses silver frost breath.",
         "features": [
             "shell",
             "scales",
@@ -1591,7 +1628,7 @@ window.baseCreatures = [
         "uniqueFeature": "frost breath",
         "eyes": "blind",
         "skinFurType": "woolly",
-        "pattern": "checkerboard",
+        "pattern": "checkerboard patterns",
         "wings": "large crystal wings",
         "clawHorn": "jagged spikes",
         "teeth": "tusks",
@@ -1607,7 +1644,7 @@ window.baseCreatures = [
     {
         "id": 36,
         "name": "Quakefang",
-        "description": "A large, rounded Earth-type creature. It is covered in dusty grey thick skin with distinct mottled. Its brown cyclopic eyes look out thoughtfully. It defends itself with brown ramming plates. It flashes tusks when threatened. It moves on 4 hooves. A amber stubby rocky tail trails behind it. Most notably, it possesses sand floating rocks.",
+        "description": "A large, rounded Earth-type creature. It is covered in dusty grey thick skin with distinct mottled rocks. Its brown cyclopic eyes look out thoughtfully. It defends itself with brown ramming plates. It flashes tusks when threatened. It moves on 4 hooves. A amber stubby rocky tail trails behind it. Most notably, it possesses sand floating rocks.",
         "features": [
             "horns",
             "fur",
@@ -1625,7 +1662,7 @@ window.baseCreatures = [
         "uniqueFeature": "floating rocks",
         "eyes": "cyclopic",
         "skinFurType": "thick",
-        "pattern": "mottled",
+        "pattern": "mottled rocks",
         "wings": "none",
         "clawHorn": "ramming plates",
         "teeth": "tusks",
@@ -1641,7 +1678,7 @@ window.baseCreatures = [
     {
         "id": 37,
         "name": "Gale fang",
-        "description": "A slender, spindly Wind-type creature. It is covered in azure smooth skin with distinct gradient. Its azure narrow eyes look out thoughtfully. It sports pale gray majestic feathered wings and moves gracefully. It defends itself with cream smooth crest. It moves on 2 agile limbs. A cream twin flowing tail trails behind it. Most notably, it possesses cream cyclone aura.",
+        "description": "A slender, spindly Wind-type creature. It is covered in azure smooth skin with distinct gradient colors. Its azure narrow eyes look out thoughtfully. It sports pale gray majestic feathered wings and moves gracefully. It defends itself with cream smooth crest. It moves on 2 agile limbs. A cream twin flowing tail trails behind it. Most notably, it possesses cream cyclone aura.",
         "features": [
             "fur",
             "scales",
@@ -1659,7 +1696,7 @@ window.baseCreatures = [
         "uniqueFeature": "cyclone aura",
         "eyes": "narrow",
         "skinFurType": "smooth",
-        "pattern": "gradient",
+        "pattern": "gradient colors",
         "wings": "majestic feathered wings",
         "clawHorn": "smooth crest",
         "teeth": "none",
@@ -1675,7 +1712,7 @@ window.baseCreatures = [
     {
         "id": 38,
         "name": "Aura fang",
-        "description": "A towering, floating Light-type creature. It is covered in ivory prismatic skin with distinct sunburst. Its yellow glowing eyes look out thoughtfully. It sports gold large feathered wings and moves gracefully. It defends itself with diamond crystal shards. It flashes flat teeth when threatened. It moves on 4 ethereal limbs. A peach multiple energy tail trails behind it. Most notably, it possesses gold blinding flash.",
+        "description": "A towering, floating Light-type creature. It is covered in ivory prismatic skin with distinct sunburst designs. Its yellow glowing eyes look out thoughtfully. It sports gold large feathered wings and moves gracefully. It defends itself with diamond crystal shards. It flashes flat teeth when threatened. It moves on 4 ethereal limbs. A peach multiple energy tail trails behind it. Most notably, it possesses gold blinding flash.",
         "features": [
             "wings",
             "flying",
@@ -1693,7 +1730,7 @@ window.baseCreatures = [
         "uniqueFeature": "blinding flash",
         "eyes": "glowing",
         "skinFurType": "prismatic",
-        "pattern": "sunburst",
+        "pattern": "sunburst designs",
         "wings": "large feathered wings",
         "clawHorn": "crystal shards",
         "teeth": "flat teeth",
@@ -1709,7 +1746,7 @@ window.baseCreatures = [
     {
         "id": 39,
         "name": "Gloomfang",
-        "description": "A immense, serpentine Dark-type creature. It is covered in charcoal leathery skin with distinct mottled. Its onyx glowing eyes look out thoughtfully. It sports pitch black asymmetrical leathery wings and moves gracefully. It defends itself with pitch black razor-sharp claws. It flashes sharp teeth when threatened. It moves on 6 talons. A charcoal multiple barbed tail trails behind it. Most notably, it possesses obsidian nightmare trails.",
+        "description": "A immense, serpentine Dark-type creature. It is covered in charcoal leathery skin with distinct mottled shadows. Its onyx glowing eyes look out thoughtfully. It sports pitch black asymmetrical leathery wings and moves gracefully. It defends itself with pitch black razor-sharp claws. It flashes sharp teeth when threatened. It moves on 6 talons. A charcoal multiple barbed tail trails behind it. Most notably, it possesses obsidian nightmare trails.",
         "features": [
             "wings",
             "flying"
@@ -1726,7 +1763,7 @@ window.baseCreatures = [
         "uniqueFeature": "nightmare trails",
         "eyes": "glowing",
         "skinFurType": "leathery",
-        "pattern": "mottled",
+        "pattern": "mottled shadows",
         "wings": "asymmetrical leathery wings",
         "clawHorn": "razor-sharp claws",
         "teeth": "sharp teeth",
@@ -1742,7 +1779,7 @@ window.baseCreatures = [
     {
         "id": 40,
         "name": "Astral fang",
-        "description": "A immense, bipedal Cosmic-type creature. It is covered in purple translucent skin with distinct runes. Its purple starry eyes look out thoughtfully. It sports purple oversized energy wings and moves gracefully. It flashes flat teeth when threatened. A nebula pink massive comet tail trails behind it. Most notably, it possesses amethyst meteor fragments.",
+        "description": "A immense, bipedal Cosmic-type creature. It is covered in purple translucent skin with distinct cosmic runes. Its purple starry eyes look out thoughtfully. It sports purple oversized energy wings and moves gracefully. It flashes flat teeth when threatened. A nebula pink massive comet tail trails behind it. Most notably, it possesses amethyst meteor fragments.",
         "features": [
             "wings",
             "claws",
@@ -1760,7 +1797,7 @@ window.baseCreatures = [
         "uniqueFeature": "meteor fragments",
         "eyes": "starry",
         "skinFurType": "translucent",
-        "pattern": "runes",
+        "pattern": "cosmic runes",
         "wings": "oversized energy wings",
         "clawHorn": "none",
         "teeth": "flat teeth",
@@ -1776,7 +1813,7 @@ window.baseCreatures = [
     {
         "id": 41,
         "name": "Blazetail",
-        "description": "A stout, muscular Fire-type creature. It is covered in scarlet rough skin with distinct tiger-striped. Its orange fiery eyes look out thoughtfully. It sports amber majestic flame wings and moves gracefully. It defends itself with amber razor-sharp claws. It flashes protruding fangs when threatened. It moves on 6 talons. A obsidian massive scaly tail trails behind it. Most notably, it possesses crimson ash clouds.",
+        "description": "A stout, muscular Fire-type creature. It is covered in scarlet rough skin with distinct tiger stripes. Its orange fiery eyes look out thoughtfully. It sports amber majestic flame wings and moves gracefully. It defends itself with amber razor-sharp claws. It flashes protruding fangs when threatened. It moves on 6 talons. A obsidian massive scaly tail trails behind it. Most notably, it possesses crimson ash clouds.",
         "features": [
             "shell",
             "fur"
@@ -1793,7 +1830,7 @@ window.baseCreatures = [
         "uniqueFeature": "ash clouds",
         "eyes": "fiery",
         "skinFurType": "rough",
-        "pattern": "tiger-striped",
+        "pattern": "tiger stripes",
         "wings": "majestic flame wings",
         "clawHorn": "razor-sharp claws",
         "teeth": "protruding fangs",
@@ -1809,7 +1846,7 @@ window.baseCreatures = [
     {
         "id": 42,
         "name": "Oceantail",
-        "description": "A small, sleek Water-type creature. It is covered in cyan smooth skin with distinct dappled. Its sea green calm eyes look out thoughtfully. It moves on 4 webbed feet. A azure long paddle tail trails behind it. Most notably, it possesses turquoise flowing water droplets.",
+        "description": "A small, sleek Water-type creature. It is covered in cyan smooth skin with distinct dappled patterns. Its sea green calm eyes look out thoughtfully. It moves on 4 webbed feet. A azure long paddle tail trails behind it. Most notably, it possesses turquoise flowing water droplets.",
         "features": [
             "claws",
             "horns",
@@ -1827,7 +1864,7 @@ window.baseCreatures = [
         "uniqueFeature": "flowing water droplets",
         "eyes": "calm",
         "skinFurType": "smooth",
-        "pattern": "dappled",
+        "pattern": "dappled patterns",
         "wings": "none",
         "clawHorn": "none",
         "teeth": "none",
@@ -1843,7 +1880,7 @@ window.baseCreatures = [
     {
         "id": 43,
         "name": "Root tail",
-        "description": "A diminutive, slender Nature-type creature. It is covered in forest green soft skin with distinct camouflage. Its emerald multiple eyes look out thoughtfully. It moves on 6 agile limbs. A brown prehensile bushy tail trails behind it. Most notably, it possesses jade bark armor.",
+        "description": "A diminutive, slender Nature-type creature. It is covered in forest green soft skin with distinct natural camouflage. Its emerald multiple eyes look out thoughtfully. It moves on 6 agile limbs. A brown prehensile bushy tail trails behind it. Most notably, it possesses jade bark armor.",
         "features": [
             "horns",
             "fur",
@@ -1861,7 +1898,7 @@ window.baseCreatures = [
         "uniqueFeature": "bark armor",
         "eyes": "multiple",
         "skinFurType": "soft",
-        "pattern": "camouflage",
+        "pattern": "natural camouflage",
         "wings": "none",
         "clawHorn": "none",
         "teeth": "none",
@@ -1877,7 +1914,7 @@ window.baseCreatures = [
     {
         "id": 44,
         "name": "Bolt tail",
-        "description": "A miniscule, spiky Electric-type creature. It is covered in yellow metallic skin with distinct geometric. Its silver electric eyes look out thoughtfully. It sports electric blue tiny energy wings and moves gracefully. It defends itself with golden crystal shards. It flashes sharp teeth when threatened. It moves on 4 paws. A silver whip-like cable-like tail trails behind it. Most notably, it possesses cyan static sparks.",
+        "description": "A miniscule, spiky Electric-type creature. It is covered in yellow metallic skin with distinct geometric patterns. Its silver electric eyes look out thoughtfully. It sports electric blue tiny energy wings and moves gracefully. It defends itself with golden crystal shards. It flashes sharp teeth when threatened. It moves on 4 paws. A silver whip-like cable-like tail trails behind it. Most notably, it possesses cyan static sparks.",
         "features": [
             "flying",
             "tail"
@@ -1894,7 +1931,7 @@ window.baseCreatures = [
         "uniqueFeature": "static sparks",
         "eyes": "electric",
         "skinFurType": "metallic",
-        "pattern": "geometric",
+        "pattern": "geometric patterns",
         "wings": "tiny energy wings",
         "clawHorn": "crystal shards",
         "teeth": "sharp teeth",
@@ -1910,7 +1947,7 @@ window.baseCreatures = [
     {
         "id": 45,
         "name": "Chilltail",
-        "description": "A blocky, stout Ice-type creature. It is covered in frost white smooth skin with distinct checkerboard. Its pale blue piercing eyes look out thoughtfully. It sports ice blue medium snowy wings and moves gracefully. It defends itself with translucent blue jagged spikes. It moves on 4 sturdy legs. Most notably, it possesses snow white chilling aura.",
+        "description": "A blocky, stout Ice-type creature. It is covered in frost white smooth skin with distinct checkerboard patterns. Its pale blue piercing eyes look out thoughtfully. It sports ice blue medium snowy wings and moves gracefully. It defends itself with translucent blue jagged spikes. It moves on 4 sturdy legs. Most notably, it possesses snow white chilling aura.",
         "features": [
             "scales",
             "horns",
@@ -1928,7 +1965,7 @@ window.baseCreatures = [
         "uniqueFeature": "chilling aura",
         "eyes": "piercing",
         "skinFurType": "smooth",
-        "pattern": "checkerboard",
+        "pattern": "checkerboard patterns",
         "wings": "medium snowy wings",
         "clawHorn": "jagged spikes",
         "teeth": "none",
@@ -1944,7 +1981,7 @@ window.baseCreatures = [
     {
         "id": 46,
         "name": "Cragtail",
-        "description": "A large, muscular Earth-type creature. It is covered in amber thick skin with distinct cracked. Its slate cyclopic eyes look out thoughtfully. It defends itself with bronze boulder horns. It flashes crushing molars when threatened. It moves on 6 hooves. A sand stubby spiked mace tail trails behind it. Most notably, it possesses bronze dust clouds.",
+        "description": "A large, muscular Earth-type creature. It is covered in amber thick skin with distinct cracked lines. Its slate cyclopic eyes look out thoughtfully. It defends itself with bronze boulder horns. It flashes crushing molars when threatened. It moves on 6 hooves. A sand stubby spiked mace tail trails behind it. Most notably, it possesses bronze dust clouds.",
         "features": [
             "wings",
             "scales"
@@ -1961,7 +1998,7 @@ window.baseCreatures = [
         "uniqueFeature": "dust clouds",
         "eyes": "cyclopic",
         "skinFurType": "thick",
-        "pattern": "cracked",
+        "pattern": "cracked lines",
         "wings": "none",
         "clawHorn": "boulder horns",
         "teeth": "crushing molars",
@@ -1977,7 +2014,7 @@ window.baseCreatures = [
     {
         "id": 47,
         "name": "Gust tail",
-        "description": "A miniscule, agile Wind-type creature. It is covered in sky blue soft skin with distinct gradient. Its azure clear eyes look out thoughtfully. It sports sky blue colossal cloud wings and moves gracefully. It defends itself with sky blue smooth crest. It flashes sharp teeth when threatened. It moves on 2 talons. A cream flowing feathered tail trails behind it. Most notably, it possesses mint green whirling winds.",
+        "description": "A miniscule, agile Wind-type creature. It is covered in sky blue soft skin with distinct gradient colors. Its azure clear eyes look out thoughtfully. It sports sky blue colossal cloud wings and moves gracefully. It defends itself with sky blue smooth crest. It flashes sharp teeth when threatened. It moves on 2 talons. A cream flowing feathered tail trails behind it. Most notably, it possesses mint green whirling winds.",
         "features": [
             "flying",
             "horns",
@@ -1995,7 +2032,7 @@ window.baseCreatures = [
         "uniqueFeature": "whirling winds",
         "eyes": "clear",
         "skinFurType": "soft",
-        "pattern": "gradient",
+        "pattern": "gradient colors",
         "wings": "colossal cloud wings",
         "clawHorn": "smooth crest",
         "teeth": "sharp teeth",
@@ -2011,7 +2048,7 @@ window.baseCreatures = [
     {
         "id": 48,
         "name": "Halo tail",
-        "description": "A small, slender Light-type creature. It is covered in silver translucent skin with distinct runes. Its silver hypnotic eyes look out thoughtfully. It sports silver majestic crystal wings and moves gracefully. It defends itself with gold crystal shards. It moves on 4 graceful legs. A pearl multiple energy tail trails behind it. Most notably, it possesses pale yellow blinding flash.",
+        "description": "A small, slender Light-type creature. It is covered in silver translucent skin with distinct glowing runes. Its silver hypnotic eyes look out thoughtfully. It sports silver majestic crystal wings and moves gracefully. It defends itself with gold crystal shards. It moves on 4 graceful legs. A pearl multiple energy tail trails behind it. Most notably, it possesses pale yellow blinding flash.",
         "features": [
             "fangs",
             "scales"
@@ -2028,7 +2065,7 @@ window.baseCreatures = [
         "uniqueFeature": "blinding flash",
         "eyes": "hypnotic",
         "skinFurType": "translucent",
-        "pattern": "runes",
+        "pattern": "glowing runes",
         "wings": "majestic crystal wings",
         "clawHorn": "crystal shards",
         "teeth": "none",
@@ -2044,7 +2081,7 @@ window.baseCreatures = [
     {
         "id": 49,
         "name": "Night tail",
-        "description": "A immense, lanky Dark-type creature. It is covered in charcoal leathery skin with distinct mottled. Its blood red narrow eyes look out thoughtfully. It sports obsidian large leathery wings and moves gracefully. It defends itself with charcoal jagged spikes. It flashes sharp teeth when threatened. It moves on 4 talons. A indigo whip-like stinger tail trails behind it. Most notably, it possesses obsidian dark mist.",
+        "description": "A immense, lanky Dark-type creature. It is covered in charcoal leathery skin with distinct mottled shadows. Its blood red narrow eyes look out thoughtfully. It sports obsidian large leathery wings and moves gracefully. It defends itself with charcoal jagged spikes. It flashes sharp teeth when threatened. It moves on 4 talons. A indigo whip-like stinger tail trails behind it. Most notably, it possesses obsidian dark mist.",
         "features": [
             "horns",
             "tail"
@@ -2061,7 +2098,7 @@ window.baseCreatures = [
         "uniqueFeature": "dark mist",
         "eyes": "narrow",
         "skinFurType": "leathery",
-        "pattern": "mottled",
+        "pattern": "mottled shadows",
         "wings": "large leathery wings",
         "clawHorn": "jagged spikes",
         "teeth": "sharp teeth",
@@ -2077,7 +2114,7 @@ window.baseCreatures = [
     {
         "id": 50,
         "name": "Nebula tail",
-        "description": "A floating, bipedal Cosmic-type creature. It is covered in purple gaseous skin with distinct geometric. Its violet glowing eyes look out thoughtfully. It sports violet majestic energy wings and moves gracefully. It defends itself with violet majestic horns. It flashes flat teeth when threatened. It moves on 100 tentacles. Most notably, it possesses purple gravity waves.",
+        "description": "A floating, bipedal Cosmic-type creature. It is covered in purple gaseous skin with distinct geometric stars. Its violet glowing eyes look out thoughtfully. It sports violet majestic energy wings and moves gracefully. It defends itself with violet majestic horns. It flashes flat teeth when threatened. It moves on 100 tentacles. Most notably, it possesses purple gravity waves.",
         "features": [
             "horns",
             "glowing",
@@ -2095,7 +2132,7 @@ window.baseCreatures = [
         "uniqueFeature": "gravity waves",
         "eyes": "glowing",
         "skinFurType": "gaseous",
-        "pattern": "geometric",
+        "pattern": "geometric stars",
         "wings": "majestic energy wings",
         "clawHorn": "majestic horns",
         "teeth": "flat teeth",
@@ -2639,6 +2676,21 @@ window.closeBreedingModal = function() {
     let _m_breedingModal = document.getElementById('breedingModal'); _m_breedingModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_breedingModal.style.display = 'none'; _m_breedingModal.children[0].classList.remove('modal-fade-out'); }, 190);
 };
 
+window.closeLevelUpModal = function() {
+    let _m_levelUpModal = document.getElementById('levelUpModal');
+    _m_levelUpModal.children[0].classList.add('modal-fade-out');
+    setTimeout(() => {
+        _m_levelUpModal.style.display = 'none';
+        _m_levelUpModal.children[0].classList.remove('modal-fade-out');
+        inBattle = false;
+        player.lastBattleTime = game.scene.scenes[0].time.now;
+        if (currentEnemySprite) {
+            currentEnemySprite.destroy();
+        }
+        respawnEnemyBase();
+    }, 190);
+};
+
 window.doBreed = function() {
     const id1 = document.getElementById('parent1Select').value;
     const id2 = document.getElementById('parent2Select').value;
@@ -2871,6 +2923,9 @@ const config = {
     type: Phaser.AUTO,
     width: window.innerWidth,
     height: window.innerHeight,
+    render: {
+        roundPixels: true
+    },
     physics: {
         default: 'arcade',
         arcade: { debug: false }
@@ -3139,32 +3194,32 @@ function preload() {
         this.textures.addCanvas('foam_tex_' + frame, foamCanvas);
     }
 
-    // Generate rounded corner cutouts (8px radius to match buttons)
+    // Generate rounded corner cutouts (12px radius to match buttons)
     // Convex corner (outer edge of water, grass cuts into the water square)
     const convexCanvas = document.createElement('canvas');
-    convexCanvas.width = 8;
-    convexCanvas.height = 8;
+    convexCanvas.width = 12;
+    convexCanvas.height = 12;
     const convexCtx = convexCanvas.getContext('2d');
     convexCtx.fillStyle = '#1a661a'; // Grass color
-    convexCtx.fillRect(0, 0, 8, 8);
+    convexCtx.fillRect(0, 0, 12, 12);
     convexCtx.globalCompositeOperation = 'destination-out';
     convexCtx.beginPath();
-    convexCtx.arc(8, 8, 8, 0, Math.PI * 2);
+    convexCtx.arc(12, 12, 12, 0, Math.PI * 2);
     convexCtx.fill();
     this.textures.addCanvas('grass_corner_convex', convexCanvas);
 
     // Concave corner (inner edge of water, water cuts into the grass square)
     const concaveCanvas = document.createElement('canvas');
-    concaveCanvas.width = 8;
-    concaveCanvas.height = 8;
+    concaveCanvas.width = 12;
+    concaveCanvas.height = 12;
     const concaveCtx = concaveCanvas.getContext('2d');
     // Draw a water-colored square, then cut out a grass-colored circle
     // Actually, it's easier to just draw the grass filling the corner
     concaveCtx.fillStyle = '#1a661a'; // Grass color
     concaveCtx.beginPath();
     concaveCtx.moveTo(0, 0);
-    concaveCtx.lineTo(8, 0);
-    concaveCtx.arc(0, 0, 8, 0, Math.PI / 2, false);
+    concaveCtx.lineTo(12, 0);
+    concaveCtx.arc(0, 0, 12, 0, Math.PI / 2, false);
     concaveCtx.lineTo(0, 0);
     concaveCtx.fill();
     this.textures.addCanvas('grass_corner_concave', concaveCanvas);
@@ -3217,24 +3272,24 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
     // Convex corners
     if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 4, posY - 50 + 4, 'grass_corner_convex');
+        let corner = scene.add.sprite(posX - 50 + 6, posY - 50 + 6, 'grass_corner_convex');
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 4, posY - 50 + 4, 'grass_corner_convex');
+        let corner = scene.add.sprite(posX + 50 - 6, posY - 50 + 6, 'grass_corner_convex');
         corner.setAngle(90);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 4, posY + 50 - 4, 'grass_corner_convex');
+        let corner = scene.add.sprite(posX + 50 - 6, posY + 50 - 6, 'grass_corner_convex');
         corner.setAngle(180);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 4, posY + 50 - 4, 'grass_corner_convex');
+        let corner = scene.add.sprite(posX - 50 + 6, posY + 50 - 6, 'grass_corner_convex');
         corner.setAngle(270);
         corner.setDepth(0);
         sprites.push(corner);
@@ -3242,24 +3297,24 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
     // Concave corners
     if (c > 0 && mapData[r][c-1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c-1] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 4, posY - 50 + 4, 'grass_corner_concave');
+        let corner = scene.add.sprite(posX - 50 + 6, posY - 50 + 6, 'grass_corner_concave');
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c+1] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 4, posY - 50 + 4, 'grass_corner_concave');
+        let corner = scene.add.sprite(posX + 50 - 6, posY - 50 + 6, 'grass_corner_concave');
         corner.setAngle(90);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c+1] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 4, posY + 50 - 4, 'grass_corner_concave');
+        let corner = scene.add.sprite(posX + 50 - 6, posY + 50 - 6, 'grass_corner_concave');
         corner.setAngle(180);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c > 0 && mapData[r][c-1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c-1] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 4, posY + 50 - 4, 'grass_corner_concave');
+        let corner = scene.add.sprite(posX - 50 + 6, posY + 50 - 6, 'grass_corner_concave');
         corner.setAngle(270);
         corner.setDepth(0);
         sprites.push(corner);
@@ -3822,33 +3877,63 @@ window.handlePlayerTurn = function(action) {
 window.endBattle = function(result) {
     setTimeout(() => {
         let _m_battleModal = document.getElementById('battleModal'); _m_battleModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_battleModal.style.display = 'none'; _m_battleModal.children[0].classList.remove('modal-fade-out'); }, 190);
-        inBattle = false;
-        player.body.moves = true; // Restore player physics movement
-        player.lastBattleTime = game.scene.scenes[0].time.now;
 
-        if (result === 'caught') {
-            saveCollected(currentEnemy);
-            currentEnemySprite.destroy();
-            respawnEnemyBase();
-        } else if (result === 'win') {
+        if (result === 'win') {
             let xpGained = Math.floor(currentEnemy.level * 50);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
+
+            // Record stats before level up
+            let oldStats = {};
+            ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
+                oldStats[stat] = window.getEffectiveStat(collectedCreatures[0], stat);
+            });
+
             let leveledUp = window.gainXp(collectedCreatures[0], xpGained);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
 
             if (leveledUp) {
-                alert(`${collectedCreatures[0].nickname || collectedCreatures[0].name} leveled up to Level ${collectedCreatures[0].level}!`);
-            }
+                // Show level up modal instead of alert
+                document.getElementById('levelUpTitle').innerText = `${collectedCreatures[0].nickname || collectedCreatures[0].name} reached Level ${collectedCreatures[0].level}!`;
 
-            currentEnemySprite.destroy();
-            respawnEnemyBase();
-        } else if (result === 'run') {
-            player.x += 100;
-        } else if (result === 'loss') {
-            alert('Your lead creature fainted. Healing up...');
-            let safePos = window.getStrictSafeDryLandSpawn(currentEnemySprite);
-            player.x = safePos.x;
-            player.y = safePos.y;
+                let statsHtml = '';
+                const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
+
+                ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
+                    let newStat = window.getEffectiveStat(collectedCreatures[0], stat);
+                    let diff = newStat - oldStats[stat];
+                    if (diff > 0) {
+                        statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldStats[stat].toFixed(1)} <span style="color:#4caf50">➔ ${newStat.toFixed(1)} (+${diff.toFixed(1)})</span></div>`;
+                    }
+                });
+
+                document.getElementById('levelUpStats').innerHTML = statsHtml;
+                document.getElementById('levelUpModal').style.display = 'block';
+                // Note: inBattle remains true until the modal is closed to pause gameplay
+                player.body.moves = true; // Restore player physics movement
+            } else {
+                inBattle = false;
+                player.body.moves = true; // Restore player physics movement
+                player.lastBattleTime = game.scene.scenes[0].time.now;
+                currentEnemySprite.destroy();
+                respawnEnemyBase();
+            }
+        } else {
+            inBattle = false;
+            player.body.moves = true; // Restore player physics movement
+            player.lastBattleTime = game.scene.scenes[0].time.now;
+
+            if (result === 'caught') {
+                saveCollected(currentEnemy);
+                currentEnemySprite.destroy();
+                respawnEnemyBase();
+            } else if (result === 'run') {
+                player.x += 100;
+            } else if (result === 'loss') {
+                alert('Your lead creature fainted. Healing up...');
+                let safePos = window.getStrictSafeDryLandSpawn(currentEnemySprite);
+                player.x = safePos.x;
+                player.y = safePos.y;
+            }
         }
     }, 1500);
 };
