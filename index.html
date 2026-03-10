@@ -390,8 +390,11 @@
     <h3>Stats</h3>
     <p>HP: Health | Atk: Physical dmg | Def: Physical resist<br>Spe: Speed | SpA: Special dmg | SpD: Special resist</p>
 
-    <h3>Type Matchups</h3>
+    <h3>Type Matchups (Gen 1)</h3>
     <div id="typeChartContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+
+    <h3>Type Matchups (Gen 2 Combinations)</h3>
+    <div id="typeChartGen2Container" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
 
     <h3>Natures</h3>
     <p>Natures modify stats. They provide exact stat buffs or debuffs!</p>
@@ -2231,14 +2234,52 @@ window.typeChart = {
     "Cosmic": { "Light": 2, "Dark": 2, "Cosmic": 0.5 }
 };
 
-window.getTypeModifier = function(attackType, defenseType) {
-    // If complex type (e.g. Fire-Water)
-    if (defenseType.includes('-')) {
-        let types = defenseType.split('-');
-        let mod1 = (window.typeChart[attackType] && window.typeChart[attackType][types[0]] !== undefined) ? window.typeChart[attackType][types[0]] : 1;
-        let mod2 = (window.typeChart[attackType] && window.typeChart[attackType][types[1]] !== undefined) ? window.typeChart[attackType][types[1]] : 1;
-        return mod1 * mod2;
+// Generate dual types
+(function() {
+    const baseTypes = Object.keys(window.typeChart);
+
+    // Create dual types
+    for (let i = 0; i < baseTypes.length; i++) {
+        for (let j = 0; j < baseTypes.length; j++) {
+            if (i !== j) {
+                const dualType = `${baseTypes[i]}-${baseTypes[j]}`;
+                window.typeChart[dualType] = {};
+            }
+        }
     }
+
+    const allTypes = Object.keys(window.typeChart);
+
+    // Calculate modifiers
+    for (const attacker of allTypes) {
+        for (const defender of allTypes) {
+            let mod = 1;
+
+            const attackerTypes = attacker.split('-');
+            const defenderTypes = defender.split('-');
+
+            // Attack logic: take the max modifier of the attacker's component types
+            let maxMod = 0;
+            for (const aType of attackerTypes) {
+                // Defense logic: multiply the attacker's modifier against each defending component type
+                let defMod = 1;
+                for (const dType of defenderTypes) {
+                    let singleMod = 1;
+                    if (window.typeChart[aType] && window.typeChart[aType][dType] !== undefined) {
+                        singleMod = window.typeChart[aType][dType];
+                    }
+                    defMod *= singleMod;
+                }
+                if (defMod > maxMod) {
+                    maxMod = defMod;
+                }
+            }
+            window.typeChart[attacker][defender] = maxMod;
+        }
+    }
+})();
+
+window.getTypeModifier = function(attackType, defenseType) {
     if (window.typeChart[attackType] && window.typeChart[attackType][defenseType] !== undefined) {
         return window.typeChart[attackType][defenseType];
     }
@@ -2349,29 +2390,38 @@ window.openHelpModal = function() {
     closeMenuModal();
 
     // Generate Type Chart HTML
-    let types = Object.keys(window.typeChart);
-    let typeChartHtml = '<table style="width:100%; text-align:center; border-collapse:collapse; font-size:14px; color:#ddd;">';
-    typeChartHtml += '<tr><th style="border-bottom:1px solid #555;">Attacker \\ Defender</th>' + types.map(t => `<th style="border-bottom:1px solid #555; padding:4px;">${t}</th>`).join('') + '</tr>';
+    let allTypes = Object.keys(window.typeChart);
+    let singleTypes = allTypes.filter(t => !t.includes('-'));
+    let dualTypes = allTypes.filter(t => t.includes('-'));
 
-    types.forEach(attacker => {
-        typeChartHtml += `<tr><td style="border-bottom:1px solid #333; font-weight:bold; padding:4px;">${attacker}</td>`;
-        types.forEach(defender => {
-            let mod = window.typeChart[attacker][defender] !== undefined ? window.typeChart[attacker][defender] : 1;
-            let bgColor = 'transparent';
-            let color = '#ddd';
-            let text = '1x';
-            if (mod === 2) { bgColor = 'rgba(76, 175, 80, 0.2)'; color = '#4caf50'; text = '2x'; }
-            else if (mod === 0.5) { bgColor = 'rgba(244, 67, 54, 0.2)'; color = '#f44336'; text = '0.5x'; }
-            else if (mod === 0) { bgColor = 'rgba(158, 158, 158, 0.2)'; color = '#9e9e9e'; text = '0x'; }
+    function generateChart(typesList) {
+        let html = '<table style="width:100%; text-align:center; border-collapse:collapse; font-size:14px; color:#ddd;">';
+        html += '<tr><th style="border-bottom:1px solid #555; position:sticky; top:0; background:#222; z-index:10;">Attacker \\ Defender</th>' + typesList.map(t => `<th style="border-bottom:1px solid #555; padding:4px; position:sticky; top:0; background:#222; z-index:10;">${t}</th>`).join('') + '</tr>';
 
-            typeChartHtml += `<td style="border-bottom:1px solid #333; background:${bgColor}; color:${color}; padding:4px;">${text}</td>`;
+        typesList.forEach(attacker => {
+            html += `<tr><td style="border-bottom:1px solid #333; font-weight:bold; padding:4px;">${attacker}</td>`;
+            typesList.forEach(defender => {
+                let mod = window.typeChart[attacker][defender] !== undefined ? window.typeChart[attacker][defender] : 1;
+                let bgColor = 'transparent';
+                let color = '#ddd';
+                let text = '1x';
+                if (mod >= 2) { bgColor = 'rgba(76, 175, 80, 0.2)'; color = '#4caf50'; text = mod + 'x'; }
+                else if (mod > 0 && mod < 1) { bgColor = 'rgba(244, 67, 54, 0.2)'; color = '#f44336'; text = mod + 'x'; }
+                else if (mod === 0) { bgColor = 'rgba(158, 158, 158, 0.2)'; color = '#9e9e9e'; text = '0x'; }
+
+                html += `<td style="border-bottom:1px solid #333; background:${bgColor}; color:${color}; padding:4px;">${text}</td>`;
+            });
+            html += '</tr>';
         });
-        typeChartHtml += '</tr>';
-    });
-    typeChartHtml += '</table>';
+        html += '</table>';
+        return html;
+    }
 
     let typeContainer = document.getElementById('typeChartContainer');
-    if (typeContainer) typeContainer.innerHTML = typeChartHtml;
+    if (typeContainer) typeContainer.innerHTML = generateChart(singleTypes);
+
+    let typeGen2Container = document.getElementById('typeChartGen2Container');
+    if (typeGen2Container) typeGen2Container.innerHTML = generateChart(dualTypes);
 
     let naturesHtml = window.natures.filter(n => n.increase || n.decrease).map(n => {
         let text = n.name + ': ';
@@ -2844,7 +2894,7 @@ window.doBreed = function() {
         // Ensure compatibility - either same type, or based on typeChart if they are somewhat compatible
         // Let's use the type modifier. If it's 0, they can't breed.
         const compatibility = window.getTypeModifier(p1.type, p2.type);
-        if (compatibility === 0) {
+        if (compatibility === 0 && !(p1.generation === 1 && p2.generation === 1)) {
              document.getElementById('breedResult').innerText = `Incompatible types: ${p1.type} cannot breed with ${p2.type}.`;
              return;
         }
@@ -3325,33 +3375,42 @@ function preload() {
 
     // Generate rounded corner cutouts
     for (let frame = 0; frame < 12; frame++) {
-        // Convex corner (outer edge of water, grass cuts into the water square)
-        const convexCanvas = document.createElement('canvas');
-        convexCanvas.width = 50;
-        convexCanvas.height = 50;
-        const convexCtx = convexCanvas.getContext('2d');
-        // Draw the procedural grass texture instead of solid color
-        convexCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), 0, 0, 50, 50, 0, 0, 50, 50);
-        convexCtx.globalCompositeOperation = 'destination-out';
-        convexCtx.beginPath();
-        convexCtx.arc(50, 50, 50, 0, Math.PI * 2);
-        convexCtx.fill();
-        this.textures.addCanvas('grass_corner_convex_' + frame, convexCanvas);
+        const cornerPositions = [
+            { dir: 'tl', x: 50, y: 50, start: Math.PI, end: Math.PI * 1.5, mx: 50, my: 0 },
+            { dir: 'tr', x: 0, y: 50, start: Math.PI * 1.5, end: 0, mx: 50, my: 50 },
+            { dir: 'br', x: 0, y: 0, start: 0, end: Math.PI / 2, mx: 0, my: 50 },
+            { dir: 'bl', x: 50, y: 0, start: Math.PI / 2, end: Math.PI, mx: 0, my: 0 }
+        ];
 
-        // Concave corner (inner edge of water, water cuts into the grass square)
-        const concaveCanvas = document.createElement('canvas');
-        concaveCanvas.width = 50;
-        concaveCanvas.height = 50;
-        const concaveCtx = concaveCanvas.getContext('2d');
-        concaveCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), 0, 0, 50, 50, 0, 0, 50, 50);
-        concaveCtx.globalCompositeOperation = 'destination-in';
-        concaveCtx.beginPath();
-        concaveCtx.moveTo(0, 0);
-        concaveCtx.lineTo(50, 0);
-        concaveCtx.arc(0, 0, 50, 0, Math.PI / 2, false);
-        concaveCtx.lineTo(0, 0);
-        concaveCtx.fill();
-        this.textures.addCanvas('grass_corner_concave_' + frame, concaveCanvas);
+        cornerPositions.forEach(pos => {
+            // Convex corner (outer edge of water, grass cuts into the water square)
+            const convexCanvas = document.createElement('canvas');
+            convexCanvas.width = 50;
+            convexCanvas.height = 50;
+            const convexCtx = convexCanvas.getContext('2d');
+            // Draw the procedural grass texture instead of solid color
+            convexCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), 0, 0, 50, 50, 0, 0, 50, 50);
+            convexCtx.globalCompositeOperation = 'destination-out';
+            convexCtx.beginPath();
+            convexCtx.arc(pos.x, pos.y, 50, 0, Math.PI * 2);
+            convexCtx.fill();
+            this.textures.addCanvas('grass_corner_convex_' + pos.dir + '_' + frame, convexCanvas);
+
+            // Concave corner (inner edge of water, water cuts into the grass square)
+            const concaveCanvas = document.createElement('canvas');
+            concaveCanvas.width = 50;
+            concaveCanvas.height = 50;
+            const concaveCtx = concaveCanvas.getContext('2d');
+            concaveCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), 0, 0, 50, 50, 0, 0, 50, 50);
+            concaveCtx.globalCompositeOperation = 'destination-in';
+            concaveCtx.beginPath();
+            concaveCtx.moveTo(pos.x, pos.y);
+            concaveCtx.lineTo(pos.mx, pos.my);
+            concaveCtx.arc(pos.x, pos.y, 50, pos.start, pos.end, false);
+            concaveCtx.lineTo(pos.x, pos.y);
+            concaveCtx.fill();
+            this.textures.addCanvas('grass_corner_concave_' + pos.dir + '_' + frame, concaveCanvas);
+        });
     }
 
     // Pre-generate a water overlay texture to mimic the linear-gradient button style
@@ -3427,29 +3486,26 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
     // Convex corners
     if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_0');
-        corner.anims.play('grass_corner_anim', true);
+        let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_tl_0');
+        corner.anims.play('grass_corner_anim_tl', true);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_0');
-        corner.setAngle(90);
-        corner.anims.play('grass_corner_anim', true);
+        let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_tr_0');
+        corner.anims.play('grass_corner_anim_tr', true);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_0');
-        corner.setAngle(180);
-        corner.anims.play('grass_corner_anim', true);
+        let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_br_0');
+        corner.anims.play('grass_corner_anim_br', true);
         corner.setDepth(0);
         sprites.push(corner);
     }
     if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_0');
-        corner.setAngle(270);
-        corner.anims.play('grass_corner_anim', true);
+        let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_bl_0');
+        corner.anims.play('grass_corner_anim_bl', true);
         corner.setDepth(0);
         sprites.push(corner);
     }
@@ -3485,9 +3541,15 @@ function create() {
         foamFrames.push({ key: 'foam_tex_' + i });
     }
 
-    let grassCornerFrames = [];
+    let grassCornerFrames_tl = [];
+    let grassCornerFrames_tr = [];
+    let grassCornerFrames_br = [];
+    let grassCornerFrames_bl = [];
     for(let i = 0; i < 12; i++) {
-        grassCornerFrames.push({ key: 'grass_corner_convex_' + i });
+        grassCornerFrames_tl.push({ key: 'grass_corner_convex_tl_' + i });
+        grassCornerFrames_tr.push({ key: 'grass_corner_convex_tr_' + i });
+        grassCornerFrames_br.push({ key: 'grass_corner_convex_br_' + i });
+        grassCornerFrames_bl.push({ key: 'grass_corner_convex_bl_' + i });
     }
 
     this.anims.create({
@@ -3498,8 +3560,26 @@ function create() {
     });
 
     this.anims.create({
-        key: 'grass_corner_anim',
-        frames: grassCornerFrames,
+        key: 'grass_corner_anim_tl',
+        frames: grassCornerFrames_tl,
+        frameRate: 8,
+        repeat: -1
+    });
+    this.anims.create({
+        key: 'grass_corner_anim_tr',
+        frames: grassCornerFrames_tr,
+        frameRate: 8,
+        repeat: -1
+    });
+    this.anims.create({
+        key: 'grass_corner_anim_br',
+        frames: grassCornerFrames_br,
+        frameRate: 8,
+        repeat: -1
+    });
+    this.anims.create({
+        key: 'grass_corner_anim_bl',
+        frames: grassCornerFrames_bl,
         frameRate: 8,
         repeat: -1
     });
