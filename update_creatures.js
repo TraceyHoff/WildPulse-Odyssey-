@@ -18,22 +18,179 @@ try {
     process.exit(1);
 }
 
-// Data for randomization
-const bodySizes = ['miniscule', 'tiny', 'small', 'medium', 'large', 'massive', 'colossal', 'gigantic', 'immense', 'hulking', 'towering', 'diminutive', 'petite', 'stout', 'rotund'];
-const bodyTypes = ['slender', 'stout', 'graceful', 'bulky', 'agile', 'sleek', 'muscular', 'lithe', 'spindly', 'lanky', 'burly', 'stocky', 'sinuous', 'angular', 'rounded', 'spiky', 'blocky', 'bipedal', 'quadrupedal', 'serpentine', 'floating'];
-const uniqueFeatures = ['glowing markings', 'iridescent scales', 'crystalline spikes', 'ethereal aura', 'shadowy wisps', 'crackling energy', 'blooming flora', 'flowing water droplets', 'smoldering embers', 'floating orbs', 'spectral trails', 'metallic plating', 'bioluminescent spots', 'whirling winds', 'frost breath', 'venomous spines', 'magnetic repulsion', 'sonic vibrations', 'illusionary copies'];
-const eyes = ['piercing', 'gentle', 'narrow', 'wide', 'glowing', 'mysterious', 'fierce', 'calm', 'compound', 'multiple', 'cyclopic', 'blind', 'hypnotic', 'crystalline', 'fiery', 'watery', 'starry', 'void-like'];
-const skinFurTypes = ['smooth', 'bristly', 'silky', 'scaly', 'soft', 'rough', 'thick', 'feathered', 'leathery', 'armored', 'slimy', 'furry', 'woolly', 'metallic', 'translucent', 'stony', 'bark-like', 'gaseous', 'prismatic'];
-const patterns = ['spots', 'swirls', 'patches', 'stripes', 'bands', 'runes', 'speckles', 'mottled', 'checkerboard', 'zigzag', 'geometric', 'tribal', 'camouflage', 'gradient', 'stippled', 'dappled', 'tiger-striped', 'leopard-spotted'];
-const wingsType = ['none', 'none', 'none', 'none', 'feathered wings', 'leathery wings', 'insectoid wings', 'gossamer wings', 'energy wings', 'bone wings', 'crystal wings', 'leafy wings', 'webbed wings', 'shadow wings', 'mechanical wings', 'flame wings']; // higher chance for none
-const wingsSize = ['tiny', 'small', 'medium', 'large', 'majestic', 'colossal', 'vestigial', 'oversized', 'asymmetrical'];
-const clawHorn = ['razor-sharp claws', 'blunt claws', 'majestic horns', 'curved horns', 'spiraling horns', 'jagged spikes', 'none', 'serrated blades', 'hooked talons', 'crushing pincers', 'ramming plates', 'venomous stingers', 'glowing antlers', 'crystal shards'];
-const teeth = ['wicked fangs', 'sharp teeth', 'blunt teeth', 'flat teeth', 'none', 'tusks', 'mandibles', 'saw-like teeth', 'needle-like teeth', 'crushing molars', 'protruding fangs', 'venomous fangs'];
-const limbsNum = [0, 2, 4, 4, 4, 6, 8, 10, 100]; // mostly 4
-const limbsType = ['sturdy legs', 'agile limbs', 'tentacles', 'paws', 'talons', 'hooves', 'flippers', 'pseudopods', 'mechanical legs', 'ethereal limbs', 'jointed appendages'];
-const tailSize = ['short', 'long', 'sweeping', 'stubby', 'none', 'whip-like', 'massive', 'prehensile', 'twin', 'multiple'];
-const tailType = ['fluffy tail', 'scaly tail', 'barbed tail', 'clubbed tail', 'flowing tail', 'feathered tail', 'spiked mace tail', 'stinger tail', 'fish-like tail', 'reptilian tail', 'bushy tail', 'skeletal tail'];
-const colorsDesc = ['crimson', 'azure', 'emerald', 'golden', 'obsidian', 'amethyst', 'sapphire', 'ruby', 'pearl', 'silver', 'bronze', 'copper', 'jade', 'coral', 'indigo', 'violet', 'magenta', 'cyan', 'turquoise', 'teal', 'maroon', 'olive', 'navy', 'plum', 'peach', 'salmon', 'lavender', 'charcoal', 'ivory', 'amber', 'topaz', 'quartz', 'onyx', 'opal', 'neon green', 'electric blue', 'hot pink', 'pitch black', 'snow white', 'ash gray'];
+// Type Traits definitions
+const typeTraits = {
+    "Fire": {
+        bodySizes: ['medium', 'large', 'massive', 'hulking', 'stout'],
+        bodyTypes: ['muscular', 'burly', 'stocky', 'spiky', 'bipedal', 'quadrupedal'],
+        uniqueFeatures: ['smoldering embers', 'flaming mane', 'magma veins', 'ash clouds', 'heat haze'],
+        eyes: ['fiery', 'glowing', 'fierce', 'piercing'],
+        skinFurTypes: ['scaly', 'rough', 'thick', 'leathery', 'stony'],
+        patterns: ['swirls', 'tiger-striped', 'gradient', 'patches'],
+        wingsType: ['none', 'none', 'flame wings', 'leathery wings', 'ash wings'],
+        wingsSize: ['medium', 'large', 'majestic', 'oversized'],
+        clawHorn: ['curved horns', 'spiraling horns', 'razor-sharp claws', 'blunt claws'],
+        teeth: ['wicked fangs', 'protruding fangs', 'sharp teeth'],
+        limbsNum: [2, 4, 4, 6],
+        limbsType: ['sturdy legs', 'paws', 'talons'],
+        tailSize: ['short', 'long', 'whip-like', 'massive'],
+        tailType: ['scaly tail', 'barbed tail', 'clubbed tail'],
+        colorsDesc: ['crimson', 'ruby', 'scarlet', 'golden', 'amber', 'orange', 'obsidian', 'charcoal']
+    },
+    "Water": {
+        bodySizes: ['small', 'medium', 'large', 'colossal', 'rotund'],
+        bodyTypes: ['graceful', 'agile', 'sleek', 'sinuous', 'serpentine', 'floating'],
+        uniqueFeatures: ['flowing water droplets', 'bubble clusters', 'misty aura', 'bioluminescent spots', 'coral growths'],
+        eyes: ['watery', 'calm', 'gentle', 'wide'],
+        skinFurTypes: ['smooth', 'slimy', 'scaly', 'soft', 'translucent'],
+        patterns: ['spots', 'bands', 'dappled', 'mottled'],
+        wingsType: ['none', 'none', 'none', 'webbed wings', 'fin-like wings'],
+        wingsSize: ['tiny', 'small', 'medium', 'large'],
+        clawHorn: ['none', 'none', 'hooked talons', 'smooth fins'],
+        teeth: ['needle-like teeth', 'none', 'sharp teeth'],
+        limbsNum: [0, 0, 4, 8],
+        limbsType: ['flippers', 'tentacles', 'webbed feet'],
+        tailSize: ['sweeping', 'long', 'prehensile', 'twin'],
+        tailType: ['fish-like tail', 'flowing tail', 'paddle tail'],
+        colorsDesc: ['azure', 'sapphire', 'cyan', 'turquoise', 'teal', 'navy', 'aquamarine', 'sea green', 'pearl']
+    },
+    "Nature": {
+        bodySizes: ['tiny', 'small', 'medium', 'diminutive', 'petite'],
+        bodyTypes: ['slender', 'graceful', 'lithe', 'spindly', 'lanky'],
+        uniqueFeatures: ['blooming flora', 'leafy tendrils', 'vine wraps', 'pollen dust', 'bark armor'],
+        eyes: ['gentle', 'compound', 'multiple', 'calm'],
+        skinFurTypes: ['bark-like', 'leafy', 'mossy', 'furry', 'soft'],
+        patterns: ['speckles', 'camouflage', 'patches', 'stippled'],
+        wingsType: ['none', 'none', 'leafy wings', 'insectoid wings', 'gossamer wings'],
+        wingsSize: ['small', 'medium', 'vestigial'],
+        clawHorn: ['none', 'none', 'wooden antlers', 'thorny spikes'],
+        teeth: ['flat teeth', 'none', 'mandibles'],
+        limbsNum: [4, 4, 6, 8],
+        limbsType: ['agile limbs', 'paws', 'jointed appendages'],
+        tailSize: ['short', 'stubby', 'prehensile', 'none'],
+        tailType: ['bushy tail', 'fluffy tail', 'vine-like tail'],
+        colorsDesc: ['emerald', 'jade', 'olive', 'lime', 'forest green', 'brown', 'tan', 'floral pink']
+    },
+    "Electric": {
+        bodySizes: ['miniscule', 'tiny', 'small', 'agile'],
+        bodyTypes: ['agile', 'sleek', 'spiky', 'angular', 'lithe'],
+        uniqueFeatures: ['crackling energy', 'static sparks', 'plasma orbs', 'lightning aura', 'magnetic repulsion'],
+        eyes: ['glowing', 'piercing', 'electric', 'starry'],
+        skinFurTypes: ['smooth', 'bristly', 'metallic', 'prismatic'],
+        patterns: ['zigzag', 'stripes', 'geometric', 'bands'],
+        wingsType: ['none', 'none', 'energy wings', 'mechanical wings'],
+        wingsSize: ['tiny', 'medium', 'asymmetrical'],
+        clawHorn: ['jagged spikes', 'crystal shards', 'metallic horns', 'none'],
+        teeth: ['sharp teeth', 'needle-like teeth', 'none'],
+        limbsNum: [4, 4, 6],
+        limbsType: ['agile limbs', 'mechanical legs', 'paws'],
+        tailSize: ['whip-like', 'long', 'twin'],
+        tailType: ['barbed tail', 'sparking tail', 'cable-like tail'],
+        colorsDesc: ['yellow', 'golden', 'electric blue', 'neon green', 'cyan', 'silver', 'white', 'magenta']
+    },
+    "Ice": {
+        bodySizes: ['small', 'medium', 'large', 'stout', 'blocky'],
+        bodyTypes: ['stout', 'angular', 'blocky', 'burly', 'floating'],
+        uniqueFeatures: ['frost breath', 'icy mist', 'snow flurry', 'frozen crystals', 'chilling aura'],
+        eyes: ['crystalline', 'piercing', 'cold', 'blind'],
+        skinFurTypes: ['woolly', 'thick', 'stony', 'smooth', 'translucent'],
+        patterns: ['checkerboard', 'patches', 'spots'],
+        wingsType: ['none', 'none', 'crystal wings', 'snowy wings'],
+        wingsSize: ['small', 'medium', 'large'],
+        clawHorn: ['crystal shards', 'jagged spikes', 'icy tusks'],
+        teeth: ['tusks', 'sharp teeth', 'none'],
+        limbsNum: [4, 4, 2, 0],
+        limbsType: ['sturdy legs', 'paws', 'flippers'],
+        tailSize: ['stubby', 'short', 'none'],
+        tailType: ['fluffy tail', 'crystalline tail', 'clubbed tail'],
+        colorsDesc: ['snow white', 'ice blue', 'pale blue', 'cyan', 'silver', 'translucent blue', 'frost white']
+    },
+    "Earth": {
+        bodySizes: ['medium', 'large', 'massive', 'hulking', 'colossal'],
+        bodyTypes: ['stout', 'bulky', 'muscular', 'blocky', 'rounded'],
+        uniqueFeatures: ['floating rocks', 'dust clouds', 'gemstone growths', 'sandstone plates', 'muddy aura'],
+        eyes: ['blind', 'narrow', 'calm', 'cyclopic'],
+        skinFurTypes: ['stony', 'rough', 'armored', 'thick', 'leathery'],
+        patterns: ['bands', 'tribal', 'mottled', 'cracked'],
+        wingsType: ['none', 'none', 'none', 'stone wings'],
+        wingsSize: ['small', 'vestigial', 'heavy'],
+        clawHorn: ['blunt claws', 'crushing pincers', 'ramming plates', 'boulder horns'],
+        teeth: ['crushing molars', 'tusks', 'blunt teeth'],
+        limbsNum: [4, 4, 6],
+        limbsType: ['sturdy legs', 'hooves', 'mechanical legs'],
+        tailSize: ['short', 'massive', 'stubby'],
+        tailType: ['clubbed tail', 'spiked mace tail', 'rocky tail'],
+        colorsDesc: ['brown', 'bronze', 'copper', 'ochre', 'slate', 'charcoal', 'amber', 'sand', 'dusty grey']
+    },
+    "Wind": {
+        bodySizes: ['miniscule', 'tiny', 'small', 'slender'],
+        bodyTypes: ['graceful', 'agile', 'lithe', 'floating', 'spindly'],
+        uniqueFeatures: ['whirling winds', 'updraft currents', 'cloud rings', 'feathery trails', 'cyclone aura'],
+        eyes: ['piercing', 'narrow', 'clear', 'wide'],
+        skinFurTypes: ['feathered', 'smooth', 'soft', 'gaseous'],
+        patterns: ['swirls', 'stripes', 'gradient', 'wispy'],
+        wingsType: ['feathered wings', 'gossamer wings', 'energy wings', 'cloud wings'],
+        wingsSize: ['large', 'majestic', 'oversized', 'colossal'],
+        clawHorn: ['none', 'hooked talons', 'smooth crest'],
+        teeth: ['none', 'sharp teeth'],
+        limbsNum: [2, 4],
+        limbsType: ['talons', 'agile limbs', 'ethereal limbs'],
+        tailSize: ['sweeping', 'long', 'flowing', 'twin'],
+        tailType: ['feathered tail', 'flowing tail', 'ribbon-like tail'],
+        colorsDesc: ['white', 'sky blue', 'pale gray', 'silver', 'mint green', 'azure', 'lavender', 'cream']
+    },
+    "Light": {
+        bodySizes: ['small', 'medium', 'graceful', 'towering'],
+        bodyTypes: ['graceful', 'bipedal', 'floating', 'slender', 'radiant'],
+        uniqueFeatures: ['glowing markings', 'ethereal aura', 'halo rings', 'blinding flash', 'prismatic light'],
+        eyes: ['glowing', 'starry', 'gentle', 'hypnotic'],
+        skinFurTypes: ['smooth', 'silky', 'prismatic', 'translucent', 'metallic'],
+        patterns: ['runes', 'gradient', 'geometric', 'sunburst'],
+        wingsType: ['none', 'energy wings', 'feathered wings', 'crystal wings'],
+        wingsSize: ['majestic', 'large', 'oversized', 'colossal'],
+        clawHorn: ['glowing antlers', 'crystal shards', 'none'],
+        teeth: ['none', 'flat teeth'],
+        limbsNum: [2, 4, 0],
+        limbsType: ['graceful legs', 'ethereal limbs', 'hovering bases'],
+        tailSize: ['flowing', 'sweeping', 'long', 'multiple'],
+        tailType: ['flowing tail', 'feathered tail', 'energy tail'],
+        colorsDesc: ['gold', 'white', 'silver', 'pearl', 'ivory', 'yellow', 'pale yellow', 'peach', 'diamond']
+    },
+    "Dark": {
+        bodySizes: ['medium', 'large', 'spindly', 'immense'],
+        bodyTypes: ['spindly', 'lanky', 'serpentine', 'angular', 'shadowy'],
+        uniqueFeatures: ['shadowy wisps', 'void aura', 'dark mist', 'nightmare trails', 'light-absorbing scales'],
+        eyes: ['void-like', 'piercing', 'glowing', 'narrow'],
+        skinFurTypes: ['rough', 'armored', 'slimy', 'gaseous', 'leathery'],
+        patterns: ['tribal', 'camouflage', 'mottled', 'shadowy'],
+        wingsType: ['none', 'shadow wings', 'leathery wings', 'bat-like wings'],
+        wingsSize: ['large', 'majestic', 'asymmetrical', 'vestigial'],
+        clawHorn: ['curved horns', 'jagged spikes', 'razor-sharp claws', 'wicked fangs'],
+        teeth: ['wicked fangs', 'protruding fangs', 'sharp teeth'],
+        limbsNum: [4, 6, 8],
+        limbsType: ['paws', 'talons', 'jointed appendages'],
+        tailSize: ['whip-like', 'prehensile', 'twin', 'multiple'],
+        tailType: ['barbed tail', 'skeletal tail', 'stinger tail'],
+        colorsDesc: ['pitch black', 'obsidian', 'onyx', 'charcoal', 'dark purple', 'indigo', 'midnight blue', 'blood red']
+    },
+    "Cosmic": {
+        bodySizes: ['tiny', 'medium', 'immense', 'colossal', 'floating'],
+        bodyTypes: ['floating', 'serpentine', 'graceful', 'bipedal', 'ethereal'],
+        uniqueFeatures: ['floating orbs', 'starry aura', 'nebula dust', 'meteor fragments', 'gravity waves'],
+        eyes: ['starry', 'multiple', 'hypnotic', 'blind', 'glowing'],
+        skinFurTypes: ['metallic', 'prismatic', 'gaseous', 'smooth', 'translucent'],
+        patterns: ['runes', 'swirls', 'geometric', 'constellation'],
+        wingsType: ['none', 'energy wings', 'gossamer wings', 'starlight wings'],
+        wingsSize: ['colossal', 'majestic', 'oversized'],
+        clawHorn: ['crystal shards', 'glowing antlers', 'none', 'majestic horns'],
+        teeth: ['none', 'flat teeth'],
+        limbsNum: [0, 4, 100],
+        limbsType: ['ethereal limbs', 'tentacles', 'pseudopods'],
+        tailSize: ['massive', 'sweeping', 'multiple', 'none'],
+        tailType: ['flowing tail', 'comet tail', 'stardust tail'],
+        colorsDesc: ['magenta', 'cyan', 'purple', 'amethyst', 'violet', 'deep blue', 'starlight white', 'nebula pink']
+    }
+};
 
 // Seeded random
 let seed = 12345;
@@ -47,31 +204,33 @@ function getRandom(arr) {
 }
 
 baseCreatures.forEach(c => {
-    c.bodySize = getRandom(bodySizes);
-    c.bodyType = getRandom(bodyTypes);
-    c.uniqueFeature = getRandom(uniqueFeatures);
-    c.eyes = getRandom(eyes);
-    c.skinFurType = getRandom(skinFurTypes);
-    c.pattern = getRandom(patterns);
+    const traits = typeTraits[c.type];
 
-    const wType = getRandom(wingsType);
-    c.wings = wType === 'none' ? 'none' : `${getRandom(wingsSize)} ${wType}`;
+    c.bodySize = getRandom(traits.bodySizes);
+    c.bodyType = getRandom(traits.bodyTypes);
+    c.uniqueFeature = getRandom(traits.uniqueFeatures);
+    c.eyes = getRandom(traits.eyes);
+    c.skinFurType = getRandom(traits.skinFurTypes);
+    c.pattern = getRandom(traits.patterns);
 
-    c.clawHorn = getRandom(clawHorn);
-    c.teeth = getRandom(teeth);
+    const wType = getRandom(traits.wingsType);
+    c.wings = wType === 'none' ? 'none' : `${getRandom(traits.wingsSize)} ${wType}`;
 
-    const lNum = getRandom(limbsNum);
-    c.limbs = lNum === 0 ? 'none' : `${lNum} ${getRandom(limbsType)}`;
+    c.clawHorn = getRandom(traits.clawHorn);
+    c.teeth = getRandom(traits.teeth);
 
-    const tSize = getRandom(tailSize);
-    c.tail = tSize === 'none' ? 'none' : `${tSize} ${getRandom(tailType)}`;
+    const lNum = getRandom(traits.limbsNum);
+    c.limbs = lNum === 0 ? 'none' : `${lNum} ${getRandom(traits.limbsType)}`;
 
-    c.eyesColor = getRandom(colorsDesc);
-    c.skinFurColor = getRandom(colorsDesc);
-    c.wingsColor = c.wings === 'none' ? 'none' : getRandom(colorsDesc);
-    c.clawHornColor = c.clawHorn === 'none' ? 'none' : getRandom(colorsDesc);
-    c.tailColor = c.tail === 'none' ? 'none' : getRandom(colorsDesc);
-    c.uniqueFeatureColor = getRandom(colorsDesc);
+    const tSize = getRandom(traits.tailSize);
+    c.tail = tSize === 'none' ? 'none' : `${tSize} ${getRandom(traits.tailType)}`;
+
+    c.eyesColor = getRandom(traits.colorsDesc);
+    c.skinFurColor = getRandom(traits.colorsDesc);
+    c.wingsColor = c.wings === 'none' ? 'none' : getRandom(traits.colorsDesc);
+    c.clawHornColor = c.clawHorn === 'none' ? 'none' : getRandom(traits.colorsDesc);
+    c.tailColor = c.tail === 'none' ? 'none' : getRandom(traits.colorsDesc);
+    c.uniqueFeatureColor = getRandom(traits.colorsDesc);
 
     // Generate description based on new features
     let desc = `A ${c.bodySize}, ${c.bodyType} ${c.type}-type creature. `;
