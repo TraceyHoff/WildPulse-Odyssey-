@@ -2432,6 +2432,24 @@ window.renderPartyList = function() {
         const card = document.createElement('div');
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
+        const typeColors = {
+            "Fire": "rgba(239, 83, 80, 0.4)",
+            "Water": "rgba(66, 165, 245, 0.4)",
+            "Nature": "rgba(102, 187, 106, 0.4)",
+            "Electric": "rgba(255, 235, 59, 0.4)",
+            "Ice": "rgba(129, 212, 250, 0.4)",
+            "Earth": "rgba(141, 110, 99, 0.4)",
+            "Rock": "rgba(189, 189, 189, 0.4)",
+            "Wind": "rgba(179, 229, 252, 0.4)",
+            "Light": "rgba(255, 245, 157, 0.4)",
+            "Dark": "rgba(97, 97, 97, 0.4)",
+            "Cosmic": "rgba(171, 71, 188, 0.4)",
+            "Normal": "rgba(224, 224, 224, 0.4)"
+        };
+        const bgColor = c.type ? (typeColors[c.type.split('-')[0]] || 'rgba(30, 60, 90, 0.4)') : 'rgba(30, 60, 90, 0.4)';
+        card.style.backgroundColor = bgColor;
+
+
         const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
 
         const statsHtml = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].map(stat => {
@@ -2516,6 +2534,24 @@ window.renderStorageList = function() {
         const index = collectedCreatures.findIndex(orig => orig.id === c.id);
         const card = document.createElement('div');
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
+
+        const typeColors = {
+            "Fire": "rgba(239, 83, 80, 0.4)",
+            "Water": "rgba(66, 165, 245, 0.4)",
+            "Nature": "rgba(102, 187, 106, 0.4)",
+            "Electric": "rgba(255, 235, 59, 0.4)",
+            "Ice": "rgba(129, 212, 250, 0.4)",
+            "Earth": "rgba(141, 110, 99, 0.4)",
+            "Rock": "rgba(189, 189, 189, 0.4)",
+            "Wind": "rgba(179, 229, 252, 0.4)",
+            "Light": "rgba(255, 245, 157, 0.4)",
+            "Dark": "rgba(97, 97, 97, 0.4)",
+            "Cosmic": "rgba(171, 71, 188, 0.4)",
+            "Normal": "rgba(224, 224, 224, 0.4)"
+        };
+        const bgColor = c.type ? (typeColors[c.type.split('-')[0]] || 'rgba(30, 60, 90, 0.4)') : 'rgba(30, 60, 90, 0.4)';
+        card.style.backgroundColor = bgColor;
+
 
         const nameHtml = `<h4>${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''}</h4>`;
         const typeHtml = `<p>Lvl ${c.level} | Type: ${c.type} | Gen ${c.generation}</p>`;
@@ -3342,7 +3378,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     let gridY = (r * tileSize) % 400;
     obs.setCrop(gridX, gridY, 100, 100);
     obs.setDisplayOrigin(gridX + 50, gridY + 50);
-    obs.body.setCircle(45);
+    obs.body.setSize(90, 90);
     obs.body.setOffset(5, 5);
     obs.body.x = posX - 45;
     obs.body.y = posY - 45;
@@ -3373,31 +3409,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     }
     if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
         let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex');
-        corner.setAngle(270);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-
-    // Concave corners
-    if (c > 0 && mapData[r][c-1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c-1] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_concave');
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-    if (c < cols-1 && mapData[r][c+1] === 'obs' && r > 0 && mapData[r-1][c] === 'obs' && mapData[r-1][c+1] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_concave');
-        corner.setAngle(90);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-    if (c < cols-1 && mapData[r][c+1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c+1] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_concave');
-        corner.setAngle(180);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-    if (c > 0 && mapData[r][c-1] === 'obs' && r < rows-1 && mapData[r+1][c] === 'obs' && mapData[r+1][c-1] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_concave');
         corner.setAngle(270);
         corner.setDepth(0);
         sprites.push(corner);
