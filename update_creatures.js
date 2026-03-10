@@ -23,7 +23,7 @@ const typeTraits = {
     "Fire": {
         bodySizes: ['medium', 'large', 'massive', 'hulking', 'stout'],
         bodyTypes: ['muscular', 'burly', 'stocky', 'spiky', 'bipedal', 'quadrupedal'],
-        uniqueFeatures: ['smoldering embers', 'flaming mane', 'magma veins', 'ash clouds', 'heat haze'],
+        uniqueFeatures: ['smoldering embers', 'flaming mane', 'magma veins', 'ash clouds', 'heat haze', 'scorching scales', 'molten core', 'fiery breath', 'lava trail', 'volcanic rock'],
         eyes: ['fiery', 'glowing', 'fierce', 'piercing'],
         skinFurTypes: ['scaly', 'rough', 'thick', 'leathery', 'stony'],
         patterns: ['swirling patterns', 'tiger stripes', 'gradient colors', 'ash patches'],
@@ -40,7 +40,7 @@ const typeTraits = {
     "Water": {
         bodySizes: ['small', 'medium', 'large', 'colossal', 'rotund'],
         bodyTypes: ['graceful', 'agile', 'sleek', 'sinuous', 'serpentine', 'floating'],
-        uniqueFeatures: ['flowing water droplets', 'bubble clusters', 'misty aura', 'bioluminescent spots', 'coral growths'],
+        uniqueFeatures: ['flowing water droplets', 'bubble clusters', 'misty aura', 'bioluminescent spots', 'coral growths', 'whirlpool aura', 'tidal wave', 'deep sea glow', 'hydro jet', 'coral reef armor'],
         eyes: ['watery', 'calm', 'gentle', 'wide'],
         skinFurTypes: ['smooth', 'slimy', 'scaly', 'soft', 'translucent'],
         patterns: ['bioluminescent spots', 'wavy bands', 'dappled patterns', 'mottled markings'],
@@ -57,7 +57,7 @@ const typeTraits = {
     "Nature": {
         bodySizes: ['tiny', 'small', 'medium', 'diminutive', 'petite'],
         bodyTypes: ['slender', 'graceful', 'lithe', 'spindly', 'lanky'],
-        uniqueFeatures: ['blooming flora', 'leafy tendrils', 'vine wraps', 'pollen dust', 'bark armor'],
+        uniqueFeatures: ['blooming flora', 'leafy tendrils', 'vine wraps', 'pollen dust', 'bark armor', 'thorny vines', 'poisonous sap', 'rapid growth', 'entangling roots', 'floral crown'],
         eyes: ['gentle', 'compound', 'multiple', 'calm'],
         skinFurTypes: ['bark-like', 'leafy', 'mossy', 'furry', 'soft'],
         patterns: ['leafy speckles', 'natural camouflage', 'mossy patches', 'stippled marks'],
@@ -74,7 +74,7 @@ const typeTraits = {
     "Electric": {
         bodySizes: ['miniscule', 'tiny', 'small', 'agile'],
         bodyTypes: ['agile', 'sleek', 'spiky', 'angular', 'lithe'],
-        uniqueFeatures: ['crackling energy', 'static sparks', 'plasma orbs', 'lightning aura', 'magnetic repulsion'],
+        uniqueFeatures: ['crackling energy', 'static sparks', 'plasma orbs', 'lightning aura', 'magnetic repulsion', 'thunderclap', 'static charge', 'lightning rod', 'shock wave', 'plasma pulse'],
         eyes: ['glowing', 'piercing', 'electric', 'starry'],
         skinFurTypes: ['smooth', 'bristly', 'metallic', 'prismatic'],
         patterns: ['zigzag lines', 'electric stripes', 'geometric patterns', 'glowing bands'],
@@ -91,7 +91,7 @@ const typeTraits = {
     "Ice": {
         bodySizes: ['small', 'medium', 'large', 'stout', 'blocky'],
         bodyTypes: ['stout', 'angular', 'blocky', 'burly', 'floating'],
-        uniqueFeatures: ['frost breath', 'icy mist', 'snow flurry', 'frozen crystals', 'chilling aura'],
+        uniqueFeatures: ['frost breath', 'icy mist', 'snow flurry', 'frozen crystals', 'chilling aura', 'blizzard aura', 'icicle barrage', 'permafrost coating', 'freezing touch', 'glacier shield'],
         eyes: ['crystalline', 'piercing', 'cold', 'blind'],
         skinFurTypes: ['woolly', 'thick', 'stony', 'smooth', 'translucent'],
         patterns: ['checkerboard patterns', 'frost patches', 'icy spots'],
@@ -108,7 +108,7 @@ const typeTraits = {
     "Earth": {
         bodySizes: ['medium', 'large', 'massive', 'hulking', 'colossal'],
         bodyTypes: ['stout', 'bulky', 'muscular', 'blocky', 'rounded'],
-        uniqueFeatures: ['floating rocks', 'dust clouds', 'gemstone growths', 'sandstone plates', 'muddy aura'],
+        uniqueFeatures: ['floating rocks', 'dust clouds', 'gemstone growths', 'sandstone plates', 'muddy aura', 'tremor step', 'bedrock armor', 'sandstorm aura', 'crystal spikes', 'seismic slam'],
         eyes: ['blind', 'narrow', 'calm', 'cyclopic'],
         skinFurTypes: ['stony', 'rough', 'armored', 'thick', 'leathery'],
         patterns: ['earthen bands', 'tribal markings', 'mottled rocks', 'cracked lines'],
@@ -125,7 +125,7 @@ const typeTraits = {
     "Wind": {
         bodySizes: ['miniscule', 'tiny', 'small', 'slender'],
         bodyTypes: ['graceful', 'agile', 'lithe', 'floating', 'spindly'],
-        uniqueFeatures: ['whirling winds', 'updraft currents', 'cloud rings', 'feathery trails', 'cyclone aura'],
+        uniqueFeatures: ['whirling winds', 'updraft currents', 'cloud rings', 'feathery trails', 'cyclone aura', 'tornado tail', 'cyclone blast', 'soaring draft', 'gale force', 'hurricane eye'],
         eyes: ['piercing', 'narrow', 'clear', 'wide'],
         skinFurTypes: ['feathered', 'smooth', 'soft', 'gaseous'],
         patterns: ['wind swirls', 'breezy stripes', 'gradient colors', 'wispy trails'],
@@ -142,7 +142,7 @@ const typeTraits = {
     "Light": {
         bodySizes: ['small', 'medium', 'graceful', 'towering'],
         bodyTypes: ['graceful', 'bipedal', 'floating', 'slender', 'radiant'],
-        uniqueFeatures: ['glowing markings', 'ethereal aura', 'halo rings', 'blinding flash', 'prismatic light'],
+        uniqueFeatures: ['glowing markings', 'ethereal aura', 'halo rings', 'blinding flash', 'prismatic light', 'radiant beam', 'solar flare', 'luminous halo', 'divine spark', 'blinding glow'],
         eyes: ['glowing', 'starry', 'gentle', 'hypnotic'],
         skinFurTypes: ['smooth', 'silky', 'prismatic', 'translucent', 'metallic'],
         patterns: ['glowing runes', 'radiant gradient', 'geometric shapes', 'sunburst designs'],
@@ -159,7 +159,7 @@ const typeTraits = {
     "Dark": {
         bodySizes: ['medium', 'large', 'spindly', 'immense'],
         bodyTypes: ['spindly', 'lanky', 'serpentine', 'angular', 'shadowy'],
-        uniqueFeatures: ['shadowy wisps', 'void aura', 'dark mist', 'nightmare trails', 'light-absorbing scales'],
+        uniqueFeatures: ['shadowy wisps', 'void aura', 'dark mist', 'nightmare trails', 'light-absorbing scales', 'shadow cloak', 'abyssal gaze', 'nightmare aura', 'void strike', 'eclipse shadow'],
         eyes: ['void-like', 'piercing', 'glowing', 'narrow'],
         skinFurTypes: ['rough', 'armored', 'slimy', 'gaseous', 'leathery'],
         patterns: ['shadow tribal marks', 'dark camouflage', 'mottled shadows', 'shadowy patches'],
@@ -176,7 +176,7 @@ const typeTraits = {
     "Cosmic": {
         bodySizes: ['tiny', 'medium', 'immense', 'colossal', 'floating'],
         bodyTypes: ['floating', 'serpentine', 'graceful', 'bipedal', 'ethereal'],
-        uniqueFeatures: ['floating orbs', 'starry aura', 'nebula dust', 'meteor fragments', 'gravity waves'],
+        uniqueFeatures: ['floating orbs', 'starry aura', 'nebula dust', 'meteor fragments', 'gravity waves', 'starlight burst', 'meteor shower', 'black hole core', 'supernova flash', 'galactic spiral'],
         eyes: ['starry', 'multiple', 'hypnotic', 'blind', 'glowing'],
         skinFurTypes: ['metallic', 'prismatic', 'gaseous', 'smooth', 'translucent'],
         patterns: ['cosmic runes', 'nebula swirls', 'geometric stars', 'constellation patterns'],
