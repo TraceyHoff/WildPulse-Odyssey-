@@ -72,3 +72,10 @@ WildPulse Odyssey Creature Collecting Game
   - The game no longer instantiates the entire 200x200 tile world upfront, saving massive amounts of memory and preventing initial load hanging.
   - Background tiles, animated water, corners, and drop shadows are dynamically created and destroyed in real-time as the player moves.
   - Off-screen creatures and remote multiplayer entities are culled from rendering while preserving their background AI and wandering behaviors, leading to substantially improved framerates on large maps.
+### New Features (v10)
+
+- **Lake Optimization**: Lake generation is significantly smaller and more circular, replacing the large blocky shapes. Collision is updated to match.
+- **Visual Fixes**: Resolved seams within water tiles by removing overlays and adjusting corner radiuses to 50px for smooth integration.
+- **Smooth Movement**: Disabled `roundPixels` in the rendering configuration to fix ground tile jittering during player movement.
+- **Battle Flow**: Removed the close button from the battle interface, preventing players from fleeing active encounters.
+- **Progression Tuning**: Reduced base experience gained from winning battles by 50% to improve pacing.
