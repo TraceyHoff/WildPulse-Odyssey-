@@ -75,7 +75,12 @@ WildPulse Odyssey Creature Collecting Game
 ### New Features (v10)
 
 - **Lake Optimization**: Lake generation is significantly smaller and more circular, replacing the large blocky shapes. Collision is updated to match.
-- **Visual Fixes**: Resolved seams within water tiles by removing overlays and adjusting corner radiuses to 50px for smooth integration.
+- **Visual Fixes**: Resolved seams within water tiles by removing overlays and adjusting corner radiuses to 50px for smooth integration. Fixed an issue where the grass texture on water edge corners was rotated incorrectly by generating specific directional cutouts instead of rotating the canvas.
 - **Smooth Movement**: Disabled `roundPixels` in the rendering configuration to fix ground tile jittering during player movement.
 - **Battle Flow**: Removed the close button from the battle interface, preventing players from fleeing active encounters.
 - **Progression Tuning**: Reduced base experience gained from winning battles by 50% to improve pacing.
+
+### New Features (v11)
+- **Breeding Flexibility**: Removed type compatibility restrictions for Generation 1 creatures, allowing any two Gen 1 creatures to breed regardless of their elements.
+- **Dual-Type Combat Expansion**: Programmatically generated strengths and weaknesses for all possible Generation 2 dual-type combinations.
+- **Expanded Help Modal**: Updated the "How to Play" section to feature two distinct, scrollable type matchup charts—one for single types (Gen 1) and a new expanded chart covering all dual-type combinations (Gen 2).
