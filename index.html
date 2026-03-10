@@ -2433,21 +2433,24 @@ window.renderPartyList = function() {
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
         const typeColors = {
-            "Fire": "rgba(239, 83, 80, 0.4)",
-            "Water": "rgba(66, 165, 245, 0.4)",
-            "Nature": "rgba(102, 187, 106, 0.4)",
-            "Electric": "rgba(255, 235, 59, 0.4)",
-            "Ice": "rgba(129, 212, 250, 0.4)",
-            "Earth": "rgba(141, 110, 99, 0.4)",
-            "Rock": "rgba(189, 189, 189, 0.4)",
-            "Wind": "rgba(179, 229, 252, 0.4)",
-            "Light": "rgba(255, 245, 157, 0.4)",
-            "Dark": "rgba(97, 97, 97, 0.4)",
-            "Cosmic": "rgba(171, 71, 188, 0.4)",
-            "Normal": "rgba(224, 224, 224, 0.4)"
+            "Fire": "rgba(229, 57, 53, 0.8)",
+            "Water": "rgba(30, 136, 229, 0.8)",
+            "Nature": "rgba(67, 160, 71, 0.8)",
+            "Electric": "rgba(253, 216, 53, 0.8)",
+            "Ice": "rgba(3, 169, 244, 0.8)",
+            "Earth": "rgba(109, 76, 65, 0.8)",
+            "Rock": "rgba(117, 117, 117, 0.8)",
+            "Wind": "rgba(129, 212, 250, 0.8)",
+            "Light": "rgba(255, 238, 88, 0.8)",
+            "Dark": "rgba(33, 33, 33, 0.8)",
+            "Cosmic": "rgba(142, 36, 170, 0.8)",
+            "Normal": "rgba(158, 158, 158, 0.8)"
         };
-        const bgColor = c.type ? (typeColors[c.type.split('-')[0]] || 'rgba(30, 60, 90, 0.4)') : 'rgba(30, 60, 90, 0.4)';
-        card.style.backgroundColor = bgColor;
+        const types = c.type ? c.type.split('-') : [];
+        const color1 = typeColors[types[0]] || 'rgba(30, 60, 90, 0.8)';
+        const color2 = types.length > 1 ? (typeColors[types[1]] || color1) : color1;
+        card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
+        card.style.backgroundColor = 'transparent';
 
 
         const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
@@ -2536,21 +2539,24 @@ window.renderStorageList = function() {
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
         const typeColors = {
-            "Fire": "rgba(239, 83, 80, 0.4)",
-            "Water": "rgba(66, 165, 245, 0.4)",
-            "Nature": "rgba(102, 187, 106, 0.4)",
-            "Electric": "rgba(255, 235, 59, 0.4)",
-            "Ice": "rgba(129, 212, 250, 0.4)",
-            "Earth": "rgba(141, 110, 99, 0.4)",
-            "Rock": "rgba(189, 189, 189, 0.4)",
-            "Wind": "rgba(179, 229, 252, 0.4)",
-            "Light": "rgba(255, 245, 157, 0.4)",
-            "Dark": "rgba(97, 97, 97, 0.4)",
-            "Cosmic": "rgba(171, 71, 188, 0.4)",
-            "Normal": "rgba(224, 224, 224, 0.4)"
+            "Fire": "rgba(229, 57, 53, 0.8)",
+            "Water": "rgba(30, 136, 229, 0.8)",
+            "Nature": "rgba(67, 160, 71, 0.8)",
+            "Electric": "rgba(253, 216, 53, 0.8)",
+            "Ice": "rgba(3, 169, 244, 0.8)",
+            "Earth": "rgba(109, 76, 65, 0.8)",
+            "Rock": "rgba(117, 117, 117, 0.8)",
+            "Wind": "rgba(129, 212, 250, 0.8)",
+            "Light": "rgba(255, 238, 88, 0.8)",
+            "Dark": "rgba(33, 33, 33, 0.8)",
+            "Cosmic": "rgba(142, 36, 170, 0.8)",
+            "Normal": "rgba(158, 158, 158, 0.8)"
         };
-        const bgColor = c.type ? (typeColors[c.type.split('-')[0]] || 'rgba(30, 60, 90, 0.4)') : 'rgba(30, 60, 90, 0.4)';
-        card.style.backgroundColor = bgColor;
+        const types = c.type ? c.type.split('-') : [];
+        const color1 = typeColors[types[0]] || 'rgba(30, 60, 90, 0.8)';
+        const color2 = types.length > 1 ? (typeColors[types[1]] || color1) : color1;
+        card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
+        card.style.backgroundColor = 'transparent';
 
 
         const nameHtml = `<h4>${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''}</h4>`;
@@ -3317,35 +3323,36 @@ function preload() {
         this.textures.addCanvas('foam_tex_' + frame, foamCanvas);
     }
 
-    // Generate rounded corner cutouts (12px radius to match buttons)
-    // Convex corner (outer edge of water, grass cuts into the water square)
-    const convexCanvas = document.createElement('canvas');
-    convexCanvas.width = 50;
-    convexCanvas.height = 50;
-    const convexCtx = convexCanvas.getContext('2d');
-    convexCtx.fillStyle = '#1a661a'; // Grass color
-    convexCtx.fillRect(0, 0, 50, 50);
-    convexCtx.globalCompositeOperation = 'destination-out';
-    convexCtx.beginPath();
-    convexCtx.arc(50, 50, 50, 0, Math.PI * 2);
-    convexCtx.fill();
-    this.textures.addCanvas('grass_corner_convex', convexCanvas);
+    // Generate rounded corner cutouts
+    for (let frame = 0; frame < 12; frame++) {
+        // Convex corner (outer edge of water, grass cuts into the water square)
+        const convexCanvas = document.createElement('canvas');
+        convexCanvas.width = 50;
+        convexCanvas.height = 50;
+        const convexCtx = convexCanvas.getContext('2d');
+        // Draw the procedural grass texture instead of solid color
+        convexCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), 0, 0, 50, 50, 0, 0, 50, 50);
+        convexCtx.globalCompositeOperation = 'destination-out';
+        convexCtx.beginPath();
+        convexCtx.arc(50, 50, 50, 0, Math.PI * 2);
+        convexCtx.fill();
+        this.textures.addCanvas('grass_corner_convex_' + frame, convexCanvas);
 
-    // Concave corner (inner edge of water, water cuts into the grass square)
-    const concaveCanvas = document.createElement('canvas');
-    concaveCanvas.width = 50;
-    concaveCanvas.height = 50;
-    const concaveCtx = concaveCanvas.getContext('2d');
-    // Draw a water-colored square, then cut out a grass-colored circle
-    // Actually, it's easier to just draw the grass filling the corner
-    concaveCtx.fillStyle = '#1a661a'; // Grass color
-    concaveCtx.beginPath();
-    concaveCtx.moveTo(0, 0);
-    concaveCtx.lineTo(50, 0);
-    concaveCtx.arc(0, 0, 50, 0, Math.PI / 2, false);
-    concaveCtx.lineTo(0, 0);
-    concaveCtx.fill();
-    this.textures.addCanvas('grass_corner_concave', concaveCanvas);
+        // Concave corner (inner edge of water, water cuts into the grass square)
+        const concaveCanvas = document.createElement('canvas');
+        concaveCanvas.width = 50;
+        concaveCanvas.height = 50;
+        const concaveCtx = concaveCanvas.getContext('2d');
+        concaveCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), 0, 0, 50, 50, 0, 0, 50, 50);
+        concaveCtx.globalCompositeOperation = 'destination-in';
+        concaveCtx.beginPath();
+        concaveCtx.moveTo(0, 0);
+        concaveCtx.lineTo(50, 0);
+        concaveCtx.arc(0, 0, 50, 0, Math.PI / 2, false);
+        concaveCtx.lineTo(0, 0);
+        concaveCtx.fill();
+        this.textures.addCanvas('grass_corner_concave_' + frame, concaveCanvas);
+    }
 
     // Pre-generate a water overlay texture to mimic the linear-gradient button style
     const overlayCanvas = document.createElement('canvas');
@@ -3389,31 +3396,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     // Add overlay
 
 
-    // Convex corners
-    if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex');
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-    if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex');
-        corner.setAngle(90);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-    if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex');
-        corner.setAngle(180);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-    if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex');
-        corner.setAngle(270);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-
     // Foams
     if (c > 0 && mapData[r][c-1] === 'grass') {
         let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
@@ -3441,6 +3423,35 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         foam.anims.play('foam_anim', true);
         foam.setDepth(0);
         sprites.push(foam);
+    }
+
+    // Convex corners
+    if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
+        let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_0');
+        corner.anims.play('grass_corner_anim', true);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
+        let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_0');
+        corner.setAngle(90);
+        corner.anims.play('grass_corner_anim', true);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
+        let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_0');
+        corner.setAngle(180);
+        corner.anims.play('grass_corner_anim', true);
+        corner.setDepth(0);
+        sprites.push(corner);
+    }
+    if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
+        let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_0');
+        corner.setAngle(270);
+        corner.anims.play('grass_corner_anim', true);
+        corner.setDepth(0);
+        sprites.push(corner);
     }
 
     return sprites;
@@ -3474,9 +3485,21 @@ function create() {
         foamFrames.push({ key: 'foam_tex_' + i });
     }
 
+    let grassCornerFrames = [];
+    for(let i = 0; i < 12; i++) {
+        grassCornerFrames.push({ key: 'grass_corner_convex_' + i });
+    }
+
     this.anims.create({
         key: 'water_anim',
         frames: waterFrames,
+        frameRate: 8,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'grass_corner_anim',
+        frames: grassCornerFrames,
         frameRate: 8,
         repeat: -1
     });
