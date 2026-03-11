@@ -84,3 +84,7 @@ WildPulse Odyssey Creature Collecting Game
 - **Breeding Flexibility**: Removed type compatibility restrictions for Generation 1 creatures, allowing any two Gen 1 creatures to breed regardless of their elements.
 - **Dual-Type Combat Expansion**: Programmatically generated strengths and weaknesses for all possible Generation 2 dual-type combinations.
 - **Expanded Help Modal**: Updated the "How to Play" section to feature two distinct, scrollable type matchup charts—one for single types (Gen 1) and a new expanded chart covering all dual-type combinations (Gen 2).
+
+### New Features (v12)
+- **Rendering & Visual Fixes**: Migrated grass tiles to use dynamic viewport culling instead of a single static background `TileSprite`, successfully stopping them from shaking/jittering when the player moves.
+- **UI Enhancements**: Changed the text color of positive stat modifiers (Effects) on creature cards from standard green to a more visible lime to improve contrast and readability against the dark backgrounds.
