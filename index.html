@@ -190,7 +190,7 @@
             text-align: center;
             min-width: 250px;
         }
-        #menuModal button, #partyModal > button, #storageModal > button, #breedingModal button, #helpModal button {
+        #menuModal button, #partyModal > button, #storageModal > button, #breedingModal button, #helpModal button, #tradeModal button {
             display: block;
             width: 100%;
             margin: 10px 0;
@@ -204,14 +204,14 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        #menuModal button:hover, #partyModal > button:hover, #storageModal > button:hover, #breedingModal button:hover, #helpModal button:hover {
+        #menuModal button:hover, #partyModal > button:hover, #storageModal > button:hover, #breedingModal button:hover, #helpModal button:hover, #tradeModal button:hover {
             transform: scale(1.05);
             filter: brightness(1.2);
             box-shadow: 0 0 15px rgba(0,255,100,0.6);
         }
         #menuModal button#breedBtn { background: linear-gradient(180deg, #ffca28, #ff8f00); border-color: #ffe082; color: #333; text-shadow: none; }
-        #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button { background: linear-gradient(180deg, #555, #222); border-color: #777; }
-        #breedingModal button:first-of-type { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
+        #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn { background: linear-gradient(180deg, #555, #222); border-color: #777; }
+        #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
 
         #lobbyModal {
             display: block;
@@ -290,6 +290,20 @@
             color: white;
             z-index: 600;
             text-align: center;
+        }
+
+        #tradeModal {
+            display: none;
+            position: absolute;
+            color: white;
+            z-index: 700;
+            text-align: center;
+        }
+
+        #tradeModal select, #tradeModal button {
+            margin: 10px;
+            padding: 8px 15px;
+            font-size: 16px;
         }
 
         #levelUpModal button {
@@ -443,6 +457,29 @@
     <button class="close-breeding-btn">Close</button>
     <p id="breedResult"></p>
 </div>
+
+<div id="tradeModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn close-trade-btn" aria-label="Close Trade">X</button>
+    <h2>Trade Center</h2>
+    <div id="tradeSection">
+        <label>Select Creature to Trade:</label>
+        <select id="tradeCreatureSelect"></select>
+        <br>
+        <label>Select Player to Trade With:</label>
+        <select id="tradePlayerSelect"></select>
+        <button id="sendTradeBtn">Send Trade Offer</button>
+    </div>
+    <div id="tradeIncomingSection" style="display:none; margin-top:20px; border-top:1px solid #555; padding-top:10px;">
+        <h3>Incoming Trade Offer!</h3>
+        <p id="tradeOfferText"></p>
+        <button id="acceptTradeBtn" style="background: linear-gradient(180deg, #4caf50, #388e3c);">Accept Trade</button>
+        <button id="rejectTradeBtn" style="background: linear-gradient(180deg, #f44336, #d32f2f);">Reject Trade</button>
+    </div>
+    <button class="close-trade-btn">Close</button>
+    <p id="tradeResult"></p>
+    </div>
+</div>
 <script>
 function escapeHtml(unsafe) {
     return (unsafe || '').toString()
@@ -480,6 +517,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', closeBreedingModal));
     document.querySelectorAll('.close-levelup-btn').forEach(btn => btn.addEventListener('click', closeLevelUpModal));
     document.getElementById('battleCloseBtn')?.addEventListener('click', closeBattleModal);
+
+    document.querySelectorAll('.close-trade-btn').forEach(btn => btn.addEventListener('click', closeTradeModal));
+    document.getElementById('sendTradeBtn')?.addEventListener('click', sendTradeOffer);
+    document.getElementById('acceptTradeBtn')?.addEventListener('click', acceptTradeOffer);
+    document.getElementById('rejectTradeBtn')?.addEventListener('click', rejectTradeOffer);
 });
 
 document.addEventListener('click', function(e) {
@@ -3119,6 +3161,109 @@ window.doBreed = function() {
     }
 };
 
+// ==================== TRADE ====================
+let pendingTradeOffer = null;
+
+window.openTradeModal = function() {
+    if (inBattle) return;
+    const s1 = document.getElementById('tradeCreatureSelect');
+    populateSelect(s1);
+
+    const s2 = document.getElementById('tradePlayerSelect');
+    s2.innerHTML = '';
+    Object.keys(remotePlayers).forEach(userId => {
+        const option = document.createElement('option');
+        option.value = userId;
+        option.text = `Player ${userId.substring(0, 5)}...`;
+        s2.appendChild(option);
+    });
+
+    if (Object.keys(remotePlayers).length === 0) {
+        const option = document.createElement('option');
+        option.value = "";
+        option.text = "No players nearby";
+        s2.appendChild(option);
+    }
+
+    document.getElementById('tradeResult').innerText = '';
+    document.getElementById('tradeModal').style.display = 'block';
+};
+
+window.closeTradeModal = function() {
+    let _m_tradeModal = document.getElementById('tradeModal');
+    _m_tradeModal.children[0].classList.add('modal-fade-out');
+    setTimeout(() => {
+        _m_tradeModal.style.display = 'none';
+        _m_tradeModal.children[0].classList.remove('modal-fade-out');
+    }, 190);
+};
+
+window.sendTradeOffer = function() {
+    const creatureId = document.getElementById('tradeCreatureSelect').value;
+    const targetUserId = document.getElementById('tradePlayerSelect').value;
+
+    if (!creatureId || !targetUserId) {
+        document.getElementById('tradeResult').innerText = "Please select a creature and a player.";
+        return;
+    }
+
+    // Don't trade if only 1 active creature
+    const activeParty = collectedCreatures.filter(c => !c.stored);
+    if (activeParty.length <= 1) {
+        const c = collectedCreatures.find(c => String(c.id) === String(creatureId));
+        if (!c.stored) {
+             document.getElementById('tradeResult').innerText = "You cannot trade your last active creature!";
+             return;
+        }
+    }
+
+    const creature = collectedCreatures.find(c => String(c.id) === String(creatureId));
+
+    if (dataChannels[targetUserId] && dataChannels[targetUserId].readyState === 'open') {
+        dataChannels[targetUserId].send(JSON.stringify({
+            type: 'trade_offer',
+            creature: creature
+        }));
+        document.getElementById('tradeResult').innerText = "Trade offer sent!";
+    } else {
+        document.getElementById('tradeResult').innerText = "Could not connect to player.";
+    }
+};
+
+window.acceptTradeOffer = function() {
+    if (!pendingTradeOffer) return;
+
+    // We only receive trades, meaning we just add the creature to our collection.
+    // In a full implementation, both sides would offer a creature.
+    saveCollected(pendingTradeOffer.creature);
+
+    if (dataChannels[pendingTradeOffer.from] && dataChannels[pendingTradeOffer.from].readyState === 'open') {
+        dataChannels[pendingTradeOffer.from].send(JSON.stringify({
+            type: 'trade_accept',
+            creatureId: pendingTradeOffer.creature.id
+        }));
+    }
+
+    document.getElementById('tradeIncomingSection').style.display = 'none';
+    document.getElementById('tradeResult').innerText = `Received ${pendingTradeOffer.creature.name}!`;
+    pendingTradeOffer = null;
+    window.renderPartyList();
+};
+
+window.rejectTradeOffer = function() {
+    if (!pendingTradeOffer) return;
+
+    if (dataChannels[pendingTradeOffer.from] && dataChannels[pendingTradeOffer.from].readyState === 'open') {
+        dataChannels[pendingTradeOffer.from].send(JSON.stringify({
+            type: 'trade_reject'
+        }));
+    }
+
+    document.getElementById('tradeIncomingSection').style.display = 'none';
+    document.getElementById('tradeResult').innerText = "Trade offer rejected.";
+    pendingTradeOffer = null;
+};
+
 // ==================== MULTIPLAYER LOBBY ====================
 let multiplayerRoom = null;
 let socket = null;
@@ -3293,7 +3438,24 @@ function setupDataChannel(dc, userId) {
             if (msg.type === 'ping') {
                 return;
             }
-            if (window.handleMultiplayerMessage) {
+            if (msg.type === 'trade_offer') {
+                pendingTradeOffer = {
+                    from: userId,
+                    creature: msg.creature
+                };
+                document.getElementById('tradeIncomingSection').style.display = 'block';
+                document.getElementById('tradeOfferText').innerText = `Player ${userId.substring(0, 5)}... offered a Level ${msg.creature.level} ${msg.creature.name}!`;
+            } else if (msg.type === 'trade_accept') {
+                // Remove the creature from our party
+                const index = collectedCreatures.findIndex(c => String(c.id) === String(msg.creatureId));
+                if (index !== -1) {
+                    collectedCreatures.splice(index, 1);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+                    document.getElementById('tradeResult').innerText = `Trade accepted! Player ${userId.substring(0, 5)}... took the creature.`;
+                }
+            } else if (msg.type === 'trade_reject') {
+                document.getElementById('tradeResult').innerText = `Player ${userId.substring(0, 5)}... rejected your trade offer.`;
+            } else if (window.handleMultiplayerMessage) {
                 window.handleMultiplayerMessage(userId, msg);
             }
         } catch (e) {
@@ -3713,11 +3875,45 @@ function preload() {
     arrowCtx.lineTo(0, 40); // Bottom left
     arrowCtx.fill();
     this.textures.addCanvas('arrow_tex', arrowCanvas);
+
+    // Pre-generate Trade Tile texture
+    const tradeCanvas = document.createElement('canvas');
+    tradeCanvas.width = 100;
+    tradeCanvas.height = 100;
+    const tradeCtx = tradeCanvas.getContext('2d');
+    tradeCtx.fillStyle = '#ADD8E6'; // Light blue
+    tradeCtx.fillRect(0, 0, 100, 100);
+
+    // Draw white arrows
+    tradeCtx.fillStyle = '#FFFFFF';
+    // Right facing arrow (top)
+    tradeCtx.beginPath();
+    tradeCtx.moveTo(30, 30);
+    tradeCtx.lineTo(60, 30);
+    tradeCtx.lineTo(60, 20);
+    tradeCtx.lineTo(80, 40);
+    tradeCtx.lineTo(60, 60);
+    tradeCtx.lineTo(60, 50);
+    tradeCtx.lineTo(30, 50);
+    tradeCtx.fill();
+
+    // Left facing arrow (bottom)
+    tradeCtx.beginPath();
+    tradeCtx.moveTo(70, 70);
+    tradeCtx.lineTo(40, 70);
+    tradeCtx.lineTo(40, 80);
+    tradeCtx.lineTo(20, 60);
+    tradeCtx.lineTo(40, 40);
+    tradeCtx.lineTo(40, 50);
+    tradeCtx.lineTo(70, 50);
+    tradeCtx.fill();
+    this.textures.addCanvas('trade_tile', tradeCanvas);
 }
 
 let mapData = []; // To store 100x100 grid data
 let obstaclesGroup;
 let hospitalGroup;
+let tradeGroup;
 let activeTiles = {}; // Track active viewport tiles to cull
 
 function spawnTile(scene, r, c, tileSize, cols, rows) {
@@ -3740,6 +3936,17 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             let hSprite = hospitalGroup.create(posX, posY, 'hospital_tile');
             hSprite.setVisible(false); // Make physics body invisible since we render sprite
             sprites.push(hSprite);
+        }
+    } else if (mapData[r][c] === 'trade') {
+        let trade = scene.add.sprite(posX, posY, 'trade_tile');
+        trade.setDepth(-1);
+        sprites.push(trade);
+
+        // Add to trade physics group
+        if (tradeGroup) {
+            let tSprite = tradeGroup.create(posX, posY, 'trade_tile');
+            tSprite.setVisible(false);
+            sprites.push(tSprite);
         }
     } else {
         // Add drop shadow
@@ -3838,6 +4045,7 @@ function create() {
     // Fill background with grass
     obstaclesGroup = this.physics.add.staticGroup();
     hospitalGroup = this.physics.add.staticGroup();
+    tradeGroup = this.physics.add.staticGroup();
 
     // Create water animation globally so it can be played on sprites
     let waterFrames = [];
@@ -3936,7 +4144,10 @@ function create() {
                         let nx = ox + x;
                         let ny = oy + y;
                         if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
-                            mapData[ny][nx] = 'obs';
+                            // Ensure water tiles don't spawn within 10 tiles of hospital (100, 100)
+                            if (Math.hypot(nx - 100, ny - 100) > 10) {
+                                mapData[ny][nx] = 'obs';
+                            }
                         }
                     }
                 }
@@ -3946,6 +4157,8 @@ function create() {
 
     // Force hospital to be at 100, 100
     mapData[100][100] = 'hospital';
+    // Trade tile directly south
+    mapData[101][100] = 'trade';
 
     // Tiles are no longer instantiated upfront. They will be instantiated
     // dynamically in the update() loop based on the viewport.
@@ -3984,15 +4197,16 @@ function create() {
     window.hospitalArrow = hospitalArrow;
 
     // Popup Layer
-    popupBackground = this.add.rectangle(window.innerWidth / 2, window.innerHeight - 100, 600, 150, 0x000000, 0.8)
+    popupBackground = this.add.rectangle(window.innerWidth / 2, 40, 400, 60, 0x000000, 0.8)
         .setScrollFactor(0)
-        .setOrigin(0.5);
-    popupText = this.add.text(window.innerWidth / 2, window.innerHeight - 100, "", {
+        .setOrigin(0.5)
+        .setDepth(9999);
+    popupText = this.add.text(window.innerWidth / 2, 40, "", {
         fontSize: '18px',
         fill: '#FFF',
         align: 'center',
-        wordWrap: { width: 560 }
-    }).setScrollFactor(0).setOrigin(0.5);
+        wordWrap: { width: 380 }
+    }).setScrollFactor(0).setOrigin(0.5).setDepth(10000);
 
     popupBackground.setVisible(false);
     popupText.setVisible(false);
@@ -4023,8 +4237,8 @@ function create() {
 
     // Resize handling for popup
     this.scale.on('resize', (gameSize) => {
-        popupBackground.setPosition(gameSize.width / 2, gameSize.height - 100);
-        popupText.setPosition(gameSize.width / 2, gameSize.height - 100);
+        popupBackground.setPosition(gameSize.width / 2, 40);
+        popupText.setPosition(gameSize.width / 2, 40);
 
         if (dayNightOverlay) {
             dayNightOverlay.setSize(gameSize.width, gameSize.height);
@@ -4092,6 +4306,7 @@ function create() {
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
+    this.physics.add.overlap(player, tradeGroup, openTradeModal, null, this);
 }
 
 function healParty(playerCollider, hospitalCollider) {
@@ -4229,7 +4444,27 @@ function collectCreature(playerCollider, creatureSprite) {
     if (inBattle) return;
     if (playerCollider.lastBattleTime && this.time.now - playerCollider.lastBattleTime < 5000) return;
 
-    const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'lobbyModal', 'levelUpModal'];
+    // Prevent battles when hospital or trade tile is on screen
+    const cam = this.cameras.main;
+    const viewPadding = 50; // Add slight padding
+    const viewLeft = cam.scrollX - viewPadding;
+    const viewRight = cam.scrollX + cam.width + viewPadding;
+    const viewTop = cam.scrollY - viewPadding;
+    const viewBottom = cam.scrollY + cam.height + viewPadding;
+
+    // Hospital Tile (100, 100) -> Center pixel coords: (100 * 100 + 50, 100 * 100 + 50)
+    const hospitalX = 100 * 100 + 50;
+    const hospitalY = 100 * 100 + 50;
+    const hospitalOnScreen = (hospitalX >= viewLeft && hospitalX <= viewRight && hospitalY >= viewTop && hospitalY <= viewBottom);
+
+    // Trade Tile (101, 100) -> Center pixel coords: (100 * 100 + 50, 101 * 100 + 50)
+    const tradeX = 100 * 100 + 50;
+    const tradeY = 101 * 100 + 50;
+    const tradeOnScreen = (tradeX >= viewLeft && tradeX <= viewRight && tradeY >= viewTop && tradeY <= viewBottom);
+
+    if (hospitalOnScreen || tradeOnScreen) return;
+
+    const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'lobbyModal', 'levelUpModal', 'tradeModal'];
     const isAnyModalOpen = modals.some(id => {
         const el = document.getElementById(id);
         return el && window.getComputedStyle(el).display !== 'none';
@@ -4813,14 +5048,14 @@ function update() {
 
     // Calculate alpha
     let targetAlpha = 0;
-    if (dayNightTime >= 6 && dayNightTime <= 18) {
-        targetAlpha = 0;
-    } else if (dayNightTime > 18 && dayNightTime < 20) {
-        targetAlpha = ((dayNightTime - 18) / 2) * 0.5;
-    } else if (dayNightTime >= 20 || dayNightTime <= 4) {
-        targetAlpha = 0.5;
-    } else if (dayNightTime > 4 && dayNightTime < 6) {
-        targetAlpha = 0.5 - (((dayNightTime - 4) / 2) * 0.5);
+    if (dayNightTime >= 7 && dayNightTime <= 20) {
+        targetAlpha = 0; // Full daytime (7 AM to 8 PM)
+    } else if (dayNightTime > 20 && dayNightTime < 21) {
+        targetAlpha = ((dayNightTime - 20) / 1) * 0.5; // Start getting dark at 8 PM, complete by 9 PM
+    } else if (dayNightTime >= 21 || dayNightTime <= 6) {
+        targetAlpha = 0.5; // Complete night (9 PM to 6 AM)
+    } else if (dayNightTime > 6 && dayNightTime < 7) {
+        targetAlpha = 0.5 - (((dayNightTime - 6) / 1) * 0.5); // Start getting light at 6 AM, full day by 7 AM
     }
     if (dayNightOverlay) dayNightOverlay.setAlpha(targetAlpha);
 
