@@ -2343,7 +2343,16 @@ window.calculateDamage = function(attacker, defender, power = 50) {
     let diffMultiplier = 1 + (statDiff > 0 ? Math.pow(statDiff, 0.8) : -Math.pow(Math.abs(statDiff), 0.8)) / 100;
     diffMultiplier = Math.max(0.1, diffMultiplier); // Floor multiplier at 0.1x
 
-    const damage = power * diffMultiplier * typeMod;
+    let damage = power * diffMultiplier * typeMod;
+
+    // Prevent super effective attacks from one-hit killing
+    if (typeMod > 1) {
+        const defMaxHp = window.getEffectiveStat(defender, 'health');
+        if (damage >= defMaxHp) {
+            damage = Math.max(1, defMaxHp - 1);
+        }
+    }
+
     return Math.max(1, damage); // Minimum 1 damage
 };
 
@@ -3466,10 +3475,10 @@ function preload() {
     // Generate rounded corner cutouts
     for (let frame = 0; frame < 12; frame++) {
         const cornerPositions = [
-            { dir: 'tl', x: 50, y: 50, start: Math.PI, end: Math.PI * 1.5, mx: 50, my: 0 },
-            { dir: 'tr', x: 0, y: 50, start: Math.PI * 1.5, end: 0, mx: 50, my: 50 },
-            { dir: 'br', x: 0, y: 0, start: 0, end: Math.PI / 2, mx: 0, my: 50 },
-            { dir: 'bl', x: 50, y: 0, start: Math.PI / 2, end: Math.PI, mx: 0, my: 0 }
+            { dir: 'tl', x: 50, y: 50, start: Math.PI, end: Math.PI * 1.5, mx: 50, my: 0, sx: 0, sy: 0 },
+            { dir: 'tr', x: 0, y: 50, start: Math.PI * 1.5, end: 0, mx: 50, my: 50, sx: 50, sy: 0 },
+            { dir: 'br', x: 0, y: 0, start: 0, end: Math.PI / 2, mx: 0, my: 50, sx: 50, sy: 50 },
+            { dir: 'bl', x: 50, y: 0, start: Math.PI / 2, end: Math.PI, mx: 0, my: 0, sx: 0, sy: 50 }
         ];
 
         cornerPositions.forEach(pos => {
@@ -3479,7 +3488,7 @@ function preload() {
             convexCanvas.height = 50;
             const convexCtx = convexCanvas.getContext('2d');
             // Draw the procedural grass texture instead of solid color
-            convexCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), 0, 0, 50, 50, 0, 0, 50, 50);
+            convexCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), pos.sx, pos.sy, 50, 50, 0, 0, 50, 50);
             convexCtx.globalCompositeOperation = 'destination-out';
             convexCtx.beginPath();
             convexCtx.arc(pos.x, pos.y, 50, 0, Math.PI * 2);
@@ -3491,7 +3500,7 @@ function preload() {
             concaveCanvas.width = 50;
             concaveCanvas.height = 50;
             const concaveCtx = concaveCanvas.getContext('2d');
-            concaveCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), 0, 0, 50, 50, 0, 0, 50, 50);
+            concaveCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), pos.sx, pos.sy, 50, 50, 0, 0, 50, 50);
             concaveCtx.globalCompositeOperation = 'destination-in';
             concaveCtx.beginPath();
             concaveCtx.moveTo(pos.x, pos.y);
@@ -3514,10 +3523,23 @@ function preload() {
     overlayCtx.fillStyle = overlayGrad;
     overlayCtx.fillRect(0, 0, 100, 100);
     this.textures.addCanvas('water_overlay', overlayCanvas);
+
+    // Pre-generate Hospital Tile texture
+    const hospitalCanvas = document.createElement('canvas');
+    hospitalCanvas.width = 100;
+    hospitalCanvas.height = 100;
+    const hospitalCtx = hospitalCanvas.getContext('2d');
+    hospitalCtx.fillStyle = '#FFFFFF';
+    hospitalCtx.fillRect(0, 0, 100, 100);
+    hospitalCtx.fillStyle = '#FF0000';
+    hospitalCtx.fillRect(40, 20, 20, 60); // Vertical part of cross
+    hospitalCtx.fillRect(20, 40, 60, 20); // Horizontal part of cross
+    this.textures.addCanvas('hospital_tile', hospitalCanvas);
 }
 
 let mapData = []; // To store 100x100 grid data
 let obstaclesGroup;
+let hospitalGroup;
 let activeTiles = {}; // Track active viewport tiles to cull
 
 function spawnTile(scene, r, c, tileSize, cols, rows) {
@@ -3530,6 +3552,17 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         grass.setDepth(-1);
         grass.anims.play('grass_anim', true);
         sprites.push(grass);
+    } else if (mapData[r][c] === 'hospital') {
+        let hospital = scene.add.sprite(posX, posY, 'hospital_tile');
+        hospital.setDepth(-1);
+        sprites.push(hospital);
+
+        // Add to hospital physics group
+        if (hospitalGroup) {
+            let hSprite = hospitalGroup.create(posX, posY, 'hospital_tile');
+            hSprite.setVisible(false); // Make physics body invisible since we render sprite
+            sprites.push(hSprite);
+        }
     } else {
         // Add drop shadow
 
@@ -3626,6 +3659,7 @@ function create() {
 
     // Fill background with grass
     obstaclesGroup = this.physics.add.staticGroup();
+    hospitalGroup = this.physics.add.staticGroup();
 
     // Create water animation globally so it can be played on sprites
     let waterFrames = [];
@@ -3748,6 +3782,15 @@ function create() {
         let safePos = window.getStrictSafeDryLandSpawn(null);
         startX = safePos.x;
         startY = safePos.y;
+        pCol = Math.floor(startX / 100);
+        pRow = Math.floor(startY / 100);
+    }
+
+    // Create hospital tile next to spawn
+    if (mapData[pRow] && pCol + 1 < cols && mapData[pRow][pCol + 1] === 'grass') {
+        mapData[pRow][pCol + 1] = 'hospital';
+    } else if (mapData[pRow] && pCol - 1 >= 0 && mapData[pRow][pCol - 1] === 'grass') {
+        mapData[pRow][pCol - 1] = 'hospital';
     }
 
     player = this.add.rectangle(startX, startY, 40, 40, 0xFFFFFF);
@@ -3862,6 +3905,40 @@ function create() {
 
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
+    this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
+}
+
+function healParty(playerCollider, hospitalCollider) {
+    if (inBattle) return;
+
+    // Only trigger heal once per 5 seconds to avoid spamming
+    if (playerCollider.lastHealTime && this.time.now - playerCollider.lastHealTime < 5000) return;
+    playerCollider.lastHealTime = this.time.now;
+
+    let healedAny = false;
+    for (let c of collectedCreatures) {
+        if (!c.stored) {
+            let maxHp = window.getEffectiveStat(c, 'health');
+            if (c.currentHp < maxHp || c.status) {
+                c.currentHp = maxHp;
+                c.status = null;
+                healedAny = true;
+            }
+        }
+    }
+
+    if (healedAny) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+        popupText.setText("Your party has been fully healed!");
+        popupBackground.setVisible(true);
+        popupText.setVisible(true);
+
+        if (popupTimer) popupTimer.remove();
+        popupTimer = this.time.delayedCall(3000, () => {
+            popupBackground.setVisible(false);
+            popupText.setVisible(false);
+        });
+    }
 }
 
 function spawnCreature(scene, creatureData, forceX, forceY) {
