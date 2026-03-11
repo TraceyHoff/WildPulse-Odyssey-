@@ -1,31 +1,28 @@
-1. **Redesign Modals and CSS**:
-   - Add a `.modal` class to all window divs (`#lobbyModal`, `#battleModal`, etc.).
-   - Update the CSS to use a `.modal` class with `max-width: 600px`, `max-height: 90vh`, tighter padding (`15px`), sleek glowing borders, glassmorphism (`backdrop-filter`), and rounded corners (`border-radius: 12px`).
-   - Remove the old `100vw !important` override so they can be actual modals again, or adjust it so they are responsive but compact.
-   - Update `.close-btn` to be `top: 0; right: 0; margin: 0; padding: 0; border-radius: 0 12px 0 8px;` so it hugs the corner tightly with no extra space.
-   - Restyle all buttons with vibrant colors, hover states, and tight padding.
+1. **Fix battle lockup on encounter without healthy creatures:**
+   In `collectCreature()`, when `window.currentBattleParty.length === 0` is true (all creatures have 0 HP), it displays a message and bounces the player off. However, right before this, `inBattle = true` and `playerCollider.body.moves = false` are set. The function `return`s early without reverting these variables, which permanently locks the player in the "inBattle = true" state where they cannot move or do anything. We must add `inBattle = false;` and `playerCollider.body.moves = true;` inside that `if` block, or move `inBattle = true` until after we check if we have a valid party.
 
-2. **Wild Spawn Level 1 at Start**:
-   - In `spawnCreature()`, calculate the max player level. If `maxPlayerLevel === 1` (which is true at the very start of a new game), set all spawned creatures' levels to exactly 1. Otherwise, use the existing scaling logic.
+2. **Change respawn location on defeat:**
+   Currently, in `window.endBattle` when the result is `'loss'`, the code calculates a safe dry land spawn based on the enemy sprite, and sets `player.x` and `player.y` to that position. We will change this to spawn the player directly near the hospital. The hospital tile is at `[101][100]`? In memory, it says "party healing is implemented via a 'hospital tile'... permanently hardcoded at map coordinates [100][100]". The tile coordinates [100][100] corresponds to pixel coordinates (100 * 30 + 15, 100 * 30 + 15). Actually, the user asked "can they spawn by at tile 101,100 close by the hospital tile". We can set `player.x = 101 * 30 + 15` and `player.y = 100 * 30 + 15`.
 
-3. **Increase Spawn Frequency**:
-   - In `create()`, increase the initial spawn count multiplier from `1.5` to `3.0`.
-   - In `spawnCreature()`, increase the hard cap on `creaturesGroup.getChildren().length` from `100` to `200`.
+3. **Rebalance damage formula:**
+   Currently, the damage formula in `calculateDamage` uses:
+   ```javascript
+    let statDiff = atk - def;
+    let diffMultiplier = 1 + (statDiff > 0 ? Math.pow(statDiff, 0.8) : -Math.pow(Math.abs(statDiff), 0.8)) / 100;
+    diffMultiplier = Math.max(0.1, diffMultiplier); // Floor multiplier at 0.1x
+    let damage = power * diffMultiplier * typeMod;
+   ```
+   For level 1 creatures with 50 power and 1x multiplier, the output is almost exactly 50 damage (statDiff is usually around 0). Level 1 creatures have max health around 30-40, making combat consist almost entirely of OHKOs (if super effective cap kicks in, or just regular attacks). The user asked to "fix this". We will introduce a level scaling factor similar to Pokemon's standard damage formula or significantly scale down the base damage at low levels.
+   ```javascript
+    let level = attacker.level || 1;
+    let damage = (((2 * level / 5 + 2) * power * (atk / def)) / 50 + 2) * typeMod;
+   ```
+   Or a simpler scaling factor that maintains the current formula but just divides by some constant?
+   Actually, the user states "creatures able to inflict 40-50 damage to opponents this is too strong for a level 1 can we fix this".
+   If we change it to the classic formula, a level 1 attack 50 will do `( (2/5 + 2) * 50 * 1 ) / 50 + 2 = 2.4 * 50 / 50 + 2 = 4.4` damage, which is much more reasonable for level 1!
+   At level 100 it does `(42 * 50 * 1) / 50 + 2 = 44` damage (to an equal def opponent).
+   Wait, if we use the classic formula: `damage = (((2 * level / 5 + 2) * power * (atk / def)) / 50 + 2) * typeMod`.
+   Let's replace the inner workings of `calculateDamage` with this formula.
 
-4. **Add Tooltips Everywhere**:
-   - Inject a hidden `#tooltip` div into the DOM via JS or HTML.
-   - Add `mousemove`/`mouseover`/`mouseout` event listeners to update and position the tooltip based on `data-tooltip` attributes.
-   - Add `data-tooltip` to buttons in the Menu, Battle, and Party windows.
-   - Add `data-tooltip` to stats, natures, and other UI elements dynamically rendered in `renderPartyList()`.
-   - Ensure tooltips have a clean, modern aesthetic that fits the game.
-
-5. **Tighten Padding & Spacing**:
-   - Reduce padding on `.party-card`, `.combatant`, and other containers.
-   - Ensure `overflow-y: auto;` on elements that might grow.
-   - Use flex/grid with small gaps (`gap: 8px`).
-
-6. **Pre-commit checks**:
-   - Run `pre_commit_instructions` to test, lint, and verify.
-
-7. **Submit**:
-   - Commit and submit changes on branch `multiplayer-upgrade-YYYYMMDD-ui-refresh`.
+4. **Complete pre-commit steps:**
+   Ensure proper testing, verifications, reviews and reflections are done.
