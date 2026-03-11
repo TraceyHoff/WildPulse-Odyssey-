@@ -2212,6 +2212,7 @@ window.getRandomNature = function() {
     return validNatures[Math.floor(Math.random() * validNatures.length)];
 };
 window.getRawScaledStat = function(creature, statName) {
+    if (!creature.stats) creature.stats = {};
     let base = creature.stats[statName] || 50;
     let lvl = creature.level || 1;
     return base + (base * (lvl - 1) * 0.05);
@@ -2424,6 +2425,7 @@ function saveCollected(creature) {
     if (!collectedCreaturesIds.has(creature.id)) {
         const activeParty = collectedCreatures.filter(c => !c.stored);
         creature.stored = activeParty.length >= 6;
+        creature.currentHp = window.getEffectiveStat(creature, 'health');
 
         collectedCreaturesIds.add(creature.id);
         collectedCreatures.push(creature);
@@ -3535,6 +3537,20 @@ function preload() {
     hospitalCtx.fillRect(40, 20, 20, 60); // Vertical part of cross
     hospitalCtx.fillRect(20, 40, 60, 20); // Horizontal part of cross
     this.textures.addCanvas('hospital_tile', hospitalCanvas);
+
+    // Pre-generate Hospital Arrow texture
+    const arrowCanvas = document.createElement('canvas');
+    arrowCanvas.width = 40;
+    arrowCanvas.height = 40;
+    const arrowCtx = arrowCanvas.getContext('2d');
+    arrowCtx.fillStyle = '#ff0000';
+    arrowCtx.beginPath();
+    arrowCtx.moveTo(20, 0); // Tip
+    arrowCtx.lineTo(40, 40); // Bottom right
+    arrowCtx.lineTo(20, 30); // Inner bottom
+    arrowCtx.lineTo(0, 40); // Bottom left
+    arrowCtx.fill();
+    this.textures.addCanvas('arrow_tex', arrowCanvas);
 }
 
 let mapData = []; // To store 100x100 grid data
@@ -3550,7 +3566,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     if (mapData[r][c] === 'grass') {
         let grass = scene.add.sprite(posX, posY, 'grass_0');
         grass.setDepth(-1);
-        grass.anims.play('grass_anim', true);
+        // grass.anims.play('grass_anim', true);
         sprites.push(grass);
     } else if (mapData[r][c] === 'hospital') {
         let hospital = scene.add.sprite(posX, posY, 'hospital_tile');
@@ -3577,7 +3593,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         obs.body.setOffset(5, 5);
         obs.body.x = posX - 45;
         obs.body.y = posY - 45;
-        obs.anims.play('water_anim', true);
+        // obs.anims.play('water_anim', true);
         obs.setDepth(0);
         sprites.push(obs);
 
@@ -3587,28 +3603,28 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         // Foams
         if (c > 0 && mapData[r][c-1] === 'grass') {
             let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
-            foam.anims.play('foam_anim', true);
+            // foam.anims.play('foam_anim', true);
             foam.setDepth(0);
             sprites.push(foam);
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass') {
             let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
             foam.setAngle(180);
-            foam.anims.play('foam_anim', true);
+            // foam.anims.play('foam_anim', true);
             foam.setDepth(0);
             sprites.push(foam);
         }
         if (r > 0 && mapData[r-1][c] === 'grass') {
             let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
             foam.setAngle(90);
-            foam.anims.play('foam_anim', true);
+            // foam.anims.play('foam_anim', true);
             foam.setDepth(0);
             sprites.push(foam);
         }
         if (r < rows-1 && mapData[r+1][c] === 'grass') {
             let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
             foam.setAngle(-90);
-            foam.anims.play('foam_anim', true);
+            // foam.anims.play('foam_anim', true);
             foam.setDepth(0);
             sprites.push(foam);
         }
@@ -3616,25 +3632,25 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         // Convex corners
         if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
             let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_tl_0');
-            corner.anims.play('grass_corner_anim_tl', true);
+            // corner.anims.play('grass_corner_anim_tl', true);
             corner.setDepth(0);
             sprites.push(corner);
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
             let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_tr_0');
-            corner.anims.play('grass_corner_anim_tr', true);
+            // corner.anims.play('grass_corner_anim_tr', true);
             corner.setDepth(0);
             sprites.push(corner);
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
             let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_br_0');
-            corner.anims.play('grass_corner_anim_br', true);
+            // corner.anims.play('grass_corner_anim_br', true);
             corner.setDepth(0);
             sprites.push(corner);
         }
         if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
             let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_bl_0');
-            corner.anims.play('grass_corner_anim_bl', true);
+            // corner.anims.play('grass_corner_anim_bl', true);
             corner.setDepth(0);
             sprites.push(corner);
         }
@@ -3766,6 +3782,9 @@ function create() {
         }
     }
 
+    // Force hospital to be at 100, 100
+    mapData[100][100] = 'hospital';
+
     // Tiles are no longer instantiated upfront. They will be instantiated
     // dynamically in the update() loop based on the viewport.
 
@@ -3786,13 +3805,6 @@ function create() {
         pRow = Math.floor(startY / 100);
     }
 
-    // Create hospital tile next to spawn
-    if (mapData[pRow] && pCol + 1 < cols && mapData[pRow][pCol + 1] === 'grass') {
-        mapData[pRow][pCol + 1] = 'hospital';
-    } else if (mapData[pRow] && pCol - 1 >= 0 && mapData[pRow][pCol - 1] === 'grass') {
-        mapData[pRow][pCol - 1] = 'hospital';
-    }
-
     player = this.add.rectangle(startX, startY, 40, 40, 0xFFFFFF);
     player.setDepth(10);
     this.physics.add.existing(player);
@@ -3802,6 +3814,12 @@ function create() {
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.startFollow(player);
+
+    // Hospital Directional Arrow
+    let hospitalArrow = this.add.sprite(0, 0, 'arrow_tex');
+    hospitalArrow.setDepth(2000);
+    hospitalArrow.setVisible(false);
+    window.hospitalArrow = hospitalArrow;
 
     // Popup Layer
     popupBackground = this.add.rectangle(window.innerWidth / 2, window.innerHeight - 100, 600, 150, 0x000000, 0.8)
@@ -3919,7 +3937,7 @@ function healParty(playerCollider, hospitalCollider) {
     for (let c of collectedCreatures) {
         if (!c.stored) {
             let maxHp = window.getEffectiveStat(c, 'health');
-            if (c.currentHp < maxHp || c.status) {
+            if (c.currentHp === undefined || c.currentHp < maxHp || c.status) {
                 c.currentHp = maxHp;
                 c.status = null;
                 healedAny = true;
@@ -4067,10 +4085,32 @@ function collectCreature(playerCollider, creatureSprite) {
     currentEnemy.currentHp = currentEnemy.maxHp;
     currentEnemy.isDefending = false;
 
-    window.currentBattleParty = collectedCreatures.filter(c => !c.stored);
+    // Initialize HP
+    collectedCreatures.forEach(c => {
+        if (c.currentHp === undefined) c.currentHp = window.getEffectiveStat(c, 'health');
+    });
+
+    window.currentBattleParty = collectedCreatures.filter(c => !c.stored && c.currentHp > 0);
+
+    if (window.currentBattleParty.length === 0) {
+        // No healthy creatures
+        popupText.setText("You have no healthy creatures! Follow the arrow to the hospital.");
+        popupBackground.setVisible(true);
+        popupText.setVisible(true);
+        if (popupTimer) popupTimer.remove();
+        popupTimer = this.time.delayedCall(3000, () => {
+            popupBackground.setVisible(false);
+            popupText.setVisible(false);
+        });
+        player.x += (Math.random() < 0.5 ? 20 : -20); // Bounce off slightly
+        player.y += (Math.random() < 0.5 ? 20 : -20);
+        return;
+    }
+
     currentPlayer = JSON.parse(JSON.stringify(window.currentBattleParty.shift()));
     currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
-    currentPlayer.currentHp = currentPlayer.maxHp;
+    // Use saved HP
+    currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
     currentPlayer.isDefending = false;
 
     document.getElementById('battleModal').style.display = 'block';
@@ -4151,11 +4191,19 @@ window.handleFaint = function(target) {
         endBattle('win');
         return true;
     } else {
+        // Sync fainted creature's HP
+        let orig = collectedCreatures.find(c => c.id === currentPlayer.id);
+        if (orig) {
+            orig.currentHp = 0;
+            orig.status = null;
+        }
+
         if (window.currentBattleParty.length > 0) {
             let next = window.currentBattleParty.shift();
             currentPlayer = JSON.parse(JSON.stringify(next));
             currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
-            currentPlayer.currentHp = currentPlayer.maxHp;
+            // Retain saved HP when switching in
+            currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
             currentPlayer.isDefending = false;
             logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
             updateBattleUI();
@@ -4312,6 +4360,12 @@ window.endBattle = function(result) {
     setTimeout(() => {
         let _m_battleModal = document.getElementById('battleModal'); _m_battleModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_battleModal.style.display = 'none'; _m_battleModal.children[0].classList.remove('modal-fade-out'); }, 190);
 
+        let activeCreature = collectedCreatures.find(c => c.id === currentPlayer.id);
+        if (activeCreature) {
+            activeCreature.currentHp = Math.max(0, currentPlayer.currentHp);
+            activeCreature.status = currentPlayer.status;
+        }
+
         if (result === 'win') {
             let xpGained = Math.floor(currentEnemy.level * 25);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
@@ -4363,12 +4417,13 @@ window.endBattle = function(result) {
             } else if (result === 'run') {
                 player.x += 100;
             } else if (result === 'loss') {
-                alert('All your creatures fainted. Healing up...');
+                alert('All your creatures fainted! Follow the arrow to the hospital to heal them.');
                 let safePos = window.getStrictSafeDryLandSpawn(currentEnemySprite);
                 player.x = safePos.x;
                 player.y = safePos.y;
             }
         }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
     }, 1500);
 };
 
@@ -4423,6 +4478,24 @@ function update() {
     if (inBattle) return;
     const speed = 200;
 
+    let activeParty = collectedCreatures.filter(c => !c.stored);
+    activeParty.forEach(c => {
+        if (c.currentHp === undefined) c.currentHp = window.getEffectiveStat(c, 'health');
+    });
+    let allDead = activeParty.length > 0 && activeParty.every(c => c.currentHp <= 0);
+
+    if (allDead && window.hospitalArrow) {
+        window.hospitalArrow.setVisible(true);
+        window.hospitalArrow.x = player.x;
+        window.hospitalArrow.y = player.y - 70;
+        let hx = 100 * 100 + 50; // tile size 100, col 100, centered
+        let hy = 100 * 100 + 50;
+        let angle = Phaser.Math.Angle.Between(window.hospitalArrow.x, window.hospitalArrow.y, hx, hy);
+        window.hospitalArrow.setRotation(angle + Math.PI / 2); // Adjust pointing up to rotation
+    } else if (window.hospitalArrow) {
+        window.hospitalArrow.setVisible(false);
+    }
+
     if (!window.lastSaveTime) window.lastSaveTime = 0;
     const now = Date.now();
     const shouldSave = (now - window.lastSaveTime > 2000);
@@ -4462,7 +4535,29 @@ function update() {
     }
     if (dayNightOverlay) dayNightOverlay.setAlpha(targetAlpha);
 
-    const frame = Math.floor(this.time.now / 150) % 12;
+    const frame8fps = Math.floor(this.time.now / 125) % 12;
+    const frame16fps = Math.floor(this.time.now / 125) % 16;
+
+    Object.values(activeTiles).forEach(sprites => {
+        sprites.forEach(sprite => {
+            if (!sprite.texture) return;
+            if (sprite.texture.key.startsWith('grass_') && !sprite.texture.key.includes('corner')) {
+                sprite.setTexture('grass_' + frame8fps);
+            } else if (sprite.texture.key.startsWith('grass_corner_convex_tl_')) {
+                sprite.setTexture('grass_corner_convex_tl_' + frame8fps);
+            } else if (sprite.texture.key.startsWith('grass_corner_convex_tr_')) {
+                sprite.setTexture('grass_corner_convex_tr_' + frame8fps);
+            } else if (sprite.texture.key.startsWith('grass_corner_convex_bl_')) {
+                sprite.setTexture('grass_corner_convex_bl_' + frame8fps);
+            } else if (sprite.texture.key.startsWith('grass_corner_convex_br_')) {
+                sprite.setTexture('grass_corner_convex_br_' + frame8fps);
+            } else if (sprite.texture.key.startsWith('obs_tex_')) {
+                sprite.setTexture('obs_tex_' + frame16fps);
+            } else if (sprite.texture.key.startsWith('foam_tex_')) {
+                sprite.setTexture('foam_tex_' + frame16fps);
+            }
+        });
+    });
 
     // Dynamic Tile Viewport Culling
     const cam = this.cameras.main;
