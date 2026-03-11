@@ -2560,7 +2560,7 @@ window.renderPartyList = function() {
 
             let effHtml = '';
             if (c.nature && (c.nature.increase === stat || c.nature.decrease === stat)) {
-                let effColor = c.nature.increase === stat ? 'green' : 'red';
+                let effColor = c.nature.increase === stat ? 'lime' : 'red';
                 effHtml = ` <span style="color:${effColor}">(Eff: ${eff})</span>`;
             }
             return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature modifications."><span style="color:${statColor};">${stat}</span>: ${Math.floor(scaled)}${effHtml}</div>`;
@@ -3296,8 +3296,8 @@ function preload() {
     const blades = [];
     for (let i = 0; i < 400; i++) {
         blades.push({
-            x: Math.random() * 64,
-            y: Math.random() * 64,
+            x: Math.random() * 100,
+            y: Math.random() * 100,
             height: Math.random() * 10 + 5,
             color: Math.random() > 0.6 ? '#006400' : (Math.random() > 0.3 ? '#2E8B57' : '#32CD32')
         });
@@ -3307,20 +3307,20 @@ function preload() {
     const numFrames = 12;
     for (let frame = 0; frame < numFrames; frame++) {
         const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
+        canvas.width = 100;
+        canvas.height = 100;
         const ctx = canvas.getContext('2d');
 
         // Better base grass color gradient blending for seamlessness
-        let gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 45);
+        let gradient = ctx.createRadialGradient(50, 50, 0, 50, 50, 70);
         gradient.addColorStop(0, '#1a661a'); // Dark center
         gradient.addColorStop(1, '#228B22'); // Edge blend color
         ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 64, 64);
+        ctx.fillRect(0, 0, 100, 100);
 
         // Dither the base slightly to break grid appearance
-        for (let j = 0; j < 64; j += 4) {
-            for (let k = 0; k < 64; k += 4) {
+        for (let j = 0; j < 100; j += 4) {
+            for (let k = 0; k < 100; k += 4) {
                 if (Math.random() < 0.2) {
                     ctx.fillStyle = Math.random() < 0.5 ? '#1c731c' : '#1e781e';
                     ctx.fillRect(j, k, 4, 4);
@@ -3344,18 +3344,18 @@ function preload() {
             ctx.fill();
 
             // Handle wrap around for seamless horizontal tile edges
-            if (drawX > 50) {
+            if (drawX > 86) {
                  ctx.beginPath();
-                 ctx.moveTo(drawX - 64, blades[i].y + blades[i].height);
-                 ctx.quadraticCurveTo(drawX - 64, blades[i].y + blades[i].height / 2, drawX - 64 + windOffset * (blades[i].height / 15), blades[i].y);
-                 ctx.lineTo(drawX - 64 + 2, blades[i].y + blades[i].height);
+                 ctx.moveTo(drawX - 100, blades[i].y + blades[i].height);
+                 ctx.quadraticCurveTo(drawX - 100, blades[i].y + blades[i].height / 2, drawX - 100 + windOffset * (blades[i].height / 15), blades[i].y);
+                 ctx.lineTo(drawX - 100 + 2, blades[i].y + blades[i].height);
                  ctx.fill();
             }
             if (drawX < 14) { // Handle left-side wrap around
                  ctx.beginPath();
-                 ctx.moveTo(drawX + 64, blades[i].y + blades[i].height);
-                 ctx.quadraticCurveTo(drawX + 64, blades[i].y + blades[i].height / 2, drawX + 64 + windOffset * (blades[i].height / 15), blades[i].y);
-                 ctx.lineTo(drawX + 64 + 2, blades[i].y + blades[i].height);
+                 ctx.moveTo(drawX + 100, blades[i].y + blades[i].height);
+                 ctx.quadraticCurveTo(drawX + 100, blades[i].y + blades[i].height / 2, drawX + 100 + windOffset * (blades[i].height / 15), blades[i].y);
+                 ctx.lineTo(drawX + 100 + 2, blades[i].y + blades[i].height);
                  ctx.fill();
             }
         }
@@ -3525,81 +3525,87 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     let posX = c * tileSize + tileSize / 2;
     let posY = r * tileSize + tileSize / 2;
 
-    // Add drop shadow
+    if (mapData[r][c] === 'grass') {
+        let grass = scene.add.sprite(posX, posY, 'grass_0');
+        grass.setDepth(-1);
+        grass.anims.play('grass_anim', true);
+        sprites.push(grass);
+    } else {
+        // Add drop shadow
 
 
-    // Create obstacle
-    let obs = obstaclesGroup.create(posX, posY, 'obs_tex_0');
-    let gridX = (c * tileSize) % 400;
-    let gridY = (r * tileSize) % 400;
-    obs.setCrop(gridX, gridY, 100, 100);
-    obs.setDisplayOrigin(gridX + 50, gridY + 50);
-    obs.body.setSize(90, 90);
-    obs.body.setOffset(5, 5);
-    obs.body.x = posX - 45;
-    obs.body.y = posY - 45;
-    obs.anims.play('water_anim', true);
-    obs.setDepth(0);
-    sprites.push(obs);
+        // Create obstacle
+        let obs = obstaclesGroup.create(posX, posY, 'obs_tex_0');
+        let gridX = (c * tileSize) % 400;
+        let gridY = (r * tileSize) % 400;
+        obs.setCrop(gridX, gridY, 100, 100);
+        obs.setDisplayOrigin(gridX + 50, gridY + 50);
+        obs.body.setSize(90, 90);
+        obs.body.setOffset(5, 5);
+        obs.body.x = posX - 45;
+        obs.body.y = posY - 45;
+        obs.anims.play('water_anim', true);
+        obs.setDepth(0);
+        sprites.push(obs);
 
-    // Add overlay
+        // Add overlay
 
 
-    // Foams
-    if (c > 0 && mapData[r][c-1] === 'grass') {
-        let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
-        foam.anims.play('foam_anim', true);
-        foam.setDepth(0);
-        sprites.push(foam);
-    }
-    if (c < cols-1 && mapData[r][c+1] === 'grass') {
-        let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
-        foam.setAngle(180);
-        foam.anims.play('foam_anim', true);
-        foam.setDepth(0);
-        sprites.push(foam);
-    }
-    if (r > 0 && mapData[r-1][c] === 'grass') {
-        let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
-        foam.setAngle(90);
-        foam.anims.play('foam_anim', true);
-        foam.setDepth(0);
-        sprites.push(foam);
-    }
-    if (r < rows-1 && mapData[r+1][c] === 'grass') {
-        let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
-        foam.setAngle(-90);
-        foam.anims.play('foam_anim', true);
-        foam.setDepth(0);
-        sprites.push(foam);
-    }
+        // Foams
+        if (c > 0 && mapData[r][c-1] === 'grass') {
+            let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
+            foam.anims.play('foam_anim', true);
+            foam.setDepth(0);
+            sprites.push(foam);
+        }
+        if (c < cols-1 && mapData[r][c+1] === 'grass') {
+            let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
+            foam.setAngle(180);
+            foam.anims.play('foam_anim', true);
+            foam.setDepth(0);
+            sprites.push(foam);
+        }
+        if (r > 0 && mapData[r-1][c] === 'grass') {
+            let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
+            foam.setAngle(90);
+            foam.anims.play('foam_anim', true);
+            foam.setDepth(0);
+            sprites.push(foam);
+        }
+        if (r < rows-1 && mapData[r+1][c] === 'grass') {
+            let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
+            foam.setAngle(-90);
+            foam.anims.play('foam_anim', true);
+            foam.setDepth(0);
+            sprites.push(foam);
+        }
 
-    // Convex corners
-    if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_tl_0');
-        corner.anims.play('grass_corner_anim_tl', true);
-        corner.setDepth(0);
-        sprites.push(corner);
+        // Convex corners
+        if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
+            let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_tl_0');
+            corner.anims.play('grass_corner_anim_tl', true);
+            corner.setDepth(0);
+            sprites.push(corner);
+        }
+        if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
+            let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_tr_0');
+            corner.anims.play('grass_corner_anim_tr', true);
+            corner.setDepth(0);
+            sprites.push(corner);
+        }
+        if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
+            let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_br_0');
+            corner.anims.play('grass_corner_anim_br', true);
+            corner.setDepth(0);
+            sprites.push(corner);
+        }
+        if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
+            let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_bl_0');
+            corner.anims.play('grass_corner_anim_bl', true);
+            corner.setDepth(0);
+            sprites.push(corner);
+        }
     }
-    if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_tr_0');
-        corner.anims.play('grass_corner_anim_tr', true);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-    if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_br_0');
-        corner.anims.play('grass_corner_anim_br', true);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-    if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-        let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_bl_0');
-        corner.anims.play('grass_corner_anim_bl', true);
-        corner.setDepth(0);
-        sprites.push(corner);
-    }
-
     return sprites;
 }
 
@@ -3619,8 +3625,6 @@ function create() {
     const rows = WORLD_SIZE / TILE_SIZE; // 100
 
     // Fill background with grass
-    bgGrass = this.add.tileSprite(0, 0, WORLD_SIZE, WORLD_SIZE, 'grass_0').setOrigin(0, 0);
-    bgGrass.setDepth(-1);
     obstaclesGroup = this.physics.add.staticGroup();
 
     // Create water animation globally so it can be played on sprites
@@ -3631,16 +3635,25 @@ function create() {
         foamFrames.push({ key: 'foam_tex_' + i });
     }
 
+    let grassFrames = [];
     let grassCornerFrames_tl = [];
     let grassCornerFrames_tr = [];
     let grassCornerFrames_br = [];
     let grassCornerFrames_bl = [];
     for(let i = 0; i < 12; i++) {
+        grassFrames.push({ key: 'grass_' + i });
         grassCornerFrames_tl.push({ key: 'grass_corner_convex_tl_' + i });
         grassCornerFrames_tr.push({ key: 'grass_corner_convex_tr_' + i });
         grassCornerFrames_br.push({ key: 'grass_corner_convex_br_' + i });
         grassCornerFrames_bl.push({ key: 'grass_corner_convex_bl_' + i });
     }
+
+    this.anims.create({
+        key: 'grass_anim',
+        frames: grassFrames,
+        frameRate: 8,
+        repeat: -1
+    });
 
     this.anims.create({
         key: 'water_anim',
@@ -4373,7 +4386,6 @@ function update() {
     if (dayNightOverlay) dayNightOverlay.setAlpha(targetAlpha);
 
     const frame = Math.floor(this.time.now / 150) % 12;
-    bgGrass.setTexture('grass_' + frame);;
 
     // Dynamic Tile Viewport Culling
     const cam = this.cameras.main;
@@ -4390,7 +4402,7 @@ function update() {
 
     for (let r = minRow; r <= maxRow; r++) {
         for (let c = minCol; c <= maxCol; c++) {
-            if (mapData[r] && mapData[r][c] === 'obs') {
+            if (mapData[r]) {
                 const key = `${r},${c}`;
                 neededTiles.add(key);
                 if (!activeTiles[key]) {
