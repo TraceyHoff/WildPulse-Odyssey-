@@ -2339,12 +2339,8 @@ window.calculateDamage = function(attacker, defender, power = 50) {
     // Cap type modifier to prevent excessive damage
     typeMod = Math.min(2, Math.max(0, typeMod));
 
-    // Scale damage by stat difference
-    let statDiff = atk - def;
-    let diffMultiplier = 1 + (statDiff > 0 ? Math.pow(statDiff, 0.8) : -Math.pow(Math.abs(statDiff), 0.8)) / 100;
-    diffMultiplier = Math.max(0.1, diffMultiplier); // Floor multiplier at 0.1x
-
-    let damage = power * diffMultiplier * typeMod;
+    let level = attacker.level || 1;
+    let damage = ((((2 * level / 5 + 2) * power * (atk / def)) / 50) + 2) * typeMod;
 
     // Prevent super effective attacks from one-hit killing
     if (typeMod > 1) {
@@ -4094,6 +4090,8 @@ function collectCreature(playerCollider, creatureSprite) {
 
     if (window.currentBattleParty.length === 0) {
         // No healthy creatures
+        inBattle = false;
+        playerCollider.body.moves = true;
         popupText.setText("You have no healthy creatures! Follow the arrow to the hospital.");
         popupBackground.setVisible(true);
         popupText.setVisible(true);
@@ -4418,9 +4416,8 @@ window.endBattle = function(result) {
                 player.x += 100;
             } else if (result === 'loss') {
                 alert('All your creatures fainted! Follow the arrow to the hospital to heal them.');
-                let safePos = window.getStrictSafeDryLandSpawn(currentEnemySprite);
-                player.x = safePos.x;
-                player.y = safePos.y;
+                player.x = 101 * 90 + 45;
+                player.y = 100 * 90 + 45;
             }
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
