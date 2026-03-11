@@ -1,3 +1,1 @@
-#!/bin/bash
-grep -n -C 5 "window.moveToParty =" index.html
-grep -n -C 5 "function saveCollected" index.html
+# To simplify testing during development we will use grep with replacement lines for smaller changes where possible.
