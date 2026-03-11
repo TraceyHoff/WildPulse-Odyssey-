@@ -2333,7 +2333,10 @@ window.getTypeTooltip = function(typeString) {
 window.calculateDamage = function(attacker, defender, power = 50) {
     const atk = window.getEffectiveStat(attacker, 'attack');
     const def = window.getEffectiveStat(defender, 'defense');
-    const typeMod = window.getTypeModifier(attacker.type, defender.type);
+    let typeMod = window.getTypeModifier(attacker.type, defender.type);
+
+    // Cap type modifier to prevent excessive damage
+    typeMod = Math.min(2, Math.max(0, typeMod));
 
     // Scale damage by stat difference
     let statDiff = atk - def;
@@ -2553,9 +2556,14 @@ window.renderPartyList = function() {
             let base = c.stats[stat] || 50;
             let eff = window.getEffectiveStat(c, stat).toFixed(1);
             let scaled = window.getScaledBaseStat(c, stat).toFixed(1);
-            let effColor = parseFloat(eff) > parseFloat(scaled) ? 'green' : (parseFloat(eff) < parseFloat(scaled) ? 'red' : 'white');
             let statColor = statColors[stat] || 'white';
-            return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature modifications."><span style="color:${statColor};">${stat}</span>: ${base} <span style="color:${effColor}">(Eff: ${eff})</span></div>`;
+
+            let effHtml = '';
+            if (c.nature && (c.nature.increase === stat || c.nature.decrease === stat)) {
+                let effColor = c.nature.increase === stat ? 'green' : 'red';
+                effHtml = ` <span style="color:${effColor}">(Eff: ${eff})</span>`;
+            }
+            return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature modifications."><span style="color:${statColor};">${stat}</span>: ${Math.floor(scaled)}${effHtml}</div>`;
         }).join('');
 
         let parentsHtml = '';
@@ -3147,7 +3155,7 @@ const config = {
     width: window.innerWidth,
     height: window.innerHeight,
     render: {
-        roundPixels: false
+        roundPixels: true
     },
     physics: {
         default: 'arcade',
@@ -3243,36 +3251,42 @@ function updateBattleUI() {
     };
 
     // Set background
-    const pTypes = currentPlayer.type ? currentPlayer.type.split('-') : [];
+    const pTypes = currentPlayer && currentPlayer.type ? currentPlayer.type.split('-') : [];
     const pColor = typeColors[pTypes[0]] || 'rgba(30, 60, 90, 0.8)';
 
-    const eTypes = currentEnemy.type ? currentEnemy.type.split('-') : [];
+    const eTypes = currentEnemy && currentEnemy.type ? currentEnemy.type.split('-') : [];
     const eColor = typeColors[eTypes[0]] || 'rgba(30, 60, 90, 0.8)';
 
     document.getElementById('battleModal').style.backgroundImage = `linear-gradient(90deg, ${pColor}, ${eColor})`;
     document.getElementById('battleModal').style.backgroundColor = 'transparent';
 
     // Player
-    document.getElementById('pName').innerText = currentPlayer.nickname || currentPlayer.name;
-    document.getElementById('pLevel').innerText = currentPlayer.level || 1;
-    document.getElementById('pLevel').style.color = '#2196F3';
-    document.getElementById('pType').innerText = currentPlayer.type || 'Normal';
-    document.getElementById('pStatus').innerText = currentPlayer.status ? `[${currentPlayer.status}]` : '';
-    document.getElementById('pHPText').innerText = Math.max(0, currentPlayer.currentHp).toFixed(1) + ' / ' + currentPlayer.maxHp.toFixed(1);
-    document.getElementById('pHPText').style.color = currentPlayer.currentHp <= 0.3 * currentPlayer.maxHp ? '#f44336' : '#4caf50';
-    document.getElementById('pHPBar').style.width = (Math.max(0, currentPlayer.currentHp) / currentPlayer.maxHp * 100) + '%';
-    if(currentPlayer.color) document.getElementById('pSprite').style.backgroundColor = '#' + currentPlayer.color.toString(16).padStart(6, '0');
+    if (currentPlayer) {
+        document.getElementById('pName').innerText = currentPlayer.nickname || currentPlayer.name;
+        document.getElementById('pLevel').innerText = currentPlayer.level || 1;
+        document.getElementById('pLevel').style.color = '#2196F3';
+        document.getElementById('pType').innerText = currentPlayer.type || 'Normal';
+        document.getElementById('pType').setAttribute('data-tooltip', window.getTypeTooltip(currentPlayer.type || 'Normal'));
+        document.getElementById('pStatus').innerText = currentPlayer.status ? `[${currentPlayer.status}]` : '';
+        document.getElementById('pHPText').innerText = Math.max(0, currentPlayer.currentHp).toFixed(1) + ' / ' + currentPlayer.maxHp.toFixed(1);
+        document.getElementById('pHPText').style.color = currentPlayer.currentHp <= 0.3 * currentPlayer.maxHp ? '#f44336' : '#4caf50';
+        document.getElementById('pHPBar').style.width = (Math.max(0, currentPlayer.currentHp) / currentPlayer.maxHp * 100) + '%';
+        if(currentPlayer.color) document.getElementById('pSprite').style.backgroundColor = '#' + currentPlayer.color.toString(16).padStart(6, '0');
+    }
 
     // Enemy
-    document.getElementById('eName').innerText = currentEnemy.name;
-    document.getElementById('eLevel').innerText = currentEnemy.level || 1;
-    document.getElementById('eLevel').style.color = '#2196F3';
-    document.getElementById('eType').innerText = currentEnemy.type || 'Normal';
-    document.getElementById('eStatus').innerText = currentEnemy.status ? `[${currentEnemy.status}]` : '';
-    document.getElementById('eHPText').innerText = Math.max(0, currentEnemy.currentHp).toFixed(1) + ' / ' + currentEnemy.maxHp.toFixed(1);
-    document.getElementById('eHPText').style.color = currentEnemy.currentHp <= 0.3 * currentEnemy.maxHp ? '#f44336' : '#4caf50';
-    document.getElementById('eHPBar').style.width = (Math.max(0, currentEnemy.currentHp) / currentEnemy.maxHp * 100) + '%';
-    if(currentEnemy.color) document.getElementById('eSprite').style.backgroundColor = '#' + currentEnemy.color.toString(16).padStart(6, '0');
+    if (currentEnemy) {
+        document.getElementById('eName').innerText = currentEnemy.name;
+        document.getElementById('eLevel').innerText = currentEnemy.level || 1;
+        document.getElementById('eLevel').style.color = '#2196F3';
+        document.getElementById('eType').innerText = currentEnemy.type || 'Normal';
+        document.getElementById('eType').setAttribute('data-tooltip', window.getTypeTooltip(currentEnemy.type || 'Normal'));
+        document.getElementById('eStatus').innerText = currentEnemy.status ? `[${currentEnemy.status}]` : '';
+        document.getElementById('eHPText').innerText = Math.max(0, currentEnemy.currentHp).toFixed(1) + ' / ' + currentEnemy.maxHp.toFixed(1);
+        document.getElementById('eHPText').style.color = currentEnemy.currentHp <= 0.3 * currentEnemy.maxHp ? '#f44336' : '#4caf50';
+        document.getElementById('eHPBar').style.width = (Math.max(0, currentEnemy.currentHp) / currentEnemy.maxHp * 100) + '%';
+        if(currentEnemy.color) document.getElementById('eSprite').style.backgroundColor = '#' + currentEnemy.color.toString(16).padStart(6, '0');
+    }
 }
 
 
@@ -3913,12 +3927,12 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
     // Assign random nature and unique ID on spawn
     clonedData.nature = window.getRandomNature();
 
+    let minPossibleLevel = collectedCreatures.length > 0 ? Math.min(...collectedCreatures.map(c => c.level || 1)) : 1;
     let maxPossibleLevel = collectedCreatures.length > 0 ? Math.max(...collectedCreatures.map(c => c.level || 1)) : 1;
-    if (maxPossibleLevel === 1) {
+    if (maxPossibleLevel === 1 && minPossibleLevel === 1) {
         clonedData.level = 1;
     } else {
-        let baseLevel = Math.floor(Math.random() * 5) + 1;
-        let wildLevel = Math.min(baseLevel + Math.floor(Math.random() * 3), maxPossibleLevel + 2);
+        let wildLevel = Math.floor(Math.random() * (maxPossibleLevel - minPossibleLevel + 1)) + minPossibleLevel;
         clonedData.level = Math.max(1, wildLevel);
     }
     clonedData.xp = 0;
