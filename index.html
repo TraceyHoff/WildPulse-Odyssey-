@@ -343,12 +343,13 @@
 </div>
 
 <div id="battleModal">
-
+    <button id="battleCloseBtn" class="close-btn" style="display:none;" aria-label="Close Battle">X</button>
     <div class="battle-area">
         <div class="combatant" id="playerCombatant">
             <h3 id="pName">Player Creature</h3>
             <p>Level: <span id="pLevel"></span> <span id="pStatus" style="font-weight:bold; color:#ff9800;"></span></p>
             <p>Type: <span id="pType"></span></p>
+            <p>Ability: <span id="pAbility"></span></p>
             <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="pSprite"></div>
             <p>HP: <span id="pHPText"></span></p>
             <div class="hp-bar-container"><div class="hp-bar" id="pHPBar"></div></div>
@@ -357,6 +358,7 @@
             <h3 id="eName">Enemy Creature</h3>
             <p>Level: <span id="eLevel"></span> <span id="eStatus" style="font-weight:bold; color:#ff9800;"></span></p>
             <p>Type: <span id="eType"></span></p>
+            <p>Ability: <span id="eAbility"></span></p>
             <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="eSprite"></div>
             <p>HP: <span id="eHPText"></span></p>
             <div class="hp-bar-container"><div class="hp-bar" id="eHPBar"></div></div>
@@ -477,6 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('doBreedBtn')?.addEventListener('click', doBreed);
     document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', closeBreedingModal));
     document.querySelectorAll('.close-levelup-btn').forEach(btn => btn.addEventListener('click', closeLevelUpModal));
+    document.getElementById('battleCloseBtn')?.addEventListener('click', closeBattleModal);
 });
 
 document.addEventListener('click', function(e) {
@@ -2189,6 +2192,105 @@ window.baseCreatures = [
     }
 ];
 
+window.abilities = {
+    "Fire": [
+        {name: "Blaze", chance: 0.25, type: "damage", value: 1.2, message: "Blaze flared up, increasing damage!", color: "#ff5722"},
+        {name: "Flame Body", chance: 0.25, type: "status_enemy", value: "Burn", message: "Flame Body inflicted a Burn!", color: "#ff5722"},
+        {name: "Flash Fire", chance: 0.20, type: "heal", value: 0.1, message: "Flash Fire absorbed heat, restoring HP!", color: "#ff5722"},
+        {name: "Magma Armor", chance: 0.25, type: "defense", value: 0.8, message: "Magma Armor hardened, reducing damage!", color: "#ff5722"},
+        {name: "White Smoke", chance: 0.20, type: "clear_status", value: null, message: "White Smoke cleared all status conditions!", color: "#ff5722"},
+        {name: "Drought", chance: 0.25, type: "damage", value: 1.3, message: "Drought intensified the heat, dealing extra damage!", color: "#ff5722"}
+    ],
+    "Water": [
+        {name: "Torrent", chance: 0.25, type: "damage", value: 1.2, message: "Torrent surged, increasing damage!", color: "#2196f3"},
+        {name: "Water Veil", chance: 0.20, type: "clear_status", value: null, message: "Water Veil washed away status conditions!", color: "#2196f3"},
+        {name: "Rain Dish", chance: 0.25, type: "heal", value: 0.1, message: "Rain Dish collected water, restoring HP!", color: "#2196f3"},
+        {name: "Swift Swim", chance: 0.25, type: "speed", value: 1.2, message: "Swift Swim increased speed!", color: "#2196f3"},
+        {name: "Hydration", chance: 0.20, type: "heal", value: 0.15, message: "Hydration revitalized, restoring HP!", color: "#2196f3"},
+        {name: "Drizzle", chance: 0.25, type: "damage", value: 1.3, message: "Drizzle summoned a downpour, dealing extra damage!", color: "#2196f3"}
+    ],
+    "Nature": [
+        {name: "Overgrow", chance: 0.25, type: "damage", value: 1.2, message: "Overgrow unleashed nature's fury, increasing damage!", color: "#4caf50"},
+        {name: "Effect Spore", chance: 0.25, type: "status_enemy", value: "Poison", message: "Effect Spore scattered poisonous dust!", color: "#4caf50"},
+        {name: "Chlorophyll", chance: 0.25, type: "speed", value: 1.2, message: "Chlorophyll absorbed sunlight, increasing speed!", color: "#4caf50"},
+        {name: "Leaf Guard", chance: 0.20, type: "defense", value: 0.8, message: "Leaf Guard shielded against damage!", color: "#4caf50"},
+        {name: "Sap Sipper", chance: 0.25, type: "heal", value: 0.1, message: "Sap Sipper drained energy, restoring HP!", color: "#4caf50"},
+        {name: "Grassy Surge", chance: 0.25, type: "heal", value: 0.15, message: "Grassy Surge enriched the terrain, restoring HP!", color: "#4caf50"}
+    ],
+    "Electric": [
+        {name: "Static", chance: 0.25, type: "status_enemy", value: "Paralyze", message: "Static paralyzed the opponent!", color: "#ffeb3b"},
+        {name: "Volt Absorb", chance: 0.20, type: "heal", value: 0.1, message: "Volt Absorb consumed electricity, restoring HP!", color: "#ffeb3b"},
+        {name: "Motor Drive", chance: 0.25, type: "speed", value: 1.3, message: "Motor Drive revved up, boosting speed!", color: "#ffeb3b"},
+        {name: "Lightning Rod", chance: 0.25, type: "damage", value: 1.2, message: "Lightning Rod channeled power, increasing damage!", color: "#ffeb3b"},
+        {name: "Galvanize", chance: 0.20, type: "damage", value: 1.3, message: "Galvanize electrified the attack, dealing extra damage!", color: "#ffeb3b"},
+        {name: "Electric Surge", chance: 0.25, type: "status_enemy", value: "Paralyze", message: "Electric Surge shocked the battlefield!", color: "#ffeb3b"}
+    ],
+    "Ice": [
+        {name: "Snow Cloak", chance: 0.25, type: "defense", value: 0.8, message: "Snow Cloak obscured vision, reducing damage!", color: "#00bcd4"},
+        {name: "Ice Body", chance: 0.20, type: "heal", value: 0.1, message: "Ice Body gathered frost, restoring HP!", color: "#00bcd4"},
+        {name: "Slush Rush", chance: 0.25, type: "speed", value: 1.2, message: "Slush Rush slid quickly, increasing speed!", color: "#00bcd4"},
+        {name: "Refrigerate", chance: 0.25, type: "damage", value: 1.2, message: "Refrigerate chilled the attack, increasing damage!", color: "#00bcd4"},
+        {name: "Snow Warning", chance: 0.20, type: "status_enemy", value: "Freeze", message: "Snow Warning dropped the temperature, freezing the opponent!", color: "#00bcd4"},
+        {name: "Frostbite", chance: 0.25, type: "damage", value: 1.3, message: "Frostbite bit deeply, dealing extra damage!", color: "#00bcd4"}
+    ],
+    "Earth": [
+        {name: "Sand Veil", chance: 0.25, type: "defense", value: 0.8, message: "Sand Veil kicked up dust, reducing damage!", color: "#795548"},
+        {name: "Sturdy", chance: 0.20, type: "defense", value: 0.7, message: "Sturdy braced for impact, reducing damage!", color: "#795548"},
+        {name: "Sand Force", chance: 0.25, type: "damage", value: 1.2, message: "Sand Force channeled grit, increasing damage!", color: "#795548"},
+        {name: "Rock Head", chance: 0.25, type: "defense", value: 0.85, message: "Rock Head deflected the blow!", color: "#795548"},
+        {name: "Solid Rock", chance: 0.20, type: "defense", value: 0.75, message: "Solid Rock withstood the attack!", color: "#795548"},
+        {name: "Earth Eater", chance: 0.25, type: "heal", value: 0.1, message: "Earth Eater consumed soil, restoring HP!", color: "#795548"}
+    ],
+    "Rock": [
+        {name: "Clear Body", chance: 0.25, type: "defense", value: 0.8, message: "Clear Body deflected the attack, reducing damage!", color: "#9e9e9e"},
+        {name: "Rough Skin", chance: 0.25, type: "damage_recoil", value: 0.1, message: "Rough Skin scraped the attacker!", color: "#9e9e9e"},
+        {name: "Guts", chance: 0.20, type: "damage", value: 1.3, message: "Guts powered through, increasing damage!", color: "#9e9e9e"},
+        {name: "Intimidate", chance: 0.25, type: "defense", value: 0.8, message: "Intimidate weakened the opponent's resolve!", color: "#9e9e9e"},
+        {name: "Rock Armor", chance: 0.25, type: "defense", value: 0.7, message: "Rock Armor absorbed the blow!", color: "#9e9e9e"},
+        {name: "Stone Edge", chance: 0.20, type: "damage", value: 1.4, message: "Stone Edge struck true, dealing massive damage!", color: "#9e9e9e"}
+    ],
+    "Wind": [
+        {name: "Aerilate", chance: 0.25, type: "damage", value: 1.2, message: "Aerilate caught the wind, increasing damage!", color: "#81d4fa"},
+        {name: "Gale Wings", chance: 0.20, type: "speed", value: 1.3, message: "Gale Wings rode the updraft, boosting speed!", color: "#81d4fa"},
+        {name: "Cloud Nine", chance: 0.25, type: "clear_status", value: null, message: "Cloud Nine blew away status conditions!", color: "#81d4fa"},
+        {name: "Wind Rider", chance: 0.25, type: "speed", value: 1.2, message: "Wind Rider surfed the breeze, increasing speed!", color: "#81d4fa"},
+        {name: "Tailwind", chance: 0.20, type: "speed", value: 1.4, message: "Tailwind provided a burst of speed!", color: "#81d4fa"},
+        {name: "Hurricane", chance: 0.25, type: "status_enemy", value: "Confusion", message: "Hurricane disoriented the opponent!", color: "#81d4fa"}
+    ],
+    "Light": [
+        {name: "Illuminate", chance: 0.25, type: "status_enemy", value: "Confusion", message: "Illuminate blinded the opponent!", color: "#fff59d"},
+        {name: "Solar Power", chance: 0.20, type: "damage", value: 1.3, message: "Solar Power harnessed the sun, increasing damage!", color: "#fff59d"},
+        {name: "Serene Grace", chance: 0.25, type: "heal", value: 0.1, message: "Serene Grace shone brightly, restoring HP!", color: "#fff59d"},
+        {name: "Dazzling", chance: 0.25, type: "defense", value: 0.8, message: "Dazzling distracted the attacker, reducing damage!", color: "#fff59d"},
+        {name: "Prism Armor", chance: 0.20, type: "defense", value: 0.75, message: "Prism Armor scattered the attack!", color: "#fff59d"},
+        {name: "Luster Purge", chance: 0.25, type: "damage", value: 1.2, message: "Luster Purge blasted light, dealing extra damage!", color: "#fff59d"}
+    ],
+    "Dark": [
+        {name: "Dark Aura", chance: 0.25, type: "damage", value: 1.2, message: "Dark Aura consumed the light, increasing damage!", color: "#616161"},
+        {name: "Super Luck", chance: 0.20, type: "damage", value: 1.4, message: "Super Luck struck a vital point!", color: "#616161"},
+        {name: "Pressure", chance: 0.25, type: "status_enemy", value: "Confusion", message: "Pressure overwhelmed the opponent!", color: "#616161"},
+        {name: "Unnerve", chance: 0.25, type: "defense", value: 0.8, message: "Unnerve frightened the attacker, reducing damage!", color: "#616161"},
+        {name: "Shadow Shield", chance: 0.20, type: "defense", value: 0.7, message: "Shadow Shield blocked the attack!", color: "#616161"},
+        {name: "Nightmare", chance: 0.25, type: "status_enemy", value: "Sleep", message: "Nightmare induced a terrifying sleep!", color: "#616161"}
+    ],
+    "Cosmic": [
+        {name: "Levitate", chance: 0.25, type: "defense", value: 0.8, message: "Levitate floated above danger, reducing damage!", color: "#ab47bc"},
+        {name: "Magic Guard", chance: 0.20, type: "clear_status", value: null, message: "Magic Guard dispelled status conditions!", color: "#ab47bc"},
+        {name: "Telepathy", chance: 0.25, type: "status_enemy", value: "Confusion", message: "Telepathy invaded the opponent's mind!", color: "#ab47bc"},
+        {name: "Meteor Strike", chance: 0.25, type: "damage", value: 1.3, message: "Meteor Strike crashed down, increasing damage!", color: "#ab47bc"},
+        {name: "Cosmic Power", chance: 0.20, type: "defense", value: 0.7, message: "Cosmic Power bolstered defenses!", color: "#ab47bc"},
+        {name: "Stardust", chance: 0.25, type: "heal", value: 0.15, message: "Stardust shimmered, restoring HP!", color: "#ab47bc"}
+    ],
+    "Normal": [
+        {name: "Adaptability", chance: 0.25, type: "damage", value: 1.2, message: "Adaptability shifted form, increasing damage!", color: "#9e9e9e"},
+        {name: "Scrappy", chance: 0.20, type: "damage", value: 1.3, message: "Scrappy pushed through defenses!", color: "#9e9e9e"},
+        {name: "Keen Eye", chance: 0.25, type: "defense", value: 0.8, message: "Keen Eye saw the attack coming, reducing damage!", color: "#9e9e9e"},
+        {name: "Inner Focus", chance: 0.25, type: "clear_status", value: null, message: "Inner Focus prevented distraction, clearing status!", color: "#9e9e9e"},
+        {name: "Early Bird", chance: 0.20, type: "speed", value: 1.3, message: "Early Bird reacted instantly, boosting speed!", color: "#9e9e9e"},
+        {name: "Thick Fat", chance: 0.25, type: "defense", value: 0.75, message: "Thick Fat cushioned the blow!", color: "#9e9e9e"}
+    ]
+};
+
 window.natures = [{"name":"Neutral","increase":null,"decrease":null},{"name":"Balanced","increase":null,"decrease":null},{"name":"Stable","increase":null,"decrease":null},{"name":"Even","increase":null,"decrease":null},{"name":"Placid","increase":null,"decrease":null},{"name":"Brave Heart","increase":"defense","decrease":"speed"},{"name":"Brave Soul","increase":"specialDefense","decrease":"attack"},{"name":"Brave Mind","increase":"health","decrease":"specialAttack"},{"name":"Brave Spirit","increase":"specialDefense","decrease":"health"},{"name":"Brave Claw","increase":"specialDefense","decrease":"defense"},{"name":"Brave Fang","increase":"attack","decrease":"defense"},{"name":"Brave Tail","increase":"speed","decrease":"defense"},{"name":"Brave Eye","increase":"speed","decrease":"specialDefense"},{"name":"Brave Wing","increase":"specialAttack","decrease":"defense"},{"name":"Brave Foot","increase":"speed","decrease":"health"},{"name":"Bold Heart","increase":"specialDefense","decrease":"speed"},{"name":"Bold Soul","increase":"defense","decrease":"specialDefense"},{"name":"Bold Mind","increase":"defense","decrease":"health"},{"name":"Bold Spirit","increase":"health","decrease":"speed"},{"name":"Bold Claw","increase":"speed","decrease":"health"},{"name":"Bold Fang","increase":"speed","decrease":"defense"},{"name":"Bold Tail","increase":"specialAttack","decrease":"speed"},{"name":"Bold Eye","increase":"defense","decrease":"health"},{"name":"Bold Wing","increase":"speed","decrease":"attack"},{"name":"Bold Foot","increase":"specialAttack","decrease":"speed"},{"name":"Calm Heart","increase":"health","decrease":"defense"},{"name":"Calm Soul","increase":"health","decrease":"specialDefense"},{"name":"Calm Mind","increase":"specialDefense","decrease":"attack"},{"name":"Calm Spirit","increase":"specialDefense","decrease":"defense"},{"name":"Calm Claw","increase":null,"decrease":null},{"name":"Calm Fang","increase":"specialDefense","decrease":"specialAttack"},{"name":"Calm Tail","increase":null,"decrease":null},{"name":"Calm Eye","increase":"speed","decrease":"specialAttack"},{"name":"Calm Wing","increase":null,"decrease":null},{"name":"Calm Foot","increase":"health","decrease":"attack"},{"name":"Careful Heart","increase":null,"decrease":null},{"name":"Careful Soul","increase":null,"decrease":null},{"name":"Careful Mind","increase":"specialDefense","decrease":"health"},{"name":"Careful Spirit","increase":"attack","decrease":"specialAttack"},{"name":"Careful Claw","increase":"defense","decrease":"specialDefense"},{"name":"Careful Fang","increase":"specialDefense","decrease":"defense"},{"name":"Careful Tail","increase":null,"decrease":null},{"name":"Careful Eye","increase":"defense","decrease":"speed"},{"name":"Careful Wing","increase":"specialDefense","decrease":"health"},{"name":"Careful Foot","increase":"specialDefense","decrease":"defense"},{"name":"Gentle Heart","increase":"health","decrease":"specialAttack"},{"name":"Gentle Soul","increase":"speed","decrease":"specialDefense"},{"name":"Gentle Mind","increase":"attack","decrease":"defense"},{"name":"Gentle Spirit","increase":"defense","decrease":"attack"},{"name":"Gentle Claw","increase":null,"decrease":null},{"name":"Gentle Fang","increase":null,"decrease":null},{"name":"Gentle Tail","increase":null,"decrease":null},{"name":"Gentle Eye","increase":"specialAttack","decrease":"specialDefense"},{"name":"Gentle Wing","increase":"specialDefense","decrease":"specialAttack"},{"name":"Gentle Foot","increase":null,"decrease":null},{"name":"Hasty Heart","increase":null,"decrease":null},{"name":"Hasty Soul","increase":"defense","decrease":"specialDefense"},{"name":"Hasty Mind","increase":"specialDefense","decrease":"defense"},{"name":"Hasty Spirit","increase":"attack","decrease":"specialDefense"},{"name":"Hasty Claw","increase":"defense","decrease":"attack"},{"name":"Hasty Fang","increase":"specialAttack","decrease":"speed"},{"name":"Hasty Tail","increase":"specialDefense","decrease":"health"},{"name":"Hasty Eye","increase":"specialDefense","decrease":"specialAttack"},{"name":"Hasty Wing","increase":"specialDefense","decrease":"attack"},{"name":"Hasty Foot","increase":"attack","decrease":"specialAttack"},{"name":"Jolly Heart","increase":"speed","decrease":"specialAttack"},{"name":"Jolly Soul","increase":"attack","decrease":"defense"},{"name":"Jolly Mind","increase":"health","decrease":"specialDefense"},{"name":"Jolly Spirit","increase":"specialDefense","decrease":"specialAttack"},{"name":"Jolly Claw","increase":"health","decrease":"specialDefense"},{"name":"Jolly Fang","increase":"specialAttack","decrease":"speed"},{"name":"Jolly Tail","increase":null,"decrease":null},{"name":"Jolly Eye","increase":null,"decrease":null},{"name":"Jolly Wing","increase":"defense","decrease":"specialDefense"},{"name":"Jolly Foot","increase":"specialDefense","decrease":"defense"},{"name":"Lax Heart","increase":"speed","decrease":"specialAttack"},{"name":"Lax Soul","increase":"specialDefense","decrease":"specialAttack"},{"name":"Lax Mind","increase":"attack","decrease":"specialAttack"},{"name":"Lax Spirit","increase":"health","decrease":"specialDefense"},{"name":"Lax Claw","increase":"defense","decrease":"attack"},{"name":"Lax Fang","increase":"attack","decrease":"health"},{"name":"Lax Tail","increase":"speed","decrease":"specialDefense"},{"name":"Lax Eye","increase":"specialDefense","decrease":"health"},{"name":"Lax Wing","increase":"specialDefense","decrease":"speed"},{"name":"Lax Foot","increase":"speed","decrease":"specialDefense"},{"name":"Lonely Heart","increase":"attack","decrease":"speed"},{"name":"Lonely Soul","increase":"defense","decrease":"specialDefense"},{"name":"Lonely Mind","increase":"health","decrease":"speed"},{"name":"Lonely Spirit","increase":"defense","decrease":"attack"},{"name":"Lonely Claw","increase":"attack","decrease":"specialAttack"},{"name":"Lonely Fang","increase":"specialAttack","decrease":"health"},{"name":"Lonely Tail","increase":"attack","decrease":"speed"},{"name":"Lonely Eye","increase":"specialDefense","decrease":"speed"},{"name":"Lonely Wing","increase":"speed","decrease":"defense"},{"name":"Lonely Foot","increase":"attack","decrease":"specialDefense"},{"name":"Mild Heart","increase":"speed","decrease":"defense"},{"name":"Mild Soul","increase":"health","decrease":"specialAttack"},{"name":"Mild Mind","increase":null,"decrease":null},{"name":"Mild Spirit","increase":"speed","decrease":"specialDefense"},{"name":"Mild Claw","increase":"specialDefense","decrease":"attack"},{"name":"Mild Fang","increase":"health","decrease":"speed"},{"name":"Mild Tail","increase":"speed","decrease":"attack"},{"name":"Mild Eye","increase":"specialDefense","decrease":"attack"},{"name":"Mild Wing","increase":"speed","decrease":"specialDefense"},{"name":"Mild Foot","increase":"health","decrease":"defense"},{"name":"Modest Heart","increase":"attack","decrease":"health"},{"name":"Modest Soul","increase":"specialDefense","decrease":"attack"},{"name":"Modest Mind","increase":"specialAttack","decrease":"speed"},{"name":"Modest Spirit","increase":"specialAttack","decrease":"specialDefense"},{"name":"Modest Claw","increase":"specialDefense","decrease":"health"},{"name":"Modest Fang","increase":"attack","decrease":"health"},{"name":"Modest Tail","increase":"specialAttack","decrease":"health"},{"name":"Modest Eye","increase":"health","decrease":"specialDefense"},{"name":"Modest Wing","increase":"specialAttack","decrease":"health"},{"name":"Modest Foot","increase":"specialAttack","decrease":"health"},{"name":"Naive Heart","increase":"specialAttack","decrease":"specialDefense"},{"name":"Naive Soul","increase":"health","decrease":"specialDefense"},{"name":"Naive Mind","increase":"speed","decrease":"specialAttack"},{"name":"Naive Spirit","increase":"specialDefense","decrease":"specialAttack"},{"name":"Naive Claw","increase":"speed","decrease":"specialDefense"},{"name":"Naive Fang","increase":"defense","decrease":"specialDefense"},{"name":"Naive Tail","increase":"speed","decrease":"defense"},{"name":"Naive Eye","increase":"specialDefense","decrease":"defense"},{"name":"Naive Wing","increase":"attack","decrease":"specialAttack"},{"name":"Naive Foot","increase":"specialAttack","decrease":"attack"},{"name":"Naughty Heart","increase":"health","decrease":"specialAttack"},{"name":"Naughty Soul","increase":"attack","decrease":"speed"},{"name":"Naughty Mind","increase":null,"decrease":null},{"name":"Naughty Spirit","increase":null,"decrease":null},{"name":"Naughty Claw","increase":"health","decrease":"attack"},{"name":"Naughty Fang","increase":"speed","decrease":"specialAttack"},{"name":"Naughty Tail","increase":null,"decrease":null},{"name":"Naughty Eye","increase":"defense","decrease":"health"},{"name":"Naughty Wing","increase":"specialDefense","decrease":"speed"},{"name":"Naughty Foot","increase":"speed","decrease":"health"},{"name":"Quiet Heart","increase":"defense","decrease":"speed"},{"name":"Quiet Soul","increase":"defense","decrease":"health"},{"name":"Quiet Mind","increase":"speed","decrease":"specialAttack"},{"name":"Quiet Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Quiet Claw","increase":null,"decrease":null},{"name":"Quiet Fang","increase":"specialAttack","decrease":"speed"},{"name":"Quiet Tail","increase":"speed","decrease":"attack"},{"name":"Quiet Eye","increase":"specialDefense","decrease":"specialAttack"},{"name":"Quiet Wing","increase":"attack","decrease":"speed"},{"name":"Quiet Foot","increase":"specialAttack","decrease":"defense"},{"name":"Quirky Heart","increase":"attack","decrease":"health"},{"name":"Quirky Soul","increase":"specialAttack","decrease":"health"},{"name":"Quirky Mind","increase":"specialAttack","decrease":"health"},{"name":"Quirky Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Quirky Claw","increase":"specialAttack","decrease":"attack"},{"name":"Quirky Fang","increase":"attack","decrease":"health"},{"name":"Quirky Tail","increase":"specialDefense","decrease":"specialAttack"},{"name":"Quirky Eye","increase":"speed","decrease":"defense"},{"name":"Quirky Wing","increase":"speed","decrease":"specialDefense"},{"name":"Quirky Foot","increase":null,"decrease":null},{"name":"Rash Heart","increase":null,"decrease":null},{"name":"Rash Soul","increase":"speed","decrease":"health"},{"name":"Rash Mind","increase":null,"decrease":null},{"name":"Rash Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Rash Claw","increase":"defense","decrease":"specialAttack"},{"name":"Rash Fang","increase":"speed","decrease":"attack"},{"name":"Rash Tail","increase":"specialDefense","decrease":"attack"},{"name":"Rash Eye","increase":"defense","decrease":"specialDefense"},{"name":"Rash Wing","increase":"defense","decrease":"specialAttack"},{"name":"Rash Foot","increase":"attack","decrease":"specialDefense"},{"name":"Relaxed Heart","increase":"defense","decrease":"speed"},{"name":"Relaxed Soul","increase":"defense","decrease":"speed"},{"name":"Relaxed Mind","increase":"health","decrease":"attack"},{"name":"Relaxed Spirit","increase":"speed","decrease":"specialAttack"},{"name":"Relaxed Claw","increase":null,"decrease":null},{"name":"Relaxed Fang","increase":"attack","decrease":"specialDefense"},{"name":"Relaxed Tail","increase":"specialDefense","decrease":"speed"},{"name":"Relaxed Eye","increase":"specialDefense","decrease":"attack"},{"name":"Relaxed Wing","increase":null,"decrease":null},{"name":"Relaxed Foot","increase":"specialAttack","decrease":"attack"},{"name":"Sassy Heart","increase":null,"decrease":null},{"name":"Sassy Soul","increase":"defense","decrease":"speed"},{"name":"Sassy Mind","increase":"attack","decrease":"defense"},{"name":"Sassy Spirit","increase":"attack","decrease":"specialAttack"},{"name":"Sassy Claw","increase":"health","decrease":"speed"},{"name":"Sassy Fang","increase":"health","decrease":"speed"},{"name":"Sassy Tail","increase":"health","decrease":"speed"},{"name":"Sassy Eye","increase":null,"decrease":null},{"name":"Sassy Wing","increase":"specialAttack","decrease":"defense"},{"name":"Sassy Foot","increase":"defense","decrease":"health"},{"name":"Serious Heart","increase":null,"decrease":null},{"name":"Serious Soul","increase":"specialDefense","decrease":"attack"},{"name":"Serious Mind","increase":"specialAttack","decrease":"defense"},{"name":"Serious Spirit","increase":"specialAttack","decrease":"defense"},{"name":"Serious Claw","increase":null,"decrease":null},{"name":"Serious Fang","increase":null,"decrease":null},{"name":"Serious Tail","increase":"specialDefense","decrease":"defense"},{"name":"Serious Eye","increase":"attack","decrease":"speed"},{"name":"Serious Wing","increase":"speed","decrease":"specialDefense"},{"name":"Serious Foot","increase":"speed","decrease":"defense"},{"name":"Timid Heart","increase":"specialDefense","decrease":"speed"},{"name":"Timid Soul","increase":"speed","decrease":"specialAttack"},{"name":"Timid Mind","increase":"health","decrease":"specialAttack"},{"name":"Timid Spirit","increase":"defense","decrease":"attack"},{"name":"Timid Claw","increase":"specialAttack","decrease":"speed"}];
 const statsArr = ['attack', 'defense', 'speed', 'specialAttack', 'specialDefense', 'health'];
 const buffAdjectives = ['Mighty', 'Sturdy', 'Swift', 'Brilliant', 'Resilient', 'Vital', 'Fierce', 'Tough', 'Nimble', 'Clever'];
@@ -2206,6 +2308,24 @@ for (let i = 1; i <= 50; i++) {
     window.natures.push({ name: adj + ' ' + noun, increase: null, decrease: statsArr[i % 6] });
 }
 
+window.assignAbility = function(creature) {
+    if (creature.ability) return;
+    // Get primary type to assign an ability
+    const primaryType = creature.type ? creature.type.split('-')[0] : "Normal";
+    const typeAbilities = window.abilities[primaryType] || window.abilities["Normal"];
+
+    // Choose randomly
+    const randomAbility = typeAbilities[Math.floor(Math.random() * typeAbilities.length)];
+
+    // Store full ability object directly on creature so it can be used during battle
+    creature.ability = JSON.parse(JSON.stringify(randomAbility));
+};
+
+// Assign abilities to base creatures
+window.baseCreatures.forEach(c => {
+    window.assignAbility(c);
+});
+
 window.getRandomNature = function() {
     // Only return natures that actually have a buff OR debuff (removes Neutral / null entries)
     const validNatures = window.natures.filter(n => n.increase || n.decrease);
@@ -2215,6 +2335,9 @@ window.getRawScaledStat = function(creature, statName) {
     if (!creature.stats) creature.stats = {};
     let base = creature.stats[statName] || 50;
     let lvl = creature.level || 1;
+    if (statName === 'health') {
+        return (base * 0.4) + (base * lvl * 0.05);
+    }
     return base + (base * (lvl - 1) * 0.05);
 };
 
@@ -2334,13 +2457,21 @@ window.getTypeTooltip = function(typeString) {
 window.calculateDamage = function(attacker, defender, power = 50) {
     const atk = window.getEffectiveStat(attacker, 'attack');
     const def = window.getEffectiveStat(defender, 'defense');
+    const spAtk = window.getEffectiveStat(attacker, 'specialAttack');
+    const spDef = window.getEffectiveStat(defender, 'specialDefense');
+
     let typeMod = window.getTypeModifier(attacker.type, defender.type);
 
     // Cap type modifier to prevent excessive damage
     typeMod = Math.min(2, Math.max(0, typeMod));
 
     let level = attacker.level || 1;
-    let damage = ((((2 * level / 5 + 2) * power * (atk / def)) / 50) + 2) * typeMod;
+
+    // Calculate physical and special damage, use whichever is higher
+    let physDamage = ((((2 * level / 5 + 2) * power * (atk / def)) / 50) + 2) * typeMod;
+    let specDamage = ((((2 * level / 5 + 2) * power * (spAtk / spDef)) / 50) + 2) * typeMod;
+
+    let damage = Math.max(physDamage, specDamage);
 
     // Prevent super effective attacks from one-hit killing
     if (typeMod > 1) {
@@ -2385,6 +2516,12 @@ window.baseCreatures.forEach(c => {
 const STORAGE_KEY = 'wildpulse_collected_creatures';
 let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 let collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
+
+// Also assign abilities to existing collected creatures
+collectedCreatures.forEach(c => {
+    window.assignAbility(c);
+});
+localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
 
 // Provide a starting creature if the player is new
 if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
@@ -2591,6 +2728,9 @@ window.renderPartyList = function() {
             }
         }
         let natureHtml = c.nature ? `<p data-tooltip="${c.nature.name}: Increases ${c.nature.increase || 'Nothing'} and decreases ${c.nature.decrease || 'Nothing'}">Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
+
+        let abilityHtml = c.ability ? `<p data-tooltip="${c.ability.message}">Ability: <span style="color:${c.ability.color};">${c.ability.name}</span></p>` : '<p>Ability: None</p>';
+
         let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
 
         card.innerHTML = `
@@ -2600,7 +2740,10 @@ window.renderPartyList = function() {
                 <div class="creature-description">
                     <p style="color: #ccc; font-style: italic;">${c.description}</p>
                 </div>
-                ${natureHtml}
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 10px;">
+                    ${natureHtml}
+                    ${abilityHtml}
+                </div>
                 ${parentsHtml}
                 <div style="border-top: 1px solid #555; padding-top: 10px; margin-top: 10px;">
                     <h4 style="margin: 0 0 5px 0;">Base Stats</h4>
@@ -2669,14 +2812,15 @@ window.renderStorageList = function() {
 
 
         const nameHtml = `<h4>${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''}</h4>`;
-        const typeHtml = `<p>Lvl ${c.level} | Type: <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span> | Gen ${c.generation}</p>`;
+        const abilityText = c.ability ? `<span style="color:${c.ability.color}" data-tooltip="${c.ability.message}">${c.ability.name}</span>` : 'None';
+        const typeHtml = `<p>Lvl ${c.level} | Type: <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span> | Gen ${c.generation}</p><p>Ability: ${abilityText}</p>`;
 
         let actionHtml = `<div class="party-controls">`;
         actionHtml += `<button class="retrieve-btn" data-index="${index}" style="background-color: #4CAF50; color: white;">Retrieve</button>`;
         actionHtml += `<button class="release-btn" data-index="${index}" style="background-color: #f44336; color: white;">Release</button>`;
         actionHtml += `</div>`;
 
-        card.innerHTML = nameHtml + typeHtml + actionHtml;
+        card.innerHTML = "<div>" + nameHtml + typeHtml + "</div>" + actionHtml;
         storageGrid.appendChild(card);
     });
 
@@ -2866,7 +3010,8 @@ window.breed = function(parent1, parent2) {
         }
     }
 
-    return {
+    // Create baby and assign ability before returning
+    const child = {
         id: childId,
         name: childName,
         description: childDesc,
@@ -2889,6 +3034,9 @@ window.breed = function(parent1, parent2) {
             type2: parent2.type
         }
     };
+
+    window.assignAbility(child);
+    return child;
 };
 
 function populateSelect(selectElement) {
@@ -3274,6 +3422,15 @@ function updateBattleUI() {
         document.getElementById('pLevel').style.color = '#2196F3';
         document.getElementById('pType').innerText = currentPlayer.type || 'Normal';
         document.getElementById('pType').setAttribute('data-tooltip', window.getTypeTooltip(currentPlayer.type || 'Normal'));
+        if (currentPlayer.ability) {
+            document.getElementById('pAbility').innerText = currentPlayer.ability.name;
+            document.getElementById('pAbility').style.color = currentPlayer.ability.color;
+            document.getElementById('pAbility').setAttribute('data-tooltip', currentPlayer.ability.message);
+        } else {
+            document.getElementById('pAbility').innerText = 'None';
+            document.getElementById('pAbility').style.color = '#fff';
+            document.getElementById('pAbility').removeAttribute('data-tooltip');
+        }
         document.getElementById('pStatus').innerText = currentPlayer.status ? `[${currentPlayer.status}]` : '';
         document.getElementById('pHPText').innerText = Math.max(0, currentPlayer.currentHp).toFixed(1) + ' / ' + currentPlayer.maxHp.toFixed(1);
         document.getElementById('pHPText').style.color = currentPlayer.currentHp <= 0.3 * currentPlayer.maxHp ? '#f44336' : '#4caf50';
@@ -3288,6 +3445,15 @@ function updateBattleUI() {
         document.getElementById('eLevel').style.color = '#2196F3';
         document.getElementById('eType').innerText = currentEnemy.type || 'Normal';
         document.getElementById('eType').setAttribute('data-tooltip', window.getTypeTooltip(currentEnemy.type || 'Normal'));
+        if (currentEnemy.ability) {
+            document.getElementById('eAbility').innerText = currentEnemy.ability.name;
+            document.getElementById('eAbility').style.color = currentEnemy.ability.color;
+            document.getElementById('eAbility').setAttribute('data-tooltip', currentEnemy.ability.message);
+        } else {
+            document.getElementById('eAbility').innerText = 'None';
+            document.getElementById('eAbility').style.color = '#fff';
+            document.getElementById('eAbility').removeAttribute('data-tooltip');
+        }
         document.getElementById('eStatus').innerText = currentEnemy.status ? `[${currentEnemy.status}]` : '';
         document.getElementById('eHPText').innerText = Math.max(0, currentEnemy.currentHp).toFixed(1) + ' / ' + currentEnemy.maxHp.toFixed(1);
         document.getElementById('eHPText').style.color = currentEnemy.currentHp <= 0.3 * currentEnemy.maxHp ? '#f44336' : '#4caf50';
@@ -3787,8 +3953,8 @@ function create() {
     // Player setup
     const savedX = localStorage.getItem('wildpulse_player_x');
     const savedY = localStorage.getItem('wildpulse_player_y');
-    let startX = savedX ? parseFloat(savedX) : WORLD_SIZE / 2;
-    let startY = savedY ? parseFloat(savedY) : WORLD_SIZE / 2;
+    let startX = savedX ? parseFloat(savedX) : 101 * 100 + 50; // Updated to new game default coordinate
+    let startY = savedY ? parseFloat(savedY) : 100 * 100 + 50;
 
     // Ensure player spawns on grass
     let pCol = Math.floor(startX / 100);
@@ -3835,6 +4001,9 @@ function create() {
     dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
     timeText = this.add.text(20, window.innerHeight - 40, "08:00", { fontSize: '24px', fill: '#FFF' }).setScrollFactor(0).setDepth(100);
 
+    // World Coordinates UI
+    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#FFF' }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
+
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
 
@@ -3862,6 +4031,9 @@ function create() {
         }
         if (timeText) {
             timeText.setPosition(20, gameSize.height - 40);
+        }
+        if (window.coordText) {
+            window.coordText.setPosition(gameSize.width - 20, gameSize.height - 40);
         }
     });
 
@@ -4031,6 +4203,9 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
     // Assign random nature and unique ID on spawn
     clonedData.nature = window.getRandomNature();
 
+    // Assign Ability
+    window.assignAbility(clonedData);
+
     let minPossibleLevel = collectedCreatures.length > 0 ? Math.min(...collectedCreatures.map(c => c.level || 1)) : 1;
     let maxPossibleLevel = collectedCreatures.length > 0 ? Math.max(...collectedCreatures.map(c => c.level || 1)) : 1;
     if (maxPossibleLevel === 1 && minPossibleLevel === 1) {
@@ -4112,6 +4287,8 @@ function collectCreature(playerCollider, creatureSprite) {
     currentPlayer.isDefending = false;
 
     document.getElementById('battleModal').style.display = 'block';
+    document.getElementById('battleControls').style.display = 'grid'; // Ensure controls are shown
+    document.getElementById('battleCloseBtn').style.display = 'none'; // Ensure close button is hidden
     document.getElementById('battleLog').innerHTML = '';
     battleLogQueue = []; // Clear queue on new battle
     isTyping = false;
@@ -4171,6 +4348,31 @@ function processStatuses(creature) {
             logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> is fast asleep...`);
             return false;
         }
+    } else if (creature.status === 'Paralyze') {
+        if (Math.random() < 0.25) {
+            logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> is paralyzed! It can't move!`);
+            return false;
+        }
+    } else if (creature.status === 'Freeze') {
+        if (Math.random() < 0.20) {
+            creature.status = null;
+            logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> thawed out!`);
+            return true;
+        } else {
+            logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> is frozen solid!`);
+            return false;
+        }
+    } else if (creature.status === 'Confusion') {
+        if (Math.random() < 0.33) {
+            let dmg = creature.maxHp * 0.15;
+            creature.currentHp -= dmg;
+            logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> hit itself in its confusion for <span class="damage">${dmg.toFixed(1)} damage</span>!`);
+            return false;
+        } else if (Math.random() < 0.25) {
+            creature.status = null;
+            logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> snapped out of its confusion!`);
+            return true;
+        }
     }
 
     if (creature.currentHp <= 0) {
@@ -4226,7 +4428,39 @@ window.doPlayerAction = function(action, callback) {
     }
 
     if (action === 'attack') {
-        let damage = window.calculateDamage(currentPlayer, currentEnemy, 50);
+        let abilityTriggered = currentPlayer.ability && Math.random() < currentPlayer.ability.chance;
+
+        let power = 50;
+        let damageMultiplier = 1;
+
+        if (abilityTriggered) {
+            logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
+            if (currentPlayer.ability.type === 'damage') {
+                damageMultiplier = currentPlayer.ability.value;
+            } else if (currentPlayer.ability.type === 'speed') {
+                // Already passive, but log for flavor
+            } else if (currentPlayer.ability.type === 'heal') {
+                let healAmt = currentPlayer.maxHp * currentPlayer.ability.value;
+                currentPlayer.currentHp = Math.min(currentPlayer.maxHp, currentPlayer.currentHp + healAmt);
+                logBattle(`<span class="heal">Restored ${healAmt.toFixed(1)} HP!</span>`);
+            } else if (currentPlayer.ability.type === 'clear_status') {
+                currentPlayer.status = null;
+            } else if (currentPlayer.ability.type === 'status_enemy') {
+                applyStatusEffect(currentEnemy, currentPlayer.ability.value);
+            }
+        }
+
+        // Check enemy defensive ability
+        let enemyAbilityTriggered = currentEnemy.ability && currentEnemy.ability.type.includes('defense') && Math.random() < currentEnemy.ability.chance;
+        if (enemyAbilityTriggered) {
+             logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
+             damageMultiplier *= currentEnemy.ability.value;
+        }
+
+        // Recoil ability on enemy
+        let enemyRecoilTriggered = currentEnemy.ability && currentEnemy.ability.type === 'damage_recoil' && Math.random() < currentEnemy.ability.chance;
+
+        let damage = window.calculateDamage(currentPlayer, currentEnemy, power) * damageMultiplier;
 
         if (Math.random() < 0.10) {
             damage *= 1.5;
@@ -4236,9 +4470,13 @@ window.doPlayerAction = function(action, callback) {
         currentEnemy.currentHp -= damage;
         logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
-        if (currentPlayer.type === 'Fire') applyStatusEffect(currentEnemy, 'Burn');
-        else if (currentPlayer.type === 'Nature') applyStatusEffect(currentEnemy, 'Poison');
-        else if (currentPlayer.type === 'Water') applyStatusEffect(currentEnemy, 'Sleep');
+        if (enemyRecoilTriggered) {
+             logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
+             let recoil = currentPlayer.maxHp * currentEnemy.ability.value;
+             currentPlayer.currentHp -= recoil;
+             logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> took <span class="damage">${recoil.toFixed(1)} recoil damage</span>!`);
+        }
+
     } else if (action === 'catch') {
         if (collectedCreatures.length >= 1375) {
             logBattle("<b>Your storage is full! You cannot catch more creatures.</b>");
@@ -4300,7 +4538,40 @@ window.doEnemyAction = function(callback) {
         return;
     }
 
-    let damage = window.calculateDamage(currentEnemy, currentPlayer, 50);
+    let abilityTriggered = currentEnemy.ability && Math.random() < currentEnemy.ability.chance;
+
+    let power = 50;
+    let damageMultiplier = 1;
+
+    if (abilityTriggered) {
+        logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
+        if (currentEnemy.ability.type === 'damage') {
+            damageMultiplier = currentEnemy.ability.value;
+        } else if (currentEnemy.ability.type === 'speed') {
+            // Already passive, but log for flavor
+        } else if (currentEnemy.ability.type === 'heal') {
+            let healAmt = currentEnemy.maxHp * currentEnemy.ability.value;
+            currentEnemy.currentHp = Math.min(currentEnemy.maxHp, currentEnemy.currentHp + healAmt);
+            logBattle(`<span class="heal">Restored ${healAmt.toFixed(1)} HP!</span>`);
+        } else if (currentEnemy.ability.type === 'clear_status') {
+            currentEnemy.status = null;
+        } else if (currentEnemy.ability.type === 'status_enemy') {
+            applyStatusEffect(currentPlayer, currentEnemy.ability.value);
+        }
+    }
+
+    // Check player defensive ability
+    let playerAbilityTriggered = currentPlayer.ability && currentPlayer.ability.type.includes('defense') && Math.random() < currentPlayer.ability.chance;
+    if (playerAbilityTriggered) {
+         logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
+         damageMultiplier *= currentPlayer.ability.value;
+    }
+
+    // Recoil ability on player
+    let playerRecoilTriggered = currentPlayer.ability && currentPlayer.ability.type === 'damage_recoil' && Math.random() < currentPlayer.ability.chance;
+
+
+    let damage = window.calculateDamage(currentEnemy, currentPlayer, power) * damageMultiplier;
 
     if (Math.random() < 0.10) {
         damage *= 1.5;
@@ -4310,15 +4581,23 @@ window.doEnemyAction = function(callback) {
     currentPlayer.currentHp -= damage;
     logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
-    if (currentEnemy.type === 'Fire') applyStatusEffect(currentPlayer, 'Burn');
-    else if (currentEnemy.type === 'Nature') applyStatusEffect(currentPlayer, 'Poison');
-    else if (currentEnemy.type === 'Water') applyStatusEffect(currentPlayer, 'Sleep');
+    if (playerRecoilTriggered) {
+         logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
+         let recoil = currentEnemy.maxHp * currentPlayer.ability.value;
+         currentEnemy.currentHp -= recoil;
+         logBattle(`<span style="color:#f44336">${currentEnemy.name}</span> took <span class="damage">${recoil.toFixed(1)} recoil damage</span>!`);
+    }
 
     updateBattleUI();
 
     if (currentPlayer.currentHp <= 0) {
         logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span><span style="color:#9e9e9e"> fainted!</span>`);
         if (window.handleFaint(currentPlayer)) return;
+    }
+
+    if (currentEnemy.currentHp <= 0) {
+        logBattle(`<span style="color:#9e9e9e">The wild </span><span style="color:#f44336">${currentEnemy.name}</span><span style="color:#9e9e9e"> fainted!</span>`);
+        if (window.handleFaint(currentEnemy)) return;
     }
 
     if (callback) setTimeout(callback, 1000);
@@ -4354,9 +4633,44 @@ window.handlePlayerTurn = function(action) {
     }
 };
 
+window.pendingBattleResult = null;
+window.closeBattleModal = function() {
+    document.getElementById('battleModal').style.display = 'none';
+    document.getElementById('battleCloseBtn').style.display = 'none';
+    let result = window.pendingBattleResult;
+    window.pendingBattleResult = null;
+
+    if (result === 'win' && window.pendingLevelUp) {
+        document.getElementById('levelUpModal').style.display = 'block';
+        window.pendingLevelUp = false;
+        return; // wait for level up modal to close
+    }
+
+    inBattle = false;
+    player.body.moves = true;
+    player.lastBattleTime = game.scene.scenes[0].time.now;
+
+    if (result === 'win') {
+        currentEnemySprite.destroy();
+        respawnEnemyBase();
+    } else if (result === 'caught') {
+        saveCollected(currentEnemy);
+        currentEnemySprite.destroy();
+        respawnEnemyBase();
+    } else if (result === 'run') {
+        player.x += 100;
+    } else if (result === 'loss') {
+        alert('All your creatures fainted! Follow the arrow to the hospital to heal them.');
+        player.x = 101 * 90 + 45;
+        player.y = 100 * 90 + 45;
+    }
+};
+
 window.endBattle = function(result) {
     setTimeout(() => {
-        let _m_battleModal = document.getElementById('battleModal'); _m_battleModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_battleModal.style.display = 'none'; _m_battleModal.children[0].classList.remove('modal-fade-out'); }, 190);
+        window.pendingBattleResult = result;
+        document.getElementById('battleControls').style.display = 'none';
+        document.getElementById('battleCloseBtn').style.display = 'flex'; // Show close button
 
         let activeCreature = collectedCreatures.find(c => c.id === currentPlayer.id);
         if (activeCreature) {
@@ -4378,9 +4692,7 @@ window.endBattle = function(result) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
 
             if (leveledUp) {
-                // Show level up modal instead of alert
                 document.getElementById('levelUpTitle').innerText = `${collectedCreatures[0].nickname || collectedCreatures[0].name} reached Level ${collectedCreatures[0].level}!`;
-
                 let statsHtml = '';
                 const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
 
@@ -4391,33 +4703,8 @@ window.endBattle = function(result) {
                         statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldStats[stat].toFixed(1)} <span style="color:#4caf50">➔ ${newStat.toFixed(1)} (+${diff.toFixed(1)})</span></div>`;
                     }
                 });
-
                 document.getElementById('levelUpStats').innerHTML = statsHtml;
-                document.getElementById('levelUpModal').style.display = 'block';
-                // Note: inBattle remains true until the modal is closed to pause gameplay
-                player.body.moves = true; // Restore player physics movement
-            } else {
-                inBattle = false;
-                player.body.moves = true; // Restore player physics movement
-                player.lastBattleTime = game.scene.scenes[0].time.now;
-                currentEnemySprite.destroy();
-                respawnEnemyBase();
-            }
-        } else {
-            inBattle = false;
-            player.body.moves = true; // Restore player physics movement
-            player.lastBattleTime = game.scene.scenes[0].time.now;
-
-            if (result === 'caught') {
-                saveCollected(currentEnemy);
-                currentEnemySprite.destroy();
-                respawnEnemyBase();
-            } else if (result === 'run') {
-                player.x += 100;
-            } else if (result === 'loss') {
-                alert('All your creatures fainted! Follow the arrow to the hospital to heal them.');
-                player.x = 101 * 90 + 45;
-                player.y = 100 * 90 + 45;
+                window.pendingLevelUp = true;
             }
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
@@ -4518,6 +4805,11 @@ function update() {
     let hStr = hours < 10 ? '0' + hours : hours.toString();
     let mStr = minutes < 10 ? '0' + minutes : minutes.toString();
     if (timeText) timeText.setText(hStr + ":" + mStr);
+
+    // Update World Coordinates UI
+    if (window.coordText && player) {
+        window.coordText.setText(`X: ${Math.floor(player.x)}, Y: ${Math.floor(player.y)}`);
+    }
 
     // Calculate alpha
     let targetAlpha = 0;
