@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+</head>
 <body>
     <script>
-        let testStr = `let c = window.baseCreatures[0];
-            let shinyTest = JSON.parse(JSON.stringify(c));
-            shinyTest.id = "shiny123";
-            shinyTest.nickname = "Goldie";
-            shinyTest.isShiny = true;
-            collectedCreatures.push(shinyTest);
-            renderPartyList();`;
-        console.log("Just running script directly is harder due to closures in index.html");
+        console.log("Phaser version:", Phaser.VERSION);
     </script>
 </body>
 </html>
