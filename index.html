@@ -391,7 +391,6 @@
     <button id="menuJournalBtn">Creature Journal</button>
     <button id="menuHelpBtn">Help</button>
     <button id="menuDeleteBtn">Delete Progress</button>
-    <button id="menuExitBtn" style="background: linear-gradient(180deg, #f44336, #d32f2f); border-color: #ef5350;">Exit Game</button>
     <button class="close-menu-btn">Close</button>
 </div>
 <div id="partyModal">
@@ -533,13 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menuHelpBtn')?.addEventListener('click', openHelpModal);
     document.getElementById('menuJournalBtn')?.addEventListener('click', openJournalModal);
     document.getElementById('menuDeleteBtn')?.addEventListener('click', deleteProgress);
-    document.getElementById('menuExitBtn')?.addEventListener('click', () => {
-        if (typeof player !== 'undefined' && player) {
-            localStorage.setItem('wildpulse_player_x', player.x);
-            localStorage.setItem('wildpulse_player_y', player.y);
-        }
-        window.close();
-    });
 
     document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', closeMenuModal));
     document.querySelectorAll('.close-party-btn').forEach(btn => btn.addEventListener('click', closePartyModal));
@@ -3754,10 +3746,10 @@ function updateBattleUI() {
 
 
 function preload() {
-    // Pre-generate detailed grass blades so they remain consistent across frames
-    const blades = [];
+    // Set up global grass blades arrays to use in dynamic updates
+    window.grassBlades = [];
     for (let i = 0; i < 400; i++) {
-        blades.push({
+        window.grassBlades.push({
             x: Math.random() * 100,
             y: Math.random() * 100,
             height: Math.random() * 10 + 5,
@@ -3765,65 +3757,132 @@ function preload() {
         });
     }
 
-    // Generate procedural animated grass background frames
-    const numFrames = 12;
-    for (let frame = 0; frame < numFrames; frame++) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 100;
-        canvas.height = 100;
-        const ctx = canvas.getContext('2d');
+    // Set up dynamic canvas and save to textures
+    const dynCanvas = document.createElement('canvas');
+    dynCanvas.width = 100;
+    dynCanvas.height = 100;
+    this.textures.addCanvas('grass_dynamic', dynCanvas);
 
-        // Better base grass color gradient blending for seamlessness
-        let gradient = ctx.createRadialGradient(50, 50, 0, 50, 50, 70);
-        gradient.addColorStop(0, '#1a661a'); // Dark center
-        gradient.addColorStop(1, '#228B22'); // Edge blend color
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 100, 100);
-
-        // Dither the base slightly to break grid appearance
-        for (let j = 0; j < 100; j += 4) {
-            for (let k = 0; k < 100; k += 4) {
-                if (Math.random() < 0.2) {
-                    ctx.fillStyle = Math.random() < 0.5 ? '#1c731c' : '#1e781e';
-                    ctx.fillRect(j, k, 4, 4);
-                }
+    // Create base dithered background once to avoid redrawing it fully each frame
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.width = 100;
+    bgCanvas.height = 100;
+    const bgCtx = bgCanvas.getContext('2d');
+    let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
+    gradient.addColorStop(0, '#1a661a');
+    gradient.addColorStop(1, '#228B22');
+    bgCtx.fillStyle = gradient;
+    bgCtx.fillRect(0, 0, 100, 100);
+    for (let j = 0; j < 100; j += 4) {
+        for (let k = 0; k < 100; k += 4) {
+            if (Math.random() < 0.2) {
+                bgCtx.fillStyle = Math.random() < 0.5 ? '#1c731c' : '#1e781e';
+                bgCtx.fillRect(j, k, 4, 4);
             }
         }
+    }
+    window.grassBgCanvas = bgCanvas;
 
-        // Calculate offset for wind waving effect
-        const windOffset = Math.sin((frame / numFrames) * Math.PI * 2) * 3;
+    // Corner cutouts for dynamic canvas
+    const cornerDirs = ['tl', 'tr', 'br', 'bl'];
+    cornerDirs.forEach(dir => {
+        let cvs = document.createElement('canvas');
+        cvs.width = 50;
+        cvs.height = 50;
+        this.textures.addCanvas('grass_corner_convex_' + dir + '_dynamic', cvs);
+    });
 
-        // Draw multiple layers of grass for depth
-        for (let i = 0; i < blades.length; i++) {
-            ctx.fillStyle = blades[i].color;
-            let drawX = blades[i].x;
+    window.updateDynamicGrass = function(scene, timeNow, windVx, windVy) {
+        const tex = scene.textures.get('grass_dynamic');
+        if (!tex) return;
+        const cvs = tex.getSourceImage();
+        const ctx = cvs.getContext('2d');
+
+        // Draw cached bg
+        ctx.drawImage(window.grassBgCanvas, 0, 0);
+
+        // Wind offset logic based on actual wind velocities + a sine wave for natural pulsing
+        const windPower = Math.sqrt(windVx * windVx + windVy * windVy);
+        // Map wind speeds (e.g., -200 to 200) into offsets
+        // Add time element for flapping/waving
+        const wave = Math.sin(timeNow / 500) * 0.5 + 0.5;
+        const offsetMultiplierX = (windVx / 100) * wave * 2;
+        const offsetMultiplierY = (windVy / 100) * wave * 2;
+
+        for (let i = 0; i < window.grassBlades.length; i++) {
+            let blade = window.grassBlades[i];
+            ctx.fillStyle = blade.color;
+            let drawX = blade.x;
+            let drawY = blade.y;
+
+            let wx = offsetMultiplierX * (blade.height / 15);
+            let wy = offsetMultiplierY * (blade.height / 15);
 
             ctx.beginPath();
-            ctx.moveTo(drawX, blades[i].y + blades[i].height);
-            // Bend the blade of grass at the top based on wind
-            ctx.quadraticCurveTo(drawX, blades[i].y + blades[i].height / 2, drawX + windOffset * (blades[i].height / 15), blades[i].y);
-            ctx.lineTo(drawX + 2, blades[i].y + blades[i].height);
+            ctx.moveTo(drawX, drawY + blade.height);
+            // Bend based on both X and Y wind
+            ctx.quadraticCurveTo(drawX, drawY + blade.height / 2, drawX + wx, drawY + wy);
+            ctx.lineTo(drawX + 2, drawY + blade.height);
             ctx.fill();
 
-            // Handle wrap around for seamless horizontal tile edges
+            // Horizontal wrap
             if (drawX > 86) {
                  ctx.beginPath();
-                 ctx.moveTo(drawX - 100, blades[i].y + blades[i].height);
-                 ctx.quadraticCurveTo(drawX - 100, blades[i].y + blades[i].height / 2, drawX - 100 + windOffset * (blades[i].height / 15), blades[i].y);
-                 ctx.lineTo(drawX - 100 + 2, blades[i].y + blades[i].height);
+                 ctx.moveTo(drawX - 100, drawY + blade.height);
+                 ctx.quadraticCurveTo(drawX - 100, drawY + blade.height / 2, drawX - 100 + wx, drawY + wy);
+                 ctx.lineTo(drawX - 100 + 2, drawY + blade.height);
                  ctx.fill();
             }
-            if (drawX < 14) { // Handle left-side wrap around
+            if (drawX < 14) {
                  ctx.beginPath();
-                 ctx.moveTo(drawX + 100, blades[i].y + blades[i].height);
-                 ctx.quadraticCurveTo(drawX + 100, blades[i].y + blades[i].height / 2, drawX + 100 + windOffset * (blades[i].height / 15), blades[i].y);
-                 ctx.lineTo(drawX + 100 + 2, blades[i].y + blades[i].height);
+                 ctx.moveTo(drawX + 100, drawY + blade.height);
+                 ctx.quadraticCurveTo(drawX + 100, drawY + blade.height / 2, drawX + 100 + wx, drawY + wy);
+                 ctx.lineTo(drawX + 100 + 2, drawY + blade.height);
+                 ctx.fill();
+            }
+            // Vertical wrap
+            if (drawY > 86) {
+                 ctx.beginPath();
+                 ctx.moveTo(drawX, drawY - 100 + blade.height);
+                 ctx.quadraticCurveTo(drawX, drawY - 100 + blade.height / 2, drawX + wx, drawY - 100 + wy);
+                 ctx.lineTo(drawX + 2, drawY - 100 + blade.height);
+                 ctx.fill();
+            }
+            if (drawY < 14) {
+                 ctx.beginPath();
+                 ctx.moveTo(drawX, drawY + 100 + blade.height);
+                 ctx.quadraticCurveTo(drawX, drawY + 100 + blade.height / 2, drawX + wx, drawY + 100 + wy);
+                 ctx.lineTo(drawX + 2, drawY + 100 + blade.height);
                  ctx.fill();
             }
         }
 
-        this.textures.addCanvas('grass_' + frame, canvas);
-    }
+        tex.refresh();
+
+        // Update corners
+        const cornerPositions = [
+            { dir: 'tl', x: 50, y: 50, start: Math.PI, end: Math.PI * 1.5, mx: 50, my: 0, sx: 0, sy: 0 },
+            { dir: 'tr', x: 0, y: 50, start: Math.PI * 1.5, end: 0, mx: 50, my: 50, sx: 50, sy: 0 },
+            { dir: 'br', x: 0, y: 0, start: 0, end: Math.PI / 2, mx: 0, my: 50, sx: 50, sy: 50 },
+            { dir: 'bl', x: 50, y: 0, start: Math.PI / 2, end: Math.PI, mx: 0, my: 0, sx: 0, sy: 50 }
+        ];
+
+        cornerPositions.forEach(pos => {
+            const cTex = scene.textures.get('grass_corner_convex_' + pos.dir + '_dynamic');
+            if(cTex) {
+                const cCvs = cTex.getSourceImage();
+                const cCtx = cCvs.getContext('2d');
+                cCtx.clearRect(0,0,50,50);
+                cCtx.globalCompositeOperation = 'source-over';
+                cCtx.drawImage(cvs, pos.sx, pos.sy, 50, 50, 0, 0, 50, 50);
+                cCtx.globalCompositeOperation = 'destination-out';
+                cCtx.beginPath();
+                cCtx.arc(pos.x, pos.y, 50, 0, Math.PI * 2);
+                cCtx.fill();
+                cTex.refresh();
+            }
+        });
+    };
 
 
 
@@ -3925,45 +3984,6 @@ function preload() {
         this.textures.addCanvas('foam_tex_' + frame, foamCanvas);
     }
 
-    // Generate rounded corner cutouts
-    for (let frame = 0; frame < 12; frame++) {
-        const cornerPositions = [
-            { dir: 'tl', x: 50, y: 50, start: Math.PI, end: Math.PI * 1.5, mx: 50, my: 0, sx: 0, sy: 0 },
-            { dir: 'tr', x: 0, y: 50, start: Math.PI * 1.5, end: 0, mx: 50, my: 50, sx: 50, sy: 0 },
-            { dir: 'br', x: 0, y: 0, start: 0, end: Math.PI / 2, mx: 0, my: 50, sx: 50, sy: 50 },
-            { dir: 'bl', x: 50, y: 0, start: Math.PI / 2, end: Math.PI, mx: 0, my: 0, sx: 0, sy: 50 }
-        ];
-
-        cornerPositions.forEach(pos => {
-            // Convex corner (outer edge of water, grass cuts into the water square)
-            const convexCanvas = document.createElement('canvas');
-            convexCanvas.width = 50;
-            convexCanvas.height = 50;
-            const convexCtx = convexCanvas.getContext('2d');
-            // Draw the procedural grass texture instead of solid color
-            convexCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), pos.sx, pos.sy, 50, 50, 0, 0, 50, 50);
-            convexCtx.globalCompositeOperation = 'destination-out';
-            convexCtx.beginPath();
-            convexCtx.arc(pos.x, pos.y, 50, 0, Math.PI * 2);
-            convexCtx.fill();
-            this.textures.addCanvas('grass_corner_convex_' + pos.dir + '_' + frame, convexCanvas);
-
-            // Concave corner (inner edge of water, water cuts into the grass square)
-            const concaveCanvas = document.createElement('canvas');
-            concaveCanvas.width = 50;
-            concaveCanvas.height = 50;
-            const concaveCtx = concaveCanvas.getContext('2d');
-            concaveCtx.drawImage(this.textures.get('grass_' + frame).getSourceImage(), pos.sx, pos.sy, 50, 50, 0, 0, 50, 50);
-            concaveCtx.globalCompositeOperation = 'destination-in';
-            concaveCtx.beginPath();
-            concaveCtx.moveTo(pos.x, pos.y);
-            concaveCtx.lineTo(pos.mx, pos.my);
-            concaveCtx.arc(pos.x, pos.y, 50, pos.start, pos.end, false);
-            concaveCtx.lineTo(pos.x, pos.y);
-            concaveCtx.fill();
-            this.textures.addCanvas('grass_corner_concave_' + pos.dir + '_' + frame, concaveCanvas);
-        });
-    }
 
     // Pre-generate a water overlay texture to mimic the linear-gradient button style
     const overlayCanvas = document.createElement('canvas');
@@ -3979,16 +3999,26 @@ function preload() {
 
     // Pre-generate wind particle textures
     const leafCanvas = document.createElement('canvas');
-    leafCanvas.width = 10;
-    leafCanvas.height = 10;
+    leafCanvas.width = 16;
+    leafCanvas.height = 16;
     const leafCtx = leafCanvas.getContext('2d');
+
+    // Draw leaf body
     leafCtx.fillStyle = '#228B22'; // Forest green
     leafCtx.beginPath();
-    leafCtx.moveTo(0, 10);
-    leafCtx.lineTo(5, 0);
-    leafCtx.lineTo(10, 10);
-    leafCtx.closePath();
+    leafCtx.moveTo(2, 14); // Stem base
+    leafCtx.bezierCurveTo(4, 10, 0, 4, 14, 2); // Left edge to tip
+    leafCtx.bezierCurveTo(10, 6, 12, 12, 2, 14); // Right edge back to base
     leafCtx.fill();
+
+    // Draw stem/vein
+    leafCtx.strokeStyle = '#1a661a';
+    leafCtx.lineWidth = 1;
+    leafCtx.beginPath();
+    leafCtx.moveTo(2, 14);
+    leafCtx.lineTo(10, 6);
+    leafCtx.stroke();
+
     this.textures.addCanvas('leaf_particle', leafCanvas);
 
     const pollenCanvas = document.createElement('canvas');
@@ -4101,7 +4131,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     let posY = r * tileSize + tileSize / 2;
 
     if (mapData[r][c] === 'grass') {
-        let grass = scene.add.sprite(posX, posY, 'grass_0');
+        let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
         grass.setDepth(-1);
         // grass.anims.play('grass_anim', true);
         sprites.push(grass);
@@ -4190,26 +4220,22 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
         // Convex corners
         if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-            let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_tl_0');
-            // corner.anims.play('grass_corner_anim_tl', true);
+            let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_tl_dynamic');
             corner.setDepth(0);
             sprites.push(corner);
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
-            let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_tr_0');
-            // corner.anims.play('grass_corner_anim_tr', true);
+            let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_tr_dynamic');
             corner.setDepth(0);
             sprites.push(corner);
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-            let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_br_0');
-            // corner.anims.play('grass_corner_anim_br', true);
+            let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_br_dynamic');
             corner.setDepth(0);
             sprites.push(corner);
         }
         if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
-            let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_bl_0');
-            // corner.anims.play('grass_corner_anim_bl', true);
+            let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_bl_dynamic');
             corner.setDepth(0);
             sprites.push(corner);
         }
@@ -4246,54 +4272,9 @@ function create() {
         foamFrames.push({ key: 'foam_tex_' + i });
     }
 
-    let grassFrames = [];
-    let grassCornerFrames_tl = [];
-    let grassCornerFrames_tr = [];
-    let grassCornerFrames_br = [];
-    let grassCornerFrames_bl = [];
-    for(let i = 0; i < 12; i++) {
-        grassFrames.push({ key: 'grass_' + i });
-        grassCornerFrames_tl.push({ key: 'grass_corner_convex_tl_' + i });
-        grassCornerFrames_tr.push({ key: 'grass_corner_convex_tr_' + i });
-        grassCornerFrames_br.push({ key: 'grass_corner_convex_br_' + i });
-        grassCornerFrames_bl.push({ key: 'grass_corner_convex_bl_' + i });
-    }
-
-    this.anims.create({
-        key: 'grass_anim',
-        frames: grassFrames,
-        frameRate: 8,
-        repeat: -1
-    });
-
     this.anims.create({
         key: 'water_anim',
         frames: waterFrames,
-        frameRate: 8,
-        repeat: -1
-    });
-
-    this.anims.create({
-        key: 'grass_corner_anim_tl',
-        frames: grassCornerFrames_tl,
-        frameRate: 8,
-        repeat: -1
-    });
-    this.anims.create({
-        key: 'grass_corner_anim_tr',
-        frames: grassCornerFrames_tr,
-        frameRate: 8,
-        repeat: -1
-    });
-    this.anims.create({
-        key: 'grass_corner_anim_br',
-        frames: grassCornerFrames_br,
-        frameRate: 8,
-        repeat: -1
-    });
-    this.anims.create({
-        key: 'grass_corner_anim_bl',
-        frames: grassCornerFrames_bl,
         frameRate: 8,
         repeat: -1
     });
@@ -5310,23 +5291,12 @@ function update() {
     }
     if (dayNightOverlay) dayNightOverlay.setAlpha(targetAlpha);
 
-    const frame8fps = Math.floor(this.time.now / 125) % 12;
     const frame16fps = Math.floor(this.time.now / 125) % 16;
 
     Object.values(activeTiles).forEach(sprites => {
         sprites.forEach(sprite => {
             if (!sprite.texture) return;
-            if (sprite.texture.key.startsWith('grass_') && !sprite.texture.key.includes('corner')) {
-                sprite.setTexture('grass_' + frame8fps);
-            } else if (sprite.texture.key.startsWith('grass_corner_convex_tl_')) {
-                sprite.setTexture('grass_corner_convex_tl_' + frame8fps);
-            } else if (sprite.texture.key.startsWith('grass_corner_convex_tr_')) {
-                sprite.setTexture('grass_corner_convex_tr_' + frame8fps);
-            } else if (sprite.texture.key.startsWith('grass_corner_convex_bl_')) {
-                sprite.setTexture('grass_corner_convex_bl_' + frame8fps);
-            } else if (sprite.texture.key.startsWith('grass_corner_convex_br_')) {
-                sprite.setTexture('grass_corner_convex_br_' + frame8fps);
-            } else if (sprite.texture.key.startsWith('obs_tex_')) {
+            if (sprite.texture.key.startsWith('obs_tex_')) {
                 sprite.setTexture('obs_tex_' + frame16fps);
             } else if (sprite.texture.key.startsWith('foam_tex_')) {
                 sprite.setTexture('foam_tex_' + frame16fps);
@@ -5542,7 +5512,7 @@ function update() {
 
     // Update Wind
     window.windTimer += 1;
-    if (window.windTimer > 600) { // Change wind direction approx every 10 seconds
+    if (window.windTimer > 3600) { // Change wind direction approx every 60 seconds
         window.targetWindAngle = Math.random() * Math.PI * 2;
         window.windTimer = 0;
     }
@@ -5551,10 +5521,15 @@ function update() {
     let dAngle = window.targetWindAngle - window.windAngle;
     if (dAngle > Math.PI) dAngle -= Math.PI * 2;
     if (dAngle < -Math.PI) dAngle += Math.PI * 2;
-    window.windAngle += dAngle * 0.01;
+    window.windAngle += dAngle * 0.001;
 
     let windVx = Math.cos(window.windAngle) * window.windSpeed;
     let windVy = Math.sin(window.windAngle) * window.windSpeed;
+
+    // Call the dynamic grass update function
+    if (window.updateDynamicGrass) {
+        window.updateDynamicGrass(this, this.time.now, windVx, windVy);
+    }
 
     // Update emitters
     if (window.leafEmitter && window.pollenEmitter) {
