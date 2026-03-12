@@ -4006,9 +4006,9 @@ function preload() {
     // Generate animated realistic water textures with depth transitions
     const numWaterFrames = 16;
     const depthTypes = [
-        { prefix: 'obs_shallow_tex_', colors: ['#4682B4', '#1E90FF'] },
-        { prefix: 'obs_mid_tex_', colors: ['#0a3a6a', '#05254a'] },
-        { prefix: 'obs_deep_tex_', colors: ['#000033', '#00001a'] }
+        { prefix: 'obs_shallow_tex_', colors: ['#1E90FF', '#1c86ee'] },
+        { prefix: 'obs_mid_tex_', colors: ['#1E90FF', '#1c86ee'] },
+        { prefix: 'obs_deep_tex_', colors: ['#1E90FF', '#1c86ee'] }
     ];
 
     for (let frame = 0; frame < numWaterFrames; frame++) {
@@ -4057,13 +4057,29 @@ function preload() {
             // Fish shadows (immersive effect)
             if (depth.prefix === 'obs_mid_tex_' || depth.prefix === 'obs_deep_tex_') {
                 obsCtx.globalCompositeOperation = 'multiply';
-                obsCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                for (let f = 0; f < 3; f++) {
-                    let fx = (f * 150 + t * 40) % 400;
+                obsCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                let numFish = depth.prefix === 'obs_deep_tex_' ? 6 : 3;
+                for (let f = 0; f < numFish; f++) {
+                    let speedF = 20 + f * 5;
+                    let fx = (f * 150 + t * speedF) % 400;
                     let fy = (f * 100 + Math.sin(t + f) * 20) % 400;
+                    let angle = Math.sin(t + f) * 0.2;
+
+                    obsCtx.save();
+                    obsCtx.translate(fx, fy);
+                    obsCtx.rotate(angle);
+
                     obsCtx.beginPath();
-                    obsCtx.ellipse(fx, fy, 15, 5, Math.sin(t)*0.2, 0, Math.PI*2);
+                    // Body
+                    obsCtx.ellipse(0, 0, 12, 4, 0, 0, Math.PI*2);
+                    // Tail with wiggle
+                    let tailWiggle = Math.sin(t * 10 + f) * 3;
+                    obsCtx.moveTo(-10, 0);
+                    obsCtx.lineTo(-18, -4 + tailWiggle);
+                    obsCtx.lineTo(-18, 4 + tailWiggle);
                     obsCtx.fill();
+
+                    obsCtx.restore();
                 }
             }
 
@@ -4288,6 +4304,36 @@ function preload() {
     tradeCtx.lineTo(70, 55);
     tradeCtx.fill();
     this.textures.addCanvas('trade_tile', tradeCanvas);
+
+    // Generate Lilly Pad Texture
+    const padCanvas = document.createElement('canvas');
+    padCanvas.width = 40;
+    padCanvas.height = 40;
+    const padCtx = padCanvas.getContext('2d');
+
+    padCtx.fillStyle = '#2d8a2d';
+    padCtx.beginPath();
+    padCtx.arc(20, 20, 15, 0, Math.PI * 1.8);
+    padCtx.lineTo(20, 20);
+    padCtx.fill();
+
+    padCtx.strokeStyle = '#1e5e1e';
+    padCtx.lineWidth = 1;
+    padCtx.beginPath();
+    padCtx.arc(20, 20, 13, 0, Math.PI * 1.8);
+    padCtx.stroke();
+
+    padCtx.strokeStyle = '#3a9b3a';
+    padCtx.lineWidth = 1;
+    for(let i=0; i<5; i++){
+        padCtx.beginPath();
+        padCtx.moveTo(20, 20);
+        padCtx.lineTo(20 + Math.cos(i) * 12, 20 + Math.sin(i) * 12);
+        padCtx.stroke();
+    }
+
+    this.textures.addCanvas('lilly_pad_tex', padCanvas);
+
 }
 
 let mapData = []; // To store 100x100 grid data
@@ -4351,6 +4397,27 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (depth >= 3) prefix = 'obs_deep_tex_';
 
         let obs = obstaclesGroup.create(posX, posY, prefix + '0');
+
+        // Apply smooth 4-corner tinting for seamless depth color transition
+        function getWaterDepth(wr, wc) {
+            if (wr < 0 || wr >= mapData.length || wc < 0 || wc >= mapData[0].length || mapData[wr][wc] !== 'obs') return 0;
+            return window.waterDist && window.waterDist[wr] && window.waterDist[wr][wc] ? window.waterDist[wr][wc] : 0;
+        }
+
+        let dTL = (getWaterDepth(r, c) + getWaterDepth(r-1, c) + getWaterDepth(r, c-1) + getWaterDepth(r-1, c-1)) / 4;
+        let dTR = (getWaterDepth(r, c) + getWaterDepth(r-1, c) + getWaterDepth(r, c+1) + getWaterDepth(r-1, c+1)) / 4;
+        let dBL = (getWaterDepth(r, c) + getWaterDepth(r+1, c) + getWaterDepth(r, c-1) + getWaterDepth(r+1, c-1)) / 4;
+        let dBR = (getWaterDepth(r, c) + getWaterDepth(r+1, c) + getWaterDepth(r, c+1) + getWaterDepth(r+1, c+1)) / 4;
+
+        function depthToColor(d) {
+            let factor = Math.min(1, Math.max(0, d / 4)); // 0 for shallow, 1 for deep
+            let r_col = Math.floor(255 - factor * 180);
+            let g_col = Math.floor(255 - factor * 140);
+            let b_col = Math.floor(255 - factor * 50);
+            return (r_col << 16) | (g_col << 8) | b_col;
+        }
+
+        obs.setTint(depthToColor(dTL), depthToColor(dTR), depthToColor(dBL), depthToColor(dBR));
         obs.depthType = prefix;
         let gridX = (c * tileSize) % 400;
         let gridY = (r * tileSize) % 400;
@@ -4394,6 +4461,18 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             // foam.anims.play('foam_anim', true);
             foam.setDepth(0);
             sprites.push(foam);
+        }
+
+        // Add lilly pads occasionally on shallow or mid water
+        if (depth <= 2 && Math.random() < 0.1) {
+            let numPads = Math.floor(Math.random() * 3) + 1;
+            for(let p=0; p<numPads; p++) {
+                let pad = scene.add.sprite(posX + (Math.random()*60-30), posY + (Math.random()*60-30), 'lilly_pad_tex');
+                pad.setRotation(Math.random() * Math.PI * 2);
+                pad.setScale(0.5 + Math.random() * 0.7);
+                pad.setDepth(0);
+                sprites.push(pad);
+            }
         }
 
         // Convex corners
@@ -4456,6 +4535,19 @@ function create() {
     for (let l = 0; l < numLakes; l++) {
         let cx = Math.floor(Math.random() * cols);
         let cy = Math.floor(Math.random() * rows);
+
+        // Check if there is already water nearby to prevent long connected chains
+        let tooClose = false;
+        for (let r = Math.max(0, cy - 8); r <= Math.min(rows - 1, cy + 8); r++) {
+            for (let c = Math.max(0, cx - 8); c <= Math.min(cols - 1, cx + 8); c++) {
+                if (mapData[r][c] === 'obs') {
+                    tooClose = true;
+                    break;
+                }
+            }
+            if (tooClose) break;
+        }
+        if (tooClose) continue; // Skip generating this lake to prevent chains
 
         let numCircles = Math.floor(Math.random() * 2) + 1; // 3 to 7 circles
 
@@ -4664,6 +4756,7 @@ function create() {
 
     let leafRedParticles = this.add.particles('leaf_particle_red');
     leafRedParticles.setDepth(3000);
+    leafRedParticles.setScrollFactor(0);
     window.leafRedEmitter = leafRedParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
@@ -4671,11 +4764,12 @@ function create() {
         frequency: 200,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: { source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
     });
 
     let leafYellowParticles = this.add.particles('leaf_particle_yellow');
     leafYellowParticles.setDepth(3000);
+    leafYellowParticles.setScrollFactor(0);
     window.leafYellowEmitter = leafYellowParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
@@ -4683,18 +4777,19 @@ function create() {
         frequency: 200,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: { source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
     });
 
     let pollenParticles = this.add.particles('pollen_particle');
     pollenParticles.setDepth(3000);
+    pollenParticles.setScrollFactor(0);
     window.pollenEmitter = pollenParticles.createEmitter({
         speed: { min: 20, max: 80 },
         lifespan: 10000,
         quantity: 3,
         frequency: 150,
         scale: { start: 0.5, end: 0 },
-        emitZone: { source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: { source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
     });
 
     window.cloudGroup = this.physics.add.group();
@@ -4705,6 +4800,7 @@ function create() {
         cloud.setDepth(2000);
         cloud.setAlpha(0.6);
         cloud.setScale(1 + Math.random() * 2);
+        cloud.setScrollFactor(0);
     }
 
     // Overlap physics
@@ -5775,46 +5871,7 @@ function update() {
         window.pollenEmitter.setSpeedX({ min: windVx * 0.4, max: windVx * 0.6 });
         window.pollenEmitter.setSpeedY({ min: windVy * 0.4, max: windVy * 0.6 });
 
-        // Update emitZone bounds based on camera position and wind direction so particles spawn appropriately
-        let emitRect;
-        // Simple approach: just emit from the entire viewport plus some buffer so they come from off-screen
-        let cx = cam.scrollX;
-        let cy = cam.scrollY;
-        let cw = cam.width;
-        let ch = cam.height;
-        let padding = 800;
-
-        // Optimize emit zone based on wind direction to spawn upwind
-        let ex = cx - padding;
-        let ey = cy - padding;
-        let ew = cw + padding * 2;
-        let eh = ch + padding * 2;
-
-        if (windVx > 0) {
-            ew = padding;
-        } else {
-            ex = cx + cw;
-            ew = padding;
-        }
-
-        if (windVy > 0) {
-            eh = padding;
-            if (windVx > 0) { ew = cw + padding * 2; }
-        } else {
-            ey = cy + ch;
-            eh = padding;
-            if (windVx < 0) { ew = cw + padding * 2; }
-        }
-
-        emitRect = new Phaser.Geom.Rectangle(ex, ey, ew, eh);
-
-        // Also add a fallback emit zone to cover the screen just in case
-        let fullRect = new Phaser.Geom.Rectangle(cx - 200, cy - 200, cw + 400, ch + 400);
-
-        // We alternate emit zones or just use a wide buffer around the screen
-        window.leafRedEmitter.setEmitZone({ source: new Phaser.Geom.Rectangle(cx - padding, cy - padding, cw + padding * 2, ch + padding * 2) });
-        window.leafYellowEmitter.setEmitZone({ source: new Phaser.Geom.Rectangle(cx - padding, cy - padding, cw + padding * 2, ch + padding * 2) });
-        window.pollenEmitter.setEmitZone({ source: new Phaser.Geom.Rectangle(cx - padding, cy - padding, cw + padding * 2, ch + padding * 2) });
+        // emitZone is now fixed and independent of camera position because particles use setScrollFactor(0)
     }
 
     // Update Clouds
@@ -5823,11 +5880,11 @@ function update() {
         clouds.forEach(cloud => {
             cloud.body.setVelocity(windVx * 0.5, windVy * 0.5);
 
-            // Wrap around viewport
-            if (cloud.x < cam.scrollX - 400 && windVx < 0) cloud.x = cam.scrollX + cam.width + 400;
-            if (cloud.x > cam.scrollX + cam.width + 400 && windVx > 0) cloud.x = cam.scrollX - 400;
-            if (cloud.y < cam.scrollY - 400 && windVy < 0) cloud.y = cam.scrollY + cam.height + 400;
-            if (cloud.y > cam.scrollY + cam.height + 400 && windVy > 0) cloud.y = cam.scrollY - 400;
+            // Wrap around viewport in UI space
+            if (cloud.x < -400) cloud.x = window.innerWidth + 400;
+            if (cloud.x > window.innerWidth + 400) cloud.x = -400;
+            if (cloud.y < -400) cloud.y = window.innerHeight + 400;
+            if (cloud.y > window.innerHeight + 400) cloud.y = -400;
         });
     }
 
