@@ -4692,6 +4692,10 @@ function create() {
     let startX = savedX ? parseFloat(savedX) : 101 * 100 + 50; // Updated to new game default coordinate
     let startY = savedY ? parseFloat(savedY) : 100 * 100 + 50;
 
+    // Fallback if localStorage data is corrupted/NaN
+    if (isNaN(startX)) startX = 101 * 100 + 50;
+    if (isNaN(startY)) startY = 100 * 100 + 50;
+
     // Ensure player spawns on grass
     let pCol = Math.floor(startX / 100);
     let pRow = Math.floor(startY / 100);
