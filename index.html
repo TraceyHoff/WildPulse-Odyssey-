@@ -4591,6 +4591,10 @@ function create() {
         }
     }
 
+    // Initialize extra rows for special tiles to prevent TypeError
+    if (!mapData[100]) mapData[100] = [];
+    if (!mapData[101]) mapData[101] = [];
+
     // Force hospital to be at 100, 100
     mapData[100][100] = 'hospital';
     // Trade tile directly south
