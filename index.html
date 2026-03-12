@@ -39,11 +39,9 @@
         @keyframes modalFadeIn {
             from {
                 opacity: 0;
-                transform: translate(-50%, -45%) !important;
             }
             to {
                 opacity: 1;
-                transform: translate(-50%, -50%) !important;
             }
         }
 
@@ -65,17 +63,17 @@
 
         /* Modals */
         #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #lobbyModal, #levelUpModal, #tradeModal, #journalModal {
-            width: 90vw !important;
-            max-width: 800px !important;
-            max-height: 90vh !important;
-            height: auto !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            border-radius: 20px !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            max-height: none !important;
+            top: 0 !important;
+            left: 0 !important;
+            transform: none !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             box-sizing: border-box;
-            margin: 0;
             overflow-y: auto;
             padding: 50px 15px 15px 15px !important;
 
@@ -2645,6 +2643,20 @@ let collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
 window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
 
+// Stats System
+window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
+    battlesWon: 0,
+    battlesLost: 0,
+    creaturesTraded: 0,
+    pvpBattlesWon: 0, // Placeholder
+    pvpBattlesLost: 0, // Placeholder
+    distanceTraveled: 0
+};
+
+window.saveStats = function() {
+    localStorage.setItem('wildpulse_stats', JSON.stringify(window.gameStats));
+};
+
 // Also assign abilities to existing collected creatures
 collectedCreatures.forEach(c => {
     window.assignAbility(c);
@@ -3097,6 +3109,17 @@ window.renderStatsTab = function() {
     let months = Math.floor((wildpulse_inGameDays % 120) / 20);
     let days = wildpulse_inGameDays % 20;
 
+    let hours = Math.floor(dayNightTime);
+    let minutes = Math.floor((dayNightTime % 1) * 60);
+
+    let period = hours >= 12 ? 'PM' : 'AM';
+    let displayHours = hours % 12;
+    if (displayHours === 0) displayHours = 12;
+
+    let hStr = displayHours < 10 ? '0' + displayHours : displayHours.toString();
+    let mStr = minutes < 10 ? '0' + minutes : minutes.toString();
+    let timeStr = hStr + ":" + mStr + " " + period;
+
     document.getElementById('statsTabContent').innerHTML = `
         <div style="padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px;">
             <p><strong>Time Played:</strong></p>
@@ -3104,6 +3127,15 @@ window.renderStatsTab = function() {
             <p>Months: <span style="color:#2196F3">${months}</span></p>
             <p>Days: <span style="color:#2196F3">${days}</span></p>
             <p><strong>Current Season:</strong> <span style="color:#ffb74d">${window.currentSeason}</span></p>
+            <p><strong>Current Time:</strong> <span style="color:#ffb74d">${timeStr}</span></p>
+
+            <p><strong>Game Stats:</strong></p>
+            <p>Battles Won: <span style="color:#4caf50">${window.gameStats.battlesWon}</span></p>
+            <p>Battles Lost: <span style="color:#f44336">${window.gameStats.battlesLost}</span></p>
+            <p>Creatures Traded: <span style="color:#2196F3">${window.gameStats.creaturesTraded}</span></p>
+            <p>PvP Battles Won: <span style="color:#4caf50">${window.gameStats.pvpBattlesWon}</span></p>
+            <p>PvP Battles Lost: <span style="color:#f44336">${window.gameStats.pvpBattlesLost}</span></p>
+            <p>Distance Traveled: <span style="color:#2196F3">${Math.floor(window.gameStats.distanceTraveled)}</span> px</p>
         </div>
     `;
 };
@@ -3408,6 +3440,9 @@ window.acceptTradeOffer = function() {
             creatureId: pendingTradeOffer.creature.id
         }));
     }
+
+    window.gameStats.creaturesTraded++;
+    window.saveStats();
 
     document.getElementById('tradeIncomingSection').style.display = 'none';
     document.getElementById('tradeResult').innerText = `Received ${pendingTradeOffer.creature.name}!`;
@@ -3968,76 +4003,96 @@ function preload() {
 
 
 
-    // Generate animated realistic water textures
+    // Generate animated realistic water textures with depth transitions
     const numWaterFrames = 16;
+    const depthTypes = [
+        { prefix: 'obs_shallow_tex_', colors: ['#4682B4', '#1E90FF'] },
+        { prefix: 'obs_mid_tex_', colors: ['#0a3a6a', '#05254a'] },
+        { prefix: 'obs_deep_tex_', colors: ['#000033', '#00001a'] }
+    ];
 
     for (let frame = 0; frame < numWaterFrames; frame++) {
-        const obsCanvas = document.createElement('canvas');
-        obsCanvas.width = 400;
-        obsCanvas.height = 400;
-        const obsCtx = obsCanvas.getContext('2d');
-
-        // Realistic deep water gradient base
-        const bgGrad = obsCtx.createRadialGradient(200, 200, 50, 200, 200, 300);
-        bgGrad.addColorStop(0, '#0a3a6a'); // Deep navy center
-        bgGrad.addColorStop(1, '#05254a'); // Darker edges
-        obsCtx.fillStyle = bgGrad;
-        obsCtx.fillRect(0, 0, 400, 400);
-
         const t = (frame / numWaterFrames) * Math.PI * 2;
 
-        // Draw complex caustics
-        obsCtx.globalCompositeOperation = 'overlay';
+        depthTypes.forEach(depth => {
+            const obsCanvas = document.createElement('canvas');
+            obsCanvas.width = 400;
+            obsCanvas.height = 400;
+            const obsCtx = obsCanvas.getContext('2d');
 
-        for (let layer = 0; layer < 4; layer++) {
-            obsCtx.strokeStyle = `rgba(135, 206, 250, ${0.3 - layer * 0.05})`; // Light blue caustics
-            obsCtx.lineWidth = 1.5 + layer * 0.5;
+            // Realistic deep water gradient base
+            const bgGrad = obsCtx.createRadialGradient(200, 200, 50, 200, 200, 300);
+            bgGrad.addColorStop(0, depth.colors[0]);
+            bgGrad.addColorStop(1, depth.colors[1]);
+            obsCtx.fillStyle = bgGrad;
+            obsCtx.fillRect(0, 0, 400, 400);
 
-            let speed = 1 + layer * 0.3;
-            let k1 = 3 + layer;
-            let k2 = 4 + layer;
-            let s1 = (Math.PI * 2 * k1) / 400;
-            let s2 = (Math.PI * 2 * k2) / 400;
+            // Draw complex caustics
+            obsCtx.globalCompositeOperation = 'overlay';
 
-            for (let y = -40; y < 440; y += 15) {
-                obsCtx.beginPath();
-                for (let x = 0; x <= 400; x += 10) {
-                    let waveY = y +
-                                Math.sin((x * s1) + (t * speed)) * 8 +
-                                Math.cos(((x+y) * s2) - t) * 5;
+            for (let layer = 0; layer < 4; layer++) {
+                obsCtx.strokeStyle = `rgba(135, 206, 250, ${0.3 - layer * 0.05})`; // Light blue caustics
+                obsCtx.lineWidth = 1.5 + layer * 0.5;
 
-                    if (x === 0) obsCtx.moveTo(x, waveY);
-                    else obsCtx.lineTo(x, waveY);
+                let speed = 1 + layer * 0.3;
+                let k1 = 3 + layer;
+                let k2 = 4 + layer;
+                let s1 = (Math.PI * 2 * k1) / 400;
+                let s2 = (Math.PI * 2 * k2) / 400;
+
+                for (let y = -40; y < 440; y += 15) {
+                    obsCtx.beginPath();
+                    for (let x = 0; x <= 400; x += 10) {
+                        let waveY = y +
+                                    Math.sin((x * s1) + (t * speed)) * 8 +
+                                    Math.cos(((x+y) * s2) - t) * 5;
+
+                        if (x === 0) obsCtx.moveTo(x, waveY);
+                        else obsCtx.lineTo(x, waveY);
+                    }
+                    obsCtx.stroke();
                 }
-                obsCtx.stroke();
             }
-        }
 
-        // Add soft-light noise for organic texture
-        obsCtx.globalCompositeOperation = 'soft-light';
-        obsCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-        for (let i = 0; i < 200; i++) {
-            let nx = (Math.sin(i * 123 + t) * 200 + 200) % 400;
-            let ny = (Math.cos(i * 321 - t) * 200 + 200) % 400;
-            obsCtx.fillRect(nx, ny, 2 + (i % 3), 2 + (i % 3));
-        }
+            // Fish shadows (immersive effect)
+            if (depth.prefix === 'obs_mid_tex_' || depth.prefix === 'obs_deep_tex_') {
+                obsCtx.globalCompositeOperation = 'multiply';
+                obsCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                for (let f = 0; f < 3; f++) {
+                    let fx = (f * 150 + t * 40) % 400;
+                    let fy = (f * 100 + Math.sin(t + f) * 20) % 400;
+                    obsCtx.beginPath();
+                    obsCtx.ellipse(fx, fy, 15, 5, Math.sin(t)*0.2, 0, Math.PI*2);
+                    obsCtx.fill();
+                }
+            }
 
-        obsCtx.globalCompositeOperation = 'source-over';
+            // Add soft-light noise for organic texture
+            obsCtx.globalCompositeOperation = 'soft-light';
+            obsCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            for (let i = 0; i < 200; i++) {
+                let nx = (Math.sin(i * 123 + t) * 200 + 200) % 400;
+                let ny = (Math.cos(i * 321 - t) * 200 + 200) % 400;
+                obsCtx.fillRect(nx, ny, 2 + (i % 3), 2 + (i % 3));
+            }
 
-        // Add subtle shimmering reflection dots
-        obsCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        for (let s = 0; s < 15; s++) {
-            let sx = (s * 37 + Math.sin(t + s) * 10) % 400;
-            let sy = (s * 53 + Math.cos(t + s) * 10) % 400;
-            if (sx < 0) sx += 400;
-            if (sy < 0) sy += 400;
-            obsCtx.beginPath();
-            let radius = 0.5 + Math.sin(t + s)*1;
-            obsCtx.arc(sx, sy, Math.max(0, radius), 0, Math.PI * 2);
-            obsCtx.fill();
-        }
+            obsCtx.globalCompositeOperation = 'source-over';
 
-        this.textures.addCanvas('obs_tex_' + frame, obsCanvas);
+            // Add subtle shimmering reflection dots
+            obsCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let s = 0; s < 15; s++) {
+                let sx = (s * 37 + Math.sin(t + s) * 10) % 400;
+                let sy = (s * 53 + Math.cos(t + s) * 10) % 400;
+                if (sx < 0) sx += 400;
+                if (sy < 0) sy += 400;
+                obsCtx.beginPath();
+                let radius = 0.5 + Math.sin(t + s)*1;
+                obsCtx.arc(sx, sy, Math.max(0, radius), 0, Math.PI * 2);
+                obsCtx.fill();
+            }
+
+            this.textures.addCanvas(depth.prefix + frame, obsCanvas);
+        });
 
         // Generate foam edge overlay texture (transparent background, white bubbling foam on one side)
         const foamCanvas = document.createElement('canvas');
@@ -4086,31 +4141,57 @@ function preload() {
     this.textures.addCanvas('water_overlay', overlayCanvas);
 
     // Pre-generate wind particle textures
-    const leafCanvas = document.createElement('canvas');
-    leafCanvas.width = 16;
-    leafCanvas.height = 16;
-    const leafCtx = leafCanvas.getContext('2d');
+    const leafRedCanvas = document.createElement('canvas');
+    leafRedCanvas.width = 16;
+    leafRedCanvas.height = 16;
+    const leafRedCtx = leafRedCanvas.getContext('2d');
 
-    // Draw leaf body
-    let leafGrad = leafCtx.createLinearGradient(2, 14, 14, 2);
-    leafGrad.addColorStop(0, '#FF0000'); // Red base
-    leafGrad.addColorStop(1, '#FFFF00'); // Yellow tip
-    leafCtx.fillStyle = leafGrad;
-    leafCtx.beginPath();
-    leafCtx.moveTo(2, 14); // Stem base
-    leafCtx.bezierCurveTo(4, 10, 0, 4, 14, 2); // Left edge to tip
-    leafCtx.bezierCurveTo(10, 6, 12, 12, 2, 14); // Right edge back to base
-    leafCtx.fill();
+    // Draw red leaf body
+    let leafRedGrad = leafRedCtx.createLinearGradient(2, 14, 14, 2);
+    leafRedGrad.addColorStop(0, '#8B0000'); // Dark Red base
+    leafRedGrad.addColorStop(1, '#FF0000'); // Red tip
+    leafRedCtx.fillStyle = leafRedGrad;
+    leafRedCtx.beginPath();
+    leafRedCtx.moveTo(2, 14); // Stem base
+    leafRedCtx.bezierCurveTo(4, 10, 0, 4, 14, 2); // Left edge to tip
+    leafRedCtx.bezierCurveTo(10, 6, 12, 12, 2, 14); // Right edge back to base
+    leafRedCtx.fill();
 
     // Draw stem/vein
-    leafCtx.strokeStyle = '#8B0000'; // Dark red stem
-    leafCtx.lineWidth = 1;
-    leafCtx.beginPath();
-    leafCtx.moveTo(2, 14);
-    leafCtx.lineTo(10, 6);
-    leafCtx.stroke();
+    leafRedCtx.strokeStyle = '#500000'; // Darker red stem
+    leafRedCtx.lineWidth = 1;
+    leafRedCtx.beginPath();
+    leafRedCtx.moveTo(2, 14);
+    leafRedCtx.lineTo(10, 6);
+    leafRedCtx.stroke();
 
-    this.textures.addCanvas('leaf_particle', leafCanvas);
+    this.textures.addCanvas('leaf_particle_red', leafRedCanvas);
+
+    const leafYellowCanvas = document.createElement('canvas');
+    leafYellowCanvas.width = 16;
+    leafYellowCanvas.height = 16;
+    const leafYellowCtx = leafYellowCanvas.getContext('2d');
+
+    // Draw yellow leaf body
+    let leafYellowGrad = leafYellowCtx.createLinearGradient(2, 14, 14, 2);
+    leafYellowGrad.addColorStop(0, '#DAA520'); // Goldenrod base
+    leafYellowGrad.addColorStop(1, '#FFFF00'); // Yellow tip
+    leafYellowCtx.fillStyle = leafYellowGrad;
+    leafYellowCtx.beginPath();
+    leafYellowCtx.moveTo(2, 14); // Stem base
+    leafYellowCtx.bezierCurveTo(4, 10, 0, 4, 14, 2); // Left edge to tip
+    leafYellowCtx.bezierCurveTo(10, 6, 12, 12, 2, 14); // Right edge back to base
+    leafYellowCtx.fill();
+
+    // Draw stem/vein
+    leafYellowCtx.strokeStyle = '#B8860B'; // Dark goldenrod stem
+    leafYellowCtx.lineWidth = 1;
+    leafYellowCtx.beginPath();
+    leafYellowCtx.moveTo(2, 14);
+    leafYellowCtx.lineTo(10, 6);
+    leafYellowCtx.stroke();
+
+    this.textures.addCanvas('leaf_particle_yellow', leafYellowCanvas);
 
     const pollenCanvas = document.createElement('canvas');
     pollenCanvas.width = 8;
@@ -4264,7 +4345,13 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
 
         // Create obstacle
-        let obs = obstaclesGroup.create(posX, posY, 'obs_tex_0');
+        let depth = window.waterDist && window.waterDist[r] && window.waterDist[r][c] ? window.waterDist[r][c] : 1;
+        let prefix = 'obs_shallow_tex_';
+        if (depth === 2) prefix = 'obs_mid_tex_';
+        if (depth >= 3) prefix = 'obs_deep_tex_';
+
+        let obs = obstaclesGroup.create(posX, posY, prefix + '0');
+        obs.depthType = prefix;
         let gridX = (c * tileSize) % 400;
         let gridY = (r * tileSize) % 400;
         obs.setCrop(gridX, gridY, 100, 100);
@@ -4355,28 +4442,6 @@ function create() {
     tradeGroup = this.physics.add.staticGroup();
     storeGroup = this.physics.add.staticGroup();
 
-    // Create water animation globally so it can be played on sprites
-    let waterFrames = [];
-    let foamFrames = [];
-    for(let i = 0; i < 16; i++) {
-        waterFrames.push({ key: 'obs_tex_' + i });
-        foamFrames.push({ key: 'foam_tex_' + i });
-    }
-
-    this.anims.create({
-        key: 'water_anim',
-        frames: waterFrames,
-        frameRate: 8,
-        repeat: -1
-    });
-
-    this.anims.create({
-        key: 'foam_anim',
-        frames: foamFrames,
-        frameRate: 8,
-        repeat: -1
-    });
-
     // Procedural generation
     // First fill map with grass
     for (let r = 0; r < rows; r++) {
@@ -4424,6 +4489,29 @@ function create() {
     mapData[101][100] = 'trade';
     // Store tile next to trade
     mapData[101][101] = 'store';
+
+    // Calculate water depth distances
+    window.waterDist = [];
+    for (let r = 0; r < rows; r++) {
+        window.waterDist[r] = [];
+        for (let c = 0; c < cols; c++) {
+            if (mapData[r][c] === 'obs') {
+                // simple manhattan distance to nearest grass
+                let dist = 999;
+                for (let wr = Math.max(0, r - 5); wr <= Math.min(rows - 1, r + 5); wr++) {
+                    for (let wc = Math.max(0, c - 5); wc <= Math.min(cols - 1, c + 5); wc++) {
+                        if (mapData[wr][wc] !== 'obs') {
+                            let d = Math.abs(wr - r) + Math.abs(wc - c);
+                            if (d < dist) dist = d;
+                        }
+                    }
+                }
+                window.waterDist[r][c] = dist;
+            } else {
+                window.waterDist[r][c] = 0;
+            }
+        }
+    }
 
     // Tiles are no longer instantiated upfront. They will be instantiated
     // dynamically in the update() loop based on the viewport.
@@ -4574,12 +4662,24 @@ function create() {
     window.windSpeed = 200;
     window.windTimer = 0;
 
-    let leafParticles = this.add.particles('leaf_particle');
-    leafParticles.setDepth(3000);
-    window.leafEmitter = leafParticles.createEmitter({
+    let leafRedParticles = this.add.particles('leaf_particle_red');
+    leafRedParticles.setDepth(3000);
+    window.leafRedEmitter = leafRedParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
-        quantity: 2,
+        quantity: 1,
+        frequency: 200,
+        scale: { start: 1, end: 0 },
+        rotate: { start: 0, end: 360 },
+        emitZone: { source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+    });
+
+    let leafYellowParticles = this.add.particles('leaf_particle_yellow');
+    leafYellowParticles.setDepth(3000);
+    window.leafYellowEmitter = leafYellowParticles.createEmitter({
+        speed: { min: 50, max: 150 },
+        lifespan: 8000,
+        quantity: 1,
         frequency: 200,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
@@ -5201,8 +5301,9 @@ window.closeBattleModal = function() {
         player.x += 100;
     } else if (result === 'loss') {
         alert('All your creatures fainted! Follow the arrow to the hospital to heal them.');
-        player.x = 101 * 90 + 45;
-        player.y = 100 * 90 + 45;
+        let safePos = window.getStrictSafeDryLandSpawn(null);
+        player.x = safePos.x;
+        player.y = safePos.y;
     }
 };
 
@@ -5216,6 +5317,14 @@ window.endBattle = function(result) {
         if (activeCreature) {
             activeCreature.currentHp = Math.max(0, currentPlayer.currentHp);
             activeCreature.status = currentPlayer.status;
+        }
+
+        if (result === 'win') {
+            window.gameStats.battlesWon++;
+            window.saveStats();
+        } else if (result === 'loss') {
+            window.gameStats.battlesLost++;
+            window.saveStats();
         }
 
         if (result === 'win') {
@@ -5414,8 +5523,8 @@ function update() {
     Object.values(activeTiles).forEach(sprites => {
         sprites.forEach(sprite => {
             if (!sprite.texture) return;
-            if (sprite.texture.key.startsWith('obs_tex_')) {
-                sprite.setTexture('obs_tex_' + frame16fps);
+            if (sprite.depthType) {
+                sprite.setTexture(sprite.depthType + frame16fps);
             } else if (sprite.texture.key.startsWith('foam_tex_')) {
                 sprite.setTexture('foam_tex_' + frame16fps);
             }
@@ -5546,12 +5655,20 @@ function update() {
 
         if (distance > 10) {
             player.body.setVelocity((dx / distance) * speed, (dy / distance) * speed);
+            movedX = true;
+            movedY = true;
         } else {
             // Reached target
             player.body.setVelocity(0);
         }
     } else if (!movedX && !movedY) {
         player.body.setVelocity(0);
+    }
+
+    // Track distance
+    if (movedX || movedY) {
+        window.gameStats.distanceTraveled += speed * (1/60); // approx distance based on frame rate
+        if (Math.random() < 0.05) window.saveStats(); // Save periodically while moving
     }
 
     // Entity Viewport Culling Bounds (Pixels)
@@ -5650,9 +5767,11 @@ function update() {
     }
 
     // Update emitters
-    if (window.leafEmitter && window.pollenEmitter) {
-        window.leafEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
-        window.leafEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
+    if (window.leafRedEmitter && window.leafYellowEmitter && window.pollenEmitter) {
+        window.leafRedEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
+        window.leafRedEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
+        window.leafYellowEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
+        window.leafYellowEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
         window.pollenEmitter.setSpeedX({ min: windVx * 0.4, max: windVx * 0.6 });
         window.pollenEmitter.setSpeedY({ min: windVy * 0.4, max: windVy * 0.6 });
 
@@ -5693,7 +5812,8 @@ function update() {
         let fullRect = new Phaser.Geom.Rectangle(cx - 200, cy - 200, cw + 400, ch + 400);
 
         // We alternate emit zones or just use a wide buffer around the screen
-        window.leafEmitter.setEmitZone({ source: new Phaser.Geom.Rectangle(cx - padding, cy - padding, cw + padding * 2, ch + padding * 2) });
+        window.leafRedEmitter.setEmitZone({ source: new Phaser.Geom.Rectangle(cx - padding, cy - padding, cw + padding * 2, ch + padding * 2) });
+        window.leafYellowEmitter.setEmitZone({ source: new Phaser.Geom.Rectangle(cx - padding, cy - padding, cw + padding * 2, ch + padding * 2) });
         window.pollenEmitter.setEmitZone({ source: new Phaser.Geom.Rectangle(cx - padding, cy - padding, cw + padding * 2, ch + padding * 2) });
     }
 
