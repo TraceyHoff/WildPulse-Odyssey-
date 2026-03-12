@@ -389,7 +389,7 @@
     <button id="menuJournalBtn">Creature Journal</button>
     <button id="menuHelpBtn">Help</button>
     <button id="menuDeleteBtn">Delete Progress</button>
-    <button class="close-menu-btn">Close</button>
+    <button id="fullscreenToggleBtn">Toggle Fullscreen</button>
 </div>
 <div id="partyModal">
     <button class="close-btn close-party-btn" aria-label="Close Party">X</button>
@@ -556,6 +556,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menuDeleteBtn')?.addEventListener('click', deleteProgress);
 
     document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', closeMenuModal));
+    document.getElementById('fullscreenToggleBtn')?.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
     document.querySelectorAll('.close-party-btn').forEach(btn => btn.addEventListener('click', closePartyModal));
     document.querySelectorAll('.close-storage-btn').forEach(btn => btn.addEventListener('click', closeStorageModal));
     document.querySelectorAll('.close-help-btn').forEach(btn => btn.addEventListener('click', closeHelpModal));
@@ -2694,17 +2705,20 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
     localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
 }
 
-function saveCollected(creature) {
-    if (!collectedCreaturesIds.has(creature.id)) {
-        const activeParty = collectedCreatures.filter(c => !c.stored);
+window.saveCollected = function(creature) {
+    if (!window.collectedCreaturesIds.has(creature.id)) {
+        const activeParty = window.collectedCreatures.filter(c => !c.stored);
         creature.stored = activeParty.length >= 6;
         creature.currentHp = window.getEffectiveStat(creature, 'health');
 
-        collectedCreaturesIds.add(creature.id);
-        collectedCreatures.push(creature);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+        window.collectedCreaturesIds.add(creature.id);
+        window.collectedCreatures.push(creature);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(window.collectedCreatures));
     }
-}
+};
+window.collectedCreatures = collectedCreatures;
+window.collectedCreaturesIds = collectedCreaturesIds;
+
 
 
 // ==================== MENU & PARTY ====================
@@ -3282,11 +3296,11 @@ window.closeLevelUpModal = function() {
         _m_levelUpModal.style.display = 'none';
         _m_levelUpModal.children[0].classList.remove('modal-fade-out');
         inBattle = false;
-        player.lastBattleTime = game.scene.scenes[0].time.now;
+        player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
         if (currentEnemySprite) {
             currentEnemySprite.destroy();
         }
-        respawnEnemyBase();
+        if (game) respawnEnemyBase();
     }, 190);
 };
 
@@ -3322,7 +3336,7 @@ window.doBreed = function() {
         const child = window.breed(p1, p2);
 
         // Add the child
-        saveCollected(child);
+        window.saveCollected(child);
 
         document.getElementById('breedResult').innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents remain in your party.`;
 
@@ -3432,7 +3446,7 @@ window.acceptTradeOffer = function() {
 
     // We only receive trades, meaning we just add the creature to our collection.
     // In a full implementation, both sides would offer a creature.
-    saveCollected(pendingTradeOffer.creature);
+    window.saveCollected(pendingTradeOffer.creature);
 
     if (dataChannels[pendingTradeOffer.from] && dataChannels[pendingTradeOffer.from].readyState === 'open') {
         dataChannels[pendingTradeOffer.from].send(JSON.stringify({
@@ -3511,6 +3525,11 @@ window.joinMultiplayerRoom = function() {
         if (window.initializeMultiplayer) {
             window.initializeMultiplayer(multiplayerRoom);
         }
+
+        // Start game after brief delay to allow fullscreen and modal close
+        setTimeout(() => {
+            if (window.startGame) window.startGame();
+        }, 100);
     }
 };
 
@@ -3685,7 +3704,10 @@ const config = {
     }
 };
 
-const game = new Phaser.Game(config);
+let game = null;
+window.startGame = function() {
+    if(!game) game = new Phaser.Game(config);
+};
 
 let player;
 let cursors;
@@ -4054,34 +4076,7 @@ function preload() {
                 }
             }
 
-            // Fish shadows (immersive effect)
-            if (depth.prefix === 'obs_mid_tex_' || depth.prefix === 'obs_deep_tex_') {
-                obsCtx.globalCompositeOperation = 'multiply';
-                obsCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-                let numFish = depth.prefix === 'obs_deep_tex_' ? 6 : 3;
-                for (let f = 0; f < numFish; f++) {
-                    let speedF = 20 + f * 5;
-                    let fx = (f * 150 + t * speedF) % 400;
-                    let fy = (f * 100 + Math.sin(t + f) * 20) % 400;
-                    let angle = Math.sin(t + f) * 0.2;
 
-                    obsCtx.save();
-                    obsCtx.translate(fx, fy);
-                    obsCtx.rotate(angle);
-
-                    obsCtx.beginPath();
-                    // Body
-                    obsCtx.ellipse(0, 0, 12, 4, 0, 0, Math.PI*2);
-                    // Tail with wiggle
-                    let tailWiggle = Math.sin(t * 10 + f) * 3;
-                    obsCtx.moveTo(-10, 0);
-                    obsCtx.lineTo(-18, -4 + tailWiggle);
-                    obsCtx.lineTo(-18, 4 + tailWiggle);
-                    obsCtx.fill();
-
-                    obsCtx.restore();
-                }
-            }
 
             // Add soft-light noise for organic texture
             obsCtx.globalCompositeOperation = 'soft-light';
@@ -4334,6 +4329,21 @@ function preload() {
 
     this.textures.addCanvas('lilly_pad_tex', padCanvas);
 
+    // Generate simple fish texture
+    const fishCanvas = document.createElement('canvas');
+    fishCanvas.width = 40;
+    fishCanvas.height = 20;
+    const fishCtx = fishCanvas.getContext('2d');
+    fishCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    fishCtx.beginPath();
+    fishCtx.ellipse(20, 10, 12, 4, 0, 0, Math.PI*2);
+    fishCtx.moveTo(10, 10);
+    fishCtx.lineTo(2, 6);
+    fishCtx.lineTo(2, 14);
+    fishCtx.fill();
+    this.textures.addCanvas('fish_tex', fishCanvas);
+
+
 }
 
 let mapData = []; // To store 100x100 grid data
@@ -4582,28 +4592,96 @@ function create() {
     // Store tile next to trade
     mapData[101][101] = 'store';
 
-    // Calculate water depth distances
+    // Calculate water depth distances using 2-pass Manhattan algorithm
     window.waterDist = [];
     for (let r = 0; r < rows; r++) {
         window.waterDist[r] = [];
         for (let c = 0; c < cols; c++) {
-            if (mapData[r][c] === 'obs') {
-                // simple manhattan distance to nearest grass
-                let dist = 999;
-                for (let wr = Math.max(0, r - 5); wr <= Math.min(rows - 1, r + 5); wr++) {
-                    for (let wc = Math.max(0, c - 5); wc <= Math.min(cols - 1, c + 5); wc++) {
-                        if (mapData[wr][wc] !== 'obs') {
-                            let d = Math.abs(wr - r) + Math.abs(wc - c);
-                            if (d < dist) dist = d;
-                        }
-                    }
-                }
-                window.waterDist[r][c] = dist;
-            } else {
-                window.waterDist[r][c] = 0;
+            window.waterDist[r][c] = mapData[r][c] === 'obs' ? 999 : 0;
+        }
+    }
+    // Pass 1: Top-Left to Bottom-Right
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (window.waterDist[r][c] > 0) {
+                let min = window.waterDist[r][c];
+                if (r > 0) min = Math.min(min, window.waterDist[r-1][c] + 1);
+                if (c > 0) min = Math.min(min, window.waterDist[r][c-1] + 1);
+                window.waterDist[r][c] = min;
             }
         }
     }
+    // Pass 2: Bottom-Right to Top-Left
+    for (let r = rows - 1; r >= 0; r--) {
+        for (let c = cols - 1; c >= 0; c--) {
+            if (window.waterDist[r][c] > 0) {
+                let min = window.waterDist[r][c];
+                if (r < rows - 1) min = Math.min(min, window.waterDist[r+1][c] + 1);
+                if (c < cols - 1) min = Math.min(min, window.waterDist[r][c+1] + 1);
+                window.waterDist[r][c] = min;
+            }
+        }
+    }
+
+    // Identify lakes and their sizes
+    window.lakes = []; // store arrays of {r, c} for each lake
+    let visitedWater = new Set();
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (mapData[r][c] === 'obs' && !visitedWater.has(r + "," + c)) {
+                let lakeTiles = [];
+                let queue = [{r, c}];
+                visitedWater.add(r + "," + c);
+
+                while (queue.length > 0) {
+                    let curr = queue.shift();
+                    lakeTiles.push(curr);
+
+                    let neighbors = [
+                        {r: curr.r - 1, c: curr.c},
+                        {r: curr.r + 1, c: curr.c},
+                        {r: curr.r, c: curr.c - 1},
+                        {r: curr.r, c: curr.c + 1}
+                    ];
+
+                    for (let n of neighbors) {
+                        if (n.r >= 0 && n.r < rows && n.c >= 0 && n.c < cols) {
+                            if (mapData[n.r][n.c] === 'obs' && !visitedWater.has(n.r + "," + n.c)) {
+                                visitedWater.add(n.r + "," + n.c);
+                                queue.push(n);
+                            }
+                        }
+                    }
+                }
+
+                if (lakeTiles.length > 10) {
+                    window.lakes.push(lakeTiles);
+                }
+            }
+        }
+    }
+
+    // Spawn fish in large lakes
+    if (window.fishGroup) {
+        window.lakes.forEach((lake, index) => {
+            let numFish = Math.max(1, Math.floor(lake.length / 5)); // 1 fish per 5 water tiles
+            for (let i = 0; i < numFish; i++) {
+                // Random tile from lake
+                let tile = lake[Math.floor(Math.random() * lake.length)];
+                let px = tile.c * TILE_SIZE + TILE_SIZE / 2;
+                let py = tile.r * TILE_SIZE + TILE_SIZE / 2;
+
+                let fish = window.fishGroup.create(px, py, 'fish_tex');
+                fish.setData('lakeId', index);
+                fish.setData('lakeTiles', lake);
+                fish.setData('targetX', px);
+                fish.setData('targetY', py);
+                fish.setDepth(0.5); // Between water (0) and creatures (1)
+            }
+        });
+    }
+
 
     // Tiles are no longer instantiated upfront. They will be instantiated
     // dynamically in the update() loop based on the viewport.
@@ -4740,6 +4818,10 @@ function create() {
     // Creatures setup
     creaturesGroup = this.physics.add.group();
     creaturesGroup.setDepth(1);
+
+    window.fishGroup = this.physics.add.group();
+    window.fishGroup.setDepth(1);
+
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
     // Spawn base creatures (increased by 200% for density)
@@ -4793,15 +4875,15 @@ function create() {
     });
 
     window.cloudGroup = this.physics.add.group();
-    for (let i = 0; i < 8; i++) {
-        let cx = Math.random() * window.innerWidth;
-        let cy = Math.random() * window.innerHeight;
+    // More clouds for the larger map
+    for (let i = 0; i < 60; i++) {
+        let cx = Math.random() * WORLD_SIZE;
+        let cy = Math.random() * WORLD_SIZE;
         let cloud = window.cloudGroup.create(cx, cy, 'cloud_shadow');
         cloud.setDepth(2000);
         cloud.setAlpha(0.6);
         cloud.setScale(1 + Math.random() * 2);
-        cloud.setScrollFactor(0);
-    }
+            }
 
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
@@ -4974,7 +5056,7 @@ function collectCreature(playerCollider, creatureSprite) {
 
     if (collectedCreatures.length === 0) {
         const data = JSON.parse(JSON.stringify(creatureSprite.getData('creatureData')));
-        saveCollected(data);
+        window.saveCollected(data);
         creatureSprite.destroy();
         const basePrototype = window.baseCreatures.find(c => c.id === data.baseId) || window.baseCreatures.find(c => c.name === data.name);
         spawnCreature(this, basePrototype || data, 500, 500);
@@ -5384,15 +5466,15 @@ window.closeBattleModal = function() {
 
     inBattle = false;
     player.body.moves = true;
-    player.lastBattleTime = game.scene.scenes[0].time.now;
+    player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
 
     if (result === 'win') {
         currentEnemySprite.destroy();
-        respawnEnemyBase();
+        if (game) respawnEnemyBase();
     } else if (result === 'caught') {
-        saveCollected(currentEnemy);
+        window.saveCollected(currentEnemy);
         currentEnemySprite.destroy();
-        respawnEnemyBase();
+        if (game) respawnEnemyBase();
     } else if (result === 'run') {
         player.x += 100;
     } else if (result === 'loss') {
@@ -5841,6 +5923,85 @@ function update() {
         }
     });
 
+    // Fish wandering and fleeing logic
+    if (window.fishGroup) {
+        window.fishGroup.getChildren().forEach(fish => {
+            const isVisible = (fish.x >= viewLeft && fish.x <= viewRight && fish.y >= viewTop && fish.y <= viewBottom);
+            fish.setVisible(isVisible);
+
+            if (updateAIThisFrame && isVisible) {
+                let distToPlayer = Math.hypot(player.x - fish.x, player.y - fish.y);
+
+                if (distToPlayer < 250) {
+                    // Flee from player
+                    let angle = Math.atan2(fish.y - player.y, fish.x - player.x);
+                    let fleeDist = 150;
+                    let targetX = fish.x + Math.cos(angle) * fleeDist;
+                    let targetY = fish.y + Math.sin(angle) * fleeDist;
+
+                    // Clamp to valid water tiles in its lake
+                    let col = Math.floor(targetX / TILE_SIZE);
+                    let row = Math.floor(targetY / TILE_SIZE);
+                    let lakeTiles = fish.getData('lakeTiles');
+
+                    let validTile = lakeTiles.find(t => t.r === row && t.c === col);
+                    if (validTile) {
+                        fish.setData('targetX', targetX);
+                        fish.setData('targetY', targetY);
+                    } else {
+                        // Find furthest valid tile in lake
+                        let bestTile = lakeTiles[0];
+                        let maxDist = 0;
+                        for(let t of lakeTiles) {
+                            let tx = t.c * TILE_SIZE + TILE_SIZE/2;
+                            let ty = t.r * TILE_SIZE + TILE_SIZE/2;
+                            let d = Math.hypot(tx - player.x, ty - player.y);
+                            if(d > maxDist) {
+                                maxDist = d;
+                                bestTile = t;
+                            }
+                        }
+                        fish.setData('targetX', bestTile.c * TILE_SIZE + TILE_SIZE/2);
+                        fish.setData('targetY', bestTile.r * TILE_SIZE + TILE_SIZE/2);
+                    }
+                } else {
+                    // Wander randomly in lake
+                    if (Math.random() < 0.05) {
+                        let lakeTiles = fish.getData('lakeTiles');
+                        let tile = lakeTiles[Math.floor(Math.random() * lakeTiles.length)];
+                        let targetX = tile.c * TILE_SIZE + TILE_SIZE / 2;
+                        let targetY = tile.r * TILE_SIZE + TILE_SIZE / 2;
+                        fish.setData('targetX', targetX);
+                        fish.setData('targetY', targetY);
+                    }
+                }
+            }
+
+            const tx = fish.getData('targetX');
+            const ty = fish.getData('targetY');
+
+            if (tx !== undefined && ty !== undefined) {
+                let dx = tx - fish.x;
+                let dy = ty - fish.y;
+                let dist = Math.hypot(dx, dy);
+
+                if (dist > 5) {
+                    let speed = dist > 50 ? 0.1 : 0.02; // Move faster if far away (fleeing)
+                    fish.x += dx * speed;
+                    fish.y += dy * speed;
+                    fish.setRotation(Math.atan2(dy, dx));
+                }
+
+                // Wiggle animation based on speed
+                if (dist > 5) {
+                    let wiggle = Math.sin(this.time.now / 100) * 0.2;
+                    fish.setRotation(fish.rotation + wiggle);
+                }
+            }
+        });
+    }
+
+
     // Update Wind
     window.windTimer += 1;
     if (window.windTimer > 3600) { // Change wind direction approx every 60 seconds
@@ -5880,11 +6041,11 @@ function update() {
         clouds.forEach(cloud => {
             cloud.body.setVelocity(windVx * 0.5, windVy * 0.5);
 
-            // Wrap around viewport in UI space
-            if (cloud.x < -400) cloud.x = window.innerWidth + 400;
-            if (cloud.x > window.innerWidth + 400) cloud.x = -400;
-            if (cloud.y < -400) cloud.y = window.innerHeight + 400;
-            if (cloud.y > window.innerHeight + 400) cloud.y = -400;
+            // Wrap around viewport in WORLD space
+            if (cloud.x < -1000) cloud.x = WORLD_SIZE + 1000;
+            if (cloud.x > WORLD_SIZE + 1000) cloud.x = -1000;
+            if (cloud.y < -1000) cloud.y = WORLD_SIZE + 1000;
+            if (cloud.y > WORLD_SIZE + 1000) cloud.y = -1000;
         });
     }
 
