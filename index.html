@@ -3871,7 +3871,7 @@ function preload() {
 
         // Update static grass bg
         if (window.grassBgCanvas) {
-            const bgCtx = window.grassBgCanvas.getContext('2d');
+            const bgCtx = window.grassBgCanvas.getContext('2d', { willReadFrequently: true });
             let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
             if (window.currentSeason === 'Summer') {
                 gradient.addColorStop(0, '#1a661a');
@@ -3935,7 +3935,7 @@ function preload() {
         const tex = scene.textures.get('grass_dynamic');
         if (!tex) return;
         const cvs = tex.getSourceImage();
-        const ctx = cvs.getContext('2d');
+        const ctx = cvs.getContext('2d', { willReadFrequently: true });
 
         // Draw cached bg
         ctx.drawImage(window.grassBgCanvas, 0, 0);
@@ -4010,7 +4010,7 @@ function preload() {
             const cTex = scene.textures.get('grass_corner_convex_' + pos.dir + '_dynamic');
             if(cTex) {
                 const cCvs = cTex.getSourceImage();
-                const cCtx = cCvs.getContext('2d');
+                const cCtx = cCvs.getContext('2d', { willReadFrequently: true });
                 cCtx.clearRect(0,0,50,50);
                 cCtx.globalCompositeOperation = 'source-over';
                 cCtx.drawImage(cvs, pos.sx, pos.sy, 50, 50, 0, 0, 50, 50);
@@ -4431,6 +4431,8 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         obs.depthType = prefix;
         let gridX = (c * tileSize) % 400;
         let gridY = (r * tileSize) % 400;
+        obs.gridX = gridX;
+        obs.gridY = gridY;
         obs.setCrop(gridX, gridY, 100, 100);
         obs.setDisplayOrigin(gridX + 50, gridY + 50);
         obs.body.setSize(90, 90);
@@ -5707,6 +5709,10 @@ function update() {
             if (!sprite.texture) return;
             if (sprite.depthType) {
                 sprite.setTexture(sprite.depthType + frame16fps);
+                if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
+                    sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
+                    sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
+                }
             } else if (sprite.texture.key.startsWith('foam_tex_')) {
                 sprite.setTexture('foam_tex_' + frame16fps);
             }
@@ -6024,7 +6030,10 @@ function update() {
 
     // Call the dynamic grass update function
     if (window.updateDynamicGrass) {
-        window.updateDynamicGrass(this, this.time.now, windVx, windVy);
+        if (!window.lastGrassUpdate || this.time.now - window.lastGrassUpdate > 66) {
+            window.lastGrassUpdate = this.time.now;
+            window.updateDynamicGrass(this, this.time.now, windVx, windVy);
+        }
     }
 
     // Update emitters
