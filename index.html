@@ -3534,6 +3534,10 @@ window.joinMultiplayerRoom = function() {
 };
 
 window.initializeMultiplayer = function(roomCode) {
+    if (typeof io === 'undefined') {
+        console.warn("[Multiplayer] Socket.io not found. Multiplayer disabled.");
+        return;
+    }
     socket = io();
 
     socket.emit('join-room', roomCode);
