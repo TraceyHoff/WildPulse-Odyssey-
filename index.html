@@ -395,10 +395,34 @@
 </div>
 <div id="partyModal">
     <button class="close-btn close-party-btn" aria-label="Close Party">X</button>
-    <h2>Party</h2>
-    <div id="partyList"></div>
+    <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #555; padding-bottom: 5px;">
+        <h2 id="tabParty" style="cursor: pointer; margin: 0; color: #4caf50;" onclick="switchPartyTab('party')">Party</h2>
+        <h2 id="tabStats" style="cursor: pointer; margin: 0; color: #888;" onclick="switchPartyTab('stats')">Stats</h2>
+    </div>
+    <div id="partyTabContent">
+        <div id="partyList"></div>
+    </div>
+    <div id="statsTabContent" style="display: none; font-size: 18px;">
+        <!-- Stats will be rendered here -->
+    </div>
     <button class="close-party-btn">Close</button>
 </div>
+<script>
+    function switchPartyTab(tab) {
+        if (tab === 'party') {
+            document.getElementById('partyTabContent').style.display = 'block';
+            document.getElementById('statsTabContent').style.display = 'none';
+            document.getElementById('tabParty').style.color = '#4caf50';
+            document.getElementById('tabStats').style.color = '#888';
+        } else if (tab === 'stats') {
+            document.getElementById('partyTabContent').style.display = 'none';
+            document.getElementById('statsTabContent').style.display = 'block';
+            document.getElementById('tabParty').style.color = '#888';
+            document.getElementById('tabStats').style.color = '#4caf50';
+            if (window.renderStatsTab) window.renderStatsTab();
+        }
+    }
+</script>
 
 <div id="storageModal" style="display:none; position:absolute; color:white; z-index:350;">
     <button class="close-btn close-storage-btn" aria-label="Close Storage">X</button>
@@ -2618,6 +2642,9 @@ const STORAGE_KEY = 'wildpulse_collected_creatures';
 let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 let collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
+let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
+window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
+
 // Also assign abilities to existing collected creatures
 collectedCreatures.forEach(c => {
     window.assignAbility(c);
@@ -2767,6 +2794,7 @@ window.closeHelpModal = function() {
 };
 window.openPartyModal = function() {
     closeMenuModal();
+    if (typeof switchPartyTab === 'function') switchPartyTab('party');
     document.getElementById('partyModal').style.display = 'block';
     renderPartyList();
 };
@@ -3058,8 +3086,26 @@ window.deleteProgress = function() {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem('wildpulse_player_x');
         localStorage.removeItem('wildpulse_player_y');
+        localStorage.removeItem('wildpulse_inGameDays');
+        localStorage.removeItem('wildpulse_currentSeason');
         location.reload();
     }
+};
+
+window.renderStatsTab = function() {
+    let years = Math.floor(wildpulse_inGameDays / 120);
+    let months = Math.floor((wildpulse_inGameDays % 120) / 20);
+    let days = wildpulse_inGameDays % 20;
+
+    document.getElementById('statsTabContent').innerHTML = `
+        <div style="padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px;">
+            <p><strong>Time Played:</strong></p>
+            <p>Years: <span style="color:#2196F3">${years}</span></p>
+            <p>Months: <span style="color:#2196F3">${months}</span></p>
+            <p>Days: <span style="color:#2196F3">${days}</span></p>
+            <p><strong>Current Season:</strong> <span style="color:#ffb74d">${window.currentSeason}</span></p>
+        </div>
+    `;
 };
 
 // ==================== BREEDING ====================
@@ -3748,12 +3794,59 @@ function updateBattleUI() {
 function preload() {
     // Set up global grass blades arrays to use in dynamic updates
     window.grassBlades = [];
+
+    window.updateGrassColors = function() {
+        let colors;
+        if (window.currentSeason === 'Summer') {
+            colors = ['#006400', '#2E8B57', '#32CD32'];
+        } else if (window.currentSeason === 'Fall') {
+            colors = ['#8B8000', '#B8860B', '#DAA520'];
+        } else if (window.currentSeason === 'Winter') {
+            colors = ['#ADD8E6', '#B0E0E6', '#87CEFA'];
+        } else {
+            colors = ['#006400', '#2E8B57', '#32CD32']; // Default to summer green
+        }
+
+        for (let i = 0; i < window.grassBlades.length; i++) {
+            let rand = Math.random();
+            window.grassBlades[i].color = rand > 0.6 ? colors[0] : (rand > 0.3 ? colors[1] : colors[2]);
+        }
+
+        // Update static grass bg
+        if (window.grassBgCanvas) {
+            const bgCtx = window.grassBgCanvas.getContext('2d');
+            let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
+            if (window.currentSeason === 'Summer') {
+                gradient.addColorStop(0, '#1a661a');
+                gradient.addColorStop(1, '#228B22');
+            } else if (window.currentSeason === 'Fall') {
+                gradient.addColorStop(0, '#665c1a');
+                gradient.addColorStop(1, '#8b7d22');
+            } else if (window.currentSeason === 'Winter') {
+                gradient.addColorStop(0, '#7ba4b3');
+                gradient.addColorStop(1, '#add8e6');
+            }
+            bgCtx.fillStyle = gradient;
+            bgCtx.fillRect(0, 0, 100, 100);
+            for (let j = 0; j < 100; j += 4) {
+                for (let k = 0; k < 100; k += 4) {
+                    if (Math.random() < 0.2) {
+                        if (window.currentSeason === 'Summer') bgCtx.fillStyle = Math.random() < 0.5 ? '#1c731c' : '#1e781e';
+                        else if (window.currentSeason === 'Fall') bgCtx.fillStyle = Math.random() < 0.5 ? '#73681c' : '#786c1e';
+                        else if (window.currentSeason === 'Winter') bgCtx.fillStyle = Math.random() < 0.5 ? '#8dbdd0' : '#9ecfe2';
+                        bgCtx.fillRect(j, k, 4, 4);
+                    }
+                }
+            }
+        }
+    };
+
     for (let i = 0; i < 400; i++) {
         window.grassBlades.push({
             x: Math.random() * 100,
             y: Math.random() * 100,
             height: Math.random() * 10 + 5,
-            color: Math.random() > 0.6 ? '#006400' : (Math.random() > 0.3 ? '#2E8B57' : '#32CD32')
+            color: '#32CD32' // temporary, will be updated by updateGrassColors
         });
     }
 
@@ -3767,21 +3860,10 @@ function preload() {
     const bgCanvas = document.createElement('canvas');
     bgCanvas.width = 100;
     bgCanvas.height = 100;
-    const bgCtx = bgCanvas.getContext('2d');
-    let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
-    gradient.addColorStop(0, '#1a661a');
-    gradient.addColorStop(1, '#228B22');
-    bgCtx.fillStyle = gradient;
-    bgCtx.fillRect(0, 0, 100, 100);
-    for (let j = 0; j < 100; j += 4) {
-        for (let k = 0; k < 100; k += 4) {
-            if (Math.random() < 0.2) {
-                bgCtx.fillStyle = Math.random() < 0.5 ? '#1c731c' : '#1e781e';
-                bgCtx.fillRect(j, k, 4, 4);
-            }
-        }
-    }
     window.grassBgCanvas = bgCanvas;
+    if (window.updateGrassColors) {
+        window.updateGrassColors();
+    }
 
     // Corner cutouts for dynamic canvas
     const cornerDirs = ['tl', 'tr', 'br', 'bl'];
@@ -3895,57 +3977,63 @@ function preload() {
         obsCanvas.height = 400;
         const obsCtx = obsCanvas.getContext('2d');
 
-        // Solid sapphire blue base to prevent grid-like borders
-        obsCtx.fillStyle = '#0f52ba';
+        // Realistic deep water gradient base
+        const bgGrad = obsCtx.createRadialGradient(200, 200, 50, 200, 200, 300);
+        bgGrad.addColorStop(0, '#0a3a6a'); // Deep navy center
+        bgGrad.addColorStop(1, '#05254a'); // Darker edges
+        obsCtx.fillStyle = bgGrad;
         obsCtx.fillRect(0, 0, 400, 400);
 
         const t = (frame / numWaterFrames) * Math.PI * 2;
 
-        // Draw overlapping transparent wave bands for caustics/ripples effect
-        // Using globalCompositeOperation to blend the waves seamlessly
-        obsCtx.globalCompositeOperation = 'screen';
+        // Draw complex caustics
+        obsCtx.globalCompositeOperation = 'overlay';
 
-        for (let layer = 0; layer < 3; layer++) {
-            obsCtx.fillStyle = `rgba(135, 206, 250, ${0.15 - layer * 0.03})`; // Fade layers
+        for (let layer = 0; layer < 4; layer++) {
+            obsCtx.strokeStyle = `rgba(135, 206, 250, ${0.3 - layer * 0.05})`; // Light blue caustics
+            obsCtx.lineWidth = 1.5 + layer * 0.5;
 
-            let speed = 1 + layer * 0.5;
-
-            // Calculate perfect repeating scales across 400px
-            let k1 = 2 + layer;
-            let k2 = 3 + layer;
-            let k3 = 4 - layer;
+            let speed = 1 + layer * 0.3;
+            let k1 = 3 + layer;
+            let k2 = 4 + layer;
             let s1 = (Math.PI * 2 * k1) / 400;
             let s2 = (Math.PI * 2 * k2) / 400;
-            let s3 = (Math.PI * 2 * k3) / 400;
 
-            for (let y = -40; y < 440; y += 20) {
+            for (let y = -40; y < 440; y += 15) {
                 obsCtx.beginPath();
                 for (let x = 0; x <= 400; x += 10) {
-                    // Mathematically perfect wrapping sines at boundaries
                     let waveY = y +
-                                Math.sin((x * s1) + (t * speed)) * 5 +
-                                Math.sin(((x+y) * s2) - t) * 3 +
-                                Math.cos((x * s3) + (t * speed * 0.7)) * 2;
+                                Math.sin((x * s1) + (t * speed)) * 8 +
+                                Math.cos(((x+y) * s2) - t) * 5;
 
                     if (x === 0) obsCtx.moveTo(x, waveY);
                     else obsCtx.lineTo(x, waveY);
                 }
-                obsCtx.lineTo(400, y + 20);
-                obsCtx.lineTo(0, y + 20);
-                obsCtx.fill();
+                obsCtx.stroke();
             }
+        }
+
+        // Add soft-light noise for organic texture
+        obsCtx.globalCompositeOperation = 'soft-light';
+        obsCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        for (let i = 0; i < 200; i++) {
+            let nx = (Math.sin(i * 123 + t) * 200 + 200) % 400;
+            let ny = (Math.cos(i * 321 - t) * 200 + 200) % 400;
+            obsCtx.fillRect(nx, ny, 2 + (i % 3), 2 + (i % 3));
         }
 
         obsCtx.globalCompositeOperation = 'source-over';
 
         // Add subtle shimmering reflection dots
-        obsCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-        for (let s = 0; s < 10; s++) {
-            // Seed random positions based on deterministic math to loop perfectly
-            let sx = (s * 37 + frame * 5) % 100;
-            let sy = (s * 53 - frame * 2 + 100) % 100;
+        obsCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        for (let s = 0; s < 15; s++) {
+            let sx = (s * 37 + Math.sin(t + s) * 10) % 400;
+            let sy = (s * 53 + Math.cos(t + s) * 10) % 400;
+            if (sx < 0) sx += 400;
+            if (sy < 0) sy += 400;
             obsCtx.beginPath();
-            obsCtx.arc(sx, sy, 1 + Math.sin(t + s)*0.5, 0, Math.PI * 2);
+            let radius = 0.5 + Math.sin(t + s)*1;
+            obsCtx.arc(sx, sy, Math.max(0, radius), 0, Math.PI * 2);
             obsCtx.fill();
         }
 
@@ -4004,7 +4092,10 @@ function preload() {
     const leafCtx = leafCanvas.getContext('2d');
 
     // Draw leaf body
-    leafCtx.fillStyle = '#228B22'; // Forest green
+    let leafGrad = leafCtx.createLinearGradient(2, 14, 14, 2);
+    leafGrad.addColorStop(0, '#FF0000'); // Red base
+    leafGrad.addColorStop(1, '#FFFF00'); // Yellow tip
+    leafCtx.fillStyle = leafGrad;
     leafCtx.beginPath();
     leafCtx.moveTo(2, 14); // Stem base
     leafCtx.bezierCurveTo(4, 10, 0, 4, 14, 2); // Left edge to tip
@@ -4012,7 +4103,7 @@ function preload() {
     leafCtx.fill();
 
     // Draw stem/vein
-    leafCtx.strokeStyle = '#1a661a';
+    leafCtx.strokeStyle = '#8B0000'; // Dark red stem
     leafCtx.lineWidth = 1;
     leafCtx.beginPath();
     leafCtx.moveTo(2, 14);
@@ -5260,7 +5351,34 @@ function update() {
     // 24 hours = 20 real minutes = 1200 seconds = 1,200,000 ms
     // 1 in-game hour = 50,000 ms
     dayNightTime += (dt / 50000);
-    if (dayNightTime >= 24.0) dayNightTime -= 24.0;
+    if (dayNightTime >= 24.0) {
+        dayNightTime -= 24.0;
+        wildpulse_inGameDays += 1;
+        localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
+
+        let months = Math.floor((wildpulse_inGameDays % 120) / 20);
+        let newSeason = 'Summer';
+        if (months === 2 || months === 3) newSeason = 'Fall';
+        else if (months === 4 || months === 5) newSeason = 'Winter';
+
+        if (newSeason !== window.currentSeason) {
+            window.currentSeason = newSeason;
+            localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
+            if (window.updateGrassColors) window.updateGrassColors();
+
+            if (popupText && popupBackground) {
+                popupText.setText(`The season has changed to ${window.currentSeason}!`);
+                popupBackground.setVisible(true);
+                popupText.setVisible(true);
+
+                if (popupTimer) popupTimer.remove();
+                popupTimer = this.time.delayedCall(4000, () => {
+                    popupBackground.setVisible(false);
+                    popupText.setVisible(false);
+                });
+            }
+        }
+    }
 
     let hours = Math.floor(dayNightTime);
     let minutes = Math.floor((dayNightTime % 1) * 60);
@@ -5504,8 +5622,8 @@ function update() {
             const ty = creature.getData('targetY');
 
             if (tx !== undefined && ty !== undefined) {
-                creature.x += (tx - creature.x) * 0.05;
-                creature.y += (ty - creature.y) * 0.05;
+                creature.x += (tx - creature.x) * 0.08;
+                creature.y += (ty - creature.y) * 0.08;
             }
         }
     });
