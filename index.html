@@ -4031,83 +4031,76 @@ function preload() {
 
     // Generate animated realistic water textures with depth transitions
     const numWaterFrames = 16;
-    const depthTypes = [
-        { prefix: 'obs_shallow_tex_', colors: ['#1E90FF', '#1c86ee'] },
-        { prefix: 'obs_mid_tex_', colors: ['#1E90FF', '#1c86ee'] },
-        { prefix: 'obs_deep_tex_', colors: ['#1E90FF', '#1c86ee'] }
-    ];
 
     for (let frame = 0; frame < numWaterFrames; frame++) {
         const t = (frame / numWaterFrames) * Math.PI * 2;
 
-        depthTypes.forEach(depth => {
-            const obsCanvas = document.createElement('canvas');
-            obsCanvas.width = 400;
-            obsCanvas.height = 400;
-            const obsCtx = obsCanvas.getContext('2d');
+        const obsCanvas = document.createElement('canvas');
+        obsCanvas.width = 400;
+        obsCanvas.height = 400;
+        const obsCtx = obsCanvas.getContext('2d');
 
-            // Realistic deep water gradient base
-            const bgGrad = obsCtx.createRadialGradient(200, 200, 50, 200, 200, 300);
-            bgGrad.addColorStop(0, depth.colors[0]);
-            bgGrad.addColorStop(1, depth.colors[1]);
-            obsCtx.fillStyle = bgGrad;
-            obsCtx.fillRect(0, 0, 400, 400);
+        // Realistic deep water gradient base
+        const bgGrad = obsCtx.createRadialGradient(200, 200, 50, 200, 200, 300);
+        bgGrad.addColorStop(0, '#1E90FF');
+        bgGrad.addColorStop(1, '#1c86ee');
+        obsCtx.fillStyle = bgGrad;
+        obsCtx.fillRect(0, 0, 400, 400);
 
-            // Draw complex caustics
-            obsCtx.globalCompositeOperation = 'overlay';
+        // Draw complex caustics
+        obsCtx.globalCompositeOperation = 'overlay';
 
-            for (let layer = 0; layer < 4; layer++) {
-                obsCtx.strokeStyle = `rgba(135, 206, 250, ${0.3 - layer * 0.05})`; // Light blue caustics
-                obsCtx.lineWidth = 1.5 + layer * 0.5;
+        for (let layer = 0; layer < 4; layer++) {
+            obsCtx.strokeStyle = `rgba(135, 206, 250, ${0.3 - layer * 0.05})`; // Light blue caustics
+            obsCtx.lineWidth = 1.5 + layer * 0.5;
 
-                let speed = 1 + layer * 0.3;
-                let k1 = 3 + layer;
-                let k2 = 4 + layer;
-                let s1 = (Math.PI * 2 * k1) / 400;
-                let s2 = (Math.PI * 2 * k2) / 400;
+            let speed = 1 + layer * 0.3;
+            let k1 = 3 + layer;
+            let k2 = 4 + layer;
+            let s1 = (Math.PI * 2 * k1) / 400;
+            let s2 = (Math.PI * 2 * k2) / 400;
 
-                for (let y = -40; y < 440; y += 15) {
-                    obsCtx.beginPath();
-                    for (let x = 0; x <= 400; x += 10) {
-                        let waveY = y +
-                                    Math.sin((x * s1) + (t * speed)) * 8 +
-                                    Math.cos(((x+y) * s2) - t) * 5;
-
-                        if (x === 0) obsCtx.moveTo(x, waveY);
-                        else obsCtx.lineTo(x, waveY);
-                    }
-                    obsCtx.stroke();
-                }
-            }
-
-
-
-            // Add soft-light noise for organic texture
-            obsCtx.globalCompositeOperation = 'soft-light';
-            obsCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            for (let i = 0; i < 200; i++) {
-                let nx = (Math.sin(i * 123 + t) * 200 + 200) % 400;
-                let ny = (Math.cos(i * 321 - t) * 200 + 200) % 400;
-                obsCtx.fillRect(nx, ny, 2 + (i % 3), 2 + (i % 3));
-            }
-
-            obsCtx.globalCompositeOperation = 'source-over';
-
-            // Add subtle shimmering reflection dots
-            obsCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-            for (let s = 0; s < 15; s++) {
-                let sx = (s * 37 + Math.sin(t + s) * 10) % 400;
-                let sy = (s * 53 + Math.cos(t + s) * 10) % 400;
-                if (sx < 0) sx += 400;
-                if (sy < 0) sy += 400;
+            for (let y = -40; y < 440; y += 15) {
                 obsCtx.beginPath();
-                let radius = 0.5 + Math.sin(t + s)*1;
-                obsCtx.arc(sx, sy, Math.max(0, radius), 0, Math.PI * 2);
-                obsCtx.fill();
-            }
+                for (let x = 0; x <= 400; x += 10) {
+                    let waveY = y +
+                                Math.sin((x * s1) + (t * speed)) * 8 +
+                                Math.cos(((x+y) * s2) - t) * 5;
 
-            this.textures.addCanvas(depth.prefix + frame, obsCanvas);
-        });
+                    if (x === 0) obsCtx.moveTo(x, waveY);
+                    else obsCtx.lineTo(x, waveY);
+                }
+                obsCtx.stroke();
+            }
+        }
+
+
+
+        // Add soft-light noise for organic texture
+        obsCtx.globalCompositeOperation = 'soft-light';
+        obsCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        for (let i = 0; i < 200; i++) {
+            let nx = (Math.sin(i * 123 + t) * 200 + 200) % 400;
+            let ny = (Math.cos(i * 321 - t) * 200 + 200) % 400;
+            obsCtx.fillRect(nx, ny, 2 + (i % 3), 2 + (i % 3));
+        }
+
+        obsCtx.globalCompositeOperation = 'source-over';
+
+        // Add subtle shimmering reflection dots
+        obsCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        for (let s = 0; s < 15; s++) {
+            let sx = (s * 37 + Math.sin(t + s) * 10) % 400;
+            let sy = (s * 53 + Math.cos(t + s) * 10) % 400;
+            if (sx < 0) sx += 400;
+            if (sy < 0) sy += 400;
+            obsCtx.beginPath();
+            let radius = 0.5 + Math.sin(t + s)*1;
+            obsCtx.arc(sx, sy, Math.max(0, radius), 0, Math.PI * 2);
+            obsCtx.fill();
+        }
+
+        this.textures.addCanvas('obs_base_tex_' + frame, obsCanvas);
 
         // Generate foam edge overlay texture (transparent background, white bubbling foam on one side)
         const foamCanvas = document.createElement('canvas');
@@ -4406,9 +4399,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
         // Create obstacle
         let depth = window.waterDist && window.waterDist[r] && window.waterDist[r][c] ? window.waterDist[r][c] : 1;
-        let prefix = 'obs_shallow_tex_';
-        if (depth === 2) prefix = 'obs_mid_tex_';
-        if (depth >= 3) prefix = 'obs_deep_tex_';
+        let prefix = 'obs_base_tex_';
 
         let obs = obstaclesGroup.create(posX, posY, prefix + '0');
 
@@ -6011,7 +6002,7 @@ function update() {
                 let dist = Math.hypot(dx, dy);
 
                 if (dist > 5) {
-                    let speed = dist > 50 ? 0.1 : 0.02; // Move faster if far away (fleeing)
+                    let speed = dist > 50 ? 0.01 : 0.002; // Move faster if far away (fleeing)
                     fish.x += dx * speed;
                     fish.y += dy * speed;
                     fish.setRotation(Math.atan2(dy, dx));
