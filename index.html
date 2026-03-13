@@ -161,13 +161,40 @@
         .battle-log .status { color: #d500f9; }
         .battle-log .critical { color: #ff9800; font-weight: bold; }
         .battle-log .miss { color: #aaaaaa; font-style: italic; }
-        .battle-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .battle-controls { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
         .battle-controls button { font-size: 16px; padding: 8px; cursor: pointer; border: none; font-family: monospace; font-weight: bold; border-radius: 8px; transition: all 0.2s ease; }
         .battle-controls button:hover { transform: scale(1.05); filter: brightness(1.2); box-shadow: 0 0 10px rgba(0,255,255,0.8); }
         .btn-attack { background: linear-gradient(180deg, #ef5350, #c62828); color: white; }
+        .btn-swap { background: linear-gradient(180deg, #ffa726, #ef6c00); color: white; }
         .btn-defend { background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; }
         .btn-catch { background: linear-gradient(180deg, #66bb6a, #2e7d32); color: white; }
         .btn-run { background: linear-gradient(180deg, #bdbdbd, #616161); color: white; }
+
+        .swap-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #f9f9f9;
+            cursor: pointer;
+            color: black;
+            text-shadow: none;
+        }
+        .swap-item:hover {
+            background: #eaeaea;
+        }
+        .swap-item-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .swap-item-info img {
+            width: 40px;
+            height: 40px;
+            image-rendering: pixelated;
+        }
 
         #menuBtn {
             position: absolute;
@@ -455,9 +482,17 @@
     <div class="battle-log" id="battleLog">Wild creature appeared!</div>
     <div class="battle-controls" id="battleControls">
         <button class="btn-attack">Attack</button>
-
+        <button class="btn-swap">Swap</button>
         <button class="btn-catch">Catch</button>
         <button class="btn-run">Run</button>
+    </div>
+</div>
+
+<div id="battleSwapModal" class="modal">
+    <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+        <button class="close-btn" id="closeSwapBtn">X</button>
+        <h2>Swap Creature</h2>
+        <div id="swapPartyList" style="display: flex; flex-direction: column; gap: 10px;"></div>
     </div>
 </div>
 
@@ -625,10 +660,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     document.querySelector('.btn-attack')?.addEventListener('click', () => handlePlayerTurn('attack'));
+    document.querySelector('.btn-swap')?.addEventListener('click', openBattleSwapModal);
     document.querySelector('.btn-catch')?.addEventListener('click', () => handlePlayerTurn('catch'));
     document.querySelector('.btn-run')?.addEventListener('click', () => handlePlayerTurn('run'));
 
     document.getElementById('menuBtn')?.addEventListener('click', openMenuModal);
+    document.getElementById('closeSwapBtn')?.addEventListener('click', closeBattleSwapModal);
 
     document.getElementById('menuPartyBtn')?.addEventListener('click', openPartyModal);
     document.getElementById('menuStorageBtn')?.addEventListener('click', openStorageModal);
@@ -2642,7 +2679,7 @@ window.getTypeTooltip = function(typeString) {
     return tooltip || typeString;
 };
 
-window.calculateDamage = function(attacker, defender, power = 70) {
+window.calculateDamage = function(attacker, defender, power = 40) {
     const atk = window.getEffectiveStat(attacker, 'attack');
     const def = window.getEffectiveStat(defender, 'defense');
     const spAtk = window.getEffectiveStat(attacker, 'specialAttack');
@@ -5401,7 +5438,7 @@ window.doPlayerAction = function(action, callback) {
 
         let abilityTriggered = currentPlayer.ability && Math.random() < currentPlayer.ability.chance;
 
-        let power = 70;
+        let power = 40;
         let damageMultiplier = 1;
 
         if (abilityTriggered) {
@@ -5522,7 +5559,7 @@ window.doEnemyAction = function(callback) {
 
     let abilityTriggered = currentEnemy.ability && Math.random() < currentEnemy.ability.chance;
 
-    let power = 70;
+    let power = 40;
     let damageMultiplier = 1;
 
     if (abilityTriggered) {
@@ -5594,15 +5631,87 @@ window.doEnemyAction = function(callback) {
     if (callback) setTimeout(callback, 1000);
 };
 
+window.openBattleSwapModal = function() {
+    let swapList = document.getElementById('swapPartyList');
+    swapList.innerHTML = '';
+
+    let availableCreatures = window.playerParty.filter(c => !c.stored && c.currentHp > 0 && c !== window.currentPlayer);
+
+    if (availableCreatures.length === 0) {
+        window.logBattle("No other healthy creatures to swap in!");
+        return;
+    }
+
+    availableCreatures.forEach(creature => {
+        let div = document.createElement('div');
+        div.className = 'swap-item';
+        let hpPercent = Math.max(0, (creature.currentHp / creature.maxHp) * 100);
+
+        let typeHtml = window.getTypeTooltip(creature.type);
+        if (creature.type2) {
+            typeHtml += ` / ${window.getTypeTooltip(creature.type2)}`;
+        }
+
+        div.innerHTML = `
+            <div class="swap-item-info">
+                <img src="${creature.sprite}" alt="${creature.name}">
+                <div>
+                    <strong>${creature.nickname || creature.name}</strong> Lvl ${creature.level}<br>
+                    <span style="font-size: 12px; color: #666;">${typeHtml}</span><br>
+                    HP: ${Math.floor(creature.currentHp)}/${creature.maxHp}
+                </div>
+            </div>
+            <button style="padding: 5px 15px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">Swap</button>
+        `;
+
+        div.onclick = () => window.doBattleSwap(creature);
+        swapList.appendChild(div);
+    });
+
+    document.getElementById('battleSwapModal').style.display = 'flex';
+};
+
+window.closeBattleSwapModal = function() {
+    document.getElementById('battleSwapModal').style.display = 'none';
+};
+
+window.doBattleSwap = function(newCreature) {
+    window.closeBattleSwapModal();
+    window.logBattle(`You swapped in ${newCreature.nickname || newCreature.name}!`);
+    window.currentPlayer = newCreature;
+    window.updateBattleUI();
+
+    // Swapping takes the player's turn, so the enemy gets to attack
+    setTimeout(() => {
+        if (window.inBattle && window.currentEnemy.currentHp > 0) {
+            window.doEnemyAction();
+        }
+    }, 1000);
+};
+
 window.handlePlayerTurn = function(action) {
     if (!inBattle) return;
 
     let pSpe = window.getEffectiveStat(currentPlayer, 'speed');
     let eSpe = window.getEffectiveStat(currentEnemy, 'speed');
 
+    let pSpeedMulti = 1;
+    let eSpeedMulti = 1;
+    let playerAbilityTriggered = currentPlayer.ability && currentPlayer.ability.type === 'speed' && Math.random() < currentPlayer.ability.chance;
+    let enemyAbilityTriggered = currentEnemy.ability && currentEnemy.ability.type === 'speed' && Math.random() < currentEnemy.ability.chance;
+
+    if (playerAbilityTriggered) {
+        pSpeedMulti = currentPlayer.ability.value;
+        window.logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
+    }
+    if (enemyAbilityTriggered) {
+        eSpeedMulti = currentEnemy.ability.value;
+        window.logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
+    }
+
     // Initiative roll (1-20 modifier)
-    let pRoll = pSpe + (Math.random() * 20);
-    let eRoll = eSpe + (Math.random() * 20);
+    let pRoll = (pSpe * pSpeedMulti) + (Math.random() * 20);
+    let eRoll = (eSpe * eSpeedMulti) + (Math.random() * 20);
 
     let playerGoesFirst = pRoll >= eRoll;
     if (action === 'catch' || action === 'run') {
