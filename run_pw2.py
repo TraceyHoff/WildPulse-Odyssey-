@@ -1,39 +1,28 @@
 from playwright.sync_api import sync_playwright
 
-def test_ui():
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        page = browser.new_page()
-        page.goto('file:///app/index.html')
-        page.wait_for_timeout(2000)
+def verify(page):
+    page.goto("file:///app/index.html")
+    page.wait_for_timeout(500)
 
-        # Click Join Room to dismiss lobby
-        page.click('id=joinBtn')
-        page.wait_for_timeout(1000)
+    level_up_res = page.evaluate("""() => {
+        let testC = { level: 9, xp: 0, bonusStats: {health:0, attack:0, defense:0, speed:0, specialAttack:0, specialDefense:0} };
+        window.gainXp(testC, window.getXpRequirement(9)); // Levels up to 10
+        let stats10 = JSON.parse(JSON.stringify(testC.bonusStats));
 
-        # Force a season change to fall (months = 2, so days = 40)
-        page.evaluate('''() => {
-            window.wildpulse_inGameDays = 40;
-            localStorage.setItem("wildpulse_inGameDays", 40);
-            window.dayNightTime = 23.99;
-        }''')
+        window.gainXp(testC, window.getXpRequirement(10)); // Levels up to 11
+        let stats11 = JSON.parse(JSON.stringify(testC.bonusStats));
 
-        page.wait_for_timeout(2000)
+        let diff = {};
+        for(let s in stats11) {
+            diff[s] = stats11[s] - stats10[s];
+        }
 
-        # Take screenshot of the game world with Fall colors and leaf particles
-        page.screenshot(path='/app/gameplay.png')
+        return { lvl10: stats10, diff10to11: diff, final_level: testC.level };
+    }""")
+    print("Level Up Result index.html:", level_up_res)
 
-        # Open party modal
-        page.evaluate('window.openPartyModal()')
-        page.wait_for_timeout(1000)
-        page.screenshot(path='/app/party_modal.png')
-
-        # Click stats tab
-        page.evaluate('window.switchPartyTab("stats")')
-        page.wait_for_timeout(1000)
-        page.screenshot(path='/app/stats_tab.png')
-
-        browser.close()
-
-if __name__ == '__main__':
-    test_ui()
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    page = browser.new_page()
+    verify(page)
+    browser.close()

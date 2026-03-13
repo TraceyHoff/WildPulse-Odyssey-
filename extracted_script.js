@@ -1801,7 +1801,7 @@ window.getTypeModifier = function(attackType, defenseType) {
     return 1;
 };
 
-window.calculateDamage = function(attacker, defender, power = 50) {
+window.calculateDamage = function(attacker, defender, power = 70) {
     const atk = window.getEffectiveStat(attacker, 'attack');
     const def = window.getEffectiveStat(defender, 'defense');
     const typeMod = window.getTypeModifier(attacker.type, defender.type);
@@ -1828,6 +1828,34 @@ window.gainXp = function(creature, amount) {
         creature.xp -= window.getXpRequirement(creature.level || 1);
         creature.level = (creature.level || 1) + 1;
         leveledUp = true;
+
+        if (!creature.bonusStats) {
+            creature.bonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
+        }
+        if (!creature.lastLeveledStats) {
+            creature.lastLeveledStats = [];
+        }
+
+        let allStats = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'];
+
+        if (creature.level % 10 === 0) {
+            allStats.forEach(s => creature.bonusStats[s] += 2);
+            creature.growthSpurtThisLevel = true;
+            creature.lastLeveledStats = []; // Reset restrictions after growth spurt
+        } else {
+            let avail = allStats.filter(s => !creature.lastLeveledStats.includes(s));
+            if (avail.length < 2) avail = [...allStats]; // Fallback
+
+            let idx1 = Math.floor(Math.random() * avail.length);
+            let p1 = avail.splice(idx1, 1)[0];
+
+            let idx2 = Math.floor(Math.random() * avail.length);
+            let p2 = avail.splice(idx2, 1)[0];
+
+            creature.bonusStats[p1] += 2;
+            creature.bonusStats[p2] += 2;
+            creature.lastLeveledStats = [p1, p2];
+        }
     }
     return leveledUp;
 };
@@ -2128,13 +2156,35 @@ window.deleteProgress = function() {
 
 // ==================== BREEDING ====================
 window.breed = function(parent1, parent2) {
-    let p1Prefix = parent1.name.substring(0, Math.ceil(parent1.name.length / 2));
-    let p2Suffix = parent2.name.substring(Math.floor(parent2.name.length / 2));
-    let childName = p1Prefix + p2Suffix;
+    function splitName(name) {
+        const vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
+        let splitIdx = Math.ceil(name.length / 2);
+        // Try to find a vowel near the middle to split cleanly
+        for (let i = 1; i < name.length - 1; i++) {
+            if (vowels.includes(name[i].toLowerCase())) {
+                splitIdx = i + 1;
+                if (i >= name.length / 3) break; // Don't split too early
+            }
+        }
+        return {
+            prefix: name.substring(0, splitIdx),
+            suffix: name.substring(splitIdx)
+        };
+    }
 
-    // Prevent duplicate names
-    if (childName === parent1.name || childName === parent2.name) {
-        childName = parent1.name.substring(0, 3) + parent2.name.substring(parent2.name.length - 3);
+    let p1Parts = splitName(parent1.name);
+    let p2Parts = splitName(parent2.name);
+
+    let childName = p1Parts.prefix + p2Parts.suffix;
+
+    // Capitalize first letter and lowercase the rest
+    childName = childName.charAt(0).toUpperCase() + childName.slice(1).toLowerCase();
+
+    // Prevent duplicate or too short names
+    if (childName === parent1.name || childName === parent2.name || childName.length < 3) {
+        childName = parent1.name.substring(0, Math.max(3, Math.floor(parent1.name.length/2))) +
+                    parent2.name.substring(Math.min(parent2.name.length - 3, Math.floor(parent2.name.length/2)));
+        childName = childName.charAt(0).toUpperCase() + childName.slice(1).toLowerCase();
     }
 
     const combinedFeatures = [...parent1.features, ...parent2.features];
@@ -3307,7 +3357,7 @@ window.doPlayerAction = function(action, callback) {
     }
 
     if (action === 'attack') {
-        let damage = window.calculateDamage(currentPlayer, currentEnemy, 50);
+        let damage = window.calculateDamage(currentPlayer, currentEnemy, 70);
 
         if (Math.random() < 0.10) {
             damage *= 1.5;
@@ -3382,7 +3432,7 @@ window.doEnemyAction = function(callback) {
         return;
     }
 
-    let damage = window.calculateDamage(currentEnemy, currentPlayer, 50);
+    let damage = window.calculateDamage(currentEnemy, currentPlayer, 70);
 
     if (Math.random() < 0.10) {
         damage *= 1.5;
