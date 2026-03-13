@@ -4673,9 +4673,6 @@ function create() {
     }
 
     // Spawn fish in large lakes
-    window.fishGroup = this.physics.add.group();
-    window.fishGroup.setDepth(1);
-
     if (window.fishGroup) {
         window.lakes.forEach((lake, index) => {
             let numFish = Math.max(1, Math.floor(lake.length / 5)); // 1 fish per 5 water tiles
@@ -4713,7 +4710,7 @@ function create() {
     let pCol = Math.floor(startX / 100);
     let pRow = Math.floor(startY / 100);
     if (!mapData[pRow] || mapData[pRow][pCol] !== 'grass') {
-        let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10050, y: 10050 });
+        let safePos = window.getStrictSafeDryLandSpawn(null);
         startX = safePos.x;
         startY = safePos.y;
         pCol = Math.floor(startX / 100);
@@ -4836,6 +4833,9 @@ function create() {
     creaturesGroup = this.physics.add.group();
     creaturesGroup.setDepth(1);
 
+    window.fishGroup = this.physics.add.group();
+    window.fishGroup.setDepth(1);
+
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
     // Spawn base creatures (increased by 200% for density)
@@ -4856,11 +4856,11 @@ function create() {
     window.leafRedEmitter = leafRedParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
-        quantity: 1,
+        quantity: 50,
         frequency: 200,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
+        emitZone: { source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
     });
 
     let leafYellowParticles = this.add.particles('leaf_particle_yellow');
@@ -4869,11 +4869,11 @@ function create() {
     window.leafYellowEmitter = leafYellowParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
-        quantity: 1,
+        quantity: 50,
         frequency: 200,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
+        emitZone: { source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
     });
 
     let pollenParticles = this.add.particles('pollen_particle');
@@ -4882,10 +4882,10 @@ function create() {
     window.pollenEmitter = pollenParticles.createEmitter({
         speed: { min: 20, max: 80 },
         lifespan: 10000,
-        quantity: 3,
+        quantity: 150,
         frequency: 150,
         scale: { start: 0.5, end: 0 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
+        emitZone: { source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
     });
 
     window.cloudGroup = this.physics.add.group();
@@ -5493,7 +5493,7 @@ window.closeBattleModal = function() {
         player.x += 100;
     } else if (result === 'loss') {
         alert('All your creatures fainted! Follow the arrow to the hospital to heal them.');
-        let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10050, y: 10050 });
+        let safePos = window.getStrictSafeDryLandSpawn(null);
         player.x = safePos.x;
         player.y = safePos.y;
     }
@@ -5558,19 +5558,12 @@ window.endBattle = function(result) {
     }, 1500);
 };
 
-window.getStrictSafeDryLandSpawn = function(enemyObj, targetPos = null) {
+window.getStrictSafeDryLandSpawn = function(enemyObj) {
     let rx, ry, d, col, row, d_water;
     let attempts = 0;
     do {
-        if (targetPos) {
-            rx = targetPos.x + Phaser.Math.Between(-300, 300);
-            ry = targetPos.y + Phaser.Math.Between(-300, 300);
-            rx = Phaser.Math.Clamp(rx, 100, WORLD_SIZE - 100);
-            ry = Phaser.Math.Clamp(ry, 100, WORLD_SIZE - 100);
-        } else {
-            rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
-            ry = Phaser.Math.Between(100, WORLD_SIZE - 100);
-        }
+        rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
+        ry = Phaser.Math.Between(100, WORLD_SIZE - 100);
         col = Math.floor(rx / 100);
         row = Math.floor(ry / 100);
         d = enemyObj ? Math.hypot(enemyObj.x - rx, enemyObj.y - ry) : 1000;
