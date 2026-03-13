@@ -334,9 +334,91 @@
         border-radius: 3px;
     }
 
+    #loadingScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+        z-index: 100000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: #fff;
+        font-family: sans-serif;
+    }
+
+    .spinner {
+        border: 8px solid rgba(255, 255, 255, 0.3);
+        border-top: 8px solid #42a5f5;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+        100% { transform: translateX(0); }
+    }
+
+    @keyframes lunge-right {
+        0% { transform: translateX(0); }
+        50% { transform: translateX(20px) scale(1.05); }
+        100% { transform: translateX(0); }
+    }
+
+    @keyframes lunge-left {
+        0% { transform: translateX(0); }
+        50% { transform: translateX(-20px) scale(1.05); }
+        100% { transform: translateX(0); }
+    }
+
+    @keyframes float-up-text {
+        0% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-30px); }
+    }
+
+    .shake {
+        animation: shake 0.3s ease-in-out;
+    }
+
+    .lunge-right {
+        animation: lunge-right 0.2s ease-in-out;
+    }
+
+    .lunge-left {
+        animation: lunge-left 0.2s ease-in-out;
+    }
+
+    .floating-text {
+        position: absolute;
+        font-size: 24px;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px #000;
+        pointer-events: none;
+        z-index: 1000;
+        animation: float-up-text 1s ease-out forwards;
+    }
+
 </style>
 </head>
 <body>
+<div id="loadingScreen">
+    <div class="spinner"></div>
+    <h2>Loading World...</h2>
+</div>
 <div id="tooltip"></div>
 
 <div id="lobbyModal">
@@ -3296,6 +3378,7 @@ window.closeLevelUpModal = function() {
         _m_levelUpModal.style.display = 'none';
         _m_levelUpModal.children[0].classList.remove('modal-fade-out');
         inBattle = false;
+        if (player && player.body) { player.body.moves = true; }
         player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
         if (currentEnemySprite) {
             currentEnemySprite.destroy();
@@ -3525,6 +3608,8 @@ window.joinMultiplayerRoom = function() {
         if (window.initializeMultiplayer) {
             window.initializeMultiplayer(multiplayerRoom);
         }
+
+        document.getElementById('loadingScreen').style.display = 'flex';
 
         // Start game after brief delay to allow fullscreen and modal close
         setTimeout(() => {
@@ -4895,6 +4980,8 @@ function create() {
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
     this.physics.add.overlap(player, tradeGroup, openTradeModal, null, this);
     this.physics.add.overlap(player, storeGroup, openStoreModal, null, this);
+
+    document.getElementById('loadingScreen').style.display = 'none';
 }
 
 function healParty(playerCollider, hospitalCollider) {
@@ -5157,10 +5244,12 @@ function processStatuses(creature) {
     if (creature.status === 'Poison') {
         let dmg = creature.maxHp * 0.10;
         creature.currentHp -= dmg;
+        window.showFloatingText(creature === currentPlayer ? 'playerCombatant' : 'enemyCombatant', '-' + dmg.toFixed(1), '#ff5555');
         logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> is hurt by Poison for <span class="damage">${dmg.toFixed(1)} damage</span>!`);
     } else if (creature.status === 'Burn') {
         let dmg = creature.maxHp * 0.05;
         creature.currentHp -= dmg;
+        window.showFloatingText(creature === currentPlayer ? 'playerCombatant' : 'enemyCombatant', '-' + dmg.toFixed(1), '#ff5555');
         logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> is hurt by Burn for <span class="damage">${dmg.toFixed(1)} damage</span>!`);
     } else if (creature.status === 'Sleep') {
         if (Math.random() < 0.40) {
@@ -5189,6 +5278,7 @@ function processStatuses(creature) {
         if (Math.random() < 0.33) {
             let dmg = creature.maxHp * 0.15;
             creature.currentHp -= dmg;
+            window.showFloatingText(creature === currentPlayer ? 'playerCombatant' : 'enemyCombatant', '-' + dmg.toFixed(1), '#ff5555');
             logBattle(`<span style="color:${color}">${creature.nickname || creature.name}</span> hit itself in its confusion for <span class="damage">${dmg.toFixed(1)} damage</span>!`);
             return false;
         } else if (Math.random() < 0.25) {
@@ -5238,6 +5328,40 @@ window.handleFaint = function(target) {
     }
 };
 
+window.triggerAnimation = function(elementId, animationClass, duration) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.classList.remove(animationClass);
+    void el.offsetWidth; // trigger reflow
+    el.classList.add(animationClass);
+    setTimeout(() => {
+        el.classList.remove(animationClass);
+    }, duration);
+};
+
+window.showFloatingText = function(containerId, text, color) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const floatEl = document.createElement('div');
+    floatEl.className = 'floating-text';
+    floatEl.innerText = text;
+    floatEl.style.color = color;
+
+    // Center the text roughly over the sprite area
+    floatEl.style.left = '50%';
+    floatEl.style.top = '50%';
+    floatEl.style.transform = 'translate(-50%, -50%)';
+
+    container.appendChild(floatEl);
+
+    setTimeout(() => {
+        if (floatEl.parentNode) {
+            floatEl.parentNode.removeChild(floatEl);
+        }
+    }, 1000); // Matches animation duration
+};
+
 window.doPlayerAction = function(action, callback) {
     if (!inBattle) return;
     let canMove = processStatuses(currentPlayer);
@@ -5251,6 +5375,8 @@ window.doPlayerAction = function(action, callback) {
     }
 
     if (action === 'attack') {
+        window.triggerAnimation('playerCombatant', 'lunge-right', 200);
+
         let abilityTriggered = currentPlayer.ability && Math.random() < currentPlayer.ability.chance;
 
         let power = 50;
@@ -5265,6 +5391,7 @@ window.doPlayerAction = function(action, callback) {
             } else if (currentPlayer.ability.type === 'heal') {
                 let healAmt = currentPlayer.maxHp * currentPlayer.ability.value;
                 currentPlayer.currentHp = Math.min(currentPlayer.maxHp, currentPlayer.currentHp + healAmt);
+                window.showFloatingText('playerCombatant', '+' + healAmt.toFixed(1), '#4caf50');
                 logBattle(`<span class="heal">Restored ${healAmt.toFixed(1)} HP!</span>`);
             } else if (currentPlayer.ability.type === 'clear_status') {
                 currentPlayer.status = null;
@@ -5291,12 +5418,20 @@ window.doPlayerAction = function(action, callback) {
         }
 
         currentEnemy.currentHp -= damage;
+        setTimeout(() => {
+            window.triggerAnimation('enemyCombatant', 'shake', 300);
+            window.showFloatingText('enemyCombatant', '-' + damage.toFixed(1), '#ff5555');
+        }, 200);
         logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
         if (enemyRecoilTriggered) {
              logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
              let recoil = currentPlayer.maxHp * currentEnemy.ability.value;
              currentPlayer.currentHp -= recoil;
+             setTimeout(() => {
+                 window.triggerAnimation('playerCombatant', 'shake', 300);
+                 window.showFloatingText('playerCombatant', '-' + recoil.toFixed(1), '#ff5555');
+             }, 200);
              logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> took <span class="damage">${recoil.toFixed(1)} recoil damage</span>!`);
         }
 
@@ -5361,6 +5496,8 @@ window.doEnemyAction = function(callback) {
         return;
     }
 
+    window.triggerAnimation('enemyCombatant', 'lunge-left', 200);
+
     let abilityTriggered = currentEnemy.ability && Math.random() < currentEnemy.ability.chance;
 
     let power = 50;
@@ -5375,6 +5512,7 @@ window.doEnemyAction = function(callback) {
         } else if (currentEnemy.ability.type === 'heal') {
             let healAmt = currentEnemy.maxHp * currentEnemy.ability.value;
             currentEnemy.currentHp = Math.min(currentEnemy.maxHp, currentEnemy.currentHp + healAmt);
+            window.showFloatingText('enemyCombatant', '+' + healAmt.toFixed(1), '#4caf50');
             logBattle(`<span class="heal">Restored ${healAmt.toFixed(1)} HP!</span>`);
         } else if (currentEnemy.ability.type === 'clear_status') {
             currentEnemy.status = null;
@@ -5402,12 +5540,20 @@ window.doEnemyAction = function(callback) {
     }
 
     currentPlayer.currentHp -= damage;
+    setTimeout(() => {
+        window.triggerAnimation('playerCombatant', 'shake', 300);
+        window.showFloatingText('playerCombatant', '-' + damage.toFixed(1), '#ff5555');
+    }, 200);
     logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
     if (playerRecoilTriggered) {
          logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
          let recoil = currentEnemy.maxHp * currentPlayer.ability.value;
          currentEnemy.currentHp -= recoil;
+         setTimeout(() => {
+             window.triggerAnimation('enemyCombatant', 'shake', 300);
+             window.showFloatingText('enemyCombatant', '-' + recoil.toFixed(1), '#ff5555');
+         }, 200);
          logBattle(`<span style="color:#f44336">${currentEnemy.name}</span> took <span class="damage">${recoil.toFixed(1)} recoil damage</span>!`);
     }
 
