@@ -2588,6 +2588,25 @@ window.baseCreatures.forEach(c => {
     window.assignAbility(c);
 });
 
+
+window.moods = [
+    { name: "Joyful", increase: "health", decrease: null },
+    { name: "Angry", increase: "attack", decrease: null },
+    { name: "Stubborn", increase: "defense", decrease: null },
+    { name: "Energetic", increase: "speed", decrease: null },
+    { name: "Curious", increase: "specialAttack", decrease: null },
+    { name: "Cautious", increase: "specialDefense", decrease: null },
+    { name: "Melancholic", increase: null, decrease: "health" },
+    { name: "Lethargic", increase: null, decrease: "speed" },
+    { name: "Timid", increase: null, decrease: "attack" },
+    { name: "Reckless", increase: null, decrease: "defense" },
+    { name: "Apathetic", increase: null, decrease: "specialAttack" },
+    { name: "Distracted", increase: null, decrease: "specialDefense" }
+];
+window.getRandomMood = function() {
+    return window.moods[Math.floor(Math.random() * window.moods.length)];
+};
+
 window.getRandomNature = function() {
     // Only return natures that actually have a buff OR debuff (removes Neutral / null entries)
     const validNatures = window.natures.filter(n => n.increase || n.decrease);
@@ -2616,6 +2635,11 @@ window.getEffectiveStat = function(creature, statName) {
     if (creature.nature) {
         if (creature.nature.increase === statName) scaledBase *= 1.1;
         if (creature.nature.decrease === statName) scaledBase *= 0.9;
+    }
+
+    if (creature.mood) {
+        if (creature.mood.increase === statName) scaledBase *= 1.1;
+        if (creature.mood.decrease === statName) scaledBase *= 0.9;
     }
 
     return scaledBase;
@@ -2856,6 +2880,7 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
 
     starter.baseId = starter.id;
     starter.nature = window.getRandomNature();
+    starter.mood = window.getRandomMood();
     starter.level = 1;
     starter.xp = 0;
     starter.id = Date.now().toString() + "_starter";
@@ -3078,6 +3103,14 @@ window.renderPartyList = function() {
         }
         let natureHtml = c.nature ? `<p data-tooltip="${c.nature.name}: Increases ${c.nature.increase || 'Nothing'} and decreases ${c.nature.decrease || 'Nothing'}">Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
 
+        let moodColor = 'white';
+        if (c.mood) {
+            if (c.mood.increase && !c.mood.decrease) moodColor = '#4caf50';
+            else if (!c.mood.increase && c.mood.decrease) moodColor = '#f44336';
+            else if (c.mood.increase && c.mood.decrease) moodColor = '#ff9800';
+        }
+        let moodHtml = c.mood ? `<p data-tooltip="${c.mood.name}: Increases ${c.mood.increase || 'Nothing'} and decreases ${c.mood.decrease || 'Nothing'}">Mood: <span style="color:${moodColor};">${c.mood.name}</span></p>` : '<p>Mood: None</p>';
+
         let abilityHtml = c.ability ? `<p data-tooltip="${c.ability.message}">Ability: <span style="color:${c.ability.color};">${c.ability.name}</span></p>` : '<p>Ability: None</p>';
 
         let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
@@ -3091,6 +3124,7 @@ window.renderPartyList = function() {
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 10px;">
                     ${natureHtml}
+                    ${moodHtml}
                     ${abilityHtml}
                 </div>
                 ${parentsHtml}
@@ -3430,6 +3464,7 @@ window.breed = function(parent1, parent2) {
         level: 1,
         xp: 0,
         nature: window.getRandomNature(),
+        mood: window.getRandomMood(),
         isShiny: childShiny,
         parents: {
             name1: parent1.name,
@@ -4057,13 +4092,13 @@ function preload() {
     window.updateGrassColors = function() {
         let colors;
         if (window.currentSeason === 'Summer') {
-            colors = ['#006400', '#2E8B57', '#32CD32'];
+            colors = ['#7CFC00', '#98FB98', '#32CD32'];
         } else if (window.currentSeason === 'Fall') {
             colors = ['#FFD700', '#FF0000', '#FFA500', '#D2B48C'];
         } else if (window.currentSeason === 'Winter') {
             colors = ['#ADD8E6', '#B0E0E6', '#87CEFA'];
         } else {
-            colors = ['#006400', '#2E8B57', '#32CD32']; // Default to summer green
+            colors = ['#7CFC00', '#98FB98', '#32CD32']; // Default to summer green
         }
 
         for (let i = 0; i < window.grassBlades.length; i++) {
@@ -4086,7 +4121,7 @@ function preload() {
             let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
             if (window.currentSeason === 'Summer') {
                 gradient.addColorStop(0, '#1a661a');
-                gradient.addColorStop(1, '#228B22');
+                gradient.addColorStop(1, '#ADFF2F');
             } else if (window.currentSeason === 'Fall') {
                 gradient.addColorStop(0, '#a68a61');
                 gradient.addColorStop(1, '#bda27e');
@@ -4447,15 +4482,15 @@ function preload() {
     leafGreen1Canvas.height = 16;
     const leafGreen1Ctx = leafGreen1Canvas.getContext('2d');
     let leafGreen1Grad = leafGreen1Ctx.createLinearGradient(2, 14, 14, 2);
-    leafGreen1Grad.addColorStop(0, '#006400');
-    leafGreen1Grad.addColorStop(1, '#228B22');
+    leafGreen1Grad.addColorStop(0, '#7CFC00');
+    leafGreen1Grad.addColorStop(1, '#ADFF2F');
     leafGreen1Ctx.fillStyle = leafGreen1Grad;
     leafGreen1Ctx.beginPath();
     leafGreen1Ctx.moveTo(2, 14);
     leafGreen1Ctx.bezierCurveTo(4, 10, 0, 4, 14, 2);
     leafGreen1Ctx.bezierCurveTo(10, 6, 12, 12, 2, 14);
     leafGreen1Ctx.fill();
-    leafGreen1Ctx.strokeStyle = '#004d00';
+    leafGreen1Ctx.strokeStyle = '#228B22';
     leafGreen1Ctx.lineWidth = 1;
     leafGreen1Ctx.beginPath();
     leafGreen1Ctx.moveTo(2, 14);
@@ -4468,15 +4503,15 @@ function preload() {
     leafGreen2Canvas.height = 16;
     const leafGreen2Ctx = leafGreen2Canvas.getContext('2d');
     let leafGreen2Grad = leafGreen2Ctx.createLinearGradient(2, 14, 14, 2);
-    leafGreen2Grad.addColorStop(0, '#2E8B57');
-    leafGreen2Grad.addColorStop(1, '#3CB371');
+    leafGreen2Grad.addColorStop(0, '#98FB98');
+    leafGreen2Grad.addColorStop(1, '#00FF7F');
     leafGreen2Ctx.fillStyle = leafGreen2Grad;
     leafGreen2Ctx.beginPath();
     leafGreen2Ctx.moveTo(2, 14);
     leafGreen2Ctx.bezierCurveTo(4, 10, 0, 4, 14, 2);
     leafGreen2Ctx.bezierCurveTo(10, 6, 12, 12, 2, 14);
     leafGreen2Ctx.fill();
-    leafGreen2Ctx.strokeStyle = '#1d5c39';
+    leafGreen2Ctx.strokeStyle = '#32CD32';
     leafGreen2Ctx.lineWidth = 1;
     leafGreen2Ctx.beginPath();
     leafGreen2Ctx.moveTo(2, 14);
@@ -5386,6 +5421,7 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
 
     // Assign random nature and unique ID on spawn
     clonedData.nature = window.getRandomNature();
+    clonedData.mood = window.getRandomMood();
 
     // Assign Ability
     window.assignAbility(clonedData);
@@ -6306,28 +6342,48 @@ function update() {
                 let shimmer = 1 + Math.sin(this.time.now / 300) * 0.05;
 
                 let rX, rY, rColor, rRadius;
-                if (dayNightTime >= 6 && dayNightTime <= 20) {
+                let isDay = (dayNightTime >= 6 && dayNightTime < 20);
+
+                if (isDay) {
                     let dayProgress = (dayNightTime - 6) / 14;
-                    rX = camX + cam.width * 0.4 * Math.cos((dayProgress - 0.5) * Math.PI);
-                    rY = camY - cam.height * 0.3 * Math.sin(dayProgress * Math.PI);
-                    rColor = 'rgba(255, 238, 187, 0.4)';
-                    rRadius = 150 * shimmer;
+                    // X moves from left to right: -0.4 to 0.4
+                    rX = camX + cam.width * 0.4 * ((dayProgress - 0.5) * 2);
+                    // Y peaks in the middle: sin(0 to pi)
+                    rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(dayProgress * Math.PI);
+                    rColor = 'rgba(255, 255, 200, 0.6)'; // Brighter sun reflection
+                    rRadius = 120 * shimmer;
                 } else {
-                    let nightProgress = dayNightTime > 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
-                    rX = camX + cam.width * 0.4 * Math.cos((nightProgress - 0.5) * Math.PI);
-                    rY = camY - cam.height * 0.3 * Math.sin(nightProgress * Math.PI);
-                    rColor = 'rgba(136, 187, 255, 0.4)';
-                    rRadius = 100 * shimmer;
+                    // For night, if dayNightTime is > 20, night progress is 0 to 0.4 (4 hours out of 10)
+                    // if dayNightTime is < 6, night progress is 0.4 to 1.0 (6 hours out of 10)
+                    let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
+                    rX = camX + cam.width * 0.4 * ((nightProgress - 0.5) * 2);
+                    rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(nightProgress * Math.PI);
+                    rColor = 'rgba(180, 220, 255, 0.5)'; // Brighter moon reflection
+                    rRadius = 80 * shimmer;
                 }
 
                 rCtx.fillStyle = rColor;
-                let localX = ((rX % 400) + 400) % 400;
+                // Add a glowing center
+                                let localX = ((rX % 400) + 400) % 400;
                 let localY = ((rY % 400) + 400) % 400;
 
                 for (let dx = -400; dx <= 400; dx += 400) {
                     for (let dy = -400; dy <= 400; dy += 400) {
+                        const centerX = localX + dx;
+                        const centerY = localY + dy;
+                        const grad = rCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, rRadius);
+                        if (isDay) {
+                            grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+                            grad.addColorStop(0.3, 'rgba(255, 255, 200, 0.8)');
+                            grad.addColorStop(1, 'rgba(255, 255, 200, 0)');
+                        } else {
+                            grad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+                            grad.addColorStop(0.3, 'rgba(180, 220, 255, 0.6)');
+                            grad.addColorStop(1, 'rgba(180, 220, 255, 0)');
+                        }
+                        rCtx.fillStyle = grad;
                         rCtx.beginPath();
-                        rCtx.ellipse(localX + dx, localY + dy, rRadius, rRadius * 0.5, 0, 0, Math.PI * 2);
+                        rCtx.ellipse(centerX, centerY, Math.max(0.1, rRadius), Math.max(0.1, rRadius * 0.5), 0, 0, Math.PI * 2);
                         rCtx.fill();
                     }
                 }
