@@ -4082,8 +4082,8 @@ function preload() {
                 gradient.addColorStop(0, '#1a661a');
                 gradient.addColorStop(1, '#228B22');
             } else if (window.currentSeason === 'Fall') {
-                gradient.addColorStop(0, '#d2b48c');
-                gradient.addColorStop(1, '#e6ccb2');
+                gradient.addColorStop(0, '#a68a61');
+                gradient.addColorStop(1, '#bda27e');
             } else if (window.currentSeason === 'Winter') {
                 gradient.addColorStop(0, '#7ba4b3');
                 gradient.addColorStop(1, '#add8e6');
@@ -4094,7 +4094,7 @@ function preload() {
                 for (let k = 0; k < 100; k += 4) {
                     if (Math.random() < 0.2) {
                         if (window.currentSeason === 'Summer') bgCtx.fillStyle = Math.random() < 0.5 ? '#1c731c' : '#1e781e';
-                        else if (window.currentSeason === 'Fall') bgCtx.fillStyle = Math.random() < 0.5 ? '#f5ebd9' : '#d2b48c';
+                        else if (window.currentSeason === 'Fall') bgCtx.fillStyle = Math.random() < 0.5 ? '#d2b48c' : '#a68a61';
                         else if (window.currentSeason === 'Winter') bgCtx.fillStyle = Math.random() < 0.5 ? '#8dbdd0' : '#9ecfe2';
                         bgCtx.fillRect(j, k, 4, 4);
                     }
@@ -4116,6 +4116,7 @@ function preload() {
     const dynCanvas = document.createElement('canvas');
     dynCanvas.width = 100;
     dynCanvas.height = 100;
+    dynCanvas.getContext('2d', { willReadFrequently: true });
     this.textures.addCanvas('grass_dynamic', dynCanvas);
 
     // Create base dithered background once to avoid redrawing it fully each frame
@@ -4133,6 +4134,7 @@ function preload() {
         let cvs = document.createElement('canvas');
         cvs.width = 50;
         cvs.height = 50;
+        cvs.getContext('2d', { willReadFrequently: true });
         this.textures.addCanvas('grass_corner_convex_' + dir + '_dynamic', cvs);
     });
 
@@ -4723,7 +4725,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
 
         // Add lilly pads occasionally on shallow or mid water
-        if (depth <= 2 && Math.random() < 0.1) {
+        if (window.currentSeason !== 'Winter' && depth <= 2 && Math.random() < 0.1) {
             let numPads = Math.floor(Math.random() * 3) + 1;
             for(let p=0; p<numPads; p++) {
                 let pad = scene.add.sprite(posX + (Math.random()*60-30), posY + (Math.random()*60-30), 'lilly_pad_tex');
@@ -5085,8 +5087,6 @@ function create() {
 
     let leafRedParticles = this.add.particles('leaf_particle_red');
     leafRedParticles.setDepth(3000);
-    leafRedParticles.setScrollFactor(0);
-    leafRedParticles.setScrollFactor(0);
     window.leafRedEmitter = leafRedParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
@@ -5099,8 +5099,6 @@ function create() {
 
     let leafYellowParticles = this.add.particles('leaf_particle_yellow');
     leafYellowParticles.setDepth(3000);
-    leafYellowParticles.setScrollFactor(0);
-    leafYellowParticles.setScrollFactor(0);
     window.leafYellowEmitter = leafYellowParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
@@ -5114,7 +5112,6 @@ function create() {
 
     let leafMixedParticles = this.add.particles('leaf_particle_mixed');
     leafMixedParticles.setDepth(3000);
-    leafMixedParticles.setScrollFactor(0);
     window.leafMixedEmitter = leafMixedParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
@@ -5127,8 +5124,6 @@ function create() {
 
     let pollenParticles = this.add.particles('pollen_particle');
     pollenParticles.setDepth(3000);
-    pollenParticles.setScrollFactor(0);
-    pollenParticles.setScrollFactor(0);
     window.pollenEmitter = pollenParticles.createEmitter({
         speed: { min: 20, max: 80 },
         lifespan: 10000,
@@ -6032,13 +6027,20 @@ function update() {
             leaf.y += driftY;
             leaf.rotation += 0.01;
 
-            if (leaf.x > leaf.startX + 50) { leaf.x -= 100; }
-            if (leaf.x < leaf.startX - 50) { leaf.x += 100; }
-            if (leaf.y > leaf.startY + 50) { leaf.y -= 100; }
-            if (leaf.y < leaf.startY - 50) { leaf.y += 100; }
-
+            let col = Math.floor(leaf.x / 100);
+            let row = Math.floor(leaf.y / 100);
             let dist = Math.hypot(leaf.x - leaf.startX, leaf.y - leaf.startY);
-            leaf.setAlpha(Math.max(0, 1 - (dist / 40)));
+
+            if (row < 0 || row >= mapData.length || col < 0 || col >= mapData[0].length || mapData[row][col] !== 'obs' || dist > 400) {
+                leaf.x = leaf.startX;
+                leaf.y = leaf.startY;
+                dist = 0;
+            }
+
+            let alpha = 1.0;
+            if (dist < 50) alpha = dist / 50;
+            else if (dist > 350) alpha = (400 - dist) / 50;
+            leaf.setAlpha(alpha);
         });
     }
 
@@ -6365,6 +6367,11 @@ function update() {
     // Fish wandering and fleeing logic
     if (window.fishGroup) {
         window.fishGroup.getChildren().forEach(fish => {
+            if (window.currentSeason === 'Winter') {
+                fish.setVisible(false);
+                return;
+            }
+
             const isVisible = (fish.x >= viewLeft && fish.x <= viewRight && fish.y >= viewTop && fish.y <= viewBottom);
             fish.setVisible(isVisible);
 
@@ -6476,7 +6483,11 @@ function update() {
         window.pollenEmitter.setSpeedX({ min: windVx * 0.4, max: windVx * 0.6 });
         window.pollenEmitter.setSpeedY({ min: windVy * 0.4, max: windVy * 0.6 });
 
-        // emitZone is now fixed and independent of camera position because particles use setScrollFactor(0)
+        let emitRect = new Phaser.Geom.Rectangle(viewLeft, viewTop, cam.width + viewPadding * 2, cam.height + viewPadding * 2);
+        window.leafRedEmitter.setEmitZone({ type: 'random', source: emitRect });
+        window.leafYellowEmitter.setEmitZone({ type: 'random', source: emitRect });
+        window.leafMixedEmitter.setEmitZone({ type: 'random', source: emitRect });
+        window.pollenEmitter.setEmitZone({ type: 'random', source: emitRect });
     }
 
     // Update Clouds
