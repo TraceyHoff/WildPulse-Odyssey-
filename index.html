@@ -2811,8 +2811,8 @@ const STORAGE_KEY = 'wildpulse_collected_creatures';
 let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 let collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
-let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 80;
-window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Winter';
+let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
+window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
 
 // Stats System
 window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
@@ -4045,6 +4045,12 @@ function updateBattleUI() {
 
 
 function preload() {
+    const refCanvas = document.createElement('canvas');
+    refCanvas.width = 400;
+    refCanvas.height = 400;
+    refCanvas.getContext('2d', { willReadFrequently: true });
+    this.textures.addCanvas('water_reflection_dynamic', refCanvas);
+
     // Set up global grass blades arrays to use in dynamic updates
     window.grassBlades = [];
 
@@ -4752,6 +4758,16 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         sprites.push(obs);
 
         // Add overlay
+        let reflectionOverlay = scene.add.sprite(posX, posY, 'water_reflection_dynamic');
+        reflectionOverlay.depthType = 'reflection';
+        reflectionOverlay.setDepth(0.1);
+        let dynGridX = (c * tileSize) % 400;
+        let dynGridY = (r * tileSize) % 400;
+        reflectionOverlay.gridX = dynGridX;
+        reflectionOverlay.gridY = dynGridY;
+        reflectionOverlay.setCrop(dynGridX, dynGridY, 100, 100);
+        reflectionOverlay.setDisplayOrigin(dynGridX + 50, dynGridY + 50);
+        sprites.push(reflectionOverlay);
 
 
         // Foams
@@ -5049,7 +5065,7 @@ function create() {
     player.setDepth(10);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
-    this.physics.add.collider(player, obstaclesGroup);
+    window.waterCollider = this.physics.add.collider(player, obstaclesGroup);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
@@ -6261,7 +6277,13 @@ function update() {
                     sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
                     sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
                 }
-            } else if (sprite.texture.key.startsWith('foam_tex_')) {
+            } else if (sprite.depthType === 'reflection') {
+                sprite.setTexture('water_reflection_dynamic');
+                if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
+                    sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
+                    sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
+                }
+            } else if (sprite.texture && sprite.texture.key && sprite.texture.key.startsWith('foam_tex_')) {
                 sprite.setTexture('foam_tex_' + frame16fps);
             }
         });
@@ -6270,6 +6292,50 @@ function update() {
     // Dynamic Tile Viewport Culling
     const cam = this.cameras.main;
     const TILE_SIZE = 100;
+
+    let showReflection = window.currentSeason !== 'Winter';
+    if (this.textures.exists('water_reflection_dynamic')) {
+        const refTex = this.textures.get('water_reflection_dynamic');
+        if (refTex && refTex.getSourceImage) {
+            const rCtx = refTex.getSourceImage().getContext('2d', { willReadFrequently: true });
+            rCtx.clearRect(0, 0, 400, 400);
+
+            if (showReflection) {
+                let camX = cam.scrollX + cam.width / 2;
+                let camY = cam.scrollY + cam.height / 2;
+                let shimmer = 1 + Math.sin(this.time.now / 300) * 0.05;
+
+                let rX, rY, rColor, rRadius;
+                if (dayNightTime >= 6 && dayNightTime <= 20) {
+                    let dayProgress = (dayNightTime - 6) / 14;
+                    rX = camX + cam.width * 0.4 * Math.cos((dayProgress - 0.5) * Math.PI);
+                    rY = camY - cam.height * 0.3 * Math.sin(dayProgress * Math.PI);
+                    rColor = 'rgba(255, 238, 187, 0.4)';
+                    rRadius = 150 * shimmer;
+                } else {
+                    let nightProgress = dayNightTime > 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
+                    rX = camX + cam.width * 0.4 * Math.cos((nightProgress - 0.5) * Math.PI);
+                    rY = camY - cam.height * 0.3 * Math.sin(nightProgress * Math.PI);
+                    rColor = 'rgba(136, 187, 255, 0.4)';
+                    rRadius = 100 * shimmer;
+                }
+
+                rCtx.fillStyle = rColor;
+                let localX = ((rX % 400) + 400) % 400;
+                let localY = ((rY % 400) + 400) % 400;
+
+                for (let dx = -400; dx <= 400; dx += 400) {
+                    for (let dy = -400; dy <= 400; dy += 400) {
+                        rCtx.beginPath();
+                        rCtx.ellipse(localX + dx, localY + dy, rRadius, rRadius * 0.5, 0, 0, Math.PI * 2);
+                        rCtx.fill();
+                    }
+                }
+            }
+            if (refTex.refresh) refTex.refresh();
+        }
+    }
+
     const buffer = 2; // Render 2 tiles outside view
 
     const minCol = Math.max(0, Math.floor(cam.scrollX / TILE_SIZE) - buffer);
@@ -6299,7 +6365,20 @@ function update() {
         }
     }
 
-    player.body.setVelocity(0);
+    if (window.waterCollider) {
+        window.waterCollider.active = window.currentSeason !== 'Winter';
+    }
+
+    let col = Math.floor(player.x / 100);
+    let row = Math.floor(player.y / 100);
+    let onIce = window.currentSeason === 'Winter' && mapData[row] && mapData[row][col] === 'obs';
+
+    if (typeof window.playerVx === 'undefined') { window.playerVx = 0; window.playerVy = 0; }
+    if (!onIce) {
+        window.playerVx = 0;
+        window.playerVy = 0;
+        player.body.setVelocity(0, 0);
+    }
 
     // Keyboard movement
     let movedX = false;
@@ -6372,19 +6451,23 @@ function update() {
         window.lastSaveTime = now;
     }
 
+    let targetVx = 0;
+    let targetVy = 0;
+    let moveSpeed = speed;
+
     if (cursors.left.isDown) {
-        player.body.setVelocityX(-speed);
+        targetVx = -moveSpeed;
         movedX = true;
     } else if (cursors.right.isDown) {
-        player.body.setVelocityX(speed);
+        targetVx = moveSpeed;
         movedX = true;
     }
 
     if (cursors.up.isDown) {
-        player.body.setVelocityY(-speed);
+        targetVy = -moveSpeed;
         movedY = true;
     } else if (cursors.down.isDown) {
-        player.body.setVelocityY(speed);
+        targetVy = moveSpeed;
         movedY = true;
     }
 
@@ -6393,17 +6476,48 @@ function update() {
         const dx = pointerTarget.x - player.x;
         const dy = pointerTarget.y - player.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-
         if (distance > 10) {
-            player.body.setVelocity((dx / distance) * speed, (dy / distance) * speed);
+            targetVx = (dx / distance) * moveSpeed;
+            targetVy = (dy / distance) * moveSpeed;
             movedX = true;
             movedY = true;
         } else {
-            // Reached target
-            player.body.setVelocity(0);
+            pointerTarget = null;
         }
-    } else if (!movedX && !movedY) {
-        player.body.setVelocity(0);
+    }
+
+    if (onIce) {
+        let accel = 10;
+        let friction = 2;
+
+        if (movedX) {
+            if (targetVx < 0) window.playerVx = Math.max(window.playerVx - accel, -moveSpeed);
+            else if (targetVx > 0) window.playerVx = Math.min(window.playerVx + accel, moveSpeed);
+        } else {
+            if (window.playerVx > 0) window.playerVx = Math.max(window.playerVx - friction, 0);
+            else if (window.playerVx < 0) window.playerVx = Math.min(window.playerVx + friction, 0);
+        }
+
+        if (movedY) {
+            if (targetVy < 0) window.playerVy = Math.max(window.playerVy - accel, -moveSpeed);
+            else if (targetVy > 0) window.playerVy = Math.min(window.playerVy + accel, moveSpeed);
+        } else {
+            if (window.playerVy > 0) window.playerVy = Math.max(window.playerVy - friction, 0);
+            else if (window.playerVy < 0) window.playerVy = Math.min(window.playerVy + friction, 0);
+        }
+
+        player.body.setVelocityX(window.playerVx);
+        player.body.setVelocityY(window.playerVy);
+    } else {
+        if (movedX || movedY) {
+            window.playerVx = targetVx;
+            window.playerVy = targetVy;
+            player.body.setVelocity(targetVx, targetVy);
+        } else {
+            window.playerVx = 0;
+            window.playerVy = 0;
+            player.body.setVelocity(0, 0);
+        }
     }
 
     // Track distance
@@ -6612,6 +6726,7 @@ function update() {
             window.leafGreen2Emitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
             window.leafGreen2Emitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
             window.snowflakeEmitter.setSpeedX({ min: windVx * 0.2, max: windVx * 0.4 });
+            window.snowflakeEmitter.setSpeedY({ min: windVy * 0.2, max: windVy * 0.4 });
         }
 
         let emitRect = new Phaser.Geom.Rectangle(viewLeft, viewTop, cam.width + viewPadding * 2, cam.height + viewPadding * 2);
