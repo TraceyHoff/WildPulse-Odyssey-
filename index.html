@@ -439,7 +439,30 @@
         animation: float-up-text 1s ease-out forwards;
     }
 
+
+    .notification-popup {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95));
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1);
+        padding: 15px 30px;
+        border-radius: 12px;
+        color: white;
+        font-family: sans-serif;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+        z-index: 200000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease-in-out;
+    }
 </style>
+
 </head>
 <body>
 <div id="loadingScreen">
@@ -522,7 +545,23 @@
     </div>
     <button class="close-party-btn">Close</button>
 </div>
+
+<div id="modernNotification" class="notification-popup"></div>
+
 <script>
+window.notificationTimeout = null;
+window.showModernNotification = function(text, duration = 3000) {
+    const el = document.getElementById('modernNotification');
+    if (!el) return;
+    el.innerText = text;
+    el.style.opacity = '1';
+
+    if (window.notificationTimeout) clearTimeout(window.notificationTimeout);
+    window.notificationTimeout = setTimeout(() => {
+        el.style.opacity = '0';
+    }, duration);
+};
+
     function switchPartyTab(tab) {
         if (tab === 'party') {
             document.getElementById('partyTabContent').style.display = 'block';
@@ -742,7 +781,6 @@ window.baseCreatures = [
             "attack": 49
         },
         "generation": 1,
-        "color": 16711680,
         "bodySize": "large",
         "bodyType": "burly",
         "uniqueFeature": "lava trail",
@@ -775,7 +813,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 255,
         "bodySize": "rotund",
         "bodyType": "sinuous",
         "uniqueFeature": "coral growths",
@@ -808,7 +845,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 65280,
         "bodySize": "tiny",
         "bodyType": "slender",
         "uniqueFeature": "leafy tendrils",
@@ -842,7 +878,6 @@ window.baseCreatures = [
             "attack": 31
         },
         "generation": 1,
-        "color": 16776960,
         "bodySize": "miniscule",
         "bodyType": "sleek",
         "uniqueFeature": "static sparks",
@@ -875,7 +910,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 65535,
         "bodySize": "stout",
         "bodyType": "floating",
         "uniqueFeature": "icicle barrage",
@@ -908,7 +942,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 9127187,
         "bodySize": "medium",
         "bodyType": "stout",
         "uniqueFeature": "crystal spikes",
@@ -942,7 +975,6 @@ window.baseCreatures = [
             "attack": 53
         },
         "generation": 1,
-        "color": 13882323,
         "bodySize": "miniscule",
         "bodyType": "graceful",
         "uniqueFeature": "feathery trails",
@@ -976,7 +1008,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 16777215,
         "bodySize": "medium",
         "bodyType": "slender",
         "uniqueFeature": "blinding flash",
@@ -1010,7 +1041,6 @@ window.baseCreatures = [
             "attack": 32
         },
         "generation": 1,
-        "color": 4473924,
         "bodySize": "immense",
         "bodyType": "serpentine",
         "uniqueFeature": "abyssal gaze",
@@ -1044,7 +1074,6 @@ window.baseCreatures = [
             "attack": 59
         },
         "generation": 1,
-        "color": 8388736,
         "bodySize": "medium",
         "bodyType": "graceful",
         "uniqueFeature": "nebula dust",
@@ -1078,7 +1107,6 @@ window.baseCreatures = [
             "attack": 44
         },
         "generation": 1,
-        "color": 16711680,
         "bodySize": "stout",
         "bodyType": "muscular",
         "uniqueFeature": "ash clouds",
@@ -1111,7 +1139,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 255,
         "bodySize": "rotund",
         "bodyType": "sinuous",
         "uniqueFeature": "bubble clusters",
@@ -1144,7 +1171,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 65280,
         "bodySize": "small",
         "bodyType": "slender",
         "uniqueFeature": "blooming flora",
@@ -1178,7 +1204,6 @@ window.baseCreatures = [
             "attack": 56
         },
         "generation": 1,
-        "color": 16776960,
         "bodySize": "small",
         "bodyType": "angular",
         "uniqueFeature": "shock wave",
@@ -1212,7 +1237,6 @@ window.baseCreatures = [
             "attack": 48
         },
         "generation": 1,
-        "color": 65535,
         "bodySize": "stout",
         "bodyType": "floating",
         "uniqueFeature": "glacier shield",
@@ -1246,7 +1270,6 @@ window.baseCreatures = [
             "attack": 38
         },
         "generation": 1,
-        "color": 9127187,
         "bodySize": "medium",
         "bodyType": "bulky",
         "uniqueFeature": "floating rocks",
@@ -1280,7 +1303,6 @@ window.baseCreatures = [
             "attack": 37
         },
         "generation": 1,
-        "color": 13882323,
         "bodySize": "small",
         "bodyType": "graceful",
         "uniqueFeature": "feathery trails",
@@ -1313,7 +1335,6 @@ window.baseCreatures = [
             "attack": 50
         },
         "generation": 1,
-        "color": 16777215,
         "bodySize": "graceful",
         "bodyType": "radiant",
         "uniqueFeature": "glowing markings",
@@ -1347,7 +1368,6 @@ window.baseCreatures = [
             "attack": 31
         },
         "generation": 1,
-        "color": 4473924,
         "bodySize": "medium",
         "bodyType": "lanky",
         "uniqueFeature": "void strike",
@@ -1380,7 +1400,6 @@ window.baseCreatures = [
             "attack": 43
         },
         "generation": 1,
-        "color": 8388736,
         "bodySize": "medium",
         "bodyType": "bipedal",
         "uniqueFeature": "nebula dust",
@@ -1414,7 +1433,6 @@ window.baseCreatures = [
             "attack": 41
         },
         "generation": 1,
-        "color": 16711680,
         "bodySize": "medium",
         "bodyType": "bipedal",
         "uniqueFeature": "fiery breath",
@@ -1448,7 +1466,6 @@ window.baseCreatures = [
             "attack": 33
         },
         "generation": 1,
-        "color": 255,
         "bodySize": "colossal",
         "bodyType": "sleek",
         "uniqueFeature": "flowing water droplets",
@@ -1481,7 +1498,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 65280,
         "bodySize": "petite",
         "bodyType": "lanky",
         "uniqueFeature": "blooming flora",
@@ -1515,7 +1531,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 16776960,
         "bodySize": "small",
         "bodyType": "agile",
         "uniqueFeature": "shock wave",
@@ -1549,7 +1564,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 65535,
         "bodySize": "medium",
         "bodyType": "blocky",
         "uniqueFeature": "freezing touch",
@@ -1583,7 +1597,6 @@ window.baseCreatures = [
             "attack": 44
         },
         "generation": 1,
-        "color": 9127187,
         "bodySize": "medium",
         "bodyType": "rounded",
         "uniqueFeature": "crystal spikes",
@@ -1617,7 +1630,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 13882323,
         "bodySize": "miniscule",
         "bodyType": "graceful",
         "uniqueFeature": "tornado tail",
@@ -1650,7 +1662,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 16777215,
         "bodySize": "medium",
         "bodyType": "graceful",
         "uniqueFeature": "blinding glow",
@@ -1684,7 +1695,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 4473924,
         "bodySize": "medium",
         "bodyType": "lanky",
         "uniqueFeature": "nightmare trails",
@@ -1718,7 +1728,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 8388736,
         "bodySize": "tiny",
         "bodyType": "graceful",
         "uniqueFeature": "floating orbs",
@@ -1752,7 +1761,6 @@ window.baseCreatures = [
             "attack": 40
         },
         "generation": 1,
-        "color": 16711680,
         "bodySize": "massive",
         "bodyType": "muscular",
         "uniqueFeature": "scorching scales",
@@ -1786,7 +1794,6 @@ window.baseCreatures = [
             "attack": 32
         },
         "generation": 1,
-        "color": 255,
         "bodySize": "large",
         "bodyType": "agile",
         "uniqueFeature": "bioluminescent spots",
@@ -1820,7 +1827,6 @@ window.baseCreatures = [
             "attack": 45
         },
         "generation": 1,
-        "color": 65280,
         "bodySize": "petite",
         "bodyType": "graceful",
         "uniqueFeature": "thorny vines",
@@ -1854,7 +1860,6 @@ window.baseCreatures = [
             "attack": 57
         },
         "generation": 1,
-        "color": 16776960,
         "bodySize": "tiny",
         "bodyType": "agile",
         "uniqueFeature": "shock wave",
@@ -1888,7 +1893,6 @@ window.baseCreatures = [
             "attack": 40
         },
         "generation": 1,
-        "color": 65535,
         "bodySize": "stout",
         "bodyType": "blocky",
         "uniqueFeature": "frost breath",
@@ -1922,7 +1926,6 @@ window.baseCreatures = [
             "attack": 50
         },
         "generation": 1,
-        "color": 9127187,
         "bodySize": "large",
         "bodyType": "rounded",
         "uniqueFeature": "dust clouds",
@@ -1956,7 +1959,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 13882323,
         "bodySize": "slender",
         "bodyType": "spindly",
         "uniqueFeature": "hurricane eye",
@@ -1990,7 +1992,6 @@ window.baseCreatures = [
             "attack": 48
         },
         "generation": 1,
-        "color": 16777215,
         "bodySize": "towering",
         "bodyType": "floating",
         "uniqueFeature": "luminous halo",
@@ -2023,7 +2024,6 @@ window.baseCreatures = [
             "attack": 48
         },
         "generation": 1,
-        "color": 4473924,
         "bodySize": "immense",
         "bodyType": "serpentine",
         "uniqueFeature": "abyssal gaze",
@@ -2057,7 +2057,6 @@ window.baseCreatures = [
             "attack": 40
         },
         "generation": 1,
-        "color": 8388736,
         "bodySize": "immense",
         "bodyType": "bipedal",
         "uniqueFeature": "meteor shower",
@@ -2090,7 +2089,6 @@ window.baseCreatures = [
             "attack": 59
         },
         "generation": 1,
-        "color": 16711680,
         "bodySize": "stout",
         "bodyType": "muscular",
         "uniqueFeature": "fiery breath",
@@ -2124,7 +2122,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 255,
         "bodySize": "small",
         "bodyType": "sleek",
         "uniqueFeature": "bubble clusters",
@@ -2158,7 +2155,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 65280,
         "bodySize": "diminutive",
         "bodyType": "slender",
         "uniqueFeature": "floral crown",
@@ -2191,7 +2187,6 @@ window.baseCreatures = [
             "attack": 48
         },
         "generation": 1,
-        "color": 16776960,
         "bodySize": "miniscule",
         "bodyType": "spiky",
         "uniqueFeature": "plasma orbs",
@@ -2225,7 +2220,6 @@ window.baseCreatures = [
             "attack": 58
         },
         "generation": 1,
-        "color": 65535,
         "bodySize": "blocky",
         "bodyType": "stout",
         "uniqueFeature": "glacier shield",
@@ -2258,7 +2252,6 @@ window.baseCreatures = [
             "attack": 35
         },
         "generation": 1,
-        "color": 9127187,
         "bodySize": "large",
         "bodyType": "muscular",
         "uniqueFeature": "sandstone plates",
@@ -2292,7 +2285,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 13882323,
         "bodySize": "miniscule",
         "bodyType": "agile",
         "uniqueFeature": "updraft currents",
@@ -2325,7 +2317,6 @@ window.baseCreatures = [
             "attack": 42
         },
         "generation": 1,
-        "color": 16777215,
         "bodySize": "small",
         "bodyType": "slender",
         "uniqueFeature": "solar flare",
@@ -2358,7 +2349,6 @@ window.baseCreatures = [
             "attack": 31
         },
         "generation": 1,
-        "color": 4473924,
         "bodySize": "immense",
         "bodyType": "lanky",
         "uniqueFeature": "shadow cloak",
@@ -2392,7 +2382,6 @@ window.baseCreatures = [
             "attack": 60
         },
         "generation": 1,
-        "color": 8388736,
         "bodySize": "floating",
         "bodyType": "bipedal",
         "uniqueFeature": "galactic spiral",
@@ -2528,6 +2517,43 @@ for (let i = 1; i <= 50; i++) {
     let noun = nouns[(i + 1) % nouns.length];
     window.natures.push({ name: adj + ' ' + noun, increase: null, decrease: statsArr[i % 6] });
 }
+
+
+window.getCreatureColor = function(creature) {
+    const typeColors = {
+        "Fire": {r: 229, g: 57, b: 53},
+        "Water": {r: 30, g: 136, b: 229},
+        "Nature": {r: 67, g: 160, b: 71},
+        "Electric": {r: 253, g: 216, b: 53},
+        "Ice": {r: 3, g: 169, b: 244},
+        "Earth": {r: 109, g: 76, b: 65},
+        "Rock": {r: 117, g: 117, b: 117},
+        "Wind": {r: 129, g: 212, b: 250},
+        "Light": {r: 255, g: 238, b: 88},
+        "Dark": {r: 33, g: 33, b: 33},
+        "Cosmic": {r: 142, g: 36, b: 170},
+        "Normal": {r: 158, g: 158, b: 158}
+    };
+
+    let pType = creature.type ? creature.type.split('-')[0] : 'Normal';
+    let baseCol = typeColors[pType] || typeColors['Normal'];
+
+    // Generate deterministic shade based on string
+    let seedStr = String(creature.baseId || creature.name || '');
+    let hash = 0;
+    for (let i = 0; i < seedStr.length; i++) {
+        hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    // Vary between -40 and +40
+    let offset = (Math.abs(hash) % 80) - 40;
+
+    let r = Math.max(0, Math.min(255, baseCol.r + offset));
+    let g = Math.max(0, Math.min(255, baseCol.g + offset));
+    let b = Math.max(0, Math.min(255, baseCol.b + offset));
+
+    return (r << 16) | (g << 8) | b;
+};
 
 window.assignAbility = function(creature) {
     if (creature.ability) return;
@@ -2770,8 +2796,8 @@ const STORAGE_KEY = 'wildpulse_collected_creatures';
 let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 let collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
-let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
-window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
+let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 40;
+window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Fall';
 
 // Stats System
 window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
@@ -3364,12 +3390,7 @@ window.breed = function(parent1, parent2) {
     const childId = `gen${childGeneration}_${parent1.id}_${parent2.id}_${Date.now()}`;
 
     // Blend colors simply by averaging RGB
-    const c1 = parent1.color;
-    const c2 = parent2.color;
-    const r = Math.floor((((c1 >> 16) & 0xFF) + ((c2 >> 16) & 0xFF)) / 2);
-    const g = Math.floor((((c1 >> 8) & 0xFF) + ((c2 >> 8) & 0xFF)) / 2);
-    const b = Math.floor(((c1 & 0xFF) + (c2 & 0xFF)) / 2);
-    const childColor = (r << 16) | (g << 8) | b;
+    const childColor = window.getCreatureColor({ type: childType, name: childName });
 
     const childShiny = (parent1.isShiny || parent2.isShiny) && Math.random() < 0.25;
     if (childShiny) {
@@ -4006,7 +4027,7 @@ function preload() {
         if (window.currentSeason === 'Summer') {
             colors = ['#006400', '#2E8B57', '#32CD32'];
         } else if (window.currentSeason === 'Fall') {
-            colors = ['#8B8000', '#B8860B', '#DAA520'];
+            colors = ['#FFD700', '#FF0000', '#FFA500', '#D2B48C'];
         } else if (window.currentSeason === 'Winter') {
             colors = ['#ADD8E6', '#B0E0E6', '#87CEFA'];
         } else {
@@ -4015,7 +4036,16 @@ function preload() {
 
         for (let i = 0; i < window.grassBlades.length; i++) {
             let rand = Math.random();
-            window.grassBlades[i].color = rand > 0.6 ? colors[0] : (rand > 0.3 ? colors[1] : colors[2]);
+
+            if (colors.length === 4) {
+                if (rand > 0.75) window.grassBlades[i].color = colors[0];
+                else if (rand > 0.5) window.grassBlades[i].color = colors[1];
+                else if (rand > 0.25) window.grassBlades[i].color = colors[2];
+                else window.grassBlades[i].color = colors[3];
+            } else {
+                window.grassBlades[i].color = rand > 0.6 ? colors[0] : (rand > 0.3 ? colors[1] : colors[2]);
+            }
+
         }
 
         // Update static grass bg
@@ -4026,8 +4056,8 @@ function preload() {
                 gradient.addColorStop(0, '#1a661a');
                 gradient.addColorStop(1, '#228B22');
             } else if (window.currentSeason === 'Fall') {
-                gradient.addColorStop(0, '#665c1a');
-                gradient.addColorStop(1, '#8b7d22');
+                gradient.addColorStop(0, '#d2b48c');
+                gradient.addColorStop(1, '#e6ccb2');
             } else if (window.currentSeason === 'Winter') {
                 gradient.addColorStop(0, '#7ba4b3');
                 gradient.addColorStop(1, '#add8e6');
@@ -4038,7 +4068,7 @@ function preload() {
                 for (let k = 0; k < 100; k += 4) {
                     if (Math.random() < 0.2) {
                         if (window.currentSeason === 'Summer') bgCtx.fillStyle = Math.random() < 0.5 ? '#1c731c' : '#1e781e';
-                        else if (window.currentSeason === 'Fall') bgCtx.fillStyle = Math.random() < 0.5 ? '#73681c' : '#786c1e';
+                        else if (window.currentSeason === 'Fall') bgCtx.fillStyle = Math.random() < 0.5 ? '#f5ebd9' : '#d2b48c';
                         else if (window.currentSeason === 'Winter') bgCtx.fillStyle = Math.random() < 0.5 ? '#8dbdd0' : '#9ecfe2';
                         bgCtx.fillRect(j, k, 4, 4);
                     }
@@ -4346,6 +4376,33 @@ function preload() {
 
     this.textures.addCanvas('leaf_particle_yellow', leafYellowCanvas);
 
+
+    const leafMixedCanvas = document.createElement('canvas');
+    leafMixedCanvas.width = 16;
+    leafMixedCanvas.height = 16;
+    const leafMixedCtx = leafMixedCanvas.getContext('2d');
+
+    // Draw mixed leaf body
+    let leafMixedGrad = leafMixedCtx.createLinearGradient(2, 14, 14, 2);
+    leafMixedGrad.addColorStop(0, '#FF0000'); // Red base
+    leafMixedGrad.addColorStop(1, '#FFFF00'); // Yellow tip
+    leafMixedCtx.fillStyle = leafMixedGrad;
+    leafMixedCtx.beginPath();
+    leafMixedCtx.moveTo(2, 14); // Stem base
+    leafMixedCtx.bezierCurveTo(4, 10, 0, 4, 14, 2); // Left edge to tip
+    leafMixedCtx.bezierCurveTo(10, 6, 12, 12, 2, 14); // Right edge back to base
+    leafMixedCtx.fill();
+
+    // Draw stem/vein
+    leafMixedCtx.strokeStyle = '#B8860B'; // Dark goldenrod stem
+    leafMixedCtx.lineWidth = 1;
+    leafMixedCtx.beginPath();
+    leafMixedCtx.moveTo(2, 14);
+    leafMixedCtx.lineTo(10, 6);
+    leafMixedCtx.stroke();
+
+    this.textures.addCanvas('leaf_particle_mixed', leafMixedCanvas);
+
     const pollenCanvas = document.createElement('canvas');
     pollenCanvas.width = 8;
     pollenCanvas.height = 8;
@@ -4381,19 +4438,7 @@ function preload() {
     hospitalCtx.fillRect(20, 40, 60, 20); // Horizontal part of cross
     this.textures.addCanvas('hospital_tile', hospitalCanvas);
 
-    // Pre-generate Hospital Arrow texture
-    const arrowCanvas = document.createElement('canvas');
-    arrowCanvas.width = 40;
-    arrowCanvas.height = 40;
-    const arrowCtx = arrowCanvas.getContext('2d');
-    arrowCtx.fillStyle = '#ff0000';
-    arrowCtx.beginPath();
-    arrowCtx.moveTo(20, 0); // Tip
-    arrowCtx.lineTo(40, 40); // Bottom right
-    arrowCtx.lineTo(20, 30); // Inner bottom
-    arrowCtx.lineTo(0, 40); // Bottom left
-    arrowCtx.fill();
-    this.textures.addCanvas('arrow_tex', arrowCanvas);
+
 
     // Pre-generate Store Tile texture
     const storeCanvas = document.createElement('canvas');
@@ -4866,26 +4911,9 @@ function create() {
     this.cameras.main.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.startFollow(player);
 
-    // Hospital Directional Arrow
-    let hospitalArrow = this.add.sprite(0, 0, 'arrow_tex');
-    hospitalArrow.setDepth(2000);
-    hospitalArrow.setVisible(false);
-    window.hospitalArrow = hospitalArrow;
 
-    // Popup Layer
-    popupBackground = this.add.rectangle(window.innerWidth / 2, 40, 400, 60, 0x000000, 0.8)
-        .setScrollFactor(0)
-        .setOrigin(0.5)
-        .setDepth(9999);
-    popupText = this.add.text(window.innerWidth / 2, 40, "", {
-        fontSize: '18px',
-        fill: '#FFF',
-        align: 'center',
-        wordWrap: { width: 380 }
-    }).setScrollFactor(0).setOrigin(0.5).setDepth(10000);
 
-    popupBackground.setVisible(false);
-    popupText.setVisible(false);
+
 
     // Day and Night Cycle
     dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
@@ -4913,8 +4941,7 @@ function create() {
 
     // Resize handling for popup
     this.scale.on('resize', (gameSize) => {
-        popupBackground.setPosition(gameSize.width / 2, 40);
-        popupText.setPosition(gameSize.width / 2, 40);
+
 
         if (dayNightOverlay) {
             dayNightOverlay.setSize(gameSize.width, gameSize.height);
@@ -4989,39 +5016,56 @@ function create() {
     let leafRedParticles = this.add.particles('leaf_particle_red');
     leafRedParticles.setDepth(3000);
     leafRedParticles.setScrollFactor(0);
+    leafRedParticles.setScrollFactor(0);
     window.leafRedEmitter = leafRedParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
-        quantity: 1,
-        frequency: 200,
+        quantity: 3,
+        frequency: 100,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
     });
 
     let leafYellowParticles = this.add.particles('leaf_particle_yellow');
     leafYellowParticles.setDepth(3000);
     leafYellowParticles.setScrollFactor(0);
+    leafYellowParticles.setScrollFactor(0);
     window.leafYellowEmitter = leafYellowParticles.createEmitter({
         speed: { min: 50, max: 150 },
         lifespan: 8000,
-        quantity: 1,
-        frequency: 200,
+        quantity: 3,
+        frequency: 100,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+    });
+
+
+    let leafMixedParticles = this.add.particles('leaf_particle_mixed');
+    leafMixedParticles.setDepth(3000);
+    leafMixedParticles.setScrollFactor(0);
+    window.leafMixedEmitter = leafMixedParticles.createEmitter({
+        speed: { min: 50, max: 150 },
+        lifespan: 8000,
+        quantity: 3,
+        frequency: 100,
+        scale: { start: 1, end: 0 },
+        rotate: { start: 0, end: 360 },
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
     });
 
     let pollenParticles = this.add.particles('pollen_particle');
     pollenParticles.setDepth(3000);
     pollenParticles.setScrollFactor(0);
+    pollenParticles.setScrollFactor(0);
     window.pollenEmitter = pollenParticles.createEmitter({
         speed: { min: 20, max: 80 },
         lifespan: 10000,
-        quantity: 3,
-        frequency: 150,
+        quantity: 6,
+        frequency: 80,
         scale: { start: 0.5, end: 0 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-400, -400, window.innerWidth + 800, window.innerHeight + 800) }
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
     });
 
     window.cloudGroup = this.physics.add.group();
@@ -5031,8 +5075,8 @@ function create() {
         let cy = Math.random() * WORLD_SIZE;
         let cloud = window.cloudGroup.create(cx, cy, 'cloud_shadow');
         cloud.setDepth(2000);
-        cloud.setAlpha(0.6);
-        cloud.setScale(1 + Math.random() * 2);
+        cloud.setAlpha(0.1 + Math.random() * 0.4);
+        cloud.setScale(1 + Math.random() * 2, 1 + Math.random() * 2);
             }
 
     // Overlap physics
@@ -5065,15 +5109,7 @@ function healParty(playerCollider, hospitalCollider) {
 
     if (healedAny) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-        popupText.setText("Your party has been fully healed!");
-        popupBackground.setVisible(true);
-        popupText.setVisible(true);
-
-        if (popupTimer) popupTimer.remove();
-        popupTimer = this.time.delayedCall(3000, () => {
-            popupBackground.setVisible(false);
-            popupText.setVisible(false);
-        });
+        window.showModernNotification("Your party has been fully healed!");
     }
 }
 
@@ -5168,6 +5204,7 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
 
     clonedData.id = Date.now().toString() + "_" + Math.floor(Math.random() * 1000000).toString();
 
+    if (!clonedData.color) clonedData.color = window.getCreatureColor(clonedData);
     const sprite = scene.add.rectangle(x, y, 30, 30, clonedData.color);
     scene.physics.add.existing(sprite);
     sprite.setDepth(10);
@@ -5225,38 +5262,32 @@ function collectCreature(playerCollider, creatureSprite) {
     currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
     currentEnemy.currentHp = currentEnemy.maxHp;
     currentEnemy.isDefending = false;
-    currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+    currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
 
     // Initialize HP
     collectedCreatures.forEach(c => {
         if (c.currentHp === undefined) c.currentHp = window.getEffectiveStat(c, 'health');
     });
 
-    window.currentBattleParty = collectedCreatures.filter(c => !c.stored && c.currentHp > 0);
 
-    if (window.currentBattleParty.length === 0) {
+
+    if (!collectedCreatures.some(c => !c.stored && c.currentHp > 0)) {
         // No healthy creatures
         inBattle = false;
         playerCollider.body.moves = true;
-        popupText.setText("You have no healthy creatures! Follow the arrow to the hospital.");
-        popupBackground.setVisible(true);
-        popupText.setVisible(true);
-        if (popupTimer) popupTimer.remove();
-        popupTimer = this.time.delayedCall(3000, () => {
-            popupBackground.setVisible(false);
-            popupText.setVisible(false);
-        });
+        window.showModernNotification("You have no healthy creatures! Find a hospital to heal them.");
         player.x += (Math.random() < 0.5 ? 20 : -20); // Bounce off slightly
         player.y += (Math.random() < 0.5 ? 20 : -20);
         return;
     }
 
-    currentPlayer = JSON.parse(JSON.stringify(window.currentBattleParty.shift()));
+    let firstHealthy = collectedCreatures.find(c => !c.stored && c.currentHp > 0);
+    currentPlayer = JSON.parse(JSON.stringify(firstHealthy));
     currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
     // Use saved HP
     currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
     currentPlayer.isDefending = false;
-    currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+    currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
 
     document.getElementById('battleModal').style.display = 'block';
     document.getElementById('battleControls').style.display = 'grid'; // Ensure controls are shown
@@ -5359,7 +5390,7 @@ function processStatuses(creature) {
 }
 
 
-window.currentBattleParty = [];
+
 
 window.handleFaint = function(target) {
     isActionRunning = false;
@@ -5374,14 +5405,15 @@ window.handleFaint = function(target) {
             orig.status = null;
         }
 
-        if (window.currentBattleParty.length > 0) {
-            let next = window.currentBattleParty.shift();
+        let next = collectedCreatures.find(c => !c.stored && c.currentHp > 0 && c.id !== currentPlayer.id);
+        if (next) {
+
             currentPlayer = JSON.parse(JSON.stringify(next));
             currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
             // Retain saved HP when switching in
             currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
             currentPlayer.isDefending = false;
-            currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+            currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
             logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
             updateBattleUI();
             return false; // Battle continues
@@ -5441,7 +5473,8 @@ window.doPlayerAction = function(action, callback) {
     if (action === 'attack') {
         window.triggerAnimation('playerCombatant', 'lunge-right', 200);
 
-        let abilityTriggered = currentPlayer.ability && Math.random() < currentPlayer.ability.chance;
+        let abilityTriggered = currentPlayer.ability && (!currentPlayer.battleStats || currentPlayer.battleStats.abilityUses < 4) && Math.random() < currentPlayer.ability.chance;
+        if (abilityTriggered && currentPlayer.battleStats) currentPlayer.battleStats.abilityUses++;
 
         let power = 40;
         let damageMultiplier = 1;
@@ -5460,13 +5493,13 @@ window.doPlayerAction = function(action, callback) {
             if (currentPlayer.ability.type === 'damage' || currentPlayer.ability.type === 'direct_damage') {
                 damageMultiplier = 1.0 + currentPlayer.ability.value;
             } else if (currentPlayer.ability.type === 'raise_stat') {
-                if (!currentPlayer.battleStats) currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+                if (!currentPlayer.battleStats) currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
                 currentPlayer.battleStats.attackMod += currentPlayer.ability.value;
             } else if (currentPlayer.ability.type === 'raise_accuracy') {
-                if (!currentPlayer.battleStats) currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+                if (!currentPlayer.battleStats) currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
                 currentPlayer.battleStats.accuracyMod += currentPlayer.ability.value;
             } else if (currentPlayer.ability.type === 'lower_enemy_accuracy') {
-                if (!currentEnemy.battleStats) currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+                if (!currentEnemy.battleStats) currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
                 currentEnemy.battleStats.accuracyMod = Math.max(0.1, currentEnemy.battleStats.accuracyMod - currentPlayer.ability.value);
             } else if (currentPlayer.ability.type === 'heal') {
                 let healAmt = currentPlayer.maxHp * currentPlayer.ability.value;
@@ -5480,7 +5513,7 @@ window.doPlayerAction = function(action, callback) {
         let damage = window.calculateDamage(currentPlayer, currentEnemy, power) * damageMultiplier * atkMod;
 
         // Recoil logic is now decoupled
-        let enemyRecoilTriggered = currentEnemy.ability && currentEnemy.ability.type === 'damage_recoil' && Math.random() < currentEnemy.ability.chance;
+        let enemyRecoilTriggered = currentEnemy.ability && currentEnemy.ability.type === 'damage_recoil' && (!currentEnemy.battleStats || currentEnemy.battleStats.abilityUses < 4) && Math.random() < currentEnemy.ability.chance;
 
         if (Math.random() < 0.10) {
             damage *= 1.5;
@@ -5495,6 +5528,7 @@ window.doPlayerAction = function(action, callback) {
         logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
         if (currentEnemy.currentHp > 0 && enemyRecoilTriggered) {
+             if (currentEnemy.battleStats) currentEnemy.battleStats.abilityUses++;
              logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
              let recoil = currentPlayer.maxHp * currentEnemy.ability.value;
              currentPlayer.currentHp -= recoil;
@@ -5577,7 +5611,8 @@ window.doEnemyAction = function(callback) {
 
     window.triggerAnimation('enemyCombatant', 'lunge-left', 200);
 
-    let abilityTriggered = currentEnemy.ability && Math.random() < currentEnemy.ability.chance;
+    let abilityTriggered = currentEnemy.ability && (!currentEnemy.battleStats || currentEnemy.battleStats.abilityUses < 4) && Math.random() < currentEnemy.ability.chance;
+    if (abilityTriggered && currentEnemy.battleStats) currentEnemy.battleStats.abilityUses++;
 
     let power = 40;
     let damageMultiplier = 1;
@@ -5596,13 +5631,13 @@ window.doEnemyAction = function(callback) {
         if (currentEnemy.ability.type === 'damage' || currentEnemy.ability.type === 'direct_damage') {
             damageMultiplier = 1.0 + currentEnemy.ability.value;
         } else if (currentEnemy.ability.type === 'raise_stat') {
-            if (!currentEnemy.battleStats) currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+            if (!currentEnemy.battleStats) currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
             currentEnemy.battleStats.attackMod += currentEnemy.ability.value;
         } else if (currentEnemy.ability.type === 'raise_accuracy') {
-            if (!currentEnemy.battleStats) currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+            if (!currentEnemy.battleStats) currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
             currentEnemy.battleStats.accuracyMod += currentEnemy.ability.value;
         } else if (currentEnemy.ability.type === 'lower_enemy_accuracy') {
-            if (!currentPlayer.battleStats) currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0 };
+            if (!currentPlayer.battleStats) currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
             currentPlayer.battleStats.accuracyMod = Math.max(0.1, currentPlayer.battleStats.accuracyMod - currentEnemy.ability.value);
         } else if (currentEnemy.ability.type === 'heal') {
             let healAmt = currentEnemy.maxHp * currentEnemy.ability.value;
@@ -5616,7 +5651,7 @@ window.doEnemyAction = function(callback) {
     let damage = window.calculateDamage(currentEnemy, currentPlayer, power) * damageMultiplier * atkMod;
 
     // Recoil logic
-    let playerRecoilTriggered = currentPlayer.ability && currentPlayer.ability.type === 'damage_recoil' && Math.random() < currentPlayer.ability.chance;
+    let playerRecoilTriggered = currentPlayer.ability && currentPlayer.ability.type === 'damage_recoil' && (!currentPlayer.battleStats || currentPlayer.battleStats.abilityUses < 4) && Math.random() < currentPlayer.ability.chance;
 
     if (Math.random() < 0.10) {
         damage *= 1.5;
@@ -5631,6 +5666,7 @@ window.doEnemyAction = function(callback) {
     logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
     if (currentPlayer.currentHp > 0 && playerRecoilTriggered) {
+         if (currentPlayer.battleStats) currentPlayer.battleStats.abilityUses++;
          logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
          let recoil = currentEnemy.maxHp * currentPlayer.ability.value;
          currentEnemy.currentHp -= recoil;
@@ -5930,17 +5966,7 @@ function update() {
     });
     let allDead = activeParty.length > 0 && activeParty.every(c => c.currentHp <= 0);
 
-    if (allDead && window.hospitalArrow) {
-        window.hospitalArrow.setVisible(true);
-        window.hospitalArrow.x = player.x;
-        window.hospitalArrow.y = player.y - 70;
-        let hx = 100 * 100 + 50; // tile size 100, col 100, centered
-        let hy = 100 * 100 + 50;
-        let angle = Phaser.Math.Angle.Between(window.hospitalArrow.x, window.hospitalArrow.y, hx, hy);
-        window.hospitalArrow.setRotation(angle + Math.PI / 2); // Adjust pointing up to rotation
-    } else if (window.hospitalArrow) {
-        window.hospitalArrow.setVisible(false);
-    }
+
 
     if (!window.lastSaveTime) window.lastSaveTime = 0;
     const now = Date.now();
@@ -5975,17 +6001,7 @@ function update() {
             localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
             if (window.updateGrassColors) window.updateGrassColors();
 
-            if (popupText && popupBackground) {
-                popupText.setText(`The season has changed to ${window.currentSeason}!`);
-                popupBackground.setVisible(true);
-                popupText.setVisible(true);
-
-                if (popupTimer) popupTimer.remove();
-                popupTimer = this.time.delayedCall(4000, () => {
-                    popupBackground.setVisible(false);
-                    popupText.setVisible(false);
-                });
-            }
+            window.showModernNotification(`The season has changed to ${window.currentSeason}!`, 4000);
         }
     }
 
@@ -6353,11 +6369,13 @@ function update() {
     }
 
     // Update emitters
-    if (window.leafRedEmitter && window.leafYellowEmitter && window.pollenEmitter) {
+    if (window.leafRedEmitter && window.leafYellowEmitter && window.leafMixedEmitter && window.pollenEmitter) {
         window.leafRedEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
         window.leafRedEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
         window.leafYellowEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
         window.leafYellowEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
+        window.leafMixedEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
+        window.leafMixedEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
         window.pollenEmitter.setSpeedX({ min: windVx * 0.4, max: windVx * 0.6 });
         window.pollenEmitter.setSpeedY({ min: windVy * 0.4, max: windVy * 0.6 });
 
