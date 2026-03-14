@@ -4677,7 +4677,12 @@ function preload() {
     const fishCtx = fishCanvas.getContext('2d');
     fishCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
     fishCtx.beginPath();
-    fishCtx.ellipse(20, 10, 12, 4, 0, 0, Math.PI*2);
+    // Replaced ellipse with arc (using scale to achieve ellipse shape) for broader browser compatibility
+    fishCtx.save();
+    fishCtx.translate(20, 10);
+    fishCtx.scale(3, 1);
+    fishCtx.arc(0, 0, 4, 0, Math.PI * 2);
+    fishCtx.restore();
     fishCtx.moveTo(10, 10);
     fishCtx.lineTo(2, 6);
     fishCtx.lineTo(2, 14);
