@@ -2811,8 +2811,8 @@ const STORAGE_KEY = 'wildpulse_collected_creatures';
 let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 let collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
-let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 40;
-window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Fall';
+let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 80;
+window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Winter';
 
 // Stats System
 window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
@@ -4436,6 +4436,71 @@ function preload() {
 
     this.textures.addCanvas('leaf_particle_mixed', leafMixedCanvas);
 
+    const leafGreen1Canvas = document.createElement('canvas');
+    leafGreen1Canvas.width = 16;
+    leafGreen1Canvas.height = 16;
+    const leafGreen1Ctx = leafGreen1Canvas.getContext('2d');
+    let leafGreen1Grad = leafGreen1Ctx.createLinearGradient(2, 14, 14, 2);
+    leafGreen1Grad.addColorStop(0, '#006400');
+    leafGreen1Grad.addColorStop(1, '#228B22');
+    leafGreen1Ctx.fillStyle = leafGreen1Grad;
+    leafGreen1Ctx.beginPath();
+    leafGreen1Ctx.moveTo(2, 14);
+    leafGreen1Ctx.bezierCurveTo(4, 10, 0, 4, 14, 2);
+    leafGreen1Ctx.bezierCurveTo(10, 6, 12, 12, 2, 14);
+    leafGreen1Ctx.fill();
+    leafGreen1Ctx.strokeStyle = '#004d00';
+    leafGreen1Ctx.lineWidth = 1;
+    leafGreen1Ctx.beginPath();
+    leafGreen1Ctx.moveTo(2, 14);
+    leafGreen1Ctx.lineTo(10, 6);
+    leafGreen1Ctx.stroke();
+    this.textures.addCanvas('leaf_particle_green1', leafGreen1Canvas);
+
+    const leafGreen2Canvas = document.createElement('canvas');
+    leafGreen2Canvas.width = 16;
+    leafGreen2Canvas.height = 16;
+    const leafGreen2Ctx = leafGreen2Canvas.getContext('2d');
+    let leafGreen2Grad = leafGreen2Ctx.createLinearGradient(2, 14, 14, 2);
+    leafGreen2Grad.addColorStop(0, '#2E8B57');
+    leafGreen2Grad.addColorStop(1, '#3CB371');
+    leafGreen2Ctx.fillStyle = leafGreen2Grad;
+    leafGreen2Ctx.beginPath();
+    leafGreen2Ctx.moveTo(2, 14);
+    leafGreen2Ctx.bezierCurveTo(4, 10, 0, 4, 14, 2);
+    leafGreen2Ctx.bezierCurveTo(10, 6, 12, 12, 2, 14);
+    leafGreen2Ctx.fill();
+    leafGreen2Ctx.strokeStyle = '#1d5c39';
+    leafGreen2Ctx.lineWidth = 1;
+    leafGreen2Ctx.beginPath();
+    leafGreen2Ctx.moveTo(2, 14);
+    leafGreen2Ctx.lineTo(10, 6);
+    leafGreen2Ctx.stroke();
+    this.textures.addCanvas('leaf_particle_green2', leafGreen2Canvas);
+
+    const snowflakeCanvas = document.createElement('canvas');
+    snowflakeCanvas.width = 16;
+    snowflakeCanvas.height = 16;
+    const snowflakeCtx = snowflakeCanvas.getContext('2d');
+    snowflakeCtx.strokeStyle = '#FFFFFF';
+    snowflakeCtx.lineWidth = 1.5;
+    snowflakeCtx.lineCap = 'round';
+    for (let i = 0; i < 6; i++) {
+        snowflakeCtx.save();
+        snowflakeCtx.translate(8, 8);
+        snowflakeCtx.rotate(i * Math.PI / 3);
+        snowflakeCtx.beginPath();
+        snowflakeCtx.moveTo(0, 0);
+        snowflakeCtx.lineTo(0, -7);
+        snowflakeCtx.moveTo(0, -3);
+        snowflakeCtx.lineTo(2, -5);
+        snowflakeCtx.moveTo(0, -3);
+        snowflakeCtx.lineTo(-2, -5);
+        snowflakeCtx.stroke();
+        snowflakeCtx.restore();
+    }
+    this.textures.addCanvas('snowflake_particle', snowflakeCanvas);
+
     const pollenCanvas = document.createElement('canvas');
     pollenCanvas.width = 8;
     pollenCanvas.height = 8;
@@ -4451,12 +4516,27 @@ function preload() {
     cloudCanvas.width = 400;
     cloudCanvas.height = 200;
     const cloudCtx = cloudCanvas.getContext('2d');
-    let cloudGrad = cloudCtx.createRadialGradient(200, 100, 0, 200, 100, 150);
-    cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
-    cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)');
-    cloudGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    cloudCtx.fillStyle = cloudGrad;
-    cloudCtx.fillRect(0, 0, 400, 200);
+    // Draw fluffy cloud shape with multiple overlapping radial gradients
+    const cloudPuffs = [
+        {x: 200, y: 120, r: 80},
+        {x: 140, y: 140, r: 60},
+        {x: 260, y: 140, r: 60},
+        {x: 100, y: 160, r: 40},
+        {x: 300, y: 160, r: 40},
+        {x: 170, y: 90, r: 70},
+        {x: 230, y: 90, r: 70}
+    ];
+
+    cloudPuffs.forEach(puff => {
+        let cloudGrad = cloudCtx.createRadialGradient(puff.x, puff.y, 0, puff.x, puff.y, puff.r);
+        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
+        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)');
+        cloudGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        cloudCtx.fillStyle = cloudGrad;
+        cloudCtx.beginPath();
+        cloudCtx.arc(puff.x, puff.y, puff.r, 0, Math.PI * 2);
+        cloudCtx.fill();
+    });
     this.textures.addCanvas('cloud_shadow', cloudCanvas);
 
     // Pre-generate Hospital Tile texture
@@ -5133,9 +5213,46 @@ function create() {
         emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
     });
 
+    let leafGreen1Particles = this.add.particles('leaf_particle_green1');
+    leafGreen1Particles.setDepth(3000);
+    window.leafGreen1Emitter = leafGreen1Particles.createEmitter({
+        speed: { min: 50, max: 150 },
+        lifespan: 8000,
+        quantity: 0,
+        frequency: 100,
+        scale: { start: 1, end: 0 },
+        rotate: { start: 0, end: 360 },
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+    });
+
+    let leafGreen2Particles = this.add.particles('leaf_particle_green2');
+    leafGreen2Particles.setDepth(3000);
+    window.leafGreen2Emitter = leafGreen2Particles.createEmitter({
+        speed: { min: 50, max: 150 },
+        lifespan: 8000,
+        quantity: 0,
+        frequency: 100,
+        scale: { start: 1, end: 0 },
+        rotate: { start: 0, end: 360 },
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+    });
+
+    let snowflakeParticles = this.add.particles('snowflake_particle');
+    snowflakeParticles.setDepth(3000);
+    window.snowflakeEmitter = snowflakeParticles.createEmitter({
+        speedY: { min: 20, max: 100 },
+        speedX: { min: -20, max: 20 },
+        lifespan: 12000,
+        quantity: 0,
+        frequency: 50,
+        scale: { start: 0.8, end: 0.2 },
+        rotate: { start: 0, end: 360 },
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+    });
+
     window.cloudGroup = this.physics.add.group();
     // More clouds for the larger map
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 750; i++) {
         let cx = Math.random() * WORLD_SIZE;
         let cy = Math.random() * WORLD_SIZE;
         let cloud = window.cloudGroup.create(cx, cy, 'cloud_shadow');
@@ -6020,6 +6137,12 @@ function update() {
     if (window.waterLeaves) {
         window.waterLeaves = window.waterLeaves.filter(leaf => leaf.active);
         window.waterLeaves.forEach(leaf => {
+            if (window.currentSeason === 'Winter') {
+                leaf.setVisible(false);
+                return;
+            } else {
+                leaf.setVisible(true);
+            }
             let dt = this.game.loop.delta || 16;
             let driftX = Math.cos(window.targetWindAngle || 0) * (dt * 0.005) + Math.cos(this.time.now / 500) * 0.1;
             let driftY = Math.sin(window.targetWindAngle || 0) * (dt * 0.005) + Math.sin(this.time.now / 500) * 0.1;
@@ -6483,11 +6606,59 @@ function update() {
         window.pollenEmitter.setSpeedX({ min: windVx * 0.4, max: windVx * 0.6 });
         window.pollenEmitter.setSpeedY({ min: windVy * 0.4, max: windVy * 0.6 });
 
+        if (window.leafGreen1Emitter && window.leafGreen2Emitter && window.snowflakeEmitter) {
+            window.leafGreen1Emitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
+            window.leafGreen1Emitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
+            window.leafGreen2Emitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
+            window.leafGreen2Emitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
+            window.snowflakeEmitter.setSpeedX({ min: windVx * 0.2, max: windVx * 0.4 });
+        }
+
         let emitRect = new Phaser.Geom.Rectangle(viewLeft, viewTop, cam.width + viewPadding * 2, cam.height + viewPadding * 2);
         window.leafRedEmitter.setEmitZone({ type: 'random', source: emitRect });
         window.leafYellowEmitter.setEmitZone({ type: 'random', source: emitRect });
         window.leafMixedEmitter.setEmitZone({ type: 'random', source: emitRect });
         window.pollenEmitter.setEmitZone({ type: 'random', source: emitRect });
+        if (window.leafGreen1Emitter && window.leafGreen2Emitter && window.snowflakeEmitter) {
+            window.leafGreen1Emitter.setEmitZone({ type: 'random', source: emitRect });
+            window.leafGreen2Emitter.setEmitZone({ type: 'random', source: emitRect });
+            window.snowflakeEmitter.setEmitZone({ type: 'random', source: emitRect });
+        }
+
+        // Dynamic, Season-Aware Particles
+        let timeOscillation = Math.sin(this.time.now / 1000) * 0.5 + 0.5; // 0 to 1
+
+        if (window.currentSeason === 'Summer') {
+            window.leafRedEmitter.setQuantity(0);
+            window.leafYellowEmitter.setQuantity(0);
+            window.leafMixedEmitter.setQuantity(0);
+            window.snowflakeEmitter.setQuantity(0);
+
+            let greenCount = 1 + Math.floor(timeOscillation * 2);
+            window.leafGreen1Emitter.setQuantity(greenCount);
+            window.leafGreen2Emitter.setQuantity(greenCount);
+            window.pollenEmitter.setQuantity(2 + Math.floor(timeOscillation * 4));
+        } else if (window.currentSeason === 'Fall') {
+            window.leafGreen1Emitter.setQuantity(0);
+            window.leafGreen2Emitter.setQuantity(0);
+            window.snowflakeEmitter.setQuantity(0);
+
+            let fallCount = 1 + Math.floor(timeOscillation * 2);
+            window.leafRedEmitter.setQuantity(fallCount);
+            window.leafYellowEmitter.setQuantity(fallCount);
+            window.leafMixedEmitter.setQuantity(fallCount);
+            window.pollenEmitter.setQuantity(2 + Math.floor(timeOscillation * 4));
+        } else if (window.currentSeason === 'Winter') {
+            window.leafRedEmitter.setQuantity(0);
+            window.leafYellowEmitter.setQuantity(0);
+            window.leafMixedEmitter.setQuantity(0);
+            window.leafGreen1Emitter.setQuantity(0);
+            window.leafGreen2Emitter.setQuantity(0);
+            window.pollenEmitter.setQuantity(0);
+
+            let snowCount = 2 + Math.floor(timeOscillation * 4);
+            window.snowflakeEmitter.setQuantity(snowCount);
+        }
     }
 
     // Update Clouds
