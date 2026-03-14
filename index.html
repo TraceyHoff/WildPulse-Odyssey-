@@ -511,7 +511,7 @@
     </div>
 </div>
 
-<div id="battleSwapModal" class="modal">
+<div id="battleSwapModal" class="modal" style="display:none;">
     <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
         <button class="close-btn" id="closeSwapBtn">X</button>
         <h2>Swap Creature</h2>
@@ -6312,14 +6312,14 @@ function update() {
     Object.values(activeTiles).forEach(sprites => {
         sprites.forEach(sprite => {
             if (!sprite.texture) return;
-            if (sprite.depthType) {
-                sprite.setTexture(sprite.depthType + frame16fps);
+            if (sprite.depthType === 'reflection') {
+                sprite.setTexture('water_reflection_dynamic');
                 if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
                     sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
                     sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
                 }
-            } else if (sprite.depthType === 'reflection') {
-                sprite.setTexture('water_reflection_dynamic');
+            } else if (sprite.depthType) {
+                sprite.setTexture(sprite.depthType + frame16fps);
                 if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
                     sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
                     sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
