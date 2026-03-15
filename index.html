@@ -4497,8 +4497,8 @@ function preload() {
             bgGrad.addColorStop(0, '#e0f7fa');
             bgGrad.addColorStop(1, '#b2ebf2');
         } else {
-            bgGrad.addColorStop(0, '#1E90FF');
-            bgGrad.addColorStop(1, '#1c86ee');
+            bgGrad.addColorStop(0, '#0d47a1'); // Darker, richer blue center
+            bgGrad.addColorStop(1, '#0277bd'); // Lighter blue edge
         }
         obsCtx.fillStyle = bgGrad;
         obsCtx.fillRect(0, 0, 400, 400);
@@ -4506,25 +4506,47 @@ function preload() {
         // Draw complex caustics
         obsCtx.globalCompositeOperation = 'overlay';
 
+        // More complex and realistic caustics
         for (let layer = 0; layer < 4; layer++) {
-            obsCtx.strokeStyle = `rgba(135, 206, 250, ${0.3 - layer * 0.05})`; // Light blue caustics
-            obsCtx.lineWidth = 1.5 + layer * 0.5;
+            obsCtx.strokeStyle = `rgba(255, 255, 255, ${0.25 - layer * 0.05})`; // White caustics look more realistic
+            obsCtx.lineWidth = 2.0 - layer * 0.3;
 
-            let speed = 1 + layer * 0.3;
-            let k1 = 3 + layer;
-            let k2 = 4 + layer;
+            let speed = 0.5 + layer * 0.4;
+            let k1 = 4 + layer * 2;
+            let k2 = 5 + layer;
             let s1 = (Math.PI * 2 * k1) / 400;
             let s2 = (Math.PI * 2 * k2) / 400;
 
-            for (let y = -40; y < 440; y += 15) {
+            for (let y = -40; y < 440; y += 20) {
                 obsCtx.beginPath();
                 for (let x = 0; x <= 400; x += 10) {
+                    // Create Voronoi-like web patterns using overlapping sine/cosine waves
                     let waveY = y +
-                                Math.sin((x * s1) + (t * speed)) * 8 +
-                                Math.cos(((x+y) * s2) - t) * 5;
+                                Math.sin((x * s1) + (t * speed)) * 12 +
+                                Math.cos(((x + y) * s2) - (t * speed * 1.5)) * 8;
 
-                    if (x === 0) obsCtx.moveTo(x, waveY);
-                    else obsCtx.lineTo(x, waveY);
+                    let waveX = x +
+                                Math.sin((y * s1) - (t * speed)) * 5;
+
+                    if (x === 0) obsCtx.moveTo(waveX, waveY);
+                    else obsCtx.lineTo(waveX, waveY);
+                }
+                obsCtx.stroke();
+            }
+
+            // Add perpendicular lines for the caustic web effect
+            for (let x = -40; x < 440; x += 20) {
+                obsCtx.beginPath();
+                for (let y = 0; y <= 400; y += 10) {
+                    let waveX = x +
+                                Math.sin((y * s1) + (t * speed)) * 12 +
+                                Math.cos(((x + y) * s2) - (t * speed * 1.5)) * 8;
+
+                    let waveY = y +
+                                Math.sin((x * s1) - (t * speed)) * 5;
+
+                    if (y === 0) obsCtx.moveTo(waveX, waveY);
+                    else obsCtx.lineTo(waveX, waveY);
                 }
                 obsCtx.stroke();
             }
@@ -4646,11 +4668,7 @@ function preload() {
 
         const hOffset = isTall ? 50 : 0;
 
-        // Draw drop shadow
-        treeCtx.fillStyle = 'rgba(0,0,0,0.3)';
-        treeCtx.beginPath();
-        treeCtx.ellipse(50, 145 + hOffset, 25, 10, 0, 0, Math.PI * 2);
-        treeCtx.fill();
+
 
         // Draw trunk (tapered)
         let trunkGrad = treeCtx.createLinearGradient(40, 50 + hOffset, 60, 50 + hOffset);
@@ -5100,6 +5118,15 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             const treeTypes = ['tree_pine', 'tree_oak', 'tree_birch', 'tree_maple', 'tree_cherry', 'tree_willow'];
             const treeType = treeTypes[hash % treeTypes.length];
             const seasonKey = treeType + '_' + (window.currentSeason || 'Summer');
+            let treeShadow = scene.add.sprite(posX, posY, seasonKey);
+            treeShadow.setTintFill(0x000000);
+            treeShadow.setAlpha(0.3);
+            treeShadow.setOrigin(0.5, 1.0);
+            treeShadow.setDepth(1); // just above ground
+            treeShadow.isTreeShadow = true;
+            treeShadow.baseTreeType = treeType; // for seasonal texture updates
+            sprites.push(treeShadow);
+
             let tree = window.treesGroup.create(posX, posY, seasonKey);
             tree.baseTreeType = treeType;
             tree.setOrigin(0.5, 1.0);
@@ -6798,6 +6825,37 @@ function update() {
             if (sprite.isTree) {
                 sprite.setRotation(treeRotation);
                 // Depth is now set once upon creation, not per-frame
+            } else if (sprite.isTreeShadow) {
+                // Determine shadow properties from time of day
+                let shadowScaleY = 1.0;
+                let shadowAngle = 0;
+                let shadowAlpha = 0.0;
+                let shadowColor = 0x000000;
+
+                let timeProgress = 0;
+                if (dayNightTime >= 6 && dayNightTime < 20) {
+                    timeProgress = (dayNightTime - 6) / 14;
+                    // Morning (6am, prog 0) -> shadow points West (left, -PI/2)
+                    // Noon (1pm, prog 0.5) -> shadow points North (up, PI)
+                    // Evening (8pm, prog 1) -> shadow points East (right, PI/2)
+                    shadowAngle = -Math.PI/2 + (Math.PI * timeProgress);
+
+                    let sunElevation = Math.sin(Math.PI * timeProgress);
+                    shadowScaleY = 0.5 + (1 - sunElevation) * 2.0;
+                    shadowAlpha = 0.4 * sunElevation;
+                } else {
+                    timeProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
+                    shadowAngle = -Math.PI/2 + (Math.PI * timeProgress);
+
+                    let moonElevation = Math.sin(Math.PI * timeProgress);
+                    shadowScaleY = 0.5 + (1 - moonElevation) * 2.0;
+                    shadowAlpha = 0.15 * moonElevation;
+                }
+
+                sprite.setScale(1, shadowScaleY);
+                sprite.setRotation(shadowAngle);
+                sprite.setAlpha(shadowAlpha);
+                sprite.setTintFill(0x000000);
             }
         });
     });
