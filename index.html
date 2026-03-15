@@ -3954,7 +3954,7 @@ let currentEnemySprite = null;
 let remotePlayers = {}; // userId -> Phaser sprite
 
 let isActionRunning = false;
-let dayNightTime = 8.0;
+let dayNightTime = 12.0;
 let dayNightOverlay;
 let sunSprite;
 let moonSprite;
@@ -4401,6 +4401,39 @@ function preload() {
     }
 
 
+    // Pre-generate dynamic tree textures
+    const generateTree = (key, trunkColor, leafColors) => {
+        const treeCanvas = document.createElement('canvas');
+        treeCanvas.width = 100;
+        treeCanvas.height = 150;
+        const treeCtx = treeCanvas.getContext('2d');
+
+        // Draw trunk
+        treeCtx.fillStyle = trunkColor;
+        treeCtx.fillRect(40, 50, 20, 100);
+
+        // Draw canopy circles
+        const circles = [
+            {x: 50, y: 50, r: 40},
+            {x: 30, y: 70, r: 35},
+            {x: 70, y: 70, r: 35}
+        ];
+
+        circles.forEach(c => {
+            let grad = treeCtx.createRadialGradient(c.x, c.y - c.r*0.3, 0, c.x, c.y, c.r);
+            grad.addColorStop(0, leafColors[0]);
+            grad.addColorStop(1, leafColors[1]);
+            treeCtx.fillStyle = grad;
+            treeCtx.beginPath();
+            treeCtx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+            treeCtx.fill();
+        });
+        this.textures.addCanvas(key, treeCanvas);
+    };
+    generateTree('tree_pine', '#5c4033', ['#2e8b57', '#006400']);
+    generateTree('tree_oak', '#8b4513', ['#32cd32', '#228b22']);
+    generateTree('tree_birch', '#d3d3d3', ['#98fb98', '#3cb371']);
+
     // Pre-generate a water overlay texture to mimic the linear-gradient button style
     const overlayCanvas = document.createElement('canvas');
     overlayCanvas.width = 100;
@@ -4686,6 +4719,20 @@ function preload() {
 
     this.textures.addCanvas('lilly_pad_tex', padCanvas);
 
+    // Generate starfield texture
+    const starCanvas = document.createElement('canvas');
+    starCanvas.width = 400;
+    starCanvas.height = 400;
+    const starCtx = starCanvas.getContext('2d');
+    for (let i = 0; i < 200; i++) {
+        let sx = Math.random() * 400;
+        let sy = Math.random() * 400;
+        let size = Math.random() < 0.8 ? 1 : 2;
+        starCtx.fillStyle = `rgba(255, 255, 255, ${0.2 + Math.random() * 0.8})`;
+        starCtx.fillRect(sx, sy, size, size);
+    }
+    this.textures.addCanvas('starfield_tex', starCanvas);
+
     // Generate simple fish texture
     const fishCanvas = document.createElement('canvas');
     fishCanvas.width = 40;
@@ -4725,6 +4772,18 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         grass.setDepth(-1);
         // grass.anims.play('grass_anim', true);
         sprites.push(grass);
+
+        let hash = (r * 31 + c * 17) % 100;
+        if (hash < 5 && window.treesGroup) {
+            const treeTypes = ['tree_pine', 'tree_oak', 'tree_birch'];
+            const treeType = treeTypes[hash % treeTypes.length];
+            let tree = window.treesGroup.create(posX, posY, treeType);
+            tree.setOrigin(0.5, 0.95);
+            tree.body.setSize(20, 20);
+            tree.body.setOffset(40, 130);
+            tree.isTree = true;
+            sprites.push(tree);
+        }
     } else if (mapData[r][c] === 'hospital') {
         let hospital = scene.add.sprite(posX, posY, 'hospital_tile');
         hospital.setDepth(-1);
@@ -4917,6 +4976,7 @@ function create() {
 
     // Fill background with grass
     obstaclesGroup = this.physics.add.staticGroup();
+    window.treesGroup = this.physics.add.staticGroup();
     hospitalGroup = this.physics.add.staticGroup();
     tradeGroup = this.physics.add.staticGroup();
     storeGroup = this.physics.add.staticGroup();
@@ -5109,6 +5169,7 @@ function create() {
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
     window.waterCollider = this.physics.add.collider(player, obstaclesGroup);
+    this.physics.add.collider(player, window.treesGroup);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
@@ -5121,6 +5182,11 @@ function create() {
     // Global Lighting sprites
     window.waterMaskGraphics = this.add.graphics();
     const mask = window.waterMaskGraphics.createGeometryMask();
+
+    window.starSprite = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'starfield_tex').setOrigin(0).setScrollFactor(0);
+    window.starSprite.setMask(mask);
+    window.starSprite.setBlendMode(Phaser.BlendModes.ADD);
+    window.starSprite.setDepth(0.05);
 
     sunSprite = this.add.sprite(0, 0, 'sun_reflection');
     sunSprite.setBlendMode(Phaser.BlendModes.ADD);
@@ -5136,10 +5202,10 @@ function create() {
 
     // Day and Night Cycle
     dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
-    timeText = this.add.text(20, window.innerHeight - 40, "08:00", { fontSize: '24px', fill: '#FFF' }).setScrollFactor(0).setDepth(100);
+    timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(100);
 
     // World Coordinates UI
-    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#FFF' }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
+    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
 
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
@@ -6318,15 +6384,23 @@ function update() {
     if (dayNightTime >= 7 && dayNightTime <= 20) {
         targetAlpha = 0; // Full daytime (7 AM to 8 PM)
     } else if (dayNightTime > 20 && dayNightTime < 21) {
-        targetAlpha = ((dayNightTime - 20) / 1) * 0.5; // Start getting dark at 8 PM, complete by 9 PM
+        targetAlpha = ((dayNightTime - 20) / 1) * 0.65; // Start getting dark at 8 PM, complete by 9 PM
     } else if (dayNightTime >= 21 || dayNightTime <= 6) {
-        targetAlpha = 0.5; // Complete night (9 PM to 6 AM)
+        targetAlpha = 0.65; // Complete night (9 PM to 6 AM)
     } else if (dayNightTime > 6 && dayNightTime < 7) {
-        targetAlpha = 0.5 - (((dayNightTime - 6) / 1) * 0.5); // Start getting light at 6 AM, full day by 7 AM
+        targetAlpha = 0.65 - (((dayNightTime - 6) / 1) * 0.65); // Start getting light at 6 AM, full day by 7 AM
     }
     if (dayNightOverlay) dayNightOverlay.setAlpha(targetAlpha);
 
+    if (window.starSprite) {
+        window.starSprite.setAlpha(targetAlpha * 1.5);
+        window.starSprite.setVisible(window.currentSeason !== 'Winter');
+        window.starSprite.tilePositionX += 0.1;
+        window.starSprite.tilePositionY += 0.05;
+    }
+
     const frame16fps = Math.floor(this.time.now / 125) % 16;
+    let treeRotation = Math.sin(this.time.now / 500) * (window.windSpeed / 2000);
 
     Object.values(activeTiles).forEach(sprites => {
         sprites.forEach(sprite => {
@@ -6340,8 +6414,24 @@ function update() {
             } else if (sprite.texture && sprite.texture.key && sprite.texture.key.startsWith('foam_tex_')) {
                 sprite.setTexture('foam_tex_' + frame16fps);
             }
+            if (sprite.isTree) {
+                sprite.setRotation(treeRotation);
+                sprite.setDepth(10 + sprite.y / 10000);
+            }
         });
     });
+
+    // Dynamic Entity Depth Sorting
+    if (player && player.setDepth) player.setDepth(10 + player.y / 10000);
+    Object.values(remotePlayers).forEach(rp => {
+        if (rp.setDepth) rp.setDepth(10 + rp.y / 10000);
+        if (rp.label && rp.label.setDepth) rp.label.setDepth(10 + rp.y / 10000);
+    });
+    if (creaturesGroup) {
+        creaturesGroup.getChildren().forEach(c => {
+            if (c.setDepth) c.setDepth(10 + c.y / 10000);
+        });
+    }
 
     // Dynamic Tile Viewport Culling
     const cam = this.cameras.main;
@@ -6360,27 +6450,27 @@ function update() {
             }
         }
 
-        let camX = cam.scrollX + cam.width / 2;
-        let camY = cam.scrollY + cam.height / 2;
         let shimmer = 1 + Math.sin(this.time.now / 300) * 0.05;
         let isDay = (dayNightTime >= 6 && dayNightTime < 20);
 
         if (isDay) {
             let dayProgress = (dayNightTime - 6) / 14;
-            let rX = camX + cam.width * 0.4 * ((dayProgress - 0.5) * 2);
-            let rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(dayProgress * Math.PI);
+            let adjustedProgress = dayProgress < 0.4285 ? (dayProgress / 0.4285) * 0.5 : 0.5 + ((dayProgress - 0.4285) / 0.5715) * 0.5;
+            let rX = player.x + cam.width * 0.4 * ((adjustedProgress - 0.5) * 2);
+            let rY = player.y - cam.height * 0.4 * Math.sin(adjustedProgress * Math.PI);
 
             sunSprite.setPosition(rX, rY);
-            sunSprite.setScale(shimmer * 0.75); // Make it large enough
+            sunSprite.setScale(shimmer * 0.4); // Make it large enough
             sunSprite.setVisible(true);
             moonSprite.setVisible(false);
         } else {
             let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
-            let rX = camX + cam.width * 0.4 * ((nightProgress - 0.5) * 2);
-            let rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(nightProgress * Math.PI);
+            let adjustedNightProgress = nightProgress < 0.4 ? (nightProgress / 0.4) * 0.5 : 0.5 + ((nightProgress - 0.4) / 0.6) * 0.5;
+            let rX = player.x + cam.width * 0.4 * ((adjustedNightProgress - 0.5) * 2);
+            let rY = player.y - cam.height * 0.4 * Math.sin(adjustedNightProgress * Math.PI);
 
             moonSprite.setPosition(rX, rY);
-            moonSprite.setScale(shimmer * 0.5);
+            moonSprite.setScale(shimmer * 0.3);
             moonSprite.setVisible(true);
             sunSprite.setVisible(false);
         }
