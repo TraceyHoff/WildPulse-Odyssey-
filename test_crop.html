@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+<script>
+new Phaser.Game({
+    type: Phaser.AUTO, width: 400, height: 400,
+    scene: {
+        create: function() {
+            let canvas = document.createElement('canvas');
+            canvas.width = 400; canvas.height = 400;
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'red'; ctx.fillRect(0, 0, 400, 400);
+            ctx.fillStyle = 'white'; ctx.fillText("TEXT", 10, 20);
+            this.textures.addCanvas('tex', canvas);
+
+            let s = this.add.sprite(200, 200, 'tex');
+            // Try negative crop
+            s.setCrop(-50, -50, 100, 100);
+            s.setDisplayOrigin(-50, -50);
+        }
+    }
+});
+</script>
+</body>
+</html>
