@@ -241,7 +241,7 @@
         #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
 
         #lobbyModal {
-            display: block;
+            display: none;
             position: absolute;
             color: white;
             z-index: 1000;
@@ -471,13 +471,37 @@
 </div>
 <div id="tooltip"></div>
 
-<div id="lobbyModal">
+<div id="lobbyModal" style="display:none; position:absolute; color:white; z-index:1000; text-align:center;">
     <button class="close-btn lobby-close-btn" aria-label="Close Lobby">X</button>
     <h2>Multiplayer Lobby</h2>
-    <p>Enter a room code to join other players.</p>
-    <input type="text" id="roomCodeInput" aria-label="Room Code" placeholder="Room Code" value="public">
-    <br>
-    <button id="joinBtn">Join Room</button>
+
+    <div style="margin-bottom: 20px;">
+        <h3>Your World Code</h3>
+        <p id="worldCodeDisplay" style="font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #4caf50;">LOADING...</p>
+        <button id="copyCodeBtn" style="background: linear-gradient(180deg, #42a5f5, #1565c0);">Copy Code</button>
+    </div>
+
+    <div style="margin-bottom: 20px; border-top: 1px solid #555; padding-top: 15px;">
+        <h3>Join Friend's World</h3>
+        <input type="text" id="friendCodeInput" aria-label="Friend Code" placeholder="Enter Friend's World Code">
+        <button id="joinFriendBtn" style="background: linear-gradient(180deg, #66bb6a, #2e7d32);">Join World</button>
+        <button id="saveFriendBtn" style="background: linear-gradient(180deg, #ffa726, #ef6c00);">Save as Friend</button>
+    </div>
+
+    <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px; border-top: 1px solid #555; padding-top: 15px;">
+        <div style="flex: 1;">
+            <h3>Friends List</h3>
+            <div id="friendsListDisplay" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px;">
+                <!-- Friends go here -->
+            </div>
+        </div>
+        <div style="flex: 1;">
+            <h3>Connected Players</h3>
+            <div id="connectedPlayersDisplay" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px;">
+                <!-- Connected players go here -->
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="battleModal">
@@ -523,6 +547,7 @@
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <h2>Menu</h2>
+    <button id="menuMultiplayerBtn" style="background: linear-gradient(180deg, #42a5f5, #1565c0); border-color: #90caf9;">Multiplayer Lobby</button>
     <button id="menuPartyBtn">Party</button>
     <button id="menuStorageBtn">Storage Box</button>
     <button id="breedBtn">Breeding Center</button>
@@ -698,6 +723,22 @@ function escapeHtml(unsafe) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Auto-start multiplayer and game logic
+    const savedRoomCode = localStorage.getItem('wildpulse_world_code');
+    if (savedRoomCode) {
+        multiplayerRoom = savedRoomCode;
+    } else {
+        // Generate random 8 char code
+        multiplayerRoom = Math.random().toString(36).substring(2, 10).toUpperCase();
+        localStorage.setItem('wildpulse_world_code', multiplayerRoom);
+    }
+    window.initializeMultiplayer(multiplayerRoom);
+    document.getElementById('loadingScreen').style.display = 'flex';
+    setTimeout(() => {
+        if (window.startGame) window.startGame();
+    }, 100);
+
     // Start game in fullscreen mode on first interaction
     const enterFullscreen = () => {
         if (!document.fullscreenElement) {
@@ -709,8 +750,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.addEventListener('click', enterFullscreen);
 
-    document.querySelector('.lobby-close-btn')?.addEventListener('click', () => document.getElementById('lobbyModal').style.display='none');
-    document.getElementById('joinBtn')?.addEventListener('click', joinMultiplayerRoom);
+    document.querySelector('.lobby-close-btn')?.addEventListener('click', window.closeLobbyModal);
+    document.getElementById('joinFriendBtn')?.addEventListener('click', window.joinFriendWorld);
+    document.getElementById('saveFriendBtn')?.addEventListener('click', window.saveFriendCode);
+    document.getElementById('copyCodeBtn')?.addEventListener('click', window.copyWorldCode);
+
+    document.getElementById('menuMultiplayerBtn')?.addEventListener('click', window.openLobbyModal);
 
 
     document.querySelector('.btn-attack')?.addEventListener('click', () => handlePlayerTurn('attack'));
@@ -2915,6 +2960,134 @@ window.closeMenuModal = function() {
 };
 
 
+window.openLobbyModal = function() {
+    closeMenuModal();
+    document.getElementById('lobbyModal').style.display = 'block';
+
+    // Set the world code text
+    document.getElementById('worldCodeDisplay').innerText = multiplayerRoom || "N/A";
+
+    window.updateLobbyUI();
+};
+
+window.closeLobbyModal = function() {
+    let _m_lobbyModal = document.getElementById('lobbyModal');
+    _m_lobbyModal.children[0].classList.add('modal-fade-out');
+    setTimeout(() => {
+        _m_lobbyModal.style.display = 'none';
+        _m_lobbyModal.children[0].classList.remove('modal-fade-out');
+    }, 190);
+};
+
+window.updateLobbyUI = function() {
+    // Render Friends
+    const friendsListEl = document.getElementById('friendsListDisplay');
+    friendsListEl.innerHTML = '';
+    let savedFriends = [];
+    try {
+        savedFriends = JSON.parse(localStorage.getItem('wildpulse_friends_list')) || [];
+    } catch (e) {}
+
+    if (savedFriends.length === 0) {
+        friendsListEl.innerHTML = '<p style="color:#999; font-style:italic;">No friends saved yet.</p>';
+    } else {
+        savedFriends.forEach((friendCode, index) => {
+            let div = document.createElement('div');
+            div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #444;";
+
+            let nameSpan = document.createElement('span');
+            nameSpan.innerText = friendCode;
+
+            let btnGroup = document.createElement('div');
+
+            let joinBtn = document.createElement('button');
+            joinBtn.innerText = 'Join';
+            joinBtn.style.cssText = "margin-right: 5px; padding: 4px 8px; font-size: 12px; background: linear-gradient(180deg, #4caf50, #2e7d32);";
+            joinBtn.onclick = () => window.joinFriendCodeDirect(friendCode);
+
+            let removeBtn = document.createElement('button');
+            removeBtn.innerText = 'X';
+            removeBtn.style.cssText = "padding: 4px 8px; font-size: 12px; background: linear-gradient(180deg, #f44336, #c62828);";
+            removeBtn.onclick = () => {
+                savedFriends.splice(index, 1);
+                localStorage.setItem('wildpulse_friends_list', JSON.stringify(savedFriends));
+                window.updateLobbyUI();
+            };
+
+            btnGroup.appendChild(joinBtn);
+            btnGroup.appendChild(removeBtn);
+            div.appendChild(nameSpan);
+            div.appendChild(btnGroup);
+            friendsListEl.appendChild(div);
+        });
+    }
+
+    // Render Connected Players
+    const connectedPlayersEl = document.getElementById('connectedPlayersDisplay');
+    connectedPlayersEl.innerHTML = '';
+
+    const activePlayers = Object.keys(window.remotePlayers || {});
+    if (activePlayers.length === 0) {
+        connectedPlayersEl.innerHTML = '<p style="color:#999; font-style:italic;">No other players connected.</p>';
+    } else {
+        activePlayers.forEach((pid, i) => {
+            let div = document.createElement('div');
+            div.style.cssText = "padding: 5px; border-bottom: 1px solid #444;";
+            div.innerText = `Player ${i+1} (${pid.substring(0,6)}...)`;
+            connectedPlayersEl.appendChild(div);
+        });
+    }
+};
+
+window.saveFriendCode = function() {
+    const input = document.getElementById('friendCodeInput');
+    const code = input.value.trim().toUpperCase();
+    if (!code) return;
+
+    let savedFriends = [];
+    try {
+        savedFriends = JSON.parse(localStorage.getItem('wildpulse_friends_list')) || [];
+    } catch (e) {}
+
+    if (!savedFriends.includes(code) && code !== multiplayerRoom) {
+        savedFriends.push(code);
+        localStorage.setItem('wildpulse_friends_list', JSON.stringify(savedFriends));
+        input.value = '';
+        window.updateLobbyUI();
+        window.showModernNotification("Friend saved!");
+    }
+};
+
+window.joinFriendWorld = function() {
+    const input = document.getElementById('friendCodeInput');
+    const code = input.value.trim().toUpperCase();
+    if (!code) return;
+    window.joinFriendCodeDirect(code);
+};
+
+window.joinFriendCodeDirect = function(code) {
+    if (code === multiplayerRoom) {
+        window.showModernNotification("You are already in this world!");
+        return;
+    }
+
+    // Leave current room and join new one
+    if (socket && socket.connected) {
+        // Just reload the page but setting the new code
+        localStorage.setItem('wildpulse_world_code', code);
+        window.location.reload();
+    }
+};
+
+window.copyWorldCode = function() {
+    if (!multiplayerRoom) return;
+    navigator.clipboard.writeText(multiplayerRoom).then(() => {
+        window.showModernNotification("World Code copied to clipboard!");
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+    });
+};
+
 
 
 window.openJournalModal = function() {
@@ -3727,26 +3900,6 @@ setInterval(() => {
         }
     });
 }, 3000);
-
-window.joinMultiplayerRoom = function() {
-    const code = document.getElementById('roomCodeInput').value.trim();
-    if (code) {
-        multiplayerRoom = code;
-        let _m_lobbyModal = document.getElementById('lobbyModal'); _m_lobbyModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_lobbyModal.style.display = 'none'; _m_lobbyModal.children[0].classList.remove('modal-fade-out'); }, 190);
-
-        // Signal intention to start multiplayer setup in the game config
-        if (window.initializeMultiplayer) {
-            window.initializeMultiplayer(multiplayerRoom);
-        }
-
-        document.getElementById('loadingScreen').style.display = 'flex';
-
-        // Start game after brief delay to allow fullscreen and modal close
-        setTimeout(() => {
-            if (window.startGame) window.startGame();
-        }, 100);
-    }
-};
 
 window.initializeMultiplayer = function(roomCode) {
     if (roomCode) {
