@@ -4403,38 +4403,40 @@ function preload() {
 
 
     // Pre-generate dynamic tree textures
-    const generateTree = (key, trunkColor, leafColors) => {
+    const generateTree = (key, trunkColor, leafColors, isTall = false) => {
         const treeCanvas = document.createElement('canvas');
         treeCanvas.width = 100;
-        treeCanvas.height = 150;
+        treeCanvas.height = isTall ? 200 : 150;
         const treeCtx = treeCanvas.getContext('2d');
+
+        const hOffset = isTall ? 50 : 0;
 
         // Draw drop shadow
         treeCtx.fillStyle = 'rgba(0,0,0,0.3)';
         treeCtx.beginPath();
-        treeCtx.ellipse(50, 145, 25, 10, 0, 0, Math.PI * 2);
+        treeCtx.ellipse(50, 145 + hOffset, 25, 10, 0, 0, Math.PI * 2);
         treeCtx.fill();
 
         // Draw trunk (tapered)
-        let trunkGrad = treeCtx.createLinearGradient(40, 50, 60, 50);
+        let trunkGrad = treeCtx.createLinearGradient(40, 50 + hOffset, 60, 50 + hOffset);
         trunkGrad.addColorStop(0, '#3a2010'); // Dark shadow edge
         trunkGrad.addColorStop(0.5, trunkColor); // Base color
         trunkGrad.addColorStop(1, '#2a1000'); // Shadow edge
 
         treeCtx.fillStyle = trunkGrad;
         treeCtx.beginPath();
-        treeCtx.moveTo(45, 50);
-        treeCtx.lineTo(55, 50);
-        treeCtx.lineTo(60, 150); // Wider base
-        treeCtx.lineTo(40, 150);
+        treeCtx.moveTo(45, 50 + hOffset);
+        treeCtx.lineTo(55, 50 + hOffset);
+        treeCtx.lineTo(60, 150 + hOffset); // Wider base
+        treeCtx.lineTo(40, 150 + hOffset);
         treeCtx.fill();
 
         // Draw some inner trunk lines/bark texture
         treeCtx.strokeStyle = 'rgba(0,0,0,0.3)';
         treeCtx.lineWidth = 1;
         treeCtx.beginPath();
-        treeCtx.moveTo(48, 60); treeCtx.lineTo(50, 140);
-        treeCtx.moveTo(53, 70); treeCtx.lineTo(55, 130);
+        treeCtx.moveTo(48, 60 + hOffset); treeCtx.lineTo(50, 140 + hOffset);
+        treeCtx.moveTo(53, 70 + hOffset); treeCtx.lineTo(55, 130 + hOffset);
         treeCtx.stroke();
 
         // Draw branches extending into canopy
@@ -4442,24 +4444,34 @@ function preload() {
         treeCtx.lineWidth = 4;
         treeCtx.lineCap = 'round';
         treeCtx.beginPath();
-        treeCtx.moveTo(50, 80); treeCtx.lineTo(30, 50);
-        treeCtx.moveTo(50, 90); treeCtx.lineTo(75, 45);
-        treeCtx.moveTo(50, 70); treeCtx.lineTo(50, 30);
+        treeCtx.moveTo(50, 80 + hOffset); treeCtx.lineTo(30, 50 + hOffset);
+        treeCtx.moveTo(50, 90 + hOffset); treeCtx.lineTo(75, 45 + hOffset);
+        treeCtx.moveTo(50, 70 + hOffset); treeCtx.lineTo(50, 30 + hOffset);
         treeCtx.stroke();
 
-        // Draw layered canopy circles
-        const circles = [
-            {x: 50, y: 35, r: 35},
-            {x: 30, y: 55, r: 30},
-            {x: 70, y: 55, r: 30},
-            {x: 20, y: 80, r: 25},
-            {x: 80, y: 80, r: 25},
-            {x: 40, y: 90, r: 28},
-            {x: 60, y: 90, r: 28},
-            {x: 50, y: 65, r: 35}, // Front-center highlight
-            {x: 50, y: 45, r: 25}
+        let circles = [
+            {x: 50, y: 35 + hOffset, r: 35},
+            {x: 30, y: 55 + hOffset, r: 30},
+            {x: 70, y: 55 + hOffset, r: 30},
+            {x: 20, y: 80 + hOffset, r: 25},
+            {x: 80, y: 80 + hOffset, r: 25},
+            {x: 40, y: 90 + hOffset, r: 28},
+            {x: 60, y: 90 + hOffset, r: 28},
+            {x: 50, y: 65 + hOffset, r: 35}, // Front-center highlight
+            {x: 50, y: 45 + hOffset, r: 25}
         ];
 
+        if (isTall) {
+            // Weeping willow extra leaves hanging down
+            circles.push(
+                {x: 30, y: 110 + hOffset, r: 20},
+                {x: 70, y: 110 + hOffset, r: 20},
+                {x: 40, y: 130 + hOffset, r: 15},
+                {x: 60, y: 130 + hOffset, r: 15}
+            );
+        }
+
+        // Draw layered canopy circles
         circles.forEach((c, index) => {
             let offsetR = c.r * 1.1; // Slightly larger for shadow
 
@@ -4482,7 +4494,7 @@ function preload() {
         // Final highlight for volume
         treeCtx.fillStyle = 'rgba(255,255,255,0.05)';
         treeCtx.beginPath();
-        treeCtx.arc(45, 45, 40, 0, Math.PI * 2);
+        treeCtx.arc(45, 45 + hOffset, 40, 0, Math.PI * 2);
         treeCtx.fill();
 
         this.textures.addCanvas(key, treeCanvas);
@@ -4490,6 +4502,9 @@ function preload() {
     generateTree('tree_pine', '#5c4033', ['#2e8b57', '#006400']);
     generateTree('tree_oak', '#8b4513', ['#32cd32', '#228b22']);
     generateTree('tree_birch', '#d3d3d3', ['#98fb98', '#3cb371']);
+    generateTree('tree_maple', '#6e4b39', ['#ff4500', '#8b0000']);
+    generateTree('tree_cherry', '#5e3a2b', ['#ffb7c5', '#ff69b4']);
+    generateTree('tree_willow', '#4e5a38', ['#8fbc8f', '#556b2f'], true);
 
     // Pre-generate a water overlay texture to mimic the linear-gradient button style
     const overlayCanvas = document.createElement('canvas');
@@ -4780,14 +4795,28 @@ function preload() {
     const starCanvas = document.createElement('canvas');
     starCanvas.width = 400;
     starCanvas.height = 400;
+    window.starsData = [];
     const starCtx = starCanvas.getContext('2d');
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 250; i++) {
         let sx = Math.random() * 400;
         let sy = Math.random() * 400;
+        let brightness = 0.2 + Math.random() * 0.8;
+        let colorType = Math.random();
+        let color = '#FFFFFF';
+        if (colorType > 0.9) color = '#FFDAB9'; // Peachpuff
+        else if (colorType > 0.8) color = '#ADD8E6'; // Lightblue
+
         let size = Math.random() < 0.8 ? 1 : 2;
-        starCtx.fillStyle = `rgba(255, 255, 255, ${0.2 + Math.random() * 0.8})`;
+        let twinklePhase = Math.random() * Math.PI * 2;
+        let twinkleSpeed = 0.001 + Math.random() * 0.003;
+
+        window.starsData.push({ x: sx, y: sy, baseBrightness: brightness, color, size, twinklePhase, twinkleSpeed });
+
+        starCtx.globalAlpha = brightness;
+        starCtx.fillStyle = color;
         starCtx.fillRect(sx, sy, size, size);
     }
+    starCtx.globalAlpha = 1.0;
     this.textures.addCanvas('starfield_tex', starCanvas);
 
     // Generate simple fish texture
@@ -4831,14 +4860,20 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         sprites.push(grass);
 
         let hash = (r * 31 + c * 17) % 100;
-        if (hash < 5 && window.treesGroup) {
-            const treeTypes = ['tree_pine', 'tree_oak', 'tree_birch'];
+        if (hash < 12 && window.treesGroup) {
+            const treeTypes = ['tree_pine', 'tree_oak', 'tree_birch', 'tree_maple', 'tree_cherry', 'tree_willow'];
             const treeType = treeTypes[hash % treeTypes.length];
             let tree = window.treesGroup.create(posX, posY, treeType);
             tree.setOrigin(0.5, 1.0);
-            tree.body.setSize(20, 20);
-            tree.body.setOffset(40, 130);
+            if (treeType === 'tree_willow') {
+                tree.body.setSize(20, 20);
+                tree.body.setOffset(40, 180);
+            } else {
+                tree.body.setSize(20, 20);
+                tree.body.setOffset(40, 130);
+            }
             tree.body.updateFromGameObject();
+            tree.setDepth(10 + posY / 10000); // Static depth so you can walk behind it
             tree.isTree = true;
             sprites.push(tree);
         }
@@ -5307,7 +5342,7 @@ function create() {
     });
 
     // Set up multiplayer message handler for Phaser scene
-    window.playerIndexCount = 0;
+    if (typeof window.playerIndexCount === 'undefined') window.playerIndexCount = 1; // Local player is P1
     const playerColors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFF00FF, 0x00FFFF];
     window.handleMultiplayerMessage = (userId, msg) => {
         if (msg.type === 'pos' || msg.type === 'position') { // accept both for backwards compatibility if needed
@@ -6466,8 +6501,27 @@ function update() {
         window.starSprite.tilePositionY += 0.05;
     }
 
+    // Star twinkling effect
+    if (!window.lastStarUpdate || this.time.now - window.lastStarUpdate > 100) { // Throttle updates
+        window.lastStarUpdate = this.time.now;
+        const starTexture = this.textures.get('starfield_tex');
+        const starCanvas = starTexture.getSourceImage();
+        const starCtx = starCanvas.getContext('2d');
+        starCtx.clearRect(0, 0, 400, 400); // Clear with transparent first
+
+        window.starsData.forEach(star => {
+            let currentBrightness = star.baseBrightness + Math.sin(this.time.now * star.twinkleSpeed + star.twinklePhase) * 0.3;
+            currentBrightness = Math.max(0, Math.min(1, currentBrightness));
+            starCtx.globalAlpha = currentBrightness;
+            starCtx.fillStyle = star.color;
+            starCtx.fillRect(star.x, star.y, star.size, star.size);
+        });
+        starCtx.globalAlpha = 1.0;
+        starTexture.refresh();
+    }
+
     const frame16fps = Math.floor(this.time.now / 125) % 16;
-    let treeRotation = Math.sin(this.time.now / 500) * (window.windSpeed / 2000);
+    let treeRotation = Math.sin(this.time.now / 500) * (window.windSpeed / 5000);
 
     Object.values(activeTiles).forEach(sprites => {
         sprites.forEach(sprite => {
@@ -6483,7 +6537,7 @@ function update() {
             }
             if (sprite.isTree) {
                 sprite.setRotation(treeRotation);
-                sprite.setDepth(10 + sprite.y / 10000);
+                // Depth is now set once upon creation, not per-frame
             }
         });
     });
