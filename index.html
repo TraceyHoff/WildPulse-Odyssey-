@@ -4872,7 +4872,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 tree.body.setSize(20, 20);
                 tree.body.setOffset(40, 130);
             }
-            tree.body.updateFromGameObject();
             tree.setDepth(10 + posY / 10000); // Static depth so you can walk behind it
             tree.isTree = true;
             sprites.push(tree);
