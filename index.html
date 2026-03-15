@@ -3956,6 +3956,8 @@ let remotePlayers = {}; // userId -> Phaser sprite
 let isActionRunning = false;
 let dayNightTime = 8.0;
 let dayNightOverlay;
+let sunSprite;
+let moonSprite;
 let timeText;
 let lastDayNightUpdate = 0;
 let battleLogQueue = [];
@@ -4080,11 +4082,35 @@ function updateBattleUI() {
 
 
 function preload() {
-    const refCanvas = document.createElement('canvas');
-    refCanvas.width = 400;
-    refCanvas.height = 400;
-    refCanvas.getContext('2d', { willReadFrequently: true });
-    this.textures.addCanvas('water_reflection_dynamic', refCanvas);
+    // Sun Reflection
+    const sunCanvas = document.createElement('canvas');
+    sunCanvas.width = 400;
+    sunCanvas.height = 400;
+    const sunCtx = sunCanvas.getContext('2d');
+    let sunGrad = sunCtx.createRadialGradient(200, 200, 0, 200, 200, 200);
+    sunGrad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+    sunGrad.addColorStop(0.3, 'rgba(255, 255, 200, 0.8)');
+    sunGrad.addColorStop(1, 'rgba(255, 255, 200, 0)');
+    sunCtx.fillStyle = sunGrad;
+    sunCtx.beginPath();
+    sunCtx.arc(200, 200, 200, 0, Math.PI * 2);
+    sunCtx.fill();
+    this.textures.addCanvas('sun_reflection', sunCanvas);
+
+    // Moon Reflection
+    const moonCanvas = document.createElement('canvas');
+    moonCanvas.width = 400;
+    moonCanvas.height = 400;
+    const moonCtx = moonCanvas.getContext('2d');
+    let moonGrad = moonCtx.createRadialGradient(200, 200, 0, 200, 200, 200);
+    moonGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+    moonGrad.addColorStop(0.3, 'rgba(180, 220, 255, 0.6)');
+    moonGrad.addColorStop(1, 'rgba(180, 220, 255, 0)');
+    moonCtx.fillStyle = moonGrad;
+    moonCtx.beginPath();
+    moonCtx.arc(200, 200, 200, 0, Math.PI * 2);
+    moonCtx.fill();
+    this.textures.addCanvas('moon_reflection', moonCanvas);
 
     // Set up global grass blades arrays to use in dynamic updates
     window.grassBlades = [];
@@ -4131,16 +4157,6 @@ function preload() {
             }
             bgCtx.fillStyle = gradient;
             bgCtx.fillRect(0, 0, 100, 100);
-            for (let j = 0; j < 100; j += 4) {
-                for (let k = 0; k < 100; k += 4) {
-                    if (Math.random() < 0.2) {
-                        if (window.currentSeason === 'Summer') bgCtx.fillStyle = Math.random() < 0.5 ? '#1c731c' : '#1e781e';
-                        else if (window.currentSeason === 'Fall') bgCtx.fillStyle = Math.random() < 0.5 ? '#d2b48c' : '#a68a61';
-                        else if (window.currentSeason === 'Winter') bgCtx.fillStyle = Math.random() < 0.5 ? '#8dbdd0' : '#9ecfe2';
-                        bgCtx.fillRect(j, k, 4, 4);
-                    }
-                }
-            }
         }
     };
 
@@ -4797,45 +4813,32 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         obs.setDepth(0);
         sprites.push(obs);
 
-        // Add overlay
-        let reflectionOverlay = scene.add.sprite(posX, posY, 'water_reflection_dynamic');
-        reflectionOverlay.depthType = 'reflection';
-        reflectionOverlay.setDepth(0.1);
-        let dynGridX = (c * tileSize) % 400;
-        let dynGridY = (r * tileSize) % 400;
-        reflectionOverlay.gridX = dynGridX;
-        reflectionOverlay.gridY = dynGridY;
-        reflectionOverlay.setCrop(dynGridX, dynGridY, 100, 100);
-        reflectionOverlay.setDisplayOrigin(dynGridX + 50, dynGridY + 50);
-        sprites.push(reflectionOverlay);
-
-
         // Foams
         if (c > 0 && mapData[r][c-1] === 'grass') {
             let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
             // foam.anims.play('foam_anim', true);
-            foam.setDepth(0);
+            foam.setDepth(0.1);
             sprites.push(foam);
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass') {
             let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
             foam.setAngle(180);
             // foam.anims.play('foam_anim', true);
-            foam.setDepth(0);
+            foam.setDepth(0.1);
             sprites.push(foam);
         }
         if (r > 0 && mapData[r-1][c] === 'grass') {
             let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
             foam.setAngle(90);
             // foam.anims.play('foam_anim', true);
-            foam.setDepth(0);
+            foam.setDepth(0.1);
             sprites.push(foam);
         }
         if (r < rows-1 && mapData[r+1][c] === 'grass') {
             let foam = scene.add.sprite(posX, posY, 'foam_tex_0');
             foam.setAngle(-90);
             // foam.anims.play('foam_anim', true);
-            foam.setDepth(0);
+            foam.setDepth(0.1);
             sprites.push(foam);
         }
 
@@ -4848,7 +4851,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 let leaf = scene.add.sprite(posX + (Math.random()*60-30), posY + (Math.random()*60-30), leafKey);
                 leaf.setScale(0.5 + Math.random() * 0.5);
                 leaf.setRotation(Math.random() * Math.PI * 2);
-                leaf.setDepth(0); // On the water
+                leaf.setDepth(0.1); // On the water
                 leaf.setAlpha(0);
                 leaf.isWaterLeaf = true;
                 leaf.startX = leaf.x;
@@ -4867,7 +4870,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 let pad = scene.add.sprite(posX + (Math.random()*60-30), posY + (Math.random()*60-30), 'lilly_pad_tex');
                 pad.setRotation(Math.random() * Math.PI * 2);
                 pad.setScale(0.5 + Math.random() * 0.7);
-                pad.setDepth(0);
+                pad.setDepth(0.1);
                 sprites.push(pad);
             }
         }
@@ -4875,22 +4878,22 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         // Convex corners
         if (c > 0 && mapData[r][c-1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
             let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_tl_dynamic');
-            corner.setDepth(0);
+            corner.setDepth(0.2);
             sprites.push(corner);
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
             let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_tr_dynamic');
-            corner.setDepth(0);
+            corner.setDepth(0.2);
             sprites.push(corner);
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
             let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_br_dynamic');
-            corner.setDepth(0);
+            corner.setDepth(0.2);
             sprites.push(corner);
         }
         if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
             let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_bl_dynamic');
-            corner.setDepth(0);
+            corner.setDepth(0.2);
             sprites.push(corner);
         }
     }
@@ -5114,6 +5117,22 @@ function create() {
 
 
 
+
+    // Global Lighting sprites
+    window.waterMaskGraphics = this.add.graphics();
+    const mask = window.waterMaskGraphics.createGeometryMask();
+
+    sunSprite = this.add.sprite(0, 0, 'sun_reflection');
+    sunSprite.setBlendMode(Phaser.BlendModes.ADD);
+    sunSprite.setDepth(0.05); // Above water base (0), below foam/lilies (0.1) and UI (99)
+    sunSprite.setMask(mask);
+    sunSprite.setVisible(false);
+
+    moonSprite = this.add.sprite(0, 0, 'moon_reflection');
+    moonSprite.setBlendMode(Phaser.BlendModes.ADD);
+    moonSprite.setDepth(0.05);
+    moonSprite.setMask(mask);
+    moonSprite.setVisible(false);
 
     // Day and Night Cycle
     dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
@@ -6312,13 +6331,7 @@ function update() {
     Object.values(activeTiles).forEach(sprites => {
         sprites.forEach(sprite => {
             if (!sprite.texture) return;
-            if (sprite.depthType === 'reflection') {
-                sprite.setTexture('water_reflection_dynamic');
-                if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
-                    sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
-                    sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
-                }
-            } else if (sprite.depthType) {
+            if (sprite.depthType) {
                 sprite.setTexture(sprite.depthType + frame16fps);
                 if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
                     sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
@@ -6335,66 +6348,46 @@ function update() {
     const TILE_SIZE = 100;
 
     let showReflection = window.currentSeason !== 'Winter';
-    if (this.textures.exists('water_reflection_dynamic')) {
-        const refTex = this.textures.get('water_reflection_dynamic');
-        if (refTex && refTex.getSourceImage) {
-            const rCtx = refTex.getSourceImage().getContext('2d', { willReadFrequently: true });
-            rCtx.clearRect(0, 0, 400, 400);
-
-            if (showReflection) {
-                let camX = cam.scrollX + cam.width / 2;
-                let camY = cam.scrollY + cam.height / 2;
-                let shimmer = 1 + Math.sin(this.time.now / 300) * 0.05;
-
-                let rX, rY, rColor, rRadius;
-                let isDay = (dayNightTime >= 6 && dayNightTime < 20);
-
-                if (isDay) {
-                    let dayProgress = (dayNightTime - 6) / 14;
-                    // X moves from left to right: -0.4 to 0.4
-                    rX = camX + cam.width * 0.4 * ((dayProgress - 0.5) * 2);
-                    // Y peaks in the middle: sin(0 to pi)
-                    rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(dayProgress * Math.PI);
-                    rColor = 'rgba(255, 255, 200, 0.6)'; // Brighter sun reflection
-                    rRadius = 120 * shimmer;
-                } else {
-                    // For night, if dayNightTime is > 20, night progress is 0 to 0.4 (4 hours out of 10)
-                    // if dayNightTime is < 6, night progress is 0.4 to 1.0 (6 hours out of 10)
-                    let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
-                    rX = camX + cam.width * 0.4 * ((nightProgress - 0.5) * 2);
-                    rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(nightProgress * Math.PI);
-                    rColor = 'rgba(180, 220, 255, 0.5)'; // Brighter moon reflection
-                    rRadius = 80 * shimmer;
-                }
-
-                rCtx.fillStyle = rColor;
-                // Add a glowing center
-                                let localX = ((rX % 400) + 400) % 400;
-                let localY = ((rY % 400) + 400) % 400;
-
-                for (let dx = -400; dx <= 400; dx += 400) {
-                    for (let dy = -400; dy <= 400; dy += 400) {
-                        const centerX = localX + dx;
-                        const centerY = localY + dy;
-                        const grad = rCtx.createRadialGradient(centerX, centerY, 0, centerX, centerY, rRadius);
-                        if (isDay) {
-                            grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-                            grad.addColorStop(0.3, 'rgba(255, 255, 200, 0.8)');
-                            grad.addColorStop(1, 'rgba(255, 255, 200, 0)');
-                        } else {
-                            grad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-                            grad.addColorStop(0.3, 'rgba(180, 220, 255, 0.6)');
-                            grad.addColorStop(1, 'rgba(180, 220, 255, 0)');
-                        }
-                        rCtx.fillStyle = grad;
-                        rCtx.beginPath();
-                        rCtx.ellipse(centerX, centerY, Math.max(0.1, rRadius), Math.max(0.1, rRadius * 0.5), 0, 0, Math.PI * 2);
-                        rCtx.fill();
-                    }
-                }
+    if (showReflection) {
+        window.waterMaskGraphics.clear();
+        window.waterMaskGraphics.fillStyle(0xffffff, 1);
+        for (const key of Object.keys(activeTiles)) {
+            let [rStr, cStr] = key.split(',');
+            let r = parseInt(rStr);
+            let c = parseInt(cStr);
+            if (mapData[r] && mapData[r][c] === 'obs') {
+                window.waterMaskGraphics.fillRect(c * 100, r * 100, 100, 100);
             }
-            if (refTex.refresh) refTex.refresh();
         }
+
+        let camX = cam.scrollX + cam.width / 2;
+        let camY = cam.scrollY + cam.height / 2;
+        let shimmer = 1 + Math.sin(this.time.now / 300) * 0.05;
+        let isDay = (dayNightTime >= 6 && dayNightTime < 20);
+
+        if (isDay) {
+            let dayProgress = (dayNightTime - 6) / 14;
+            let rX = camX + cam.width * 0.4 * ((dayProgress - 0.5) * 2);
+            let rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(dayProgress * Math.PI);
+
+            sunSprite.setPosition(rX, rY);
+            sunSprite.setScale(shimmer * 1.5); // Make it large enough
+            sunSprite.setVisible(true);
+            moonSprite.setVisible(false);
+        } else {
+            let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
+            let rX = camX + cam.width * 0.4 * ((nightProgress - 0.5) * 2);
+            let rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(nightProgress * Math.PI);
+
+            moonSprite.setPosition(rX, rY);
+            moonSprite.setScale(shimmer * 1.0);
+            moonSprite.setVisible(true);
+            sunSprite.setVisible(false);
+        }
+    } else {
+        if (window.waterMaskGraphics) window.waterMaskGraphics.clear();
+        if (sunSprite) sunSprite.setVisible(false);
+        if (moonSprite) moonSprite.setVisible(false);
     }
 
     const buffer = 2; // Render 2 tiles outside view
