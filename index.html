@@ -733,6 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
         multiplayerRoom = Math.random().toString(36).substring(2, 10).toUpperCase();
         localStorage.setItem('wildpulse_world_code', multiplayerRoom);
     }
+
     window.initializeMultiplayer(multiplayerRoom);
     document.getElementById('loadingScreen').style.display = 'flex';
     setTimeout(() => {
@@ -3927,14 +3928,30 @@ window.initializeMultiplayer = function(roomCode) {
         }
     });
 
+    socket.on('assigned-index', (index) => {
+        window.playerIndexCount = index;
+        if (window.localPlayerLabel) {
+            window.localPlayerLabel.setText("P" + index);
+        }
+    });
+
     socket.on('room-users', (users) => {
-        users.forEach(userId => {
+        users.forEach(u => {
+            const userId = u.userId ? u.userId : u; // Fallback to old structure
+            const index = u.index ? u.index : null;
+            if (index && !window.remotePlayerIndices) window.remotePlayerIndices = {};
+            if (index) window.remotePlayerIndices[userId] = index;
             createPeerConnection(userId, true);
         });
     });
 
-    socket.on('user-joined', (userId) => {
+    socket.on('user-joined', (data) => {
+        let userId = data.userId ? data.userId : data; // Fallback to old structure
         console.log("User joined:", userId);
+        if (data.index) {
+            if (!window.remotePlayerIndices) window.remotePlayerIndices = {};
+            window.remotePlayerIndices[userId] = data.index;
+        }
         // Will receive offer from this user
     });
 
@@ -5550,12 +5567,12 @@ function create() {
         if (msg.type === 'pos' || msg.type === 'position') { // accept both for backwards compatibility if needed
             if (!remotePlayers[userId]) {
                 // Create new remote player
-                window.playerIndexCount++;
-                let pColor = playerColors[window.playerIndexCount % playerColors.length];
+                let pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
+                let pColor = playerColors[pIndex % playerColors.length];
                 let remotePlayer = this.add.rectangle(msg.x, msg.y, 40, 40, pColor); // Assorted colors for other players
                 this.physics.add.existing(remotePlayer);
                 remotePlayer.setDepth(10);
-                let label = this.add.text(msg.x, msg.y - 30, "P" + window.playerIndexCount, { fontSize: '14px', fill: '#FFF' }).setOrigin(0.5);
+                let label = this.add.text(msg.x, msg.y - 30, "P" + pIndex, { fontSize: '14px', fill: '#FFF' }).setOrigin(0.5);
                 label.setDepth(10);
                 remotePlayer.label = label;
                 remotePlayer.setData('targetX', msg.x);
