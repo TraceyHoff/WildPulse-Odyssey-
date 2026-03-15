@@ -3762,7 +3762,7 @@ window.initializeMultiplayer = function(roomCode) {
     }
     socket = io();
 
-    socket.emit('join-room', roomCode);
+    // socket.emit('join-room', roomCode); // Removed to prevent double emit, will rely on 'connect' event
 
     socket.on('disconnect', () => {
         console.warn("[Multiplayer] Disconnected from server. Reconnecting...");
@@ -4408,26 +4408,82 @@ function preload() {
         treeCanvas.height = 150;
         const treeCtx = treeCanvas.getContext('2d');
 
-        // Draw trunk
-        treeCtx.fillStyle = trunkColor;
-        treeCtx.fillRect(40, 50, 20, 100);
+        // Draw drop shadow
+        treeCtx.fillStyle = 'rgba(0,0,0,0.3)';
+        treeCtx.beginPath();
+        treeCtx.ellipse(50, 145, 25, 10, 0, 0, Math.PI * 2);
+        treeCtx.fill();
 
-        // Draw canopy circles
+        // Draw trunk (tapered)
+        let trunkGrad = treeCtx.createLinearGradient(40, 50, 60, 50);
+        trunkGrad.addColorStop(0, '#3a2010'); // Dark shadow edge
+        trunkGrad.addColorStop(0.5, trunkColor); // Base color
+        trunkGrad.addColorStop(1, '#2a1000'); // Shadow edge
+
+        treeCtx.fillStyle = trunkGrad;
+        treeCtx.beginPath();
+        treeCtx.moveTo(45, 50);
+        treeCtx.lineTo(55, 50);
+        treeCtx.lineTo(60, 150); // Wider base
+        treeCtx.lineTo(40, 150);
+        treeCtx.fill();
+
+        // Draw some inner trunk lines/bark texture
+        treeCtx.strokeStyle = 'rgba(0,0,0,0.3)';
+        treeCtx.lineWidth = 1;
+        treeCtx.beginPath();
+        treeCtx.moveTo(48, 60); treeCtx.lineTo(50, 140);
+        treeCtx.moveTo(53, 70); treeCtx.lineTo(55, 130);
+        treeCtx.stroke();
+
+        // Draw branches extending into canopy
+        treeCtx.strokeStyle = trunkColor;
+        treeCtx.lineWidth = 4;
+        treeCtx.lineCap = 'round';
+        treeCtx.beginPath();
+        treeCtx.moveTo(50, 80); treeCtx.lineTo(30, 50);
+        treeCtx.moveTo(50, 90); treeCtx.lineTo(75, 45);
+        treeCtx.moveTo(50, 70); treeCtx.lineTo(50, 30);
+        treeCtx.stroke();
+
+        // Draw layered canopy circles
         const circles = [
-            {x: 50, y: 50, r: 40},
-            {x: 30, y: 70, r: 35},
-            {x: 70, y: 70, r: 35}
+            {x: 50, y: 35, r: 35},
+            {x: 30, y: 55, r: 30},
+            {x: 70, y: 55, r: 30},
+            {x: 20, y: 80, r: 25},
+            {x: 80, y: 80, r: 25},
+            {x: 40, y: 90, r: 28},
+            {x: 60, y: 90, r: 28},
+            {x: 50, y: 65, r: 35}, // Front-center highlight
+            {x: 50, y: 45, r: 25}
         ];
 
-        circles.forEach(c => {
-            let grad = treeCtx.createRadialGradient(c.x, c.y - c.r*0.3, 0, c.x, c.y, c.r);
-            grad.addColorStop(0, leafColors[0]);
-            grad.addColorStop(1, leafColors[1]);
+        circles.forEach((c, index) => {
+            let offsetR = c.r * 1.1; // Slightly larger for shadow
+
+            // Add darker back-layers
+            let isBack = index < 3;
+            let col0 = isBack ? leafColors[1] : leafColors[0];
+            let col1 = leafColors[1];
+
+            let grad = treeCtx.createRadialGradient(c.x - c.r*0.2, c.y - c.r*0.2, 0, c.x, c.y, offsetR);
+            grad.addColorStop(0, col0);
+            grad.addColorStop(0.8, col1);
+            grad.addColorStop(1, 'rgba(0,0,0,0.2)');
+
             treeCtx.fillStyle = grad;
             treeCtx.beginPath();
             treeCtx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
             treeCtx.fill();
         });
+
+        // Final highlight for volume
+        treeCtx.fillStyle = 'rgba(255,255,255,0.05)';
+        treeCtx.beginPath();
+        treeCtx.arc(45, 45, 40, 0, Math.PI * 2);
+        treeCtx.fill();
+
         this.textures.addCanvas(key, treeCanvas);
     };
     generateTree('tree_pine', '#5c4033', ['#2e8b57', '#006400']);
@@ -4778,9 +4834,10 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             const treeTypes = ['tree_pine', 'tree_oak', 'tree_birch'];
             const treeType = treeTypes[hash % treeTypes.length];
             let tree = window.treesGroup.create(posX, posY, treeType);
-            tree.setOrigin(0.5, 0.95);
+            tree.setOrigin(0.5, 1.0);
             tree.body.setSize(20, 20);
             tree.body.setOffset(40, 130);
+            tree.body.updateFromGameObject();
             tree.isTree = true;
             sprites.push(tree);
         }
@@ -5168,6 +5225,11 @@ function create() {
     player.setDepth(10);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
+
+    // P1 Marker
+    window.localPlayerLabel = this.add.text(startX, startY - 30, "P1", { fontSize: '14px', fill: '#FFF' }).setOrigin(0.5);
+    window.localPlayerLabel.setDepth(10);
+
     window.waterCollider = this.physics.add.collider(player, obstaclesGroup);
     this.physics.add.collider(player, window.treesGroup);
 
@@ -6422,7 +6484,14 @@ function update() {
     });
 
     // Dynamic Entity Depth Sorting
-    if (player && player.setDepth) player.setDepth(10 + player.y / 10000);
+    if (player && player.setDepth) {
+        player.setDepth(10 + player.y / 10000);
+        if (window.localPlayerLabel) {
+            window.localPlayerLabel.x = player.x;
+            window.localPlayerLabel.y = player.y - 30;
+            window.localPlayerLabel.setDepth(10 + player.y / 10000);
+        }
+    }
     Object.values(remotePlayers).forEach(rp => {
         if (rp.setDepth) rp.setDepth(10 + rp.y / 10000);
         if (rp.label && rp.label.setDepth) rp.label.setDepth(10 + rp.y / 10000);
