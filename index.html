@@ -4118,13 +4118,13 @@ function preload() {
     window.updateGrassColors = function() {
         let colors;
         if (window.currentSeason === 'Summer') {
-            colors = ['#7CFC00', '#98FB98', '#32CD32'];
+            colors = ['#228B22', '#32CD32', '#006400'];
         } else if (window.currentSeason === 'Fall') {
             colors = ['#FFD700', '#FF0000', '#FFA500', '#D2B48C'];
         } else if (window.currentSeason === 'Winter') {
             colors = ['#ADD8E6', '#B0E0E6', '#87CEFA'];
         } else {
-            colors = ['#7CFC00', '#98FB98', '#32CD32']; // Default to summer green
+            colors = ['#228B22', '#32CD32', '#006400']; // Default to summer green
         }
 
         for (let i = 0; i < window.grassBlades.length; i++) {
@@ -4146,8 +4146,8 @@ function preload() {
             const bgCtx = window.grassBgCanvas.getContext('2d', { willReadFrequently: true });
             let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
             if (window.currentSeason === 'Summer') {
-                gradient.addColorStop(0, '#1a661a');
-                gradient.addColorStop(1, '#ADFF2F');
+                gradient.addColorStop(0, '#004d00');
+                gradient.addColorStop(1, '#228B22');
             } else if (window.currentSeason === 'Fall') {
                 gradient.addColorStop(0, '#a68a61');
                 gradient.addColorStop(1, '#bda27e');
@@ -6371,7 +6371,7 @@ function update() {
             let rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(dayProgress * Math.PI);
 
             sunSprite.setPosition(rX, rY);
-            sunSprite.setScale(shimmer * 1.5); // Make it large enough
+            sunSprite.setScale(shimmer * 0.75); // Make it large enough
             sunSprite.setVisible(true);
             moonSprite.setVisible(false);
         } else {
@@ -6380,7 +6380,7 @@ function update() {
             let rY = camY + cam.height * 0.1 - cam.height * 0.4 * Math.sin(nightProgress * Math.PI);
 
             moonSprite.setPosition(rX, rY);
-            moonSprite.setScale(shimmer * 1.0);
+            moonSprite.setScale(shimmer * 0.5);
             moonSprite.setVisible(true);
             sunSprite.setVisible(false);
         }
