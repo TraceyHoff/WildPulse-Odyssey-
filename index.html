@@ -479,6 +479,8 @@
         <h3>Your World Code</h3>
         <p id="worldCodeDisplay" style="font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #4caf50;">LOADING...</p>
         <button id="copyCodeBtn" style="background: linear-gradient(180deg, #42a5f5, #1565c0);">Copy Code</button>
+        <br>
+        <button id="returnOwnWorldBtn" style="background: linear-gradient(180deg, #9c27b0, #6a1b9a); margin-top: 10px;">Return to Own World</button>
     </div>
 
     <div style="margin-bottom: 20px; border-top: 1px solid #555; padding-top: 15px;">
@@ -725,12 +727,17 @@ function escapeHtml(unsafe) {
 document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-start multiplayer and game logic
+    let ownRoomCode = localStorage.getItem('wildpulse_own_world_code');
+    if (!ownRoomCode) {
+        // Generate random 8 char code
+        ownRoomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+        localStorage.setItem('wildpulse_own_world_code', ownRoomCode);
+    }
     const savedRoomCode = localStorage.getItem('wildpulse_world_code');
     if (savedRoomCode) {
         multiplayerRoom = savedRoomCode;
     } else {
-        // Generate random 8 char code
-        multiplayerRoom = Math.random().toString(36).substring(2, 10).toUpperCase();
+        multiplayerRoom = ownRoomCode;
         localStorage.setItem('wildpulse_world_code', multiplayerRoom);
     }
 
@@ -755,6 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('joinFriendBtn')?.addEventListener('click', window.joinFriendWorld);
     document.getElementById('saveFriendBtn')?.addEventListener('click', window.saveFriendCode);
     document.getElementById('copyCodeBtn')?.addEventListener('click', window.copyWorldCode);
+    document.getElementById('returnOwnWorldBtn')?.addEventListener('click', window.returnToOwnWorld);
 
     document.getElementById('menuMultiplayerBtn')?.addEventListener('click', window.openLobbyModal);
 
@@ -3085,6 +3093,20 @@ window.copyWorldCode = function() {
     }).catch(err => {
         console.error('Failed to copy text: ', err);
     });
+};
+
+window.returnToOwnWorld = function() {
+    const ownCode = localStorage.getItem('wildpulse_own_world_code');
+    if (!ownCode) {
+        window.showModernNotification("Could not find your original world code.");
+        return;
+    }
+    if (multiplayerRoom === ownCode) {
+        window.showModernNotification("You are already in your own world!");
+        return;
+    }
+    localStorage.setItem('wildpulse_world_code', ownCode);
+    window.location.reload();
 };
 
 
@@ -6725,7 +6747,17 @@ function update() {
     if (window.starSprite) {
         window.starSprite.setAlpha(targetAlpha * 1.5);
         window.starSprite.setVisible(window.currentSeason !== 'Winter');
-        window.starSprite.tilePositionX -= 0.1;
+
+        let cam = this.cameras.main;
+        if (dayNightTime >= 20 || dayNightTime < 6) {
+            let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
+            let adjustedNightProgress = nightProgress < 0.4 ? (nightProgress / 0.4) * 0.5 : 0.5 + ((nightProgress - 0.4) / 0.6) * 0.5;
+            window.starSprite.tilePositionX = -cam.width * 0.5 * ((adjustedNightProgress - 0.5) * 2);
+        } else {
+            let dayProgress = (dayNightTime - 6) / 14;
+            let adjustedProgress = dayProgress < 0.4285 ? (dayProgress / 0.4285) * 0.5 : 0.5 + ((dayProgress - 0.4285) / 0.5715) * 0.5;
+            window.starSprite.tilePositionX = -cam.width * 0.5 * ((adjustedProgress - 0.5) * 2);
+        }
         window.starSprite.tilePositionY = 0;
     }
 
@@ -6890,7 +6922,7 @@ function update() {
     if (!this.lastBroadcastTime || this.time.now - this.lastBroadcastTime > 100) { // 10 times a sec
         const dt = this.time.now - (this.lastBroadcastTime || this.time.now - 100);
         const dist = Math.hypot(player.x - (this.lastX || player.x), player.y - (this.lastY || player.y));
-        if (dist > 1 || !this.lastBroadcastTime) {
+        if (dist > 1 || !this.lastBroadcastTime || dt >= 1000) { // Add heartbeat every 1s
             // Calculate velocity since last broadcast
             let vx = 0;
             let vy = 0;
@@ -6907,8 +6939,10 @@ function update() {
             });
             this.lastX = player.x;
             this.lastY = player.y;
+            this.lastBroadcastTime = this.time.now;
+        } else if (dist > 1) {
+             this.lastBroadcastTime = this.time.now;
         }
-        this.lastBroadcastTime = this.time.now;
     }
 
     // Interpolate remote players
