@@ -4375,24 +4375,56 @@ function preload() {
         const foamCtx = foamCanvas.getContext('2d');
 
         foamCtx.clearRect(0, 0, 100, 100);
-        foamCtx.fillStyle = 'rgba(240, 248, 255, 0.8)'; // Alice blue foam
 
+        // Soft wash layer (furthest out)
+        foamCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
         foamCtx.beginPath();
         foamCtx.moveTo(0, 0);
         for(let fy = 0; fy <= 100; fy += 5) {
-            // Foam undulates along the left edge (x=0)
-            let fx = 5 + Math.sin(fy * 0.1 + t * 2) * 3 + Math.cos(fy * 0.2 - t) * 2;
+            let fx = 12 + Math.sin(fy * 0.08 + t * 2) * 4 + Math.cos(fy * 0.15 - t) * 3;
             foamCtx.lineTo(fx, fy);
         }
         foamCtx.lineTo(0, 100);
         foamCtx.fill();
 
-        // Add scattered bubbles pulling away from foam
-        foamCtx.fillStyle = 'rgba(240, 248, 255, 0.6)';
-        for(let b=0; b<15; b++) {
-            let bx = 8 + (Math.sin(b*13 + t*3) + 1) * 6; // range 8 to 20
-            let by = (b*27 + frame*2) % 100;
-            let size = 1 + (b%2);
+        // Mid wash layer
+        foamCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        foamCtx.beginPath();
+        foamCtx.moveTo(0, 0);
+        for(let fy = 0; fy <= 100; fy += 5) {
+            let fx = 8 + Math.sin(fy * 0.1 + t * 2.5) * 3 + Math.cos(fy * 0.2 - t * 1.5) * 2;
+            foamCtx.lineTo(fx, fy);
+        }
+        foamCtx.lineTo(0, 100);
+        foamCtx.fill();
+
+        // Thick core line (closest to edge)
+        foamCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        foamCtx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+        foamCtx.shadowBlur = 3;
+        foamCtx.shadowOffsetX = 1;
+        foamCtx.beginPath();
+        foamCtx.moveTo(0, 0);
+        for(let fy = 0; fy <= 100; fy += 5) {
+            let fx = 4 + Math.sin(fy * 0.12 + t * 3) * 2 + Math.cos(fy * 0.25 - t * 2) * 1.5;
+            foamCtx.lineTo(fx, fy);
+        }
+        foamCtx.lineTo(0, 100);
+        foamCtx.fill();
+
+        // Reset shadow for bubbles
+        foamCtx.shadowColor = 'transparent';
+        foamCtx.shadowBlur = 0;
+        foamCtx.shadowOffsetX = 0;
+
+        // Scattered bubbles pulling away from foam
+        foamCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        for(let b=0; b<25; b++) {
+            let bx = 10 + (Math.sin(b*13 + t*3) + 1) * 8; // range 10 to 26
+            let by = (b*27 + frame*2.5) % 100;
+            let size = 1 + (b%3);
+            let alpha = 1.0 - ((bx - 10) / 16); // Fade out as they go further out
+            foamCtx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
             foamCtx.beginPath();
             foamCtx.arc(bx, by, size, 0, Math.PI*2);
             foamCtx.fill();
@@ -4403,7 +4435,20 @@ function preload() {
 
 
     // Pre-generate dynamic tree textures
-    const generateTree = (key, trunkColor, leafColors, isTall = false) => {
+    const generateTree = (baseKey, trunkColor, defaultLeafColors, isTall = false) => {
+        const seasons = ['Summer', 'Fall', 'Winter'];
+
+        seasons.forEach(season => {
+            let leafColors;
+            if (season === 'Fall') {
+                leafColors = ['#d35400', '#c0392b']; // Orange/Red
+            } else if (season === 'Winter') {
+                leafColors = ['#ecf0f1', '#bdc3c7']; // White/Gray
+            } else {
+                leafColors = defaultLeafColors;
+            }
+
+            const key = baseKey + '_' + season;
         const treeCanvas = document.createElement('canvas');
         treeCanvas.width = 100;
         treeCanvas.height = isTall ? 200 : 150;
@@ -4498,6 +4543,7 @@ function preload() {
         treeCtx.fill();
 
         this.textures.addCanvas(key, treeCanvas);
+        });
     };
     generateTree('tree_pine', '#5c4033', ['#2e8b57', '#006400']);
     generateTree('tree_oak', '#8b4513', ['#32cd32', '#228b22']);
@@ -4863,14 +4909,20 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (hash < 12 && window.treesGroup) {
             const treeTypes = ['tree_pine', 'tree_oak', 'tree_birch', 'tree_maple', 'tree_cherry', 'tree_willow'];
             const treeType = treeTypes[hash % treeTypes.length];
-            let tree = window.treesGroup.create(posX, posY, treeType);
+            const seasonKey = treeType + '_' + (window.currentSeason || 'Summer');
+            let tree = window.treesGroup.create(posX, posY, seasonKey);
+            tree.baseTreeType = treeType;
             tree.setOrigin(0.5, 1.0);
             if (treeType === 'tree_willow') {
                 tree.body.setSize(20, 20);
                 tree.body.setOffset(40, 180);
+                tree.body.x = posX - 10;
+                tree.body.y = posY - 20;
             } else {
                 tree.body.setSize(20, 20);
                 tree.body.setOffset(40, 130);
+                tree.body.x = posX - 10;
+                tree.body.y = posY - 20;
             }
             tree.setDepth(10 + posY / 10000); // Static depth so you can walk behind it
             tree.isTree = true;
@@ -6460,6 +6512,15 @@ function update() {
             localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
             if (window.updateGrassColors) window.updateGrassColors();
 
+            // Update all existing trees
+            if (window.treesGroup) {
+                window.treesGroup.getChildren().forEach(tree => {
+                    if (tree.baseTreeType) {
+                        tree.setTexture(tree.baseTreeType + '_' + window.currentSeason);
+                    }
+                });
+            }
+
             window.showModernNotification(`The season has changed to ${window.currentSeason}!`, 4000);
         }
     }
@@ -6496,8 +6557,8 @@ function update() {
     if (window.starSprite) {
         window.starSprite.setAlpha(targetAlpha * 1.5);
         window.starSprite.setVisible(window.currentSeason !== 'Winter');
-        window.starSprite.tilePositionX += 0.1;
-        window.starSprite.tilePositionY += 0.05;
+        window.starSprite.tilePositionX -= 0.1;
+        window.starSprite.tilePositionY = 0;
     }
 
     // Star twinkling effect
@@ -6583,8 +6644,9 @@ function update() {
         if (isDay) {
             let dayProgress = (dayNightTime - 6) / 14;
             let adjustedProgress = dayProgress < 0.4285 ? (dayProgress / 0.4285) * 0.5 : 0.5 + ((dayProgress - 0.4285) / 0.5715) * 0.5;
-            let rX = player.x + cam.width * 0.4 * ((adjustedProgress - 0.5) * 2);
-            let rY = player.y - cam.height * 0.4 * Math.sin(adjustedProgress * Math.PI);
+            // Cycle purely from left to right, removing the south-to-north vertical arc
+            let rX = player.x + cam.width * 0.5 * ((adjustedProgress - 0.5) * 2);
+            let rY = player.y - cam.height * 0.35;
 
             sunSprite.setPosition(rX, rY);
             sunSprite.setScale(shimmer * 0.4); // Make it large enough
@@ -6593,8 +6655,9 @@ function update() {
         } else {
             let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
             let adjustedNightProgress = nightProgress < 0.4 ? (nightProgress / 0.4) * 0.5 : 0.5 + ((nightProgress - 0.4) / 0.6) * 0.5;
-            let rX = player.x + cam.width * 0.4 * ((adjustedNightProgress - 0.5) * 2);
-            let rY = player.y - cam.height * 0.4 * Math.sin(adjustedNightProgress * Math.PI);
+            // Cycle purely from left to right, removing the south-to-north vertical arc
+            let rX = player.x + cam.width * 0.5 * ((adjustedNightProgress - 0.5) * 2);
+            let rY = player.y - cam.height * 0.35;
 
             moonSprite.setPosition(rX, rY);
             moonSprite.setScale(shimmer * 0.3);
