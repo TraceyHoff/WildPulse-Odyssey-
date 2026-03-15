@@ -3072,11 +3072,9 @@ window.joinFriendCodeDirect = function(code) {
     }
 
     // Leave current room and join new one
-    if (socket && socket.connected) {
-        // Just reload the page but setting the new code
-        localStorage.setItem('wildpulse_world_code', code);
-        window.location.reload();
-    }
+    // Just reload the page but setting the new code
+    localStorage.setItem('wildpulse_world_code', code);
+    window.location.reload();
 };
 
 window.copyWorldCode = function() {
