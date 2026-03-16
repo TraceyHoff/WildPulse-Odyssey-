@@ -4108,8 +4108,8 @@ const WORLD_SIZE = 20000;
 
 const config = {
     type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: 1280,
+    height: 720,
     render: {
         roundPixels: true
     },
@@ -4119,7 +4119,7 @@ const config = {
     },
     scene: { preload: preload, create: create, update: update },
     scale: {
-        mode: Phaser.Scale.RESIZE,
+        mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
     }
 };
@@ -5553,7 +5553,7 @@ function create() {
     window.waterMaskGraphics = this.add.graphics();
     const mask = window.waterMaskGraphics.createGeometryMask();
 
-    window.starSprite = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'starfield_tex').setOrigin(0).setScrollFactor(0);
+    window.starSprite = this.add.tileSprite(0, 0, 1280, 720, 'starfield_tex').setOrigin(0).setScrollFactor(0);
     window.starSprite.setMask(mask);
     window.starSprite.setBlendMode(Phaser.BlendModes.ADD);
     window.starSprite.setDepth(0.05);
@@ -5563,19 +5563,21 @@ function create() {
     sunSprite.setDepth(0.05); // Above water base (0), below foam/lilies (0.1) and UI (99)
     sunSprite.setMask(mask);
     sunSprite.setVisible(false);
+    sunSprite.setScrollFactor(0);
 
     moonSprite = this.add.sprite(0, 0, 'moon_reflection');
     moonSprite.setBlendMode(Phaser.BlendModes.ADD);
     moonSprite.setDepth(0.05);
     moonSprite.setMask(mask);
     moonSprite.setVisible(false);
+    moonSprite.setScrollFactor(0);
 
     // Day and Night Cycle
-    dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
-    timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(100);
+    dayNightOverlay = this.add.rectangle(0, 0, 1280, 720, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
+    timeText = this.add.text(20, 720 - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(100);
 
     // World Coordinates UI
-    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
+    window.coordText = this.add.text(1280 - 20, 720 - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
 
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
@@ -5592,21 +5594,6 @@ function create() {
 
     this.input.on('pointerup', () => {
         pointerTarget = null;
-    });
-
-    // Resize handling for popup
-    this.scale.on('resize', (gameSize) => {
-
-
-        if (dayNightOverlay) {
-            dayNightOverlay.setSize(gameSize.width, gameSize.height);
-        }
-        if (timeText) {
-            timeText.setPosition(20, gameSize.height - 40);
-        }
-        if (window.coordText) {
-            window.coordText.setPosition(gameSize.width - 20, gameSize.height - 40);
-        }
     });
 
     // Set up multiplayer message handler for Phaser scene
@@ -5676,6 +5663,8 @@ function create() {
     window.windSpeed = 200;
     window.windTimer = 0;
 
+    window.sharedEmitZone = { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, 1280 + 600, 720 + 600) };
+
     let leafRedParticles = this.add.particles('leaf_particle_red');
     leafRedParticles.setDepth(3000);
     window.leafRedEmitter = leafRedParticles.createEmitter({
@@ -5685,7 +5674,7 @@ function create() {
         frequency: 100,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: window.sharedEmitZone
     });
 
     let leafYellowParticles = this.add.particles('leaf_particle_yellow');
@@ -5697,7 +5686,7 @@ function create() {
         frequency: 100,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: window.sharedEmitZone
     });
 
 
@@ -5710,7 +5699,7 @@ function create() {
         frequency: 100,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: window.sharedEmitZone
     });
 
     let pollenParticles = this.add.particles('pollen_particle');
@@ -5721,7 +5710,7 @@ function create() {
         quantity: 6,
         frequency: 80,
         scale: { start: 0.5, end: 0 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: window.sharedEmitZone
     });
 
     let leafGreen1Particles = this.add.particles('leaf_particle_green1');
@@ -5733,7 +5722,7 @@ function create() {
         frequency: 100,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: window.sharedEmitZone
     });
 
     let leafGreen2Particles = this.add.particles('leaf_particle_green2');
@@ -5745,7 +5734,7 @@ function create() {
         frequency: 100,
         scale: { start: 1, end: 0 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: window.sharedEmitZone
     });
 
     let snowflakeParticles = this.add.particles('snowflake_particle');
@@ -5758,7 +5747,7 @@ function create() {
         frequency: 50,
         scale: { start: 0.8, end: 0.2 },
         rotate: { start: 0, end: 360 },
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth, window.innerHeight) }
+        emitZone: window.sharedEmitZone
     });
 
     window.cloudGroup = this.physics.add.group();
@@ -6003,7 +5992,7 @@ function collectCreature(playerCollider, creatureSprite) {
     logBattle(`Your pulse quickens... Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
 
     if (currentEnemy.isShiny) {
-        const flash = this.add.rectangle(playerCollider.x, playerCollider.y, window.innerWidth * 2, window.innerHeight * 2, 0xFFFFFF, 0.8).setScrollFactor(0);
+        const flash = this.add.rectangle(playerCollider.x, playerCollider.y, 2560, 1440, 0xFFFFFF, 0.8).setScrollFactor(0);
         this.tweens.add({
             targets: flash,
             alpha: 0,
@@ -6814,13 +6803,19 @@ function update() {
         sprites.forEach(sprite => {
             if (!sprite.texture) return;
             if (sprite.depthType) {
-                sprite.setTexture(sprite.depthType + frame16fps);
-                if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
-                    sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
-                    sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
+                if (sprite.lastRenderedFrame !== frame16fps) {
+                    sprite.setTexture(sprite.depthType + frame16fps);
+                    if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
+                        sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
+                        sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
+                    }
+                    sprite.lastRenderedFrame = frame16fps;
                 }
             } else if (sprite.texture && sprite.texture.key && sprite.texture.key.startsWith('foam_tex_')) {
-                sprite.setTexture('foam_tex_' + frame16fps);
+                if (sprite.lastRenderedFrame !== frame16fps) {
+                    sprite.setTexture('foam_tex_' + frame16fps);
+                    sprite.lastRenderedFrame = frame16fps;
+                }
             }
             if (sprite.isTree) {
                 sprite.setRotation(treeRotation);
@@ -6903,8 +6898,8 @@ function update() {
             let dayProgress = (dayNightTime - 6) / 14;
             let adjustedProgress = dayProgress < 0.4285 ? (dayProgress / 0.4285) * 0.5 : 0.5 + ((dayProgress - 0.4285) / 0.5715) * 0.5;
             // Cycle purely from left to right, removing the south-to-north vertical arc
-            let rX = player.x + cam.width * 0.5 * ((adjustedProgress - 0.5) * 2);
-            let rY = player.y - cam.height * 0.35;
+            let rX = (1280 / 2) + 1280 * 0.5 * ((adjustedProgress - 0.5) * 2);
+            let rY = 720 / 2 - 720 * 0.35;
 
             sunSprite.setPosition(rX, rY);
             sunSprite.setScale(shimmer * 0.4); // Make it large enough
@@ -6914,8 +6909,8 @@ function update() {
             let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
             let adjustedNightProgress = nightProgress < 0.4 ? (nightProgress / 0.4) * 0.5 : 0.5 + ((nightProgress - 0.4) / 0.6) * 0.5;
             // Cycle purely from left to right, removing the south-to-north vertical arc
-            let rX = player.x + cam.width * 0.5 * ((adjustedNightProgress - 0.5) * 2);
-            let rY = player.y - cam.height * 0.35;
+            let rX = (1280 / 2) + 1280 * 0.5 * ((adjustedNightProgress - 0.5) * 2);
+            let rY = 720 / 2 - 720 * 0.35;
 
             moonSprite.setPosition(rX, rY);
             moonSprite.setScale(shimmer * 0.3);
@@ -7323,15 +7318,9 @@ function update() {
             window.snowflakeEmitter.setSpeedY({ min: windVy * 0.2, max: windVy * 0.4 });
         }
 
-        let emitRect = new Phaser.Geom.Rectangle(viewLeft, viewTop, cam.width + viewPadding * 2, cam.height + viewPadding * 2);
-        window.leafRedEmitter.setEmitZone({ type: 'random', source: emitRect });
-        window.leafYellowEmitter.setEmitZone({ type: 'random', source: emitRect });
-        window.leafMixedEmitter.setEmitZone({ type: 'random', source: emitRect });
-        window.pollenEmitter.setEmitZone({ type: 'random', source: emitRect });
-        if (window.leafGreen1Emitter && window.leafGreen2Emitter && window.snowflakeEmitter) {
-            window.leafGreen1Emitter.setEmitZone({ type: 'random', source: emitRect });
-            window.leafGreen2Emitter.setEmitZone({ type: 'random', source: emitRect });
-            window.snowflakeEmitter.setEmitZone({ type: 'random', source: emitRect });
+        if (window.sharedEmitZone && window.sharedEmitZone.source) {
+            window.sharedEmitZone.source.x = viewLeft;
+            window.sharedEmitZone.source.y = viewTop;
         }
 
         // Dynamic, Season-Aware Particles
