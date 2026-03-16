@@ -747,17 +747,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.startGame) window.startGame();
     }, 100);
 
-    // Start game in fullscreen mode on first interaction
-    const enterFullscreen = () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                console.log(`Error attempting to enable fullscreen: ${err.message}`);
-            });
-        }
-        document.removeEventListener('click', enterFullscreen);
-    };
-    document.addEventListener('click', enterFullscreen);
-
     document.querySelector('.lobby-close-btn')?.addEventListener('click', window.closeLobbyModal);
     document.getElementById('joinFriendBtn')?.addEventListener('click', window.joinFriendWorld);
     document.getElementById('saveFriendBtn')?.addEventListener('click', window.saveFriendCode);
@@ -3295,7 +3284,14 @@ window.renderPartyList = function() {
                 natureColor = '#ff9800';
             }
         }
-        let natureHtml = c.nature ? `<p data-tooltip="${c.nature.name}: Increases ${c.nature.increase || 'Nothing'} and decreases ${c.nature.decrease || 'Nothing'}">Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
+        let natureTooltip = c.nature ? `${c.nature.name}: ` : '';
+        if (c.nature) {
+            if (c.nature.increase && c.nature.decrease) natureTooltip += `Increases ${c.nature.increase} and decreases ${c.nature.decrease}`;
+            else if (c.nature.increase) natureTooltip += `Increases ${c.nature.increase}`;
+            else if (c.nature.decrease) natureTooltip += `Decreases ${c.nature.decrease}`;
+            else natureTooltip += `Neutral`;
+        }
+        let natureHtml = c.nature ? `<p data-tooltip="${natureTooltip}">Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
 
         let moodColor = 'white';
         if (c.mood) {
@@ -3303,7 +3299,14 @@ window.renderPartyList = function() {
             else if (!c.mood.increase && c.mood.decrease) moodColor = '#f44336';
             else if (c.mood.increase && c.mood.decrease) moodColor = '#ff9800';
         }
-        let moodHtml = c.mood ? `<p data-tooltip="${c.mood.name}: Increases ${c.mood.increase || 'Nothing'} and decreases ${c.mood.decrease || 'Nothing'}">Mood: <span style="color:${moodColor};">${c.mood.name}</span></p>` : '<p>Mood: None</p>';
+        let moodTooltip = c.mood ? `${c.mood.name}: ` : '';
+        if (c.mood) {
+            if (c.mood.increase && c.mood.decrease) moodTooltip += `Increases ${c.mood.increase} and decreases ${c.mood.decrease}`;
+            else if (c.mood.increase) moodTooltip += `Increases ${c.mood.increase}`;
+            else if (c.mood.decrease) moodTooltip += `Decreases ${c.mood.decrease}`;
+            else moodTooltip += `Neutral`;
+        }
+        let moodHtml = c.mood ? `<p data-tooltip="${moodTooltip}">Mood: <span style="color:${moodColor};">${c.mood.name}</span></p>` : '<p>Mood: None</p>';
 
         let abilityHtml = c.ability ? `<p data-tooltip="${c.ability.message}">Ability: <span style="color:${c.ability.color};">${c.ability.name}</span></p>` : '<p>Ability: None</p>';
 
@@ -4941,8 +4944,8 @@ function preload() {
 
     cloudPuffs.forEach(puff => {
         let cloudGrad = cloudCtx.createRadialGradient(puff.x, puff.y, 0, puff.x, puff.y, puff.r);
-        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
-        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)');
+        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
+        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.25)');
         cloudGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         cloudCtx.fillStyle = cloudGrad;
         cloudCtx.beginPath();
