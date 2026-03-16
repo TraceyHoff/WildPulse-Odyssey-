@@ -10,8 +10,17 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, '/')));
 
 const roomStates = {};
+const globalUsers = {}; // Map of socket.id -> global status
 
 io.on('connection', (socket) => {
+  globalUsers[socket.id] = true;
+
+  socket.on('fetch-global-users', () => {
+    // Send all connected users except the requesting one
+    const users = Object.keys(globalUsers).filter(id => id !== socket.id);
+    socket.emit('global-users', users);
+  });
+
   socket.on('join-room', (roomId) => {
     if (typeof roomId === 'object') {
         roomId = roomId.roomId;
@@ -49,6 +58,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', () => {
+    delete globalUsers[socket.id];
     for (const room of socket.rooms) {
       if (room !== socket.id) {
         socket.to(room).emit('user-left', socket.id);
