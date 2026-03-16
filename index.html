@@ -5241,7 +5241,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 treeReflection.setScale(1, -1);
                 treeReflection.setAlpha(0.3);
                 treeReflection.setDepth(0.06);
-                treeReflection.setMask(window.waterMaskGraphics.createGeometryMask());
+                treeReflection.setMask(window.sharedWaterMask);
                 treeReflection.isTreeReflection = true;
                 treeReflection.baseTreeType = treeType;
                 sprites.push(treeReflection);
@@ -5653,7 +5653,9 @@ function create() {
 
     // Global Lighting sprites
     window.waterMaskGraphics = this.add.graphics();
+    window.waterMaskDirty = true;
     const mask = window.waterMaskGraphics.createGeometryMask();
+    window.sharedWaterMask = mask;
 
     window.starSprite = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'starfield_tex').setOrigin(0).setScrollFactor(0);
     window.starSprite.setMask(mask);
@@ -5875,7 +5877,7 @@ function create() {
         cloudReflection.seed = cloud.seed;
         cloudReflection.setScale(cloudReflection.baseScaleX, -cloudReflection.baseScaleY);
         if (window.waterMaskGraphics) {
-            cloudReflection.setMask(window.waterMaskGraphics.createGeometryMask());
+            cloudReflection.setMask(window.sharedWaterMask);
         }
     }
 
@@ -6860,6 +6862,7 @@ function update() {
         if (newSeason !== window.currentSeason) {
             window.currentSeason = newSeason;
             localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
+            window.waterMaskDirty = true;
             if (window.updateGrassColors) window.updateGrassColors();
 
             // Update all existing trees
@@ -7047,15 +7050,18 @@ function update() {
 
     let showReflection = window.currentSeason !== 'Winter';
     if (showReflection) {
-        window.waterMaskGraphics.clear();
-        window.waterMaskGraphics.fillStyle(0xffffff, 1);
-        for (const key of Object.keys(activeTiles)) {
-            let [rStr, cStr] = key.split(',');
-            let r = parseInt(rStr);
-            let c = parseInt(cStr);
-            if (mapData[r] && mapData[r][c] === 'obs') {
-                window.waterMaskGraphics.fillRect(c * 100, r * 100, 100, 100);
+        if (window.waterMaskDirty) {
+            window.waterMaskGraphics.clear();
+            window.waterMaskGraphics.fillStyle(0xffffff, 1);
+            for (const key of Object.keys(activeTiles)) {
+                let [rStr, cStr] = key.split(',');
+                let r = parseInt(rStr);
+                let c = parseInt(cStr);
+                if (mapData[r] && mapData[r][c] === 'obs') {
+                    window.waterMaskGraphics.fillRect(c * 100, r * 100, 100, 100);
+                }
             }
+            window.waterMaskDirty = false;
         }
 
         let shimmer = 1 + Math.sin(this.time.now / 300) * 0.05;
@@ -7107,6 +7113,7 @@ function update() {
                 neededTiles.add(key);
                 if (!activeTiles[key]) {
                     activeTiles[key] = spawnTile(this, r, c, TILE_SIZE, mapData[0].length, mapData.length);
+                    window.waterMaskDirty = true;
                 }
             }
         }
@@ -7116,6 +7123,7 @@ function update() {
     for (const key of Object.keys(activeTiles)) {
         if (!neededTiles.has(key)) {
             destroyTile(key);
+            window.waterMaskDirty = true;
         }
     }
 
