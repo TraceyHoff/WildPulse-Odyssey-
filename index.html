@@ -235,8 +235,14 @@
             filter: brightness(1.2);
             box-shadow: 0 0 15px rgba(0,255,100,0.6);
         }
+        #menuModal button#menuMultiplayerBtn { background: linear-gradient(180deg, #42a5f5, #1565c0); border-color: #90caf9; }
+        #menuModal button#menuPartyBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
+        #menuModal button#menuStorageBtn { background: linear-gradient(180deg, #8d6e63, #4e342e); border-color: #bcaaa4; }
         #menuModal button#breedBtn { background: linear-gradient(180deg, #ffca28, #ff8f00); border-color: #ffe082; color: #333; text-shadow: none; }
-        #menuModal button#menuJournalBtn { background: linear-gradient(180deg, #9c27b0, #6a1b9a); border-color: #ba68c8; color: white; }
+        #menuModal button#menuJournalBtn { background: linear-gradient(180deg, #ab47bc, #6a1b9a); border-color: #ce93d8; color: white; }
+        #menuModal button#menuHelpBtn { background: linear-gradient(180deg, #26c6da, #00838f); border-color: #80deea; }
+        #menuModal button#menuDeleteBtn { background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a; }
+        #menuModal button#fullscreenToggleBtn { background: linear-gradient(180deg, #78909c, #37474f); border-color: #b0bec5; }
         #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn, #journalModal button { background: linear-gradient(180deg, #555, #222); border-color: #777; }
         #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
 
@@ -635,15 +641,16 @@ window.showModernNotification = function(text, duration = 3000) {
     <h3>Stats</h3>
     <p>HP: Health | Atk: Physical dmg | Def: Physical resist<br>Spe: Speed | SpA: Special dmg | SpD: Special resist</p>
 
-    <h3>Type Matchups (Gen 1)</h3>
+    <h3>Type Matchups</h3>
     <div id="typeChartContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
-
-    <h3>Type Matchups (Gen 2 Combinations)</h3>
-    <div id="typeChartGen2Container" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
 
     <h3>Natures</h3>
     <p>Natures modify stats. They provide exact stat buffs or debuffs!</p>
     <div id="naturesListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+
+    <h3>Moods</h3>
+    <p>Moods modify stats based on the creature's temperament!</p>
+    <div id="moodsListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
 
     <h3>Breeding & Shinies</h3>
     <p>Offspring blend parents' stats and natures. There is a 0.1% chance to find a Shiny creature (+20% stats). Shinies have a 25% chance to pass down their rarity to offspring.</p>
@@ -827,7 +834,7 @@ window.baseCreatures = [
     {
         "id": 1,
         "name": "Flarehawk",
-        "description": "A large, burly Fire-type creature. It is covered in ruby rough skin with distinct tiger stripes. Its crimson fierce eyes look out thoughtfully. It sports crimson medium leathery wings and moves gracefully. It defends itself with ruby spiraling horns. It flashes sharp teeth when threatened. It moves on 2 talons. A crimson short scaly tail trails behind it. Most notably, it possesses amber lava trail.",
+        "description": "A magnificent large, burly Fire-type anomaly of nature. Its robust frame is sheathed in ruby rough flesh, adorned with mesmerizing tiger stripes that seem to shift in the light. Piercing crimson fierce eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular crimson medium leathery wings, moving with breathless elegance. For defense, it brandishes lethal ruby spiraling horns, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 2 talons. A majestic crimson short scaly tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring amber lava trail, an elemental manifestation of its pure Fire lineage.",
         "features": [
             "horns",
             "claws",
@@ -860,7 +867,7 @@ window.baseCreatures = [
     {
         "id": 2,
         "name": "Oceanweaver",
-        "description": "A rotund, sinuous Water-type creature. It is covered in turquoise scaly skin with distinct bioluminescent spots. Its sapphire watery eyes look out thoughtfully. It sports teal large fin-like wings and moves gracefully. It defends itself with teal smooth fins. A turquoise long fish-like tail trails behind it. Most notably, it possesses azure coral growths.",
+        "description": "A magnificent rotund, sinuous Water-type anomaly of nature. Its robust frame is sheathed in turquoise scaly flesh, adorned with mesmerizing bioluminescent spots that seem to shift in the light. Piercing sapphire watery eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular teal large fin-like wings, moving with breathless elegance. For defense, it brandishes lethal teal smooth fins, striking fear into any predator. A majestic turquoise long fish-like tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring azure coral growths, an elemental manifestation of its pure Water lineage.",
         "features": [
             "glowing",
             "shell"
@@ -892,7 +899,7 @@ window.baseCreatures = [
     {
         "id": 3,
         "name": "Thornspine",
-        "description": "A tiny, slender Nature-type creature. It is covered in tan mossy skin with distinct mossy patches. Its tan multiple eyes look out thoughtfully. It sports emerald vestigial insectoid wings and moves gracefully. It moves on 8 agile limbs. A brown prehensile bushy tail trails behind it. Most notably, it possesses lime leafy tendrils.",
+        "description": "A magnificent tiny, slender Nature-type anomaly of nature. Its robust frame is sheathed in tan mossy flesh, adorned with mesmerizing mossy patches that seem to shift in the light. Piercing tan multiple eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular emerald vestigial insectoid wings, moving with breathless elegance. It navigates its harsh terrain effortlessly on 8 agile limbs. A majestic brown prehensile bushy tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring lime leafy tendrils, an elemental manifestation of its pure Nature lineage.",
         "features": [
             "shell",
             "glowing"
@@ -924,7 +931,7 @@ window.baseCreatures = [
     {
         "id": 4,
         "name": "Voltshell",
-        "description": "A miniscule, sleek Electric-type creature. It is covered in yellow smooth skin with distinct glowing bands. Its white piercing eyes look out thoughtfully. It flashes needle-like teeth when threatened. It moves on 4 mechanical legs. A magenta whip-like sparking tail trails behind it. Most notably, it possesses silver static sparks.",
+        "description": "A magnificent miniscule, sleek Electric-type anomaly of nature. Its robust frame is sheathed in yellow smooth flesh, adorned with mesmerizing glowing bands that seem to shift in the light. Piercing white piercing eyes reflect an ancient, untamed wilderness. When provoked, it bares terrifying needle-like teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 mechanical legs. A majestic magenta whip-like sparking tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring silver static sparks, an elemental manifestation of its pure Electric lineage.",
         "features": [
             "fangs",
             "shell",
@@ -957,7 +964,7 @@ window.baseCreatures = [
     {
         "id": 5,
         "name": "Glacemane",
-        "description": "A stout, floating Ice-type creature. It is covered in snow white woolly skin with distinct frost patches. Its cyan piercing eyes look out thoughtfully. It sports translucent blue medium crystal wings and moves gracefully. It defends itself with translucent blue crystal shards. It moves on 4 sturdy legs. A translucent blue stubby clubbed tail trails behind it. Most notably, it possesses cyan icicle barrage.",
+        "description": "A magnificent stout, floating Ice-type anomaly of nature. Its robust frame is sheathed in snow white woolly flesh, adorned with mesmerizing frost patches that seem to shift in the light. Piercing cyan piercing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular translucent blue medium crystal wings, moving with breathless elegance. For defense, it brandishes lethal translucent blue crystal shards, striking fear into any predator. It navigates its harsh terrain effortlessly on 4 sturdy legs. A majestic translucent blue stubby clubbed tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring cyan icicle barrage, an elemental manifestation of its pure Ice lineage.",
         "features": [
             "tail",
             "fangs"
@@ -989,7 +996,7 @@ window.baseCreatures = [
     {
         "id": 6,
         "name": "Dunespine",
-        "description": "A medium, stout Earth-type creature. It is covered in copper thick skin with distinct earthen bands. Its brown cyclopic eyes look out thoughtfully. It defends itself with amber blunt claws. It flashes blunt teeth when threatened. It moves on 4 sturdy legs. A amber massive clubbed tail trails behind it. Most notably, it possesses dusty grey crystal spikes.",
+        "description": "A magnificent medium, stout Earth-type anomaly of nature. Its robust frame is sheathed in copper thick flesh, adorned with mesmerizing earthen bands that seem to shift in the light. Piercing brown cyclopic eyes reflect an ancient, untamed wilderness. For defense, it brandishes lethal amber blunt claws, striking fear into any predator. When provoked, it bares terrifying blunt teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 sturdy legs. A majestic amber massive clubbed tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring dusty grey crystal spikes, an elemental manifestation of its pure Earth lineage.",
         "features": [
             "scales",
             "shell"
@@ -1021,7 +1028,7 @@ window.baseCreatures = [
     {
         "id": 7,
         "name": "Zephyrspine",
-        "description": "A miniscule, graceful Wind-type creature. It is covered in pale gray smooth skin with distinct wind swirls. Its azure piercing eyes look out thoughtfully. It sports pale gray colossal feathered wings and moves gracefully. It defends itself with mint green hooked talons. It moves on 4 agile limbs. A cream long ribbon-like tail trails behind it. Most notably, it possesses silver feathery trails.",
+        "description": "A magnificent miniscule, graceful Wind-type anomaly of nature. Its robust frame is sheathed in pale gray smooth flesh, adorned with mesmerizing wind swirls that seem to shift in the light. Piercing azure piercing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular pale gray colossal feathered wings, moving with breathless elegance. For defense, it brandishes lethal mint green hooked talons, striking fear into any predator. It navigates its harsh terrain effortlessly on 4 agile limbs. A majestic cream long ribbon-like tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring silver feathery trails, an elemental manifestation of its pure Wind lineage.",
         "features": [
             "scales",
             "claws",
@@ -1054,7 +1061,7 @@ window.baseCreatures = [
     {
         "id": 8,
         "name": "Beamhorn",
-        "description": "A medium, slender Light-type creature. It is covered in yellow metallic skin with distinct glowing runes. Its yellow gentle eyes look out thoughtfully. It sports pearl majestic crystal wings and moves gracefully. It flashes flat teeth when threatened. It moves on 2 ethereal limbs. A pearl long flowing tail trails behind it. Most notably, it possesses pale yellow blinding flash.",
+        "description": "A magnificent medium, slender Light-type anomaly of nature. Its robust frame is sheathed in yellow metallic flesh, adorned with mesmerizing glowing runes that seem to shift in the light. Piercing yellow gentle eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular pearl majestic crystal wings, moving with breathless elegance. When provoked, it bares terrifying flat teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 2 ethereal limbs. A majestic pearl long flowing tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring pale yellow blinding flash, an elemental manifestation of its pure Light lineage.",
         "features": [
             "horns",
             "shell",
@@ -1087,7 +1094,7 @@ window.baseCreatures = [
     {
         "id": 9,
         "name": "Obsidweb",
-        "description": "A immense, serpentine Dark-type creature. It is covered in obsidian armored skin with distinct shadow tribal marks. Its indigo void-like eyes look out thoughtfully. It sports charcoal asymmetrical shadow wings and moves gracefully. It defends itself with blood red curved horns. It flashes sharp teeth when threatened. It moves on 8 jointed appendages. A midnight blue prehensile barbed tail trails behind it. Most notably, it possesses dark purple abyssal gaze.",
+        "description": "A magnificent immense, serpentine Dark-type anomaly of nature. Its robust frame is sheathed in obsidian armored flesh, adorned with mesmerizing shadow tribal marks that seem to shift in the light. Piercing indigo void-like eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular charcoal asymmetrical shadow wings, moving with breathless elegance. For defense, it brandishes lethal blood red curved horns, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 8 jointed appendages. A majestic midnight blue prehensile barbed tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring dark purple abyssal gaze, an elemental manifestation of its pure Dark lineage.",
         "features": [
             "fur",
             "fangs",
@@ -1120,7 +1127,7 @@ window.baseCreatures = [
     {
         "id": 10,
         "name": "Orbittuft",
-        "description": "A medium, graceful Cosmic-type creature. It is covered in starlight white metallic skin with distinct geometric stars. Its cyan blind eyes look out thoughtfully. It sports starlight white majestic energy wings and moves gracefully. It moves on 4 tentacles. A deep blue massive stardust tail trails behind it. Most notably, it possesses nebula pink nebula dust.",
+        "description": "A magnificent medium, graceful Cosmic-type anomaly of nature. Its robust frame is sheathed in starlight white metallic flesh, adorned with mesmerizing geometric stars that seem to shift in the light. Piercing cyan blind eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular starlight white majestic energy wings, moving with breathless elegance. It navigates its harsh terrain effortlessly on 4 tentacles. A majestic deep blue massive stardust tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring nebula pink nebula dust, an elemental manifestation of its pure Cosmic lineage.",
         "features": [
             "shell",
             "scales",
@@ -1153,7 +1160,7 @@ window.baseCreatures = [
     {
         "id": 11,
         "name": "Ashbear",
-        "description": "A stout, muscular Fire-type creature. It is covered in ruby scaly skin with distinct gradient colors. Its crimson fierce eyes look out thoughtfully. It sports scarlet majestic leathery wings and moves gracefully. It defends itself with charcoal curved horns. It flashes wicked fangs when threatened. It moves on 4 sturdy legs. A crimson long clubbed tail trails behind it. Most notably, it possesses charcoal ash clouds.",
+        "description": "A magnificent stout, muscular Fire-type anomaly of nature. Its robust frame is sheathed in ruby scaly flesh, adorned with mesmerizing gradient colors that seem to shift in the light. Piercing crimson fierce eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular scarlet majestic leathery wings, moving with breathless elegance. For defense, it brandishes lethal charcoal curved horns, striking fear into any predator. When provoked, it bares terrifying wicked fangs, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 sturdy legs. A majestic crimson long clubbed tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring charcoal ash clouds, an elemental manifestation of its pure Fire lineage.",
         "features": [
             "flying",
             "fangs",
@@ -1186,7 +1193,7 @@ window.baseCreatures = [
     {
         "id": 12,
         "name": "Brinecrest",
-        "description": "A rotund, sinuous Water-type creature. It is covered in cyan translucent skin with distinct mottled markings. Its azure gentle eyes look out thoughtfully. It sports turquoise tiny webbed wings and moves gracefully. It defends itself with pearl hooked talons. It flashes sharp teeth when threatened. A cyan long paddle tail trails behind it. Most notably, it possesses sea green bubble clusters.",
+        "description": "A magnificent rotund, sinuous Water-type anomaly of nature. Its robust frame is sheathed in cyan translucent flesh, adorned with mesmerizing mottled markings that seem to shift in the light. Piercing azure gentle eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular turquoise tiny webbed wings, moving with breathless elegance. For defense, it brandishes lethal pearl hooked talons, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. A majestic cyan long paddle tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring sea green bubble clusters, an elemental manifestation of its pure Water lineage.",
         "features": [
             "shell",
             "claws"
@@ -1218,7 +1225,7 @@ window.baseCreatures = [
     {
         "id": 13,
         "name": "Petalfang",
-        "description": "A small, slender Nature-type creature. It is covered in brown furry skin with distinct natural camouflage. Its jade gentle eyes look out thoughtfully. It sports olive vestigial gossamer wings and moves gracefully. It moves on 4 paws. A tan stubby bushy tail trails behind it. Most notably, it possesses forest green blooming flora.",
+        "description": "A magnificent small, slender Nature-type anomaly of nature. Its robust frame is sheathed in brown furry flesh, adorned with mesmerizing natural camouflage that seem to shift in the light. Piercing jade gentle eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular olive vestigial gossamer wings, moving with breathless elegance. It navigates its harsh terrain effortlessly on 4 paws. A majestic tan stubby bushy tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring forest green blooming flora, an elemental manifestation of its pure Nature lineage.",
         "features": [
             "tail",
             "flying"
@@ -1250,7 +1257,7 @@ window.baseCreatures = [
     {
         "id": 14,
         "name": "Chargewing",
-        "description": "A small, angular Electric-type creature. It is covered in white bristly skin with distinct electric stripes. Its neon green starry eyes look out thoughtfully. It flashes sharp teeth when threatened. It moves on 4 agile limbs. A neon green twin cable-like tail trails behind it. Most notably, it possesses silver shock wave.",
+        "description": "A magnificent small, angular Electric-type anomaly of nature. Its robust frame is sheathed in white bristly flesh, adorned with mesmerizing electric stripes that seem to shift in the light. Piercing neon green starry eyes reflect an ancient, untamed wilderness. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 agile limbs. A majestic neon green twin cable-like tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring silver shock wave, an elemental manifestation of its pure Electric lineage.",
         "features": [
             "fur",
             "claws",
@@ -1283,7 +1290,7 @@ window.baseCreatures = [
     {
         "id": 15,
         "name": "Glacebeak",
-        "description": "A stout, floating Ice-type creature. It is covered in translucent blue thick skin with distinct frost patches. Its frost white cold eyes look out thoughtfully. It defends itself with pale blue icy tusks. It flashes sharp teeth when threatened. It moves on 4 sturdy legs. A silver short fluffy tail trails behind it. Most notably, it possesses silver glacier shield.",
+        "description": "A magnificent stout, floating Ice-type anomaly of nature. Its robust frame is sheathed in translucent blue thick flesh, adorned with mesmerizing frost patches that seem to shift in the light. Piercing frost white cold eyes reflect an ancient, untamed wilderness. For defense, it brandishes lethal pale blue icy tusks, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 sturdy legs. A majestic silver short fluffy tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring silver glacier shield, an elemental manifestation of its pure Ice lineage.",
         "features": [
             "fur",
             "glowing",
@@ -1316,7 +1323,7 @@ window.baseCreatures = [
     {
         "id": 16,
         "name": "Claycrest",
-        "description": "A medium, bulky Earth-type creature. It is covered in amber leathery skin with distinct earthen bands. Its brown blind eyes look out thoughtfully. It defends itself with amber ramming plates. It flashes crushing molars when threatened. It moves on 4 sturdy legs. A slate massive rocky tail trails behind it. Most notably, it possesses amber floating rocks.",
+        "description": "A magnificent medium, bulky Earth-type anomaly of nature. Its robust frame is sheathed in amber leathery flesh, adorned with mesmerizing earthen bands that seem to shift in the light. Piercing brown blind eyes reflect an ancient, untamed wilderness. For defense, it brandishes lethal amber ramming plates, striking fear into any predator. When provoked, it bares terrifying crushing molars, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 sturdy legs. A majestic slate massive rocky tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring amber floating rocks, an elemental manifestation of its pure Earth lineage.",
         "features": [
             "flying",
             "shell",
@@ -1349,7 +1356,7 @@ window.baseCreatures = [
     {
         "id": 17,
         "name": "Zephyrtuft",
-        "description": "A small, graceful Wind-type creature. It is covered in mint green feathered skin with distinct wind swirls. Its white piercing eyes look out thoughtfully. It sports white majestic feathered wings and moves gracefully. It defends itself with lavender smooth crest. It flashes sharp teeth when threatened. It moves on 2 agile limbs. A white long ribbon-like tail trails behind it. Most notably, it possesses cream feathery trails.",
+        "description": "A magnificent small, graceful Wind-type anomaly of nature. Its robust frame is sheathed in mint green feathered flesh, adorned with mesmerizing wind swirls that seem to shift in the light. Piercing white piercing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular white majestic feathered wings, moving with breathless elegance. For defense, it brandishes lethal lavender smooth crest, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 2 agile limbs. A majestic white long ribbon-like tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring cream feathery trails, an elemental manifestation of its pure Wind lineage.",
         "features": [
             "claws",
             "horns",
@@ -1382,7 +1389,7 @@ window.baseCreatures = [
     {
         "id": 18,
         "name": "Shineweaver",
-        "description": "A graceful, radiant Light-type creature. It is covered in diamond silky skin with distinct sunburst designs. Its ivory gentle eyes look out thoughtfully. It sports peach colossal crystal wings and moves gracefully. It flashes flat teeth when threatened. It moves on 4 hovering bases. A white sweeping flowing tail trails behind it. Most notably, it possesses silver glowing markings.",
+        "description": "A magnificent graceful, radiant Light-type anomaly of nature. Its robust frame is sheathed in diamond silky flesh, adorned with mesmerizing sunburst designs that seem to shift in the light. Piercing ivory gentle eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular peach colossal crystal wings, moving with breathless elegance. When provoked, it bares terrifying flat teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 hovering bases. A majestic white sweeping flowing tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring silver glowing markings, an elemental manifestation of its pure Light lineage.",
         "features": [
             "wings",
             "glowing"
@@ -1414,7 +1421,7 @@ window.baseCreatures = [
     {
         "id": 19,
         "name": "Shadewhisker",
-        "description": "A medium, lanky Dark-type creature. It is covered in charcoal rough skin with distinct shadowy patches. Its indigo piercing eyes look out thoughtfully. It sports blood red majestic bat-like wings and moves gracefully. It defends itself with charcoal jagged spikes. It flashes wicked fangs when threatened. It moves on 8 paws. A midnight blue whip-like barbed tail trails behind it. Most notably, it possesses midnight blue void strike.",
+        "description": "A magnificent medium, lanky Dark-type anomaly of nature. Its robust frame is sheathed in charcoal rough flesh, adorned with mesmerizing shadowy patches that seem to shift in the light. Piercing indigo piercing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular blood red majestic bat-like wings, moving with breathless elegance. For defense, it brandishes lethal charcoal jagged spikes, striking fear into any predator. When provoked, it bares terrifying wicked fangs, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 8 paws. A majestic midnight blue whip-like barbed tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring midnight blue void strike, an elemental manifestation of its pure Dark lineage.",
         "features": [
             "shell",
             "claws",
@@ -1447,7 +1454,7 @@ window.baseCreatures = [
     {
         "id": 20,
         "name": "Nebulafleece",
-        "description": "A medium, bipedal Cosmic-type creature. It is covered in starlight white translucent skin with distinct geometric stars. Its purple starry eyes look out thoughtfully. It flashes flat teeth when threatened. It moves on 4 pseudopods. A purple massive flowing tail trails behind it. Most notably, it possesses violet nebula dust.",
+        "description": "A magnificent medium, bipedal Cosmic-type anomaly of nature. Its robust frame is sheathed in starlight white translucent flesh, adorned with mesmerizing geometric stars that seem to shift in the light. Piercing purple starry eyes reflect an ancient, untamed wilderness. When provoked, it bares terrifying flat teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 pseudopods. A majestic purple massive flowing tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring violet nebula dust, an elemental manifestation of its pure Cosmic lineage.",
         "features": [
             "flying",
             "horns"
@@ -1479,7 +1486,7 @@ window.baseCreatures = [
     {
         "id": 21,
         "name": "Scorchihawk",
-        "description": "A medium, bipedal Fire-type creature. It is covered in obsidian leathery skin with distinct ash patches. Its obsidian piercing eyes look out thoughtfully. It sports amber medium leathery wings and moves gracefully. It defends itself with orange blunt claws. It flashes protruding fangs when threatened. It moves on 4 paws. A charcoal whip-like clubbed tail trails behind it. Most notably, it possesses orange fiery breath.",
+        "description": "A magnificent medium, bipedal Fire-type anomaly of nature. Its robust frame is sheathed in obsidian leathery flesh, adorned with mesmerizing ash patches that seem to shift in the light. Piercing obsidian piercing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular amber medium leathery wings, moving with breathless elegance. For defense, it brandishes lethal orange blunt claws, striking fear into any predator. When provoked, it bares terrifying protruding fangs, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 paws. A majestic charcoal whip-like clubbed tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring orange fiery breath, an elemental manifestation of its pure Fire lineage.",
         "features": [
             "horns",
             "claws",
@@ -1512,7 +1519,7 @@ window.baseCreatures = [
     {
         "id": 22,
         "name": "Oceanhound",
-        "description": "A colossal, sleek Water-type creature. It is covered in turquoise soft skin with distinct mottled markings. Its cyan wide eyes look out thoughtfully. It defends itself with turquoise smooth fins. It flashes needle-like teeth when threatened. A navy sweeping flowing tail trails behind it. Most notably, it possesses teal flowing water droplets.",
+        "description": "A magnificent colossal, sleek Water-type anomaly of nature. Its robust frame is sheathed in turquoise soft flesh, adorned with mesmerizing mottled markings that seem to shift in the light. Piercing cyan wide eyes reflect an ancient, untamed wilderness. For defense, it brandishes lethal turquoise smooth fins, striking fear into any predator. When provoked, it bares terrifying needle-like teeth, warning foes of its devastating power. A majestic navy sweeping flowing tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring teal flowing water droplets, an elemental manifestation of its pure Water lineage.",
         "features": [
             "horns",
             "fur",
@@ -1545,7 +1552,7 @@ window.baseCreatures = [
     {
         "id": 23,
         "name": "Bloomhide",
-        "description": "A petite, lanky Nature-type creature. It is covered in forest green furry skin with distinct stippled marks. Its olive calm eyes look out thoughtfully. It sports olive small leafy wings and moves gracefully. It defends itself with floral pink thorny spikes. It flashes mandibles when threatened. It moves on 4 jointed appendages. Most notably, it possesses emerald blooming flora.",
+        "description": "A magnificent petite, lanky Nature-type anomaly of nature. Its robust frame is sheathed in forest green furry flesh, adorned with mesmerizing stippled marks that seem to shift in the light. Piercing olive calm eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular olive small leafy wings, moving with breathless elegance. For defense, it brandishes lethal floral pink thorny spikes, striking fear into any predator. When provoked, it bares terrifying mandibles, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 jointed appendages. Most remarkably, it commands an awe-inspiring emerald blooming flora, an elemental manifestation of its pure Nature lineage.",
         "features": [
             "fur",
             "scales"
@@ -1577,7 +1584,7 @@ window.baseCreatures = [
     {
         "id": 24,
         "name": "Sparkweb",
-        "description": "A small, agile Electric-type creature. It is covered in cyan bristly skin with distinct electric stripes. Its neon green electric eyes look out thoughtfully. It sports cyan asymmetrical mechanical wings and moves gracefully. It defends itself with silver crystal shards. It flashes sharp teeth when threatened. It moves on 6 agile limbs. A cyan twin barbed tail trails behind it. Most notably, it possesses yellow shock wave.",
+        "description": "A magnificent small, agile Electric-type anomaly of nature. Its robust frame is sheathed in cyan bristly flesh, adorned with mesmerizing electric stripes that seem to shift in the light. Piercing neon green electric eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular cyan asymmetrical mechanical wings, moving with breathless elegance. For defense, it brandishes lethal silver crystal shards, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 6 agile limbs. A majestic cyan twin barbed tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring yellow shock wave, an elemental manifestation of its pure Electric lineage.",
         "features": [
             "horns",
             "fur",
@@ -1610,7 +1617,7 @@ window.baseCreatures = [
     {
         "id": 25,
         "name": "Hailhoof",
-        "description": "A medium, blocky Ice-type creature. It is covered in frost white smooth skin with distinct checkerboard patterns. Its pale blue cold eyes look out thoughtfully. It sports silver small snowy wings and moves gracefully. It defends itself with pale blue jagged spikes. It flashes sharp teeth when threatened. It moves on 2 paws. A translucent blue short crystalline tail trails behind it. Most notably, it possesses frost white freezing touch.",
+        "description": "A magnificent medium, blocky Ice-type anomaly of nature. Its robust frame is sheathed in frost white smooth flesh, adorned with mesmerizing checkerboard patterns that seem to shift in the light. Piercing pale blue cold eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular silver small snowy wings, moving with breathless elegance. For defense, it brandishes lethal pale blue jagged spikes, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 2 paws. A majestic translucent blue short crystalline tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring frost white freezing touch, an elemental manifestation of its pure Ice lineage.",
         "features": [
             "flying",
             "glowing",
@@ -1643,7 +1650,7 @@ window.baseCreatures = [
     {
         "id": 26,
         "name": "Stonecrest",
-        "description": "A medium, rounded Earth-type creature. It is covered in copper armored skin with distinct tribal markings. Its slate blind eyes look out thoughtfully. It sports bronze heavy stone wings and moves gracefully. It defends itself with amber blunt claws. It flashes blunt teeth when threatened. It moves on 4 mechanical legs. A amber stubby spiked mace tail trails behind it. Most notably, it possesses ochre crystal spikes.",
+        "description": "A magnificent medium, rounded Earth-type anomaly of nature. Its robust frame is sheathed in copper armored flesh, adorned with mesmerizing tribal markings that seem to shift in the light. Piercing slate blind eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular bronze heavy stone wings, moving with breathless elegance. For defense, it brandishes lethal amber blunt claws, striking fear into any predator. When provoked, it bares terrifying blunt teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 mechanical legs. A majestic amber stubby spiked mace tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring ochre crystal spikes, an elemental manifestation of its pure Earth lineage.",
         "features": [
             "horns",
             "wings",
@@ -1676,7 +1683,7 @@ window.baseCreatures = [
     {
         "id": 27,
         "name": "Gustscale",
-        "description": "A miniscule, graceful Wind-type creature. It is covered in pale gray soft skin with distinct breezy stripes. Its azure piercing eyes look out thoughtfully. It sports silver large energy wings and moves gracefully. It defends itself with sky blue hooked talons. It moves on 4 ethereal limbs. A white twin feathered tail trails behind it. Most notably, it possesses lavender tornado tail.",
+        "description": "A magnificent miniscule, graceful Wind-type anomaly of nature. Its robust frame is sheathed in pale gray soft flesh, adorned with mesmerizing breezy stripes that seem to shift in the light. Piercing azure piercing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular silver large energy wings, moving with breathless elegance. For defense, it brandishes lethal sky blue hooked talons, striking fear into any predator. It navigates its harsh terrain effortlessly on 4 ethereal limbs. A majestic white twin feathered tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring lavender tornado tail, an elemental manifestation of its pure Wind lineage.",
         "features": [
             "fur",
             "horns",
@@ -1709,7 +1716,7 @@ window.baseCreatures = [
     {
         "id": 28,
         "name": "Shinefin",
-        "description": "A medium, graceful Light-type creature. It is covered in ivory prismatic skin with distinct radiant gradient. Its gold gentle eyes look out thoughtfully. It sports yellow oversized feathered wings and moves gracefully. It defends itself with gold glowing antlers. A ivory flowing flowing tail trails behind it. Most notably, it possesses diamond blinding glow.",
+        "description": "A magnificent medium, graceful Light-type anomaly of nature. Its robust frame is sheathed in ivory prismatic flesh, adorned with mesmerizing radiant gradient that seem to shift in the light. Piercing gold gentle eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular yellow oversized feathered wings, moving with breathless elegance. For defense, it brandishes lethal gold glowing antlers, striking fear into any predator. A majestic ivory flowing flowing tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring diamond blinding glow, an elemental manifestation of its pure Light lineage.",
         "features": [
             "scales",
             "horns"
@@ -1741,7 +1748,7 @@ window.baseCreatures = [
     {
         "id": 29,
         "name": "Umbraclaw",
-        "description": "A medium, lanky Dark-type creature. It is covered in blood red leathery skin with distinct dark camouflage. Its pitch black glowing eyes look out thoughtfully. It sports blood red asymmetrical shadow wings and moves gracefully. It defends itself with dark purple curved horns. It flashes wicked fangs when threatened. It moves on 6 paws. A midnight blue whip-like stinger tail trails behind it. Most notably, it possesses pitch black nightmare trails.",
+        "description": "A magnificent medium, lanky Dark-type anomaly of nature. Its robust frame is sheathed in blood red leathery flesh, adorned with mesmerizing dark camouflage that seem to shift in the light. Piercing pitch black glowing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular blood red asymmetrical shadow wings, moving with breathless elegance. For defense, it brandishes lethal dark purple curved horns, striking fear into any predator. When provoked, it bares terrifying wicked fangs, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 6 paws. A majestic midnight blue whip-like stinger tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring pitch black nightmare trails, an elemental manifestation of its pure Dark lineage.",
         "features": [
             "fur",
             "flying",
@@ -1774,7 +1781,7 @@ window.baseCreatures = [
     {
         "id": 30,
         "name": "Nebulascale",
-        "description": "A tiny, graceful Cosmic-type creature. It is covered in deep blue smooth skin with distinct geometric stars. Its purple glowing eyes look out thoughtfully. It sports magenta colossal energy wings and moves gracefully. It defends itself with cyan crystal shards. It moves on 100 pseudopods. A nebula pink multiple stardust tail trails behind it. Most notably, it possesses magenta floating orbs.",
+        "description": "A magnificent tiny, graceful Cosmic-type anomaly of nature. Its robust frame is sheathed in deep blue smooth flesh, adorned with mesmerizing geometric stars that seem to shift in the light. Piercing purple glowing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular magenta colossal energy wings, moving with breathless elegance. For defense, it brandishes lethal cyan crystal shards, striking fear into any predator. It navigates its harsh terrain effortlessly on 100 pseudopods. A majestic nebula pink multiple stardust tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring magenta floating orbs, an elemental manifestation of its pure Cosmic lineage.",
         "features": [
             "horns",
             "scales",
@@ -1807,7 +1814,7 @@ window.baseCreatures = [
     {
         "id": 31,
         "name": "Cinderbeak",
-        "description": "A massive, muscular Fire-type creature. It is covered in ruby leathery skin with distinct tiger stripes. Its obsidian fiery eyes look out thoughtfully. It defends itself with crimson curved horns. It flashes wicked fangs when threatened. It moves on 4 talons. A amber long scaly tail trails behind it. Most notably, it possesses charcoal scorching scales.",
+        "description": "A magnificent massive, muscular Fire-type anomaly of nature. Its robust frame is sheathed in ruby leathery flesh, adorned with mesmerizing tiger stripes that seem to shift in the light. Piercing obsidian fiery eyes reflect an ancient, untamed wilderness. For defense, it brandishes lethal crimson curved horns, striking fear into any predator. When provoked, it bares terrifying wicked fangs, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 talons. A majestic amber long scaly tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring charcoal scorching scales, an elemental manifestation of its pure Fire lineage.",
         "features": [
             "horns",
             "tail",
@@ -1840,7 +1847,7 @@ window.baseCreatures = [
     {
         "id": 32,
         "name": "Tidebeak",
-        "description": "A large, agile Water-type creature. It is covered in teal scaly skin with distinct dappled patterns. Its pearl wide eyes look out thoughtfully. It defends itself with aquamarine hooked talons. It flashes needle-like teeth when threatened. A aquamarine sweeping flowing tail trails behind it. Most notably, it possesses cyan bioluminescent spots.",
+        "description": "A magnificent large, agile Water-type anomaly of nature. Its robust frame is sheathed in teal scaly flesh, adorned with mesmerizing dappled patterns that seem to shift in the light. Piercing pearl wide eyes reflect an ancient, untamed wilderness. For defense, it brandishes lethal aquamarine hooked talons, striking fear into any predator. When provoked, it bares terrifying needle-like teeth, warning foes of its devastating power. A majestic aquamarine sweeping flowing tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring cyan bioluminescent spots, an elemental manifestation of its pure Water lineage.",
         "features": [
             "shell",
             "tail",
@@ -1873,7 +1880,7 @@ window.baseCreatures = [
     {
         "id": 33,
         "name": "Petalwing",
-        "description": "A petite, graceful Nature-type creature. It is covered in emerald leafy skin with distinct leafy speckles. Its emerald gentle eyes look out thoughtfully. It sports olive medium leafy wings and moves gracefully. It defends itself with brown thorny spikes. It flashes flat teeth when threatened. It moves on 8 paws. A brown prehensile bushy tail trails behind it. Most notably, it possesses olive thorny vines.",
+        "description": "A magnificent petite, graceful Nature-type anomaly of nature. Its robust frame is sheathed in emerald leafy flesh, adorned with mesmerizing leafy speckles that seem to shift in the light. Piercing emerald gentle eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular olive medium leafy wings, moving with breathless elegance. For defense, it brandishes lethal brown thorny spikes, striking fear into any predator. When provoked, it bares terrifying flat teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 8 paws. A majestic brown prehensile bushy tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring olive thorny vines, an elemental manifestation of its pure Nature lineage.",
         "features": [
             "claws",
             "flying",
@@ -1906,7 +1913,7 @@ window.baseCreatures = [
     {
         "id": 34,
         "name": "Statichound",
-        "description": "A tiny, agile Electric-type creature. It is covered in yellow smooth skin with distinct electric stripes. Its neon green glowing eyes look out thoughtfully. It flashes sharp teeth when threatened. It moves on 6 mechanical legs. A golden whip-like sparking tail trails behind it. Most notably, it possesses electric blue shock wave.",
+        "description": "A magnificent tiny, agile Electric-type anomaly of nature. Its robust frame is sheathed in yellow smooth flesh, adorned with mesmerizing electric stripes that seem to shift in the light. Piercing neon green glowing eyes reflect an ancient, untamed wilderness. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 6 mechanical legs. A majestic golden whip-like sparking tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring electric blue shock wave, an elemental manifestation of its pure Electric lineage.",
         "features": [
             "fur",
             "scales",
@@ -1939,7 +1946,7 @@ window.baseCreatures = [
     {
         "id": 35,
         "name": "Wintertuft",
-        "description": "A stout, blocky Ice-type creature. It is covered in cyan woolly skin with distinct checkerboard patterns. Its silver blind eyes look out thoughtfully. It sports snow white large crystal wings and moves gracefully. It defends itself with ice blue jagged spikes. It flashes tusks when threatened. It moves on 2 flippers. A snow white short fluffy tail trails behind it. Most notably, it possesses silver frost breath.",
+        "description": "A magnificent stout, blocky Ice-type anomaly of nature. Its robust frame is sheathed in cyan woolly flesh, adorned with mesmerizing checkerboard patterns that seem to shift in the light. Piercing silver blind eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular snow white large crystal wings, moving with breathless elegance. For defense, it brandishes lethal ice blue jagged spikes, striking fear into any predator. When provoked, it bares terrifying tusks, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 2 flippers. A majestic snow white short fluffy tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring silver frost breath, an elemental manifestation of its pure Ice lineage.",
         "features": [
             "shell",
             "scales",
@@ -1972,7 +1979,7 @@ window.baseCreatures = [
     {
         "id": 36,
         "name": "Craghorn",
-        "description": "A large, rounded Earth-type creature. It is covered in dusty grey thick skin with distinct mottled rocks. Its brown cyclopic eyes look out thoughtfully. It defends itself with brown ramming plates. It flashes tusks when threatened. It moves on 4 hooves. A amber stubby rocky tail trails behind it. Most notably, it possesses sand dust clouds.",
+        "description": "A magnificent large, rounded Earth-type anomaly of nature. Its robust frame is sheathed in dusty grey thick flesh, adorned with mesmerizing mottled rocks that seem to shift in the light. Piercing brown cyclopic eyes reflect an ancient, untamed wilderness. For defense, it brandishes lethal brown ramming plates, striking fear into any predator. When provoked, it bares terrifying tusks, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 hooves. A majestic amber stubby rocky tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring sand dust clouds, an elemental manifestation of its pure Earth lineage.",
         "features": [
             "horns",
             "fur",
@@ -2005,7 +2012,7 @@ window.baseCreatures = [
     {
         "id": 37,
         "name": "Windgill",
-        "description": "A slender, spindly Wind-type creature. It is covered in azure smooth skin with distinct gradient colors. Its azure narrow eyes look out thoughtfully. It sports pale gray majestic feathered wings and moves gracefully. It defends itself with cream smooth crest. It moves on 2 agile limbs. A cream twin flowing tail trails behind it. Most notably, it possesses cream hurricane eye.",
+        "description": "A magnificent slender, spindly Wind-type anomaly of nature. Its robust frame is sheathed in azure smooth flesh, adorned with mesmerizing gradient colors that seem to shift in the light. Piercing azure narrow eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular pale gray majestic feathered wings, moving with breathless elegance. For defense, it brandishes lethal cream smooth crest, striking fear into any predator. It navigates its harsh terrain effortlessly on 2 agile limbs. A majestic cream twin flowing tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring cream hurricane eye, an elemental manifestation of its pure Wind lineage.",
         "features": [
             "fur",
             "scales",
@@ -2038,7 +2045,7 @@ window.baseCreatures = [
     {
         "id": 38,
         "name": "Brightshell",
-        "description": "A towering, floating Light-type creature. It is covered in ivory prismatic skin with distinct sunburst designs. Its yellow glowing eyes look out thoughtfully. It sports gold large feathered wings and moves gracefully. It defends itself with diamond crystal shards. It flashes flat teeth when threatened. It moves on 4 ethereal limbs. A peach multiple energy tail trails behind it. Most notably, it possesses gold luminous halo.",
+        "description": "A magnificent towering, floating Light-type anomaly of nature. Its robust frame is sheathed in ivory prismatic flesh, adorned with mesmerizing sunburst designs that seem to shift in the light. Piercing yellow glowing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular gold large feathered wings, moving with breathless elegance. For defense, it brandishes lethal diamond crystal shards, striking fear into any predator. When provoked, it bares terrifying flat teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 ethereal limbs. A majestic peach multiple energy tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring gold luminous halo, an elemental manifestation of its pure Light lineage.",
         "features": [
             "wings",
             "flying",
@@ -2071,7 +2078,7 @@ window.baseCreatures = [
     {
         "id": 39,
         "name": "Shadecrest",
-        "description": "A immense, serpentine Dark-type creature. It is covered in charcoal leathery skin with distinct mottled shadows. Its onyx glowing eyes look out thoughtfully. It sports pitch black asymmetrical leathery wings and moves gracefully. It defends itself with pitch black razor-sharp claws. It flashes sharp teeth when threatened. It moves on 6 talons. A charcoal multiple barbed tail trails behind it. Most notably, it possesses obsidian abyssal gaze.",
+        "description": "A magnificent immense, serpentine Dark-type anomaly of nature. Its robust frame is sheathed in charcoal leathery flesh, adorned with mesmerizing mottled shadows that seem to shift in the light. Piercing onyx glowing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular pitch black asymmetrical leathery wings, moving with breathless elegance. For defense, it brandishes lethal pitch black razor-sharp claws, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 6 talons. A majestic charcoal multiple barbed tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring obsidian abyssal gaze, an elemental manifestation of its pure Dark lineage.",
         "features": [
             "wings",
             "flying"
@@ -2103,7 +2110,7 @@ window.baseCreatures = [
     {
         "id": 40,
         "name": "Meteorhorn",
-        "description": "A immense, bipedal Cosmic-type creature. It is covered in purple translucent skin with distinct cosmic runes. Its purple starry eyes look out thoughtfully. It sports purple oversized energy wings and moves gracefully. It flashes flat teeth when threatened. A nebula pink massive comet tail trails behind it. Most notably, it possesses amethyst meteor shower.",
+        "description": "A magnificent immense, bipedal Cosmic-type anomaly of nature. Its robust frame is sheathed in purple translucent flesh, adorned with mesmerizing cosmic runes that seem to shift in the light. Piercing purple starry eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular purple oversized energy wings, moving with breathless elegance. When provoked, it bares terrifying flat teeth, warning foes of its devastating power. A majestic nebula pink massive comet tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring amethyst meteor shower, an elemental manifestation of its pure Cosmic lineage.",
         "features": [
             "wings",
             "claws",
@@ -2136,7 +2143,7 @@ window.baseCreatures = [
     {
         "id": 41,
         "name": "Magmafin",
-        "description": "A stout, muscular Fire-type creature. It is covered in scarlet rough skin with distinct tiger stripes. Its orange fiery eyes look out thoughtfully. It sports amber majestic flame wings and moves gracefully. It defends itself with amber razor-sharp claws. It flashes protruding fangs when threatened. It moves on 6 talons. A obsidian massive scaly tail trails behind it. Most notably, it possesses crimson fiery breath.",
+        "description": "A magnificent stout, muscular Fire-type anomaly of nature. Its robust frame is sheathed in scarlet rough flesh, adorned with mesmerizing tiger stripes that seem to shift in the light. Piercing orange fiery eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular amber majestic flame wings, moving with breathless elegance. For defense, it brandishes lethal amber razor-sharp claws, striking fear into any predator. When provoked, it bares terrifying protruding fangs, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 6 talons. A majestic obsidian massive scaly tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring crimson fiery breath, an elemental manifestation of its pure Fire lineage.",
         "features": [
             "shell",
             "fur"
@@ -2168,7 +2175,7 @@ window.baseCreatures = [
     {
         "id": 42,
         "name": "Riverhawk",
-        "description": "A small, sleek Water-type creature. It is covered in cyan smooth skin with distinct dappled patterns. Its sea green calm eyes look out thoughtfully. It moves on 4 webbed feet. A azure long paddle tail trails behind it. Most notably, it possesses turquoise bubble clusters.",
+        "description": "A magnificent small, sleek Water-type anomaly of nature. Its robust frame is sheathed in cyan smooth flesh, adorned with mesmerizing dappled patterns that seem to shift in the light. Piercing sea green calm eyes reflect an ancient, untamed wilderness. It navigates its harsh terrain effortlessly on 4 webbed feet. A majestic azure long paddle tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring turquoise bubble clusters, an elemental manifestation of its pure Water lineage.",
         "features": [
             "claws",
             "horns",
@@ -2201,7 +2208,7 @@ window.baseCreatures = [
     {
         "id": 43,
         "name": "Bloomweaver",
-        "description": "A diminutive, slender Nature-type creature. It is covered in forest green soft skin with distinct natural camouflage. Its emerald multiple eyes look out thoughtfully. It moves on 6 agile limbs. A brown prehensile bushy tail trails behind it. Most notably, it possesses jade floral crown.",
+        "description": "A magnificent diminutive, slender Nature-type anomaly of nature. Its robust frame is sheathed in forest green soft flesh, adorned with mesmerizing natural camouflage that seem to shift in the light. Piercing emerald multiple eyes reflect an ancient, untamed wilderness. It navigates its harsh terrain effortlessly on 6 agile limbs. A majestic brown prehensile bushy tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring jade floral crown, an elemental manifestation of its pure Nature lineage.",
         "features": [
             "horns",
             "fur",
@@ -2234,7 +2241,7 @@ window.baseCreatures = [
     {
         "id": 44,
         "name": "Chargecrest",
-        "description": "A miniscule, spiky Electric-type creature. It is covered in yellow metallic skin with distinct geometric patterns. Its silver electric eyes look out thoughtfully. It sports electric blue tiny energy wings and moves gracefully. It defends itself with golden crystal shards. It flashes sharp teeth when threatened. It moves on 4 paws. A silver whip-like cable-like tail trails behind it. Most notably, it possesses cyan plasma orbs.",
+        "description": "A magnificent miniscule, spiky Electric-type anomaly of nature. Its robust frame is sheathed in yellow metallic flesh, adorned with mesmerizing geometric patterns that seem to shift in the light. Piercing silver electric eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular electric blue tiny energy wings, moving with breathless elegance. For defense, it brandishes lethal golden crystal shards, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 paws. A majestic silver whip-like cable-like tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring cyan plasma orbs, an elemental manifestation of its pure Electric lineage.",
         "features": [
             "flying",
             "tail"
@@ -2266,7 +2273,7 @@ window.baseCreatures = [
     {
         "id": 45,
         "name": "Chillscale",
-        "description": "A blocky, stout Ice-type creature. It is covered in frost white smooth skin with distinct checkerboard patterns. Its pale blue piercing eyes look out thoughtfully. It sports ice blue medium snowy wings and moves gracefully. It defends itself with translucent blue jagged spikes. It moves on 4 sturdy legs. Most notably, it possesses snow white glacier shield.",
+        "description": "A magnificent blocky, stout Ice-type anomaly of nature. Its robust frame is sheathed in frost white smooth flesh, adorned with mesmerizing checkerboard patterns that seem to shift in the light. Piercing pale blue piercing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular ice blue medium snowy wings, moving with breathless elegance. For defense, it brandishes lethal translucent blue jagged spikes, striking fear into any predator. It navigates its harsh terrain effortlessly on 4 sturdy legs. Most remarkably, it commands an awe-inspiring snow white glacier shield, an elemental manifestation of its pure Ice lineage.",
         "features": [
             "scales",
             "horns",
@@ -2299,7 +2306,7 @@ window.baseCreatures = [
     {
         "id": 46,
         "name": "Rockhide",
-        "description": "A large, muscular Earth-type creature. It is covered in amber thick skin with distinct cracked lines. Its slate cyclopic eyes look out thoughtfully. It defends itself with bronze boulder horns. It flashes crushing molars when threatened. It moves on 6 hooves. A sand stubby spiked mace tail trails behind it. Most notably, it possesses bronze sandstone plates.",
+        "description": "A magnificent large, muscular Earth-type anomaly of nature. Its robust frame is sheathed in amber thick flesh, adorned with mesmerizing cracked lines that seem to shift in the light. Piercing slate cyclopic eyes reflect an ancient, untamed wilderness. For defense, it brandishes lethal bronze boulder horns, striking fear into any predator. When provoked, it bares terrifying crushing molars, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 6 hooves. A majestic sand stubby spiked mace tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring bronze sandstone plates, an elemental manifestation of its pure Earth lineage.",
         "features": [
             "wings",
             "scales"
@@ -2331,7 +2338,7 @@ window.baseCreatures = [
     {
         "id": 47,
         "name": "Breezefleece",
-        "description": "A miniscule, agile Wind-type creature. It is covered in sky blue soft skin with distinct gradient colors. Its azure clear eyes look out thoughtfully. It sports sky blue colossal cloud wings and moves gracefully. It defends itself with sky blue smooth crest. It flashes sharp teeth when threatened. It moves on 2 talons. A cream flowing feathered tail trails behind it. Most notably, it possesses mint green updraft currents.",
+        "description": "A magnificent miniscule, agile Wind-type anomaly of nature. Its robust frame is sheathed in sky blue soft flesh, adorned with mesmerizing gradient colors that seem to shift in the light. Piercing azure clear eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular sky blue colossal cloud wings, moving with breathless elegance. For defense, it brandishes lethal sky blue smooth crest, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 2 talons. A majestic cream flowing feathered tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring mint green updraft currents, an elemental manifestation of its pure Wind lineage.",
         "features": [
             "flying",
             "horns",
@@ -2364,7 +2371,7 @@ window.baseCreatures = [
     {
         "id": 48,
         "name": "Sunscale",
-        "description": "A small, slender Light-type creature. It is covered in silver translucent skin with distinct glowing runes. Its silver hypnotic eyes look out thoughtfully. It sports silver majestic crystal wings and moves gracefully. It defends itself with gold crystal shards. It moves on 4 graceful legs. A pearl multiple energy tail trails behind it. Most notably, it possesses pale yellow solar flare.",
+        "description": "A magnificent small, slender Light-type anomaly of nature. Its robust frame is sheathed in silver translucent flesh, adorned with mesmerizing glowing runes that seem to shift in the light. Piercing silver hypnotic eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular silver majestic crystal wings, moving with breathless elegance. For defense, it brandishes lethal gold crystal shards, striking fear into any predator. It navigates its harsh terrain effortlessly on 4 graceful legs. A majestic pearl multiple energy tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring pale yellow solar flare, an elemental manifestation of its pure Light lineage.",
         "features": [
             "fangs",
             "scales"
@@ -2396,7 +2403,7 @@ window.baseCreatures = [
     {
         "id": 49,
         "name": "Duskshell",
-        "description": "A immense, lanky Dark-type creature. It is covered in charcoal leathery skin with distinct mottled shadows. Its blood red narrow eyes look out thoughtfully. It sports obsidian large leathery wings and moves gracefully. It defends itself with charcoal jagged spikes. It flashes sharp teeth when threatened. It moves on 4 talons. A indigo whip-like stinger tail trails behind it. Most notably, it possesses obsidian shadow cloak.",
+        "description": "A magnificent immense, lanky Dark-type anomaly of nature. Its robust frame is sheathed in charcoal leathery flesh, adorned with mesmerizing mottled shadows that seem to shift in the light. Piercing blood red narrow eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular obsidian large leathery wings, moving with breathless elegance. For defense, it brandishes lethal charcoal jagged spikes, striking fear into any predator. When provoked, it bares terrifying sharp teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 4 talons. A majestic indigo whip-like stinger tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring obsidian shadow cloak, an elemental manifestation of its pure Dark lineage.",
         "features": [
             "horns",
             "tail"
@@ -2428,7 +2435,7 @@ window.baseCreatures = [
     {
         "id": 50,
         "name": "Orbitspine",
-        "description": "A floating, bipedal Cosmic-type creature. It is covered in purple gaseous skin with distinct geometric stars. Its violet glowing eyes look out thoughtfully. It sports violet majestic energy wings and moves gracefully. It defends itself with violet majestic horns. It flashes flat teeth when threatened. It moves on 100 tentacles. Most notably, it possesses purple galactic spiral.",
+        "description": "A magnificent floating, bipedal Cosmic-type anomaly of nature. Its robust frame is sheathed in purple gaseous flesh, adorned with mesmerizing geometric stars that seem to shift in the light. Piercing violet glowing eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular violet majestic energy wings, moving with breathless elegance. For defense, it brandishes lethal violet majestic horns, striking fear into any predator. When provoked, it bares terrifying flat teeth, warning foes of its devastating power. It navigates its harsh terrain effortlessly on 100 tentacles. Most remarkably, it commands an awe-inspiring purple galactic spiral, an elemental manifestation of its pure Cosmic lineage.",
         "features": [
             "horns",
             "glowing",
@@ -2644,16 +2651,41 @@ window.moods = [
     { name: "Timid", increase: null, decrease: "attack" },
     { name: "Reckless", increase: null, decrease: "defense" },
     { name: "Apathetic", increase: null, decrease: "specialAttack" },
-    { name: "Distracted", increase: null, decrease: "specialDefense" }
+    { name: "Distracted", increase: null, decrease: "specialDefense" },
+    { name: "Docile", increase: "health", decrease: "speed" },
+    { name: "Sassy", increase: "specialDefense", decrease: "speed" },
+    { name: "Bashful", increase: "specialAttack", decrease: "attack" },
+    { name: "Quirky", increase: "speed", decrease: "defense" },
+    { name: "Bold", increase: "defense", decrease: "attack" },
+    { name: "Quiet", increase: "specialAttack", decrease: "speed" },
+    { name: "Calm", increase: "specialDefense", decrease: "attack" },
+    { name: "Careful", increase: "specialDefense", decrease: "specialAttack" }
 ];
 window.getRandomMood = function() {
-    return window.moods[Math.floor(Math.random() * window.moods.length)];
+    if (!window.moods || window.moods.length === 0) return undefined;
+    let baseMood = window.moods[Math.floor(Math.random() * window.moods.length)];
+    if (!baseMood) return undefined;
+    let tierRand = Math.random();
+    let tier = 1;
+    if (tierRand > 0.9) tier = 3;      // 10% chance for Tier 3
+    else if (tierRand > 0.6) tier = 2; // 30% chance for Tier 2
+                                       // 60% chance for Tier 1
+    return { ...baseMood, tier: tier };
 };
 
 window.getRandomNature = function() {
+    if (!window.natures || window.natures.length === 0) return undefined;
     // Only return natures that actually have a buff OR debuff (removes Neutral / null entries)
     const validNatures = window.natures.filter(n => n.increase || n.decrease);
-    return validNatures[Math.floor(Math.random() * validNatures.length)];
+    if (validNatures.length === 0) return undefined;
+    let baseNature = validNatures[Math.floor(Math.random() * validNatures.length)];
+    if (!baseNature) return undefined;
+    let tierRand = Math.random();
+    let tier = 1;
+    if (tierRand > 0.9) tier = 3;      // 10% chance for Tier 3
+    else if (tierRand > 0.6) tier = 2; // 30% chance for Tier 2
+                                       // 60% chance for Tier 1
+    return { ...baseNature, tier: tier };
 };
 window.getRawScaledStat = function(creature, statName) {
     if (!creature.stats) creature.stats = {};
@@ -2676,13 +2708,21 @@ window.getEffectiveStat = function(creature, statName) {
     let scaledBase = window.getRawScaledStat(creature, statName);
 
     if (creature.nature) {
-        if (creature.nature.increase === statName) scaledBase *= 1.1;
-        if (creature.nature.decrease === statName) scaledBase *= 0.9;
+        let nTier = creature.nature.tier || 2; // Default to old 10% (tier 2) if not set
+        let multiplier = 1 + (nTier * 0.05); // Tier 1: 1.05, Tier 2: 1.10, Tier 3: 1.15
+        let reducer = 1 - (nTier * 0.05);    // Tier 1: 0.95, Tier 2: 0.90, Tier 3: 0.85
+
+        if (creature.nature.increase === statName) scaledBase *= multiplier;
+        if (creature.nature.decrease === statName) scaledBase *= reducer;
     }
 
     if (creature.mood) {
-        if (creature.mood.increase === statName) scaledBase *= 1.1;
-        if (creature.mood.decrease === statName) scaledBase *= 0.9;
+        let mTier = creature.mood.tier || 2;
+        let multiplier = 1 + (mTier * 0.05);
+        let reducer = 1 - (mTier * 0.05);
+
+        if (creature.mood.increase === statName) scaledBase *= multiplier;
+        if (creature.mood.decrease === statName) scaledBase *= reducer;
     }
 
     return scaledBase;
@@ -3139,7 +3179,6 @@ window.openHelpModal = function() {
     // Generate Type Chart HTML
     let allTypes = Object.keys(window.typeChart);
     let singleTypes = allTypes.filter(t => !t.includes('-'));
-    let dualTypes = allTypes.filter(t => t.includes('-'));
 
     function generateChart(typesList) {
         let html = '<table style="width:100%; text-align:center; border-collapse:collapse; font-size:14px; color:#ddd;">';
@@ -3167,17 +3206,24 @@ window.openHelpModal = function() {
     let typeContainer = document.getElementById('typeChartContainer');
     if (typeContainer) typeContainer.innerHTML = generateChart(singleTypes);
 
-    let typeGen2Container = document.getElementById('typeChartGen2Container');
-    if (typeGen2Container) typeGen2Container.innerHTML = generateChart(dualTypes);
-
     let naturesHtml = window.natures.filter(n => n.increase || n.decrease).map(n => {
         let text = n.name + ': ';
-        if (n.increase) text += '<span style="color:#4caf50">+10% ' + n.increase + '</span> ';
-        if (n.decrease) text += '<span style="color:#f44336">-10% ' + n.decrease + '</span>';
-        return '<li>' + text + '</li>';
+        if (n.increase) text += `<span style="color:#4caf50">+X% ${n.increase}</span> `;
+        if (n.decrease) text += `<span style="color:#f44336">-X% ${n.decrease}</span>`;
+        return '<li>' + text + ' <span style="font-size:11px; color:#888;">(X depends on Tier: T1 5%, T2 10%, T3 15%)</span></li>';
     }).join('');
     let container = document.getElementById('naturesListContainer');
     if(container) container.innerHTML = '<ul style="margin:0; padding-left:20px; font-size:14px; color:#ddd;">' + naturesHtml + '</ul>';
+
+    let moodsHtml = window.moods.map(m => {
+        let text = m.name + ': ';
+        if (m.increase) text += `<span style="color:#4caf50">+X% ${m.increase}</span> `;
+        if (m.decrease) text += `<span style="color:#f44336">-X% ${m.decrease}</span>`;
+        return '<li>' + text + ' <span style="font-size:11px; color:#888;">(X depends on Tier: T1 5%, T2 10%, T3 15%)</span></li>';
+    }).join('');
+    let moodContainer = document.getElementById('moodsListContainer');
+    if(moodContainer) moodContainer.innerHTML = '<ul style="margin:0; padding-left:20px; font-size:14px; color:#ddd;">' + moodsHtml + '</ul>';
+
     document.getElementById('helpModal').style.display = 'block';
 };
 
@@ -3284,11 +3330,12 @@ window.renderPartyList = function() {
                 natureColor = '#ff9800';
             }
         }
-        let natureTooltip = c.nature ? `${c.nature.name}: ` : '';
+        let natureTooltip = c.nature ? `${c.nature.name} (Tier ${c.nature.tier || 2}): ` : '';
         if (c.nature) {
-            if (c.nature.increase && c.nature.decrease) natureTooltip += `Increases ${c.nature.increase} and decreases ${c.nature.decrease}`;
-            else if (c.nature.increase) natureTooltip += `Increases ${c.nature.increase}`;
-            else if (c.nature.decrease) natureTooltip += `Decreases ${c.nature.decrease}`;
+            let pct = (c.nature.tier || 2) * 5;
+            if (c.nature.increase && c.nature.decrease) natureTooltip += `Increases ${c.nature.increase} by ${pct}% and decreases ${c.nature.decrease} by ${pct}%`;
+            else if (c.nature.increase) natureTooltip += `Increases ${c.nature.increase} by ${pct}%`;
+            else if (c.nature.decrease) natureTooltip += `Decreases ${c.nature.decrease} by ${pct}%`;
             else natureTooltip += `Neutral`;
         }
         let natureHtml = c.nature ? `<p data-tooltip="${natureTooltip}">Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
@@ -3299,11 +3346,12 @@ window.renderPartyList = function() {
             else if (!c.mood.increase && c.mood.decrease) moodColor = '#f44336';
             else if (c.mood.increase && c.mood.decrease) moodColor = '#ff9800';
         }
-        let moodTooltip = c.mood ? `${c.mood.name}: ` : '';
+        let moodTooltip = c.mood ? `${c.mood.name} (Tier ${c.mood.tier || 2}): ` : '';
         if (c.mood) {
-            if (c.mood.increase && c.mood.decrease) moodTooltip += `Increases ${c.mood.increase} and decreases ${c.mood.decrease}`;
-            else if (c.mood.increase) moodTooltip += `Increases ${c.mood.increase}`;
-            else if (c.mood.decrease) moodTooltip += `Decreases ${c.mood.decrease}`;
+            let pct = (c.mood.tier || 2) * 5;
+            if (c.mood.increase && c.mood.decrease) moodTooltip += `Increases ${c.mood.increase} by ${pct}% and decreases ${c.mood.decrease} by ${pct}%`;
+            else if (c.mood.increase) moodTooltip += `Increases ${c.mood.increase} by ${pct}%`;
+            else if (c.mood.decrease) moodTooltip += `Decreases ${c.mood.decrease} by ${pct}%`;
             else moodTooltip += `Neutral`;
         }
         let moodHtml = c.mood ? `<p data-tooltip="${moodTooltip}">Mood: <span style="color:${moodColor};">${c.mood.name}</span></p>` : '<p>Mood: None</p>';
@@ -3550,13 +3598,24 @@ window.breed = function(parent1, parent2) {
     function splitName(name) {
         const vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
         let splitIdx = Math.ceil(name.length / 2);
-        // Try to find a vowel near the middle to split cleanly
+        let vowelCount = 0;
+
+        // Find the second vowel to split at, ensuring it sounds more natural
         for (let i = 1; i < name.length - 1; i++) {
             if (vowels.includes(name[i].toLowerCase())) {
-                splitIdx = i + 1;
-                if (i >= name.length / 3) break; // Don't split too early
+                vowelCount++;
+                if (vowelCount >= 2) {
+                    splitIdx = i + 1;
+                    break;
+                }
             }
         }
+
+        // If no second vowel found or split is too close to end, fallback to halfway
+        if (splitIdx >= name.length - 1 || splitIdx <= 1) {
+            splitIdx = Math.ceil(name.length / 2);
+        }
+
         return {
             prefix: name.substring(0, splitIdx),
             suffix: name.substring(splitIdx)
@@ -3572,9 +3631,10 @@ window.breed = function(parent1, parent2) {
     childName = childName.charAt(0).toUpperCase() + childName.slice(1).toLowerCase();
 
     // Prevent duplicate or too short names
-    if (childName === parent1.name || childName === parent2.name || childName.length < 3) {
-        childName = parent1.name.substring(0, Math.max(3, Math.floor(parent1.name.length/2))) +
-                    parent2.name.substring(Math.min(parent2.name.length - 3, Math.floor(parent2.name.length/2)));
+    if (childName === parent1.name || childName === parent2.name || childName.length < 4) {
+        let altSplit1 = Math.floor(parent1.name.length / 2);
+        let altSplit2 = Math.floor(parent2.name.length / 2);
+        childName = parent1.name.substring(0, altSplit1) + parent2.name.substring(altSplit2);
         childName = childName.charAt(0).toUpperCase() + childName.slice(1).toLowerCase();
     }
 
@@ -3606,22 +3666,22 @@ window.breed = function(parent1, parent2) {
     };
 
     const childGeneration = Math.max(parent1.generation, parent2.generation) + 1;
-    const childType = (parent1.type === parent2.type) ? parent1.type : `${parent1.type}-${parent2.type}`;
+    const childType = Math.random() < 0.5 ? parent1.type : parent2.type;
 
     // Advanced description blending
-    let childDesc = `A generation ${childGeneration} marvel, ${childName} beautifully blends the traits of its parents, ${parent1.name} (${parent1.type}) and ${parent2.name} (${parent2.type}). `;
-    childDesc += `It has inherited a ${inheritedTraits.bodySize}, ${inheritedTraits.bodyType} ${childType}-type body. `;
-    childDesc += `Its form is covered in ${inheritedTraits.skinFurColor ? inheritedTraits.skinFurColor + ' ' : ''}${inheritedTraits.skinFurType} skin exhibiting distinct ${inheritedTraits.pattern}. `;
-    childDesc += `${inheritedTraits.eyesColor ? inheritedTraits.eyesColor + ' ' : ''}${inheritedTraits.eyes} eyes gaze out with an ancestral intelligence. `;
+    let childDesc = `A truly breathtaking Generation ${childGeneration} hybrid, ${childName} is a magnificent synthesis of its legendary parents: the mighty ${parent1.name} (${parent1.type}) and the majestic ${parent2.name} (${parent2.type}). `;
+    childDesc += `Standing as a ${inheritedTraits.bodySize}, ${inheritedTraits.bodyType} champion of the ${childType} element, it strikes awe into the hearts of all who witness it. `;
+    childDesc += `Its resilient form is wrapped in shimmering ${inheritedTraits.skinFurColor ? inheritedTraits.skinFurColor + ' ' : ''}${inheritedTraits.skinFurType} flesh, patterned with hypnotic ${inheritedTraits.pattern} that appear to dance with ethereal energy. `;
+    childDesc += `Luminous ${inheritedTraits.eyesColor ? inheritedTraits.eyesColor + ' ' : ''}${inheritedTraits.eyes} eyes gleam with untamed, primordial intelligence and fierce determination. `;
 
-    if (inheritedTraits.wings !== 'none') childDesc += `It soars gracefully on ${inheritedTraits.wingsColor ? inheritedTraits.wingsColor + ' ' : ''}${inheritedTraits.wings}. `;
-    if (inheritedTraits.clawHorn !== 'none') childDesc += `It brandishes ${inheritedTraits.clawHornColor ? inheritedTraits.clawHornColor + ' ' : ''}${inheritedTraits.clawHorn} with striking confidence. `;
-    if (inheritedTraits.teeth !== 'none') childDesc += `It bears ${inheritedTraits.teeth} inherited from its lineage. `;
+    if (inheritedTraits.wings !== 'none') childDesc += `It commands the skies using awe-inspiring ${inheritedTraits.wingsColor ? inheritedTraits.wingsColor + ' ' : ''}${inheritedTraits.wings}, soaring with breathtaking grace and power. `;
+    if (inheritedTraits.clawHorn !== 'none') childDesc += `For devastating offense, it brandishes lethal ${inheritedTraits.clawHornColor ? inheritedTraits.clawHornColor + ' ' : ''}${inheritedTraits.clawHorn}, a stark warning to any who dare approach. `;
+    if (inheritedTraits.teeth !== 'none') childDesc += `When enraged, it bares menacing ${inheritedTraits.teeth}, ready to tear through the toughest defenses. `;
 
-    if (inheritedTraits.limbs !== 'none') childDesc += `It moves adeptly on ${inheritedTraits.limbs}. `;
-    if (inheritedTraits.tail !== 'none') childDesc += `A ${inheritedTraits.tailColor ? inheritedTraits.tailColor + ' ' : ''}${inheritedTraits.tail} follows its every motion. `;
+    if (inheritedTraits.limbs !== 'none') childDesc += `It traverses its domain with unmatched agility on its ${inheritedTraits.limbs}. `;
+    if (inheritedTraits.tail !== 'none') childDesc += `A spectacular ${inheritedTraits.tailColor ? inheritedTraits.tailColor + ' ' : ''}${inheritedTraits.tail} sweeps behind it, a mesmerizing testament to its hybrid vigor. `;
 
-    childDesc += `Most stunningly, it manifests ${inheritedTraits.uniqueFeatureColor ? inheritedTraits.uniqueFeatureColor + ' ' : ''}${inheritedTraits.uniqueFeature}, a perfect synergy of its parents' extraordinary qualities.`;
+    childDesc += `Most spectacularly, it channels the cosmos to manifest a radiant ${inheritedTraits.uniqueFeatureColor ? inheritedTraits.uniqueFeatureColor + ' ' : ''}${inheritedTraits.uniqueFeature}, a flawless and terrifying synergy of its extraordinary lineage.`;
 
     const childStats = {
         health: Math.floor((parent1.stats.health + parent2.stats.health) / 2),
@@ -4230,9 +4290,10 @@ function updateBattleUI() {
         document.getElementById('pType').innerText = currentPlayer.type || 'Normal';
         document.getElementById('pType').setAttribute('data-tooltip', window.getTypeTooltip(currentPlayer.type || 'Normal'));
         if (currentPlayer.ability) {
+            let effectDesc = currentPlayer.ability.type + (currentPlayer.ability.value !== null ? ': ' + currentPlayer.ability.value : '');
             document.getElementById('pAbility').innerText = currentPlayer.ability.name;
             document.getElementById('pAbility').style.color = currentPlayer.ability.color;
-            document.getElementById('pAbility').setAttribute('data-tooltip', currentPlayer.ability.message);
+            document.getElementById('pAbility').setAttribute('data-tooltip', `${currentPlayer.ability.message} (${effectDesc})`);
         } else {
             document.getElementById('pAbility').innerText = 'None';
             document.getElementById('pAbility').style.color = '#fff';
@@ -4253,9 +4314,10 @@ function updateBattleUI() {
         document.getElementById('eType').innerText = currentEnemy.type || 'Normal';
         document.getElementById('eType').setAttribute('data-tooltip', window.getTypeTooltip(currentEnemy.type || 'Normal'));
         if (currentEnemy.ability) {
+            let effectDesc = currentEnemy.ability.type + (currentEnemy.ability.value !== null ? ': ' + currentEnemy.ability.value : '');
             document.getElementById('eAbility').innerText = currentEnemy.ability.name;
             document.getElementById('eAbility').style.color = currentEnemy.ability.color;
-            document.getElementById('eAbility').setAttribute('data-tooltip', currentEnemy.ability.message);
+            document.getElementById('eAbility').setAttribute('data-tooltip', `${currentEnemy.ability.message} (${effectDesc})`);
         } else {
             document.getElementById('eAbility').innerText = 'None';
             document.getElementById('eAbility').style.color = '#fff';
@@ -5875,21 +5937,23 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
 
     // Generate nature-like fantasy name based on type
     const typePrefixes = {
-        "Fire": ["Ember", "Flare", "Ash", "Pyre", "Cinder", "Flame", "Ignis", "Scorchi", "Magma", "Lava"],
-        "Water": ["Tide", "Aqua", "Ripple", "Surf", "Brine", "Splash", "Hydro", "Wave", "Ocean", "River"],
-        "Nature": ["Moss", "Leaf", "Thorn", "Briar", "Petal", "Flora", "Bloom", "Vine", "Bark", "Root"],
-        "Electric": ["Spark", "Volt", "Jolt", "Static", "Blitz", "Zap", "Wire", "Ohm", "Charge", "Amp"],
-        "Ice": ["Frost", "Snow", "Chill", "Glace", "Rime", "Ice", "Polar", "Blizz", "Hail", "Winter"],
-        "Earth": ["Dune", "Rock", "Terra", "Mud", "Dust", "Stone", "Crag", "Soil", "Clay", "Quake"],
-        "Wind": ["Gale", "Zephyr", "Breeze", "Gust", "Aero", "Wind", "Draft", "Squall", "Hover", "Flit"],
-        "Light": ["Dawn", "Lux", "Glow", "Beam", "Ray", "Sun", "Shine", "Bright", "Solar", "Halo"],
-        "Dark": ["Dusk", "Umbra", "Shade", "Gloom", "Void", "Night", "Shadow", "Murk", "Grim", "Obsid"],
-        "Cosmic": ["Nova", "Star", "Astro", "Cosmo", "Nebula", "Space", "Luna", "Celest", "Orbit", "Meteor"]
+        "Fire": ["Ember", "Flare", "Ash", "Pyre", "Cinder", "Flame", "Ignis", "Scorchi", "Magma", "Lava", "Inferno", "Sear", "Char", "Blaze", "Smolder"],
+        "Water": ["Tide", "Aqua", "Ripple", "Surf", "Brine", "Splash", "Hydro", "Wave", "Ocean", "River", "Torrent", "Abyss", "Reef", "Fjord", "Glacier"],
+        "Nature": ["Moss", "Leaf", "Thorn", "Briar", "Petal", "Flora", "Bloom", "Vine", "Bark", "Root", "Sylvan", "Timber", "Grove", "Bramble", "Thicket"],
+        "Electric": ["Spark", "Volt", "Jolt", "Static", "Blitz", "Zap", "Wire", "Ohm", "Charge", "Amp", "Thunder", "Storm", "Galvan", "Circuit", "Pulse"],
+        "Ice": ["Frost", "Snow", "Chill", "Glace", "Rime", "Ice", "Polar", "Blizz", "Hail", "Winter", "Tundra", "Shiver", "Crystal", "Glacier", "Arctic"],
+        "Earth": ["Dune", "Rock", "Terra", "Mud", "Dust", "Stone", "Crag", "Soil", "Clay", "Quake", "Boulder", "Gravel", "Mountain", "Canyon", "Bedrock"],
+        "Wind": ["Gale", "Zephyr", "Breeze", "Gust", "Aero", "Wind", "Draft", "Squall", "Hover", "Flit", "Cyclone", "Tempest", "Aether", "Stratus", "Nimbus"],
+        "Light": ["Dawn", "Lux", "Glow", "Beam", "Ray", "Sun", "Shine", "Bright", "Solar", "Halo", "Radiant", "Lumen", "Aura", "Prism", "Glare"],
+        "Dark": ["Dusk", "Umbra", "Shade", "Gloom", "Void", "Night", "Shadow", "Murk", "Grim", "Obsid", "Phantom", "Abyss", "Stygian", "Onyx", "Nether"],
+        "Cosmic": ["Nova", "Star", "Astro", "Cosmo", "Nebula", "Space", "Luna", "Celest", "Orbit", "Meteor", "Galaxy", "Comet", "Quasar", "Pulsar", "Zenith"]
     };
     const suffixes = [
         "hound", "bear", "fox", "hawk", "weaver", "stalker", "strider", "glider", "horn", "shell",
         "fin", "paw", "scale", "claw", "tail", "wing", "fang", "snout", "mane", "hoof",
-        "beak", "crest", "tuft", "whisker", "spine", "pelt", "fleece", "hide", "gill", "web"
+        "beak", "crest", "tuft", "whisker", "spine", "pelt", "fleece", "hide", "gill", "web",
+        "wyrm", "drake", "beast", "fiend", "sprite", "wisp", "golem", "titan", "colossus", "lurker",
+        "runner", "dasher", "soarer", "diver", "crawler", "leaper", "bounder", "watcher", "seeker", "hunter"
     ];
 
     if (!clonedData.baseId) {
