@@ -216,7 +216,7 @@
             text-align: center;
             min-width: 250px;
         }
-        #menuModal button, #partyModal > button, #storageModal > button, #breedingModal button, #helpModal button, #tradeModal button {
+        #menuModal button, #partyModal > button, #storageModal > button, #breedingModal button, #helpModal button, #tradeModal button, #pvpModal button {
             display: block;
             width: 100%;
             margin: 10px 0;
@@ -230,7 +230,7 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-        #menuModal button:hover, #partyModal > button:hover, #storageModal > button:hover, #breedingModal button:hover, #helpModal button:hover, #tradeModal button:hover {
+        #menuModal button:hover, #partyModal > button:hover, #storageModal > button:hover, #breedingModal button:hover, #helpModal button:hover, #tradeModal button:hover, #pvpModal button:hover {
             transform: scale(1.05);
             filter: brightness(1.2);
             box-shadow: 0 0 15px rgba(0,255,100,0.6);
@@ -243,8 +243,8 @@
         #menuModal button#menuHelpBtn { background: linear-gradient(180deg, #26c6da, #00838f); border-color: #80deea; }
         #menuModal button#menuDeleteBtn { background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a; }
         #menuModal button#fullscreenToggleBtn { background: linear-gradient(180deg, #78909c, #37474f); border-color: #b0bec5; }
-        #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn, #journalModal button { background: linear-gradient(180deg, #555, #222); border-color: #777; }
-        #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
+        #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn, #journalModal button, #pvpModal button.close-pvp-btn { background: linear-gradient(180deg, #555, #222); border-color: #777; }
+        #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn, #pvpModal button#sendPvpBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
 
         #lobbyModal {
             display: none;
@@ -325,7 +325,7 @@
             text-align: center;
         }
 
-        #tradeModal select, #tradeModal button, #journalModal button {
+        #tradeModal select, #tradeModal button, #pvpModal select, #pvpModal button, #journalModal button {
             margin: 10px;
             padding: 8px 15px;
             font-size: 16px;
@@ -709,6 +709,24 @@ window.showModernNotification = function(text, duration = 3000) {
     <p id="tradeResult"></p>
 </div>
 
+<div id="pvpModal" style="display:none; position:absolute; color:white; z-index:750; text-align:center;">
+    <button class="close-btn close-pvp-btn" aria-label="Close PvP">X</button>
+    <h2>PvP Center</h2>
+    <div id="pvpSection">
+        <label>Select Player to Battle:</label>
+        <select id="pvpPlayerSelect"></select>
+        <button id="sendPvpBtn">Send Battle Offer</button>
+    </div>
+    <div id="pvpIncomingSection" style="display:none; margin-top:20px; border-top:1px solid #555; padding-top:10px;">
+        <h3>Incoming Battle Offer!</h3>
+        <p id="pvpOfferText"></p>
+        <button id="acceptPvpBtn" style="background: linear-gradient(180deg, #4caf50, #388e3c);">Accept Battle</button>
+        <button id="rejectPvpBtn" style="background: linear-gradient(180deg, #f44336, #d32f2f);">Reject Battle</button>
+    </div>
+    <button class="close-pvp-btn">Close</button>
+    <p id="pvpResult"></p>
+</div>
+
 <div id="journalModal" style="display:none; position:absolute; color:white; z-index:800; text-align:center;">
     <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
     <h2>Creature Journal</h2>
@@ -815,9 +833,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.close-trade-btn').forEach(btn => btn.addEventListener('click', window.closeTradeModal));
     document.querySelectorAll('.close-store-btn').forEach(btn => btn.addEventListener('click', window.closeStoreModal));
+    document.querySelectorAll('.close-pvp-btn').forEach(btn => btn.addEventListener('click', window.closePvpModal));
     document.getElementById('sendTradeBtn')?.addEventListener('click', sendTradeOffer);
     document.getElementById('acceptTradeBtn')?.addEventListener('click', acceptTradeOffer);
     document.getElementById('rejectTradeBtn')?.addEventListener('click', rejectTradeOffer);
+    document.getElementById('sendPvpBtn')?.addEventListener('click', window.sendPvpOffer);
+    document.getElementById('acceptPvpBtn')?.addEventListener('click', window.acceptPvpOffer);
+    document.getElementById('rejectPvpBtn')?.addEventListener('click', window.rejectPvpOffer);
 });
 
 document.addEventListener('click', function(e) {
@@ -3833,6 +3855,8 @@ window.doBreed = function() {
 let pendingTradeOffer = null;
 window.tradeModalClosedFlag = false;
 window.storeModalClosedFlag = false;
+window.pvpModalClosedFlag = false;
+let pendingPvpOffer = null;
 
 window.openTradeModal = function() {
     if (window.tradeModalClosedFlag) return;
@@ -3848,22 +3872,35 @@ window.openTradeModal = function() {
 
     const s2 = document.getElementById('tradePlayerSelect');
     s2.innerHTML = '';
-    Object.keys(remotePlayers).forEach(userId => {
-        const option = document.createElement('option');
-        option.value = userId;
-        option.text = `Player ${userId.substring(0, 5)}...`;
-        s2.appendChild(option);
-    });
 
-    if (Object.keys(remotePlayers).length === 0) {
-        const option = document.createElement('option');
-        option.value = "";
-        option.text = "No players nearby";
-        s2.appendChild(option);
-    }
+    if (socket) socket.emit('fetch-global-users');
 
-    document.getElementById('tradeResult').innerText = '';
-    document.getElementById('tradeModal').style.display = 'block';
+    // Give it a tiny bit of time to fetch global users, otherwise fallback to known users
+    setTimeout(() => {
+        const usersToDisplay = globalPlayerList && globalPlayerList.length > 0 ? globalPlayerList : Object.keys(remotePlayers);
+
+        usersToDisplay.forEach(userId => {
+            const option = document.createElement('option');
+            option.value = userId;
+            option.text = `Player ${userId.substring(0, 5)}...`;
+            s2.appendChild(option);
+
+            // Connect to them if not connected, since they might be in a different room
+            if (!peers[userId]) {
+                createPeerConnection(userId, true);
+            }
+        });
+
+        if (usersToDisplay.length === 0) {
+            const option = document.createElement('option');
+            option.value = "";
+            option.text = "No players available";
+            s2.appendChild(option);
+        }
+
+        document.getElementById('tradeResult').innerText = '';
+        document.getElementById('tradeModal').style.display = 'block';
+    }, 100);
 };
 
 window.closeTradeModal = function() {
@@ -3889,6 +3926,52 @@ window.closeStoreModal = function() {
     setTimeout(() => {
         _m_storeModal.style.display = 'none';
         _m_storeModal.children[0].classList.remove('modal-fade-out');
+    }, 190);
+};
+
+window.openPvpModal = function() {
+    if (window.pvpModalClosedFlag) return;
+    if (inBattle) return;
+
+    const s2 = document.getElementById('pvpPlayerSelect');
+    s2.innerHTML = '';
+
+    if (socket) socket.emit('fetch-global-users');
+
+    setTimeout(() => {
+        const usersToDisplay = globalPlayerList && globalPlayerList.length > 0 ? globalPlayerList : Object.keys(remotePlayers);
+
+        usersToDisplay.forEach(userId => {
+            const option = document.createElement('option');
+            option.value = userId;
+            option.text = `Player ${userId.substring(0, 5)}...`;
+            s2.appendChild(option);
+
+            // Connect to them if not connected, since they might be in a different room
+            if (!peers[userId]) {
+                createPeerConnection(userId, true);
+            }
+        });
+
+        if (usersToDisplay.length === 0) {
+            const option = document.createElement('option');
+            option.value = "";
+            option.text = "No players available";
+            s2.appendChild(option);
+        }
+
+        document.getElementById('pvpResult').innerText = '';
+        document.getElementById('pvpModal').style.display = 'block';
+    }, 100);
+};
+
+window.closePvpModal = function() {
+    window.pvpModalClosedFlag = true;
+    let _m_pvpModal = document.getElementById('pvpModal');
+    _m_pvpModal.children[0].classList.add('modal-fade-out');
+    setTimeout(() => {
+        _m_pvpModal.style.display = 'none';
+        _m_pvpModal.children[0].classList.remove('modal-fade-out');
     }, 190);
 };
 
@@ -3961,12 +4044,77 @@ window.rejectTradeOffer = function() {
     pendingTradeOffer = null;
 };
 
+window.sendPvpOffer = function() {
+    const targetUserId = document.getElementById('pvpPlayerSelect').value;
+
+    if (!targetUserId) {
+        document.getElementById('pvpResult').innerText = "Please select a player.";
+        return;
+    }
+
+    const activeParty = collectedCreatures.filter(c => !c.stored && c.currentHp > 0);
+    if (activeParty.length === 0) {
+         document.getElementById('pvpResult').innerText = "You have no healthy creatures!";
+         return;
+    }
+
+    if (dataChannels[targetUserId] && dataChannels[targetUserId].readyState === 'open') {
+        dataChannels[targetUserId].send(JSON.stringify({
+            type: 'pvp_offer',
+            firstCreature: activeParty[0]
+        }));
+        document.getElementById('pvpResult').innerText = "Battle offer sent!";
+    } else {
+        document.getElementById('pvpResult').innerText = "Could not connect to player.";
+    }
+};
+
+window.acceptPvpOffer = function() {
+    if (!pendingPvpOffer) return;
+
+    const activeParty = collectedCreatures.filter(c => !c.stored && c.currentHp > 0);
+    if (activeParty.length === 0) {
+        document.getElementById('pvpResult').innerText = "You have no healthy creatures!";
+        return;
+    }
+
+    if (dataChannels[pendingPvpOffer.from] && dataChannels[pendingPvpOffer.from].readyState === 'open') {
+        dataChannels[pendingPvpOffer.from].send(JSON.stringify({
+            type: 'pvp_accept',
+            firstCreature: activeParty[0]
+        }));
+    }
+
+    document.getElementById('pvpIncomingSection').style.display = 'none';
+    document.getElementById('pvpResult').innerText = `Battle starting!`;
+
+    // Start battle as player 2
+    window.startPvpBattle(pendingPvpOffer.from, pendingPvpOffer.firstCreature, activeParty[0], false);
+    pendingPvpOffer = null;
+    window.closePvpModal();
+};
+
+window.rejectPvpOffer = function() {
+    if (!pendingPvpOffer) return;
+
+    if (dataChannels[pendingPvpOffer.from] && dataChannels[pendingPvpOffer.from].readyState === 'open') {
+        dataChannels[pendingPvpOffer.from].send(JSON.stringify({
+            type: 'pvp_reject'
+        }));
+    }
+
+    document.getElementById('pvpIncomingSection').style.display = 'none';
+    document.getElementById('pvpResult').innerText = "Battle offer rejected.";
+    pendingPvpOffer = null;
+};
+
 // ==================== MULTIPLAYER LOBBY ====================
 let multiplayerRoom = null;
 let socket = null;
 let peers = {};
 let dataChannels = {};
 let lastPing = {}; // userId -> timestamp
+let globalPlayerList = [];
 
 // Periodically broadcast ping to keep connections alive and check for dead peers
 setInterval(() => {
@@ -4031,6 +4179,10 @@ window.initializeMultiplayer = function(roomCode) {
         if (window.localPlayerLabel) {
             window.localPlayerLabel.setText("P" + index);
         }
+    });
+
+    socket.on('global-users', (users) => {
+        globalPlayerList = users;
     });
 
     socket.on('room-users', (users) => {
@@ -4170,6 +4322,22 @@ function setupDataChannel(dc, userId) {
                 }
             } else if (msg.type === 'trade_reject') {
                 document.getElementById('tradeResult').innerText = `Player ${userId.substring(0, 5)}... rejected your trade offer.`;
+            } else if (msg.type === 'pvp_offer') {
+                pendingPvpOffer = {
+                    from: userId,
+                    firstCreature: msg.firstCreature
+                };
+                document.getElementById('pvpIncomingSection').style.display = 'block';
+                document.getElementById('pvpOfferText').innerText = `Player ${userId.substring(0, 5)}... challenged you to a battle with Level ${msg.firstCreature.level} ${msg.firstCreature.name}!`;
+            } else if (msg.type === 'pvp_accept') {
+                document.getElementById('pvpResult').innerText = `Battle accepted! Starting...`;
+                const activeParty = collectedCreatures.filter(c => !c.stored && c.currentHp > 0);
+                window.startPvpBattle(userId, msg.firstCreature, activeParty[0], true);
+                window.closePvpModal();
+            } else if (msg.type === 'pvp_reject') {
+                document.getElementById('pvpResult').innerText = `Player ${userId.substring(0, 5)}... rejected your battle offer.`;
+            } else if (msg.type === 'pvp_action' || msg.type === 'pvp_swap' || msg.type === 'pvp_faint') {
+                if (window.handlePvpMessage) window.handlePvpMessage(userId, msg);
             } else if (window.handleMultiplayerMessage) {
                 window.handleMultiplayerMessage(userId, msg);
             }
@@ -5106,6 +5274,26 @@ function preload() {
     tradeCtx.fill();
     this.textures.addCanvas('trade_tile', tradeCanvas);
 
+    // Pre-generate PvP Tile texture
+    const pvpCanvas = document.createElement('canvas');
+    pvpCanvas.width = 100;
+    pvpCanvas.height = 100;
+    const pvpCtx = pvpCanvas.getContext('2d');
+    pvpCtx.fillStyle = '#800000'; // Dark Red
+    pvpCtx.fillRect(0, 0, 100, 100);
+
+    // Draw crossed swords
+    pvpCtx.strokeStyle = '#FFFFFF';
+    pvpCtx.lineWidth = 4;
+    pvpCtx.lineCap = 'round';
+    pvpCtx.beginPath();
+    pvpCtx.moveTo(20, 20);
+    pvpCtx.lineTo(80, 80);
+    pvpCtx.moveTo(80, 20);
+    pvpCtx.lineTo(20, 80);
+    pvpCtx.stroke();
+    this.textures.addCanvas('pvp_tile', pvpCanvas);
+
     // Generate Lilly Pad Texture
     const padCanvas = document.createElement('canvas');
     padCanvas.width = 40;
@@ -5190,6 +5378,7 @@ let obstaclesGroup;
 let hospitalGroup;
 let tradeGroup;
 let storeGroup;
+let pvpGroup;
 let activeTiles = {}; // Track active viewport tiles to cull
 
 function spawnTile(scene, r, c, tileSize, cols, rows) {
@@ -5279,6 +5468,17 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             let sSprite = storeGroup.create(posX, posY, 'store_tile');
             sSprite.setVisible(false);
             sprites.push(sSprite);
+        }
+    } else if (mapData[r][c] === 'pvp') {
+        let pvp = scene.add.sprite(posX, posY, 'pvp_tile');
+        pvp.setDepth(-1);
+        sprites.push(pvp);
+
+        // Add to pvp physics group
+        if (pvpGroup) {
+            let pSprite = pvpGroup.create(posX, posY, 'pvp_tile');
+            pSprite.setVisible(false);
+            sprites.push(pSprite);
         }
     } else {
         // Add drop shadow
@@ -5443,6 +5643,7 @@ function create() {
     hospitalGroup = this.physics.add.staticGroup();
     tradeGroup = this.physics.add.staticGroup();
     storeGroup = this.physics.add.staticGroup();
+    pvpGroup = this.physics.add.staticGroup();
 
     // Procedural generation
 
@@ -5505,6 +5706,7 @@ function create() {
     // Initialize extra rows for special tiles to prevent TypeError
     if (!mapData[100]) mapData[100] = [];
     if (!mapData[101]) mapData[101] = [];
+    if (!mapData[102]) mapData[102] = [];
 
     // Force hospital to be at 100, 100
     mapData[100][100] = 'hospital';
@@ -5512,6 +5714,8 @@ function create() {
     mapData[101][100] = 'trade';
     // Store tile next to trade
     mapData[101][101] = 'store';
+    // PvP tile directly right of trade
+    mapData[100][101] = 'pvp';
 
     // Calculate water depth distances using 2-pass Manhattan algorithm
     window.waterDist = [];
@@ -5886,6 +6090,7 @@ function create() {
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
     this.physics.add.overlap(player, tradeGroup, openTradeModal, null, this);
     this.physics.add.overlap(player, storeGroup, openStoreModal, null, this);
+    this.physics.add.overlap(player, pvpGroup, openPvpModal, null, this);
 
     window.addEventListener('resize', () => {
         if (!game || !game.scale) return;
@@ -6061,9 +6266,14 @@ function collectCreature(playerCollider, creatureSprite) {
     const tradeY = 101 * 100 + 50;
     const tradeOnScreen = (tradeX >= viewLeft && tradeX <= viewRight && tradeY >= viewTop && tradeY <= viewBottom);
 
-    if (hospitalOnScreen || tradeOnScreen) return;
+    // PvP Tile (100, 101) -> Center pixel coords: (101 * 100 + 50, 100 * 100 + 50)
+    const pvpX = 101 * 100 + 50;
+    const pvpY = 100 * 100 + 50;
+    const pvpOnScreen = (pvpX >= viewLeft && pvpX <= viewRight && pvpY >= viewTop && pvpY <= viewBottom);
 
-    const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'lobbyModal', 'levelUpModal', 'tradeModal'];
+    if (hospitalOnScreen || tradeOnScreen || pvpOnScreen) return;
+
+    const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'lobbyModal', 'levelUpModal', 'tradeModal', 'pvpModal'];
     const isAnyModalOpen = modals.some(id => {
         const el = document.getElementById(id);
         return el && window.getComputedStyle(el).display !== 'none';
@@ -6570,6 +6780,17 @@ window.doBattleSwap = function(newCreature) {
     window.currentPlayer = newCreature;
     window.updateBattleUI();
 
+    if (window.isPvpBattle) {
+        if (dataChannels[window.pvpOpponentId] && dataChannels[window.pvpOpponentId].readyState === 'open') {
+            dataChannels[window.pvpOpponentId].send(JSON.stringify({
+                type: 'pvp_swap',
+                creature: newCreature
+            }));
+        }
+        isActionRunning = false;
+        return;
+    }
+
     // Swapping takes the player's turn, so the enemy gets to attack
     setTimeout(() => {
         if (window.inBattle && window.currentEnemy.currentHp > 0) {
@@ -6578,6 +6799,82 @@ window.doBattleSwap = function(newCreature) {
             isActionRunning = false;
         }
     }, 1000);
+};
+
+window.handlePvpMessage = function(userId, msg) {
+    if (!window.isPvpBattle || userId !== window.pvpOpponentId) return;
+
+    if (msg.type === 'pvp_action') {
+        window.logBattle(`<span style="color:#f44336">Opponent used ${msg.action}!</span>`);
+
+        // Sync state from opponent
+        currentEnemy.currentHp = msg.hp;
+        currentPlayer.currentHp = msg.enemyHp;
+        currentEnemy.status = msg.status;
+        currentPlayer.status = msg.enemyStatus;
+
+        window.updateBattleUI();
+
+        if (currentPlayer.currentHp <= 0) {
+            window.logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span><span style="color:#9e9e9e"> fainted!</span>`);
+            if (window.handleFaint(currentPlayer)) {
+                // Battle over, loss
+                if (dataChannels[window.pvpOpponentId] && dataChannels[window.pvpOpponentId].readyState === 'open') {
+                    dataChannels[window.pvpOpponentId].send(JSON.stringify({ type: 'pvp_faint' }));
+                }
+            }
+        } else if (currentEnemy.currentHp <= 0) {
+            window.logBattle(`<span style="color:#9e9e9e">Opponent's </span><span style="color:#f44336">${currentEnemy.name}</span><span style="color:#9e9e9e"> fainted!</span>`);
+            // Opponent needs to handle their own faint and send us a swap
+        }
+    } else if (msg.type === 'pvp_swap') {
+        window.logBattle(`<span style="color:#f44336">Opponent swapped to ${msg.creature.nickname || msg.creature.name}!</span>`);
+        currentEnemy = msg.creature;
+        currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
+        currentEnemy.currentHp = currentEnemy.currentHp !== undefined ? currentEnemy.currentHp : currentEnemy.maxHp;
+        window.updateBattleUI();
+    } else if (msg.type === 'pvp_faint') {
+        window.endBattle('win');
+    }
+};
+
+window.startPvpBattle = function(opponentId, opponentCreature, myCreature, isInitiator) {
+    if (inBattle) return;
+
+    inBattle = true;
+    window.isPvpBattle = true;
+    window.pvpOpponentId = opponentId;
+    window.pvpIsInitiator = isInitiator;
+
+    if (player && player.body) {
+        player.body.setVelocity(0);
+        player.body.moves = false;
+    }
+
+    currentEnemy = JSON.parse(JSON.stringify(opponentCreature));
+    currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
+    currentEnemy.currentHp = currentEnemy.currentHp !== undefined ? currentEnemy.currentHp : currentEnemy.maxHp;
+    currentEnemy.isDefending = false;
+    currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    currentPlayer = JSON.parse(JSON.stringify(myCreature));
+    currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
+    currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
+    currentPlayer.isDefending = false;
+    currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    document.getElementById('battleModal').style.display = 'block';
+    document.getElementById('battleControls').style.display = 'grid';
+    document.getElementById('battleCloseBtn').style.display = 'none';
+    document.getElementById('battleLog').innerHTML = '';
+    battleLogQueue = [];
+    isTyping = false;
+
+    window.logBattle(`PvP Battle started against Player ${opponentId.substring(0, 5)}...!`);
+    window.logBattle(`Opponent sent out <span style="color:#f44336">${currentEnemy.name}</span>!`);
+    window.logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
+
+    window.updateBattleUI();
 };
 
 window.handlePlayerTurn = function(action) {
@@ -6609,6 +6906,29 @@ window.handlePlayerTurn = function(action) {
     let playerGoesFirst = pRoll >= eRoll;
     if (action === 'catch' || action === 'run') {
         playerGoesFirst = true; // Utility actions have priority
+    }
+
+    if (window.isPvpBattle) {
+        if (action === 'catch') {
+            window.logBattle(`<span style="color:#f44336">You cannot catch other players' creatures!</span>`);
+            isActionRunning = false;
+            return;
+        }
+
+        window.doPlayerAction(action, () => {
+            if (dataChannels[window.pvpOpponentId] && dataChannels[window.pvpOpponentId].readyState === 'open') {
+                dataChannels[window.pvpOpponentId].send(JSON.stringify({
+                    type: 'pvp_action',
+                    action: action,
+                    hp: currentPlayer.currentHp,
+                    enemyHp: currentEnemy.currentHp,
+                    status: currentPlayer.status,
+                    enemyStatus: currentEnemy.status
+                }));
+            }
+            isActionRunning = false;
+        });
+        return;
     }
 
     if (playerGoesFirst) {
@@ -6677,15 +6997,27 @@ window.endBattle = function(result) {
             activeCreature.status = currentPlayer.status;
         }
 
-        if (result === 'win') {
-            window.gameStats.battlesWon++;
-            window.saveStats();
-        } else if (result === 'loss') {
-            window.gameStats.battlesLost++;
-            window.saveStats();
+        if (window.isPvpBattle) {
+            if (result === 'win') {
+                window.gameStats.pvpBattlesWon++;
+                window.saveStats();
+            } else if (result === 'loss') {
+                window.gameStats.pvpBattlesLost++;
+                window.saveStats();
+            }
+            window.isPvpBattle = false;
+            window.pvpOpponentId = null;
+        } else {
+            if (result === 'win') {
+                window.gameStats.battlesWon++;
+                window.saveStats();
+            } else if (result === 'loss') {
+                window.gameStats.battlesLost++;
+                window.saveStats();
+            }
         }
 
-        if (result === 'win') {
+        if (result === 'win' && !window.isPvpBattle) {
             let xpGained = Math.floor(currentEnemy.level * 25);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
@@ -6821,6 +7153,9 @@ function update() {
     }
     if (typeof storeGroup !== 'undefined' && storeGroup && !this.physics.overlap(player, storeGroup)) {
         window.storeModalClosedFlag = false;
+    }
+    if (typeof pvpGroup !== 'undefined' && pvpGroup && !this.physics.overlap(player, pvpGroup)) {
+        window.pvpModalClosedFlag = false;
     }
 
     let activeParty = collectedCreatures.filter(c => !c.stored);
