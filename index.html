@@ -471,10 +471,7 @@
 
 </head>
 <body>
-<div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
-    <video id="startVideo" autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
-        <source src="video/c739f47cec127dbc4f59b6839c229d19.webm" type="video/webm">
-    </video>
+<div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
     <h1 style="position: relative; z-index: 10; font-size: 48px; text-shadow: 2px 2px 4px #000; margin-bottom: 40px; color: #fff;">WildPulse Odyssey</h1>
     <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Start Game</button>
     <button id="menuDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
@@ -757,6 +754,8 @@ function escapeHtml(unsafe) {
 }
 
 
+window.gameStarted = false;
+window.cameraFollowsPlayer = false;
 document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-start multiplayer and game logic
@@ -778,11 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('startGameBtn').addEventListener('click', () => {
         document.getElementById('startModal').style.display = 'none';
-        document.getElementById('startVideo').pause();
-        document.getElementById('loadingScreen').style.display = 'flex';
-        setTimeout(() => {
-            if (window.startGame) window.startGame();
-        }, 100);
+        window.gameStarted = true;
     });
 
     document.querySelector('.lobby-close-btn')?.addEventListener('click', window.closeLobbyModal);
@@ -840,6 +835,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sendPvpBtn')?.addEventListener('click', window.sendPvpOffer);
     document.getElementById('acceptPvpBtn')?.addEventListener('click', window.acceptPvpOffer);
     document.getElementById('rejectPvpBtn')?.addEventListener('click', window.rejectPvpOffer);
+
+    if (window.startGame) window.startGame();
 });
 
 document.addEventListener('click', function(e) {
@@ -5658,6 +5655,19 @@ function create() {
         }
     }
 
+    // Force a lake at (50, 50) for the start screen
+    for (let y = -5; y <= 5; y++) {
+        for (let x = -5; x <= 5; x++) {
+            if (x*x + y*y <= 25) {
+                let nx = 50 + x;
+                let ny = 50 + y;
+                if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+                    mapData[ny][nx] = 'obs';
+                }
+            }
+        }
+    }
+
     // Generate lakes (clusters of water) using overlapping circles
     const numLakes = Math.floor((cols * rows) * 0.01); // Adjust density for larger features
     for (let l = 0; l < numLakes; l++) {
@@ -7381,6 +7391,15 @@ function update() {
 
     // Dynamic Tile Viewport Culling
     const cam = this.cameras.main;
+
+    if (!window.gameStarted) {
+        cam.stopFollow();
+        cam.setScroll(5000 - cam.width / 2, 5000 - cam.height / 2);
+    } else if (!window.cameraFollowsPlayer) {
+        cam.startFollow(player);
+        window.cameraFollowsPlayer = true;
+    }
+
     const TILE_SIZE = 100;
 
     let showReflection = window.currentSeason !== 'Winter';
@@ -7554,35 +7573,41 @@ function update() {
     let targetVy = 0;
     let moveSpeed = speed;
 
-    if (cursors.left.isDown) {
-        targetVx = -moveSpeed;
-        movedX = true;
-    } else if (cursors.right.isDown) {
-        targetVx = moveSpeed;
-        movedX = true;
-    }
-
-    if (cursors.up.isDown) {
-        targetVy = -moveSpeed;
-        movedY = true;
-    } else if (cursors.down.isDown) {
-        targetVy = moveSpeed;
-        movedY = true;
-    }
-
-    // Pointer movement (if active and overriding keyboard or not moving via keyboard)
-    if (pointerTarget) {
-        const dx = pointerTarget.x - player.x;
-        const dy = pointerTarget.y - player.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance > 10) {
-            targetVx = (dx / distance) * moveSpeed;
-            targetVy = (dy / distance) * moveSpeed;
+    if (window.gameStarted) {
+        if (cursors.left.isDown) {
+            targetVx = -moveSpeed;
             movedX = true;
-            movedY = true;
-        } else {
-            pointerTarget = null;
+        } else if (cursors.right.isDown) {
+            targetVx = moveSpeed;
+            movedX = true;
         }
+
+        if (cursors.up.isDown) {
+            targetVy = -moveSpeed;
+            movedY = true;
+        } else if (cursors.down.isDown) {
+            targetVy = moveSpeed;
+            movedY = true;
+        }
+
+        // Pointer movement (if active and overriding keyboard or not moving via keyboard)
+        if (pointerTarget) {
+            const dx = pointerTarget.x - player.x;
+            const dy = pointerTarget.y - player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > 10) {
+                targetVx = (dx / distance) * moveSpeed;
+                targetVy = (dy / distance) * moveSpeed;
+                movedX = true;
+                movedY = true;
+            } else {
+                pointerTarget = null;
+            }
+        }
+    } else {
+        targetVx = 0;
+        targetVy = 0;
+        pointerTarget = null;
     }
 
     if (onIce) {
