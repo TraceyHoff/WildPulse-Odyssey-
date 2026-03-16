@@ -3409,7 +3409,7 @@ window.renderStorageList = function() {
 };
 
 window.saveName = function(btn, index) {
-    collectedCreatures[index].nickname = btn.previousElementSibling.value || collectedCreatures[index].name;
+    collectedCreatures[index].nickname = escapeHtml(btn.previousElementSibling.value || collectedCreatures[index].name);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
     window.renderPartyList();
 };
