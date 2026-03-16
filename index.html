@@ -4108,8 +4108,8 @@ const WORLD_SIZE = 20000;
 
 const config = {
     type: Phaser.AUTO,
-    width: 1280,
-    height: 720,
+    width: window.innerWidth,
+    height: window.innerHeight,
     render: {
         roundPixels: true
     },
@@ -4117,11 +4117,7 @@ const config = {
         default: 'arcade',
         arcade: { debug: false }
     },
-    scene: { preload: preload, create: create, update: update },
-    scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    }
+    scene: { preload: preload, create: create, update: update }
 };
 
 let game = null;
@@ -5553,7 +5549,7 @@ function create() {
     window.waterMaskGraphics = this.add.graphics();
     const mask = window.waterMaskGraphics.createGeometryMask();
 
-    window.starSprite = this.add.tileSprite(0, 0, 1280, 720, 'starfield_tex').setOrigin(0).setScrollFactor(0);
+    window.starSprite = this.add.tileSprite(0, 0, window.innerWidth, window.innerHeight, 'starfield_tex').setOrigin(0).setScrollFactor(0);
     window.starSprite.setMask(mask);
     window.starSprite.setBlendMode(Phaser.BlendModes.ADD);
     window.starSprite.setDepth(0.05);
@@ -5573,11 +5569,11 @@ function create() {
     moonSprite.setScrollFactor(0);
 
     // Day and Night Cycle
-    dayNightOverlay = this.add.rectangle(0, 0, 1280, 720, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
-    timeText = this.add.text(20, 720 - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(100);
+    dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
+    timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(100);
 
     // World Coordinates UI
-    window.coordText = this.add.text(1280 - 20, 720 - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
+    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
 
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
@@ -5663,7 +5659,7 @@ function create() {
     window.windSpeed = 200;
     window.windTimer = 0;
 
-    window.sharedEmitZone = { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, 1280 + 600, 720 + 600) };
+    window.sharedEmitZone = { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth + 600, window.innerHeight + 600) };
 
     let leafRedParticles = this.add.particles('leaf_particle_red');
     leafRedParticles.setDepth(3000);
@@ -5766,6 +5762,28 @@ function create() {
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
     this.physics.add.overlap(player, tradeGroup, openTradeModal, null, this);
     this.physics.add.overlap(player, storeGroup, openStoreModal, null, this);
+
+    window.addEventListener('resize', () => {
+        if (!game || !game.scale) return;
+        game.scale.resize(window.innerWidth, window.innerHeight);
+
+        if (window.starSprite) {
+            window.starSprite.setSize(window.innerWidth, window.innerHeight);
+        }
+        if (dayNightOverlay) {
+            dayNightOverlay.setSize(window.innerWidth, window.innerHeight);
+        }
+        if (timeText) {
+            timeText.setPosition(20, window.innerHeight - 40);
+        }
+        if (window.coordText) {
+            window.coordText.setPosition(window.innerWidth - 20, window.innerHeight - 40);
+        }
+        if (window.sharedEmitZone && window.sharedEmitZone.source) {
+            window.sharedEmitZone.source.width = window.innerWidth + 600;
+            window.sharedEmitZone.source.height = window.innerHeight + 600;
+        }
+    });
 
     document.getElementById('loadingScreen').style.display = 'none';
 }
@@ -6898,8 +6916,8 @@ function update() {
             let dayProgress = (dayNightTime - 6) / 14;
             let adjustedProgress = dayProgress < 0.4285 ? (dayProgress / 0.4285) * 0.5 : 0.5 + ((dayProgress - 0.4285) / 0.5715) * 0.5;
             // Cycle purely from left to right, removing the south-to-north vertical arc
-            let rX = (1280 / 2) + 1280 * 0.5 * ((adjustedProgress - 0.5) * 2);
-            let rY = 720 / 2 - 720 * 0.35;
+            let rX = (cam.width / 2) + cam.width * 0.5 * ((adjustedProgress - 0.5) * 2);
+            let rY = cam.height / 2 - cam.height * 0.35;
 
             sunSprite.setPosition(rX, rY);
             sunSprite.setScale(shimmer * 0.4); // Make it large enough
@@ -6909,8 +6927,8 @@ function update() {
             let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
             let adjustedNightProgress = nightProgress < 0.4 ? (nightProgress / 0.4) * 0.5 : 0.5 + ((nightProgress - 0.4) / 0.6) * 0.5;
             // Cycle purely from left to right, removing the south-to-north vertical arc
-            let rX = (1280 / 2) + 1280 * 0.5 * ((adjustedNightProgress - 0.5) * 2);
-            let rY = 720 / 2 - 720 * 0.35;
+            let rX = (cam.width / 2) + cam.width * 0.5 * ((adjustedNightProgress - 0.5) * 2);
+            let rY = cam.height / 2 - cam.height * 0.35;
 
             moonSprite.setPosition(rX, rY);
             moonSprite.setScale(shimmer * 0.3);
