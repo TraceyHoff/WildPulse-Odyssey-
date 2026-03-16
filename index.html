@@ -471,6 +471,15 @@
 
 </head>
 <body>
+<div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <video id="startVideo" autoplay loop muted playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5;">
+        <source src="video/c739f47cec127dbc4f59b6839c229d19.webm" type="video/webm">
+    </video>
+    <h1 style="position: relative; z-index: 10; font-size: 48px; text-shadow: 2px 2px 4px #000; margin-bottom: 40px; color: #fff;">WildPulse Odyssey</h1>
+    <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Start Game</button>
+    <button id="menuDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
+</div>
+
 <div id="loadingScreen">
     <div class="spinner"></div>
     <h2>Loading World...</h2>
@@ -561,7 +570,6 @@
     <button id="breedBtn">Breeding Center</button>
     <button id="menuJournalBtn">Creature Journal</button>
     <button id="menuHelpBtn">Help</button>
-    <button id="menuDeleteBtn">Delete Progress</button>
     <button id="fullscreenToggleBtn">Toggle Fullscreen</button>
 </div>
 <div id="partyModal">
@@ -749,10 +757,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.initializeMultiplayer(multiplayerRoom);
-    document.getElementById('loadingScreen').style.display = 'flex';
-    setTimeout(() => {
-        if (window.startGame) window.startGame();
-    }, 100);
+
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+        document.getElementById('startModal').style.display = 'none';
+        document.getElementById('startVideo').pause();
+        document.getElementById('loadingScreen').style.display = 'flex';
+        setTimeout(() => {
+            if (window.startGame) window.startGame();
+        }, 100);
+    });
 
     document.querySelector('.lobby-close-btn')?.addEventListener('click', window.closeLobbyModal);
     document.getElementById('joinFriendBtn')?.addEventListener('click', window.joinFriendWorld);
@@ -5006,8 +5019,8 @@ function preload() {
 
     cloudPuffs.forEach(puff => {
         let cloudGrad = cloudCtx.createRadialGradient(puff.x, puff.y, 0, puff.x, puff.y, puff.r);
-        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
-        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.25)');
+        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.8)');
+        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.5)');
         cloudGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         cloudCtx.fillStyle = cloudGrad;
         cloudCtx.beginPath();
@@ -5015,6 +5028,22 @@ function preload() {
         cloudCtx.fill();
     });
     this.textures.addCanvas('cloud_shadow', cloudCanvas);
+
+    // Pre-generate Cloud Reflection texture
+    const cloudReflCanvas = document.createElement('canvas');
+    cloudReflCanvas.width = 150;
+    cloudReflCanvas.height = 100;
+    const cloudReflCtx = cloudReflCanvas.getContext('2d');
+    cloudPuffs.forEach(puff => {
+        let reflGrad = cloudReflCtx.createRadialGradient(puff.x, puff.y, 0, puff.x, puff.y, puff.r);
+        reflGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        reflGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        cloudReflCtx.fillStyle = reflGrad;
+        cloudReflCtx.beginPath();
+        cloudReflCtx.arc(puff.x, puff.y, puff.r, 0, Math.PI * 2);
+        cloudReflCtx.fill();
+    });
+    this.textures.addCanvas('cloud_reflection', cloudReflCanvas);
 
     // Pre-generate Hospital Tile texture
     const hospitalCanvas = document.createElement('canvas');
@@ -5824,17 +5853,30 @@ function create() {
     });
 
     window.cloudGroup = this.physics.add.group();
+    window.cloudReflectionGroup = this.physics.add.group();
     // More clouds for the larger map
     for (let i = 0; i < 750; i++) {
         let cx = Math.random() * WORLD_SIZE;
         let cy = Math.random() * WORLD_SIZE;
         let cloud = window.cloudGroup.create(cx, cy, 'cloud_shadow');
         cloud.setDepth(2000);
-        cloud.setAlpha(0.1 + Math.random() * 0.4);
+        let cloudAlpha = 0.1 + Math.random() * 0.4;
+        cloud.setAlpha(cloudAlpha);
         cloud.baseScaleX = 1 + Math.random() * 2;
         cloud.baseScaleY = 1 + Math.random() * 2;
         cloud.seed = Math.random() * Math.PI * 2;
         cloud.setScale(cloud.baseScaleX, cloud.baseScaleY);
+
+        let cloudReflection = window.cloudReflectionGroup.create(cx, cy, 'cloud_reflection');
+        cloudReflection.setDepth(0.06);
+        cloudReflection.setAlpha(cloudAlpha);
+        cloudReflection.baseScaleX = cloud.baseScaleX;
+        cloudReflection.baseScaleY = cloud.baseScaleY;
+        cloudReflection.seed = cloud.seed;
+        cloudReflection.setScale(cloudReflection.baseScaleX, -cloudReflection.baseScaleY);
+        if (window.waterMaskGraphics) {
+            cloudReflection.setMask(window.waterMaskGraphics.createGeometryMask());
+        }
     }
 
     // Overlap physics
@@ -6951,14 +6993,25 @@ function update() {
 
                     let sunElevation = Math.sin(Math.PI * timeProgress);
                     shadowScaleY = 0.5 + (1 - sunElevation) * 0.8;
-                    shadowAlpha = 0.4 * sunElevation;
+
+                    // Fade logic 7 AM to 7 PM
+                    if (dayNightTime >= 7 && dayNightTime <= 19) {
+                        shadowAlpha = 0.4 * sunElevation;
+                    } else if (dayNightTime > 6 && dayNightTime < 7) {
+                        shadowAlpha = 0.4 * sunElevation * (dayNightTime - 6);
+                    } else if (dayNightTime > 19 && dayNightTime < 20) {
+                        shadowAlpha = 0.4 * sunElevation * (20 - dayNightTime);
+                    } else {
+                        shadowAlpha = 0;
+                    }
+
                 } else {
                     timeProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
                     shadowAngle = -Math.PI/2 + (Math.PI * timeProgress);
 
                     let moonElevation = Math.sin(Math.PI * timeProgress);
                     shadowScaleY = 0.5 + (1 - moonElevation) * 0.8;
-                    shadowAlpha = 0.15 * moonElevation;
+                    shadowAlpha = 0; // Tree shadows don't show at night
                 }
 
                 sprite.setScale(1, shadowScaleY);
@@ -7481,9 +7534,25 @@ function update() {
     }
 
     // Update Clouds
-    if (window.cloudGroup) {
+    if (window.cloudGroup && window.cloudReflectionGroup) {
         let clouds = window.cloudGroup.getChildren();
-        clouds.forEach(cloud => {
+        let cloudReflections = window.cloudReflectionGroup.getChildren();
+
+        let cloudGlobalAlphaMod = 1.0;
+        if (dayNightTime >= 7 && dayNightTime <= 19) {
+            cloudGlobalAlphaMod = 1.0;
+        } else if (dayNightTime > 6 && dayNightTime < 7) {
+            cloudGlobalAlphaMod = (dayNightTime - 6);
+        } else if (dayNightTime > 19 && dayNightTime < 20) {
+            cloudGlobalAlphaMod = (20 - dayNightTime);
+        } else {
+            cloudGlobalAlphaMod = 0;
+        }
+
+        for (let i = 0; i < clouds.length; i++) {
+            let cloud = clouds[i];
+            let cloudReflection = cloudReflections[i];
+
             cloud.body.setVelocity(windVx * 0.5, windVy * 0.5);
 
             // Dynamic shape and size oscillation
@@ -7492,12 +7561,27 @@ function update() {
             let scaleOscY = Math.cos(time + cloud.seed) * 0.3;
             cloud.setScale(cloud.baseScaleX + scaleOscX, cloud.baseScaleY + scaleOscY);
 
+            // Extract the original alpha and apply the day/night modifier
+            let originalAlpha = cloud.getData('originalAlpha');
+            if (originalAlpha === undefined) {
+                originalAlpha = cloud.alpha;
+                cloud.setData('originalAlpha', originalAlpha);
+            }
+            cloud.setAlpha(originalAlpha * cloudGlobalAlphaMod);
+
             // Wrap around viewport in WORLD space
             if (cloud.x < -1000) cloud.x = WORLD_SIZE + 1000;
             if (cloud.x > WORLD_SIZE + 1000) cloud.x = -1000;
             if (cloud.y < -1000) cloud.y = WORLD_SIZE + 1000;
             if (cloud.y > WORLD_SIZE + 1000) cloud.y = -1000;
-        });
+
+            if (cloudReflection) {
+                cloudReflection.x = cloud.x;
+                cloudReflection.y = cloud.y;
+                cloudReflection.setScale(cloud.baseScaleX + scaleOscX, -(cloud.baseScaleY + scaleOscY));
+                cloudReflection.setAlpha(originalAlpha * cloudGlobalAlphaMod);
+            }
+        }
     }
 
     // Performance Logging
