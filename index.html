@@ -197,6 +197,7 @@
         }
 
         #menuBtn {
+            display: none;
             position: absolute;
             top: 20px;
             right: 20px;
@@ -561,7 +562,6 @@
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <h2>Menu</h2>
-    <button id="menuMultiplayerBtn" style="background: linear-gradient(180deg, #42a5f5, #1565c0); border-color: #90caf9;">Multiplayer Lobby</button>
     <button id="menuPartyBtn">Party</button>
     <button id="menuStorageBtn">Storage Box</button>
     <button id="breedBtn">Breeding Center</button>
@@ -777,6 +777,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('startGameBtn').addEventListener('click', () => {
         document.getElementById('startModal').style.display = 'none';
+        document.getElementById('menuBtn').style.display = 'block';
+        if (timeText) timeText.setVisible(true);
+        if (window.coordText) window.coordText.setVisible(true);
         window.gameStarted = true;
     });
 
@@ -785,8 +788,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saveFriendBtn')?.addEventListener('click', window.saveFriendCode);
     document.getElementById('copyCodeBtn')?.addEventListener('click', window.copyWorldCode);
     document.getElementById('returnOwnWorldBtn')?.addEventListener('click', window.returnToOwnWorld);
-
-    document.getElementById('menuMultiplayerBtn')?.addEventListener('click', window.openLobbyModal);
 
 
     document.querySelector('.btn-attack')?.addEventListener('click', () => handlePlayerTurn('attack'));
@@ -5320,6 +5321,36 @@ function preload() {
 
     this.textures.addCanvas('lilly_pad_tex', padCanvas);
 
+    // Generate Lilly Pad with Flower Texture
+    const padFlowerCanvas = document.createElement('canvas');
+    padFlowerCanvas.width = 40;
+    padFlowerCanvas.height = 40;
+    const padFlowerCtx = padFlowerCanvas.getContext('2d');
+    padFlowerCtx.drawImage(padCanvas, 0, 0);
+
+    // Draw realistic looking pink flower
+    padFlowerCtx.fillStyle = '#ff69b4';
+    padFlowerCtx.beginPath();
+    for (let i = 0; i < 8; i++) {
+        let angle = i * Math.PI / 4;
+        padFlowerCtx.moveTo(20, 20);
+        padFlowerCtx.bezierCurveTo(20 + Math.cos(angle - 0.2) * 8, 20 + Math.sin(angle - 0.2) * 8,
+                                   20 + Math.cos(angle + 0.2) * 8, 20 + Math.sin(angle + 0.2) * 8,
+                                   20, 20);
+    }
+    padFlowerCtx.fill();
+
+    padFlowerCtx.fillStyle = '#ff1493';
+    padFlowerCtx.beginPath();
+    padFlowerCtx.arc(20, 20, 2, 0, Math.PI * 2);
+    padFlowerCtx.fill();
+    padFlowerCtx.fillStyle = '#ffd700'; // yellow center
+    padFlowerCtx.beginPath();
+    padFlowerCtx.arc(20, 20, 1.5, 0, Math.PI * 2);
+    padFlowerCtx.fill();
+
+    this.textures.addCanvas('lilly_pad_flower_tex', padFlowerCanvas);
+
     // Generate starfield texture
     const starCanvas = document.createElement('canvas');
     starCanvas.width = 400;
@@ -5586,9 +5617,11 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (window.currentSeason !== 'Winter' && depth <= 2 && Math.random() < 0.1) {
             let numPads = Math.floor(Math.random() * 3) + 1;
             for(let p=0; p<numPads; p++) {
-                let pad = scene.add.sprite(posX + (Math.random()*60-30), posY + (Math.random()*60-30), 'lilly_pad_tex');
+                let scale = 0.5 + Math.random() * 0.7;
+                let tex = (scale > 0.9 && Math.random() < 0.3) ? 'lilly_pad_flower_tex' : 'lilly_pad_tex';
+                let pad = scene.add.sprite(posX + (Math.random()*60-30), posY + (Math.random()*60-30), tex);
                 pad.setRotation(Math.random() * Math.PI * 2);
-                pad.setScale(0.5 + Math.random() * 0.7);
+                pad.setScale(scale);
                 pad.setDepth(0.1);
                 sprites.push(pad);
             }
@@ -5892,10 +5925,10 @@ function create() {
 
     // Day and Night Cycle
     dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
-    timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(100);
+    timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(100).setVisible(false);
 
     // World Coordinates UI
-    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
+    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(100).setVisible(false);
 
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
@@ -7193,43 +7226,45 @@ function update() {
 
     // 24 hours = 20 real minutes = 1200 seconds = 1,200,000 ms
     // 1 in-game hour = 50,000 ms
-    dayNightTime += (dt / 50000);
-    if (dayNightTime >= 24.0) {
-        dayNightTime -= 24.0;
-        wildpulse_inGameDays += 1;
-        localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
+    if (window.gameStarted) {
+        dayNightTime += (dt / 50000);
+        if (dayNightTime >= 24.0) {
+            dayNightTime -= 24.0;
+            wildpulse_inGameDays += 1;
+            localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
 
-        let months = Math.floor((wildpulse_inGameDays % 120) / 20);
-        let newSeason = 'Summer';
-        if (months === 2 || months === 3) newSeason = 'Fall';
-        else if (months === 4 || months === 5) newSeason = 'Winter';
+            let months = Math.floor((wildpulse_inGameDays % 120) / 20);
+            let newSeason = 'Summer';
+            if (months === 2 || months === 3) newSeason = 'Fall';
+            else if (months === 4 || months === 5) newSeason = 'Winter';
 
-        if (newSeason !== window.currentSeason) {
-            window.currentSeason = newSeason;
-            localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
-            window.waterMaskDirty = true;
-            if (window.updateGrassColors) window.updateGrassColors();
+            if (newSeason !== window.currentSeason) {
+                window.currentSeason = newSeason;
+                localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
+                window.waterMaskDirty = true;
+                if (window.updateGrassColors) window.updateGrassColors();
 
-            // Update all existing trees
-            if (window.treesGroup) {
-                window.treesGroup.getChildren().forEach(tree => {
-                    if (tree.baseTreeType) {
-                        tree.setTexture(tree.baseTreeType + '_' + window.currentSeason);
-                    }
-                });
+                // Update all existing trees
+                if (window.treesGroup) {
+                    window.treesGroup.getChildren().forEach(tree => {
+                        if (tree.baseTreeType) {
+                            tree.setTexture(tree.baseTreeType + '_' + window.currentSeason);
+                        }
+                    });
+                }
+
+                // Update tree reflections
+                for (let chunkKey in activeTiles) {
+                    activeTiles[chunkKey].forEach(sprite => {
+                        if (sprite.isTreeReflection && sprite.baseTreeType) {
+                            sprite.setTexture(sprite.baseTreeType + '_' + window.currentSeason);
+                            sprite.setVisible(window.currentSeason !== 'Winter');
+                        }
+                    });
+                }
+
+                window.showModernNotification(`The season has changed to ${window.currentSeason}!`, 4000);
             }
-
-            // Update tree reflections
-            for (let chunkKey in activeTiles) {
-                activeTiles[chunkKey].forEach(sprite => {
-                    if (sprite.isTreeReflection && sprite.baseTreeType) {
-                        sprite.setTexture(sprite.baseTreeType + '_' + window.currentSeason);
-                        sprite.setVisible(window.currentSeason !== 'Winter');
-                    }
-                });
-            }
-
-            window.showModernNotification(`The season has changed to ${window.currentSeason}!`, 4000);
         }
     }
 
@@ -7714,14 +7749,14 @@ function update() {
                     }
                 }
             }
+        }
 
-            const tx = creature.getData('targetX');
-            const ty = creature.getData('targetY');
+        const tx = creature.getData('targetX');
+        const ty = creature.getData('targetY');
 
-            if (tx !== undefined && ty !== undefined) {
-                creature.x += (tx - creature.x) * 0.08;
-                creature.y += (ty - creature.y) * 0.08;
-            }
+        if (tx !== undefined && ty !== undefined) {
+            creature.x += (tx - creature.x) * 0.015;
+            creature.y += (ty - creature.y) * 0.015;
         }
     });
 
