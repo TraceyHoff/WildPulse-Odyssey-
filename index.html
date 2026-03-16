@@ -6112,7 +6112,6 @@ function processStatuses(creature) {
 
 
 window.handleFaint = function(target) {
-    isActionRunning = false;
     if (target === currentEnemy) {
         endBattle('win');
         return true;
@@ -6135,6 +6134,7 @@ window.handleFaint = function(target) {
             currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
             logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
             updateBattleUI();
+            window.swappedThisTurn = true;
             return false; // Battle continues
         } else {
             endBattle('loss');
@@ -6410,6 +6410,7 @@ window.doEnemyAction = function(callback) {
 };
 
 window.openBattleSwapModal = function() {
+    if (window.isActionRunning) return;
     let swapList = document.getElementById('swapPartyList');
     swapList.innerHTML = '';
 
@@ -6474,6 +6475,7 @@ window.doBattleSwap = function(newCreature) {
 window.handlePlayerTurn = function(action) {
     if (!inBattle || isActionRunning) return;
     isActionRunning = true;
+    window.swappedThisTurn = false;
 
     let pSpe = window.getEffectiveStat(currentPlayer, 'speed');
     let eSpe = window.getEffectiveStat(currentEnemy, 'speed');
@@ -6511,7 +6513,7 @@ window.handlePlayerTurn = function(action) {
         });
     } else {
         window.doEnemyAction(() => {
-            if (inBattle && currentPlayer.currentHp > 0) {
+            if (inBattle && currentPlayer.currentHp > 0 && !window.swappedThisTurn) {
                 window.doPlayerAction(action, () => { isActionRunning = false; });
             } else {
                 isActionRunning = false;
@@ -7325,8 +7327,8 @@ function update() {
     // Update Wind
     window.windTimer += 1;
     if (window.windTimer > 600) { // Change wind target approx every 10 seconds
-        window.targetWindAngle = Math.random() * Math.PI * 2;
-        window.targetWindSpeed = 300 + Math.random() * 900; // Base speed 300 to 1200
+        window.targetWindAngle = window.windAngle + (Math.random() - 0.5) * Math.PI / 2;
+        window.targetWindSpeed = 50 + Math.random() * 200; // Base speed 50 to 250
         window.windTimer = 0;
     }
     if (window.targetWindSpeed === undefined) {
@@ -7337,10 +7339,10 @@ function update() {
     let dAngle = window.targetWindAngle - window.windAngle;
     if (dAngle > Math.PI) dAngle -= Math.PI * 2;
     if (dAngle < -Math.PI) dAngle += Math.PI * 2;
-    window.windAngle += dAngle * 0.005; // Slightly faster transition
+    window.windAngle += dAngle * 0.001; // Slower transition
 
     // Smoothly shift current wind speed toward target
-    window.windSpeed += (window.targetWindSpeed - window.windSpeed) * 0.005;
+    window.windSpeed += (window.targetWindSpeed - window.windSpeed) * 0.001;
 
     let windVx = Math.cos(window.windAngle) * window.windSpeed;
     let windVy = Math.sin(window.windAngle) * window.windSpeed;
