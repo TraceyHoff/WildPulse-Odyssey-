@@ -4144,11 +4144,12 @@ setInterval(() => {
 
     // Send ping
     const pingMsg = JSON.stringify({ type: 'ping' });
-    Object.values(dataChannels).forEach(dc => {
+    for (const id in dataChannels) {
+        const dc = dataChannels[id];
         if (dc.readyState === 'open') {
             dc.send(pingMsg);
         }
-    });
+    }
 }, 3000);
 
 window.initializeMultiplayer = function(roomCode) {
@@ -7592,11 +7593,12 @@ function update() {
             }
             // Use shortened keys and integer values for payload compression
             const msg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: Math.round(vx), vy: Math.round(vy) });
-            Object.values(dataChannels).forEach(dc => {
+            for (const id in dataChannels) {
+                const dc = dataChannels[id];
                 if (dc.readyState === 'open') {
                     dc.send(msg);
                 }
-            });
+            }
             this.lastX = player.x;
             this.lastY = player.y;
             this.lastBroadcastTime = this.time.now;
