@@ -8038,9 +8038,20 @@ function update() {
     if (!window.logFrameCounter) window.logFrameCounter = 0;
     window.logFrameCounter++;
     if (window.logFrameCounter % 60 === 0) {
-        let visibleCreatures = creaturesGroup.getChildren().filter(c => c.visible).length;
-        let visiblePlayers = Object.values(remotePlayers).filter(p => p.visible).length;
-        console.log(`[Viewport Performance] Active Tiles: ${Object.keys(activeTiles).length} | Visible Entities: ${visibleCreatures + visiblePlayers + 1}`);
+        let visibleCreatures = 0;
+        const creatures = creaturesGroup.getChildren();
+        for (let i = 0, len = creatures.length; i < len; i++) {
+            if (creatures[i].visible) visibleCreatures++;
+        }
+        let visiblePlayers = 0;
+        for (const id in remotePlayers) {
+            if (remotePlayers[id].visible) visiblePlayers++;
+        }
+        let activeTilesCount = 0;
+        for (const key in activeTiles) {
+            activeTilesCount++;
+        }
+        console.log(`[Viewport Performance] Active Tiles: ${activeTilesCount} | Visible Entities: ${visibleCreatures + visiblePlayers + 1}`);
     }
 }
 
