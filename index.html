@@ -62,7 +62,7 @@
         }
 
         /* Modals */
-        #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #lobbyModal, #levelUpModal, #tradeModal, #journalModal {
+        #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #lobbyModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal {
             width: 100vw !important;
             height: 100vh !important;
             max-width: none !important;
@@ -2694,30 +2694,34 @@ window.moods = [
     { name: "Calm", increase: "specialDefense", decrease: "attack" },
     { name: "Careful", increase: "specialDefense", decrease: "specialAttack" }
 ];
-window.getRandomMood = function() {
+window.getRandomMood = function(isStarter = false) {
     if (!window.moods || window.moods.length === 0) return undefined;
     let baseMood = window.moods[Math.floor(Math.random() * window.moods.length)];
     if (!baseMood) return undefined;
-    let tierRand = Math.random();
     let tier = 1;
-    if (tierRand > 0.9) tier = 3;      // 10% chance for Tier 3
-    else if (tierRand > 0.6) tier = 2; // 30% chance for Tier 2
-                                       // 60% chance for Tier 1
+    if (!isStarter) {
+        let tierRand = Math.random();
+        if (tierRand > 0.9) tier = 3;      // 10% chance for Tier 3
+        else if (tierRand > 0.6) tier = 2; // 30% chance for Tier 2
+                                           // 60% chance for Tier 1
+    }
     return { ...baseMood, tier: tier };
 };
 
-window.getRandomNature = function() {
+window.getRandomNature = function(isStarter = false) {
     if (!window.natures || window.natures.length === 0) return undefined;
     // Only return natures that actually have a buff OR debuff (removes Neutral / null entries)
     const validNatures = window.natures.filter(n => n.increase || n.decrease);
     if (validNatures.length === 0) return undefined;
     let baseNature = validNatures[Math.floor(Math.random() * validNatures.length)];
     if (!baseNature) return undefined;
-    let tierRand = Math.random();
     let tier = 1;
-    if (tierRand > 0.9) tier = 3;      // 10% chance for Tier 3
-    else if (tierRand > 0.6) tier = 2; // 30% chance for Tier 2
-                                       // 60% chance for Tier 1
+    if (!isStarter) {
+        let tierRand = Math.random();
+        if (tierRand > 0.9) tier = 3;      // 10% chance for Tier 3
+        else if (tierRand > 0.6) tier = 2; // 30% chance for Tier 2
+                                           // 60% chance for Tier 1
+    }
     return { ...baseNature, tier: tier };
 };
 window.getRawScaledStat = function(creature, statName) {
@@ -2995,8 +2999,8 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
     }
 
     starter.baseId = starter.id;
-    starter.nature = window.getRandomNature();
-    starter.mood = window.getRandomMood();
+    starter.nature = window.getRandomNature(true);
+    starter.mood = window.getRandomMood(true);
     starter.level = 1;
     starter.xp = 0;
     starter.id = Date.now().toString() + "_starter";
@@ -6577,7 +6581,6 @@ window.doPlayerAction = function(action, callback) {
         }
 
         if (abilityTriggered) {
-            logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
             if (currentPlayer.ability.type === 'damage' || currentPlayer.ability.type === 'direct_damage') {
                 damageMultiplier = 1.0 + currentPlayer.ability.value;
             } else if (currentPlayer.ability.type === 'raise_stat') {
@@ -6715,7 +6718,6 @@ window.doEnemyAction = function(callback) {
     }
 
     if (abilityTriggered) {
-        logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
         if (currentEnemy.ability.type === 'damage' || currentEnemy.ability.type === 'direct_damage') {
             damageMultiplier = 1.0 + currentEnemy.ability.value;
         } else if (currentEnemy.ability.type === 'raise_stat') {
@@ -6943,18 +6945,23 @@ window.handlePlayerTurn = function(action) {
 
     if (playerAbilityTriggered) {
         pSpeedMulti = currentPlayer.ability.value;
-        window.logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
     }
     if (enemyAbilityTriggered) {
         eSpeedMulti = currentEnemy.ability.value;
-        window.logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
     }
 
-    // Initiative roll (1-20 modifier)
-    let pRoll = (pSpe * pSpeedMulti) + (Math.random() * 20);
-    let eRoll = (eSpe * eSpeedMulti) + (Math.random() * 20);
+    // Initiative roll
+    let pSpeed = pSpe * pSpeedMulti;
+    let eSpeed = eSpe * eSpeedMulti;
 
-    let playerGoesFirst = pRoll >= eRoll;
+    let playerGoesFirst;
+    if (pSpeed > eSpeed) {
+        playerGoesFirst = true;
+    } else if (eSpeed > pSpeed) {
+        playerGoesFirst = false;
+    } else {
+        playerGoesFirst = Math.random() >= 0.5;
+    }
     if (action === 'catch' || action === 'run') {
         playerGoesFirst = true; // Utility actions have priority
     }
@@ -7199,13 +7206,39 @@ function update() {
 
     const speed = 200;
 
-    if (!this.physics.overlap(player, tradeGroup)) {
+    let tradeOverlap = false;
+    if (tradeGroup) {
+        tradeGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
+                tradeOverlap = true;
+            }
+        });
+    }
+    if (!tradeOverlap) {
         window.tradeModalClosedFlag = false;
     }
-    if (typeof storeGroup !== 'undefined' && storeGroup && !this.physics.overlap(player, storeGroup)) {
+
+    let storeOverlap = false;
+    if (typeof storeGroup !== 'undefined' && storeGroup) {
+        storeGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
+                storeOverlap = true;
+            }
+        });
+    }
+    if (!storeOverlap) {
         window.storeModalClosedFlag = false;
     }
-    if (typeof pvpGroup !== 'undefined' && pvpGroup && !this.physics.overlap(player, pvpGroup)) {
+
+    let pvpOverlap = false;
+    if (typeof pvpGroup !== 'undefined' && pvpGroup) {
+        pvpGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
+                pvpOverlap = true;
+            }
+        });
+    }
+    if (!pvpOverlap) {
         window.pvpModalClosedFlag = false;
     }
 
