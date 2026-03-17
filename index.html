@@ -5567,10 +5567,8 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         obs.setCrop(gridX, gridY, 100, 100);
         obs.setDisplayOrigin(gridX + 50, gridY + 50);
         if (obs.body) {
-            obs.body.setSize(90, 90);
-            obs.body.setOffset(5, 5);
-            obs.body.x = posX - 45;
-            obs.body.y = posY - 45;
+            obs.body.setSize(100, 100);
+            obs.body.setOffset(gridX, gridY);
         }
         // obs.anims.play('water_anim', true);
         obs.setDepth(0);
