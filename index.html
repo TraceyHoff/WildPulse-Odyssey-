@@ -7456,10 +7456,11 @@ function update() {
             window.localPlayerLabel.setDepth(10 + player.y / 10000);
         }
     }
-    Object.values(remotePlayers).forEach(rp => {
+    for (const id in remotePlayers) {
+        const rp = remotePlayers[id];
         if (rp.setDepth) rp.setDepth(10 + rp.y / 10000);
         if (rp.label && rp.label.setDepth) rp.label.setDepth(10 + rp.y / 10000);
-    });
+    }
     if (creaturesGroup) {
         creaturesGroup.getChildren().forEach(c => {
             if (c.setDepth) c.setDepth(10 + c.y / 10000);
@@ -7605,7 +7606,8 @@ function update() {
     }
 
     // Interpolate remote players
-    Object.values(remotePlayers).forEach(rp => {
+    for (const id in remotePlayers) {
+        const rp = remotePlayers[id];
         const tx = rp.getData('targetX');
         const ty = rp.getData('targetY');
         const lastUpdate = rp.getData('lastUpdate') || now;
@@ -7637,7 +7639,7 @@ function update() {
             rp.label.x = rp.x;
             rp.label.y = rp.y - 30;
         }
-    });
+    }
 
     // Periodically save player position (every ~1000ms)
     if (shouldSave) {
@@ -7735,11 +7737,12 @@ function update() {
     const viewBottom = cam.scrollY + cam.height + viewPadding;
 
     // Remote Players Culling
-    Object.values(remotePlayers).forEach(rp => {
+    for (const id in remotePlayers) {
+        const rp = remotePlayers[id];
         const isVisible = (rp.x >= viewLeft && rp.x <= viewRight && rp.y >= viewTop && rp.y <= viewBottom);
         rp.setVisible(isVisible);
         if (rp.label) rp.label.setVisible(isVisible);
-    });
+    }
 
     // Creature wandering logic & culling
     creaturesGroup.getChildren().forEach(creature => {
