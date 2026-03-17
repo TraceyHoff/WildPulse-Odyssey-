@@ -6202,9 +6202,9 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
     if (creaturesGroup && creaturesGroup.getChildren().length >= 50) return;
     let x = forceX;
     let y = forceY;
+    let found = false;
+    let attempts = 0;
     if (x === undefined || y === undefined) {
-        let found = false;
-        let attempts = 0;
         while (!found && attempts < 100) {
             let tryX = Phaser.Math.Between(100, WORLD_SIZE - 100);
             let tryY = Phaser.Math.Between(100, WORLD_SIZE - 100);
