@@ -7552,7 +7552,7 @@ function update() {
     }
 
     // Destroy tiles no longer in view
-    for (const key of Object.keys(activeTiles)) {
+    for (const key in activeTiles) {
         if (!neededTiles.has(key)) {
             destroyTile(key);
             window.waterMaskDirty = true;
