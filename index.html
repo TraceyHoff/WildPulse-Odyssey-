@@ -7485,10 +7485,9 @@ function update() {
         if (window.waterMaskDirty) {
             window.waterMaskGraphics.clear();
             window.waterMaskGraphics.fillStyle(0xffffff, 1);
-            for (const key of Object.keys(activeTiles)) {
-                let [rStr, cStr] = key.split(',');
-                let r = parseInt(rStr);
-                let c = parseInt(cStr);
+            for (const key in activeTiles) {
+                let r = activeTiles[key].tileR;
+                let c = activeTiles[key].tileC;
                 if (mapData[r] && mapData[r][c] === 'obs') {
                     window.waterMaskGraphics.fillRect(c * 100, r * 100, 100, 100);
                 }
@@ -7545,6 +7544,8 @@ function update() {
                 neededTiles.add(key);
                 if (!activeTiles[key]) {
                     activeTiles[key] = spawnTile(this, r, c, TILE_SIZE, mapData[0].length, mapData.length);
+                    activeTiles[key].tileR = r;
+                    activeTiles[key].tileC = c;
                     window.waterMaskDirty = true;
                 }
             }
