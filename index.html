@@ -4747,7 +4747,7 @@ function preload() {
         obsCtx.globalCompositeOperation = 'overlay';
 
         // More complex and realistic caustics
-        for (let layer = 0; layer < 4; layer++) {
+        for (let layer = 0; layer < 2; layer++) {
             obsCtx.strokeStyle = `rgba(255, 255, 255, ${0.25 - layer * 0.05})`; // White caustics look more realistic
             obsCtx.lineWidth = 2.0 - layer * 0.3;
 
@@ -4757,16 +4757,19 @@ function preload() {
             let s1 = (Math.PI * 2 * k1) / 400;
             let s2 = (Math.PI * 2 * k2) / 400;
 
-            for (let y = -40; y < 440; y += 20) {
+            let t_speed = t * speed;
+            let t_speed_15 = t * speed * 1.5;
+
+            for (let y = -40; y < 440; y += 40) {
                 obsCtx.beginPath();
-                for (let x = 0; x <= 400; x += 10) {
+                for (let x = 0; x <= 400; x += 20) {
                     // Create Voronoi-like web patterns using overlapping sine/cosine waves
                     let waveY = y +
-                                Math.sin((x * s1) + (t * speed)) * 12 +
-                                Math.cos(((x + y) * s2) - (t * speed * 1.5)) * 8;
+                                Math.sin((x * s1) + t_speed) * 12 +
+                                Math.cos(((x + y) * s2) - t_speed_15) * 8;
 
                     let waveX = x +
-                                Math.sin((y * s1) - (t * speed)) * 5;
+                                Math.sin((y * s1) - t_speed) * 5;
 
                     if (x === 0) obsCtx.moveTo(waveX, waveY);
                     else obsCtx.lineTo(waveX, waveY);
@@ -4775,15 +4778,15 @@ function preload() {
             }
 
             // Add perpendicular lines for the caustic web effect
-            for (let x = -40; x < 440; x += 20) {
+            for (let x = -40; x < 440; x += 40) {
                 obsCtx.beginPath();
-                for (let y = 0; y <= 400; y += 10) {
+                for (let y = 0; y <= 400; y += 20) {
                     let waveX = x +
-                                Math.sin((y * s1) + (t * speed)) * 12 +
-                                Math.cos(((x + y) * s2) - (t * speed * 1.5)) * 8;
+                                Math.sin((y * s1) + t_speed) * 12 +
+                                Math.cos(((x + y) * s2) - t_speed_15) * 8;
 
                     let waveY = y +
-                                Math.sin((x * s1) - (t * speed)) * 5;
+                                Math.sin((x * s1) - t_speed) * 5;
 
                     if (y === 0) obsCtx.moveTo(waveX, waveY);
                     else obsCtx.lineTo(waveX, waveY);
@@ -4828,12 +4831,17 @@ function preload() {
 
         foamCtx.clearRect(0, 0, 100, 100);
 
+        let t2 = t * 2;
+        let t1_5 = t * 1.5;
+        let t2_5 = t * 2.5;
+        let t3 = t * 3;
+
         // Soft wash layer (furthest out)
         foamCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
         foamCtx.beginPath();
         foamCtx.moveTo(0, 0);
-        for(let fy = 0; fy <= 100; fy += 5) {
-            let fx = 12 + Math.sin(fy * 0.08 + t * 2) * 4 + Math.cos(fy * 0.15 - t) * 3;
+        for(let fy = 0; fy <= 100; fy += 10) {
+            let fx = 12 + Math.sin(fy * 0.08 + t2) * 4 + Math.cos(fy * 0.15 - t) * 3;
             foamCtx.lineTo(fx, fy);
         }
         foamCtx.lineTo(0, 100);
@@ -4843,8 +4851,8 @@ function preload() {
         foamCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
         foamCtx.beginPath();
         foamCtx.moveTo(0, 0);
-        for(let fy = 0; fy <= 100; fy += 5) {
-            let fx = 8 + Math.sin(fy * 0.1 + t * 2.5) * 3 + Math.cos(fy * 0.2 - t * 1.5) * 2;
+        for(let fy = 0; fy <= 100; fy += 10) {
+            let fx = 8 + Math.sin(fy * 0.1 + t2_5) * 3 + Math.cos(fy * 0.2 - t1_5) * 2;
             foamCtx.lineTo(fx, fy);
         }
         foamCtx.lineTo(0, 100);
@@ -4857,8 +4865,8 @@ function preload() {
         foamCtx.shadowOffsetX = 1;
         foamCtx.beginPath();
         foamCtx.moveTo(0, 0);
-        for(let fy = 0; fy <= 100; fy += 5) {
-            let fx = 4 + Math.sin(fy * 0.12 + t * 3) * 2 + Math.cos(fy * 0.25 - t * 2) * 1.5;
+        for(let fy = 0; fy <= 100; fy += 10) {
+            let fx = 4 + Math.sin(fy * 0.12 + t3) * 2 + Math.cos(fy * 0.25 - t2) * 1.5;
             foamCtx.lineTo(fx, fy);
         }
         foamCtx.lineTo(0, 100);
