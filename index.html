@@ -4975,10 +4975,22 @@ function generateTreeTextures(scene) {
         if (isTall) {
             // Weeping willow extra leaves hanging down
             circles.push(
-                {x: 30, y: 110 + hOffset, r: 20},
-                {x: 70, y: 110 + hOffset, r: 20},
-                {x: 40, y: 130 + hOffset, r: 15},
-                {x: 60, y: 130 + hOffset, r: 15}
+                // Deeper outer drooping branches
+                {x: 20, y: 105 + hOffset, r: 22},
+                {x: 80, y: 105 + hOffset, r: 22},
+                {x: 25, y: 130 + hOffset, r: 18},
+                {x: 75, y: 130 + hOffset, r: 18},
+
+                // Mid drooping branches
+                {x: 35, y: 115 + hOffset, r: 20},
+                {x: 65, y: 115 + hOffset, r: 20},
+                {x: 40, y: 140 + hOffset, r: 15},
+                {x: 60, y: 140 + hOffset, r: 15},
+
+                // Center drooping branches overlapping trunk
+                {x: 50, y: 110 + hOffset, r: 25},
+                {x: 50, y: 135 + hOffset, r: 18},
+                {x: 50, y: 150 + hOffset, r: 12}
             );
         }
 
@@ -7957,20 +7969,29 @@ function update() {
         else if (rCloud < 0.66) window.cloudCoverage = 'partly_cloudy';
         else window.cloudCoverage = 'cloudy';
 
-        // Weather only happens if cloudy and Summer/Fall
-        if (window.cloudCoverage === 'cloudy' && (window.currentSeason === 'Summer' || window.currentSeason === 'Fall')) {
+        // Weather only happens if cloudy
+        if (window.cloudCoverage === 'cloudy') {
             let rWeather = Math.random();
-            if (rWeather < 0.4) window.weatherPattern = 'none';
-            else if (rWeather < 0.6) window.weatherPattern = 'light_rain';
-            else if (rWeather < 0.8) window.weatherPattern = 'heavy_rain';
-            else window.weatherPattern = 'thunderstorm';
+            if (window.currentSeason === 'Summer' || window.currentSeason === 'Fall') {
+                if (rWeather < 0.4) window.weatherPattern = 'none';
+                else if (rWeather < 0.6) window.weatherPattern = 'light_rain';
+                else if (rWeather < 0.8) window.weatherPattern = 'heavy_rain';
+                else window.weatherPattern = 'thunderstorm';
+            } else if (window.currentSeason === 'Winter') {
+                if (rWeather < 0.4) window.weatherPattern = 'none';
+                else if (rWeather < 0.6) window.weatherPattern = 'light_snow';
+                else if (rWeather < 0.8) window.weatherPattern = 'heavy_snow';
+                else window.weatherPattern = 'thundersnow';
+            } else {
+                window.weatherPattern = 'none';
+            }
         } else {
             window.weatherPattern = 'none';
         }
     }
 
     if (window.lightningOverlay) {
-        if (window.weatherPattern === 'thunderstorm' && Math.random() < 0.01) {
+        if ((window.weatherPattern === 'thunderstorm' || window.weatherPattern === 'thundersnow') && Math.random() < 0.01) {
             window.lightningOverlay.setAlpha(0.8);
         } else if (window.lightningOverlay.alpha > 0) {
             window.lightningOverlay.setAlpha(Math.max(0, window.lightningOverlay.alpha - 0.05));
@@ -8063,12 +8084,9 @@ function update() {
             window.leafGreen1Emitter.setQuantity(0);
             window.leafGreen2Emitter.setQuantity(0);
             window.pollenEmitter.setQuantity(0);
-
-            let snowCount = 2 + Math.floor(timeOscillation * 4);
-            window.snowflakeEmitter.setQuantity(snowCount);
         }
 
-        // Apply Rain and Override Particles
+        // Apply Rain, Snow and Override Particles
         if (window.rainEmitter) {
             if (window.weatherPattern === 'light_rain') {
                 window.rainEmitter.setQuantity(3);
@@ -8083,7 +8101,7 @@ function update() {
                 window.rainEmitter.setQuantity(0);
             }
 
-            if (window.weatherPattern !== 'none') {
+            if (window.weatherPattern !== 'none' && !window.weatherPattern.includes('snow')) {
                 // Remove pollen and leaf particles when raining
                 window.pollenEmitter.setQuantity(0);
                 window.leafRedEmitter.setQuantity(0);
@@ -8091,6 +8109,19 @@ function update() {
                 window.leafMixedEmitter.setQuantity(0);
                 window.leafGreen1Emitter.setQuantity(0);
                 window.leafGreen2Emitter.setQuantity(0);
+            }
+        }
+
+        if (window.snowflakeEmitter && window.currentSeason === 'Winter') {
+            let snowCount = 2 + Math.floor(timeOscillation * 4); // base snow
+            if (window.weatherPattern === 'light_snow') {
+                window.snowflakeEmitter.setQuantity(snowCount + 3);
+            } else if (window.weatherPattern === 'heavy_snow') {
+                window.snowflakeEmitter.setQuantity(snowCount + 8);
+            } else if (window.weatherPattern === 'thundersnow') {
+                window.snowflakeEmitter.setQuantity(snowCount + 15);
+            } else {
+                window.snowflakeEmitter.setQuantity(snowCount);
             }
         }
     }
