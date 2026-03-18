@@ -4519,7 +4519,7 @@ function updateBattleUI() {
 
 
 
-function preload() {
+function generateCelestialReflections(scene) {
     // Sun Reflection
     const sunCanvas = document.createElement('canvas');
     sunCanvas.width = 400;
@@ -4533,7 +4533,7 @@ function preload() {
     sunCtx.beginPath();
     sunCtx.arc(200, 200, 200, 0, Math.PI * 2);
     sunCtx.fill();
-    this.textures.addCanvas('sun_reflection', sunCanvas);
+    scene.textures.addCanvas('sun_reflection', sunCanvas);
 
     // Moon Reflection
     const moonCanvas = document.createElement('canvas');
@@ -4548,8 +4548,10 @@ function preload() {
     moonCtx.beginPath();
     moonCtx.arc(200, 200, 200, 0, Math.PI * 2);
     moonCtx.fill();
-    this.textures.addCanvas('moon_reflection', moonCanvas);
+    scene.textures.addCanvas('moon_reflection', moonCanvas);
+}
 
+function setupDynamicGrass(scene) {
     // Set up global grass blades arrays to use in dynamic updates
     window.grassBlades = [];
 
@@ -4612,7 +4614,7 @@ function preload() {
     dynCanvas.width = 100;
     dynCanvas.height = 100;
     dynCanvas.getContext('2d', { willReadFrequently: true });
-    this.textures.addCanvas('grass_dynamic', dynCanvas);
+    scene.textures.addCanvas('grass_dynamic', dynCanvas);
 
     // Create base dithered background once to avoid redrawing it fully each frame
     const bgCanvas = document.createElement('canvas');
@@ -4630,7 +4632,7 @@ function preload() {
         cvs.width = 50;
         cvs.height = 50;
         cvs.getContext('2d', { willReadFrequently: true });
-        this.textures.addCanvas('grass_corner_convex_' + dir + '_dynamic', cvs);
+        scene.textures.addCanvas('grass_corner_convex_' + dir + '_dynamic', cvs);
     });
 
     window.updateDynamicGrass = function(scene, timeNow, windVx, windVy) {
@@ -4724,9 +4726,9 @@ function preload() {
             }
         });
     };
+}
 
-
-
+function generateWaterTextures(scene) {
     // Generate animated realistic water textures with depth transitions
     const numWaterFrames = 16;
 
@@ -4828,7 +4830,7 @@ function preload() {
             obsCtx.fill();
         }
 
-        this.textures.addCanvas('obs_base_tex_' + frame, obsCanvas);
+        scene.textures.addCanvas('obs_base_tex_' + frame, obsCanvas);
 
         // Generate foam edge overlay texture (transparent background, white bubbling foam on one side)
         const foamCanvas = document.createElement('canvas');
@@ -4897,10 +4899,11 @@ function preload() {
             foamCtx.fill();
         }
 
-        this.textures.addCanvas('foam_tex_' + frame, foamCanvas);
+        scene.textures.addCanvas('foam_tex_' + frame, foamCanvas);
     }
+}
 
-
+function generateTreeTextures(scene) {
     // Pre-generate dynamic tree textures
     const generateTree = (baseKey, trunkColor, defaultLeafColors, isTall = false) => {
         const seasons = ['Summer', 'Fall', 'Winter'];
@@ -5005,7 +5008,7 @@ function preload() {
         treeCtx.arc(45, 45 + hOffset, 40, 0, Math.PI * 2);
         treeCtx.fill();
 
-        this.textures.addCanvas(key, treeCanvas);
+        scene.textures.addCanvas(key, treeCanvas);
         });
     };
     generateTree('tree_pine', '#5c4033', ['#2e8b57', '#006400']);
@@ -5014,19 +5017,9 @@ function preload() {
     generateTree('tree_maple', '#6e4b39', ['#ff4500', '#8b0000']);
     generateTree('tree_cherry', '#5e3a2b', ['#ffb7c5', '#ff69b4']);
     generateTree('tree_willow', '#4e5a38', ['#8fbc8f', '#556b2f'], true);
+}
 
-    // Pre-generate a water overlay texture to mimic the linear-gradient button style
-    const overlayCanvas = document.createElement('canvas');
-    overlayCanvas.width = 100;
-    overlayCanvas.height = 100;
-    const overlayCtx = overlayCanvas.getContext('2d');
-    let overlayGrad = overlayCtx.createLinearGradient(0, 0, 0, 100);
-    overlayGrad.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
-    overlayGrad.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
-    overlayCtx.fillStyle = overlayGrad;
-    overlayCtx.fillRect(0, 0, 100, 100);
-    this.textures.addCanvas('water_overlay', overlayCanvas);
-
+function generateParticleTextures(scene) {
     // Pre-generate wind particle textures
     const leafRedCanvas = document.createElement('canvas');
     leafRedCanvas.width = 16;
@@ -5052,7 +5045,7 @@ function preload() {
     leafRedCtx.lineTo(10, 6);
     leafRedCtx.stroke();
 
-    this.textures.addCanvas('leaf_particle_red', leafRedCanvas);
+    scene.textures.addCanvas('leaf_particle_red', leafRedCanvas);
 
     const leafYellowCanvas = document.createElement('canvas');
     leafYellowCanvas.width = 16;
@@ -5078,7 +5071,7 @@ function preload() {
     leafYellowCtx.lineTo(10, 6);
     leafYellowCtx.stroke();
 
-    this.textures.addCanvas('leaf_particle_yellow', leafYellowCanvas);
+    scene.textures.addCanvas('leaf_particle_yellow', leafYellowCanvas);
 
 
     const leafMixedCanvas = document.createElement('canvas');
@@ -5105,7 +5098,7 @@ function preload() {
     leafMixedCtx.lineTo(10, 6);
     leafMixedCtx.stroke();
 
-    this.textures.addCanvas('leaf_particle_mixed', leafMixedCanvas);
+    scene.textures.addCanvas('leaf_particle_mixed', leafMixedCanvas);
 
     const leafGreen1Canvas = document.createElement('canvas');
     leafGreen1Canvas.width = 16;
@@ -5126,7 +5119,7 @@ function preload() {
     leafGreen1Ctx.moveTo(2, 14);
     leafGreen1Ctx.lineTo(10, 6);
     leafGreen1Ctx.stroke();
-    this.textures.addCanvas('leaf_particle_green1', leafGreen1Canvas);
+    scene.textures.addCanvas('leaf_particle_green1', leafGreen1Canvas);
 
     const leafGreen2Canvas = document.createElement('canvas');
     leafGreen2Canvas.width = 16;
@@ -5147,7 +5140,7 @@ function preload() {
     leafGreen2Ctx.moveTo(2, 14);
     leafGreen2Ctx.lineTo(10, 6);
     leafGreen2Ctx.stroke();
-    this.textures.addCanvas('leaf_particle_green2', leafGreen2Canvas);
+    scene.textures.addCanvas('leaf_particle_green2', leafGreen2Canvas);
 
     const snowflakeCanvas = document.createElement('canvas');
     snowflakeCanvas.width = 16;
@@ -5170,7 +5163,7 @@ function preload() {
         snowflakeCtx.stroke();
         snowflakeCtx.restore();
     }
-    this.textures.addCanvas('snowflake_particle', snowflakeCanvas);
+    scene.textures.addCanvas('snowflake_particle', snowflakeCanvas);
 
     const pollenCanvas = document.createElement('canvas');
     pollenCanvas.width = 8;
@@ -5181,8 +5174,10 @@ function preload() {
     pollenGrad.addColorStop(1, 'rgba(255, 255, 150, 0)');
     pollenCtx.fillStyle = pollenGrad;
     pollenCtx.fillRect(0, 0, 8, 8);
-    this.textures.addCanvas('pollen_particle', pollenCanvas);
+    scene.textures.addCanvas('pollen_particle', pollenCanvas);
+}
 
+function generateCloudTextures(scene) {
     const cloudCanvas = document.createElement('canvas');
     cloudCanvas.width = 400;
     cloudCanvas.height = 200;
@@ -5208,7 +5203,7 @@ function preload() {
         cloudCtx.arc(puff.x, puff.y, puff.r, 0, Math.PI * 2);
         cloudCtx.fill();
     });
-    this.textures.addCanvas('cloud_shadow', cloudCanvas);
+    scene.textures.addCanvas('cloud_shadow', cloudCanvas);
 
     // Pre-generate Cloud Reflection texture
     const cloudReflCanvas = document.createElement('canvas');
@@ -5224,8 +5219,10 @@ function preload() {
         cloudReflCtx.arc(puff.x, puff.y, puff.r, 0, Math.PI * 2);
         cloudReflCtx.fill();
     });
-    this.textures.addCanvas('cloud_reflection', cloudReflCanvas);
+    scene.textures.addCanvas('cloud_reflection', cloudReflCanvas);
+}
 
+function generateTileTextures(scene) {
     // Pre-generate Hospital Tile texture
     const hospitalCanvas = document.createElement('canvas');
     hospitalCanvas.width = 100;
@@ -5236,7 +5233,7 @@ function preload() {
     hospitalCtx.fillStyle = '#FF0000';
     hospitalCtx.fillRect(40, 20, 20, 60); // Vertical part of cross
     hospitalCtx.fillRect(20, 40, 60, 20); // Horizontal part of cross
-    this.textures.addCanvas('hospital_tile', hospitalCanvas);
+    scene.textures.addCanvas('hospital_tile', hospitalCanvas);
 
 
 
@@ -5252,7 +5249,7 @@ function preload() {
     storeCtx.textAlign = 'center';
     storeCtx.textBaseline = 'middle';
     storeCtx.fillText('$', 50, 50);
-    this.textures.addCanvas('store_tile', storeCanvas);
+    scene.textures.addCanvas('store_tile', storeCanvas);
 
     // Pre-generate Trade Tile texture
     const tradeCanvas = document.createElement('canvas');
@@ -5285,7 +5282,7 @@ function preload() {
     tradeCtx.lineTo(40, 55);
     tradeCtx.lineTo(70, 55);
     tradeCtx.fill();
-    this.textures.addCanvas('trade_tile', tradeCanvas);
+    scene.textures.addCanvas('trade_tile', tradeCanvas);
 
     // Pre-generate PvP Tile texture
     const pvpCanvas = document.createElement('canvas');
@@ -5305,8 +5302,10 @@ function preload() {
     pvpCtx.moveTo(80, 20);
     pvpCtx.lineTo(20, 80);
     pvpCtx.stroke();
-    this.textures.addCanvas('pvp_tile', pvpCanvas);
+    scene.textures.addCanvas('pvp_tile', pvpCanvas);
+}
 
+function generateMiscTextures(scene) {
     // Generate Lilly Pad Texture
     const padCanvas = document.createElement('canvas');
     padCanvas.width = 40;
@@ -5334,7 +5333,7 @@ function preload() {
         padCtx.stroke();
     }
 
-    this.textures.addCanvas('lilly_pad_tex', padCanvas);
+    scene.textures.addCanvas('lilly_pad_tex', padCanvas);
 
     // Generate Lilly Pad with Flower Texture
     const padFlowerCanvas = document.createElement('canvas');
@@ -5364,7 +5363,19 @@ function preload() {
     padFlowerCtx.arc(20, 20, 1.5, 0, Math.PI * 2);
     padFlowerCtx.fill();
 
-    this.textures.addCanvas('lilly_pad_flower_tex', padFlowerCanvas);
+    scene.textures.addCanvas('lilly_pad_flower_tex', padFlowerCanvas);
+
+    // Pre-generate a water overlay texture to mimic the linear-gradient button style
+    const overlayCanvas = document.createElement('canvas');
+    overlayCanvas.width = 100;
+    overlayCanvas.height = 100;
+    const overlayCtx = overlayCanvas.getContext('2d');
+    let overlayGrad = overlayCtx.createLinearGradient(0, 0, 0, 100);
+    overlayGrad.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+    overlayGrad.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+    overlayCtx.fillStyle = overlayGrad;
+    overlayCtx.fillRect(0, 0, 100, 100);
+    scene.textures.addCanvas('water_overlay', overlayCanvas);
 
     // Generate starfield texture
     const starCanvas = document.createElement('canvas');
@@ -5392,7 +5403,7 @@ function preload() {
         starCtx.fillRect(sx, sy, size, size);
     }
     starCtx.globalAlpha = 1.0;
-    this.textures.addCanvas('starfield_tex', starCanvas);
+    scene.textures.addCanvas('starfield_tex', starCanvas);
 
     // Generate simple fish texture
     const fishCanvas = document.createElement('canvas');
@@ -5411,9 +5422,18 @@ function preload() {
     fishCtx.lineTo(2, 6);
     fishCtx.lineTo(2, 14);
     fishCtx.fill();
-    this.textures.addCanvas('fish_tex', fishCanvas);
+    scene.textures.addCanvas('fish_tex', fishCanvas);
+}
 
-
+function preload() {
+    generateCelestialReflections(this);
+    setupDynamicGrass(this);
+    generateWaterTextures(this);
+    generateTreeTextures(this);
+    generateParticleTextures(this);
+    generateCloudTextures(this);
+    generateTileTextures(this);
+    generateMiscTextures(this);
 }
 
 let mapData = []; // To store 100x100 grid data
