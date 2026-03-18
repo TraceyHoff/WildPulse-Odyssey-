@@ -5165,6 +5165,18 @@ function generateParticleTextures(scene) {
     }
     scene.textures.addCanvas('snowflake_particle', snowflakeCanvas);
 
+    const rainCanvas = document.createElement('canvas');
+    rainCanvas.width = 4;
+    rainCanvas.height = 40;
+    const rainCtx = rainCanvas.getContext('2d');
+    let rainGrad = rainCtx.createLinearGradient(0, 0, 0, 40);
+    rainGrad.addColorStop(0, 'rgba(150, 200, 255, 0)');
+    rainGrad.addColorStop(0.5, 'rgba(150, 200, 255, 0.4)');
+    rainGrad.addColorStop(1, 'rgba(150, 200, 255, 0)');
+    rainCtx.fillStyle = rainGrad;
+    rainCtx.fillRect(0, 0, 4, 40);
+    scene.textures.addCanvas('rain_particle', rainCanvas);
+
     const pollenCanvas = document.createElement('canvas');
     pollenCanvas.width = 8;
     pollenCanvas.height = 8;
@@ -6047,6 +6059,10 @@ function create() {
     window.windSpeed = 200;
     window.windTimer = 0;
 
+    window.weatherTimer = 0;
+    window.cloudCoverage = 'partly_cloudy'; // clear, partly_cloudy, cloudy
+    window.weatherPattern = 'none'; // none, light_rain, heavy_rain, thunderstorm
+
     window.sharedEmitZone = { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth + 600, window.innerHeight + 600) };
 
     let leafRedParticles = this.add.particles('leaf_particle_red');
@@ -6133,6 +6149,23 @@ function create() {
         rotate: { start: 0, end: 360 },
         emitZone: window.sharedEmitZone
     });
+
+    let rainParticles = this.add.particles('rain_particle');
+    rainParticles.setDepth(3000);
+    window.rainEmitter = rainParticles.createEmitter({
+        speedY: { min: 400, max: 600 },
+        speedX: { min: 0, max: 0 },
+        lifespan: 2000,
+        quantity: 0,
+        frequency: 10,
+        scale: { start: 1, end: 1 },
+        emitZone: window.sharedEmitZone
+    });
+
+    window.lightningOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0xFFFFFF);
+    window.lightningOverlay.setDepth(9999);
+    window.lightningOverlay.setScrollFactor(0);
+    window.lightningOverlay.setAlpha(0);
 
     window.cloudGroup = this.physics.add.group();
     window.cloudReflectionGroup = this.physics.add.group();
@@ -7913,6 +7946,37 @@ function update() {
     }
 
 
+    // Update Weather states
+    window.weatherTimer += 1;
+    if (window.weatherTimer > 1200) { // Approx 20 seconds at 60fps
+        window.weatherTimer = 0;
+
+        // Randomize clouds
+        let rCloud = Math.random();
+        if (rCloud < 0.33) window.cloudCoverage = 'clear';
+        else if (rCloud < 0.66) window.cloudCoverage = 'partly_cloudy';
+        else window.cloudCoverage = 'cloudy';
+
+        // Weather only happens if cloudy and Summer/Fall
+        if (window.cloudCoverage === 'cloudy' && (window.currentSeason === 'Summer' || window.currentSeason === 'Fall')) {
+            let rWeather = Math.random();
+            if (rWeather < 0.4) window.weatherPattern = 'none';
+            else if (rWeather < 0.6) window.weatherPattern = 'light_rain';
+            else if (rWeather < 0.8) window.weatherPattern = 'heavy_rain';
+            else window.weatherPattern = 'thunderstorm';
+        } else {
+            window.weatherPattern = 'none';
+        }
+    }
+
+    if (window.lightningOverlay) {
+        if (window.weatherPattern === 'thunderstorm' && Math.random() < 0.01) {
+            window.lightningOverlay.setAlpha(0.8);
+        } else if (window.lightningOverlay.alpha > 0) {
+            window.lightningOverlay.setAlpha(Math.max(0, window.lightningOverlay.alpha - 0.05));
+        }
+    }
+
     // Update Wind
     window.windTimer += 1;
     if (window.windTimer > 600) { // Change wind target approx every 10 seconds
@@ -8003,6 +8067,32 @@ function update() {
             let snowCount = 2 + Math.floor(timeOscillation * 4);
             window.snowflakeEmitter.setQuantity(snowCount);
         }
+
+        // Apply Rain and Override Particles
+        if (window.rainEmitter) {
+            if (window.weatherPattern === 'light_rain') {
+                window.rainEmitter.setQuantity(3);
+                window.rainEmitter.setSpeedX(windVx * 1.5);
+            } else if (window.weatherPattern === 'heavy_rain') {
+                window.rainEmitter.setQuantity(8);
+                window.rainEmitter.setSpeedX(windVx * 1.5);
+            } else if (window.weatherPattern === 'thunderstorm') {
+                window.rainEmitter.setQuantity(15);
+                window.rainEmitter.setSpeedX(windVx * 1.5);
+            } else {
+                window.rainEmitter.setQuantity(0);
+            }
+
+            if (window.weatherPattern !== 'none') {
+                // Remove pollen and leaf particles when raining
+                window.pollenEmitter.setQuantity(0);
+                window.leafRedEmitter.setQuantity(0);
+                window.leafYellowEmitter.setQuantity(0);
+                window.leafMixedEmitter.setQuantity(0);
+                window.leafGreen1Emitter.setQuantity(0);
+                window.leafGreen2Emitter.setQuantity(0);
+            }
+        }
     }
 
     // Update Clouds
@@ -8039,7 +8129,22 @@ function update() {
                 originalAlpha = cloud.alpha;
                 cloud.setData('originalAlpha', originalAlpha);
             }
-            cloud.setAlpha(originalAlpha * cloudGlobalAlphaMod);
+
+            // Weather cloud coverage adjustment
+            let coverageMod = 1.0;
+            if (window.cloudCoverage === 'clear') {
+                coverageMod = 0.0;
+            } else if (window.cloudCoverage === 'partly_cloudy') {
+                coverageMod = (cloud.seed < Math.PI) ? 1.0 : 0.0; // About half the clouds
+            } else if (window.cloudCoverage === 'cloudy') {
+                coverageMod = 1.0;
+            }
+
+            let targetAlpha = originalAlpha * cloudGlobalAlphaMod * coverageMod;
+            let currentAlpha = cloud.alpha;
+            let newAlpha = currentAlpha + (targetAlpha - currentAlpha) * 0.01; // Smooth transition
+
+            cloud.setAlpha(newAlpha);
 
             // Wrap around viewport in WORLD space
             if (cloud.x < -1000) cloud.x = WORLD_SIZE + 1000;
@@ -8051,7 +8156,7 @@ function update() {
                 cloudReflection.x = cloud.x;
                 cloudReflection.y = cloud.y;
                 cloudReflection.setScale(cloud.baseScaleX + scaleOscX, -(cloud.baseScaleY + scaleOscY));
-                cloudReflection.setAlpha(originalAlpha * cloudGlobalAlphaMod);
+                cloudReflection.setAlpha(newAlpha);
             }
         }
     }
