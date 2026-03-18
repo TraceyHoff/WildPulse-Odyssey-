@@ -7421,7 +7421,7 @@ function update() {
                 sprite.setRotation(treeRotation);
                 // Depth is now set once upon creation, not per-frame
             } else if (sprite.isTreeReflection) {
-                sprite.setRotation(-treeRotation); // Reverse rotation for reflection
+                sprite.setRotation(treeRotation); // Reverse rotation for reflection
             } else if (sprite.isTreeShadow) {
                 // Determine shadow properties from time of day
                 let shadowScaleY = 1.0;
@@ -7461,8 +7461,9 @@ function update() {
                 }
 
                 sprite.setScale(1, shadowScaleY);
-                sprite.setRotation(shadowAngle);
+                sprite.setRotation(shadowAngle + treeRotation);
                 sprite.setAlpha(shadowAlpha);
+                sprite.setVisible(shadowAlpha > 0);
                 sprite.setTintFill(0x000000);
             }
         });
