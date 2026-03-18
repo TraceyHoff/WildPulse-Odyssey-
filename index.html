@@ -5615,6 +5615,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (obs.body) {
             obs.body.setSize(100, 100);
             obs.body.setOffset(gridX, gridY);
+            obs.refreshBody();
         }
         // obs.anims.play('water_anim', true);
         obs.setDepth(0);
@@ -8152,7 +8153,7 @@ function update() {
             let time = this.time.now / 5000;
             let scaleOscX = Math.sin(time + cloud.seed) * 0.3;
             let scaleOscY = Math.cos(time + cloud.seed) * 0.3;
-            cloud.setScale(cloud.baseScaleX + scaleOscX, cloud.baseScaleY + scaleOscY);
+            // Scale is now updated further below with scaleMod
 
             // Extract the original alpha and apply the day/night modifier
             let originalAlpha = cloud.getData('originalAlpha');
@@ -8163,12 +8164,14 @@ function update() {
 
             // Weather cloud coverage adjustment
             let coverageMod = 1.0;
+            let scaleMod = 1.0;
             if (window.cloudCoverage === 'clear') {
                 coverageMod = 0.0;
             } else if (window.cloudCoverage === 'partly_cloudy') {
                 coverageMod = (cloud.seed < Math.PI) ? 1.0 : 0.0; // About half the clouds
             } else if (window.cloudCoverage === 'cloudy') {
                 coverageMod = 1.0;
+                scaleMod = 10.0;
             }
 
             let targetAlpha = originalAlpha * cloudGlobalAlphaMod * coverageMod;
@@ -8176,6 +8179,7 @@ function update() {
             let newAlpha = currentAlpha + (targetAlpha - currentAlpha) * 0.01; // Smooth transition
 
             cloud.setAlpha(newAlpha);
+            cloud.setScale((cloud.baseScaleX + scaleOscX) * scaleMod, (cloud.baseScaleY + scaleOscY) * scaleMod);
 
             // Wrap around viewport in WORLD space
             if (cloud.x < -1000) cloud.x = WORLD_SIZE + 1000;
@@ -8186,7 +8190,7 @@ function update() {
             if (cloudReflection) {
                 cloudReflection.x = cloud.x;
                 cloudReflection.y = cloud.y;
-                cloudReflection.setScale(cloud.baseScaleX + scaleOscX, -(cloud.baseScaleY + scaleOscY));
+                cloudReflection.setScale((cloud.baseScaleX + scaleOscX) * scaleMod, -((cloud.baseScaleY + scaleOscY) * scaleMod));
                 cloudReflection.setAlpha(newAlpha);
             }
         }
