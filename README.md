@@ -88,3 +88,8 @@ WildPulse Odyssey Creature Collecting Game
 ### New Features (v12)
 - **Rendering & Visual Fixes**: Migrated grass tiles to use dynamic viewport culling instead of a single static background `TileSprite`, successfully stopping them from shaking/jittering when the player moves.
 - **UI Enhancements**: Changed the text color of positive stat modifiers (Effects) on creature cards from standard green to a more visible lime to improve contrast and readability against the dark backgrounds.
+
+### New Features (v13)
+- **Environment & Immersion**:
+    - **Realistic Willow Trees**: Redesigned weeping willow tree generation to include more layered and specific explicit coordinates for dropping branches and leaves, creating a more realistic and natural drooping canopy effect.
+    - **Dynamic Winter Weather**: The dynamic weather system is now enabled during the Winter season, introducing unique `light snow`, `heavy snow`, and `thundersnow` weather patterns tied realistically to cloud coverage and lightning logic.
