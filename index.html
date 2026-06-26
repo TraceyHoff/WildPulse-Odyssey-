@@ -5620,7 +5620,10 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         obs.setCrop(gridX, gridY, 100, 100);
         obs.setDisplayOrigin(gridX + 50, gridY + 50);
         if (obs.body) {
-            obs.refreshBody();
+            obs.body.setSize(100, 100);
+            obs.body.setOffset(gridX, gridY);
+            obs.originalBodySize = { width: 100, height: 100 };
+            obs.originalBodyOffset = { x: gridX, y: gridY };
         }
         // obs.anims.play('water_anim', true);
         obs.setDepth(0);
@@ -5695,21 +5698,49 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             let corner = scene.add.sprite(posX - 50 + 25, posY - 50 + 25, 'grass_corner_convex_tl_dynamic');
             corner.setDepth(0.2);
             sprites.push(corner);
+            if (obs.body) {
+                // If top-left corner is grass, push collision box down and right
+                obs.body.setSize(75, 75);
+                obs.body.setOffset(gridX + 25, gridY + 25);
+                obs.originalBodySize = { width: 75, height: 75 };
+                obs.originalBodyOffset = { x: gridX + 25, y: gridY + 25 };
+            }
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass' && r > 0 && mapData[r-1][c] === 'grass') {
             let corner = scene.add.sprite(posX + 50 - 25, posY - 50 + 25, 'grass_corner_convex_tr_dynamic');
             corner.setDepth(0.2);
             sprites.push(corner);
+            if (obs.body) {
+                // If top-right corner is grass, push collision box down and left
+                obs.body.setSize(75, 75);
+                obs.body.setOffset(gridX, gridY + 25);
+                obs.originalBodySize = { width: 75, height: 75 };
+                obs.originalBodyOffset = { x: gridX, y: gridY + 25 };
+            }
         }
         if (c < cols-1 && mapData[r][c+1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
             let corner = scene.add.sprite(posX + 50 - 25, posY + 50 - 25, 'grass_corner_convex_br_dynamic');
             corner.setDepth(0.2);
             sprites.push(corner);
+            if (obs.body) {
+                // If bottom-right corner is grass, push collision box up and left
+                obs.body.setSize(75, 75);
+                obs.body.setOffset(gridX, gridY);
+                obs.originalBodySize = { width: 75, height: 75 };
+                obs.originalBodyOffset = { x: gridX, y: gridY };
+            }
         }
         if (c > 0 && mapData[r][c-1] === 'grass' && r < rows-1 && mapData[r+1][c] === 'grass') {
             let corner = scene.add.sprite(posX - 50 + 25, posY + 50 - 25, 'grass_corner_convex_bl_dynamic');
             corner.setDepth(0.2);
             sprites.push(corner);
+            if (obs.body) {
+                // If bottom-left corner is grass, push collision box up and right
+                obs.body.setSize(75, 75);
+                obs.body.setOffset(gridX + 25, gridY);
+                obs.originalBodySize = { width: 75, height: 75 };
+                obs.originalBodyOffset = { x: gridX + 25, y: gridY };
+            }
         }
     }
     return sprites;
@@ -7469,7 +7500,14 @@ function update() {
                     if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
                         sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
                         sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
-                        if (sprite.body) sprite.refreshBody();
+                        if (sprite.body) {
+                            const bWidth = sprite.originalBodySize ? sprite.originalBodySize.width : 100;
+                            const bHeight = sprite.originalBodySize ? sprite.originalBodySize.height : 100;
+                            const bX = sprite.originalBodyOffset ? sprite.originalBodyOffset.x : sprite.gridX;
+                            const bY = sprite.originalBodyOffset ? sprite.originalBodyOffset.y : sprite.gridY;
+                            sprite.body.setSize(bWidth, bHeight);
+                            sprite.body.setOffset(bX, bY);
+                        }
                     }
                     sprite.lastRenderedFrame = frame16fps;
                 }
