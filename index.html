@@ -566,6 +566,7 @@
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <h2>Menu</h2>
+    <button id="menuMultiplayerBtn">Multiplayer</button>
     <button id="menuPartyBtn">Party</button>
     <button id="menuStorageBtn">Storage Box</button>
     <button id="breedBtn">Breeding Center</button>
@@ -802,6 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menuBtn')?.addEventListener('click', openMenuModal);
     document.getElementById('closeSwapBtn')?.addEventListener('click', closeBattleSwapModal);
 
+    document.getElementById('menuMultiplayerBtn')?.addEventListener('click', window.openLobbyModal);
     document.getElementById('menuPartyBtn')?.addEventListener('click', openPartyModal);
     document.getElementById('menuStorageBtn')?.addEventListener('click', openStorageModal);
     document.getElementById('breedBtn')?.addEventListener('click', openBreedingModal);
@@ -3044,7 +3046,8 @@ window.openLobbyModal = function() {
     document.getElementById('lobbyModal').style.display = 'block';
 
     // Set the world code text
-    document.getElementById('worldCodeDisplay').innerText = multiplayerRoom || "N/A";
+    const ownCode = localStorage.getItem('wildpulse_own_world_code');
+    document.getElementById('worldCodeDisplay').innerText = ownCode || "N/A";
 
     window.updateLobbyUI();
 };
@@ -3157,8 +3160,9 @@ window.joinFriendCodeDirect = function(code) {
 };
 
 window.copyWorldCode = function() {
-    if (!multiplayerRoom) return;
-    navigator.clipboard.writeText(multiplayerRoom).then(() => {
+    const ownCode = localStorage.getItem('wildpulse_own_world_code');
+    if (!ownCode) return;
+    navigator.clipboard.writeText(ownCode).then(() => {
         window.showModernNotification("World Code copied to clipboard!");
     }).catch(err => {
         console.error('Failed to copy text: ', err);
