@@ -5454,6 +5454,27 @@ function generateMiscTextures(scene) {
     fishCtx.lineTo(2, 14);
     fishCtx.fill();
     scene.textures.addCanvas('fish_tex', fishCanvas);
+
+    // Generate player texture
+    const playerCanvas = document.createElement('canvas');
+    playerCanvas.width = 40;
+    playerCanvas.height = 40;
+    const playerCtx = playerCanvas.getContext('2d');
+    playerCtx.fillStyle = '#FFFFFF';
+    playerCtx.fillRect(0, 0, 40, 40);
+    scene.textures.addCanvas('player_tex', playerCanvas);
+
+    // Generate ripple texture
+    const rippleCanvas = document.createElement('canvas');
+    rippleCanvas.width = 32;
+    rippleCanvas.height = 32;
+    const rippleCtx = rippleCanvas.getContext('2d');
+    rippleCtx.strokeStyle = '#FFFFFF';
+    rippleCtx.lineWidth = 2;
+    rippleCtx.beginPath();
+    rippleCtx.arc(16, 16, 14, 0, Math.PI * 2);
+    rippleCtx.stroke();
+    scene.textures.addCanvas('ripple_tex', rippleCanvas);
 }
 
 function preload() {
@@ -5582,12 +5603,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         let depth = window.waterDist && window.waterDist[r] && window.waterDist[r][c] ? window.waterDist[r][c] : 1;
         let prefix = 'obs_base_tex_';
 
-        let obs;
-        if (window.currentSeason === 'Winter') {
-            obs = scene.add.sprite(posX, posY, prefix + '0');
-        } else {
-            obs = obstaclesGroup.create(posX, posY, prefix + '0');
-        }
+        let obs = scene.add.sprite(posX, posY, prefix + '0');
 
         // Apply smooth 4-corner tinting for seamless depth color transition
         function getWaterDepth(wr, wc) {
@@ -5967,7 +5983,8 @@ function create() {
         pRow = Math.floor(startY / 100);
     }
 
-    player = this.add.rectangle(startX, startY, 40, 40, 0xFFFFFF);
+    player = this.add.sprite(startX, startY, 'player_tex');
+    player.originalColor = 0xFFFFFF;
     player.setDepth(10);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
@@ -5976,7 +5993,6 @@ function create() {
     window.localPlayerLabel = this.add.text(startX, startY - 30, "P1", { fontSize: '14px', fill: '#FFF' }).setOrigin(0.5);
     window.localPlayerLabel.setDepth(10);
 
-    window.waterCollider = this.physics.add.collider(player, obstaclesGroup);
     this.physics.add.collider(player, window.treesGroup);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
@@ -6045,7 +6061,9 @@ function create() {
                 // Create new remote player
                 let pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
                 let pColor = playerColors[pIndex % playerColors.length];
-                let remotePlayer = this.add.rectangle(msg.x, msg.y, 40, 40, pColor); // Assorted colors for other players
+                let remotePlayer = this.add.sprite(msg.x, msg.y, 'player_tex'); // Assorted colors for other players
+                remotePlayer.originalColor = pColor;
+                remotePlayer.setTint(pColor);
                 this.physics.add.existing(remotePlayer);
                 remotePlayer.setDepth(10);
                 let label = this.add.text(msg.x, msg.y - 30, "P" + pIndex, { fontSize: '14px', fill: '#FFF' }).setOrigin(0.5);
@@ -6204,6 +6222,18 @@ function create() {
         frequency: 10,
         scale: { start: 1, end: 1 },
         emitZone: window.sharedEmitZone
+    });
+
+    let rippleParticles = this.add.particles('ripple_tex');
+    rippleParticles.setDepth(0.05); // Above water, below anything else
+    window.rippleEmitter = rippleParticles.createEmitter({
+        speed: 0,
+        lifespan: 1000,
+        quantity: 1,
+        frequency: 200,
+        scale: { start: 0.1, end: 1.5 },
+        alpha: { start: 0.6, end: 0 },
+        emitting: false
     });
 
     window.lightningOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0xFFFFFF);
@@ -7682,19 +7712,35 @@ function update() {
         }
     }
 
-    if (window.waterCollider) {
-        window.waterCollider.active = window.currentSeason !== 'Winter';
-    }
-
     let col = Math.floor(player.x / 100);
     let row = Math.floor(player.y / 100);
-    let onIce = window.currentSeason === 'Winter' && mapData[row] && mapData[row][col] === 'obs';
+    let playerInWater = (mapData[row] && mapData[row][col] === 'obs');
+    let onIce = window.currentSeason === 'Winter' && playerInWater;
+    let isSwimming = playerInWater && window.currentSeason !== 'Winter';
 
     if (typeof window.playerVx === 'undefined') { window.playerVx = 0; window.playerVy = 0; }
     if (!onIce) {
         window.playerVx = 0;
         window.playerVy = 0;
         player.body.setVelocity(0, 0);
+    }
+
+    if (isSwimming) {
+        player.setTint(0x88ccff);
+        player.setAlpha(0.7);
+        let bob = Math.sin(this.time.now / 200) * 4;
+        player.setCrop(0, 0, 40, 25 + bob);
+        player.setOrigin(0.5, 0.4);
+        if (window.rippleEmitter) {
+            window.rippleEmitter.setPosition(player.x, player.y + 15);
+            if (!window.rippleEmitter.emitting) window.rippleEmitter.start();
+        }
+    } else {
+        player.setTint(player.originalColor || 0xFFFFFF);
+        player.setAlpha(1.0);
+        player.setCrop();
+        player.setOrigin(0.5, 0.5);
+        if (window.rippleEmitter && window.rippleEmitter.emitting) window.rippleEmitter.stop();
     }
 
     // Keyboard movement
@@ -7763,6 +7809,23 @@ function update() {
             rp.label.x = rp.x;
             rp.label.y = rp.y - 30;
         }
+
+        // Remote player swimming visuals
+        let rCol = Math.floor(rp.x / 100);
+        let rRow = Math.floor(rp.y / 100);
+        let rpInWater = (mapData[rRow] && mapData[rRow][rCol] === 'obs');
+        if (rpInWater && window.currentSeason !== 'Winter') {
+            rp.setTint(0x88ccff);
+            rp.setAlpha(0.7);
+            let bob = Math.sin((this.time.now + (id.charCodeAt(0)*100)) / 200) * 4;
+            rp.setCrop(0, 0, 40, 25 + bob);
+            rp.setOrigin(0.5, 0.4);
+        } else {
+            rp.setTint(rp.originalColor || 0xFFFFFF);
+            rp.setAlpha(1.0);
+            rp.setCrop();
+            rp.setOrigin(0.5, 0.5);
+        }
     }
 
     // Periodically save player position (every ~1000ms)
@@ -7774,7 +7837,7 @@ function update() {
 
     let targetVx = 0;
     let targetVy = 0;
-    let moveSpeed = speed;
+    let moveSpeed = isSwimming ? speed * 0.5 : speed;
 
     if (window.gameStarted) {
         if (cursors.left.isDown) {
