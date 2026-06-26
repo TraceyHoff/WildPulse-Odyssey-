@@ -4557,7 +4557,9 @@ function setupDynamicGrass(scene) {
 
     window.updateGrassColors = function() {
         let colors;
-        if (window.currentSeason === 'Summer') {
+        if (window.currentSeason === 'Spring') {
+            colors = ['#a2d149', '#b3de69', '#7fb03e', '#d9ef8b'];
+        } else if (window.currentSeason === 'Summer') {
             colors = ['#228B22', '#32CD32', '#006400'];
         } else if (window.currentSeason === 'Fall') {
             colors = ['#FFD700', '#FF0000', '#FFA500', '#D2B48C'];
@@ -4585,7 +4587,10 @@ function setupDynamicGrass(scene) {
         if (window.grassBgCanvas) {
             const bgCtx = window.grassBgCanvas.getContext('2d', { willReadFrequently: true });
             let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
-            if (window.currentSeason === 'Summer') {
+            if (window.currentSeason === 'Spring') {
+                gradient.addColorStop(0, '#7fb03e');
+                gradient.addColorStop(1, '#a2d149');
+            } else if (window.currentSeason === 'Summer') {
                 gradient.addColorStop(0, '#004d00');
                 gradient.addColorStop(1, '#228B22');
             } else if (window.currentSeason === 'Fall') {
@@ -4906,11 +4911,13 @@ function generateWaterTextures(scene) {
 function generateTreeTextures(scene) {
     // Pre-generate dynamic tree textures
     const generateTree = (baseKey, trunkColor, defaultLeafColors, isTall = false) => {
-        const seasons = ['Summer', 'Fall', 'Winter'];
+        const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
 
         seasons.forEach(season => {
             let leafColors;
-            if (season === 'Fall') {
+            if (season === 'Spring') {
+                leafColors = ['#a2d149', '#7fb03e']; // Light Green
+            } else if (season === 'Fall') {
                 leafColors = ['#d35400', '#c0392b']; // Orange/Red
             } else if (season === 'Winter') {
                 leafColors = ['#ecf0f1', '#bdc3c7']; // White/Gray
@@ -5615,6 +5622,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (obs.body) {
             obs.body.setSize(100, 100);
             obs.body.setOffset(gridX, gridY);
+            obs.refreshBody();
         }
         // obs.anims.play('water_anim', true);
         obs.setDepth(0);
@@ -7340,10 +7348,9 @@ function update() {
             wildpulse_inGameDays += 1;
             localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
 
-            let months = Math.floor((wildpulse_inGameDays % 120) / 20);
-            let newSeason = 'Summer';
-            if (months === 2 || months === 3) newSeason = 'Fall';
-            else if (months === 4 || months === 5) newSeason = 'Winter';
+            let seasonIndex = Math.floor((wildpulse_inGameDays % 120) / 30);
+            const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+            let newSeason = seasons[seasonIndex];
 
             if (newSeason !== window.currentSeason) {
                 window.currentSeason = newSeason;
@@ -7988,7 +7995,7 @@ function update() {
         // Weather only happens if cloudy
         if (window.cloudCoverage === 'cloudy') {
             let rWeather = Math.random();
-            if (window.currentSeason === 'Summer' || window.currentSeason === 'Fall') {
+            if (window.currentSeason === 'Spring' || window.currentSeason === 'Summer' || window.currentSeason === 'Fall') {
                 if (rWeather < 0.4) window.weatherPattern = 'none';
                 else if (rWeather < 0.6) window.weatherPattern = 'light_rain';
                 else if (rWeather < 0.8) window.weatherPattern = 'heavy_rain';
@@ -8073,7 +8080,17 @@ function update() {
         // Dynamic, Season-Aware Particles
         let timeOscillation = Math.sin(this.time.now / 1000) * 0.5 + 0.5; // 0 to 1
 
-        if (window.currentSeason === 'Summer') {
+        if (window.currentSeason === 'Spring') {
+            window.leafRedEmitter.setQuantity(0);
+            window.leafYellowEmitter.setQuantity(0);
+            window.leafMixedEmitter.setQuantity(0);
+            window.snowflakeEmitter.setQuantity(0);
+
+            let springCount = 1 + Math.floor(timeOscillation * 2);
+            window.leafGreen1Emitter.setQuantity(springCount);
+            window.leafGreen2Emitter.setQuantity(springCount);
+            window.pollenEmitter.setQuantity(4 + Math.floor(timeOscillation * 8)); // Extra pollen in spring!
+        } else if (window.currentSeason === 'Summer') {
             window.leafRedEmitter.setQuantity(0);
             window.leafYellowEmitter.setQuantity(0);
             window.leafMixedEmitter.setQuantity(0);
