@@ -3249,18 +3249,18 @@ window.openHelpModal = function() {
 
     let naturesHtml = window.natures.filter(n => n.increase || n.decrease).map(n => {
         let text = n.name + ': ';
-        if (n.increase) text += `<span style="color:#4caf50">+X% ${n.increase}</span> `;
-        if (n.decrease) text += `<span style="color:#f44336">-X% ${n.decrease}</span>`;
-        return '<li>' + text + ' <span style="font-size:11px; color:#888;">(X depends on Tier: T1 5%, T2 10%, T3 15%)</span></li>';
+        if (n.increase) text += `<span style="color:#4caf50">+5/10/15% ${n.increase}</span> `;
+        if (n.decrease) text += `<span style="color:#f44336">-5/10/15% ${n.decrease}</span>`;
+        return '<li>' + text + '</li>';
     }).join('');
     let container = document.getElementById('naturesListContainer');
     if(container) container.innerHTML = '<ul style="margin:0; padding-left:20px; font-size:14px; color:#ddd;">' + naturesHtml + '</ul>';
 
     let moodsHtml = window.moods.map(m => {
         let text = m.name + ': ';
-        if (m.increase) text += `<span style="color:#4caf50">+X% ${m.increase}</span> `;
-        if (m.decrease) text += `<span style="color:#f44336">-X% ${m.decrease}</span>`;
-        return '<li>' + text + ' <span style="font-size:11px; color:#888;">(X depends on Tier: T1 5%, T2 10%, T3 15%)</span></li>';
+        if (m.increase) text += `<span style="color:#4caf50">+5/10/15% ${m.increase}</span> `;
+        if (m.decrease) text += `<span style="color:#f44336">-5/10/15% ${m.decrease}</span>`;
+        return '<li>' + text + '</li>';
     }).join('');
     let moodContainer = document.getElementById('moodsListContainer');
     if(moodContainer) moodContainer.innerHTML = '<ul style="margin:0; padding-left:20px; font-size:14px; color:#ddd;">' + moodsHtml + '</ul>';
@@ -5613,8 +5613,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         obs.setCrop(gridX, gridY, 100, 100);
         obs.setDisplayOrigin(gridX + 50, gridY + 50);
         if (obs.body) {
-            obs.body.setSize(100, 100);
-            obs.body.setOffset(gridX, gridY);
+            obs.body.setCircle(50, gridX, gridY);
             obs.refreshBody();
         }
         // obs.anims.play('water_anim', true);
