@@ -5620,8 +5620,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         obs.setCrop(gridX, gridY, 100, 100);
         obs.setDisplayOrigin(gridX + 50, gridY + 50);
         if (obs.body) {
-            obs.body.setSize(100, 100);
-            obs.body.setOffset(gridX, gridY);
             obs.refreshBody();
         }
         // obs.anims.play('water_anim', true);
@@ -5733,7 +5731,7 @@ function create() {
     const rows = WORLD_SIZE / TILE_SIZE; // 100
 
     // Fill background with grass
-    obstaclesGroup = this.physics.add.group({ static: true });
+    obstaclesGroup = this.physics.add.staticGroup();
     window.treesGroup = this.physics.add.staticGroup();
     hospitalGroup = this.physics.add.staticGroup();
     tradeGroup = this.physics.add.staticGroup();
@@ -5810,11 +5808,6 @@ function create() {
             }
         }
     }
-
-    // Initialize extra rows for special tiles to prevent TypeError
-    if (!mapData[100]) mapData[100] = [];
-    if (!mapData[101]) mapData[101] = [];
-    if (!mapData[102]) mapData[102] = [];
 
     // Force hospital to be at 100, 100
     mapData[100][100] = 'hospital';
@@ -7476,6 +7469,7 @@ function update() {
                     if (sprite.gridX !== undefined && sprite.gridY !== undefined) {
                         sprite.setCrop(sprite.gridX, sprite.gridY, 100, 100);
                         sprite.setDisplayOrigin(sprite.gridX + 50, sprite.gridY + 50);
+                        if (sprite.body) sprite.refreshBody();
                     }
                     sprite.lastRenderedFrame = frame16fps;
                 }
