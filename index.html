@@ -5219,8 +5219,8 @@ function generateCloudTextures(scene) {
 
     cloudPuffs.forEach(puff => {
         let cloudGrad = cloudCtx.createRadialGradient(puff.x, puff.y, 0, puff.x, puff.y, puff.r);
-        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.8)');
-        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.5)');
+        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
+        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.2)');
         cloudGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         cloudCtx.fillStyle = cloudGrad;
         cloudCtx.beginPath();
@@ -5613,8 +5613,8 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         obs.setCrop(gridX, gridY, 100, 100);
         obs.setDisplayOrigin(gridX + 50, gridY + 50);
         if (obs.body) {
-            obs.body.setCircle(50, gridX, gridY);
-            obs.refreshBody();
+            obs.body.setSize(100, 100);
+            obs.body.setOffset(gridX, gridY);
         }
         // obs.anims.play('water_anim', true);
         obs.setDepth(0);
@@ -5725,7 +5725,7 @@ function create() {
     const rows = WORLD_SIZE / TILE_SIZE; // 100
 
     // Fill background with grass
-    obstaclesGroup = this.physics.add.staticGroup();
+    obstaclesGroup = this.physics.add.group({ static: true });
     window.treesGroup = this.physics.add.staticGroup();
     hospitalGroup = this.physics.add.staticGroup();
     tradeGroup = this.physics.add.staticGroup();
@@ -5981,11 +5981,11 @@ function create() {
     moonSprite.setScrollFactor(0);
 
     // Day and Night Cycle
-    dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(99).setAlpha(0);
-    timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(100).setVisible(false);
+    dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(4000).setAlpha(0);
+    timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
 
     // World Coordinates UI
-    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(100).setVisible(false);
+    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(5000).setVisible(false);
 
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
@@ -7391,17 +7391,33 @@ function update() {
         window.coordText.setText(`X: ${Math.floor(player.x)}, Y: ${Math.floor(player.y)}`);
     }
 
-    // Calculate alpha
-    let targetAlpha = 0;
-    if (dayNightTime >= 7 && dayNightTime <= 20) {
-        targetAlpha = 0; // Full daytime (7 AM to 8 PM)
+    // Calculate smooth day/night alpha
+    let dayNightAlpha = 0;
+    const maxNightAlpha = 0.45;
+
+    if (dayNightTime >= 21 || dayNightTime <= 6) {
+        dayNightAlpha = maxNightAlpha;
     } else if (dayNightTime > 20 && dayNightTime < 21) {
-        targetAlpha = ((dayNightTime - 20) / 1) * 0.65; // Start getting dark at 8 PM, complete by 9 PM
-    } else if (dayNightTime >= 21 || dayNightTime <= 6) {
-        targetAlpha = 0.65; // Complete night (9 PM to 6 AM)
+        // Sunset transition (smoother sine-based)
+        let t = (dayNightTime - 20);
+        dayNightAlpha = (1 - Math.cos(t * Math.PI)) / 2 * maxNightAlpha;
     } else if (dayNightTime > 6 && dayNightTime < 7) {
-        targetAlpha = 0.65 - (((dayNightTime - 6) / 1) * 0.65); // Start getting light at 6 AM, full day by 7 AM
+        // Sunrise transition (smoother sine-based)
+        let t = (dayNightTime - 6);
+        dayNightAlpha = (1 + Math.cos(t * Math.PI)) / 2 * maxNightAlpha;
+    } else {
+        dayNightAlpha = 0;
     }
+
+    // Weather brightness adjustment
+    let weatherAlpha = 0;
+    if (window.weatherPattern && window.weatherPattern !== 'none') {
+        if (window.weatherPattern.includes('light')) weatherAlpha = 0.15;
+        else if (window.weatherPattern.includes('heavy')) weatherAlpha = 0.25;
+        else if (window.weatherPattern.includes('thunder')) weatherAlpha = 0.35;
+    }
+
+    let targetAlpha = Math.max(dayNightAlpha, weatherAlpha);
     if (dayNightOverlay) dayNightOverlay.setAlpha(targetAlpha);
 
     if (window.starSprite) {
@@ -8170,7 +8186,7 @@ function update() {
                 coverageMod = (cloud.seed < Math.PI) ? 1.0 : 0.0; // About half the clouds
             } else if (window.cloudCoverage === 'cloudy') {
                 coverageMod = 1.0;
-                scaleMod = 10.0;
+                scaleMod = 5.0;
             }
 
             let targetAlpha = originalAlpha * cloudGlobalAlphaMod * coverageMod;
