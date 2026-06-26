@@ -21,12 +21,12 @@ io.on('connection', (socket) => {
     socket.emit('global-users', users);
   });
 
-  socket.on('join-room', (roomId) => {
+  socket.on('join-room', async (roomId) => {
     if (typeof roomId === 'object') {
         roomId = roomId.roomId;
     }
 
-    socket.join(roomId);
+    await socket.join(roomId);
 
     if (!roomStates[roomId]) {
         roomStates[roomId] = { nextIndex: 1, users: {} };

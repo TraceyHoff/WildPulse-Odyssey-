@@ -3108,14 +3108,18 @@ window.updateLobbyUI = function() {
     const connectedPlayersEl = document.getElementById('connectedPlayersDisplay');
     connectedPlayersEl.innerHTML = '';
 
-    const activePlayers = Object.keys(window.remotePlayers || {});
-    if (activePlayers.length === 0) {
-        connectedPlayersEl.innerHTML = '<p style="color:#999; font-style:italic;">No other players connected.</p>';
+    const roomUsers = Object.keys(window.roomUsers || {});
+    if (roomUsers.length === 0) {
+        connectedPlayersEl.innerHTML = '<p style="color:#999; font-style:italic;">No other players in this world.</p>';
     } else {
-        activePlayers.forEach((pid, i) => {
+        roomUsers.forEach((pid) => {
+            const index = window.roomUsers[pid].index || '?';
+            const isConnected = dataChannels[pid] && dataChannels[pid].readyState === 'open';
+            const statusText = isConnected ? '<span style="color:#4caf50;">(Connected)</span>' : '<span style="color:#ff9800;">(Connecting...)</span>';
+
             let div = document.createElement('div');
             div.style.cssText = "padding: 5px; border-bottom: 1px solid #444;";
-            div.innerText = `Player ${i+1} (${pid.substring(0,6)}...)`;
+            div.innerHTML = `Player ${index} (${pid.substring(0,6)}...) ${statusText}`;
             connectedPlayersEl.appendChild(div);
         });
     }
@@ -3887,7 +3891,20 @@ window.openTradeModal = function() {
 
     // Give it a tiny bit of time to fetch global users, otherwise fallback to known users
     setTimeout(() => {
-        const usersToDisplay = globalPlayerList && globalPlayerList.length > 0 ? globalPlayerList : Object.keys(remotePlayers);
+        const roomUsers = Object.keys(window.roomUsers || {});
+        let usersToDisplay = [...roomUsers];
+
+        // Add global users that aren't already in the room
+        if (globalPlayerList) {
+            globalPlayerList.forEach(u => {
+                if (!usersToDisplay.includes(u)) usersToDisplay.push(u);
+            });
+        }
+
+        // Fallback to remotePlayers if both lists are somehow empty
+        if (usersToDisplay.length === 0) {
+            usersToDisplay = Object.keys(remotePlayers);
+        }
 
         usersToDisplay.forEach(userId => {
             const option = document.createElement('option');
@@ -3949,7 +3966,20 @@ window.openPvpModal = function() {
     if (socket) socket.emit('fetch-global-users');
 
     setTimeout(() => {
-        const usersToDisplay = globalPlayerList && globalPlayerList.length > 0 ? globalPlayerList : Object.keys(remotePlayers);
+        const roomUsers = Object.keys(window.roomUsers || {});
+        let usersToDisplay = [...roomUsers];
+
+        // Add global users that aren't already in the room
+        if (globalPlayerList) {
+            globalPlayerList.forEach(u => {
+                if (!usersToDisplay.includes(u)) usersToDisplay.push(u);
+            });
+        }
+
+        // Fallback to remotePlayers if both lists are somehow empty
+        if (usersToDisplay.length === 0) {
+            usersToDisplay = Object.keys(remotePlayers);
+        }
 
         usersToDisplay.forEach(userId => {
             const option = document.createElement('option');
@@ -4125,6 +4155,7 @@ let peers = {};
 let dataChannels = {};
 let lastPing = {}; // userId -> timestamp
 let globalPlayerList = [];
+window.roomUsers = {}; // userId -> { index }
 
 // Periodically broadcast ping to keep connections alive and check for dead peers
 setInterval(() => {
@@ -4198,23 +4229,29 @@ window.initializeMultiplayer = function(roomCode) {
         users.forEach(u => {
             const userId = u.userId ? u.userId : u; // Fallback to old structure
             const index = u.index ? u.index : null;
+            window.roomUsers[userId] = { index: index };
             if (index && !window.remotePlayerIndices) window.remotePlayerIndices = {};
             if (index) window.remotePlayerIndices[userId] = index;
             createPeerConnection(userId, true);
         });
+        if (window.updateLobbyUI) window.updateLobbyUI();
     });
 
     socket.on('user-joined', (data) => {
         let userId = data.userId ? data.userId : data; // Fallback to old structure
+        let index = data.index ? data.index : null;
         console.log("User joined:", userId);
-        if (data.index) {
+        window.roomUsers[userId] = { index: index };
+        if (index) {
             if (!window.remotePlayerIndices) window.remotePlayerIndices = {};
-            window.remotePlayerIndices[userId] = data.index;
+            window.remotePlayerIndices[userId] = index;
         }
+        if (window.updateLobbyUI) window.updateLobbyUI();
         // Will receive offer from this user
     });
 
     socket.on('user-left', (userId) => {
+        delete window.roomUsers[userId];
         if (peers[userId]) {
             peers[userId].close();
             delete peers[userId];
@@ -4225,6 +4262,7 @@ window.initializeMultiplayer = function(roomCode) {
         if (window.removeRemotePlayer) {
             window.removeRemotePlayer(userId);
         }
+        if (window.updateLobbyUI) window.updateLobbyUI();
     });
 
     socket.on('signal', async (data) => {
@@ -4300,11 +4338,13 @@ function setupDataChannel(dc, userId) {
             const msg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 });
             dc.send(msg);
         }
+        if (window.updateLobbyUI) window.updateLobbyUI();
     };
 
     dc.onclose = () => {
         console.log("[Multiplayer] Data channel closed with", userId);
         delete lastPing[userId];
+        if (window.updateLobbyUI) window.updateLobbyUI();
     };
 
     dc.onmessage = (event) => {
@@ -5998,6 +6038,17 @@ function create() {
     window.localPlayerLabel.setDepth(10);
 
     this.physics.add.collider(player, window.treesGroup);
+
+    // Immediately broadcast position to all open channels so they see us if they were already connected
+    if (typeof dataChannels !== 'undefined') {
+        const msg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 });
+        for (const id in dataChannels) {
+            const dc = dataChannels[id];
+            if (dc.readyState === 'open') {
+                dc.send(msg);
+            }
+        }
+    }
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
