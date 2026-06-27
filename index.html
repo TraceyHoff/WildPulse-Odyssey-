@@ -472,6 +472,19 @@
         pointer-events: none;
         transition: opacity 0.3s ease-in-out;
     }
+
+    #playerNameInput:focus {
+        outline: none;
+        border-color: #42a5f5 !important;
+        box-shadow: 0 0 10px rgba(66, 165, 245, 0.5);
+    }
+    #playerColorInput::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+    #playerColorInput::-webkit-color-swatch {
+        border: none;
+        border-radius: 4px;
+    }
 </style>
 
 </head>
@@ -479,7 +492,24 @@
 <div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
     <h1 style="position: relative; z-index: 10; font-size: 48px; text-shadow: 2px 2px 4px #000; margin-bottom: 40px; color: #fff;">WildPulse Odyssey</h1>
     <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Start Game</button>
+    <button id="customizeBtn" style="position: relative; z-index: 10; padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; border: 2px solid #90caf9; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Customize Character</button>
     <button id="menuDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
+</div>
+
+<div id="customizationModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); z-index: 200001; justify-content: center; align-items: center; flex-direction: column; color: white;">
+    <div style="background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)); padding: 40px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2); text-align: center; min-width: 300px;">
+        <h2 style="margin-top: 0;">Customize Character</h2>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Character Name:</label>
+            <input type="text" id="playerNameInput" maxlength="15" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box;">
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Character Color:</label>
+            <input type="color" id="playerColorInput" value="#FFFFFF" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #222; cursor: pointer;">
+        </div>
+        <button id="saveCustomizationBtn" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 1px solid #a5d6a7; cursor: pointer; border-radius: 8px; margin-right: 10px;">Save</button>
+        <button id="closeCustomizationBtn" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #555, #222); color: white; border: 1px solid #777; cursor: pointer; border-radius: 8px;">Close</button>
+    </div>
 </div>
 
 <div id="loadingScreen">
@@ -761,6 +791,11 @@ function escapeHtml(unsafe) {
 
 window.gameStarted = false;
 window.cameraFollowsPlayer = false;
+
+// Performance optimization: cache player identity
+window.cachedPlayerName = localStorage.getItem('wildpulse_player_name') || "";
+window.cachedPlayerColor = localStorage.getItem('wildpulse_player_color') || "#FFFFFF";
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-start multiplayer and game logic
@@ -779,6 +814,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.initializeMultiplayer(multiplayerRoom);
+
+    // Auto-start if joining someone else's world
+    if (multiplayerRoom !== ownRoomCode) {
+        console.log("[Auto-Start] Joining shared world, bypassing start menu...");
+        setTimeout(() => {
+            document.getElementById('startGameBtn')?.click();
+        }, 100);
+    }
 
     document.getElementById('startGameBtn').addEventListener('click', () => {
         document.getElementById('startModal').style.display = 'none';
@@ -842,6 +885,54 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sendPvpBtn')?.addEventListener('click', window.sendPvpOffer);
     document.getElementById('acceptPvpBtn')?.addEventListener('click', window.acceptPvpOffer);
     document.getElementById('rejectPvpBtn')?.addEventListener('click', window.rejectPvpOffer);
+
+    // Character customization event listeners
+    const customizationModal = document.getElementById('customizationModal');
+    const playerNameInput = document.getElementById('playerNameInput');
+    const playerColorInput = document.getElementById('playerColorInput');
+
+    // Initialize inputs from localStorage
+    playerNameInput.value = localStorage.getItem('wildpulse_player_name') || '';
+    playerColorInput.value = localStorage.getItem('wildpulse_player_color') || '#FFFFFF';
+
+    document.getElementById('customizeBtn')?.addEventListener('click', () => {
+        customizationModal.style.display = 'flex';
+    });
+
+    document.getElementById('saveCustomizationBtn')?.addEventListener('click', () => {
+        const name = playerNameInput.value.trim();
+        const color = playerColorInput.value;
+        localStorage.setItem('wildpulse_player_name', name);
+        localStorage.setItem('wildpulse_player_color', color);
+        window.cachedPlayerName = name;
+        window.cachedPlayerColor = color;
+
+        // Update local visuals immediately
+        if (window.localPlayerLabel) window.localPlayerLabel.setText(name || "P" + (window.playerIndexCount || 1));
+        if (typeof player !== 'undefined') {
+            const customColorInt = parseInt(color.replace('#', '0x'));
+            player.originalColor = customColorInt;
+            player.setTint(customColorInt);
+        }
+
+        // Broadcast identity update to all peers
+        const identityMsg = JSON.stringify({ type: 'identity', name: name, color: color });
+        if (typeof dataChannels !== 'undefined') {
+            for (const id in dataChannels) {
+                const dc = dataChannels[id];
+                if (dc.readyState === 'open') {
+                    dc.send(identityMsg);
+                }
+            }
+        }
+
+        window.showModernNotification("Character updated!");
+        customizationModal.style.display = 'none';
+    });
+
+    document.getElementById('closeCustomizationBtn')?.addEventListener('click', () => {
+        customizationModal.style.display = 'none';
+    });
 
     if (window.startGame) window.startGame();
 });
@@ -4216,7 +4307,7 @@ window.initializeMultiplayer = function(roomCode) {
 
     socket.on('assigned-index', (index) => {
         window.playerIndexCount = index;
-        if (window.localPlayerLabel) {
+        if (window.localPlayerLabel && !window.cachedPlayerName) {
             window.localPlayerLabel.setText("P" + index);
         }
     });
@@ -4334,6 +4425,15 @@ function setupDataChannel(dc, userId) {
     dc.onopen = () => {
         console.log("[Multiplayer] Data channel open with", userId);
         lastPing[userId] = Date.now();
+
+        // Send identity immediately on open
+        const identityMsg = JSON.stringify({
+            type: 'identity',
+            name: window.cachedPlayerName,
+            color: window.cachedPlayerColor
+        });
+        dc.send(identityMsg);
+
         if (typeof player !== 'undefined' && typeof player.x !== 'undefined') {
             const msg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 });
             dc.send(msg);
@@ -4415,7 +4515,10 @@ const config = {
 
 let game = null;
 window.startGame = function() {
-    if(!game) game = new Phaser.Game(config);
+    if(!game) {
+        game = new Phaser.Game(config);
+        window.game = game;
+    }
 };
 
 let player;
@@ -6027,25 +6130,32 @@ function create() {
         pRow = Math.floor(startY / 100);
     }
 
+    const customName = window.cachedPlayerName || "P1";
+    const customColorHex = window.cachedPlayerColor || "#FFFFFF";
+    const customColor = parseInt(customColorHex.replace('#', '0x'));
+
     player = this.add.sprite(startX, startY, 'player_tex');
-    player.originalColor = 0xFFFFFF;
+    player.originalColor = customColor;
+    player.setTint(customColor);
     player.setDepth(10);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
-    // P1 Marker
-    window.localPlayerLabel = this.add.text(startX, startY - 30, "P1", { fontSize: '14px', fill: '#FFF' }).setOrigin(0.5);
+    // Character Name Marker
+    window.localPlayerLabel = this.add.text(startX, startY - 30, customName, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
     window.localPlayerLabel.setDepth(10);
 
     this.physics.add.collider(player, window.treesGroup);
 
-    // Immediately broadcast position to all open channels so they see us if they were already connected
+    // Immediately broadcast identity and position to all open channels so they see us if they were already connected
     if (typeof dataChannels !== 'undefined') {
-        const msg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 });
+        const identityMsg = JSON.stringify({ type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor });
+        const posMsg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 });
         for (const id in dataChannels) {
             const dc = dataChannels[id];
             if (dc.readyState === 'open') {
-                dc.send(msg);
+                dc.send(identityMsg);
+                dc.send(posMsg);
             }
         }
     }
@@ -6111,17 +6221,38 @@ function create() {
     if (typeof window.playerIndexCount === 'undefined') window.playerIndexCount = 1; // Local player is P1
     const playerColors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFF00FF, 0x00FFFF];
     window.handleMultiplayerMessage = (userId, msg) => {
-        if (msg.type === 'pos' || msg.type === 'position') { // accept both for backwards compatibility if needed
+        if (msg.type === 'identity') {
+            if (!window.remotePlayerIdentities) window.remotePlayerIdentities = {};
+            window.remotePlayerIdentities[userId] = { name: msg.name, color: msg.color };
+
+            if (remotePlayers[userId]) {
+                const rp = remotePlayers[userId];
+                const pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
+                if (rp.label) rp.label.setText(msg.name || "P" + pIndex);
+                if (msg.color) {
+                    const customColor = parseInt(msg.color.replace('#', '0x'));
+                    rp.originalColor = customColor;
+                    rp.setTint(customColor);
+                }
+            }
+            return;
+        }
+
+        if (msg.type === 'pos' || msg.type === 'position') {
             if (!remotePlayers[userId]) {
                 // Create new remote player
+                let identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) ? window.remotePlayerIdentities[userId] : {};
                 let pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
-                let pColor = playerColors[pIndex % playerColors.length];
-                let remotePlayer = this.add.sprite(msg.x, msg.y, 'player_tex'); // Assorted colors for other players
-                remotePlayer.originalColor = pColor;
-                remotePlayer.setTint(pColor);
+                let customName = identity.name || ("P" + pIndex);
+                let customColorStr = identity.color;
+                let customColor = customColorStr ? parseInt(customColorStr.replace('#', '0x')) : playerColors[pIndex % playerColors.length];
+
+                let remotePlayer = this.add.sprite(msg.x, msg.y, 'player_tex');
+                remotePlayer.originalColor = customColor;
+                remotePlayer.setTint(customColor);
                 this.physics.add.existing(remotePlayer);
                 remotePlayer.setDepth(10);
-                let label = this.add.text(msg.x, msg.y - 30, "P" + pIndex, { fontSize: '14px', fill: '#FFF' }).setOrigin(0.5);
+                let label = this.add.text(msg.x, msg.y - 30, customName, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
                 label.setDepth(10);
                 remotePlayer.label = label;
                 remotePlayer.setData('targetX', msg.x);
