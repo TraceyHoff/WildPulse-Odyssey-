@@ -535,6 +535,11 @@
         <button id="returnOwnWorldBtn" style="background: linear-gradient(180deg, #9c27b0, #6a1b9a); margin-top: 10px;">Return to Own World</button>
     </div>
 
+    <div id="currentWorldContainer" style="margin-bottom: 20px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+        <h3 style="margin-top:0;">Current World</h3>
+        <p id="currentWorldDisplay" style="font-size: 18px; font-weight: bold; color: #03a9f4; margin-bottom:0;">CONNECTING...</p>
+    </div>
+
     <div style="margin-bottom: 20px; border-top: 1px solid #555; padding-top: 15px;">
         <h3>Join Friend's World</h3>
         <input type="text" id="friendCodeInput" aria-label="Friend Code" placeholder="Enter Friend's World Code">
@@ -3182,6 +3187,11 @@ window.closeLobbyModal = function() {
 };
 
 window.updateLobbyUI = function() {
+    const currentWorldEl = document.getElementById('currentWorldDisplay');
+    if (currentWorldEl) {
+        currentWorldEl.innerText = multiplayerRoom || "N/A";
+    }
+
     // Render Friends
     const friendsListEl = document.getElementById('friendsListDisplay');
     friendsListEl.innerHTML = '';
@@ -3238,10 +3248,32 @@ window.updateLobbyUI = function() {
             const statusText = isConnected ? '<span style="color:#4caf50;">(Connected)</span>' : '<span style="color:#ff9800;">(Connecting...)</span>';
 
             let div = document.createElement('div');
-            div.style.cssText = "padding: 5px; border-bottom: 1px solid #444;";
-            div.innerHTML = `Player ${index} (${pid.substring(0,6)}...) ${statusText}`;
+            div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #444;";
+
+            let infoSpan = document.createElement('span');
+            infoSpan.innerHTML = `Player ${index} (${pid.substring(0,6)}...) ${statusText}`;
+
+            let tpBtn = document.createElement('button');
+            tpBtn.innerText = 'TP';
+            tpBtn.style.cssText = "padding: 4px 8px; font-size: 12px; background: linear-gradient(180deg, #2196f3, #1976d2);";
+            tpBtn.onclick = () => window.teleportToPlayer(pid);
+
+            div.appendChild(infoSpan);
+            div.appendChild(tpBtn);
             connectedPlayersEl.appendChild(div);
         });
+    }
+};
+
+window.teleportToPlayer = function(userId) {
+    if (remotePlayers[userId]) {
+        const targetX = remotePlayers[userId].x;
+        const targetY = remotePlayers[userId].y;
+        player.x = targetX;
+        player.y = targetY;
+        if (window.showModernNotification) window.showModernNotification("Teleported to player!");
+    } else {
+        if (window.showModernNotification) window.showModernNotification("Player position not yet known.");
     }
 };
 
@@ -4484,7 +4516,8 @@ function setupDataChannel(dc, userId) {
         const identityMsg = JSON.stringify({
             type: 'identity',
             name: window.cachedPlayerName,
-            color: window.cachedPlayerColor
+            color: window.cachedPlayerColor,
+            auraColor: window.cachedPlayerAuraColor
         });
         dc.send(identityMsg);
 
@@ -6225,7 +6258,12 @@ function create() {
 
     // Immediately broadcast identity and position to all open channels so they see us if they were already connected
     if (typeof dataChannels !== 'undefined') {
-        const identityMsg = JSON.stringify({ type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor });
+        const identityMsg = JSON.stringify({
+            type: 'identity',
+            name: window.cachedPlayerName,
+            color: window.cachedPlayerColor,
+            auraColor: window.cachedPlayerAuraColor
+        });
         const posMsg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 });
         for (const id in dataChannels) {
             const dc = dataChannels[id];
@@ -6324,6 +6362,8 @@ function create() {
 
         if (msg.type === 'pos' || msg.type === 'position') {
             if (!remotePlayers[userId]) {
+                // Register players regardless of distance to allow Teleport feature to work across the whole map
+
                 // Create new remote player
                 let identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) ? window.remotePlayerIdentities[userId] : {};
                 let pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
@@ -6365,9 +6405,9 @@ function create() {
             } else {
                 const rp = remotePlayers[userId];
 
-                // Ignore large unexpected jumps to prevent cheating
+                // Ignore only extremely large jumps (e.g. > 15k) to allow teleports
                 const dist = Math.hypot(rp.x - msg.x, rp.y - msg.y);
-                if (dist > 1500) {
+                if (dist > 15000) {
                     console.warn(`[Multiplayer] Dropping impossible movement update from ${userId} (${dist}px jump)`);
                     return; // Reject movement
                 }
@@ -7623,6 +7663,7 @@ function respawnEnemyBase() {
 }
 
 function update() {
+    const now = Date.now();
     if (inBattle) return;
 
     if (window.waterLeaves) {
@@ -7705,7 +7746,7 @@ function update() {
 
 
     if (!window.lastSaveTime) window.lastSaveTime = 0;
-    const now = Date.now();
+    // Redundant now definition removed
     const shouldSave = (now - window.lastSaveTime > 2000);
 
     if (!window.aiFrameCounter) window.aiFrameCounter = 0;
@@ -8286,9 +8327,13 @@ function update() {
     for (const id in remotePlayers) {
         const rp = remotePlayers[id];
         const isVisible = (rp.x >= viewLeft && rp.x <= viewRight && rp.y >= viewTop && rp.y <= viewBottom);
-        rp.setVisible(isVisible);
-        if (rp.aura) rp.aura.setVisible(isVisible);
-        if (rp.label) rp.label.setVisible(isVisible);
+
+        // Only update visibility if it actually changes to save performance
+        if (rp.visible !== isVisible) {
+            rp.setVisible(isVisible);
+            if (rp.aura) rp.aura.setVisible(isVisible);
+            if (rp.label) rp.label.setVisible(isVisible);
+        }
     }
 
     // Creature wandering logic & culling
