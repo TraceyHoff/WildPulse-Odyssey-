@@ -555,9 +555,15 @@
             </div>
         </div>
         <div style="flex: 1;">
-            <h3>Connected Players</h3>
+            <h3>Local World Players</h3>
             <div id="connectedPlayersDisplay" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px;">
                 <!-- Connected players go here -->
+            </div>
+        </div>
+        <div style="flex: 1;">
+            <h3>Global Online Players</h3>
+            <div id="globalPlayersDisplay" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px;">
+                <!-- Global players go here -->
             </div>
         </div>
     </div>
@@ -822,13 +828,13 @@ window.cachedPlayerAuraColor = localStorage.getItem('wildpulse_player_aura_color
 document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-start multiplayer and game logic
-    let ownRoomCode = localStorage.getItem('wildpulse_own_world_code');
+    let ownRoomCode = (localStorage.getItem('wildpulse_own_world_code') || "").toUpperCase();
     if (!ownRoomCode) {
         // Generate random 8 char code
         ownRoomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
         localStorage.setItem('wildpulse_own_world_code', ownRoomCode);
     }
-    const savedRoomCode = localStorage.getItem('wildpulse_world_code');
+    const savedRoomCode = (localStorage.getItem('wildpulse_world_code') || "").toUpperCase();
     if (savedRoomCode) {
         multiplayerRoom = savedRoomCode;
     } else {
@@ -950,6 +956,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Broadcast identity update to all peers
+        if (socket && socket.connected) {
+            socket.emit('update-identity', { name: name });
+        }
         const identityMsg = JSON.stringify({ type: 'identity', name: name, color: color, auraColor: auraColor });
         if (typeof dataChannels !== 'undefined') {
             for (const id in dataChannels) {
@@ -3174,6 +3183,7 @@ window.openLobbyModal = function() {
     const ownCode = localStorage.getItem('wildpulse_own_world_code');
     document.getElementById('worldCodeDisplay').innerText = ownCode || "N/A";
 
+    if (socket) socket.emit('fetch-global-users');
     window.updateLobbyUI();
 };
 
@@ -3234,7 +3244,7 @@ window.updateLobbyUI = function() {
         });
     }
 
-    // Render Connected Players
+    // Render Connected Players (Local Room)
     const connectedPlayersEl = document.getElementById('connectedPlayersDisplay');
     connectedPlayersEl.innerHTML = '';
 
@@ -3262,6 +3272,37 @@ window.updateLobbyUI = function() {
             div.appendChild(tpBtn);
             connectedPlayersEl.appendChild(div);
         });
+    }
+
+    // Render Global Online Players
+    const globalPlayersEl = document.getElementById('globalPlayersDisplay');
+    if (globalPlayersEl) {
+        globalPlayersEl.innerHTML = '';
+        if (globalPlayerList.length === 0) {
+            globalPlayersEl.innerHTML = '<p style="color:#999; font-style:italic;">No other players online.</p>';
+        } else {
+            globalPlayerList.forEach((p) => {
+                const pid = p.userId;
+                const pName = p.name || 'Anonymous';
+                const pRoom = p.room || 'Unknown';
+
+                let div = document.createElement('div');
+                div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #444;";
+
+                let infoSpan = document.createElement('span');
+                infoSpan.style.textAlign = 'left';
+                infoSpan.innerHTML = `<strong style="color:#4caf50;">${pName}</strong><br><span style="font-size:10px; color:#aaa;">World: ${pRoom}</span>`;
+
+                let joinBtn = document.createElement('button');
+                joinBtn.innerText = 'Join';
+                joinBtn.style.cssText = "padding: 4px 8px; font-size: 12px; background: linear-gradient(180deg, #66bb6a, #2e7d32);";
+                joinBtn.onclick = () => window.joinFriendCodeDirect(pRoom);
+
+                div.appendChild(infoSpan);
+                div.appendChild(joinBtn);
+                globalPlayersEl.appendChild(div);
+            });
+        }
     }
 };
 
@@ -3304,14 +3345,15 @@ window.joinFriendWorld = function() {
 };
 
 window.joinFriendCodeDirect = function(code) {
-    if (code === multiplayerRoom) {
+    const upperCode = (code || "").toUpperCase();
+    if (upperCode === (multiplayerRoom || "").toUpperCase()) {
         window.showModernNotification("You are already in this world!");
         return;
     }
 
     // Leave current room and join new one
     // Just reload the page but setting the new code
-    localStorage.setItem('wildpulse_world_code', code);
+    localStorage.setItem('wildpulse_world_code', upperCode);
     window.location.reload();
 };
 
@@ -3326,12 +3368,12 @@ window.copyWorldCode = function() {
 };
 
 window.returnToOwnWorld = function() {
-    const ownCode = localStorage.getItem('wildpulse_own_world_code');
+    const ownCode = (localStorage.getItem('wildpulse_own_world_code') || "").toUpperCase();
     if (!ownCode) {
         window.showModernNotification("Could not find your original world code.");
         return;
     }
-    if (multiplayerRoom === ownCode) {
+    if ((multiplayerRoom || "").toUpperCase() === ownCode) {
         window.showModernNotification("You are already in your own world!");
         return;
     }
@@ -4358,10 +4400,12 @@ setInterval(() => {
 window.initializeMultiplayer = function(roomCode) {
     if (roomCode) {
         let hash = 0;
-        for (let i = 0; i < roomCode.length; i++) {
-            hash = roomCode.charCodeAt(i) + ((hash << 5) - hash);
+        const upperRoomCode = roomCode.toUpperCase();
+        for (let i = 0; i < upperRoomCode.length; i++) {
+            hash = upperRoomCode.charCodeAt(i) + ((hash << 5) - hash);
         }
         window.gameSeed = Math.abs(hash) || 123456789;
+        window.initialRoomSeed = window.gameSeed;
     }
     if (typeof io === 'undefined') {
         console.warn("[Multiplayer] Socket.io not found. Multiplayer disabled.");
@@ -4389,12 +4433,33 @@ window.initializeMultiplayer = function(roomCode) {
             window.clientServerOffset = data.serverNow - Date.now();
             window.serverStartTime = data.startTime;
             window.roomSeed = data.roomSeed;
+            window.initialRoomSeed = data.roomSeed;
             window.gameSeed = data.roomSeed; // Link to existing seeded random logic
             console.log(`[Multiplayer] Room synced. Offset: ${window.clientServerOffset}ms, Seed: ${window.roomSeed}`);
         }
 
         if (window.localPlayerLabel && !window.cachedPlayerName) {
             window.localPlayerLabel.setText("P" + index);
+        }
+
+        // Immediately broadcast identity and position to room via socket relay
+        if (socket && socket.connected) {
+            socket.emit('player-data', {
+                type: 'identity',
+                name: window.cachedPlayerName,
+                color: window.cachedPlayerColor,
+                auraColor: window.cachedPlayerAuraColor
+            });
+            if (typeof player !== 'undefined') {
+                socket.emit('player-data', {
+                    type: 'pos',
+                    x: Math.round(player.x),
+                    y: Math.round(player.y),
+                    vx: 0,
+                    vy: 0,
+                    level: window.collectedCreatures[0]?.level || 1
+                });
+            }
         }
     });
 
@@ -6043,7 +6108,8 @@ function create() {
     // Procedural generation
 
     // Initialize deterministic PRNG with seed if available, else a default
-    let rng = new Phaser.Math.RandomDataGenerator([window.gameSeed ? window.gameSeed.toString() : '123456789']);
+    const stableSeed = window.initialRoomSeed || window.gameSeed || 123456789;
+    let rng = new Phaser.Math.RandomDataGenerator([stableSeed.toString()]);
 
     // First fill map with grass
     for (let r = 0; r < rows; r++) {
@@ -6605,7 +6671,7 @@ function create() {
     window.cloudGroup = this.physics.add.group();
     window.cloudReflectionGroup = this.physics.add.group();
     // More clouds for the larger map
-    const cloudRng = mulberry32(window.gameSeed || 12345);
+    const cloudRng = mulberry32(stableSeed || 12345);
     for (let i = 0; i < 750; i++) {
         let cx = cloudRng() * WORLD_SIZE;
         let cy = cloudRng() * WORLD_SIZE;
@@ -6691,7 +6757,8 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     if (creaturesGroup && creaturesGroup.getChildren().length >= 50) return;
 
     // Use a seeded RNG for deterministic creature properties if spawnIndex is provided
-    const sRng = (spawnIndex !== undefined) ? mulberry32(window.gameSeed + spawnIndex) : Math.random;
+    const stableSeed = window.initialRoomSeed || window.gameSeed || 123456789;
+    const sRng = (spawnIndex !== undefined) ? mulberry32(stableSeed + spawnIndex) : Math.random;
 
     let x = forceX;
     let y = forceY;
