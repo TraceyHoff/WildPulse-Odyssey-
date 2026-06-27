@@ -38,11 +38,19 @@ io.on('connection', (socket) => {
     await socket.join(roomId);
 
     if (!roomStates[roomId]) {
+        // Generate deterministic seed from roomId
+        let hash = 0;
+        const roomStr = String(roomId);
+        for (let i = 0; i < roomStr.length; i++) {
+            hash = roomStr.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const deterministicSeed = Math.abs(hash) || 123456789;
+
         roomStates[roomId] = {
             nextIndex: 1,
             users: {},
             startTime: Date.now(),
-            roomSeed: Math.floor(Math.random() * 2147483647)
+            roomSeed: deterministicSeed
         };
     }
     const rState = roomStates[roomId];
@@ -73,6 +81,17 @@ io.on('connection', (socket) => {
     io.to(data.target).emit('signal', {
       sender: socket.id,
       signal: data.signal
+    });
+  });
+
+  socket.on('player-data', (data) => {
+    // Relay to all rooms this socket is in (except its own ID room)
+    const myRooms = Array.from(socket.rooms).filter(r => r !== socket.id);
+    myRooms.forEach(roomId => {
+        socket.to(roomId).emit('player-data', {
+            sender: socket.id,
+            msg: data
+        });
     });
   });
 

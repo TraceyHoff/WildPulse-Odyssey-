@@ -4398,6 +4398,14 @@ window.initializeMultiplayer = function(roomCode) {
         }
     });
 
+    socket.on('player-data', (data) => {
+        const { sender, msg } = data;
+        lastPing[sender] = Date.now();
+        if (window.handleMultiplayerMessage) {
+            window.handleMultiplayerMessage(sender, msg);
+        }
+    });
+
     socket.on('global-users', (users) => {
         globalPlayerList = users;
     });
@@ -6256,20 +6264,28 @@ function create() {
 
     this.physics.add.collider(player, window.treesGroup);
 
-    // Immediately broadcast identity and position to all open channels so they see us if they were already connected
+    // Immediately broadcast identity and position to all open channels and socket so they see us if they were already connected
+    const identityMsg = {
+        type: 'identity',
+        name: window.cachedPlayerName,
+        color: window.cachedPlayerColor,
+        auraColor: window.cachedPlayerAuraColor
+    };
+    const posMsg = { type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 };
+
+    if (socket && socket.connected) {
+        socket.emit('player-data', identityMsg);
+        socket.emit('player-data', posMsg);
+    }
+
     if (typeof dataChannels !== 'undefined') {
-        const identityMsg = JSON.stringify({
-            type: 'identity',
-            name: window.cachedPlayerName,
-            color: window.cachedPlayerColor,
-            auraColor: window.cachedPlayerAuraColor
-        });
-        const posMsg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 });
+        const identityMsgStr = JSON.stringify(identityMsg);
+        const posMsgStr = JSON.stringify(posMsg);
         for (const id in dataChannels) {
             const dc = dataChannels[id];
             if (dc.readyState === 'open') {
-                dc.send(identityMsg);
-                dc.send(posMsg);
+                dc.send(identityMsgStr);
+                dc.send(posMsgStr);
             }
         }
     }
@@ -8150,7 +8166,7 @@ function update() {
                 vy = (player.y - this.lastY) / (dt / 1000);
             }
             // Use shortened keys and integer values for payload compression
-            const msg = JSON.stringify({
+            const msgObj = {
                 type: 'pos',
                 x: Math.round(player.x),
                 y: Math.round(player.y),
@@ -8158,11 +8174,17 @@ function update() {
                 vy: Math.round(vy),
                 battle: !!window.inBattle,
                 level: window.collectedCreatures[0]?.level || 1
-            });
+            };
+
+            if (socket && socket.connected) {
+                socket.emit('player-data', msgObj);
+            }
+
+            const msgStr = JSON.stringify(msgObj);
             for (const id in dataChannels) {
                 const dc = dataChannels[id];
                 if (dc.readyState === 'open') {
-                    dc.send(msg);
+                    dc.send(msgStr);
                 }
             }
             this.lastX = player.x;
