@@ -631,6 +631,16 @@
 window.gameSeed = undefined;
 window.originalRandom = Math.random;
 
+// mulberry32 is a robust 32-bit PRNG
+window.mulberry32 = function(a) {
+    return function() {
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+}
+
 Math.random = function() {
     if (window.gameSeed !== undefined) {
         let t = window.gameSeed += 0x6D2B79F5;
@@ -4319,8 +4329,18 @@ window.initializeMultiplayer = function(roomCode) {
         }
     });
 
-    socket.on('assigned-index', (index) => {
+    socket.on('assigned-index', (data) => {
+        const index = typeof data === 'object' ? data.index : data;
         window.playerIndexCount = index;
+
+        if (typeof data === 'object') {
+            window.clientServerOffset = data.serverNow - Date.now();
+            window.serverStartTime = data.startTime;
+            window.roomSeed = data.roomSeed;
+            window.gameSeed = data.roomSeed; // Link to existing seeded random logic
+            console.log(`[Multiplayer] Room synced. Offset: ${window.clientServerOffset}ms, Seed: ${window.roomSeed}`);
+        }
+
         if (window.localPlayerLabel && !window.cachedPlayerName) {
             window.localPlayerLabel.setText("P" + index);
         }
@@ -6264,7 +6284,11 @@ function create() {
             if (remotePlayers[userId]) {
                 const rp = remotePlayers[userId];
                 const pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
-                if (rp.label) rp.label.setText(msg.name || "P" + pIndex);
+                let labelText = (msg.name || "P" + pIndex);
+                if (rp.getData('level')) labelText += ` | Lvl ${rp.getData('level')}`;
+                if (rp.getData('battle')) labelText += " (In Battle)";
+                if (rp.label) rp.label.setText(labelText);
+
                 if (msg.color) {
                     const customColor = parseInt(msg.color.replace('#', '0x'));
                     rp.originalColor = customColor;
@@ -6302,13 +6326,20 @@ function create() {
 
                 this.physics.add.existing(remotePlayer);
                 remotePlayer.setDepth(10);
-                let label = this.add.text(msg.x, msg.y - 30, customName, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
+
+                let labelText = customName;
+                if (msg.level) labelText += ` | Lvl ${msg.level}`;
+                if (msg.battle) labelText += " (In Battle)";
+
+                let label = this.add.text(msg.x, msg.y - 30, labelText, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
                 label.setDepth(10);
                 remotePlayer.label = label;
                 remotePlayer.setData('targetX', msg.x);
                 remotePlayer.setData('targetY', msg.y);
                 remotePlayer.setData('vx', msg.vx || 0);
                 remotePlayer.setData('vy', msg.vy || 0);
+                remotePlayer.setData('battle', !!msg.battle);
+                remotePlayer.setData('level', msg.level || 1);
                 remotePlayer.setData('lastUpdate', Date.now());
                 remotePlayers[userId] = remotePlayer;
             } else {
@@ -6326,8 +6357,25 @@ function create() {
                 rp.setData('targetY', msg.y);
                 rp.setData('vx', msg.vx || 0);
                 rp.setData('vy', msg.vy || 0);
+                rp.setData('battle', !!msg.battle);
+                rp.setData('level', msg.level || 1);
                 rp.setData('lastUpdate', Date.now());
+
+                let identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) ? window.remotePlayerIdentities[userId] : {};
+                let pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
+                let labelText = (identity.name || "P" + pIndex);
+                if (msg.level) labelText += ` | Lvl ${msg.level}`;
+                if (msg.battle) labelText += " (In Battle)";
+                if (rp.label) rp.label.setText(labelText);
             }
+        } else if (msg.type === 'creature_caught') {
+            const creatureId = msg.creatureId;
+            creaturesGroup.getChildren().forEach(creature => {
+                const data = creature.getData('creatureData');
+                if (data && data.id === creatureId) {
+                    creature.destroy();
+                }
+            });
         }
     };
 
@@ -6346,10 +6394,10 @@ function create() {
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
-    // Spawn base creatures (increased by 200% for density)
+    // Spawn base creatures
     let spawnCount = Math.floor(baseCreatures.length * 1.0);
     for (let i = 0; i < spawnCount; i++) {
-        spawnCreature(this, baseCreatures[i % baseCreatures.length]);
+        spawnCreature(this, baseCreatures[i % baseCreatures.length], undefined, undefined, i);
     }
 
     // Wind effects, particles, and clouds
@@ -6481,16 +6529,17 @@ function create() {
     window.cloudGroup = this.physics.add.group();
     window.cloudReflectionGroup = this.physics.add.group();
     // More clouds for the larger map
+    const cloudRng = mulberry32(window.gameSeed || 12345);
     for (let i = 0; i < 750; i++) {
-        let cx = Math.random() * WORLD_SIZE;
-        let cy = Math.random() * WORLD_SIZE;
+        let cx = cloudRng() * WORLD_SIZE;
+        let cy = cloudRng() * WORLD_SIZE;
         let cloud = window.cloudGroup.create(cx, cy, 'cloud_shadow');
         cloud.setDepth(2000);
-        let cloudAlpha = 0.1 + Math.random() * 0.4;
+        let cloudAlpha = 0.1 + cloudRng() * 0.4;
         cloud.setAlpha(cloudAlpha);
-        cloud.baseScaleX = 1 + Math.random() * 2;
-        cloud.baseScaleY = 1 + Math.random() * 2;
-        cloud.seed = Math.random() * Math.PI * 2;
+        cloud.baseScaleX = 1 + cloudRng() * 2;
+        cloud.baseScaleY = 1 + cloudRng() * 2;
+        cloud.seed = cloudRng() * Math.PI * 2;
         cloud.setScale(cloud.baseScaleX, cloud.baseScaleY);
 
         let cloudReflection = window.cloudReflectionGroup.create(cx, cy, 'cloud_reflection');
@@ -6562,16 +6611,20 @@ function healParty(playerCollider, hospitalCollider) {
     }
 }
 
-function spawnCreature(scene, creatureData, forceX, forceY) {
+function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     if (creaturesGroup && creaturesGroup.getChildren().length >= 50) return;
+
+    // Use a seeded RNG for deterministic creature properties if spawnIndex is provided
+    const sRng = (spawnIndex !== undefined) ? mulberry32(window.gameSeed + spawnIndex) : Math.random;
+
     let x = forceX;
     let y = forceY;
     let found = false;
     let attempts = 0;
     if (x === undefined || y === undefined) {
         while (!found && attempts < 100) {
-            let tryX = Phaser.Math.Between(100, WORLD_SIZE - 100);
-            let tryY = Phaser.Math.Between(100, WORLD_SIZE - 100);
+            let tryX = 100 + (sRng() * (WORLD_SIZE - 200));
+            let tryY = 100 + (sRng() * (WORLD_SIZE - 200));
             let col = Math.floor(tryX / 100);
             let row = Math.floor(tryY / 100);
             if (mapData[row] && mapData[row][col] === 'grass') {
@@ -6592,12 +6645,12 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
     // Randomize stats with IVs (0-31)
     if (clonedData.stats) {
         for (let stat in clonedData.stats) {
-            clonedData.stats[stat] += Math.floor(Math.random() * 32);
+            clonedData.stats[stat] += Math.floor(sRng() * 32);
         }
     }
 
     // 0.1% Shiny Chance
-    clonedData.isShiny = Math.random() < 0.001;
+    clonedData.isShiny = sRng() < 0.001;
     if (clonedData.isShiny && clonedData.stats) {
         for (let stat in clonedData.stats) {
             clonedData.stats[stat] = Math.floor(clonedData.stats[stat] * 1.2);
@@ -6632,29 +6685,34 @@ function spawnCreature(scene, creatureData, forceX, forceY) {
     // Only generate a new name if it's not a bred creature (generation > 1) and not already generated
     if (!clonedData.generation || clonedData.generation === 1) {
         const pList = typePrefixes[clonedData.type] || typePrefixes["Nature"];
-        const p = pList[Math.floor(Math.random() * pList.length)];
-        const s = suffixes[Math.floor(Math.random() * suffixes.length)];
+        const p = pList[Math.floor(sRng() * pList.length)];
+        const s = suffixes[Math.floor(sRng() * suffixes.length)];
         clonedData.name = p + s;
     }
 
-    // Assign random nature and unique ID on spawn
-    clonedData.nature = window.getRandomNature();
-    clonedData.mood = window.getRandomMood();
+    // Assign nature, mood, and ability deterministically
+    const natures = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty", "Serious", "Jolly", "Naive", "Modest", "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
+    clonedData.nature = natures[Math.floor(sRng() * natures.length)];
 
-    // Assign Ability
-    window.assignAbility(clonedData);
+    const moods = ["Aggressive", "Passive", "Protective", "Cowardly", "Friendly", "Curious", "Stoic", "Playful", "Territorial", "Nervous"];
+    clonedData.mood = moods[Math.floor(sRng() * moods.length)];
+
+    // Assign Ability Deterministically
+    const typeAbilities = window.abilities[clonedData.type] || window.abilities["Nature"];
+    clonedData.ability = typeAbilities[Math.floor(sRng() * typeAbilities.length)];
 
     let minPossibleLevel = collectedCreatures.length > 0 ? Math.min(...collectedCreatures.map(c => c.level || 1)) : 1;
     let maxPossibleLevel = collectedCreatures.length > 0 ? Math.max(...collectedCreatures.map(c => c.level || 1)) : 1;
     if (maxPossibleLevel === 1 && minPossibleLevel === 1) {
         clonedData.level = 1;
     } else {
-        let wildLevel = Math.floor(Math.random() * (maxPossibleLevel - minPossibleLevel + 1)) + minPossibleLevel;
+        let wildLevel = Math.floor(sRng() * (maxPossibleLevel - minPossibleLevel + 1)) + minPossibleLevel;
         clonedData.level = Math.max(1, wildLevel);
     }
     clonedData.xp = 0;
 
-    clonedData.id = Date.now().toString() + "_" + Math.floor(Math.random() * 1000000).toString();
+    // Deterministic ID for synchronization
+    clonedData.id = "spawn_" + (spawnIndex !== undefined ? spawnIndex : Date.now()) + "_" + Math.floor(sRng() * 1000000);
 
     if (!clonedData.color) clonedData.color = window.getCreatureColor(clonedData);
     const sprite = scene.add.rectangle(x, y, 30, 30, clonedData.color);
@@ -7387,6 +7445,17 @@ window.closeBattleModal = function() {
         return; // wait for level up modal to close
     }
 
+    if (result === 'caught' && currentEnemy) {
+        // Broadcast catch to all peers
+        const catchMsg = JSON.stringify({ type: 'creature_caught', creatureId: currentEnemy.id });
+        for (const id in dataChannels) {
+            const dc = dataChannels[id];
+            if (dc.readyState === 'open') {
+                dc.send(catchMsg);
+            }
+        }
+    }
+
     inBattle = false;
     player.body.moves = true;
     player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
@@ -7626,20 +7695,30 @@ function update() {
     // Animate background
 
     // Day Night Cycle Update
-    if (!lastDayNightUpdate) lastDayNightUpdate = this.time.now;
-    let dt = this.time.now - lastDayNightUpdate;
-    lastDayNightUpdate = this.time.now;
+    let dt = this.game.loop.delta;
 
     // 24 hours = 20 real minutes = 1200 seconds = 1,200,000 ms
     // 1 in-game hour = 50,000 ms
     if (window.gameStarted) {
-        dayNightTime += (dt / 50000);
-        if (dayNightTime >= 24.0) {
-            dayNightTime -= 24.0;
-            wildpulse_inGameDays += 1;
-            localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
+        if (window.serverStartTime) {
+            const roomAgeMs = Date.now() + (window.clientServerOffset || 0) - window.serverStartTime;
+            const totalInGameHours = roomAgeMs / 50000;
+            dayNightTime = totalInGameHours % 24;
+            const newInGameDays = Math.floor(totalInGameHours / 24);
+            if (newInGameDays !== wildpulse_inGameDays) {
+                wildpulse_inGameDays = newInGameDays;
+                localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
+            }
+        } else {
+            dayNightTime += (dt / 50000);
+            if (dayNightTime >= 24.0) {
+                dayNightTime -= 24.0;
+                wildpulse_inGameDays += 1;
+                localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
+            }
+        }
 
-            let seasonIndex = Math.floor((wildpulse_inGameDays % 120) / 30);
+        let seasonIndex = Math.floor((wildpulse_inGameDays % 120) / 30);
             const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
             let newSeason = seasons[seasonIndex];
 
@@ -7716,7 +7795,9 @@ function update() {
     }
 
     let targetAlpha = Math.max(dayNightAlpha, weatherAlpha);
-    if (dayNightOverlay) dayNightOverlay.setAlpha(targetAlpha);
+    if (dayNightOverlay) {
+        dayNightOverlay.setAlpha(dayNightOverlay.alpha + (targetAlpha - dayNightOverlay.alpha) * 0.05);
+    }
 
     if (window.starSprite) {
         window.starSprite.setAlpha(targetAlpha * 1.5);
@@ -8009,7 +8090,15 @@ function update() {
                 vy = (player.y - this.lastY) / (dt / 1000);
             }
             // Use shortened keys and integer values for payload compression
-            const msg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: Math.round(vx), vy: Math.round(vy) });
+            const msg = JSON.stringify({
+                type: 'pos',
+                x: Math.round(player.x),
+                y: Math.round(player.y),
+                vx: Math.round(vx),
+                vy: Math.round(vy),
+                battle: !!window.inBattle,
+                level: window.collectedCreatures[0]?.level || 1
+            });
             for (const id in dataChannels) {
                 const dc = dataChannels[id];
                 if (dc.readyState === 'open') {
@@ -8329,19 +8418,18 @@ function update() {
 
 
     // Update Weather states
-    window.weatherTimer += 1;
-    if (window.weatherTimer > 1200) { // Approx 20 seconds at 60fps
-        window.weatherTimer = 0;
+    if (window.serverStartTime && window.roomSeed) {
+        const roomAgeMs = Date.now() + (window.clientServerOffset || 0) - window.serverStartTime;
+        const intervalIndex = Math.floor(roomAgeMs / 20000);
+        const weatherRng = mulberry32(window.roomSeed + intervalIndex);
 
-        // Randomize clouds
-        let rCloud = Math.random();
+        let rCloud = weatherRng();
         if (rCloud < 0.33) window.cloudCoverage = 'clear';
         else if (rCloud < 0.66) window.cloudCoverage = 'partly_cloudy';
         else window.cloudCoverage = 'cloudy';
 
-        // Weather only happens if cloudy
         if (window.cloudCoverage === 'cloudy') {
-            let rWeather = Math.random();
+            let rWeather = weatherRng();
             if (window.currentSeason === 'Spring' || window.currentSeason === 'Summer' || window.currentSeason === 'Fall') {
                 if (rWeather < 0.4) window.weatherPattern = 'none';
                 else if (rWeather < 0.6) window.weatherPattern = 'light_rain';
@@ -8358,6 +8446,37 @@ function update() {
         } else {
             window.weatherPattern = 'none';
         }
+    } else {
+        window.weatherTimer += 1;
+        if (window.weatherTimer > 1200) { // Approx 20 seconds at 60fps
+            window.weatherTimer = 0;
+
+            // Randomize clouds
+            let rCloud = Math.random();
+            if (rCloud < 0.33) window.cloudCoverage = 'clear';
+            else if (rCloud < 0.66) window.cloudCoverage = 'partly_cloudy';
+            else window.cloudCoverage = 'cloudy';
+
+            // Weather only happens if cloudy
+            if (window.cloudCoverage === 'cloudy') {
+                let rWeather = Math.random();
+                if (window.currentSeason === 'Spring' || window.currentSeason === 'Summer' || window.currentSeason === 'Fall') {
+                    if (rWeather < 0.4) window.weatherPattern = 'none';
+                    else if (rWeather < 0.6) window.weatherPattern = 'light_rain';
+                    else if (rWeather < 0.8) window.weatherPattern = 'heavy_rain';
+                    else window.weatherPattern = 'thunderstorm';
+                } else if (window.currentSeason === 'Winter') {
+                    if (rWeather < 0.4) window.weatherPattern = 'none';
+                    else if (rWeather < 0.6) window.weatherPattern = 'light_snow';
+                    else if (rWeather < 0.8) window.weatherPattern = 'heavy_snow';
+                    else window.weatherPattern = 'thundersnow';
+                } else {
+                    window.weatherPattern = 'none';
+                }
+            } else {
+                window.weatherPattern = 'none';
+            }
+        }
     }
 
     if (window.lightningOverlay) {
@@ -8369,11 +8488,20 @@ function update() {
     }
 
     // Update Wind
-    window.windTimer += 1;
-    if (window.windTimer > 600) { // Change wind target approx every 10 seconds
-        window.targetWindAngle = window.windAngle + (Math.random() - 0.5) * Math.PI / 2;
-        window.targetWindSpeed = 50 + Math.random() * 200; // Base speed 50 to 250
-        window.windTimer = 0;
+    if (window.serverStartTime && window.roomSeed) {
+        const roomAgeMs = Date.now() + (window.clientServerOffset || 0) - window.serverStartTime;
+        const windIntervalIndex = Math.floor(roomAgeMs / 10000);
+        const windRng = mulberry32(window.roomSeed + windIntervalIndex + 999);
+
+        window.targetWindAngle = (window.targetWindAngle || 0) + (windRng() - 0.5) * Math.PI / 2;
+        window.targetWindSpeed = 50 + windRng() * 200;
+    } else {
+        window.windTimer += 1;
+        if (window.windTimer > 600) { // Change wind target approx every 10 seconds
+            window.targetWindAngle = window.windAngle + (Math.random() - 0.5) * Math.PI / 2;
+            window.targetWindSpeed = 50 + Math.random() * 200; // Base speed 50 to 250
+            window.windTimer = 0;
+        }
     }
     if (window.targetWindSpeed === undefined) {
         window.targetWindSpeed = window.windSpeed;
@@ -8427,83 +8555,65 @@ function update() {
         // Dynamic, Season-Aware Particles
         let timeOscillation = Math.sin(this.time.now / 1000) * 0.5 + 0.5; // 0 to 1
 
+        let targetLeafRed = 0, targetLeafYellow = 0, targetLeafMixed = 0;
+        let targetLeafGreen1 = 0, targetLeafGreen2 = 0, targetPollen = 0, targetRain = 0, targetSnow = 0;
+
         if (window.currentSeason === 'Spring') {
-            window.leafRedEmitter.setQuantity(0);
-            window.leafYellowEmitter.setQuantity(0);
-            window.leafMixedEmitter.setQuantity(0);
-            window.snowflakeEmitter.setQuantity(0);
-
             let springCount = 1 + Math.floor(timeOscillation * 2);
-            window.leafGreen1Emitter.setQuantity(springCount);
-            window.leafGreen2Emitter.setQuantity(springCount);
-            window.pollenEmitter.setQuantity(4 + Math.floor(timeOscillation * 8)); // Extra pollen in spring!
+            targetLeafGreen1 = springCount;
+            targetLeafGreen2 = springCount;
+            targetPollen = 4 + Math.floor(timeOscillation * 8);
         } else if (window.currentSeason === 'Summer') {
-            window.leafRedEmitter.setQuantity(0);
-            window.leafYellowEmitter.setQuantity(0);
-            window.leafMixedEmitter.setQuantity(0);
-            window.snowflakeEmitter.setQuantity(0);
-
             let greenCount = 1 + Math.floor(timeOscillation * 2);
-            window.leafGreen1Emitter.setQuantity(greenCount);
-            window.leafGreen2Emitter.setQuantity(greenCount);
-            window.pollenEmitter.setQuantity(2 + Math.floor(timeOscillation * 4));
+            targetLeafGreen1 = greenCount;
+            targetLeafGreen2 = greenCount;
+            targetPollen = 2 + Math.floor(timeOscillation * 4);
         } else if (window.currentSeason === 'Fall') {
-            window.leafGreen1Emitter.setQuantity(0);
-            window.leafGreen2Emitter.setQuantity(0);
-            window.snowflakeEmitter.setQuantity(0);
-
             let fallCount = 1 + Math.floor(timeOscillation * 2);
-            window.leafRedEmitter.setQuantity(fallCount);
-            window.leafYellowEmitter.setQuantity(fallCount);
-            window.leafMixedEmitter.setQuantity(fallCount);
-            window.pollenEmitter.setQuantity(2 + Math.floor(timeOscillation * 4));
-        } else if (window.currentSeason === 'Winter') {
-            window.leafRedEmitter.setQuantity(0);
-            window.leafYellowEmitter.setQuantity(0);
-            window.leafMixedEmitter.setQuantity(0);
-            window.leafGreen1Emitter.setQuantity(0);
-            window.leafGreen2Emitter.setQuantity(0);
-            window.pollenEmitter.setQuantity(0);
+            targetLeafRed = fallCount;
+            targetLeafYellow = fallCount;
+            targetLeafMixed = fallCount;
+            targetPollen = 2 + Math.floor(timeOscillation * 4);
         }
 
-        // Apply Rain, Snow and Override Particles
-        if (window.rainEmitter) {
-            if (window.weatherPattern === 'light_rain') {
-                window.rainEmitter.setQuantity(3);
-                window.rainEmitter.setSpeedX(windVx * 1.5);
-            } else if (window.weatherPattern === 'heavy_rain') {
-                window.rainEmitter.setQuantity(8);
-                window.rainEmitter.setSpeedX(windVx * 1.5);
-            } else if (window.weatherPattern === 'thunderstorm') {
-                window.rainEmitter.setQuantity(15);
-                window.rainEmitter.setSpeedX(windVx * 1.5);
+        if (window.weatherPattern.includes('rain')) {
+            if (window.weatherPattern === 'light_rain') targetRain = 3;
+            else if (window.weatherPattern === 'heavy_rain') targetRain = 8;
+            else if (window.weatherPattern === 'thunderstorm') targetRain = 15;
+
+            targetPollen = 0; targetLeafRed = 0; targetLeafYellow = 0; targetLeafMixed = 0;
+            targetLeafGreen1 = 0; targetLeafGreen2 = 0;
+        }
+
+        if (window.currentSeason === 'Winter') {
+            let snowCount = 2 + Math.floor(timeOscillation * 4);
+            if (window.weatherPattern === 'light_snow') targetSnow = snowCount + 3;
+            else if (window.weatherPattern === 'heavy_snow') targetSnow = snowCount + 8;
+            else if (window.weatherPattern === 'thundersnow') targetSnow = snowCount + 15;
+            else targetSnow = snowCount;
+        }
+
+        // Apply quantities with smooth lerping
+        const lerpQuantity = (emitter, target) => {
+            if (!emitter) return;
+            let current = emitter.quantity;
+            if (Math.abs(current - target) < 0.1) {
+                emitter.setQuantity(target);
             } else {
-                window.rainEmitter.setQuantity(0);
+                emitter.setQuantity(current + (target - current) * 0.02);
             }
+        };
 
-            if (window.weatherPattern !== 'none' && !window.weatherPattern.includes('snow')) {
-                // Remove pollen and leaf particles when raining
-                window.pollenEmitter.setQuantity(0);
-                window.leafRedEmitter.setQuantity(0);
-                window.leafYellowEmitter.setQuantity(0);
-                window.leafMixedEmitter.setQuantity(0);
-                window.leafGreen1Emitter.setQuantity(0);
-                window.leafGreen2Emitter.setQuantity(0);
-            }
-        }
+        lerpQuantity(window.leafRedEmitter, targetLeafRed);
+        lerpQuantity(window.leafYellowEmitter, targetLeafYellow);
+        lerpQuantity(window.leafMixedEmitter, targetLeafMixed);
+        lerpQuantity(window.leafGreen1Emitter, targetLeafGreen1);
+        lerpQuantity(window.leafGreen2Emitter, targetLeafGreen2);
+        lerpQuantity(window.pollenEmitter, targetPollen);
+        lerpQuantity(window.rainEmitter, targetRain);
+        lerpQuantity(window.snowflakeEmitter, targetSnow);
 
-        if (window.snowflakeEmitter && window.currentSeason === 'Winter') {
-            let snowCount = 2 + Math.floor(timeOscillation * 4); // base snow
-            if (window.weatherPattern === 'light_snow') {
-                window.snowflakeEmitter.setQuantity(snowCount + 3);
-            } else if (window.weatherPattern === 'heavy_snow') {
-                window.snowflakeEmitter.setQuantity(snowCount + 8);
-            } else if (window.weatherPattern === 'thundersnow') {
-                window.snowflakeEmitter.setQuantity(snowCount + 15);
-            } else {
-                window.snowflakeEmitter.setQuantity(snowCount);
-            }
-        }
+        if (window.rainEmitter) window.rainEmitter.setSpeedX(windVx * 1.5);
     }
 
     // Update Clouds
