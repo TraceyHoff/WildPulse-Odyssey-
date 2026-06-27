@@ -958,15 +958,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Broadcast identity update to all peers
         if (socket && socket.connected) {
             socket.emit('update-identity', { name: name });
-        }
-        const identityMsg = JSON.stringify({ type: 'identity', name: name, color: color, auraColor: auraColor });
-        if (typeof dataChannels !== 'undefined') {
-            for (const id in dataChannels) {
-                const dc = dataChannels[id];
-                if (dc.readyState === 'open') {
-                    dc.send(identityMsg);
-                }
-            }
+            socket.emit('player-data', { type: 'identity', name: name, color: color, auraColor: auraColor });
         }
 
         window.showModernNotification("Character updated!");
@@ -3254,8 +3246,7 @@ window.updateLobbyUI = function() {
     } else {
         roomUsers.forEach((pid) => {
             const index = window.roomUsers[pid].index || '?';
-            const isConnected = dataChannels[pid] && dataChannels[pid].readyState === 'open';
-            const statusText = isConnected ? '<span style="color:#4caf50;">(Connected)</span>' : '<span style="color:#ff9800;">(Connecting...)</span>';
+            const statusText = '<span style="color:#4caf50;">(Connected)</span>';
 
             let div = document.createElement('div');
             div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #444;";
@@ -4121,10 +4112,6 @@ window.openTradeModal = function() {
             option.text = `Player ${userId.substring(0, 5)}...`;
             s2.appendChild(option);
 
-            // Connect to them if not connected, since they might be in a different room
-            if (!peers[userId]) {
-                createPeerConnection(userId, true);
-            }
         });
 
         if (usersToDisplay.length === 0) {
@@ -4196,10 +4183,6 @@ window.openPvpModal = function() {
             option.text = `Player ${userId.substring(0, 5)}...`;
             s2.appendChild(option);
 
-            // Connect to them if not connected, since they might be in a different room
-            if (!peers[userId]) {
-                createPeerConnection(userId, true);
-            }
         });
 
         if (usersToDisplay.length === 0) {
@@ -4245,14 +4228,15 @@ window.sendTradeOffer = function() {
 
     const creature = collectedCreatures.find(c => String(c.id) === String(creatureId));
 
-    if (dataChannels[targetUserId] && dataChannels[targetUserId].readyState === 'open') {
-        dataChannels[targetUserId].send(JSON.stringify({
+    if (socket && socket.connected) {
+        socket.emit('player-data', {
+            target: targetUserId,
             type: 'trade_offer',
             creature: creature
-        }));
+        });
         document.getElementById('tradeResult').innerText = "Trade offer sent!";
     } else {
-        document.getElementById('tradeResult').innerText = "Could not connect to player.";
+        document.getElementById('tradeResult').innerText = "Could not connect to server.";
     }
 };
 
@@ -4263,11 +4247,12 @@ window.acceptTradeOffer = function() {
     // In a full implementation, both sides would offer a creature.
     window.saveCollected(pendingTradeOffer.creature);
 
-    if (dataChannels[pendingTradeOffer.from] && dataChannels[pendingTradeOffer.from].readyState === 'open') {
-        dataChannels[pendingTradeOffer.from].send(JSON.stringify({
+    if (socket && socket.connected) {
+        socket.emit('player-data', {
+            target: pendingTradeOffer.from,
             type: 'trade_accept',
             creatureId: pendingTradeOffer.creature.id
-        }));
+        });
     }
 
     window.gameStats.creaturesTraded++;
@@ -4282,10 +4267,11 @@ window.acceptTradeOffer = function() {
 window.rejectTradeOffer = function() {
     if (!pendingTradeOffer) return;
 
-    if (dataChannels[pendingTradeOffer.from] && dataChannels[pendingTradeOffer.from].readyState === 'open') {
-        dataChannels[pendingTradeOffer.from].send(JSON.stringify({
+    if (socket && socket.connected) {
+        socket.emit('player-data', {
+            target: pendingTradeOffer.from,
             type: 'trade_reject'
-        }));
+        });
     }
 
     document.getElementById('tradeIncomingSection').style.display = 'none';
@@ -4307,14 +4293,15 @@ window.sendPvpOffer = function() {
          return;
     }
 
-    if (dataChannels[targetUserId] && dataChannels[targetUserId].readyState === 'open') {
-        dataChannels[targetUserId].send(JSON.stringify({
+    if (socket && socket.connected) {
+        socket.emit('player-data', {
+            target: targetUserId,
             type: 'pvp_offer',
             firstCreature: activeParty[0]
-        }));
+        });
         document.getElementById('pvpResult').innerText = "Battle offer sent!";
     } else {
-        document.getElementById('pvpResult').innerText = "Could not connect to player.";
+        document.getElementById('pvpResult').innerText = "Could not connect to server.";
     }
 };
 
@@ -4327,11 +4314,12 @@ window.acceptPvpOffer = function() {
         return;
     }
 
-    if (dataChannels[pendingPvpOffer.from] && dataChannels[pendingPvpOffer.from].readyState === 'open') {
-        dataChannels[pendingPvpOffer.from].send(JSON.stringify({
+    if (socket && socket.connected) {
+        socket.emit('player-data', {
+            target: pendingPvpOffer.from,
             type: 'pvp_accept',
             firstCreature: activeParty[0]
-        }));
+        });
     }
 
     document.getElementById('pvpIncomingSection').style.display = 'none';
@@ -4346,10 +4334,11 @@ window.acceptPvpOffer = function() {
 window.rejectPvpOffer = function() {
     if (!pendingPvpOffer) return;
 
-    if (dataChannels[pendingPvpOffer.from] && dataChannels[pendingPvpOffer.from].readyState === 'open') {
-        dataChannels[pendingPvpOffer.from].send(JSON.stringify({
+    if (socket && socket.connected) {
+        socket.emit('player-data', {
+            target: pendingPvpOffer.from,
             type: 'pvp_reject'
-        }));
+        });
     }
 
     document.getElementById('pvpIncomingSection').style.display = 'none';
@@ -4360,42 +4349,8 @@ window.rejectPvpOffer = function() {
 // ==================== MULTIPLAYER LOBBY ====================
 let multiplayerRoom = null;
 let socket = null;
-let peers = {};
-let dataChannels = {};
-let lastPing = {}; // userId -> timestamp
 let globalPlayerList = [];
 window.roomUsers = {}; // userId -> { index }
-
-// Periodically broadcast ping to keep connections alive and check for dead peers
-setInterval(() => {
-    const now = Date.now();
-    // Check for dead connections
-    for (let userId in lastPing) {
-        if (now - lastPing[userId] > 10000) { // 10 seconds timeout
-            console.warn(`[Multiplayer] Connection to ${userId} timed out. Removing.`);
-            if (peers[userId]) {
-                peers[userId].close();
-                delete peers[userId];
-            }
-            if (dataChannels[userId]) {
-                delete dataChannels[userId];
-            }
-            delete lastPing[userId];
-            if (window.removeRemotePlayer) {
-                window.removeRemotePlayer(userId);
-            }
-        }
-    }
-
-    // Send ping
-    const pingMsg = JSON.stringify({ type: 'ping' });
-    for (const id in dataChannels) {
-        const dc = dataChannels[id];
-        if (dc.readyState === 'open') {
-            dc.send(pingMsg);
-        }
-    }
-}, 3000);
 
 window.initializeMultiplayer = function(roomCode) {
     if (roomCode) {
@@ -4465,7 +4420,6 @@ window.initializeMultiplayer = function(roomCode) {
 
     socket.on('player-data', (data) => {
         const { sender, msg } = data;
-        lastPing[sender] = Date.now();
         if (window.handleMultiplayerMessage) {
             window.handleMultiplayerMessage(sender, msg);
         }
@@ -4482,7 +4436,6 @@ window.initializeMultiplayer = function(roomCode) {
             window.roomUsers[userId] = { index: index };
             if (index && !window.remotePlayerIndices) window.remotePlayerIndices = {};
             if (index) window.remotePlayerIndices[userId] = index;
-            createPeerConnection(userId, true);
         });
         if (window.updateLobbyUI) window.updateLobbyUI();
     });
@@ -4497,164 +4450,16 @@ window.initializeMultiplayer = function(roomCode) {
             window.remotePlayerIndices[userId] = index;
         }
         if (window.updateLobbyUI) window.updateLobbyUI();
-        // Will receive offer from this user
     });
 
     socket.on('user-left', (userId) => {
         delete window.roomUsers[userId];
-        if (peers[userId]) {
-            peers[userId].close();
-            delete peers[userId];
-        }
-        if (dataChannels[userId]) {
-            delete dataChannels[userId];
-        }
         if (window.removeRemotePlayer) {
             window.removeRemotePlayer(userId);
         }
         if (window.updateLobbyUI) window.updateLobbyUI();
     });
-
-    socket.on('signal', async (data) => {
-        const { sender, signal } = data;
-        let peer = peers[sender];
-
-        if (!peer) {
-            peer = createPeerConnection(sender, false);
-        }
-
-        if (signal.type === 'offer') {
-            await peer.setRemoteDescription(new RTCSessionDescription(signal));
-            const answer = await peer.createAnswer();
-            await peer.setLocalDescription(answer);
-            socket.emit('signal', {
-                target: sender,
-                signal: peer.localDescription
-            });
-        } else if (signal.type === 'answer') {
-            await peer.setRemoteDescription(new RTCSessionDescription(signal));
-        } else if (signal.candidate) {
-            await peer.addIceCandidate(new RTCIceCandidate(signal));
-        }
-    });
 };
-
-function createPeerConnection(userId, initiator) {
-    const pc = new RTCPeerConnection({
-        iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-        ]
-    });
-
-    peers[userId] = pc;
-
-    pc.onicecandidate = (event) => {
-        if (event.candidate) {
-            socket.emit('signal', {
-                target: userId,
-                signal: event.candidate
-            });
-        }
-    };
-
-    if (initiator) {
-        const dc = pc.createDataChannel('gameData');
-        setupDataChannel(dc, userId);
-
-        pc.createOffer().then(offer => {
-            return pc.setLocalDescription(offer);
-        }).then(() => {
-            socket.emit('signal', {
-                target: userId,
-                signal: pc.localDescription
-            });
-        });
-    } else {
-        pc.ondatachannel = (event) => {
-            setupDataChannel(event.channel, userId);
-        };
-    }
-
-    return pc;
-}
-
-function setupDataChannel(dc, userId) {
-    dataChannels[userId] = dc;
-
-    dc.onopen = () => {
-        console.log("[Multiplayer] Data channel open with", userId);
-        lastPing[userId] = Date.now();
-
-        // Send identity immediately on open
-        const identityMsg = JSON.stringify({
-            type: 'identity',
-            name: window.cachedPlayerName,
-            color: window.cachedPlayerColor,
-            auraColor: window.cachedPlayerAuraColor
-        });
-        dc.send(identityMsg);
-
-        if (typeof player !== 'undefined' && typeof player.x !== 'undefined') {
-            const msg = JSON.stringify({ type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 });
-            dc.send(msg);
-        }
-        if (window.updateLobbyUI) window.updateLobbyUI();
-    };
-
-    dc.onclose = () => {
-        console.log("[Multiplayer] Data channel closed with", userId);
-        delete lastPing[userId];
-        if (window.updateLobbyUI) window.updateLobbyUI();
-    };
-
-    dc.onmessage = (event) => {
-        try {
-            const msg = JSON.parse(event.data);
-            lastPing[userId] = Date.now(); // update on ANY message to keep backward compatibility
-            if (msg.type === 'ping') {
-                return;
-            }
-            if (msg.type === 'trade_offer') {
-                pendingTradeOffer = {
-                    from: userId,
-                    creature: msg.creature
-                };
-                document.getElementById('tradeIncomingSection').style.display = 'block';
-                document.getElementById('tradeOfferText').innerText = `Player ${userId.substring(0, 5)}... offered a Level ${msg.creature.level} ${msg.creature.name}!`;
-            } else if (msg.type === 'trade_accept') {
-                // Remove the creature from our party
-                const index = collectedCreatures.findIndex(c => String(c.id) === String(msg.creatureId));
-                if (index !== -1) {
-                    collectedCreatures.splice(index, 1);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-                    document.getElementById('tradeResult').innerText = `Trade accepted! Player ${userId.substring(0, 5)}... took the creature.`;
-                }
-            } else if (msg.type === 'trade_reject') {
-                document.getElementById('tradeResult').innerText = `Player ${userId.substring(0, 5)}... rejected your trade offer.`;
-            } else if (msg.type === 'pvp_offer') {
-                pendingPvpOffer = {
-                    from: userId,
-                    firstCreature: msg.firstCreature
-                };
-                document.getElementById('pvpIncomingSection').style.display = 'block';
-                document.getElementById('pvpOfferText').innerText = `Player ${userId.substring(0, 5)}... challenged you to a battle with Level ${msg.firstCreature.level} ${msg.firstCreature.name}!`;
-            } else if (msg.type === 'pvp_accept') {
-                document.getElementById('pvpResult').innerText = `Battle accepted! Starting...`;
-                const activeParty = collectedCreatures.filter(c => !c.stored && c.currentHp > 0);
-                window.startPvpBattle(userId, msg.firstCreature, activeParty[0], true);
-                window.closePvpModal();
-            } else if (msg.type === 'pvp_reject') {
-                document.getElementById('pvpResult').innerText = `Player ${userId.substring(0, 5)}... rejected your battle offer.`;
-            } else if (msg.type === 'pvp_action' || msg.type === 'pvp_swap' || msg.type === 'pvp_faint') {
-                if (window.handlePvpMessage) window.handlePvpMessage(userId, msg);
-            } else if (window.handleMultiplayerMessage) {
-                window.handleMultiplayerMessage(userId, msg);
-            }
-        } catch (e) {
-            console.error("[Multiplayer] Failed to parse msg:", e);
-        }
-    };
-}
 
 // ==================== PHASER GAME ====================
 const WORLD_SIZE = 20000;
@@ -6344,17 +6149,6 @@ function create() {
         socket.emit('player-data', posMsg);
     }
 
-    if (typeof dataChannels !== 'undefined') {
-        const identityMsgStr = JSON.stringify(identityMsg);
-        const posMsgStr = JSON.stringify(posMsg);
-        for (const id in dataChannels) {
-            const dc = dataChannels[id];
-            if (dc.readyState === 'open') {
-                dc.send(identityMsgStr);
-                dc.send(posMsgStr);
-            }
-        }
-    }
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
     this.cameras.main.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
@@ -6518,6 +6312,39 @@ function create() {
                     creature.destroy();
                 }
             });
+        } else if (msg.type === 'trade_offer') {
+            pendingTradeOffer = {
+                from: userId,
+                creature: msg.creature
+            };
+            document.getElementById('tradeIncomingSection').style.display = 'block';
+            document.getElementById('tradeOfferText').innerText = `Player ${userId.substring(0, 5)}... offered a Level ${msg.creature.level} ${msg.creature.name}!`;
+        } else if (msg.type === 'trade_accept') {
+            // Remove the creature from our party
+            const index = collectedCreatures.findIndex(c => String(c.id) === String(msg.creatureId));
+            if (index !== -1) {
+                collectedCreatures.splice(index, 1);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+                document.getElementById('tradeResult').innerText = `Trade accepted! Player ${userId.substring(0, 5)}... took the creature.`;
+            }
+        } else if (msg.type === 'trade_reject') {
+            document.getElementById('tradeResult').innerText = `Player ${userId.substring(0, 5)}... rejected your trade offer.`;
+        } else if (msg.type === 'pvp_offer') {
+            pendingPvpOffer = {
+                from: userId,
+                firstCreature: msg.firstCreature
+            };
+            document.getElementById('pvpIncomingSection').style.display = 'block';
+            document.getElementById('pvpOfferText').innerText = `Player ${userId.substring(0, 5)}... challenged you to a battle with Level ${msg.firstCreature.level} ${msg.firstCreature.name}!`;
+        } else if (msg.type === 'pvp_accept') {
+            document.getElementById('pvpResult').innerText = `Battle accepted! Starting...`;
+            const activeParty = collectedCreatures.filter(c => !c.stored && c.currentHp > 0);
+            window.startPvpBattle(userId, msg.firstCreature, activeParty[0], true);
+            window.closePvpModal();
+        } else if (msg.type === 'pvp_reject') {
+            document.getElementById('pvpResult').innerText = `Player ${userId.substring(0, 5)}... rejected your battle offer.`;
+        } else if (msg.type === 'pvp_action' || msg.type === 'pvp_swap' || msg.type === 'pvp_faint') {
+            if (window.handlePvpMessage) window.handlePvpMessage(userId, msg);
         }
     };
 
@@ -7400,11 +7227,12 @@ window.doBattleSwap = function(newCreature) {
     window.updateBattleUI();
 
     if (window.isPvpBattle) {
-        if (dataChannels[window.pvpOpponentId] && dataChannels[window.pvpOpponentId].readyState === 'open') {
-            dataChannels[window.pvpOpponentId].send(JSON.stringify({
+        if (socket && socket.connected) {
+            socket.emit('player-data', {
+                target: window.pvpOpponentId,
                 type: 'pvp_swap',
                 creature: newCreature
-            }));
+            });
         }
         isActionRunning = false;
         return;
@@ -7438,8 +7266,11 @@ window.handlePvpMessage = function(userId, msg) {
             window.logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span><span style="color:#9e9e9e"> fainted!</span>`);
             if (window.handleFaint(currentPlayer)) {
                 // Battle over, loss
-                if (dataChannels[window.pvpOpponentId] && dataChannels[window.pvpOpponentId].readyState === 'open') {
-                    dataChannels[window.pvpOpponentId].send(JSON.stringify({ type: 'pvp_faint' }));
+                if (socket && socket.connected) {
+                    socket.emit('player-data', {
+                        target: window.pvpOpponentId,
+                        type: 'pvp_faint'
+                    });
                 }
             }
         } else if (currentEnemy.currentHp <= 0) {
@@ -7540,15 +7371,16 @@ window.handlePlayerTurn = function(action) {
         }
 
         window.doPlayerAction(action, () => {
-            if (dataChannels[window.pvpOpponentId] && dataChannels[window.pvpOpponentId].readyState === 'open') {
-                dataChannels[window.pvpOpponentId].send(JSON.stringify({
+            if (socket && socket.connected) {
+                socket.emit('player-data', {
+                    target: window.pvpOpponentId,
                     type: 'pvp_action',
                     action: action,
                     hp: currentPlayer.currentHp,
                     enemyHp: currentEnemy.currentHp,
                     status: currentPlayer.status,
                     enemyStatus: currentEnemy.status
-                }));
+                });
             }
             isActionRunning = false;
         });
@@ -7590,12 +7422,11 @@ window.closeBattleModal = function() {
 
     if (result === 'caught' && currentEnemy) {
         // Broadcast catch to all peers
-        const catchMsg = JSON.stringify({ type: 'creature_caught', creatureId: currentEnemy.id });
-        for (const id in dataChannels) {
-            const dc = dataChannels[id];
-            if (dc.readyState === 'open') {
-                dc.send(catchMsg);
-            }
+        if (socket && socket.connected) {
+            socket.emit('player-data', {
+                type: 'creature_caught',
+                creatureId: currentEnemy.id
+            });
         }
     }
 
@@ -8220,7 +8051,7 @@ function update() {
     let movedX = false;
     let movedY = false;
 
-    // Broadcast position over WebRTC if changed significantly
+    // Broadcast position if changed significantly
     if (!this.lastBroadcastTime || this.time.now - this.lastBroadcastTime > 100) { // 10 times a sec
         const dt = this.time.now - (this.lastBroadcastTime || this.time.now - 100);
         const dist = Math.hypot(player.x - (this.lastX || player.x), player.y - (this.lastY || player.y));
@@ -8247,13 +8078,6 @@ function update() {
                 socket.emit('player-data', msgObj);
             }
 
-            const msgStr = JSON.stringify(msgObj);
-            for (const id in dataChannels) {
-                const dc = dataChannels[id];
-                if (dc.readyState === 'open') {
-                    dc.send(msgStr);
-                }
-            }
             this.lastX = player.x;
             this.lastY = player.y;
             this.lastBroadcastTime = this.time.now;

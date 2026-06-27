@@ -82,12 +82,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('signal', (data) => {
-    io.to(data.target).emit('signal', {
-      sender: socket.id,
-      signal: data.signal
-    });
-  });
 
   socket.on('update-identity', (data) => {
     if (globalUsers[socket.id]) {
@@ -101,14 +95,22 @@ io.on('connection', (socket) => {
         globalUsers[socket.id].name = data.name || 'Anonymous';
     }
 
-    // Relay to all rooms this socket is in (except its own ID room)
-    const myRooms = Array.from(socket.rooms).filter(r => r !== socket.id);
-    myRooms.forEach(roomId => {
-        socket.to(roomId).emit('player-data', {
+    if (data && data.target) {
+        // Targeted message (Private message)
+        io.to(data.target).emit('player-data', {
             sender: socket.id,
             msg: data
         });
-    });
+    } else {
+        // Broadcast to all rooms this socket is in (except its own ID room)
+        const myRooms = Array.from(socket.rooms).filter(r => r !== socket.id);
+        myRooms.forEach(roomId => {
+            socket.to(roomId).emit('player-data', {
+                sender: socket.id,
+                msg: data
+            });
+        });
+    }
   });
 
   socket.on('disconnecting', () => {
