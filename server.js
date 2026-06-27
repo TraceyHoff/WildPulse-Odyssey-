@@ -10,29 +10,34 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, '/')));
 
 const roomStates = {};
-const globalUsers = {}; // Map of socket.id -> global status
+const globalUsers = {}; // Map of socket.id -> { name, room }
 
 io.on('connection', (socket) => {
-  globalUsers[socket.id] = true;
+  globalUsers[socket.id] = { name: 'Anonymous', room: null };
 
   socket.on('fetch-global-users', () => {
-     // Return only users in the same rooms as the requester to improve isolation
-        const myRooms = Array.from(socket.rooms).filter(r => r !== socket.id);
-    const usersSet = new Set();
-    myRooms.forEach(roomId => {
-        const room = io.sockets.adapter.rooms.get(roomId);
-        if (room) {
-            room.forEach(id => {
-                if (id !== socket.id) usersSet.add(id);
-            });
-        }
-    });
-    socket.emit('global-users', Array.from(usersSet));
+    // Return all online users to allow global discovery
+    const allUsers = Object.keys(globalUsers)
+      .filter(id => id !== socket.id)
+      .map(id => ({
+        userId: id,
+        name: globalUsers[id].name,
+        room: globalUsers[id].room
+      }));
+    socket.emit('global-users', allUsers);
   });
 
   socket.on('join-room', async (roomId) => {
+    if (!roomId) return;
     if (typeof roomId === 'object') {
         roomId = roomId.roomId;
+    }
+    if (!roomId) return;
+
+    roomId = String(roomId).toUpperCase();
+
+    if (globalUsers[socket.id]) {
+        globalUsers[socket.id].room = roomId;
     }
 
     await socket.join(roomId);
@@ -84,7 +89,18 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('update-identity', (data) => {
+    if (globalUsers[socket.id]) {
+      globalUsers[socket.id].name = data.name || 'Anonymous';
+    }
+  });
+
   socket.on('player-data', (data) => {
+    // Track identity updates
+    if (data && data.type === 'identity' && globalUsers[socket.id]) {
+        globalUsers[socket.id].name = data.name || 'Anonymous';
+    }
+
     // Relay to all rooms this socket is in (except its own ID room)
     const myRooms = Array.from(socket.rooms).filter(r => r !== socket.id);
     myRooms.forEach(roomId => {
