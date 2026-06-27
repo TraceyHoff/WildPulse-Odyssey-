@@ -16,9 +16,18 @@ io.on('connection', (socket) => {
   globalUsers[socket.id] = true;
 
   socket.on('fetch-global-users', () => {
-    // Send all connected users except the requesting one
-    const users = Object.keys(globalUsers).filter(id => id !== socket.id);
-    socket.emit('global-users', users);
+     // Return only users in the same rooms as the requester to improve isolation
+        const myRooms = Array.from(socket.rooms).filter(r => r !== socket.id);
+    const usersSet = new Set();
+    myRooms.forEach(roomId => {
+        const room = io.sockets.adapter.rooms.get(roomId);
+        if (room) {
+            room.forEach(id => {
+                if (id !== socket.id) usersSet.add(id);
+            });
+        }
+    });
+    socket.emit('global-users', Array.from(usersSet));
   });
 
   socket.on('join-room', async (roomId) => {
