@@ -248,6 +248,7 @@
         #menuModal button#menuHelpBtn { background: linear-gradient(180deg, #26c6da, #00838f); border-color: #80deea; }
         #menuModal button#menuDeleteBtn { background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a; }
         #menuModal button#fullscreenToggleBtn { background: linear-gradient(180deg, #78909c, #37474f); border-color: #b0bec5; }
+        #menuModal button#exitGameBtn { background: linear-gradient(180deg, #ff9800, #e65100); border-color: #ffcc80; }
         #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn, #journalModal button, #pvpModal button.close-pvp-btn { background: linear-gradient(180deg, #555, #222); border-color: #777; }
         #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn, #pvpModal button#sendPvpBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
 
@@ -493,7 +494,7 @@
     <h1 style="position: relative; z-index: 10; font-size: 48px; text-shadow: 2px 2px 4px #000; margin-bottom: 40px; color: #fff;">WildPulse Odyssey</h1>
     <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Start Game</button>
     <button id="customizeBtn" style="position: relative; z-index: 10; padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; border: 2px solid #90caf9; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Customize Character</button>
-    <button id="menuDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
+    <button id="startDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
 </div>
 
 <div id="customizationModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); z-index: 200001; justify-content: center; align-items: center; flex-direction: column; color: white;">
@@ -606,7 +607,9 @@
     <button id="breedBtn">Breeding Center</button>
     <button id="menuJournalBtn">Creature Journal</button>
     <button id="menuHelpBtn">Help</button>
+    <button id="menuDeleteBtn">Delete Progress</button>
     <button id="fullscreenToggleBtn">Toggle Fullscreen</button>
+    <button id="exitGameBtn">Exit Game</button>
 </div>
 <div id="partyModal">
     <button class="close-btn close-party-btn" aria-label="Close Party">X</button>
@@ -867,7 +870,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('breedBtn')?.addEventListener('click', openBreedingModal);
     document.getElementById('menuHelpBtn')?.addEventListener('click', openHelpModal);
     document.getElementById('menuJournalBtn')?.addEventListener('click', openJournalModal);
+    document.getElementById('startDeleteBtn')?.addEventListener('click', deleteProgress);
     document.getElementById('menuDeleteBtn')?.addEventListener('click', deleteProgress);
+    document.getElementById('exitGameBtn')?.addEventListener('click', exitGame);
 
     document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', closeMenuModal));
     document.getElementById('fullscreenToggleBtn')?.addEventListener('click', () => {
@@ -3718,6 +3723,21 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_inGameDays');
         localStorage.removeItem('wildpulse_currentSeason');
         location.reload();
+    }
+};
+
+window.exitGame = function() {
+    if (confirm('Are you sure you want to exit to the main menu?')) {
+        window.gameStarted = false;
+        window.cameraFollowsPlayer = false;
+        closeMenuModal();
+        document.getElementById('menuBtn').style.display = 'none';
+        document.getElementById('startModal').style.display = 'flex';
+        if (timeText) timeText.setVisible(false);
+        if (window.coordText) window.coordText.setVisible(false);
+        if (player && player.body) {
+            player.body.setVelocity(0, 0);
+        }
     }
 };
 
@@ -7719,36 +7739,35 @@ function update() {
         }
 
         let seasonIndex = Math.floor((wildpulse_inGameDays % 120) / 30);
-            const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
-            let newSeason = seasons[seasonIndex];
+        const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+        let newSeason = seasons[seasonIndex];
 
-            if (newSeason !== window.currentSeason) {
-                window.currentSeason = newSeason;
-                localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
-                window.waterMaskDirty = true;
-                if (window.updateGrassColors) window.updateGrassColors();
+        if (newSeason !== window.currentSeason) {
+            window.currentSeason = newSeason;
+            localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
+            window.waterMaskDirty = true;
+            if (window.updateGrassColors) window.updateGrassColors();
 
-                // Update all existing trees
-                if (window.treesGroup) {
-                    window.treesGroup.getChildren().forEach(tree => {
-                        if (tree.baseTreeType) {
-                            tree.setTexture(tree.baseTreeType + '_' + window.currentSeason);
-                        }
-                    });
-                }
-
-                // Update tree reflections
-                for (let chunkKey in activeTiles) {
-                    activeTiles[chunkKey].forEach(sprite => {
-                        if (sprite.isTreeReflection && sprite.baseTreeType) {
-                            sprite.setTexture(sprite.baseTreeType + '_' + window.currentSeason);
-                            sprite.setVisible(window.currentSeason !== 'Winter');
-                        }
-                    });
-                }
-
-                window.showModernNotification(`The season has changed to ${window.currentSeason}!`, 4000);
+            // Update all existing trees
+            if (window.treesGroup) {
+                window.treesGroup.getChildren().forEach(tree => {
+                    if (tree.baseTreeType) {
+                        tree.setTexture(tree.baseTreeType + '_' + window.currentSeason);
+                    }
+                });
             }
+
+            // Update tree reflections
+            for (let chunkKey in activeTiles) {
+                activeTiles[chunkKey].forEach(sprite => {
+                    if (sprite.isTreeReflection && sprite.baseTreeType) {
+                        sprite.setTexture(sprite.baseTreeType + '_' + window.currentSeason);
+                        sprite.setVisible(window.currentSeason !== 'Winter');
+                    }
+                });
+            }
+
+            window.showModernNotification(`The season has changed to ${window.currentSeason}!`, 4000);
         }
     }
 
