@@ -29,14 +29,24 @@ io.on('connection', (socket) => {
     await socket.join(roomId);
 
     if (!roomStates[roomId]) {
-        roomStates[roomId] = { nextIndex: 1, users: {} };
+        roomStates[roomId] = {
+            nextIndex: 1,
+            users: {},
+            startTime: Date.now(),
+            roomSeed: Math.floor(Math.random() * 2147483647)
+        };
     }
     const rState = roomStates[roomId];
 
     let playerIndex = rState.nextIndex++;
     rState.users[socket.id] = playerIndex;
 
-    socket.emit('assigned-index', playerIndex);
+    socket.emit('assigned-index', {
+        index: playerIndex,
+        startTime: rState.startTime,
+        roomSeed: rState.roomSeed,
+        serverNow: Date.now()
+    });
     socket.to(roomId).emit('user-joined', { userId: socket.id, index: playerIndex });
 
     const room = io.sockets.adapter.rooms.get(roomId);
