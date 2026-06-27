@@ -507,6 +507,10 @@
             <label style="display: block; margin-bottom: 5px;">Character Color:</label>
             <input type="color" id="playerColorInput" value="#FFFFFF" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #222; cursor: pointer;">
         </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Aura Color:</label>
+            <input type="color" id="playerAuraColorInput" value="#00FFFF" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #222; cursor: pointer;">
+        </div>
         <button id="saveCustomizationBtn" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 1px solid #a5d6a7; cursor: pointer; border-radius: 8px; margin-right: 10px;">Save</button>
         <button id="closeCustomizationBtn" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #555, #222); color: white; border: 1px solid #777; cursor: pointer; border-radius: 8px;">Close</button>
     </div>
@@ -795,6 +799,7 @@ window.cameraFollowsPlayer = false;
 // Performance optimization: cache player identity
 window.cachedPlayerName = localStorage.getItem('wildpulse_player_name') || "";
 window.cachedPlayerColor = localStorage.getItem('wildpulse_player_color') || "#FFFFFF";
+window.cachedPlayerAuraColor = localStorage.getItem('wildpulse_player_aura_color') || "#00FFFF";
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -890,10 +895,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const customizationModal = document.getElementById('customizationModal');
     const playerNameInput = document.getElementById('playerNameInput');
     const playerColorInput = document.getElementById('playerColorInput');
+    const playerAuraColorInput = document.getElementById('playerAuraColorInput');
 
     // Initialize inputs from localStorage
     playerNameInput.value = localStorage.getItem('wildpulse_player_name') || '';
     playerColorInput.value = localStorage.getItem('wildpulse_player_color') || '#FFFFFF';
+    playerAuraColorInput.value = localStorage.getItem('wildpulse_player_aura_color') || '#00FFFF';
 
     document.getElementById('customizeBtn')?.addEventListener('click', () => {
         customizationModal.style.display = 'flex';
@@ -902,10 +909,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saveCustomizationBtn')?.addEventListener('click', () => {
         const name = playerNameInput.value.trim();
         const color = playerColorInput.value;
+        const auraColor = playerAuraColorInput.value;
         localStorage.setItem('wildpulse_player_name', name);
         localStorage.setItem('wildpulse_player_color', color);
+        localStorage.setItem('wildpulse_player_aura_color', auraColor);
         window.cachedPlayerName = name;
         window.cachedPlayerColor = color;
+        window.cachedPlayerAuraColor = auraColor;
 
         // Update local visuals immediately
         if (window.localPlayerLabel) window.localPlayerLabel.setText(name || "P" + (window.playerIndexCount || 1));
@@ -913,10 +923,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const customColorInt = parseInt(color.replace('#', '0x'));
             player.originalColor = customColorInt;
             player.setTint(customColorInt);
+            if (player.aura) {
+                const auraColorInt = parseInt(auraColor.replace('#', '0x'));
+                player.aura.setTint(auraColorInt);
+            }
         }
 
         // Broadcast identity update to all peers
-        const identityMsg = JSON.stringify({ type: 'identity', name: name, color: color });
+        const identityMsg = JSON.stringify({ type: 'identity', name: name, color: color, auraColor: auraColor });
         if (typeof dataChannels !== 'undefined') {
             for (const id in dataChannels) {
                 const dc = dataChannels[id];
@@ -5622,6 +5636,18 @@ function generateMiscTextures(scene) {
     rippleCtx.arc(16, 16, 14, 0, Math.PI * 2);
     rippleCtx.stroke();
     scene.textures.addCanvas('ripple_tex', rippleCanvas);
+
+    // Generate aura texture
+    const auraCanvas = document.createElement('canvas');
+    auraCanvas.width = 64;
+    auraCanvas.height = 64;
+    const auraCtx = auraCanvas.getContext('2d');
+    const auraGrad = auraCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    auraGrad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+    auraGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    auraCtx.fillStyle = auraGrad;
+    auraCtx.fillRect(0, 0, 64, 64);
+    scene.textures.addCanvas('aura_tex', auraCanvas);
 }
 
 function preload() {
@@ -6133,11 +6159,19 @@ function create() {
     const customName = window.cachedPlayerName || "P1";
     const customColorHex = window.cachedPlayerColor || "#FFFFFF";
     const customColor = parseInt(customColorHex.replace('#', '0x'));
+    const customAuraColorHex = window.cachedPlayerAuraColor || "#00FFFF";
+    const customAuraColor = parseInt(customAuraColorHex.replace('#', '0x'));
 
     player = this.add.sprite(startX, startY, 'player_tex');
     player.originalColor = customColor;
     player.setTint(customColor);
     player.setDepth(10);
+
+    // Player Aura
+    player.aura = this.add.sprite(startX, startY, 'aura_tex');
+    player.aura.setTint(customAuraColor);
+    player.aura.setAlpha(0.5);
+    player.aura.setDepth(9.9);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
@@ -6223,7 +6257,7 @@ function create() {
     window.handleMultiplayerMessage = (userId, msg) => {
         if (msg.type === 'identity') {
             if (!window.remotePlayerIdentities) window.remotePlayerIdentities = {};
-            window.remotePlayerIdentities[userId] = { name: msg.name, color: msg.color };
+            window.remotePlayerIdentities[userId] = { name: msg.name, color: msg.color, auraColor: msg.auraColor };
 
             if (remotePlayers[userId]) {
                 const rp = remotePlayers[userId];
@@ -6233,6 +6267,10 @@ function create() {
                     const customColor = parseInt(msg.color.replace('#', '0x'));
                     rp.originalColor = customColor;
                     rp.setTint(customColor);
+                }
+                if (msg.auraColor && rp.aura) {
+                    const auraColorInt = parseInt(msg.auraColor.replace('#', '0x'));
+                    rp.aura.setTint(auraColorInt);
                 }
             }
             return;
@@ -6246,10 +6284,19 @@ function create() {
                 let customName = identity.name || ("P" + pIndex);
                 let customColorStr = identity.color;
                 let customColor = customColorStr ? parseInt(customColorStr.replace('#', '0x')) : playerColors[pIndex % playerColors.length];
+                let auraColorStr = identity.auraColor || "#00FFFF";
+                let auraColor = parseInt(auraColorStr.replace('#', '0x'));
 
                 let remotePlayer = this.add.sprite(msg.x, msg.y, 'player_tex');
                 remotePlayer.originalColor = customColor;
                 remotePlayer.setTint(customColor);
+
+                // Remote Player Aura
+                remotePlayer.aura = this.add.sprite(msg.x, msg.y, 'aura_tex');
+                remotePlayer.aura.setTint(auraColor);
+                remotePlayer.aura.setAlpha(0.5);
+                remotePlayer.aura.setDepth(9.9);
+
                 this.physics.add.existing(remotePlayer);
                 remotePlayer.setDepth(10);
                 let label = this.add.text(msg.x, msg.y - 30, customName, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
@@ -6284,6 +6331,7 @@ function create() {
     window.removeRemotePlayer = (userId) => {
         if (remotePlayers[userId]) {
             if (remotePlayers[userId].label) remotePlayers[userId].label.destroy();
+            if (remotePlayers[userId].aura) remotePlayers[userId].aura.destroy();
             remotePlayers[userId].destroy();
             delete remotePlayers[userId];
         }
@@ -7788,6 +7836,11 @@ function update() {
     // Dynamic Entity Depth Sorting
     if (player && player.setDepth) {
         player.setDepth(10 + player.y / 10000);
+        if (player.aura) {
+            player.aura.x = player.x;
+            player.aura.y = player.y;
+            player.aura.setDepth(10 + player.y / 10000 - 0.1);
+        }
         if (window.localPlayerLabel) {
             window.localPlayerLabel.x = player.x;
             window.localPlayerLabel.y = player.y - 30;
@@ -7797,6 +7850,11 @@ function update() {
     for (const id in remotePlayers) {
         const rp = remotePlayers[id];
         if (rp.setDepth) rp.setDepth(10 + rp.y / 10000);
+        if (rp.aura) {
+            rp.aura.x = rp.x;
+            rp.aura.y = rp.y;
+            rp.aura.setDepth(10 + rp.y / 10000 - 0.1);
+        }
         if (rp.label && rp.label.setDepth) rp.label.setDepth(10 + rp.y / 10000);
     }
     if (creaturesGroup) {
@@ -7917,6 +7975,7 @@ function update() {
         let bob = Math.sin(this.time.now / 200) * 4;
         player.setCrop(0, 0, 40, 25 + bob);
         player.setOrigin(0.5, 0.4);
+        if (player.aura) player.aura.setVisible(false);
         if (window.rippleEmitter) {
             window.rippleEmitter.setPosition(player.x, player.y + 15);
             if (!window.rippleEmitter.emitting) window.rippleEmitter.start();
@@ -7926,6 +7985,7 @@ function update() {
         player.setAlpha(1.0);
         player.setCrop();
         player.setOrigin(0.5, 0.5);
+        if (player.aura) player.aura.setVisible(player.visible);
         if (window.rippleEmitter && window.rippleEmitter.emitting) window.rippleEmitter.stop();
     }
 
@@ -8006,11 +8066,13 @@ function update() {
             let bob = Math.sin((this.time.now + (id.charCodeAt(0)*100)) / 200) * 4;
             rp.setCrop(0, 0, 40, 25 + bob);
             rp.setOrigin(0.5, 0.4);
+            if (rp.aura) rp.aura.setVisible(false);
         } else {
             rp.setTint(rp.originalColor || 0xFFFFFF);
             rp.setAlpha(1.0);
             rp.setCrop();
             rp.setOrigin(0.5, 0.5);
+            if (rp.aura) rp.aura.setVisible(rp.visible);
         }
     }
 
@@ -8114,6 +8176,7 @@ function update() {
         const rp = remotePlayers[id];
         const isVisible = (rp.x >= viewLeft && rp.x <= viewRight && rp.y >= viewTop && rp.y <= viewBottom);
         rp.setVisible(isVisible);
+        if (rp.aura) rp.aura.setVisible(isVisible);
         if (rp.label) rp.label.setVisible(isVisible);
     }
 
