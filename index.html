@@ -5639,14 +5639,15 @@ function generateMiscTextures(scene) {
 
     // Generate aura texture
     const auraCanvas = document.createElement('canvas');
-    auraCanvas.width = 64;
-    auraCanvas.height = 64;
+    auraCanvas.width = 256;
+    auraCanvas.height = 256;
     const auraCtx = auraCanvas.getContext('2d');
-    const auraGrad = auraCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    auraGrad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+    const auraGrad = auraCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    auraGrad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+    auraGrad.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
     auraGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
     auraCtx.fillStyle = auraGrad;
-    auraCtx.fillRect(0, 0, 64, 64);
+    auraCtx.fillRect(0, 0, 256, 256);
     scene.textures.addCanvas('aura_tex', auraCanvas);
 }
 
@@ -6170,8 +6171,9 @@ function create() {
     // Player Aura
     player.aura = this.add.sprite(startX, startY, 'aura_tex');
     player.aura.setTint(customAuraColor);
-    player.aura.setAlpha(0.5);
-    player.aura.setDepth(9.9);
+    player.aura.setAlpha(0.8);
+    player.aura.setDepth(4001);
+    player.aura.setBlendMode(Phaser.BlendModes.ADD);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
 
@@ -6294,8 +6296,9 @@ function create() {
                 // Remote Player Aura
                 remotePlayer.aura = this.add.sprite(msg.x, msg.y, 'aura_tex');
                 remotePlayer.aura.setTint(auraColor);
-                remotePlayer.aura.setAlpha(0.5);
-                remotePlayer.aura.setDepth(9.9);
+                remotePlayer.aura.setAlpha(0.8);
+                remotePlayer.aura.setDepth(4001);
+                remotePlayer.aura.setBlendMode(Phaser.BlendModes.ADD);
 
                 this.physics.add.existing(remotePlayer);
                 remotePlayer.setDepth(10);
@@ -7839,7 +7842,7 @@ function update() {
         if (player.aura) {
             player.aura.x = player.x;
             player.aura.y = player.y;
-            player.aura.setDepth(10 + player.y / 10000 - 0.1);
+            player.aura.setDepth(4001);
         }
         if (window.localPlayerLabel) {
             window.localPlayerLabel.x = player.x;
@@ -7853,7 +7856,7 @@ function update() {
         if (rp.aura) {
             rp.aura.x = rp.x;
             rp.aura.y = rp.y;
-            rp.aura.setDepth(10 + rp.y / 10000 - 0.1);
+            rp.aura.setDepth(4001);
         }
         if (rp.label && rp.label.setDepth) rp.label.setDepth(10 + rp.y / 10000);
     }
