@@ -28,11 +28,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('join-room', async (roomId) => {
-    if (!roomId) return;
+    if (!roomId) roomId = 'GLOBAL';
     if (typeof roomId === 'object') {
-        roomId = roomId.roomId;
+        roomId = roomId.roomId || 'GLOBAL';
     }
-    if (!roomId) return;
 
     roomId = String(roomId).toUpperCase();
 
@@ -87,6 +86,21 @@ io.on('connection', (socket) => {
     if (globalUsers[socket.id]) {
       globalUsers[socket.id].name = data.name || 'Anonymous';
     }
+  });
+
+  socket.on('chat-message', (data) => {
+    const user = globalUsers[socket.id];
+    if (!user || !user.room) return;
+
+    const chatPayload = {
+      sender: socket.id,
+      senderName: user.name,
+      text: data.text,
+      timestamp: Date.now()
+    };
+
+    // Broadcast to the user's room
+    io.to(user.room).emit('chat-message', chatPayload);
   });
 
   socket.on('player-data', (data) => {
