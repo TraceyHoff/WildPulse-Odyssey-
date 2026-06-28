@@ -63,7 +63,7 @@
         }
 
         /* Modals */
-        #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #lobbyModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal {
+        #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal {
             width: 100vw !important;
             height: 100vh !important;
             max-width: none !important;
@@ -252,29 +252,6 @@
         #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn, #journalModal button, #pvpModal button.close-pvp-btn { background: linear-gradient(180deg, #555, #222); border-color: #777; }
         #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn, #pvpModal button#sendPvpBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
 
-        #lobbyModal {
-            display: none;
-            position: absolute;
-            color: white;
-            z-index: 1000;
-            text-align: center;
-        }
-        #lobbyModal input {
-            padding: 10px;
-            font-size: 16px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        #lobbyModal button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background: linear-gradient(180deg, #42a5f5, #1565c0);
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-top: 10px;
-        }
 
         #partyModal {
             display: none;
@@ -486,6 +463,157 @@
         border: none;
         border-radius: 4px;
     }
+
+    /* Social Sidebar Styles */
+    #socialSidebar {
+        position: fixed;
+        right: -350px;
+        top: 0;
+        width: 350px;
+        height: 100vh;
+        background: linear-gradient(135deg, rgba(10, 20, 30, 0.95), rgba(0, 5, 10, 0.95));
+        backdrop-filter: blur(20px);
+        z-index: 5000;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 1px solid rgba(0, 255, 150, 0.3);
+        display: flex;
+        flex-direction: column;
+        color: white;
+    }
+    #socialSidebar.open {
+        right: 0;
+    }
+    #socialToggleBtn {
+        position: fixed;
+        top: 20px;
+        right: 120px; /* Offset from Menu button */
+        padding: 12px 20px;
+        background: linear-gradient(180deg, #6200ea, #3700b3);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        z-index: 101;
+        display: none; /* Initially hidden until game starts */
+    }
+    .social-tabs {
+        display: flex;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 10px 10px 0 10px;
+    }
+    .social-tab {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+        transition: background 0.2s;
+        font-weight: bold;
+        color: #888;
+    }
+    .social-tab.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: #00ff96;
+        border-bottom: 2px solid #00ff96;
+    }
+    .social-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    .social-tab-panel {
+        display: none;
+    }
+    .social-tab-panel.active {
+        display: block;
+    }
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    #chatMessages {
+        flex: 1;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        font-size: 14px;
+        padding-right: 5px;
+    }
+    .chat-msg {
+        margin-bottom: 8px;
+        word-wrap: break-word;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 6px 10px;
+        border-radius: 8px;
+    }
+    .chat-msg .sender {
+        font-weight: bold;
+        color: #42a5f5;
+        margin-right: 5px;
+    }
+    .chat-msg .time {
+        font-size: 10px;
+        color: #666;
+        float: right;
+    }
+    .chat-input-area {
+        display: flex;
+        gap: 5px;
+    }
+    #chatInput {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid #444;
+        color: white;
+        padding: 8px;
+        border-radius: 8px;
+    }
+    #sendChatBtn {
+        background: #6200ea;
+        border: none;
+        color: white;
+        padding: 0 15px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .player-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        margin-bottom: 8px;
+    }
+    .player-actions {
+        display: flex;
+        gap: 5px;
+    }
+    .player-actions button {
+        padding: 4px 8px;
+        font-size: 11px;
+        border-radius: 4px;
+    }
+    .world-settings-area {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 15px;
+        border-radius: 12px;
+        margin-top: 10px;
+    }
+    .world-settings-area h4 {
+        margin-top: 0;
+        color: #00ff96;
+    }
+    .world-code-badge {
+        background: #222;
+        padding: 10px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 18px;
+        text-align: center;
+        margin: 10px 0;
+        border: 1px dashed #555;
+    }
 </style>
 
 </head>
@@ -523,51 +651,6 @@
 </div>
 <div id="tooltip"></div>
 
-<div id="lobbyModal" style="display:none; position:absolute; color:white; z-index:1000; text-align:center;">
-    <button class="close-btn lobby-close-btn" aria-label="Close Lobby">X</button>
-    <h2>Multiplayer Lobby</h2>
-
-    <div style="margin-bottom: 20px;">
-        <h3>Your World Code</h3>
-        <p id="worldCodeDisplay" style="font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #4caf50;">LOADING...</p>
-        <button id="copyCodeBtn" style="background: linear-gradient(180deg, #42a5f5, #1565c0);">Copy Code</button>
-        <br>
-        <button id="returnOwnWorldBtn" style="background: linear-gradient(180deg, #9c27b0, #6a1b9a); margin-top: 10px;">Return to Own World</button>
-    </div>
-
-    <div id="currentWorldContainer" style="margin-bottom: 20px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
-        <h3 style="margin-top:0;">Current World</h3>
-        <p id="currentWorldDisplay" style="font-size: 18px; font-weight: bold; color: #03a9f4; margin-bottom:0;">CONNECTING...</p>
-    </div>
-
-    <div style="margin-bottom: 20px; border-top: 1px solid #555; padding-top: 15px;">
-        <h3>Join Friend's World</h3>
-        <input type="text" id="friendCodeInput" aria-label="Friend Code" placeholder="Enter Friend's World Code">
-        <button id="joinFriendBtn" style="background: linear-gradient(180deg, #66bb6a, #2e7d32);">Join World</button>
-        <button id="saveFriendBtn" style="background: linear-gradient(180deg, #ffa726, #ef6c00);">Save as Friend</button>
-    </div>
-
-    <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px; border-top: 1px solid #555; padding-top: 15px;">
-        <div style="flex: 1;">
-            <h3>Friends List</h3>
-            <div id="friendsListDisplay" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px;">
-                <!-- Friends go here -->
-            </div>
-        </div>
-        <div style="flex: 1;">
-            <h3>Local World Players</h3>
-            <div id="connectedPlayersDisplay" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px;">
-                <!-- Connected players go here -->
-            </div>
-        </div>
-        <div style="flex: 1;">
-            <h3>Global Online Players</h3>
-            <div id="globalPlayersDisplay" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 10px;">
-                <!-- Global players go here -->
-            </div>
-        </div>
-    </div>
-</div>
 
 <div id="battleModal">
     <button id="battleCloseBtn" class="close-btn" style="display:none;" aria-label="Close Battle">X</button>
@@ -609,6 +692,55 @@
 </div>
 
 <button id="menuBtn">Menu</button>
+<button id="socialToggleBtn">Social</button>
+
+<div id="socialSidebar">
+    <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin:0;">Social</h3>
+        <button id="closeSocialBtn" style="background:none; border:none; color:#888; cursor:pointer; font-size:20px;">×</button>
+    </div>
+    <div class="social-tabs">
+        <div class="social-tab active" data-tab="players">Players</div>
+        <div class="social-tab" data-tab="chat">Chat</div>
+        <div class="social-tab" data-tab="world">World</div>
+    </div>
+    <div class="social-content">
+        <div id="playersPanel" class="social-tab-panel active">
+            <div id="playerListContainer"></div>
+        </div>
+        <div id="chatPanel" class="social-tab-panel">
+            <div class="chat-container">
+                <div id="chatMessages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" placeholder="Type a message...">
+                    <button id="sendChatBtn">Send</button>
+                </div>
+            </div>
+        </div>
+        <div id="worldPanel" class="social-tab-panel">
+            <div class="world-settings-area">
+                <h4>Current Instance</h4>
+                <div id="sidebarCurrentWorld" class="world-code-badge">GLOBAL</div>
+                <p style="font-size: 12px; color: #aaa;">You are in the shared global instance.</p>
+            </div>
+
+            <div class="world-settings-area">
+                <h4>Private World</h4>
+                <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;">Enter a code to join a private instance with friends.</p>
+                <input type="text" id="worldCodeInput" placeholder="ENTER CODE" style="width:100%; padding:10px; border-radius:8px; border:1px solid #444; background:#000; color:white; box-sizing:border-box; margin-bottom:10px; text-transform:uppercase;">
+                <button id="joinWorldBtn" style="width:100%; padding:10px; background:linear-gradient(180deg, #4caf50, #2e7d32); border:none; border-radius:8px; color:white; cursor:pointer; font-weight:bold;">JOIN WORLD</button>
+            </div>
+
+            <div class="world-settings-area">
+                <h4>Your World Code</h4>
+                <div id="sidebarOwnWorld" class="world-code-badge">-------</div>
+                <button id="sidebarCopyCodeBtn" style="width:100%; padding:8px; background:rgba(255,255,255,0.1); border:1px solid #444; border-radius:8px; color:white; cursor:pointer;">Copy My Code</button>
+                <button id="sidebarReturnOwnBtn" style="width:100%; padding:8px; background:linear-gradient(180deg, #9c27b0, #6a1b9a); border:none; border-radius:8px; color:white; cursor:pointer; margin-top:10px;">Return to My World</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <h2>Menu</h2>
@@ -834,37 +966,21 @@ document.addEventListener('DOMContentLoaded', () => {
         ownRoomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
         localStorage.setItem('wildpulse_own_world_code', ownRoomCode);
     }
-    const savedRoomCode = (localStorage.getItem('wildpulse_world_code') || "").toUpperCase();
-    if (savedRoomCode) {
-        multiplayerRoom = savedRoomCode;
-    } else {
-        multiplayerRoom = ownRoomCode;
-        localStorage.setItem('wildpulse_world_code', multiplayerRoom);
-    }
+    const savedRoomCode = (localStorage.getItem('wildpulse_world_code') || "GLOBAL").toUpperCase();
+    multiplayerRoom = savedRoomCode;
+    localStorage.setItem('wildpulse_world_code', multiplayerRoom);
 
     window.initializeMultiplayer(multiplayerRoom);
-
-    // Auto-start if joining someone else's world
-    if (multiplayerRoom !== ownRoomCode) {
-        console.log("[Auto-Start] Joining shared world, bypassing start menu...");
-        setTimeout(() => {
-            document.getElementById('startGameBtn')?.click();
-        }, 100);
-    }
 
     document.getElementById('startGameBtn').addEventListener('click', () => {
         document.getElementById('startModal').style.display = 'none';
         document.getElementById('menuBtn').style.display = 'block';
+        document.getElementById('socialToggleBtn').style.display = 'block';
         if (timeText) timeText.setVisible(true);
         if (window.coordText) window.coordText.setVisible(true);
         window.gameStarted = true;
     });
 
-    document.querySelector('.lobby-close-btn')?.addEventListener('click', window.closeLobbyModal);
-    document.getElementById('joinFriendBtn')?.addEventListener('click', window.joinFriendWorld);
-    document.getElementById('saveFriendBtn')?.addEventListener('click', window.saveFriendCode);
-    document.getElementById('copyCodeBtn')?.addEventListener('click', window.copyWorldCode);
-    document.getElementById('returnOwnWorldBtn')?.addEventListener('click', window.returnToOwnWorld);
 
 
     document.querySelector('.btn-attack')?.addEventListener('click', () => handlePlayerTurn('attack'));
@@ -875,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menuBtn')?.addEventListener('click', openMenuModal);
     document.getElementById('closeSwapBtn')?.addEventListener('click', closeBattleSwapModal);
 
-    document.getElementById('menuMultiplayerBtn')?.addEventListener('click', window.openLobbyModal);
+    document.getElementById('menuMultiplayerBtn')?.addEventListener('click', window.openSocialSidebar);
     document.getElementById('menuPartyBtn')?.addEventListener('click', openPartyModal);
     document.getElementById('menuStorageBtn')?.addEventListener('click', openStorageModal);
     document.getElementById('breedBtn')?.addEventListener('click', openBreedingModal);
@@ -3167,135 +3283,148 @@ window.closeMenuModal = function() {
 };
 
 
-window.openLobbyModal = function() {
+window.openSocialSidebar = function() {
     closeMenuModal();
-    document.getElementById('lobbyModal').style.display = 'block';
+    document.getElementById('socialSidebar').classList.add('open');
 
-    // Set the world code text
     const ownCode = localStorage.getItem('wildpulse_own_world_code');
-    document.getElementById('worldCodeDisplay').innerText = ownCode || "N/A";
+    document.getElementById('sidebarOwnWorld').innerText = ownCode || "-------";
+    document.getElementById('sidebarCurrentWorld').innerText = multiplayerRoom || "GLOBAL";
 
-    if (socket) socket.emit('fetch-global-users');
-    window.updateLobbyUI();
+    window.updateSocialUI();
 };
 
-window.closeLobbyModal = function() {
-    let _m_lobbyModal = document.getElementById('lobbyModal');
-    _m_lobbyModal.children[0].classList.add('modal-fade-out');
-    setTimeout(() => {
-        _m_lobbyModal.style.display = 'none';
-        _m_lobbyModal.children[0].classList.remove('modal-fade-out');
-    }, 190);
+window.closeSocialSidebar = function() {
+    document.getElementById('socialSidebar').classList.remove('open');
 };
 
-window.updateLobbyUI = function() {
-    const currentWorldEl = document.getElementById('currentWorldDisplay');
-    if (currentWorldEl) {
-        currentWorldEl.innerText = multiplayerRoom || "N/A";
-    }
+document.getElementById('socialToggleBtn')?.addEventListener('click', window.openSocialSidebar);
+document.getElementById('closeSocialBtn')?.addEventListener('click', window.closeSocialSidebar);
 
-    // Render Friends
-    const friendsListEl = document.getElementById('friendsListDisplay');
-    friendsListEl.innerHTML = '';
-    let savedFriends = [];
-    try {
-        savedFriends = JSON.parse(localStorage.getItem('wildpulse_friends_list')) || [];
-    } catch (e) {}
+// Tab Switching logic
+document.querySelectorAll('.social-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.social-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.social-tab-panel').forEach(p => p.classList.remove('active'));
 
-    if (savedFriends.length === 0) {
-        friendsListEl.innerHTML = '<p style="color:#999; font-style:italic;">No friends saved yet.</p>';
-    } else {
-        savedFriends.forEach((friendCode, index) => {
-            let div = document.createElement('div');
-            div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #444;";
+        tab.classList.add('active');
+        const target = tab.getAttribute('data-tab');
+        document.getElementById(target + 'Panel').classList.add('active');
+    });
+});
 
-            let nameSpan = document.createElement('span');
-            nameSpan.innerText = friendCode;
+window.updateSocialUI = function() {
+    const playerListContainer = document.getElementById('playerListContainer');
+    if (!playerListContainer) return;
 
-            let btnGroup = document.createElement('div');
-
-            let joinBtn = document.createElement('button');
-            joinBtn.innerText = 'Join';
-            joinBtn.style.cssText = "margin-right: 5px; padding: 4px 8px; font-size: 12px; background: linear-gradient(180deg, #4caf50, #2e7d32);";
-            joinBtn.onclick = () => window.joinFriendCodeDirect(friendCode);
-
-            let removeBtn = document.createElement('button');
-            removeBtn.innerText = 'X';
-            removeBtn.style.cssText = "padding: 4px 8px; font-size: 12px; background: linear-gradient(180deg, #f44336, #c62828);";
-            removeBtn.onclick = () => {
-                savedFriends.splice(index, 1);
-                localStorage.setItem('wildpulse_friends_list', JSON.stringify(savedFriends));
-                window.updateLobbyUI();
-            };
-
-            btnGroup.appendChild(joinBtn);
-            btnGroup.appendChild(removeBtn);
-            div.appendChild(nameSpan);
-            div.appendChild(btnGroup);
-            friendsListEl.appendChild(div);
-        });
-    }
-
-    // Render Connected Players (Local Room)
-    const connectedPlayersEl = document.getElementById('connectedPlayersDisplay');
-    connectedPlayersEl.innerHTML = '';
+    playerListContainer.innerHTML = '';
 
     const roomUsers = Object.keys(window.roomUsers || {});
     if (roomUsers.length === 0) {
-        connectedPlayersEl.innerHTML = '<p style="color:#999; font-style:italic;">No other players in this world.</p>';
+        playerListContainer.innerHTML = '<p style="color:#888; text-align:center; font-style:italic;">No other players in this instance.</p>';
     } else {
-        roomUsers.forEach((pid) => {
+        roomUsers.forEach(pid => {
+            const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[pid]) || {};
             const index = window.roomUsers[pid].index || '?';
-            const statusText = '<span style="color:#4caf50;">(Connected)</span>';
+            const name = identity.name || `Player ${index}`;
 
-            let div = document.createElement('div');
-            div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #444;";
+            const item = document.createElement('div');
+            item.className = 'player-list-item';
 
-            let infoSpan = document.createElement('span');
-            infoSpan.innerHTML = `Player ${index} (${pid.substring(0,6)}...) ${statusText}`;
+            const nameArea = document.createElement('div');
+            nameArea.innerHTML = `<span style="color:${identity.color || '#fff'}; font-weight:bold;">${name}</span><br><span style="font-size:10px; color:#666;">${pid.substring(0,8)}</span>`;
 
-            let tpBtn = document.createElement('button');
+            const actionsArea = document.createElement('div');
+            actionsArea.className = 'player-actions';
+
+            const tpBtn = document.createElement('button');
             tpBtn.innerText = 'TP';
-            tpBtn.style.cssText = "padding: 4px 8px; font-size: 12px; background: linear-gradient(180deg, #2196f3, #1976d2);";
+            tpBtn.style.background = '#2196f3';
             tpBtn.onclick = () => window.teleportToPlayer(pid);
 
-            div.appendChild(infoSpan);
-            div.appendChild(tpBtn);
-            connectedPlayersEl.appendChild(div);
+            const tradeBtn = document.createElement('button');
+            tradeBtn.innerText = 'Trade';
+            tradeBtn.style.background = '#4caf50';
+            tradeBtn.onclick = () => window.openTradeModal(pid);
+
+            const pvpBtn = document.createElement('button');
+            pvpBtn.innerText = 'PvP';
+            pvpBtn.style.background = '#f44336';
+            pvpBtn.onclick = () => window.openPvpModal(pid);
+
+            actionsArea.appendChild(tpBtn);
+            actionsArea.appendChild(tradeBtn);
+            actionsArea.appendChild(pvpBtn);
+
+            item.appendChild(nameArea);
+            item.appendChild(actionsArea);
+            playerListContainer.appendChild(item);
         });
     }
+};
 
-    // Render Global Online Players
-    const globalPlayersEl = document.getElementById('globalPlayersDisplay');
-    if (globalPlayersEl) {
-        globalPlayersEl.innerHTML = '';
-        if (globalPlayerList.length === 0) {
-            globalPlayersEl.innerHTML = '<p style="color:#999; font-style:italic;">No other players online.</p>';
-        } else {
-            globalPlayerList.forEach((p) => {
-                const pid = p.userId;
-                const pName = p.name || 'Anonymous';
-                const pRoom = p.room || 'Unknown';
+// Chat Logic
+window.receiveChatMessage = function(data) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
 
-                let div = document.createElement('div');
-                div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #444;";
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-msg';
 
-                let infoSpan = document.createElement('span');
-                infoSpan.style.textAlign = 'left';
-                infoSpan.innerHTML = `<strong style="color:#4caf50;">${pName}</strong><br><span style="font-size:10px; color:#aaa;">World: ${pRoom}</span>`;
+    const time = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const name = data.senderName || 'Anonymous';
 
-                let joinBtn = document.createElement('button');
-                joinBtn.innerText = 'Join';
-                joinBtn.style.cssText = "padding: 4px 8px; font-size: 12px; background: linear-gradient(180deg, #66bb6a, #2e7d32);";
-                joinBtn.onclick = () => window.joinFriendCodeDirect(pRoom);
+    msgDiv.innerHTML = `
+        <span class="time">${time}</span>
+        <span class="sender">${escapeHtml(name)}:</span>
+        <span class="text">${escapeHtml(data.text)}</span>
+    `;
 
-                div.appendChild(infoSpan);
-                div.appendChild(joinBtn);
-                globalPlayersEl.appendChild(div);
-            });
-        }
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // If sidebar is closed, maybe show a notification?
+    if (!document.getElementById('socialSidebar').classList.contains('open')) {
+        window.showModernNotification(`New message from ${name}`);
     }
 };
+
+document.getElementById('sendChatBtn')?.addEventListener('click', () => {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (text && socket && socket.connected) {
+        socket.emit('chat-message', { text: text });
+        input.value = '';
+    }
+});
+
+document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('sendChatBtn').click();
+    }
+});
+
+// World Switching Logic
+document.getElementById('joinWorldBtn')?.addEventListener('click', () => {
+    const input = document.getElementById('worldCodeInput');
+    const code = input.value.trim().toUpperCase();
+    if (code) {
+        window.joinFriendCodeDirect(code);
+    }
+});
+
+document.getElementById('sidebarCopyCodeBtn')?.addEventListener('click', () => {
+    const ownCode = localStorage.getItem('wildpulse_own_world_code');
+    if (ownCode) {
+        navigator.clipboard.writeText(ownCode);
+        window.showModernNotification("World code copied to clipboard!");
+    }
+});
+
+document.getElementById('sidebarReturnOwnBtn')?.addEventListener('click', () => {
+    const ownCode = localStorage.getItem('wildpulse_own_world_code');
+    window.joinFriendCodeDirect(ownCode);
+});
 
 window.teleportToPlayer = function(userId) {
     if (remotePlayers[userId]) {
@@ -3307,32 +3436,6 @@ window.teleportToPlayer = function(userId) {
     } else {
         if (window.showModernNotification) window.showModernNotification("Player position not yet known.");
     }
-};
-
-window.saveFriendCode = function() {
-    const input = document.getElementById('friendCodeInput');
-    const code = input.value.trim().toUpperCase();
-    if (!code) return;
-
-    let savedFriends = [];
-    try {
-        savedFriends = JSON.parse(localStorage.getItem('wildpulse_friends_list')) || [];
-    } catch (e) {}
-
-    if (!savedFriends.includes(code) && code !== multiplayerRoom) {
-        savedFriends.push(code);
-        localStorage.setItem('wildpulse_friends_list', JSON.stringify(savedFriends));
-        input.value = '';
-        window.updateLobbyUI();
-        window.showModernNotification("Friend saved!");
-    }
-};
-
-window.joinFriendWorld = function() {
-    const input = document.getElementById('friendCodeInput');
-    const code = input.value.trim().toUpperCase();
-    if (!code) return;
-    window.joinFriendCodeDirect(code);
 };
 
 window.joinFriendCodeDirect = function(code) {
@@ -4072,7 +4175,7 @@ window.storeModalClosedFlag = false;
 window.pvpModalClosedFlag = false;
 let pendingPvpOffer = null;
 
-window.openTradeModal = function() {
+window.openTradeModal = function(targetUserId) {
     if (window.tradeModalClosedFlag) return;
     if (inBattle) return;
     const s1 = document.getElementById('tradeCreatureSelect');
@@ -4094,24 +4197,23 @@ window.openTradeModal = function() {
         const roomUsers = Object.keys(window.roomUsers || {});
         let usersToDisplay = [...roomUsers];
 
-        // Add global users that aren't already in the room
         if (globalPlayerList) {
             globalPlayerList.forEach(u => {
-                if (!usersToDisplay.includes(u)) usersToDisplay.push(u);
+                const uid = u.userId || u;
+                if (!usersToDisplay.includes(uid)) usersToDisplay.push(uid);
             });
         }
 
-        // Fallback to remotePlayers if both lists are somehow empty
         if (usersToDisplay.length === 0) {
             usersToDisplay = Object.keys(remotePlayers);
         }
 
         usersToDisplay.forEach(userId => {
+            const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) || {};
             const option = document.createElement('option');
             option.value = userId;
-            option.text = `Player ${userId.substring(0, 5)}...`;
+            option.text = identity.name ? `${identity.name} (${userId.substring(0, 5)}...)` : `Player ${userId.substring(0, 5)}...`;
             s2.appendChild(option);
-
         });
 
         if (usersToDisplay.length === 0) {
@@ -4119,6 +4221,8 @@ window.openTradeModal = function() {
             option.value = "";
             option.text = "No players available";
             s2.appendChild(option);
+        } else if (targetUserId) {
+            s2.value = targetUserId;
         }
 
         document.getElementById('tradeResult').innerText = '';
@@ -4152,7 +4256,7 @@ window.closeStoreModal = function() {
     }, 190);
 };
 
-window.openPvpModal = function() {
+window.openPvpModal = function(targetUserId) {
     if (window.pvpModalClosedFlag) return;
     if (inBattle) return;
 
@@ -4165,24 +4269,23 @@ window.openPvpModal = function() {
         const roomUsers = Object.keys(window.roomUsers || {});
         let usersToDisplay = [...roomUsers];
 
-        // Add global users that aren't already in the room
         if (globalPlayerList) {
             globalPlayerList.forEach(u => {
-                if (!usersToDisplay.includes(u)) usersToDisplay.push(u);
+                const uid = u.userId || u;
+                if (!usersToDisplay.includes(uid)) usersToDisplay.push(uid);
             });
         }
 
-        // Fallback to remotePlayers if both lists are somehow empty
         if (usersToDisplay.length === 0) {
             usersToDisplay = Object.keys(remotePlayers);
         }
 
         usersToDisplay.forEach(userId => {
+            const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) || {};
             const option = document.createElement('option');
             option.value = userId;
-            option.text = `Player ${userId.substring(0, 5)}...`;
+            option.text = identity.name ? `${identity.name} (${userId.substring(0, 5)}...)` : `Player ${userId.substring(0, 5)}...`;
             s2.appendChild(option);
-
         });
 
         if (usersToDisplay.length === 0) {
@@ -4190,6 +4293,8 @@ window.openPvpModal = function() {
             option.value = "";
             option.text = "No players available";
             s2.appendChild(option);
+        } else if (targetUserId) {
+            s2.value = targetUserId;
         }
 
         document.getElementById('pvpResult').innerText = '';
@@ -4425,31 +4530,36 @@ window.initializeMultiplayer = function(roomCode) {
         }
     });
 
+    socket.on('chat-message', (data) => {
+        if (window.receiveChatMessage) {
+            window.receiveChatMessage(data);
+        }
+    });
+
     socket.on('global-users', (users) => {
         globalPlayerList = users;
     });
 
     socket.on('room-users', (users) => {
         users.forEach(u => {
-            const userId = u.userId ? u.userId : u; // Fallback to old structure
+            const userId = u.userId ? u.userId : u;
             const index = u.index ? u.index : null;
             window.roomUsers[userId] = { index: index };
             if (index && !window.remotePlayerIndices) window.remotePlayerIndices = {};
             if (index) window.remotePlayerIndices[userId] = index;
         });
-        if (window.updateLobbyUI) window.updateLobbyUI();
+        if (window.updateSocialUI) window.updateSocialUI();
     });
 
     socket.on('user-joined', (data) => {
-        let userId = data.userId ? data.userId : data; // Fallback to old structure
+        let userId = data.userId ? data.userId : data;
         let index = data.index ? data.index : null;
-        console.log("User joined:", userId);
         window.roomUsers[userId] = { index: index };
         if (index) {
             if (!window.remotePlayerIndices) window.remotePlayerIndices = {};
             window.remotePlayerIndices[userId] = index;
         }
-        if (window.updateLobbyUI) window.updateLobbyUI();
+        if (window.updateSocialUI) window.updateSocialUI();
     });
 
     socket.on('user-left', (userId) => {
@@ -4457,7 +4567,7 @@ window.initializeMultiplayer = function(roomCode) {
         if (window.removeRemotePlayer) {
             window.removeRemotePlayer(userId);
         }
-        if (window.updateLobbyUI) window.updateLobbyUI();
+        if (window.updateSocialUI) window.updateSocialUI();
     });
 };
 
@@ -6721,7 +6831,7 @@ function collectCreature(playerCollider, creatureSprite) {
 
     if (hospitalOnScreen || tradeOnScreen || pvpOnScreen) return;
 
-    const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'lobbyModal', 'levelUpModal', 'tradeModal', 'pvpModal'];
+    const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal'];
     const isAnyModalOpen = modals.some(id => {
         const el = document.getElementById(id);
         return el && window.getComputedStyle(el).display !== 'none';
