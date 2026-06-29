@@ -240,7 +240,6 @@
             filter: brightness(1.2);
             box-shadow: 0 0 15px rgba(0,255,100,0.6);
         }
-        #menuModal button#menuMultiplayerBtn { background: linear-gradient(180deg, #42a5f5, #1565c0); border-color: #90caf9; }
         #menuModal button#menuPartyBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
         #menuModal button#menuStorageBtn { background: linear-gradient(180deg, #8d6e63, #4e342e); border-color: #bcaaa4; }
         #menuModal button#breedBtn { background: linear-gradient(180deg, #ffca28, #ff8f00); border-color: #ffe082; color: #333; text-shadow: none; }
@@ -744,7 +743,6 @@
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <h2>Menu</h2>
-    <button id="menuMultiplayerBtn">Multiplayer</button>
     <button id="menuPartyBtn">Party</button>
     <button id="menuStorageBtn">Storage Box</button>
     <button id="breedBtn">Breeding Center</button>
@@ -808,6 +806,137 @@ window.showModernNotification = function(text, duration = 3000) {
     window.notificationTimeout = setTimeout(() => {
         el.style.opacity = '0';
     }, duration);
+};
+
+function escapeHtml(unsafe) {
+    return (unsafe || '').toString()
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
+// ==================== MULTIPLAYER LOBBY ====================
+let multiplayerRoom = null;
+let socket = null;
+let globalPlayerList = [];
+window.roomUsers = {}; // userId -> { index }
+
+window.initializeMultiplayer = function(roomCode) {
+    if (roomCode) {
+        let hash = 0;
+        const upperRoomCode = roomCode.toUpperCase();
+        for (let i = 0; i < upperRoomCode.length; i++) {
+            hash = upperRoomCode.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        window.gameSeed = Math.abs(hash) || 123456789;
+        window.initialRoomSeed = window.gameSeed;
+    }
+    if (typeof io === 'undefined') {
+        console.warn("[Multiplayer] Socket.io not found. Multiplayer disabled.");
+        return;
+    }
+    socket = io();
+
+    socket.on('disconnect', () => {
+        console.warn("[Multiplayer] Disconnected from server. Reconnecting...");
+    });
+
+    socket.on('connect', () => {
+        console.log("[Multiplayer] Connected to server.");
+        if (multiplayerRoom) {
+            console.log(`[Multiplayer] Rejoining room ${multiplayerRoom}`);
+            socket.emit('join-room', multiplayerRoom);
+        }
+    });
+
+    socket.on('assigned-index', (data) => {
+        const index = typeof data === 'object' ? data.index : data;
+        window.playerIndexCount = index;
+
+        if (typeof data === 'object') {
+            window.clientServerOffset = data.serverNow - Date.now();
+            window.serverStartTime = data.startTime;
+            window.roomSeed = data.roomSeed;
+            window.initialRoomSeed = data.roomSeed;
+            window.gameSeed = data.roomSeed; // Link to existing seeded random logic
+            console.log(`[Multiplayer] Room synced. Offset: ${window.clientServerOffset}ms, Seed: ${window.roomSeed}`);
+        }
+
+        if (window.localPlayerLabel && !window.cachedPlayerName) {
+            window.localPlayerLabel.setText("P" + index);
+        }
+
+        // Immediately broadcast identity and position to room via socket relay
+        if (socket && socket.connected) {
+            socket.emit('player-data', {
+                type: 'identity',
+                name: window.cachedPlayerName,
+                color: window.cachedPlayerColor,
+                auraColor: window.cachedPlayerAuraColor
+            });
+            if (typeof player !== 'undefined') {
+                socket.emit('player-data', {
+                    type: 'pos',
+                    x: Math.round(player.x),
+                    y: Math.round(player.y),
+                    vx: 0,
+                    vy: 0,
+                    level: window.collectedCreatures[0]?.level || 1
+                });
+            }
+        }
+    });
+
+    socket.on('player-data', (data) => {
+        const { sender, msg } = data;
+        if (window.handleMultiplayerMessage) {
+            window.handleMultiplayerMessage(sender, msg);
+        }
+    });
+
+    socket.on('chat-message', (data) => {
+        if (window.receiveChatMessage) {
+            window.receiveChatMessage(data);
+        }
+    });
+
+    socket.on('global-users', (users) => {
+        globalPlayerList = users;
+    });
+
+    socket.on('room-users', (users) => {
+        users.forEach(u => {
+            const userId = u.userId ? u.userId : u;
+            const index = (u.index !== undefined && u.index !== null) ? u.index : null;
+            window.roomUsers[userId] = { index: index };
+            if (index !== null) {
+                if (!window.remotePlayerIndices) window.remotePlayerIndices = {};
+                window.remotePlayerIndices[userId] = index;
+            }
+        });
+        if (window.updateSocialUI) window.updateSocialUI();
+    });
+
+    socket.on('user-joined', (data) => {
+        let userId = data.userId ? data.userId : data;
+        let index = (data.index !== undefined && data.index !== null) ? data.index : null;
+        window.roomUsers[userId] = { index: index };
+        if (index !== null) {
+            if (!window.remotePlayerIndices) window.remotePlayerIndices = {};
+            window.remotePlayerIndices[userId] = index;
+        }
+        if (window.updateSocialUI) window.updateSocialUI();
+    });
+
+    socket.on('user-left', (userId) => {
+        delete window.roomUsers[userId];
+        if (window.removeRemotePlayer) {
+            window.removeRemotePlayer(userId);
+        }
+        if (window.updateSocialUI) window.updateSocialUI();
+    });
 };
 
     function switchPartyTab(tab) {
@@ -939,18 +1068,45 @@ window.showModernNotification = function(text, duration = 3000) {
 </div>
 
 <script>
-function escapeHtml(unsafe) {
-    return (unsafe || '').toString()
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
-}
 
+window.player = undefined;
+let player;
+let cursors;
+let pointerTarget = null;
+let creaturesGroup;
+let popupText;
+let popupBackground;
+let popupTimer;
+let bgGrass;
+var collectedCreatures = [];
+var collectedCreaturesIds = new Set();
+window.inBattle = false;
+let inBattle = false;
+let currentEnemy = null;
+let currentPlayer = null;
+let currentEnemySprite = null;
+window.remotePlayers = {};
+let remotePlayers = window.remotePlayers; // userId -> Phaser sprite
+let isActionRunning = false;
+let dayNightTime = 12.0;
+let dayNightOverlay;
+let sunSprite;
+let moonSprite;
+window.timeText = undefined;
+let timeText;
+let lastDayNightUpdate = 0;
+let battleLogQueue = [];
+let isTyping = false;
+window.remotePlayerIdentities = {};
+window.remotePlayerIndices = {};
 
 window.gameStarted = false;
 window.cameraFollowsPlayer = false;
+window.playerVx = 0;
+window.playerVy = 0;
+window.collectedCreatures = collectedCreatures;
+window.collectedCreaturesIds = collectedCreaturesIds;
+window.playerParty = collectedCreatures;
 
 // Performance optimization: cache player identity
 window.cachedPlayerName = localStorage.getItem('wildpulse_player_name') || "";
@@ -976,32 +1132,33 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('startModal').style.display = 'none';
         document.getElementById('menuBtn').style.display = 'block';
         document.getElementById('socialToggleBtn').style.display = 'block';
-        if (timeText) timeText.setVisible(true);
-        if (window.coordText) window.coordText.setVisible(true);
+        try {
+            if (typeof window.timeText !== 'undefined' && window.timeText) window.timeText.setVisible(true);
+            if (window.coordText) window.coordText.setVisible(true);
+        } catch(e) {}
         window.gameStarted = true;
     });
 
 
 
-    document.querySelector('.btn-attack')?.addEventListener('click', () => handlePlayerTurn('attack'));
-    document.querySelector('.btn-swap')?.addEventListener('click', openBattleSwapModal);
-    document.querySelector('.btn-catch')?.addEventListener('click', () => handlePlayerTurn('catch'));
-    document.querySelector('.btn-run')?.addEventListener('click', () => handlePlayerTurn('run'));
+    document.querySelector('.btn-attack')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('attack'); });
+    document.querySelector('.btn-swap')?.addEventListener('click', () => { if (window.openBattleSwapModal) window.openBattleSwapModal(); });
+    document.querySelector('.btn-catch')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('catch'); });
+    document.querySelector('.btn-run')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('run'); });
 
-    document.getElementById('menuBtn')?.addEventListener('click', openMenuModal);
-    document.getElementById('closeSwapBtn')?.addEventListener('click', closeBattleSwapModal);
+    document.getElementById('menuBtn')?.addEventListener('click', () => { if (window.openMenuModal) window.openMenuModal(); });
+    document.getElementById('closeSwapBtn')?.addEventListener('click', () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); });
 
-    document.getElementById('menuMultiplayerBtn')?.addEventListener('click', window.openSocialSidebar);
-    document.getElementById('menuPartyBtn')?.addEventListener('click', openPartyModal);
-    document.getElementById('menuStorageBtn')?.addEventListener('click', openStorageModal);
-    document.getElementById('breedBtn')?.addEventListener('click', openBreedingModal);
-    document.getElementById('menuHelpBtn')?.addEventListener('click', openHelpModal);
-    document.getElementById('menuJournalBtn')?.addEventListener('click', openJournalModal);
-    document.getElementById('startDeleteBtn')?.addEventListener('click', deleteProgress);
-    document.getElementById('menuDeleteBtn')?.addEventListener('click', deleteProgress);
-    document.getElementById('exitGameBtn')?.addEventListener('click', exitGame);
+    document.getElementById('menuPartyBtn')?.addEventListener('click', () => { if (window.openPartyModal) window.openPartyModal(); });
+    document.getElementById('menuStorageBtn')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(); });
+    document.getElementById('breedBtn')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(); });
+    document.getElementById('menuHelpBtn')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(); });
+    document.getElementById('menuJournalBtn')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(); });
+    document.getElementById('startDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
+    document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
+    document.getElementById('exitGameBtn')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
 
-    document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', closeMenuModal));
+    document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeMenuModal) window.closeMenuModal(); }));
     document.getElementById('fullscreenToggleBtn')?.addEventListener('click', () => {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => {
@@ -1013,25 +1170,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    document.querySelectorAll('.close-party-btn').forEach(btn => btn.addEventListener('click', closePartyModal));
-    document.querySelectorAll('.close-storage-btn').forEach(btn => btn.addEventListener('click', closeStorageModal));
-    document.querySelectorAll('.close-help-btn').forEach(btn => btn.addEventListener('click', closeHelpModal));
-    document.querySelectorAll('.close-journal-btn').forEach(btn => btn.addEventListener('click', closeJournalModal));
+    document.querySelectorAll('.close-party-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closePartyModal) window.closePartyModal(); }));
+    document.querySelectorAll('.close-storage-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeStorageModal) window.closeStorageModal(); }));
+    document.querySelectorAll('.close-help-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeHelpModal) window.closeHelpModal(); }));
+    document.querySelectorAll('.close-journal-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeJournalModal) window.closeJournalModal(); }));
 
-    document.getElementById('doBreedBtn')?.addEventListener('click', doBreed);
-    document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', closeBreedingModal));
-    document.querySelectorAll('.close-levelup-btn').forEach(btn => btn.addEventListener('click', closeLevelUpModal));
-    document.getElementById('battleCloseBtn')?.addEventListener('click', closeBattleModal);
+    document.getElementById('doBreedBtn')?.addEventListener('click', () => { if (window.doBreed) window.doBreed(); });
+    document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeBreedingModal) window.closeBreedingModal(); }));
+    document.querySelectorAll('.close-levelup-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeLevelUpModal) window.closeLevelUpModal(); }));
+    document.getElementById('battleCloseBtn')?.addEventListener('click', () => { if (window.closeBattleModal) window.closeBattleModal(); });
 
-    document.querySelectorAll('.close-trade-btn').forEach(btn => btn.addEventListener('click', window.closeTradeModal));
-    document.querySelectorAll('.close-store-btn').forEach(btn => btn.addEventListener('click', window.closeStoreModal));
-    document.querySelectorAll('.close-pvp-btn').forEach(btn => btn.addEventListener('click', window.closePvpModal));
-    document.getElementById('sendTradeBtn')?.addEventListener('click', sendTradeOffer);
-    document.getElementById('acceptTradeBtn')?.addEventListener('click', acceptTradeOffer);
-    document.getElementById('rejectTradeBtn')?.addEventListener('click', rejectTradeOffer);
-    document.getElementById('sendPvpBtn')?.addEventListener('click', window.sendPvpOffer);
-    document.getElementById('acceptPvpBtn')?.addEventListener('click', window.acceptPvpOffer);
-    document.getElementById('rejectPvpBtn')?.addEventListener('click', window.rejectPvpOffer);
+    document.querySelectorAll('.close-trade-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeTradeModal) window.closeTradeModal(); }));
+    document.querySelectorAll('.close-store-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeStoreModal) window.closeStoreModal(); }));
+    document.querySelectorAll('.close-pvp-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closePvpModal) window.closePvpModal(); }));
+    document.getElementById('sendTradeBtn')?.addEventListener('click', () => { if (window.sendTradeOffer) window.sendTradeOffer(); });
+    document.getElementById('acceptTradeBtn')?.addEventListener('click', () => { if (window.acceptTradeOffer) window.acceptTradeOffer(); });
+    document.getElementById('rejectTradeBtn')?.addEventListener('click', () => { if (window.rejectTradeOffer) window.rejectTradeOffer(); });
+    document.getElementById('sendPvpBtn')?.addEventListener('click', () => { if (window.sendPvpOffer) window.sendPvpOffer(); });
+    document.getElementById('acceptPvpBtn')?.addEventListener('click', () => { if (window.acceptPvpOffer) window.acceptPvpOffer(); });
+    document.getElementById('rejectPvpBtn')?.addEventListener('click', () => { if (window.rejectPvpOffer) window.rejectPvpOffer(); });
 
     // Character customization event listeners
     const customizationModal = document.getElementById('customizationModal');
@@ -3200,8 +3357,8 @@ window.baseCreatures.forEach(c => {
 
 // ==================== PERSISTENCE ====================
 const STORAGE_KEY = 'wildpulse_collected_creatures';
-let collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-let collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
+collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
 let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
 window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
@@ -3325,7 +3482,7 @@ window.updateSocialUI = function() {
     } else {
         roomUsers.forEach(pid => {
             const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[pid]) || {};
-            const index = window.roomUsers[pid].index || '?';
+            const index = (window.roomUsers[pid].index !== null && window.roomUsers[pid].index !== undefined) ? window.roomUsers[pid].index : '?';
             const name = identity.name || `Player ${index}`;
 
             const item = document.createElement('div');
@@ -4118,7 +4275,7 @@ window.closeLevelUpModal = function() {
         _m_levelUpModal.children[0].classList.remove('modal-fade-out');
         inBattle = false;
         if (player && player.body) { player.body.moves = true; }
-        player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
+        if (typeof player !== 'undefined' && player) player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
         if (currentEnemySprite) {
             currentEnemySprite.destroy();
         }
@@ -4451,125 +4608,6 @@ window.rejectPvpOffer = function() {
     pendingPvpOffer = null;
 };
 
-// ==================== MULTIPLAYER LOBBY ====================
-let multiplayerRoom = null;
-let socket = null;
-let globalPlayerList = [];
-window.roomUsers = {}; // userId -> { index }
-
-window.initializeMultiplayer = function(roomCode) {
-    if (roomCode) {
-        let hash = 0;
-        const upperRoomCode = roomCode.toUpperCase();
-        for (let i = 0; i < upperRoomCode.length; i++) {
-            hash = upperRoomCode.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        window.gameSeed = Math.abs(hash) || 123456789;
-        window.initialRoomSeed = window.gameSeed;
-    }
-    if (typeof io === 'undefined') {
-        console.warn("[Multiplayer] Socket.io not found. Multiplayer disabled.");
-        return;
-    }
-    socket = io();
-
-    socket.on('disconnect', () => {
-        console.warn("[Multiplayer] Disconnected from server. Reconnecting...");
-    });
-
-    socket.on('connect', () => {
-        console.log("[Multiplayer] Connected to server.");
-        if (multiplayerRoom) {
-            console.log(`[Multiplayer] Rejoining room ${multiplayerRoom}`);
-            socket.emit('join-room', multiplayerRoom);
-        }
-    });
-
-    socket.on('assigned-index', (data) => {
-        const index = typeof data === 'object' ? data.index : data;
-        window.playerIndexCount = index;
-
-        if (typeof data === 'object') {
-            window.clientServerOffset = data.serverNow - Date.now();
-            window.serverStartTime = data.startTime;
-            window.roomSeed = data.roomSeed;
-            window.initialRoomSeed = data.roomSeed;
-            window.gameSeed = data.roomSeed; // Link to existing seeded random logic
-            console.log(`[Multiplayer] Room synced. Offset: ${window.clientServerOffset}ms, Seed: ${window.roomSeed}`);
-        }
-
-        if (window.localPlayerLabel && !window.cachedPlayerName) {
-            window.localPlayerLabel.setText("P" + index);
-        }
-
-        // Immediately broadcast identity and position to room via socket relay
-        if (socket && socket.connected) {
-            socket.emit('player-data', {
-                type: 'identity',
-                name: window.cachedPlayerName,
-                color: window.cachedPlayerColor,
-                auraColor: window.cachedPlayerAuraColor
-            });
-            if (typeof player !== 'undefined') {
-                socket.emit('player-data', {
-                    type: 'pos',
-                    x: Math.round(player.x),
-                    y: Math.round(player.y),
-                    vx: 0,
-                    vy: 0,
-                    level: window.collectedCreatures[0]?.level || 1
-                });
-            }
-        }
-    });
-
-    socket.on('player-data', (data) => {
-        const { sender, msg } = data;
-        if (window.handleMultiplayerMessage) {
-            window.handleMultiplayerMessage(sender, msg);
-        }
-    });
-
-    socket.on('chat-message', (data) => {
-        if (window.receiveChatMessage) {
-            window.receiveChatMessage(data);
-        }
-    });
-
-    socket.on('global-users', (users) => {
-        globalPlayerList = users;
-    });
-
-    socket.on('room-users', (users) => {
-        users.forEach(u => {
-            const userId = u.userId ? u.userId : u;
-            const index = u.index ? u.index : null;
-            window.roomUsers[userId] = { index: index };
-            if (index && !window.remotePlayerIndices) window.remotePlayerIndices = {};
-            if (index) window.remotePlayerIndices[userId] = index;
-        });
-        if (window.updateSocialUI) window.updateSocialUI();
-    });
-
-    socket.on('user-joined', (data) => {
-        let userId = data.userId ? data.userId : data;
-        let index = data.index ? data.index : null;
-        window.roomUsers[userId] = { index: index };
-        if (index) {
-            if (!window.remotePlayerIndices) window.remotePlayerIndices = {};
-            window.remotePlayerIndices[userId] = index;
-        }
-        if (window.updateSocialUI) window.updateSocialUI();
-    });
-
-    socket.on('user-left', (userId) => {
-        delete window.roomUsers[userId];
-        if (window.removeRemotePlayer) {
-            window.removeRemotePlayer(userId);
-        }
-        if (window.updateSocialUI) window.updateSocialUI();
-    });
-};
 
 // ==================== PHASER GAME ====================
 const WORLD_SIZE = 20000;
@@ -4596,30 +4634,6 @@ window.startGame = function() {
     }
 };
 
-let player;
-let cursors;
-let pointerTarget = null;
-let creaturesGroup;
-let popupText;
-let popupBackground;
-let popupTimer;
-let bgGrass;
-let inBattle = false;
-let currentEnemy = null;
-let currentPlayer = null;
-let currentEnemySprite = null;
-window.remotePlayers = {};
-let remotePlayers = window.remotePlayers; // userId -> Phaser sprite
-
-let isActionRunning = false;
-let dayNightTime = 12.0;
-let dayNightOverlay;
-let sunSprite;
-let moonSprite;
-let timeText;
-let lastDayNightUpdate = 0;
-let battleLogQueue = [];
-let isTyping = false;
 
 function processLogQueue() {
     if (isTyping || battleLogQueue.length === 0) return;
@@ -6226,6 +6240,7 @@ function create() {
     const customAuraColor = parseInt(customAuraColorHex.replace('#', '0x'));
 
     player = this.add.sprite(startX, startY, 'player_tex');
+    window.player = player;
     player.originalColor = customColor;
     player.setTint(customColor);
     player.setDepth(10);
@@ -6296,6 +6311,7 @@ function create() {
     // Day and Night Cycle
     dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(4000).setAlpha(0);
     timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
+    window.timeText = timeText;
 
     // World Coordinates UI
     window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(5000).setVisible(false);
@@ -7481,7 +7497,7 @@ window.handlePlayerTurn = function(action) {
         }
 
         window.doPlayerAction(action, () => {
-            if (socket && socket.connected) {
+            if (typeof socket !== 'undefined' && socket && socket.connected) {
                 socket.emit('player-data', {
                     target: window.pvpOpponentId,
                     type: 'pvp_action',
@@ -7541,8 +7557,8 @@ window.closeBattleModal = function() {
     }
 
     inBattle = false;
-    player.body.moves = true;
-    player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
+    if (typeof player !== 'undefined' && player && player.body) player.body.moves = true;
+    if (typeof player !== 'undefined' && player) player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
 
     if (result === 'win') {
         currentEnemySprite.destroy();
@@ -7633,6 +7649,7 @@ window.endBattle = function(result) {
 };
 
 window.getStrictSafeDryLandSpawn = function(enemyObj, targetPos = null) {
+    if (typeof Phaser === 'undefined') return targetPos || {x: 10000, y: 10000};
     let rx, ry, d, col, row, d_water;
     let attempts = 0;
     do {
@@ -7674,6 +7691,7 @@ window.getStrictSafeDryLandSpawn = function(enemyObj, targetPos = null) {
 };
 
 function respawnEnemyBase() {
+    if (typeof Phaser === 'undefined') return;
     const basePrototype = window.baseCreatures.find(c => c.id === currentEnemy.baseId) || window.baseCreatures.find(c => c.name === currentEnemy.name);
     let rx, ry, d, col, row;
     do {
@@ -7724,6 +7742,7 @@ function update() {
     }
 
     const speed = 200;
+    if (typeof Phaser === 'undefined') return;
 
     let tradeOverlap = false;
     if (tradeGroup) {
@@ -8002,7 +8021,7 @@ function update() {
     }
 
     // Dynamic Entity Depth Sorting
-    if (player && player.setDepth) {
+    if (typeof player !== 'undefined' && player && player.setDepth) {
         player.setDepth(10 + player.y / 10000);
         if (player.aura) {
             player.aura.x = player.x;
@@ -8124,8 +8143,8 @@ function update() {
         }
     }
 
-    let col = Math.floor(player.x / 100);
-    let row = Math.floor(player.y / 100);
+    let col = (typeof player !== 'undefined' && player) ? Math.floor(player.x / 100) : 0;
+    let row = (typeof player !== 'undefined' && player) ? Math.floor(player.y / 100) : 0;
     let playerInWater = (mapData[row] && mapData[row][col] === 'obs');
     let onIce = window.currentSeason === 'Winter' && playerInWater;
     let isSwimming = playerInWater && window.currentSeason !== 'Winter';
@@ -8134,10 +8153,10 @@ function update() {
     if (!onIce) {
         window.playerVx = 0;
         window.playerVy = 0;
-        player.body.setVelocity(0, 0);
+        if (typeof player !== 'undefined' && player && player.body) player.body.setVelocity(0, 0);
     }
 
-    if (isSwimming) {
+    if (isSwimming && typeof player !== 'undefined' && player) {
         player.setTint(0x88ccff);
         player.setAlpha(0.7);
         let bob = Math.sin(this.time.now / 200) * 4;
@@ -8148,7 +8167,7 @@ function update() {
             window.rippleEmitter.setPosition(player.x, player.y + 15);
             if (!window.rippleEmitter.emitting) window.rippleEmitter.start();
         }
-    } else {
+    } else if (typeof player !== 'undefined' && player) {
         player.setTint(player.originalColor || 0xFFFFFF);
         player.setAlpha(1.0);
         player.setCrop();
@@ -8162,7 +8181,7 @@ function update() {
     let movedY = false;
 
     // Broadcast position if changed significantly
-    if (!this.lastBroadcastTime || this.time.now - this.lastBroadcastTime > 100) { // 10 times a sec
+    if (typeof player !== 'undefined' && player && (!this.lastBroadcastTime || this.time.now - this.lastBroadcastTime > 100)) { // 10 times a sec
         const dt = this.time.now - (this.lastBroadcastTime || this.time.now - 100);
         const dist = Math.hypot(player.x - (this.lastX || player.x), player.y - (this.lastY || player.y));
         if (dist > 1 || !this.lastBroadcastTime || dt >= 1000) { // Add heartbeat every 1s
@@ -8184,7 +8203,7 @@ function update() {
                 level: window.collectedCreatures[0]?.level || 1
             };
 
-            if (socket && socket.connected) {
+            if (typeof socket !== 'undefined' && socket && socket.connected) {
                 socket.emit('player-data', msgObj);
             }
 
@@ -8319,17 +8338,19 @@ function update() {
             else if (window.playerVy < 0) window.playerVy = Math.min(window.playerVy + friction, 0);
         }
 
-        player.body.setVelocityX(window.playerVx);
-        player.body.setVelocityY(window.playerVy);
+        if (typeof player !== 'undefined' && player && player.body) {
+            player.body.setVelocityX(window.playerVx);
+            player.body.setVelocityY(window.playerVy);
+        }
     } else {
         if (movedX || movedY) {
             window.playerVx = targetVx;
             window.playerVy = targetVy;
-            player.body.setVelocity(targetVx, targetVy);
+            if (typeof player !== 'undefined' && player && player.body) player.body.setVelocity(targetVx, targetVy);
         } else {
             window.playerVx = 0;
             window.playerVy = 0;
-            player.body.setVelocity(0, 0);
+            if (typeof player !== 'undefined' && player && player.body) player.body.setVelocity(0, 0);
         }
     }
 

@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
         const deterministicSeed = Math.abs(hash) || 123456789;
 
         roomStates[roomId] = {
-            nextIndex: 1,
+            nextIndex: 0,
             users: {},
             startTime: Date.now(),
             roomSeed: deterministicSeed
