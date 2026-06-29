@@ -649,6 +649,11 @@
                 <option value="Checkerboard">Checkerboard</option>
                 <option value="Camo">Camo</option>
                 <option value="Stars">Stars</option>
+                <option value="Hearts">Hearts</option>
+                <option value="Waves">Waves</option>
+                <option value="Bricks">Bricks</option>
+                <option value="Honeycomb">Honeycomb</option>
+                <option value="Leopard">Leopard</option>
             </select>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
@@ -5904,30 +5909,36 @@ function generateMiscTextures(scene) {
         if (pattern && pattern !== 'None' && patternColor) {
             pCtx.fillStyle = patternColor;
             if (pattern === 'Dots') {
-                for (let x = 4; x < 40; x += 8) {
-                    for (let y = 4; y < 40; y += 8) {
+                for (let y = 4; y < 40; y += 8) {
+                    const offset = (Math.floor(y / 8) % 2 === 0) ? 0 : 4;
+                    for (let x = 4 + offset; x < 40; x += 8) {
                         pCtx.beginPath();
-                        pCtx.arc(x, y, 2, 0, Math.PI * 2);
+                        pCtx.arc(x, y, 3, 0, Math.PI * 2);
                         pCtx.fill();
                     }
                 }
             } else if (pattern === 'Stripes') {
-                for (let x = 0; x < 40; x += 8) {
-                    pCtx.fillRect(x, 0, 4, 40);
+                pCtx.strokeStyle = patternColor;
+                pCtx.lineWidth = 5;
+                for (let i = -40; i < 80; i += 12) {
+                    pCtx.beginPath();
+                    pCtx.moveTo(i, 0);
+                    pCtx.lineTo(i + 40, 40);
+                    pCtx.stroke();
                 }
             } else if (pattern === 'Checkerboard') {
-                for (let x = 0; x < 40; x += 10) {
-                    for (let y = 0; y < 40; y += 10) {
-                        if ((x + y) / 10 % 2 === 0) {
-                            pCtx.fillRect(x, y, 10, 10);
+                for (let x = 0; x < 40; x += 8) {
+                    for (let y = 0; y < 40; y += 8) {
+                        if ((Math.floor(x / 8) + Math.floor(y / 8)) % 2 === 0) {
+                            pCtx.fillRect(x, y, 8, 8);
                         }
                     }
                 }
             } else if (pattern === 'Camo') {
-                const rng = window.mulberry32(123); // Consistent camo for texture
-                for (let i = 0; i < 20; i++) {
+                const rng = window.mulberry32(123);
+                for (let i = 0; i < 30; i++) {
                     pCtx.beginPath();
-                    pCtx.arc(rng() * 40, rng() * 40, 4 + rng() * 6, 0, Math.PI * 2);
+                    pCtx.arc(rng() * 40, rng() * 40, 3 + rng() * 6, 0, Math.PI * 2);
                     pCtx.fill();
                 }
             } else if (pattern === 'Stars') {
@@ -5935,8 +5946,67 @@ function generateMiscTextures(scene) {
                     const sx = (i * 13) % 40;
                     const sy = (i * 17) % 40;
                     pCtx.fillRect(sx, sy, 3, 3);
-                    pCtx.fillRect(sx + 1, sy - 1, 1, 5);
-                    pCtx.fillRect(sx - 1, sy + 1, 5, 1);
+                    pCtx.fillRect(sx + 1, sy - 2, 1, 7);
+                    pCtx.fillRect(sx - 2, sy + 1, 7, 1);
+                }
+            } else if (pattern === 'Hearts') {
+                for (let i = 0; i < 6; i++) {
+                    const hx = (i * 17 + 10) % 40;
+                    const hy = (i * 13 + 10) % 40;
+                    pCtx.beginPath();
+                    pCtx.moveTo(hx, hy + 4);
+                    pCtx.arc(hx - 2, hy, 2, Math.PI, 0);
+                    pCtx.arc(hx + 2, hy, 2, Math.PI, 0);
+                    pCtx.lineTo(hx, hy + 7);
+                    pCtx.closePath();
+                    pCtx.fill();
+                }
+            } else if (pattern === 'Waves') {
+                pCtx.strokeStyle = patternColor;
+                pCtx.lineWidth = 3;
+                for (let y = 5; y <= 45; y += 10) {
+                    pCtx.beginPath();
+                    pCtx.moveTo(0, y);
+                    for (let x = 0; x <= 40; x += 10) {
+                        pCtx.quadraticCurveTo(x + 5, y - 8, x + 10, y);
+                    }
+                    pCtx.stroke();
+                }
+            } else if (pattern === 'Bricks') {
+                for (let y = 0; y < 40; y += 8) {
+                    const offset = (Math.floor(y / 8) % 2 === 0) ? 0 : 8;
+                    for (let x = -8; x < 40; x += 16) {
+                        pCtx.fillRect(x + offset, y, 14, 6);
+                    }
+                }
+            } else if (pattern === 'Honeycomb') {
+                pCtx.strokeStyle = patternColor;
+                pCtx.lineWidth = 2;
+                const size = 6;
+                for (let y = 0; y < 45; y += size * 1.5) {
+                    const offset = (Math.floor(y / (size * 1.5)) % 2 === 0) ? 0 : size * 0.866;
+                    for (let x = 0; x < 45; x += size * 1.732) {
+                        pCtx.beginPath();
+                        for (let side = 0; side < 6; side++) {
+                            pCtx.lineTo(x + offset + size * Math.cos(side * Math.PI / 3), y + size * Math.sin(side * Math.PI / 3));
+                        }
+                        pCtx.closePath();
+                        pCtx.stroke();
+                    }
+                }
+            } else if (pattern === 'Leopard') {
+                const rng = window.mulberry32(789);
+                for (let i = 0; i < 12; i++) {
+                    const lx = rng() * 40;
+                    const ly = rng() * 40;
+                    const rad = 3 + rng() * 4;
+                    pCtx.beginPath();
+                    pCtx.arc(lx, ly, rad, 0, Math.PI * 2);
+                    pCtx.lineWidth = 3;
+                    pCtx.strokeStyle = patternColor;
+                    pCtx.setLineDash([rad * 1.5, rad]);
+                    pCtx.stroke();
+                    pCtx.setLineDash([]);
                 }
             }
         }

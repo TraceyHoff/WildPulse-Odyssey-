@@ -93,3 +93,28 @@ WildPulse Odyssey Creature Collecting Game
 - **Environment & Immersion**:
     - **Realistic Willow Trees**: Redesigned weeping willow tree generation to include more layered and specific explicit coordinates for dropping branches and leaves, creating a more realistic and natural drooping canopy effect.
     - **Dynamic Winter Weather**: The dynamic weather system is now enabled during the Winter season, introducing unique `light snow`, `heavy snow`, and `thundersnow` weather patterns tied realistically to cloud coverage and lightning logic.
+
+### New Features (v14)
+- **Social & Connectivity**:
+    - **Integrated Chat System**: A new real-time, sanitized chat system built into the Social Sidebar, allowing players in the same room to communicate instantly.
+    - **Social Sidebar**: A collapsible UI element featuring tabs for 'Players' (room and global lists), 'Chat', and 'World Settings'.
+    - **Global Discovery**: See all online players across every active room and join them directly with a single click.
+    - **Private Worlds**: Generate and share unique world codes to play in private instances with friends.
+- **Audio & Immersion**:
+    - **Procedural Music Engine**: A dynamic soundtrack powered by Tone.js that transitions seamlessly between exploring, battle, and social states with atmospheric weather awareness.
+- **World & Mechanics**:
+    - **Swimming Mechanics**: Entering water tiles now triggers a swimming state with reduced movement speed and realistic submersion visuals (alpha transparency, blue tinting, and vertical bobbing).
+    - **Seeded Synchronization**: Every room now uses a deterministic shared random seed based on its world code, ensuring all players see the exact same environmental generation and wild creature properties.
+    - **Deterministic Weather & Time**: Global environmental systems like the 120-day seasonal cycle, day/night lighting, and weather patterns are perfectly synchronized across all clients.
+
+### New Features (v15)
+- **Character Customization Overhaul**:
+    - **Enhanced Skin Patterns**: All existing patterns (Dots, Stripes, Checkerboard, Camo, Stars) have been redesigned for better visual clarity and high-contrast detail.
+    - **Diagonal Patterns**: Stripes and other linear patterns now support diagonal orientations for a more dynamic look.
+    - **Expanded Pattern Library**: Added 5 brand new procedural skin patterns:
+        - **Hearts**: Charming repeating heart shapes.
+        - **Waves**: Smooth, flowing oceanic curves.
+        - **Bricks**: Classic offset masonry pattern.
+        - **Honeycomb**: Hexagonal organic tiling.
+        - **Leopard**: Realistic, irregular animal-print rosettes.
+    - **Network Sync**: All custom skin patterns and colors are synchronized across the network, ensuring peers see your unique character design exactly as intended.
