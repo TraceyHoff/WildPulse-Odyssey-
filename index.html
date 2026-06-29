@@ -1105,7 +1105,6 @@ let bgGrass;
 var collectedCreatures = [];
 var collectedCreaturesIds = new Set();
 window.inBattle = false;
-let inBattle = false;
 let currentEnemy = null;
 let currentPlayer = null;
 let currentEnemySprite = null;
@@ -4474,7 +4473,7 @@ window.closeLevelUpModal = function() {
     setTimeout(() => {
         _m_levelUpModal.style.display = 'none';
         _m_levelUpModal.children[0].classList.remove('modal-fade-out');
-        inBattle = false;
+        window.inBattle = false;
         if (player && player.body) { player.body.moves = true; }
         if (typeof player !== 'undefined' && player) player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
         if (currentEnemySprite) {
@@ -4535,7 +4534,7 @@ let pendingPvpOffer = null;
 
 window.openTradeModal = function(targetUserId) {
     if (window.tradeModalClosedFlag) return;
-    if (inBattle) return;
+    if (window.inBattle) return;
     const s1 = document.getElementById('tradeCreatureSelect');
     s1.innerHTML = '';
     collectedCreatures.filter(c => !c.stored).forEach(c => {
@@ -4600,7 +4599,7 @@ window.closeTradeModal = function() {
 
 window.openStoreModal = function() {
     if (window.storeModalClosedFlag) return;
-    if (inBattle) return;
+    if (window.inBattle) return;
     document.getElementById('storeModal').style.display = 'block';
 };
 
@@ -4616,7 +4615,7 @@ window.closeStoreModal = function() {
 
 window.openPvpModal = function(targetUserId) {
     if (window.pvpModalClosedFlag) return;
-    if (inBattle) return;
+    if (window.inBattle) return;
 
     const s2 = document.getElementById('pvpPlayerSelect');
     s2.innerHTML = '';
@@ -6754,6 +6753,31 @@ function create() {
                 remotePlayer.setData('level', msg.level || 1);
                 remotePlayer.setData('lastUpdate', Date.now());
                 remotePlayers[userId] = remotePlayer;
+
+                // Mutual Discovery: Immediately respond to new player so they see us too
+                if (socket && socket.connected && window.gameStarted) {
+                    socket.emit('player-data', {
+                        target: userId,
+                        type: 'identity',
+                        name: window.cachedPlayerName,
+                        color: window.cachedPlayerColor,
+                        auraColor: window.cachedPlayerAuraColor,
+                        pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
+                        patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
+                    });
+                    if (typeof player !== 'undefined') {
+                        socket.emit('player-data', {
+                            target: userId,
+                            type: 'pos',
+                            x: Math.round(player.x),
+                            y: Math.round(player.y),
+                            vx: 0,
+                            vy: 0,
+                            battle: !!window.inBattle,
+                            level: window.collectedCreatures[0]?.level || 1
+                        });
+                    }
+                }
             } else {
                 const rp = remotePlayers[userId];
 
@@ -7038,7 +7062,7 @@ function create() {
 }
 
 function healParty(playerCollider, hospitalCollider) {
-    if (inBattle) return;
+    if (window.inBattle) return;
 
     // Only trigger heal once per 5 seconds to avoid spamming
     if (playerCollider.lastHealTime && this.time.now - playerCollider.lastHealTime < 5000) return;
@@ -7175,7 +7199,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 }
 
 function collectCreature(playerCollider, creatureSprite) {
-    if (inBattle) return;
+    if (window.inBattle) return;
     if (playerCollider.lastBattleTime && this.time.now - playerCollider.lastBattleTime < 5000) return;
 
     // Prevent battles when hospital or trade tile is on screen
@@ -7219,7 +7243,7 @@ function collectCreature(playerCollider, creatureSprite) {
         return;
     }
 
-    inBattle = true;
+    window.inBattle = true;
     playerCollider.body.setVelocity(0);
     playerCollider.body.moves = false;
 
@@ -7240,7 +7264,7 @@ function collectCreature(playerCollider, creatureSprite) {
 
     if (!collectedCreatures.some(c => !c.stored && c.currentHp > 0)) {
         // No healthy creatures
-        inBattle = false;
+        window.inBattle = false;
         playerCollider.body.moves = true;
         window.showModernNotification("You have no healthy creatures! Find a hospital to heal them.");
         player.x += (Math.random() < 0.5 ? 20 : -20); // Bounce off slightly
@@ -7426,7 +7450,7 @@ window.showFloatingText = function(containerId, text, color) {
 };
 
 window.doPlayerAction = function(action, callback) {
-    if (!inBattle) return;
+    if (!window.inBattle) return;
     let canMove = processStatuses(currentPlayer);
     if (currentPlayer.currentHp <= 0) {
         updateBattleUI();
@@ -7559,7 +7583,7 @@ window.doPlayerAction = function(action, callback) {
 };
 
 window.doEnemyAction = function(callback) {
-    if (!inBattle) return;
+    if (!window.inBattle) return;
     let canMove = processStatuses(currentEnemy);
     if (!canMove) {
         updateBattleUI();
@@ -7771,9 +7795,9 @@ window.handlePvpMessage = function(userId, msg) {
 };
 
 window.startPvpBattle = function(opponentId, opponentCreature, myCreature, isInitiator) {
-    if (inBattle) return;
+    if (window.inBattle) return;
 
-    inBattle = true;
+    window.inBattle = true;
     window.isPvpBattle = true;
     window.pvpOpponentId = opponentId;
     window.pvpIsInitiator = isInitiator;
@@ -7810,7 +7834,7 @@ window.startPvpBattle = function(opponentId, opponentCreature, myCreature, isIni
 };
 
 window.handlePlayerTurn = function(action) {
-    if (!inBattle || isActionRunning) return;
+    if (!window.inBattle || isActionRunning) return;
     isActionRunning = true;
     window.swappedThisTurn = false;
 
@@ -7871,7 +7895,7 @@ window.handlePlayerTurn = function(action) {
 
     if (playerGoesFirst) {
         window.doPlayerAction(action, () => {
-            if (inBattle && currentEnemy.currentHp > 0) {
+            if (window.inBattle && currentEnemy.currentHp > 0) {
                 window.doEnemyAction(() => { isActionRunning = false; });
             } else {
                 isActionRunning = false;
@@ -7879,7 +7903,7 @@ window.handlePlayerTurn = function(action) {
         });
     } else {
         window.doEnemyAction(() => {
-            if (inBattle && currentPlayer.currentHp > 0 && !window.swappedThisTurn) {
+            if (window.inBattle && currentPlayer.currentHp > 0 && !window.swappedThisTurn) {
                 window.doPlayerAction(action, () => { isActionRunning = false; });
             } else {
                 isActionRunning = false;
@@ -7912,7 +7936,7 @@ window.closeBattleModal = function() {
         }
     }
 
-    inBattle = false;
+    window.inBattle = false;
     if (typeof player !== 'undefined' && player && player.body) player.body.moves = true;
     if (typeof player !== 'undefined' && player) player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
 
@@ -8063,7 +8087,6 @@ function respawnEnemyBase() {
 function update() {
     if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
-    if (inBattle) return;
 
     if (window.waterLeaves) {
         window.waterLeaves = window.waterLeaves.filter(leaf => leaf.active);
@@ -8633,6 +8656,8 @@ function update() {
         localStorage.setItem('wildpulse_player_y', player.y);
         window.lastSaveTime = now;
     }
+
+    if (window.inBattle) return;
 
     let targetVx = 0;
     let targetVy = 0;
