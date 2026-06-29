@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         body {
             margin: 0;
@@ -748,6 +749,7 @@
     <button id="breedBtn">Breeding Center</button>
     <button id="menuJournalBtn">Creature Journal</button>
     <button id="menuHelpBtn">Help</button>
+    <button id="menuMusicBtn">Music: ON</button>
     <button id="menuDeleteBtn">Delete Progress</button>
     <button id="fullscreenToggleBtn">Toggle Fullscreen</button>
     <button id="exitGameBtn">Exit Game</button>
@@ -1100,6 +1102,150 @@ let isTyping = false;
 window.remotePlayerIdentities = {};
 window.remotePlayerIndices = {};
 
+window.WildPulseMusic = {
+    initialized: false,
+    muted: false,
+    state: 'EXPLORING',
+    bpm: 110,
+    synths: {},
+    loops: [],
+
+    async start() {
+        if (this.initialized) return;
+        try {
+            await Tone.start();
+            this.initialized = true;
+
+            // Effects
+            this.reverb = new Tone.Reverb(2).toDestination();
+            this.delay = new Tone.FeedbackDelay("8n", 0.5).connect(this.reverb);
+
+            // Instruments
+            this.synths.kick = new Tone.MembraneSynth().toDestination();
+            this.synths.snare = new Tone.NoiseSynth({
+                envelope: { sustain: 0, attack: 0.001, decay: 0.1 }
+            }).toDestination();
+            this.synths.hihat = new Tone.MetalSynth({
+                envelope: { sustain: 0, attack: 0.001, decay: 0.05 }
+            }).toDestination();
+            this.synths.bass = new Tone.MonoSynth({
+                oscillator: { type: "sawtooth" },
+                envelope: { attack: 0.1, release: 0.1 }
+            }).connect(this.reverb);
+            this.synths.lead = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.05, release: 0.5 }
+            }).connect(this.delay);
+
+            this.setupLoops();
+            Tone.Transport.bpm.value = this.bpm;
+            Tone.Transport.start();
+            console.log("[Music] Procedural engine started.");
+        } catch (e) {
+            console.warn("[Music] Failed to start Tone.js:", e);
+        }
+    },
+
+    setupLoops() {
+        // Kick Loop
+        this.loops.push(new Tone.Loop(time => {
+            if (this.state === 'BATTLE' || this.state === 'PVP' || this.state === 'EXPLORING') {
+                 this.synths.kick.triggerAttackRelease("C1", "8n", time, this.state === 'EXPLORING' ? 0.6 : 1);
+            }
+        }, "4n").start(0));
+
+        // Snare Loop
+        this.loops.push(new Tone.Loop(time => {
+            if (this.state === 'BATTLE' || this.state === 'PVP') {
+                this.synths.snare.triggerAttackRelease("8n", time);
+            }
+        }, "2n").start("4n"));
+
+        // Hi-hat Loop
+        this.loops.push(new Tone.Loop(time => {
+            if (this.state !== 'TRADE') {
+                this.synths.hihat.triggerAttackRelease("16n", time, 0.2);
+            }
+        }, "8n").start(0));
+
+        // Bass Loop
+        const bassScales = {
+            'EXPLORING': ["C2", "G1", "F1", "C2"],
+            'BATTLE': ["C2", "Eb2", "F2", "Gb2"],
+            'PVP': ["C2", "Eb2", "F2", "Ab2"],
+            'TRADE': ["C2", "E2", "G2", "B2"]
+        };
+        this.loops.push(new Tone.Loop(time => {
+            const scale = bassScales[this.state] || bassScales['EXPLORING'];
+            const note = scale[Math.floor(Tone.Transport.seconds / 2) % scale.length];
+            this.synths.bass.triggerAttackRelease(note, "8n", time, 0.4);
+        }, "4n").start(0));
+
+        // Lead Loop
+        const leadScales = {
+            'EXPLORING': ["C4", "E4", "G4", "A4", "B4"],
+            'BATTLE': ["C4", "Eb4", "F4", "Gb4", "Bb4"],
+            'PVP': ["C4", "Eb4", "F4", "Ab4", "Bb4"],
+            'TRADE': ["C4", "E4", "G4", "B4", "D5"]
+        };
+        this.loops.push(new Tone.Loop(time => {
+            if (Math.random() > 0.5) {
+                const scale = leadScales[this.state] || leadScales['EXPLORING'];
+                const note = scale[Math.floor(Math.random() * scale.length)];
+                this.synths.lead.triggerAttackRelease(note, "16n", time, 0.3);
+            }
+        }, "8n").start(0));
+    },
+
+    update() {
+        if (!this.initialized || this.muted) return;
+
+        // Throttled update to avoid overhead
+        const now = Date.now();
+        if (this.lastMusicUpdate && now - this.lastMusicUpdate < 200) return;
+        this.lastMusicUpdate = now;
+
+        let newState = 'EXPLORING';
+        if (!this.dom) {
+            this.dom = {
+                tradeModal: document.getElementById('tradeModal'),
+                pvpModal: document.getElementById('pvpModal')
+            };
+        }
+
+        if (window.isPvpBattle) newState = 'PVP';
+        else if (window.inBattle) newState = 'BATTLE';
+        else if (this.dom.tradeModal && this.dom.tradeModal.style.display === 'block') newState = 'TRADE';
+        else if (this.dom.pvpModal && this.dom.pvpModal.style.display === 'block') newState = 'PVP';
+
+        if (this.state !== newState) {
+            this.state = newState;
+            let targetBpm = 110;
+            if (this.state === 'BATTLE') targetBpm = 145;
+            else if (this.state === 'PVP') targetBpm = 165;
+            else if (this.state === 'TRADE') targetBpm = 85;
+
+            Tone.Transport.bpm.rampTo(targetBpm, 2);
+            console.log(`[Music] State changed to ${this.state}, BPM: ${targetBpm}`);
+        }
+
+        // Atmospheric weather effects - only ramp if changed
+        const hasWeather = (window.weatherPattern && window.weatherPattern !== 'none');
+        if (this.hadWeather !== hasWeather) {
+            this.hadWeather = hasWeather;
+            if (this.reverb) {
+                this.reverb.wet.rampTo(hasWeather ? 0.7 : 0.3, 4);
+            }
+        }
+    },
+
+    toggle() {
+        this.muted = !this.muted;
+        Tone.Destination.mute = this.muted;
+        return this.muted;
+    }
+};
+
 window.gameStarted = false;
 window.cameraFollowsPlayer = false;
 window.playerVx = 0;
@@ -1135,6 +1281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             if (typeof window.timeText !== 'undefined' && window.timeText) window.timeText.setVisible(true);
             if (window.coordText) window.coordText.setVisible(true);
+            if (window.WildPulseMusic) window.WildPulseMusic.start();
         } catch(e) {}
         window.gameStarted = true;
     });
@@ -1153,6 +1300,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menuStorageBtn')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(); });
     document.getElementById('breedBtn')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(); });
     document.getElementById('menuHelpBtn')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(); });
+    document.getElementById('menuMusicBtn')?.addEventListener('click', () => {
+        if (window.WildPulseMusic) {
+            const isMuted = window.WildPulseMusic.toggle();
+            document.getElementById('menuMusicBtn').innerText = isMuted ? "Music: OFF" : "Music: ON";
+        }
+    });
     document.getElementById('menuJournalBtn')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(); });
     document.getElementById('startDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
@@ -7705,6 +7858,7 @@ function respawnEnemyBase() {
 }
 
 function update() {
+    if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
     if (inBattle) return;
 
