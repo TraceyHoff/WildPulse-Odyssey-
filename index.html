@@ -654,6 +654,12 @@
                 <option value="Bricks">Bricks</option>
                 <option value="Honeycomb">Honeycomb</option>
                 <option value="Leopard">Leopard</option>
+                <option value="Zebra">Zebra</option>
+                <option value="Tiger">Tiger</option>
+                <option value="Circuit">Circuit</option>
+                <option value="Scales">Scales</option>
+                <option value="Flame">Flame</option>
+                <option value="Galaxy">Galaxy</option>
             </select>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
@@ -818,19 +824,23 @@ window.mulberry32 = function(a) {
 window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
     if (!pattern || pattern === 'None' || !patternColor) return;
     pCtx.fillStyle = patternColor;
+    const rng = window.mulberry32 ? window.mulberry32(789) : Math.random;
+
     if (pattern === 'Dots') {
-        for (let y = 4; y < 40; y += 8) {
-            const offset = (Math.floor(y / 8) % 2 === 0) ? 0 : 4;
-            for (let x = 4 + offset; x < 40; x += 8) {
+        // Jittered grid to avoid overlap and ensure even spread
+        for (let y = 5; y < 40; y += 10) {
+            for (let x = 5; x < 40; x += 10) {
+                const jx = x + (rng() - 0.5) * 4;
+                const jy = y + (rng() - 0.5) * 4;
                 pCtx.beginPath();
-                pCtx.arc(x, y, 3, 0, Math.PI * 2);
+                pCtx.arc(jx, jy, 2.5, 0, Math.PI * 2);
                 pCtx.fill();
             }
         }
     } else if (pattern === 'Stripes') {
         pCtx.strokeStyle = patternColor;
-        pCtx.lineWidth = 5;
-        for (let i = -40; i < 80; i += 12) {
+        pCtx.lineWidth = 4;
+        for (let i = -40; i < 80; i += 10) {
             pCtx.beginPath();
             pCtx.moveTo(i, 0);
             pCtx.lineTo(i + 40, 40);
@@ -845,42 +855,55 @@ window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
             }
         }
     } else if (pattern === 'Camo') {
-        const camoRng = window.mulberry32 ? window.mulberry32(123) : Math.random;
-        for (let i = 0; i < 15; i++) {
+        // Organic overlapping blobs
+        for (let i = 0; i < 20; i++) {
+            const cx = rng() * 40;
+            const cy = rng() * 40;
+            const rx = 4 + rng() * 8;
+            const ry = 4 + rng() * 8;
+            pCtx.save();
+            pCtx.globalAlpha = 0.7;
             pCtx.beginPath();
-            pCtx.arc(camoRng() * 40, camoRng() * 40, 5 + camoRng() * 5, 0, Math.PI * 2);
+            pCtx.ellipse(cx, cy, rx, ry, rng() * Math.PI, 0, Math.PI * 2);
             pCtx.fill();
+            pCtx.restore();
         }
     } else if (pattern === 'Stars') {
-        for (let i = 0; i < 8; i++) {
-            const sx = (i * 13) % 40;
-            const sy = (i * 17) % 40;
-            pCtx.beginPath();
-            for (let j = 0; j < 5; j++) {
-                pCtx.lineTo(sx + Math.cos(j * 1.25) * 5, sy + Math.sin(j * 1.25) * 5);
+        // Jittered grid for stars
+        for (let y = 8; y < 40; y += 14) {
+            for (let x = 8; x < 40; x += 14) {
+                const sx = x + (rng() - 0.5) * 6;
+                const sy = y + (rng() - 0.5) * 6;
+                pCtx.beginPath();
+                for (let j = 0; j < 5; j++) {
+                    pCtx.lineTo(sx + Math.cos(j * 1.25) * 4, sy + Math.sin(j * 1.25) * 4);
+                }
+                pCtx.closePath();
+                pCtx.fill();
             }
-            pCtx.closePath();
-            pCtx.fill();
         }
     } else if (pattern === 'Hearts') {
-        for (let i = 0; i < 5; i++) {
-            const hx = 10 + (i * 15) % 30;
-            const hy = 10 + (i * 11) % 30;
-            pCtx.beginPath();
-            pCtx.moveTo(hx, hy);
-            pCtx.bezierCurveTo(hx, hy - 5, hx - 10, hy - 5, hx - 10, hy);
-            pCtx.bezierCurveTo(hx - 10, hy + 7, hx, hy + 10, hx, hy + 13);
-            pCtx.bezierCurveTo(hx, hy + 10, hx + 10, hy + 7, hx + 10, hy);
-            pCtx.bezierCurveTo(hx + 10, hy - 5, hx, hy - 5, hx, hy);
-            pCtx.fill();
+        // Jittered grid for hearts
+        for (let y = 10; y < 40; y += 15) {
+            for (let x = 10; x < 40; x += 15) {
+                const hx = x + (rng() - 0.5) * 8;
+                const hy = y + (rng() - 0.5) * 8;
+                pCtx.beginPath();
+                pCtx.moveTo(hx, hy);
+                pCtx.bezierCurveTo(hx, hy - 4, hx - 8, hy - 4, hx - 8, hy);
+                pCtx.bezierCurveTo(hx - 8, hy + 5, hx, hy + 8, hx, hy + 11);
+                pCtx.bezierCurveTo(hx, hy + 8, hx + 8, hy + 5, hx + 8, hy);
+                pCtx.bezierCurveTo(hx + 8, hy - 4, hx, hy - 4, hx, hy);
+                pCtx.fill();
+            }
         }
     } else if (pattern === 'Waves') {
         pCtx.strokeStyle = patternColor;
         pCtx.lineWidth = 3;
-        for (let y = 0; y < 45; y += 10) {
+        for (let y = 0; y < 45; y += 8) {
             pCtx.beginPath();
-            for (let x = 0; x < 45; x += 5) {
-                pCtx.lineTo(x, y + Math.sin(x * 0.2) * 5);
+            for (let x = 0; x < 45; x += 4) {
+                pCtx.lineTo(x, y + Math.sin(x * 0.3) * 4);
             }
             pCtx.stroke();
         }
@@ -902,11 +925,11 @@ window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
         }
     } else if (pattern === 'Honeycomb') {
         pCtx.strokeStyle = patternColor;
-        pCtx.lineWidth = 2;
-        const r = 6;
-        for (let y = 0; y < 50; y += r * 1.5) {
-            const offset = (Math.floor(y / (r * 1.5)) % 2 === 0) ? 0 : r * Math.sqrt(3) / 2;
-            for (let x = offset; x < 50; x += r * Math.sqrt(3)) {
+        pCtx.lineWidth = 1.5;
+        const r = 5;
+        for (let y = -5; y < 50; y += r * 1.5) {
+            const offset = (Math.floor((y + 5) / (r * 1.5)) % 2 === 0) ? 0 : r * Math.sqrt(3) / 2;
+            for (let x = -5 + offset; x < 50; x += r * Math.sqrt(3)) {
                 pCtx.beginPath();
                 for (let j = 0; j < 6; j++) {
                     pCtx.lineTo(x + r * Math.cos(j * Math.PI / 3), y + r * Math.sin(j * Math.PI / 3));
@@ -916,15 +939,125 @@ window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
             }
         }
     } else if (pattern === 'Leopard') {
-        const leoRng = window.mulberry32 ? window.mulberry32(456) : Math.random;
-        for (let i = 0; i < 20; i++) {
-            const lx = leoRng() * 40;
-            const ly = leoRng() * 40;
-            pCtx.beginPath();
-            pCtx.arc(lx, ly, 3 + leoRng() * 3, 0, Math.PI * 2);
-            pCtx.strokeStyle = patternColor;
+        // Authentic rosettes (broken irregular circles)
+        for (let i = 0; i < 18; i++) {
+            const lx = rng() * 40;
+            const ly = rng() * 40;
+            const size = 3 + rng() * 4;
             pCtx.lineWidth = 2;
+            pCtx.strokeStyle = patternColor;
+
+            // Draw a few broken arcs to form a rosette
+            for (let a = 0; a < 3; a++) {
+                const startAngle = rng() * Math.PI * 2;
+                const endAngle = startAngle + 1 + rng() * 2;
+                pCtx.beginPath();
+                pCtx.arc(lx, ly, size, startAngle, endAngle);
+                pCtx.stroke();
+            }
+            // Small solid spot in middle sometimes
+            if (rng() > 0.5) {
+                pCtx.beginPath();
+                pCtx.arc(lx + (rng()-0.5)*2, ly + (rng()-0.5)*2, size/3, 0, Math.PI*2);
+                pCtx.fill();
+            }
+        }
+    } else if (pattern === 'Zebra') {
+        pCtx.fillStyle = patternColor;
+        for (let i = -10; i < 50; i += 8) {
+            pCtx.beginPath();
+            const startX = i;
+            pCtx.moveTo(startX, 0);
+            // Wavy vertical stripes
+            for (let y = 0; y <= 40; y += 5) {
+                const wave = Math.sin(y * 0.2 + i) * 3;
+                pCtx.lineTo(startX + wave + 4, y);
+            }
+            for (let y = 40; y >= 0; y -= 5) {
+                const wave = Math.sin(y * 0.2 + i) * 3;
+                pCtx.lineTo(startX + wave, y);
+            }
+            pCtx.closePath();
+            pCtx.fill();
+        }
+    } else if (pattern === 'Tiger') {
+        // Tapered horizontal stripes
+        for (let i = 2; i < 40; i += 8) {
+            pCtx.beginPath();
+            const startY = i + (rng() - 0.5) * 4;
+            pCtx.moveTo(0, startY);
+            pCtx.quadraticCurveTo(20, startY + (rng() - 0.5) * 10, 40, startY);
+            pCtx.lineTo(40, startY + 2);
+            pCtx.quadraticCurveTo(20, startY + 2 + (rng() - 0.5) * 10, 0, startY + 2);
+            pCtx.closePath();
+            pCtx.fill();
+        }
+    } else if (pattern === 'Circuit') {
+        pCtx.strokeStyle = patternColor;
+        pCtx.lineWidth = 1.5;
+        for (let i = 0; i < 8; i++) {
+            const x1 = rng() * 40;
+            const y1 = rng() * 40;
+            const x2 = rng() * 40;
+            const y2 = rng() * 40;
+            pCtx.beginPath();
+            pCtx.moveTo(x1, y1);
+            if (rng() > 0.5) {
+                pCtx.lineTo(x2, y1);
+            } else {
+                pCtx.lineTo(x1, y2);
+            }
+            pCtx.lineTo(x2, y2);
             pCtx.stroke();
+
+            // Nodes
+            pCtx.beginPath();
+            pCtx.arc(x1, y1, 2, 0, Math.PI * 2);
+            pCtx.fill();
+            pCtx.beginPath();
+            pCtx.arc(x2, y2, 2, 0, Math.PI * 2);
+            pCtx.fill();
+        }
+    } else if (pattern === 'Scales') {
+        pCtx.strokeStyle = patternColor;
+        pCtx.lineWidth = 1;
+        for (let y = 0; y < 50; y += 6) {
+            const offset = (Math.floor(y / 6) % 2 === 0) ? 0 : 5;
+            for (let x = -5 + offset; x < 50; x += 10) {
+                pCtx.beginPath();
+                pCtx.arc(x, y, 6, 0, Math.PI);
+                pCtx.stroke();
+            }
+        }
+    } else if (pattern === 'Flame') {
+        for (let i = 0; i < 10; i++) {
+            const fx = rng() * 40;
+            const fy = 40;
+            const h = 10 + rng() * 25;
+            pCtx.beginPath();
+            pCtx.moveTo(fx - 4, fy);
+            pCtx.quadraticCurveTo(fx, fy - h/2, fx + 4, fy);
+            pCtx.quadraticCurveTo(fx, fy - h, fx - 4, fy);
+            pCtx.fill();
+        }
+    } else if (pattern === 'Galaxy') {
+        // Nebulous clusters
+        for (let i = 0; i < 5; i++) {
+            const gx = rng() * 40;
+            const gy = rng() * 40;
+            const grad = pCtx.createRadialGradient(gx, gy, 0, gx, gy, 8 + rng() * 8);
+            grad.addColorStop(0, patternColor);
+            grad.addColorStop(1, 'transparent');
+            pCtx.fillStyle = grad;
+            pCtx.globalAlpha = 0.4;
+            pCtx.beginPath();
+            pCtx.arc(gx, gy, 15, 0, Math.PI * 2);
+            pCtx.fill();
+        }
+        pCtx.globalAlpha = 1.0;
+        pCtx.fillStyle = '#FFFFFF';
+        for (let i = 0; i < 30; i++) {
+            pCtx.fillRect(rng() * 40, rng() * 40, 1, 1);
         }
     }
 };
@@ -1346,6 +1479,10 @@ window.WildPulseMusic = {
                 oscillator: { type: "triangle" },
                 envelope: { attack: 0.05, release: 0.5 }
             }).connect(this.delay);
+            this.synths.weather = new Tone.NoiseSynth({
+                noise: { type: "brown" },
+                envelope: { attack: 2, decay: 0, sustain: 1, release: 2 }
+            }).connect(this.reverb);
 
             this.setupLoops();
             Tone.Transport.bpm.value = this.bpm;
@@ -1379,28 +1516,44 @@ window.WildPulseMusic = {
         }, "8n").start(0));
 
         // Bass Loop
-        const bassScales = {
-            'EXPLORING': ["C2", "G1", "F1", "C2"],
-            'BATTLE': ["C2", "Eb2", "F2", "Gb2"],
-            'PVP': ["C2", "Eb2", "F2", "Ab2"],
-            'TRADE': ["C2", "E2", "G2", "B2"]
-        };
         this.loops.push(new Tone.Loop(time => {
-            const scale = bassScales[this.state] || bassScales['EXPLORING'];
+            const season = window.currentSeason || 'Spring';
+            let scale = ["C2", "G1", "F1", "C2"];
+
+            if (this.state === 'BATTLE' || this.state === 'PVP') {
+                scale = (season === 'Winter') ? ["C2", "Db2", "Eb2", "Gb2"] : ["C2", "Eb2", "F2", "Gb2"];
+                if (season === 'Summer') scale = ["D2", "F2", "G2", "A2"];
+            } else if (this.state === 'TRADE') {
+                scale = ["C2", "E2", "G2", "B2"];
+            } else {
+                if (season === 'Spring') scale = ["C2", "F1", "G1", "C2"];
+                else if (season === 'Summer') scale = ["D2", "G1", "A1", "D2"];
+                else if (season === 'Fall') scale = ["A1", "D2", "E2", "A1"];
+                else if (season === 'Winter') scale = ["C2", "Bb1", "Ab1", "C2"];
+            }
+
             const note = scale[Math.floor(Tone.Transport.seconds / 2) % scale.length];
             this.synths.bass.triggerAttackRelease(note, "8n", time, 0.4);
         }, "4n").start(0));
 
         // Lead Loop
-        const leadScales = {
-            'EXPLORING': ["C4", "E4", "G4", "A4", "B4"],
-            'BATTLE': ["C4", "Eb4", "F4", "Gb4", "Bb4"],
-            'PVP': ["C4", "Eb4", "F4", "Ab4", "Bb4"],
-            'TRADE': ["C4", "E4", "G4", "B4", "D5"]
-        };
         this.loops.push(new Tone.Loop(time => {
             if (Math.random() > 0.5) {
-                const scale = leadScales[this.state] || leadScales['EXPLORING'];
+                const season = window.currentSeason || 'Spring';
+                let scale = ["C4", "E4", "G4", "A4", "B4"];
+
+                if (this.state === 'BATTLE' || this.state === 'PVP') {
+                    scale = (season === 'Winter') ? ["C4", "Db4", "Eb4", "Gb4", "Bb4"] : ["C4", "Eb4", "F4", "Gb4", "Bb4"];
+                    if (season === 'Summer') scale = ["D4", "F4", "G4", "A4", "C5"];
+                } else if (this.state === 'TRADE') {
+                    scale = ["C4", "E4", "G4", "B4", "D5"];
+                } else {
+                    if (season === 'Spring') scale = ["C4", "F4", "G4", "A4", "C5"];
+                    else if (season === 'Summer') scale = ["D4", "G4", "A4", "B4", "D5"];
+                    else if (season === 'Fall') scale = ["A3", "D4", "E4", "G4", "A4"];
+                    else if (season === 'Winter') scale = ["C4", "Eb4", "F4", "Ab4", "Bb4"];
+                }
+
                 const note = scale[Math.floor(Math.random() * scale.length)];
                 this.synths.lead.triggerAttackRelease(note, "16n", time, 0.3);
             }
@@ -1431,20 +1584,44 @@ window.WildPulseMusic = {
         if (this.state !== newState) {
             this.state = newState;
             let targetBpm = 110;
-            if (this.state === 'BATTLE') targetBpm = 145;
-            else if (this.state === 'PVP') targetBpm = 165;
-            else if (this.state === 'TRADE') targetBpm = 85;
+            if (this.state === 'BATTLE') {
+                targetBpm = 155;
+                this.synths.lead.set({ oscillator: { type: "sawtooth" } });
+            }
+            else if (this.state === 'PVP') {
+                targetBpm = 180;
+                this.synths.lead.set({ oscillator: { type: "square" } });
+            }
+            else if (this.state === 'TRADE') {
+                targetBpm = 75;
+                this.synths.lead.set({ oscillator: { type: "sine" } });
+            } else {
+                targetBpm = 115;
+                this.synths.lead.set({ oscillator: { type: "triangle" } });
+            }
 
             Tone.Transport.bpm.rampTo(targetBpm, 2);
             console.log(`[Music] State changed to ${this.state}, BPM: ${targetBpm}`);
         }
 
         // Atmospheric weather effects - only ramp if changed
-        const hasWeather = (window.weatherPattern && window.weatherPattern !== 'none');
-        if (this.hadWeather !== hasWeather) {
-            this.hadWeather = hasWeather;
+        const weather = window.weatherPattern || 'none';
+        if (this.lastWeather !== weather) {
+            this.lastWeather = weather;
+            const hasWeather = (weather !== 'none');
             if (this.reverb) {
-                this.reverb.wet.rampTo(hasWeather ? 0.7 : 0.3, 4);
+                this.reverb.wet.rampTo(hasWeather ? 0.8 : 0.3, 4);
+            }
+            if (this.synths.weather) {
+                if (weather.includes('rain') || weather.includes('storm')) {
+                    this.synths.weather.triggerAttack();
+                    this.synths.weather.set({ noise: { type: 'brown' } });
+                } else if (weather.includes('snow')) {
+                    this.synths.weather.triggerAttack();
+                    this.synths.weather.set({ noise: { type: 'white' } });
+                } else {
+                    this.synths.weather.triggerRelease();
+                }
             }
         }
     },

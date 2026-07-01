@@ -126,3 +126,18 @@ WildPulse Odyssey Creature Collecting Game
 - **Battle & Environmental Fixes**:
     - **Battle Swap Fix**: Resolved an issue where swapping creatures during battle could cause state synchronization errors or crashes by ensuring proper deep-copying and property initialization.
     - **Ripple Persistence Fix**: Fixed a bug where swimming ripple effects would remain visible at the last water exit point by strictly managing emitter visibility.
+
+### New Features (v17)
+- **Advanced Character Customization**:
+    - **Refined Patterns**: Re-engineered core skin patterns (Dots, Stars, Hearts, Camo, Leopard) using a jittered grid and organic blob algorithms to ensure even, non-overlapping distribution and more realistic textures.
+    - **Extended Library**: Added 6 brand-new procedural skins:
+        - **Zebra**: Flowing, wavy vertical stripes.
+        - **Tiger**: Powerful, tapered horizontal patterns.
+        - **Circuit**: Cybernetic geometric nodes and pathways.
+        - **Scales**: Overlapping aquatic-style semi-circles.
+        - **Flame**: Upward-undulating elemental shapes.
+        - **Galaxy**: Nebulous clusters and starfields.
+- **Dynamic Seasonal Music**:
+    - **Atmospheric Audio Engine**: The procedural music engine is now season-aware, automatically shifting musical scales and melodies to match the mood of Spring, Summer, Fall, and Winter.
+    - **Weather-Aware Layers**: Dynamic weather patterns now trigger real-time audio effects, such as soft brown noise for rain or crisp white noise for snow, enhancing environmental immersion.
+    - **Enhanced State Transitions**: Music for Battles, PvP duels, and Trading now features more distinct BPM ramps and synth variations, making every gameplay shift feel unique and impactful.
