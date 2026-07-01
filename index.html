@@ -660,6 +660,13 @@
             <label style="display: block; margin-bottom: 5px;">Pattern Color:</label>
             <input type="color" id="playerPatternColorInput" value="#FF0000" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #222; cursor: pointer;">
         </div>
+        <!-- Character Preview Container -->
+        <div style="margin-bottom: 20px; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center;">
+            <label style="margin-bottom: 10px; font-weight: bold; color: #00ff96;">Live Preview</label>
+            <div id="previewContainer" style="position: relative; width: 120px; height: 120px; background: #111; border-radius: 8px; border: 2px solid #333; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                <canvas id="characterPreviewCanvas" width="120" height="120"></canvas>
+            </div>
+        </div>
         <button id="saveCustomizationBtn" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 1px solid #a5d6a7; cursor: pointer; border-radius: 8px; margin-right: 10px;">Save</button>
         <button id="closeCustomizationBtn" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #555, #222); color: white; border: 1px solid #777; cursor: pointer; border-radius: 8px;">Close</button>
     </div>
@@ -797,6 +804,196 @@ window.remotePlayerSprites = {};
 window.remotePlayerIdentities = {};
 window.remotePlayerIndices = {};
 
+// mulberry32 is a robust 32-bit PRNG
+window.mulberry32 = function(a) {
+    return function() {
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+}
+
+// Shared pattern drawing logic
+window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
+    if (!pattern || pattern === 'None' || !patternColor) return;
+    pCtx.fillStyle = patternColor;
+    if (pattern === 'Dots') {
+        for (let y = 4; y < 40; y += 8) {
+            const offset = (Math.floor(y / 8) % 2 === 0) ? 0 : 4;
+            for (let x = 4 + offset; x < 40; x += 8) {
+                pCtx.beginPath();
+                pCtx.arc(x, y, 3, 0, Math.PI * 2);
+                pCtx.fill();
+            }
+        }
+    } else if (pattern === 'Stripes') {
+        pCtx.strokeStyle = patternColor;
+        pCtx.lineWidth = 5;
+        for (let i = -40; i < 80; i += 12) {
+            pCtx.beginPath();
+            pCtx.moveTo(i, 0);
+            pCtx.lineTo(i + 40, 40);
+            pCtx.stroke();
+        }
+    } else if (pattern === 'Checkerboard') {
+        for (let y = 0; y < 40; y += 8) {
+            for (let x = 0; x < 40; x += 8) {
+                if ((Math.floor(x / 8) + Math.floor(y / 8)) % 2 === 0) {
+                    pCtx.fillRect(x, y, 8, 8);
+                }
+            }
+        }
+    } else if (pattern === 'Camo') {
+        const camoRng = window.mulberry32 ? window.mulberry32(123) : Math.random;
+        for (let i = 0; i < 15; i++) {
+            pCtx.beginPath();
+            pCtx.arc(camoRng() * 40, camoRng() * 40, 5 + camoRng() * 5, 0, Math.PI * 2);
+            pCtx.fill();
+        }
+    } else if (pattern === 'Stars') {
+        for (let i = 0; i < 8; i++) {
+            const sx = (i * 13) % 40;
+            const sy = (i * 17) % 40;
+            pCtx.beginPath();
+            for (let j = 0; j < 5; j++) {
+                pCtx.lineTo(sx + Math.cos(j * 1.25) * 5, sy + Math.sin(j * 1.25) * 5);
+            }
+            pCtx.closePath();
+            pCtx.fill();
+        }
+    } else if (pattern === 'Hearts') {
+        for (let i = 0; i < 5; i++) {
+            const hx = 10 + (i * 15) % 30;
+            const hy = 10 + (i * 11) % 30;
+            pCtx.beginPath();
+            pCtx.moveTo(hx, hy);
+            pCtx.bezierCurveTo(hx, hy - 5, hx - 10, hy - 5, hx - 10, hy);
+            pCtx.bezierCurveTo(hx - 10, hy + 7, hx, hy + 10, hx, hy + 13);
+            pCtx.bezierCurveTo(hx, hy + 10, hx + 10, hy + 7, hx + 10, hy);
+            pCtx.bezierCurveTo(hx + 10, hy - 5, hx, hy - 5, hx, hy);
+            pCtx.fill();
+        }
+    } else if (pattern === 'Waves') {
+        pCtx.strokeStyle = patternColor;
+        pCtx.lineWidth = 3;
+        for (let y = 0; y < 45; y += 10) {
+            pCtx.beginPath();
+            for (let x = 0; x < 45; x += 5) {
+                pCtx.lineTo(x, y + Math.sin(x * 0.2) * 5);
+            }
+            pCtx.stroke();
+        }
+    } else if (pattern === 'Bricks') {
+        pCtx.strokeStyle = patternColor;
+        pCtx.lineWidth = 2;
+        for (let y = 0; y < 40; y += 10) {
+            pCtx.beginPath();
+            pCtx.moveTo(0, y);
+            pCtx.lineTo(40, y);
+            pCtx.stroke();
+            const offset = (Math.floor(y / 10) % 2 === 0) ? 0 : 10;
+            for (let x = offset; x <= 40; x += 20) {
+                pCtx.beginPath();
+                pCtx.moveTo(x, y);
+                pCtx.lineTo(x, y + 10);
+                pCtx.stroke();
+            }
+        }
+    } else if (pattern === 'Honeycomb') {
+        pCtx.strokeStyle = patternColor;
+        pCtx.lineWidth = 2;
+        const r = 6;
+        for (let y = 0; y < 50; y += r * 1.5) {
+            const offset = (Math.floor(y / (r * 1.5)) % 2 === 0) ? 0 : r * Math.sqrt(3) / 2;
+            for (let x = offset; x < 50; x += r * Math.sqrt(3)) {
+                pCtx.beginPath();
+                for (let j = 0; j < 6; j++) {
+                    pCtx.lineTo(x + r * Math.cos(j * Math.PI / 3), y + r * Math.sin(j * Math.PI / 3));
+                }
+                pCtx.closePath();
+                pCtx.stroke();
+            }
+        }
+    } else if (pattern === 'Leopard') {
+        const leoRng = window.mulberry32 ? window.mulberry32(456) : Math.random;
+        for (let i = 0; i < 20; i++) {
+            const lx = leoRng() * 40;
+            const ly = leoRng() * 40;
+            pCtx.beginPath();
+            pCtx.arc(lx, ly, 3 + leoRng() * 3, 0, Math.PI * 2);
+            pCtx.strokeStyle = patternColor;
+            pCtx.lineWidth = 2;
+            pCtx.stroke();
+        }
+    }
+};
+
+window.updateCharacterPreview = function() {
+    const canvas = document.getElementById('characterPreviewCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+
+    const name = document.getElementById('playerNameInput').value || 'P1';
+    const color = document.getElementById('playerColorInput').value;
+    const auraColor = document.getElementById('playerAuraColorInput').value;
+    const pattern = document.getElementById('playerPatternSelect').value;
+    const patternColor = document.getElementById('playerPatternColorInput').value;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw Aura (behind)
+    const centerX = width / 2;
+    const centerY = height / 2 + 10;
+    const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 50);
+
+    // Parse aura color to RGBA
+    const r = parseInt(auraColor.slice(1, 3), 16);
+    const g = parseInt(auraColor.slice(3, 5), 16);
+    const b = parseInt(auraColor.slice(5, 7), 16);
+
+    grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.8)`);
+    grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, width, height);
+
+    // Draw Character Square
+    const charSize = 40;
+    const charX = centerX - charSize / 2;
+    const charY = centerY - charSize / 2;
+
+    ctx.fillStyle = color;
+    ctx.fillRect(charX, charY, charSize, charSize);
+
+    // Draw Pattern
+    // Create a temporary canvas for the pattern to clip it to the character square
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = charSize;
+    tempCanvas.height = charSize;
+    const tempCtx = tempCanvas.getContext('2d');
+
+    if (window.drawPlayerPattern) {
+        window.drawPlayerPattern(tempCtx, pattern, patternColor);
+    }
+
+    ctx.drawImage(tempCanvas, charX, charY);
+
+    // Draw Name
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#000000';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.fillText(name, centerX, charY - 10);
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+};
+
 window.updateRemotePlayerState = function(userId, data) {
     if (!userId) return;
     if (!window.remotePlayerState[userId]) window.remotePlayerState[userId] = {};
@@ -818,16 +1015,6 @@ window.updateRemotePlayerState = function(userId, data) {
 // Deterministic Random Seed for Multiplayer
 window.gameSeed = undefined;
 window.originalRandom = Math.random;
-
-// mulberry32 is a robust 32-bit PRNG
-window.mulberry32 = function(a) {
-    return function() {
-      let t = a += 0x6D2B79F5;
-      t = Math.imul(t ^ t >>> 15, t | 1);
-      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    }
-}
 
 Math.random = function() {
     if (window.gameSeed !== undefined) {
@@ -1383,6 +1570,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('customizeBtn')?.addEventListener('click', () => {
         customizationModal.style.display = 'flex';
+        window.updateCharacterPreview();
+    });
+
+    // Character preview live updates
+    [playerNameInput, playerColorInput, playerAuraColorInput, playerPatternSelect, playerPatternColorInput].forEach(el => {
+        el?.addEventListener('input', () => {
+            window.updateCharacterPreview();
+        });
     });
 
     document.getElementById('saveCustomizationBtn')?.addEventListener('click', () => {
@@ -5900,6 +6095,7 @@ function generateMiscTextures(scene) {
     fishCtx.fill();
     scene.textures.addCanvas('fish_tex', fishCanvas);
 
+
     // Generate player texture
     window.generatePlayerTexture = function(scene, textureKey, baseColor, pattern, patternColor) {
         const pCanvas = document.createElement('canvas');
@@ -5911,110 +6107,8 @@ function generateMiscTextures(scene) {
         pCtx.fillStyle = baseColor || '#FFFFFF';
         pCtx.fillRect(0, 0, 40, 40);
 
-        if (pattern && pattern !== 'None' && patternColor) {
-            pCtx.fillStyle = patternColor;
-            if (pattern === 'Dots') {
-                for (let y = 4; y < 40; y += 8) {
-                    const offset = (Math.floor(y / 8) % 2 === 0) ? 0 : 4;
-                    for (let x = 4 + offset; x < 40; x += 8) {
-                        pCtx.beginPath();
-                        pCtx.arc(x, y, 3, 0, Math.PI * 2);
-                        pCtx.fill();
-                    }
-                }
-            } else if (pattern === 'Stripes') {
-                pCtx.strokeStyle = patternColor;
-                pCtx.lineWidth = 5;
-                for (let i = -40; i < 80; i += 12) {
-                    pCtx.beginPath();
-                    pCtx.moveTo(i, 0);
-                    pCtx.lineTo(i + 40, 40);
-                    pCtx.stroke();
-                }
-            } else if (pattern === 'Checkerboard') {
-                for (let x = 0; x < 40; x += 8) {
-                    for (let y = 0; y < 40; y += 8) {
-                        if ((Math.floor(x / 8) + Math.floor(y / 8)) % 2 === 0) {
-                            pCtx.fillRect(x, y, 8, 8);
-                        }
-                    }
-                }
-            } else if (pattern === 'Camo') {
-                const rng = window.mulberry32(123);
-                for (let i = 0; i < 30; i++) {
-                    pCtx.beginPath();
-                    pCtx.arc(rng() * 40, rng() * 40, 3 + rng() * 6, 0, Math.PI * 2);
-                    pCtx.fill();
-                }
-            } else if (pattern === 'Stars') {
-                for (let i = 0; i < 12; i++) {
-                    const sx = (i * 13) % 40;
-                    const sy = (i * 17) % 40;
-                    pCtx.fillRect(sx, sy, 3, 3);
-                    pCtx.fillRect(sx + 1, sy - 2, 1, 7);
-                    pCtx.fillRect(sx - 2, sy + 1, 7, 1);
-                }
-            } else if (pattern === 'Hearts') {
-                for (let i = 0; i < 6; i++) {
-                    const hx = (i * 17 + 10) % 40;
-                    const hy = (i * 13 + 10) % 40;
-                    pCtx.beginPath();
-                    pCtx.moveTo(hx, hy + 4);
-                    pCtx.arc(hx - 2, hy, 2, Math.PI, 0);
-                    pCtx.arc(hx + 2, hy, 2, Math.PI, 0);
-                    pCtx.lineTo(hx, hy + 7);
-                    pCtx.closePath();
-                    pCtx.fill();
-                }
-            } else if (pattern === 'Waves') {
-                pCtx.strokeStyle = patternColor;
-                pCtx.lineWidth = 3;
-                for (let y = 5; y <= 45; y += 10) {
-                    pCtx.beginPath();
-                    pCtx.moveTo(0, y);
-                    for (let x = 0; x <= 40; x += 10) {
-                        pCtx.quadraticCurveTo(x + 5, y - 8, x + 10, y);
-                    }
-                    pCtx.stroke();
-                }
-            } else if (pattern === 'Bricks') {
-                for (let y = 0; y < 40; y += 8) {
-                    const offset = (Math.floor(y / 8) % 2 === 0) ? 0 : 8;
-                    for (let x = -8; x < 40; x += 16) {
-                        pCtx.fillRect(x + offset, y, 14, 6);
-                    }
-                }
-            } else if (pattern === 'Honeycomb') {
-                pCtx.strokeStyle = patternColor;
-                pCtx.lineWidth = 2;
-                const size = 6;
-                for (let y = 0; y < 45; y += size * 1.5) {
-                    const offset = (Math.floor(y / (size * 1.5)) % 2 === 0) ? 0 : size * 0.866;
-                    for (let x = 0; x < 45; x += size * 1.732) {
-                        pCtx.beginPath();
-                        for (let side = 0; side < 6; side++) {
-                            pCtx.lineTo(x + offset + size * Math.cos(side * Math.PI / 3), y + size * Math.sin(side * Math.PI / 3));
-                        }
-                        pCtx.closePath();
-                        pCtx.stroke();
-                    }
-                }
-            } else if (pattern === 'Leopard') {
-                const rng = window.mulberry32(789);
-                for (let i = 0; i < 12; i++) {
-                    const lx = rng() * 40;
-                    const ly = rng() * 40;
-                    const rad = 3 + rng() * 4;
-                    pCtx.beginPath();
-                    pCtx.arc(lx, ly, rad, 0, Math.PI * 2);
-                    pCtx.lineWidth = 3;
-                    pCtx.strokeStyle = patternColor;
-                    pCtx.setLineDash([rad * 1.5, rad]);
-                    pCtx.stroke();
-                    pCtx.setLineDash([]);
-                }
-            }
-        }
+        // Apply pattern
+        window.drawPlayerPattern(pCtx, pattern, patternColor);
 
         if (scene.textures.exists(textureKey)) {
             scene.textures.get(textureKey).source[0].image = pCanvas;
@@ -6378,7 +6472,7 @@ function create() {
                 const rp = scene.add.sprite(data.x || 10000, data.y || 10000, 'player_tex');
                 rp.originalColor = customColor;
                 rp.aura = scene.add.sprite(rp.x, rp.y, 'aura_tex');
-                rp.aura.setTint(auraColor); rp.aura.setAlpha(0.8); rp.aura.setDepth(4001); rp.aura.setBlendMode(Phaser.BlendModes.ADD);
+                rp.aura.setTint(auraColor); rp.aura.setAlpha(0.8); rp.aura.setDepth(rp.depth - 0.01); rp.aura.setBlendMode(Phaser.BlendModes.ADD);
                 scene.physics.add.existing(rp);
                 rp.setDepth(10);
                 rp.label = scene.add.text(rp.x, rp.y - 30, customName, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
@@ -6480,7 +6574,7 @@ function create() {
             if (rp.aura) {
                 rp.aura.x = rp.x;
                 rp.aura.y = rp.y;
-                rp.aura.setDepth(4001);
+                rp.aura.setDepth(rp.depth - 0.01);
             }
 
             // Culling
@@ -6727,7 +6821,7 @@ function create() {
     player.aura = this.add.sprite(startX, startY, 'aura_tex');
     player.aura.setTint(customAuraColor);
     player.aura.setAlpha(0.8);
-    player.aura.setDepth(4001);
+    player.aura.setDepth(player.depth - 0.01);
     player.aura.setBlendMode(Phaser.BlendModes.ADD);
     this.physics.add.existing(player);
     player.body.setCollideWorldBounds(true);
@@ -8436,7 +8530,7 @@ function update() {
         if (player.aura) {
             player.aura.x = player.x;
             player.aura.y = player.y;
-            player.aura.setDepth(4001);
+            player.aura.setDepth(player.depth - 0.01);
         }
         if (window.localPlayerLabel) {
             window.localPlayerLabel.x = player.x;
