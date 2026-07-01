@@ -7699,7 +7699,7 @@ window.openBattleSwapModal = function() {
     let swapList = document.getElementById('swapPartyList');
     swapList.innerHTML = '';
 
-    let availableCreatures = window.playerParty.filter(c => !c.stored && c.currentHp > 0 && c !== window.currentPlayer);
+    let availableCreatures = window.playerParty.filter(c => !c.stored && c.currentHp > 0 && c.id !== window.currentPlayer.id);
 
     if (availableCreatures.length === 0) {
         window.logBattle("No other healthy creatures to swap in!");
@@ -7742,9 +7742,23 @@ window.closeBattleSwapModal = function() {
 window.doBattleSwap = function(newCreature) {
     if (isActionRunning) return;
     isActionRunning = true;
+
+    // Sync current creature HP/Status back to party before swapping out
+    if (window.currentPlayer) {
+        let activeCreature = collectedCreatures.find(c => c.id === window.currentPlayer.id);
+        if (activeCreature) {
+            activeCreature.currentHp = Math.max(0, window.currentPlayer.currentHp);
+            activeCreature.status = window.currentPlayer.status;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+        }
+    }
+
     window.closeBattleSwapModal();
     window.logBattle(`You swapped in ${newCreature.nickname || newCreature.name}!`);
-    window.currentPlayer = newCreature;
+    window.currentPlayer = JSON.parse(JSON.stringify(newCreature));
+    window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
+    window.currentPlayer.isDefending = false;
+    window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
     window.updateBattleUI();
 
     if (window.isPvpBattle) {
@@ -8550,6 +8564,7 @@ function update() {
         player.setOrigin(0.5, 0.4);
         if (player.aura) player.aura.setVisible(false);
         if (window.rippleEmitter) {
+            window.rippleEmitter.setVisible(true);
             window.rippleEmitter.setPosition(player.x, player.y + 15);
             if (!window.rippleEmitter.emitting) window.rippleEmitter.start();
         }
@@ -8559,7 +8574,10 @@ function update() {
         player.setCrop();
         player.setOrigin(0.5, 0.5);
         if (player.aura) player.aura.setVisible(player.visible);
-        if (window.rippleEmitter && window.rippleEmitter.emitting) window.rippleEmitter.stop();
+        if (window.rippleEmitter) {
+            if (window.rippleEmitter.emitting) window.rippleEmitter.stop();
+            window.rippleEmitter.setVisible(false);
+        }
     }
 
     // Keyboard movement

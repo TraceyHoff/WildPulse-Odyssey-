@@ -118,3 +118,11 @@ WildPulse Odyssey Creature Collecting Game
         - **Honeycomb**: Hexagonal organic tiling.
         - **Leopard**: Realistic, irregular animal-print rosettes.
     - **Network Sync**: All custom skin patterns and colors are synchronized across the network, ensuring peers see your unique character design exactly as intended.
+
+### New Features (v16)
+- **Gamepad Support**: Added full support for Phaser-compatible gamepads, allowing players to navigate the world and menus using physical controllers.
+- **Social Teleportation**: Integrated a 'Teleport' button in the Social Sidebar, enabling players to jump directly to the coordinates of any other player in their current room.
+- **Dynamic Remote Player Labels**: Remote player nameplates now dynamically display their lead creature's level and current battle status, providing better situational awareness.
+- **Battle & Environmental Fixes**:
+    - **Battle Swap Fix**: Resolved an issue where swapping creatures during battle could cause state synchronization errors or crashes by ensuring proper deep-copying and property initialization.
+    - **Ripple Persistence Fix**: Fixed a bug where swimming ripple effects would remain visible at the last water exit point by strictly managing emitter visibility.
