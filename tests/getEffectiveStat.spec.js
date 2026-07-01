@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 test.describe('window.getEffectiveStat', () => {
   test('handles creature with missing nature', async ({ page }) => {
     // Navigate to the index page where getEffectiveStat is defined
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     // Call the function with a mock creature that lacks a 'nature' field
     const result = await page.evaluate(() => {

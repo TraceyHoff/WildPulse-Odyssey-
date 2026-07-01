@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('window.calculateDamage', () => {
   test('calculates basic physical damage correctly', async ({ page }) => {
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     const result = await page.evaluate(() => {
       // Mock dependencies to isolate calculateDamage logic
@@ -36,7 +36,7 @@ test.describe('window.calculateDamage', () => {
   });
 
   test('calculates basic special damage correctly', async ({ page }) => {
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     const result = await page.evaluate(() => {
       window.getEffectiveStat = (creature, stat) => {
@@ -65,7 +65,7 @@ test.describe('window.calculateDamage', () => {
   });
 
   test('applies type modifiers properly and caps them', async ({ page }) => {
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     const result = await page.evaluate(() => {
       window.getEffectiveStat = (creature, stat) => {
@@ -95,7 +95,7 @@ test.describe('window.calculateDamage', () => {
   });
 
   test('prevents OHKO from super effective attacks', async ({ page }) => {
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     const result = await page.evaluate(() => {
       window.getEffectiveStat = (creature, stat) => {
@@ -123,7 +123,7 @@ test.describe('window.calculateDamage', () => {
   });
 
   test('enforces minimum 1 damage', async ({ page }) => {
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     const result = await page.evaluate(() => {
       window.getEffectiveStat = (creature, stat) => {

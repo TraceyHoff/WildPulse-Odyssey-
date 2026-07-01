@@ -792,6 +792,28 @@
 <div id="modernNotification" class="notification-popup"></div>
 
 <script>
+window.remotePlayerState = {};
+window.remotePlayerSprites = {};
+window.remotePlayerIdentities = {};
+window.remotePlayerIndices = {};
+
+window.updateRemotePlayerState = function(userId, data) {
+    if (!userId) return;
+    if (!window.remotePlayerState[userId]) window.remotePlayerState[userId] = {};
+    Object.assign(window.remotePlayerState[userId], data);
+    window.remotePlayerState[userId].lastUpdate = Date.now();
+
+    if (data.type === 'identity') {
+        window.remotePlayerIdentities[userId] = {
+            name: data.name,
+            color: data.color,
+            auraColor: data.auraColor,
+            pattern: data.pattern,
+            patternColor: data.patternColor
+        };
+        if (window.updateSocialUI) window.updateSocialUI();
+    }
+};
 
 // Deterministic Random Seed for Multiplayer
 window.gameSeed = undefined;
@@ -845,54 +867,71 @@ let socket = null;
 let globalPlayerList = [];
 window.roomUsers = {}; // userId -> { index }
 
-window.initializeMultiplayer = function(roomCode) {
-    if (roomCode) {
-        let hash = 0;
-        const upperRoomCode = roomCode.toUpperCase();
-        for (let i = 0; i < upperRoomCode.length; i++) {
-            hash = upperRoomCode.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        window.gameSeed = Math.abs(hash) || 123456789;
-        window.initialRoomSeed = window.gameSeed;
-    }
+window.initializeMultiplayer = function() {
+    console.log("Initializing Multiplayer...");
     if (typeof io === 'undefined') {
         console.warn("[Multiplayer] Socket.io not found. Multiplayer disabled.");
         return;
     }
     socket = io();
-
-    socket.on('disconnect', () => {
-        console.warn("[Multiplayer] Disconnected from server. Reconnecting...");
-    });
+    window.socket = socket;
 
     socket.on('connect', () => {
-        console.log("[Multiplayer] Connected to server.");
-        if (multiplayerRoom) {
-            console.log(`[Multiplayer] Rejoining room ${multiplayerRoom}`);
-            socket.emit('join-room', multiplayerRoom);
-        }
+        console.log("Connected to server");
+        const storedRoom = localStorage.getItem('wildpulse_world_code') || 'GLOBAL';
+        socket.emit('join-room', storedRoom.toUpperCase());
     });
 
     socket.on('assigned-index', (data) => {
         const index = typeof data === 'object' ? data.index : data;
         window.playerIndexCount = index;
-
         if (typeof data === 'object') {
             window.clientServerOffset = data.serverNow - Date.now();
             window.serverStartTime = data.startTime;
             window.roomSeed = data.roomSeed;
             window.initialRoomSeed = data.roomSeed;
-            window.gameSeed = data.roomSeed; // Link to existing seeded random logic
+            window.gameSeed = data.roomSeed;
             console.log(`[Multiplayer] Room synced. Offset: ${window.clientServerOffset}ms, Seed: ${window.roomSeed}`);
         }
+        socket.emit('player-data', { type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
+        socket.emit('player-data', { type: 'pos', x: Math.round((typeof player !== "undefined" && player) ? player.x : 10050), y: Math.round((typeof player !== "undefined" && player) ? player.y : 10050), vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
+    });
 
-        if (window.localPlayerLabel && !window.cachedPlayerName) {
-            window.localPlayerLabel.setText("P" + index);
-        }
+    socket.on('room-users', (users) => {
+        users.forEach(u => {
+            const userId = u.userId || u;
+            const index = (u.index !== undefined && u.index !== null) ? u.index : null;
+            window.remotePlayerIndices[userId] = index;
+            socket.emit('player-data', { target: userId, type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
+            socket.emit('player-data', { target: userId, type: 'pos', x: Math.round((typeof player !== "undefined" && player) ? player.x : 10050), y: Math.round((typeof player !== "undefined" && player) ? player.y : 10050), vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
+        });
+        if (window.updateSocialUI) window.updateSocialUI();
+    });
 
-        // Immediately broadcast identity and position to room via socket relay
-        if (socket && socket.connected) {
+    socket.on('user-joined', (data) => {
+        const userId = data.userId || data;
+        const index = (data.index !== undefined && data.index !== null) ? data.index : null;
+        window.remotePlayerIndices[userId] = index;
+        socket.emit('player-data', { target: userId, type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
+        socket.emit('player-data', { target: userId, type: 'pos', x: Math.round((typeof player !== "undefined" && player) ? player.x : 10050), y: Math.round((typeof player !== "undefined" && player) ? player.y : 10050), vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
+        if (window.updateSocialUI) window.updateSocialUI();
+    });
+
+    socket.on('user-left', (userId) => {
+        delete window.remotePlayerState[userId];
+        delete window.remotePlayerIdentities[userId];
+        delete window.remotePlayerIndices[userId];
+        if (window.removeRemotePlayer) window.removeRemotePlayer(userId);
+        if (window.updateSocialUI) window.updateSocialUI();
+    });
+
+    socket.on('player-data', (payload) => {
+        const userId = payload.sender;
+
+        // Mutual Discovery: If we receive data from someone we don't know yet, send them our info
+        if (!window.remotePlayerState[userId] && window.gameStarted) {
             socket.emit('player-data', {
+                target: userId,
                 type: 'identity',
                 name: window.cachedPlayerName,
                 color: window.cachedPlayerColor,
@@ -900,66 +939,32 @@ window.initializeMultiplayer = function(roomCode) {
                 pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
                 patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
             });
-            if (typeof player !== 'undefined') {
+            if (typeof player !== 'undefined' && player) {
                 socket.emit('player-data', {
+                    target: userId,
                     type: 'pos',
                     x: Math.round(player.x),
                     y: Math.round(player.y),
                     vx: 0,
                     vy: 0,
+                    battle: !!window.inBattle,
                     level: window.collectedCreatures[0]?.level || 1
                 });
             }
         }
-    });
 
-    socket.on('player-data', (data) => {
-        const { sender, msg } = data;
+        window.updateRemotePlayerState(userId, payload.msg);
         if (window.handleMultiplayerMessage) {
-            window.handleMultiplayerMessage(sender, msg);
+            window.handleMultiplayerMessage(userId, payload.msg);
         }
     });
 
     socket.on('chat-message', (data) => {
-        if (window.receiveChatMessage) {
-            window.receiveChatMessage(data);
-        }
+        if (window.receiveChatMessage) window.receiveChatMessage(data);
     });
 
     socket.on('global-users', (users) => {
         globalPlayerList = users;
-    });
-
-    socket.on('room-users', (users) => {
-        users.forEach(u => {
-            const userId = u.userId ? u.userId : u;
-            const index = (u.index !== undefined && u.index !== null) ? u.index : null;
-            window.roomUsers[userId] = { index: index };
-            if (index !== null) {
-                if (!window.remotePlayerIndices) window.remotePlayerIndices = {};
-                window.remotePlayerIndices[userId] = index;
-            }
-        });
-        if (window.updateSocialUI) window.updateSocialUI();
-    });
-
-    socket.on('user-joined', (data) => {
-        let userId = data.userId ? data.userId : data;
-        let index = (data.index !== undefined && data.index !== null) ? data.index : null;
-        window.roomUsers[userId] = { index: index };
-        if (index !== null) {
-            if (!window.remotePlayerIndices) window.remotePlayerIndices = {};
-            window.remotePlayerIndices[userId] = index;
-        }
-        if (window.updateSocialUI) window.updateSocialUI();
-    });
-
-    socket.on('user-left', (userId) => {
-        delete window.roomUsers[userId];
-        if (window.removeRemotePlayer) {
-            window.removeRemotePlayer(userId);
-        }
-        if (window.updateSocialUI) window.updateSocialUI();
     });
 };
 
@@ -1108,7 +1113,7 @@ window.inBattle = false;
 let currentEnemy = null;
 let currentPlayer = null;
 let currentEnemySprite = null;
-window.remotePlayers = {};
+window.remotePlayers = window.remotePlayerSprites;
 let remotePlayers = window.remotePlayers; // userId -> Phaser sprite
 let isActionRunning = false;
 let dayNightTime = 12.0;
@@ -1120,9 +1125,6 @@ let timeText;
 let lastDayNightUpdate = 0;
 let battleLogQueue = [];
 let isTyping = false;
-window.remotePlayerIdentities = {};
-window.remotePlayerIndices = {};
-
 window.WildPulseMusic = {
     initialized: false,
     muted: false,
@@ -3675,21 +3677,25 @@ window.updateSocialUI = function() {
     if (!playerListContainer) return;
 
     playerListContainer.innerHTML = '';
+    const localLi = document.createElement('div');
+    localLi.className = 'player-list-item';
+    const localName = escapeHtml(window.cachedPlayerName || 'You');
+    localLi.innerHTML = `<div><span style="font-weight:bold; color:#00ff96;">${localName} (You)</span></div>`;
+    playerListContainer.appendChild(localLi);
 
-    const roomUsers = Object.keys(window.roomUsers || {});
-    if (roomUsers.length === 0) {
-        playerListContainer.innerHTML = '<p style="color:#888; text-align:center; font-style:italic;">No other players in this instance.</p>';
-    } else {
+    const roomUsers = Object.keys(window.remotePlayerIdentities || {});
+    if (roomUsers.length > 0) {
         roomUsers.forEach(pid => {
             const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[pid]) || {};
-            const index = (window.roomUsers[pid].index !== null && window.roomUsers[pid].index !== undefined) ? window.roomUsers[pid].index : '?';
-            const name = identity.name || `Player ${index}`;
+            const index = (window.remotePlayerIndices[pid] !== null && window.remotePlayerIndices[pid] !== undefined) ? window.remotePlayerIndices[pid] : '?';
+            const name = escapeHtml(identity.name || `Player ${index}`);
+            const safeColor = escapeHtml(identity.color || '#fff');
 
             const item = document.createElement('div');
             item.className = 'player-list-item';
 
             const nameArea = document.createElement('div');
-            nameArea.innerHTML = `<span style="color:${identity.color || '#fff'}; font-weight:bold;">${name}</span><br><span style="font-size:10px; color:#666;">${pid.substring(0,8)}</span>`;
+            nameArea.innerHTML = `<span style="color:${safeColor}; font-weight:bold;">${name}</span><br><span style="font-size:10px; color:#666;">${pid.substring(0,8)}</span>`;
 
             const actionsArea = document.createElement('div');
             actionsArea.className = 'player-actions';
@@ -4551,7 +4557,7 @@ window.openTradeModal = function(targetUserId) {
 
     // Give it a tiny bit of time to fetch global users, otherwise fallback to known users
     setTimeout(() => {
-        const roomUsers = Object.keys(window.roomUsers || {});
+        const roomUsers = Object.keys(window.remotePlayerIdentities || {});
         let usersToDisplay = [...roomUsers];
 
         if (globalPlayerList) {
@@ -4623,7 +4629,7 @@ window.openPvpModal = function(targetUserId) {
     if (socket) socket.emit('fetch-global-users');
 
     setTimeout(() => {
-        const roomUsers = Object.keys(window.roomUsers || {});
+        const roomUsers = Object.keys(window.remotePlayerIdentities || {});
         let usersToDisplay = [...roomUsers];
 
         if (globalPlayerList) {
@@ -6343,6 +6349,152 @@ function destroyTile(key) {
 }
 
 function create() {
+    const playerColors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFF00FF, 0x00FFFF];
+    window.synchronizeRemotePlayers = (scene) => {
+        const state = window.remotePlayerState;
+        const sprites = window.remotePlayerSprites;
+        const now = Date.now();
+
+        for (const id in sprites) {
+            if (!state[id]) {
+                if (sprites[id].label) sprites[id].label.destroy();
+                if (sprites[id].aura) sprites[id].aura.destroy();
+                sprites[id].destroy();
+                delete sprites[id];
+                const texKey = 'player_tex_' + id;
+                if (scene.textures.exists(texKey)) scene.textures.remove(texKey);
+            }
+        }
+
+        for (const id in state) {
+            const data = state[id];
+            if (!sprites[id]) {
+                const identity = window.remotePlayerIdentities[id] || {};
+                const pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[id]) ? window.remotePlayerIndices[id] : 0;
+                const customName = identity.name || ('P' + pIndex);
+                const customColor = identity.color ? parseInt(identity.color.replace('#', '0x')) : playerColors[pIndex % playerColors.length];
+                const auraColor = identity.auraColor ? parseInt(identity.auraColor.replace('#', '0x')) : 0x00FFFF;
+
+                const rp = scene.add.sprite(data.x || 10000, data.y || 10000, 'player_tex');
+                rp.originalColor = customColor;
+                rp.aura = scene.add.sprite(rp.x, rp.y, 'aura_tex');
+                rp.aura.setTint(auraColor); rp.aura.setAlpha(0.8); rp.aura.setDepth(4001); rp.aura.setBlendMode(Phaser.BlendModes.ADD);
+                scene.physics.add.existing(rp);
+                rp.setDepth(10);
+                rp.label = scene.add.text(rp.x, rp.y - 30, customName, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
+                rp.label.setDepth(10);
+                sprites[id] = rp;
+
+                // Baked texture check
+                const texKey = 'player_tex_' + id;
+                if (identity.pattern && identity.pattern !== 'None') {
+                    window.generatePlayerTexture(scene, texKey, identity.color || '#FFFFFF', identity.pattern, identity.patternColor || '#FF0000');
+                    rp.setTexture(texKey);
+                    rp.setTint(0xffffff);
+                }
+            }
+
+            const rp = sprites[id];
+            const identity = window.remotePlayerIdentities[id] || {};
+
+            // Interpolation logic
+            if (data.x !== undefined && data.y !== undefined) {
+                const tx = data.x;
+                const ty = data.y;
+                const vx = data.vx || 0;
+                const vy = data.vy || 0;
+                const lastUpdate = data.lastUpdate || now;
+                const dt = now - lastUpdate;
+
+                if (dt > 200) {
+                    const extrapolationTime = Math.min(dt / 1000, 1.0);
+                    const projectedX = tx + (vx * extrapolationTime);
+                    const projectedY = ty + (vy * extrapolationTime);
+                    rp.x += (projectedX - rp.x) * 0.1;
+                    rp.y += (projectedY - rp.y) * 0.1;
+                } else {
+                    rp.x += (tx - rp.x) * 0.2;
+                    rp.y += (ty - rp.y) * 0.2;
+                }
+            }
+
+            // Sync Identity visuals
+            const texKey = 'player_tex_' + id;
+            if (identity.pattern && identity.pattern !== 'None') {
+                if (rp.texture.key !== texKey) {
+                    window.generatePlayerTexture(scene, texKey, identity.color || '#FFFFFF', identity.pattern, identity.patternColor || '#FF0000');
+                    rp.setTexture(texKey);
+                    rp.setTint(0xffffff);
+                }
+            } else {
+                if (rp.texture.key !== 'player_tex') {
+                    rp.setTexture('player_tex');
+                }
+                if (identity.color) {
+                    const c = parseInt(identity.color.replace('#', '0x'));
+                    if (rp.originalColor !== c) {
+                        rp.originalColor = c;
+                        rp.setTint(c);
+                    }
+                }
+            }
+
+            if (identity.auraColor && rp.aura) {
+                const ac = parseInt(identity.auraColor.replace('#', '0x'));
+                if (rp.aura.tintTopLeft !== ac) rp.aura.setTint(ac);
+            }
+
+            // Swimming visuals
+            const rCol = Math.floor(rp.x / 100);
+            const rRow = Math.floor(rp.y / 100);
+            const rpInWater = (mapData[rRow] && mapData[rRow][rCol] === 'obs');
+            if (rpInWater && window.currentSeason !== 'Winter') {
+                rp.setTint(0x88ccff);
+                rp.setAlpha(0.7);
+                const bob = Math.sin((now + (id.charCodeAt(0)*100)) / 200) * 4;
+                rp.setCrop(0, 0, 40, 25 + bob);
+                rp.setOrigin(0.5, 0.4);
+                if (rp.aura) rp.aura.setVisible(false);
+            } else {
+                rp.setTint(rp.originalColor || 0xFFFFFF);
+                rp.setAlpha(1.0);
+                rp.setCrop();
+                rp.setOrigin(0.5, 0.5);
+                if (rp.aura) rp.aura.setVisible(rp.visible);
+            }
+
+            // Label Sync
+            const pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[id]) ? window.remotePlayerIndices[id] : 0;
+            let labelText = (identity.name || ('P' + pIndex));
+            if (data.level) labelText += ' | Lvl ' + data.level;
+            if (data.battle) labelText += ' (In Battle)';
+            if (rp.label) {
+                rp.label.setText(labelText);
+                rp.label.x = rp.x;
+                rp.label.y = rp.y - 30;
+                rp.label.setDepth(10 + rp.y / 10000);
+            }
+
+            // Shared Components
+            rp.setDepth(10 + rp.y / 10000);
+            if (rp.aura) {
+                rp.aura.x = rp.x;
+                rp.aura.y = rp.y;
+                rp.aura.setDepth(4001);
+            }
+
+            // Culling
+            const cam = scene.cameras.main;
+            const viewPadding = 300;
+            const isVisible = (rp.x >= cam.scrollX - viewPadding && rp.x <= cam.scrollX + cam.width + viewPadding &&
+                               rp.y >= cam.scrollY - viewPadding && rp.y <= cam.scrollY + cam.height + viewPadding);
+            if (rp.visible !== isVisible) {
+                rp.setVisible(isVisible);
+                if (rp.aura) rp.aura.setVisible(isVisible && !rpInWater);
+                if (rp.label) rp.label.setVisible(isVisible);
+            }
+        }
+    };
     // Generate map terrain
     const TILE_SIZE = 100;
     const cols = WORLD_SIZE / TILE_SIZE; // 100
@@ -6663,148 +6815,11 @@ function create() {
 
     // Set up multiplayer message handler for Phaser scene
     if (typeof window.playerIndexCount === 'undefined') window.playerIndexCount = 1; // Local player is P1
-    const playerColors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFF00FF, 0x00FFFF];
     window.handleMultiplayerMessage = (userId, msg) => {
-        if (msg.type === 'identity') {
-            if (!window.remotePlayerIdentities) window.remotePlayerIdentities = {};
-            window.remotePlayerIdentities[userId] = {
-                name: msg.name,
-                color: msg.color,
-                auraColor: msg.auraColor,
-                pattern: msg.pattern,
-                patternColor: msg.patternColor
-            };
+        // Identity and position are now handled by synchronizeRemotePlayers reconciliation loop
+        if (msg.type === 'identity' || msg.type === 'pos' || msg.type === 'position') return;
 
-            if (remotePlayers[userId]) {
-                const rp = remotePlayers[userId];
-                const pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
-                let labelText = (msg.name || "P" + pIndex);
-                if (rp.getData('level')) labelText += ` | Lvl ${rp.getData('level')}`;
-                if (rp.getData('battle')) labelText += " (In Battle)";
-                if (rp.label) rp.label.setText(labelText);
-
-                const texKey = 'player_tex_' + userId;
-                if (msg.pattern && msg.pattern !== 'None') {
-                    window.generatePlayerTexture(this, texKey, msg.color || '#FFFFFF', msg.pattern, msg.patternColor || '#FF0000');
-                    rp.setTexture(texKey);
-                    rp.setTint(0xffffff);
-                } else if (msg.color) {
-                    const customColor = parseInt(msg.color.replace('#', '0x'));
-                    rp.originalColor = customColor;
-                    rp.setTexture('player_tex');
-                    rp.setTint(customColor);
-                }
-
-                if (msg.auraColor && rp.aura) {
-                    const auraColorInt = parseInt(msg.auraColor.replace('#', '0x'));
-                    rp.aura.setTint(auraColorInt);
-                }
-            }
-            return;
-        }
-
-        if (msg.type === 'pos' || msg.type === 'position') {
-            if (!remotePlayers[userId]) {
-                // Register players regardless of distance to allow Teleport feature to work across the whole map
-
-                // Create new remote player
-                let identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) ? window.remotePlayerIdentities[userId] : {};
-                let pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
-                let customName = identity.name || ("P" + pIndex);
-                let customColorStr = identity.color;
-                let customColor = customColorStr ? parseInt(customColorStr.replace('#', '0x')) : playerColors[pIndex % playerColors.length];
-                let auraColorStr = identity.auraColor || "#00FFFF";
-                let auraColor = parseInt(auraColorStr.replace('#', '0x'));
-
-                let remotePlayer = this.add.sprite(msg.x, msg.y, 'player_tex');
-                remotePlayer.originalColor = customColor;
-
-                const texKey = 'player_tex_' + userId;
-                if (identity.pattern && identity.pattern !== 'None') {
-                    window.generatePlayerTexture(this, texKey, identity.color || '#FFFFFF', identity.pattern, identity.patternColor || '#FF0000');
-                    remotePlayer.setTexture(texKey);
-                    remotePlayer.setTint(0xffffff);
-                } else {
-                    remotePlayer.setTint(customColor);
-                }
-
-                // Remote Player Aura
-                remotePlayer.aura = this.add.sprite(msg.x, msg.y, 'aura_tex');
-                remotePlayer.aura.setTint(auraColor);
-                remotePlayer.aura.setAlpha(0.8);
-                remotePlayer.aura.setDepth(4001);
-                remotePlayer.aura.setBlendMode(Phaser.BlendModes.ADD);
-
-                this.physics.add.existing(remotePlayer);
-                remotePlayer.setDepth(10);
-
-                let labelText = customName;
-                if (msg.level) labelText += ` | Lvl ${msg.level}`;
-                if (msg.battle) labelText += " (In Battle)";
-
-                let label = this.add.text(msg.x, msg.y - 30, labelText, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
-                label.setDepth(10);
-                remotePlayer.label = label;
-                remotePlayer.setData('targetX', msg.x);
-                remotePlayer.setData('targetY', msg.y);
-                remotePlayer.setData('vx', msg.vx || 0);
-                remotePlayer.setData('vy', msg.vy || 0);
-                remotePlayer.setData('battle', !!msg.battle);
-                remotePlayer.setData('level', msg.level || 1);
-                remotePlayer.setData('lastUpdate', Date.now());
-                remotePlayers[userId] = remotePlayer;
-
-                // Mutual Discovery: Immediately respond to new player so they see us too
-                if (socket && socket.connected && window.gameStarted) {
-                    socket.emit('player-data', {
-                        target: userId,
-                        type: 'identity',
-                        name: window.cachedPlayerName,
-                        color: window.cachedPlayerColor,
-                        auraColor: window.cachedPlayerAuraColor,
-                        pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
-                        patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
-                    });
-                    if (typeof player !== 'undefined') {
-                        socket.emit('player-data', {
-                            target: userId,
-                            type: 'pos',
-                            x: Math.round(player.x),
-                            y: Math.round(player.y),
-                            vx: 0,
-                            vy: 0,
-                            battle: !!window.inBattle,
-                            level: window.collectedCreatures[0]?.level || 1
-                        });
-                    }
-                }
-            } else {
-                const rp = remotePlayers[userId];
-
-                // Ignore only extremely large jumps (e.g. > 15k) to allow teleports
-                const dist = Math.hypot(rp.x - msg.x, rp.y - msg.y);
-                if (dist > 15000) {
-                    console.warn(`[Multiplayer] Dropping impossible movement update from ${userId} (${dist}px jump)`);
-                    return; // Reject movement
-                }
-
-                // Update target position and velocity
-                rp.setData('targetX', msg.x);
-                rp.setData('targetY', msg.y);
-                rp.setData('vx', msg.vx || 0);
-                rp.setData('vy', msg.vy || 0);
-                rp.setData('battle', !!msg.battle);
-                rp.setData('level', msg.level || 1);
-                rp.setData('lastUpdate', Date.now());
-
-                let identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) ? window.remotePlayerIdentities[userId] : {};
-                let pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[userId]) ? window.remotePlayerIndices[userId] : 2;
-                let labelText = (identity.name || "P" + pIndex);
-                if (msg.level) labelText += ` | Lvl ${msg.level}`;
-                if (msg.battle) labelText += " (In Battle)";
-                if (rp.label) rp.label.setText(labelText);
-            }
-        } else if (msg.type === 'creature_caught') {
+        if (msg.type === 'creature_caught') {
             const creatureId = msg.creatureId;
             creaturesGroup.getChildren().forEach(creature => {
                 const data = creature.getData('creatureData');
@@ -8085,6 +8100,7 @@ function respawnEnemyBase() {
 }
 
 function update() {
+    if (window.synchronizeRemotePlayers) window.synchronizeRemotePlayers(this);
     if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
 
@@ -8414,16 +8430,6 @@ function update() {
             window.localPlayerLabel.setDepth(10 + player.y / 10000);
         }
     }
-    for (const id in remotePlayers) {
-        const rp = remotePlayers[id];
-        if (rp.setDepth) rp.setDepth(10 + rp.y / 10000);
-        if (rp.aura) {
-            rp.aura.x = rp.x;
-            rp.aura.y = rp.y;
-            rp.aura.setDepth(4001);
-        }
-        if (rp.label && rp.label.setDepth) rp.label.setDepth(10 + rp.y / 10000);
-    }
     if (creaturesGroup) {
         creaturesGroup.getChildren().forEach(c => {
             if (c.setDepth) c.setDepth(10 + c.y / 10000);
@@ -8595,60 +8601,6 @@ function update() {
         }
     }
 
-    // Interpolate remote players
-    for (const id in remotePlayers) {
-        const rp = remotePlayers[id];
-        const tx = rp.getData('targetX');
-        const ty = rp.getData('targetY');
-        const lastUpdate = rp.getData('lastUpdate') || now;
-        const dt = now - lastUpdate;
-
-        if (tx !== undefined && ty !== undefined) {
-            if (dt > 200) {
-                // If it's been more than 200ms since the last update,
-                // extrapolate position based on their last known velocity
-                const vx = rp.getData('vx') || 0;
-                const vy = rp.getData('vy') || 0;
-                // Cap extrapolation time to avoid wandering off into infinity
-                const extrapolationTime = Math.min(dt / 1000, 1.0);
-
-                // Gradually approach extrapolated target
-                const projectedX = tx + (vx * extrapolationTime);
-                const projectedY = ty + (vy * extrapolationTime);
-
-                rp.x += (projectedX - rp.x) * 0.1;
-                rp.y += (projectedY - rp.y) * 0.1;
-            } else {
-                // Standard linear interpolation if updates are flowing normally
-                rp.x += (tx - rp.x) * 0.2;
-                rp.y += (ty - rp.y) * 0.2;
-            }
-        }
-
-        if (rp.label) {
-            rp.label.x = rp.x;
-            rp.label.y = rp.y - 30;
-        }
-
-        // Remote player swimming visuals
-        let rCol = Math.floor(rp.x / 100);
-        let rRow = Math.floor(rp.y / 100);
-        let rpInWater = (mapData[rRow] && mapData[rRow][rCol] === 'obs');
-        if (rpInWater && window.currentSeason !== 'Winter') {
-            rp.setTint(0x88ccff);
-            rp.setAlpha(0.7);
-            let bob = Math.sin((this.time.now + (id.charCodeAt(0)*100)) / 200) * 4;
-            rp.setCrop(0, 0, 40, 25 + bob);
-            rp.setOrigin(0.5, 0.4);
-            if (rp.aura) rp.aura.setVisible(false);
-        } else {
-            rp.setTint(rp.originalColor || 0xFFFFFF);
-            rp.setAlpha(1.0);
-            rp.setCrop();
-            rp.setOrigin(0.5, 0.5);
-            if (rp.aura) rp.aura.setVisible(rp.visible);
-        }
-    }
 
     // Periodically save player position (every ~1000ms)
     if (shouldSave) {
@@ -8783,18 +8735,6 @@ function update() {
     const viewTop = cam.scrollY - viewPadding;
     const viewBottom = cam.scrollY + cam.height + viewPadding;
 
-    // Remote Players Culling
-    for (const id in remotePlayers) {
-        const rp = remotePlayers[id];
-        const isVisible = (rp.x >= viewLeft && rp.x <= viewRight && rp.y >= viewTop && rp.y <= viewBottom);
-
-        // Only update visibility if it actually changes to save performance
-        if (rp.visible !== isVisible) {
-            rp.setVisible(isVisible);
-            if (rp.aura) rp.aura.setVisible(isVisible);
-            if (rp.label) rp.label.setVisible(isVisible);
-        }
-    }
 
     // Creature wandering logic & culling
     creaturesGroup.getChildren().forEach(creature => {
