@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('window.getTypeModifier', () => {
   test('returns 1 when attackType is not in typeChart', async ({ page }) => {
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     const result = await page.evaluate(() => {
       return window.getTypeModifier('NonExistentType', 'Water');
@@ -12,7 +12,7 @@ test.describe('window.getTypeModifier', () => {
   });
 
   test('returns 1 when defenseType is not defined for attackType', async ({ page }) => {
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     const result = await page.evaluate(() => {
       return window.getTypeModifier('Fire', 'NonExistentType');
@@ -22,7 +22,7 @@ test.describe('window.getTypeModifier', () => {
   });
 
   test('returns correct modifier for basic single types', async ({ page }) => {
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     const result = await page.evaluate(() => {
       return {

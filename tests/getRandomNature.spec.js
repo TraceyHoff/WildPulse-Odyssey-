@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 test.describe('window.getRandomNature', () => {
   test('handles empty window.natures array', async ({ page }) => {
     // Navigate to the index page where window.natures and getRandomNature are defined
-    await page.goto('file://' + __dirname + '/../index.html');
+    await page.goto('http://localhost:3000');
 
     // Check what getRandomNature returns when natures is empty
     const result = await page.evaluate(() => {
