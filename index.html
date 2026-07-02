@@ -1128,18 +1128,36 @@ window.updateCharacterPreview = function() {
 };
 
 window.updateRemotePlayerState = function(userId, data) {
-    if (!userId) return;
-    if (!window.remotePlayerState[userId]) window.remotePlayerState[userId] = {};
-    Object.assign(window.remotePlayerState[userId], data);
-    window.remotePlayerState[userId].lastUpdate = Date.now();
+    if (!userId || !data) return;
+
+    if (!window.remotePlayerState[userId]) {
+        window.remotePlayerState[userId] = {
+            x: 10050, // Default start coord
+            y: 10050,
+            vx: 0,
+            vy: 0,
+            lastUpdate: Date.now()
+        };
+    }
+
+    // Only update position if values are valid numbers
+    if (data.type === 'pos' || data.type === 'position') {
+        if (typeof data.x === 'number' && !isNaN(data.x)) window.remotePlayerState[userId].x = data.x;
+        if (typeof data.y === 'number' && !isNaN(data.y)) window.remotePlayerState[userId].y = data.y;
+        if (typeof data.vx === 'number' && !isNaN(data.vx)) window.remotePlayerState[userId].vx = data.vx;
+        if (typeof data.vy === 'number' && !isNaN(data.vy)) window.remotePlayerState[userId].vy = data.vy;
+        if (data.level !== undefined) window.remotePlayerState[userId].level = data.level;
+        if (data.battle !== undefined) window.remotePlayerState[userId].battle = data.battle;
+        window.remotePlayerState[userId].lastUpdate = Date.now();
+    }
 
     if (data.type === 'identity') {
         window.remotePlayerIdentities[userId] = {
-            name: data.name,
-            color: data.color,
-            auraColor: data.auraColor,
-            pattern: data.pattern,
-            patternColor: data.patternColor
+            name: data.name || window.remotePlayerIdentities[userId]?.name,
+            color: data.color || window.remotePlayerIdentities[userId]?.color,
+            auraColor: data.auraColor || window.remotePlayerIdentities[userId]?.auraColor,
+            pattern: data.pattern || window.remotePlayerIdentities[userId]?.pattern,
+            patternColor: data.patternColor || window.remotePlayerIdentities[userId]?.patternColor
         };
         if (window.updateSocialUI) window.updateSocialUI();
     }
@@ -1214,7 +1232,10 @@ window.initializeMultiplayer = function() {
             console.log(`[Multiplayer] Room synced. Offset: ${window.clientServerOffset}ms, Seed: ${window.roomSeed}`);
         }
         socket.emit('player-data', { type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
-        socket.emit('player-data', { type: 'pos', x: Math.round((typeof player !== "undefined" && player) ? player.x : 10050), y: Math.round((typeof player !== "undefined" && player) ? player.y : 10050), vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
+
+        const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
+        const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
+        socket.emit('player-data', { type: 'pos', x: px, y: py, vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
     });
 
     socket.on('room-users', (users) => {
@@ -1223,7 +1244,10 @@ window.initializeMultiplayer = function() {
             const index = (u.index !== undefined && u.index !== null) ? u.index : null;
             window.remotePlayerIndices[userId] = index;
             socket.emit('player-data', { target: userId, type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
-            socket.emit('player-data', { target: userId, type: 'pos', x: Math.round((typeof player !== "undefined" && player) ? player.x : 10050), y: Math.round((typeof player !== "undefined" && player) ? player.y : 10050), vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
+
+            const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
+            const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
+            socket.emit('player-data', { target: userId, type: 'pos', x: px, y: py, vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
         });
         if (window.updateSocialUI) window.updateSocialUI();
     });
@@ -1233,7 +1257,10 @@ window.initializeMultiplayer = function() {
         const index = (data.index !== undefined && data.index !== null) ? data.index : null;
         window.remotePlayerIndices[userId] = index;
         socket.emit('player-data', { target: userId, type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
-        socket.emit('player-data', { target: userId, type: 'pos', x: Math.round((typeof player !== "undefined" && player) ? player.x : 10050), y: Math.round((typeof player !== "undefined" && player) ? player.y : 10050), vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
+
+        const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
+        const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
+        socket.emit('player-data', { target: userId, type: 'pos', x: px, y: py, vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
         if (window.updateSocialUI) window.updateSocialUI();
     });
 
@@ -1249,7 +1276,7 @@ window.initializeMultiplayer = function() {
         const userId = payload.sender;
 
         // Mutual Discovery: If we receive data from someone we don't know yet, send them our info
-        if (!window.remotePlayerState[userId] && window.gameStarted) {
+        if (!window.remotePlayerState[userId]) {
             socket.emit('player-data', {
                 target: userId,
                 type: 'identity',
@@ -1259,18 +1286,18 @@ window.initializeMultiplayer = function() {
                 pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
                 patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
             });
-            if (typeof player !== 'undefined' && player) {
-                socket.emit('player-data', {
-                    target: userId,
-                    type: 'pos',
-                    x: Math.round(player.x),
-                    y: Math.round(player.y),
-                    vx: 0,
-                    vy: 0,
-                    battle: !!window.inBattle,
-                    level: window.collectedCreatures[0]?.level || 1
-                });
-            }
+            const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
+            const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
+            socket.emit('player-data', {
+                target: userId,
+                type: 'pos',
+                x: px,
+                y: py,
+                vx: 0,
+                vy: 0,
+                battle: !!window.inBattle,
+                level: window.collectedCreatures[0]?.level || 1
+            });
         }
 
         window.updateRemotePlayerState(userId, payload.msg);
@@ -6646,7 +6673,7 @@ function create() {
                 const customColor = identity.color ? parseInt(identity.color.replace('#', '0x')) : playerColors[pIndex % playerColors.length];
                 const auraColor = identity.auraColor ? parseInt(identity.auraColor.replace('#', '0x')) : 0x00FFFF;
 
-                const rp = scene.add.sprite(data.x || 10000, data.y || 10000, 'player_tex');
+                const rp = scene.add.sprite((typeof data.x === 'number') ? data.x : 10050, (typeof data.y === 'number') ? data.y : 10050, 'player_tex');
                 rp.originalColor = customColor;
                 rp.aura = scene.add.sprite(rp.x, rp.y, 'aura_tex');
                 rp.aura.setTint(auraColor); rp.aura.setAlpha(0.8); rp.aura.setDepth(rp.depth - 0.01); rp.aura.setBlendMode(Phaser.BlendModes.ADD);
@@ -8856,7 +8883,7 @@ function update() {
     let movedY = false;
 
     // Broadcast position if changed significantly
-    if (typeof player !== 'undefined' && player && (!this.lastBroadcastTime || this.time.now - this.lastBroadcastTime > 100)) { // 10 times a sec
+    if (typeof player !== 'undefined' && player && typeof player.x === 'number' && !isNaN(player.x) && (!this.lastBroadcastTime || this.time.now - this.lastBroadcastTime > 100)) { // 10 times a sec
         const dt = this.time.now - (this.lastBroadcastTime || this.time.now - 100);
         const dist = Math.hypot(player.x - (this.lastX || player.x), player.y - (this.lastY || player.y));
         if (dist > 1 || !this.lastBroadcastTime || dt >= 1000) { // Add heartbeat every 1s
