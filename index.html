@@ -358,7 +358,7 @@
         height: 100vh;
         background: #000;
         z-index: 100000;
-        display: none;
+        display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
@@ -805,6 +805,10 @@
 <div id="modernNotification" class="notification-popup"></div>
 
 <script>
+// ==================== SESSION INITIALIZATION ====================
+var wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
+window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
+
 window.remotePlayerState = {};
 window.remotePlayerSprites = {};
 window.remotePlayerIdentities = {};
@@ -1207,6 +1211,20 @@ window.roomUsers = {}; // userId -> { index }
 
 window.initializeMultiplayer = function() {
     console.log("Initializing Multiplayer...");
+
+    // Pre-calculate deterministic seed from room name (matching server logic)
+    const storedRoom = (localStorage.getItem('wildpulse_world_code') || 'GLOBAL').toUpperCase();
+    let hash = 0;
+    for (let i = 0; i < storedRoom.length; i++) {
+        hash = storedRoom.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    window.initialRoomSeed = Math.abs(hash) || 123456789;
+    window.gameSeed = window.initialRoomSeed;
+    console.log(`[Multiplayer] Pre-calculated seed for ${storedRoom}: ${window.initialRoomSeed}`);
+
+    // Proactively start the game world so it's visible on the start screen
+    if (window.startGame) window.startGame();
+
     if (typeof io === 'undefined') {
         console.warn("[Multiplayer] Socket.io not found. Multiplayer disabled.");
         return;
@@ -1232,8 +1250,7 @@ window.initializeMultiplayer = function() {
             console.log(`[Multiplayer] Room synced. Offset: ${window.clientServerOffset}ms, Seed: ${window.roomSeed}`);
         }
 
-        console.log(`[Multiplayer] Assigned index: ${index}. Starting game...`);
-        if (window.startGame) window.startGame();
+        console.log(`[Multiplayer] Assigned index: ${index}.`);
 
         socket.emit('player-data', { type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
 
@@ -1864,7 +1881,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customizationModal.style.display = 'none';
     });
 
-    // Phaser start is now triggered by assigned-index to ensure roomSeed sync
+    // Phaser start is triggered in initializeMultiplayer for immediate world visibility
 });
 
 document.addEventListener('click', function(e) {
@@ -3982,9 +3999,6 @@ const STORAGE_KEY = 'wildpulse_collected_creatures';
 collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
-let wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
-window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
-
 // Stats System
 window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
     battlesWon: 0,
@@ -5464,6 +5478,9 @@ function setupDynamicGrass(scene) {
             } else if (window.currentSeason === 'Winter') {
                 gradient.addColorStop(0, '#7ba4b3');
                 gradient.addColorStop(1, '#add8e6');
+            } else {
+                gradient.addColorStop(0, '#004d00');
+                gradient.addColorStop(1, '#228B22');
             }
             bgCtx.fillStyle = gradient;
             bgCtx.fillRect(0, 0, 100, 100);
