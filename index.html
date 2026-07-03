@@ -64,7 +64,7 @@
         }
 
         /* Modals */
-        #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal {
+        #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal, #battleSwapModal {
             width: 100vw !important;
             height: 100vh !important;
             max-width: none !important;
@@ -99,7 +99,7 @@
             font-size: 14px !important;
             border: 1px solid #c62828 !important;
             cursor: pointer !important;
-            display: flex !important;
+            display: flex;
             align-items: center !important;
             justify-content: center !important;
             padding: 0 !important;
@@ -306,6 +306,14 @@
             color: white;
             z-index: 600;
             text-align: center;
+        }
+
+        #battleSwapModal {
+            z-index: 550 !important;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            position: fixed !important;
         }
 
         #tradeModal select, #tradeModal button, #pvpModal select, #pvpModal button, #journalModal button {
@@ -716,12 +724,10 @@
     </div>
 </div>
 
-<div id="battleSwapModal" class="modal" style="display:none;">
-    <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
-        <button class="close-btn" id="closeSwapBtn">X</button>
-        <h2>Swap Creature</h2>
-        <div id="swapPartyList" style="display: flex; flex-direction: column; gap: 10px;"></div>
-    </div>
+<div id="battleSwapModal" style="display:none;">
+    <button class="close-btn" id="closeSwapBtn" aria-label="Close Swap">X</button>
+    <h2>Swap Creature</h2>
+    <div id="swapPartyList" style="display: flex; flex-direction: column; gap: 10px;"></div>
 </div>
 
 <button id="menuBtn">Menu</button>
@@ -5160,6 +5166,7 @@ window.openPvpModal = function(targetUserId) {
 };
 
 window.closePvpModal = function() {
+    if (window.inBattle) return;
     window.pvpModalClosedFlag = true;
     let _m_pvpModal = document.getElementById('pvpModal');
     _m_pvpModal.children[0].classList.add('modal-fade-out');
@@ -5381,6 +5388,13 @@ function logBattle(msg) {
 }
 
 function updateBattleUI() {
+    const isCombatActive = window.inBattle && window.pendingBattleResult === null;
+    const battleCloseBtn = document.getElementById('battleCloseBtn');
+    if (battleCloseBtn) battleCloseBtn.style.display = isCombatActive ? 'none' : 'flex';
+
+    const pvpCloseBtns = document.querySelectorAll('.close-pvp-btn');
+    pvpCloseBtns.forEach(btn => btn.style.display = isCombatActive ? 'none' : 'flex');
+
     // Set background
     const pTypes = currentPlayer && currentPlayer.type ? currentPlayer.type.split('-') : [];
     const pColor = window.TYPE_COLORS[pTypes[0]] || 'rgba(30, 60, 90, 0.8)';
@@ -8350,6 +8364,7 @@ window.handlePlayerTurn = function(action) {
 
 window.pendingBattleResult = null;
 window.closeBattleModal = function() {
+    if (window.inBattle && window.pendingBattleResult === null) return;
     document.getElementById('battleModal').style.display = 'none';
     document.getElementById('battleCloseBtn').style.display = 'none';
     let result = window.pendingBattleResult;
