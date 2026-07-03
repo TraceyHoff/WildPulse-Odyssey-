@@ -14,6 +14,7 @@ const globalUsers = {}; // Map of socket.id -> { name, room }
 
 io.on('connection', (socket) => {
   globalUsers[socket.id] = { name: 'Anonymous', room: null };
+  console.log(`[Server] New connection: ${socket.id}`);
 
   socket.on('fetch-global-users', () => {
     // Return all online users to allow global discovery
@@ -28,12 +29,14 @@ io.on('connection', (socket) => {
   });
 
   socket.on('join-room', async (roomId) => {
-    if (!roomId) roomId = 'GLOBAL';
-    if (typeof roomId === 'object') {
-        roomId = roomId.roomId || 'GLOBAL';
+    if (typeof roomId === 'object' && roomId !== null) {
+      roomId = roomId.roomId;
     }
 
-    roomId = String(roomId).toUpperCase();
+    roomId = String(roomId || 'GLOBAL').trim().toUpperCase();
+    if (!roomId) roomId = 'GLOBAL';
+
+    console.log(`[Server] Socket ${socket.id} joining room: ${roomId}`);
 
     if (globalUsers[socket.id]) {
         globalUsers[socket.id].room = roomId;
@@ -52,15 +55,20 @@ io.on('connection', (socket) => {
 
         roomStates[roomId] = {
             nextIndex: 0,
-            users: {},
+            users: {}, // socket.id -> { index, identity, pos }
             startTime: Date.now(),
             roomSeed: deterministicSeed
         };
+        console.log(`[Server] Created new room state for ${roomId} with seed ${deterministicSeed}`);
     }
     const rState = roomStates[roomId];
 
     let playerIndex = rState.nextIndex++;
-    rState.users[socket.id] = playerIndex;
+    rState.users[socket.id] = {
+        index: playerIndex,
+        identity: null,
+        pos: null
+    };
 
     socket.emit('assigned-index', {
         index: playerIndex,
@@ -72,10 +80,12 @@ io.on('connection', (socket) => {
 
     const room = io.sockets.adapter.rooms.get(roomId);
     if (room) {
-        // Send everyone in the room to the new user
+        // Send everyone in the room to the new user, including their last known state
         const usersInRoom = Array.from(room).filter(id => id !== socket.id).map(id => ({
             userId: id,
-            index: rState.users[id]
+            index: rState.users[id]?.index,
+            identity: rState.users[id]?.identity,
+            pos: rState.users[id]?.pos
         }));
         socket.emit('room-users', usersInRoom);
     }
@@ -109,6 +119,19 @@ io.on('connection', (socket) => {
         globalUsers[socket.id].name = data.name || 'Anonymous';
     }
 
+    // Update server-side room state for better join sync
+    const user = globalUsers[socket.id];
+    if (user && user.room && roomStates[user.room]) {
+        const rState = roomStates[user.room];
+        if (rState.users[socket.id]) {
+            if (data.type === 'identity') {
+                rState.users[socket.id].identity = data;
+            } else if (data.type === 'pos') {
+                rState.users[socket.id].pos = data;
+            }
+        }
+    }
+
     if (data && data.target) {
         // Targeted message (Private message)
         io.to(data.target).emit('player-data', {
@@ -128,6 +151,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnecting', () => {
+    console.log(`[Server] Socket disconnecting: ${socket.id}`);
     delete globalUsers[socket.id];
     for (const room of socket.rooms) {
       if (room !== socket.id) {
@@ -135,6 +159,7 @@ io.on('connection', (socket) => {
         if (roomStates[room] && roomStates[room].users) {
             delete roomStates[room].users[socket.id];
             if (Object.keys(roomStates[room].users).length === 0) {
+                console.log(`[Server] Room ${room} is empty, cleaning up.`);
                 delete roomStates[room];
             }
         }
