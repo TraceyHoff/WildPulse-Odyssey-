@@ -809,6 +809,21 @@
 var wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
 window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
 
+window.TYPE_COLORS = {
+    "Fire": "rgba(255, 69, 0, 0.85)",     // OrangeRed
+    "Water": "rgba(30, 144, 255, 0.85)",   // DodgerBlue
+    "Nature": "rgba(50, 205, 50, 0.85)",    // LimeGreen
+    "Electric": "rgba(255, 215, 0, 0.85)",  // Gold
+    "Ice": "rgba(0, 255, 255, 0.85)",      // Cyan
+    "Earth": "rgba(139, 69, 19, 0.85)",    // SaddleBrown
+    "Rock": "rgba(128, 128, 128, 0.85)",    // Gray
+    "Wind": "rgba(176, 224, 230, 0.85)",   // PowderBlue
+    "Light": "rgba(255, 255, 255, 0.85)",   // White
+    "Dark": "rgba(75, 0, 130, 0.85)",      // Indigo
+    "Cosmic": "rgba(255, 0, 255, 0.85)",    // Magenta
+    "Normal": "rgba(169, 169, 169, 0.85)"  // DarkGray
+};
+
 window.remotePlayerState = {};
 window.remotePlayerSprites = {};
 window.remotePlayerIdentities = {};
@@ -1528,26 +1543,46 @@ window.WildPulseMusic = {
             this.reverb = new Tone.Reverb(2).toDestination();
             this.delay = new Tone.FeedbackDelay("8n", 0.5).connect(this.reverb);
 
+            // Music Bus for ducking
+            this.musicBus = new Tone.Volume(0).toDestination();
+
             // Instruments
-            this.synths.kick = new Tone.MembraneSynth().toDestination();
+            this.synths.kick = new Tone.MembraneSynth().connect(this.musicBus);
             this.synths.snare = new Tone.NoiseSynth({
                 envelope: { sustain: 0, attack: 0.001, decay: 0.1 }
-            }).toDestination();
+            }).connect(this.musicBus);
             this.synths.hihat = new Tone.MetalSynth({
                 envelope: { sustain: 0, attack: 0.001, decay: 0.05 }
-            }).toDestination();
+            }).connect(this.musicBus);
             this.synths.bass = new Tone.MonoSynth({
                 oscillator: { type: "sawtooth" },
                 envelope: { attack: 0.1, release: 0.1 }
-            }).connect(this.reverb);
+            }).connect(this.reverb).connect(this.musicBus);
             this.synths.lead = new Tone.PolySynth(Tone.Synth, {
                 oscillator: { type: "triangle" },
                 envelope: { attack: 0.05, release: 0.5 }
-            }).connect(this.delay);
-            this.synths.weather = new Tone.NoiseSynth({
-                noise: { type: "brown" },
-                envelope: { attack: 2, decay: 0, sustain: 1, release: 2 }
+            }).connect(this.delay).connect(this.musicBus);
+
+            // Wind with LFO for gusts
+            this.windLFO = new Tone.LFO(0.1, -10, 10).start();
+            this.synths.wind = new Tone.NoiseSynth({
+                noise: { type: 'brown' },
+                envelope: { attack: 4, decay: 0.2, sustain: 1, release: 4 }
             }).connect(this.reverb);
+            this.windLFO.connect(this.synths.wind.volume);
+            this.synths.wind.volume.value = -60;
+
+            this.synths.rain = new Tone.NoiseSynth({
+                noise: { type: 'pink' },
+                envelope: { attack: 2, decay: 0.1, sustain: 1, release: 2 }
+            }).connect(new Tone.Filter(1500, "lowpass").connect(this.reverb));
+            this.synths.rain.volume.value = -60;
+
+            this.synths.thunder = new Tone.NoiseSynth({
+                noise: { type: 'white' },
+                envelope: { attack: 0.01, decay: 3, sustain: 0, release: 3 }
+            }).connect(new Tone.Filter(80, "lowpass").connect(this.reverb));
+            this.synths.thunder.volume.value = -5;
 
             this.setupLoops();
             Tone.Transport.bpm.value = this.bpm;
@@ -1665,30 +1700,84 @@ window.WildPulseMusic = {
                 this.synths.lead.set({ oscillator: { type: "triangle" } });
             }
 
-            Tone.Transport.bpm.rampTo(targetBpm, 2);
+            if (Math.abs(Tone.Transport.bpm.value - targetBpm) > 1) {
+                Tone.Transport.bpm.rampTo(targetBpm, 2);
+            }
             console.log(`[Music] State changed to ${this.state}, BPM: ${targetBpm}`);
         }
 
-        // Atmospheric weather effects - only ramp if changed
+        // Atmospheric weather effects
         const weather = window.weatherPattern || 'none';
-        if (this.lastWeather !== weather) {
-            this.lastWeather = weather;
-            const hasWeather = (weather !== 'none');
-            if (this.reverb) {
-                this.reverb.wet.rampTo(hasWeather ? 0.8 : 0.3, 4);
-            }
-            if (this.synths.weather) {
-                if (weather.includes('rain') || weather.includes('storm')) {
-                    this.synths.weather.triggerAttack();
-                    this.synths.weather.set({ noise: { type: 'brown' } });
-                } else if (weather.includes('snow')) {
-                    this.synths.weather.triggerAttack();
-                    this.synths.weather.set({ noise: { type: 'white' } });
-                } else {
-                    this.synths.weather.triggerRelease();
-                }
+        const hasWeather = (weather !== 'none');
+        if (this.reverb) {
+            const targetWet = hasWeather ? 0.8 : 0.3;
+            if (Math.abs(this.reverb.wet.value - targetWet) > 0.05) {
+                this.reverb.wet.rampTo(targetWet, 4);
             }
         }
+
+        let musicDucking = 0;
+        if (this.state === 'EXPLORING') {
+            let targetWindVol = -60;
+            let targetRainVol = -60;
+
+            if (weather !== 'none') {
+                targetWindVol = -35 + (window.windSpeed || 0) * 0.05;
+                musicDucking -= 2;
+                // Modulate wind LFO speed by wind speed
+                if (this.windLFO) this.windLFO.frequency.rampTo(0.05 + (window.windSpeed / 500), 1);
+            }
+
+            if (weather.includes('rain') || weather.includes('storm')) {
+                targetRainVol = (weather === 'thunderstorm') ? -18 : -30;
+                musicDucking -= 4;
+                if (weather === 'thunderstorm') musicDucking -= 4;
+            }
+
+            if (this.synths.wind) {
+                // Wind uses LFO so we target the base offset if possible, but Tone volume ramp works
+                if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 2) {
+                    this.synths.wind.volume.rampTo(targetWindVol, 2);
+                }
+                if (targetWindVol > -55 && this.synths.wind.state !== 'started') this.synths.wind.triggerAttack();
+                else if (targetWindVol <= -55 && this.synths.wind.state === 'started') this.synths.wind.triggerRelease();
+            }
+
+            if (this.synths.rain) {
+                // Natural variation: subtle random fluctuation
+                const variation = (Math.random() - 0.5) * 4;
+                const finalRainVol = targetRainVol + variation;
+
+                if (Math.abs(this.synths.rain.volume.value - finalRainVol) > 1) {
+                    this.synths.rain.volume.rampTo(finalRainVol, 1);
+                }
+                if (targetRainVol > -55) {
+                    if (this.synths.rain.state !== 'started') this.synths.rain.triggerAttack();
+                    if (weather === 'thunderstorm') {
+                        this.synths.rain.noise.type = 'white';
+                    } else {
+                        this.synths.rain.noise.type = 'pink';
+                    }
+                } else if (this.synths.rain.state === 'started') {
+                    this.synths.rain.triggerRelease();
+                }
+            }
+        } else {
+            if (this.synths.wind && this.synths.wind.volume.value > -59) this.synths.wind.volume.rampTo(-60, 1);
+            if (this.synths.rain && this.synths.rain.volume.value > -59) this.synths.rain.volume.rampTo(-60, 1);
+        }
+
+        // Apply music ducking
+        if (this.musicBus) {
+            if (Math.abs(this.musicBus.volume.value - musicDucking) > 0.5) {
+                this.musicBus.volume.rampTo(musicDucking, 1);
+            }
+        }
+    },
+
+    triggerThunder() {
+        if (!this.initialized || this.muted || !this.synths.thunder) return;
+        this.synths.thunder.triggerAttackRelease("1n");
     },
 
     toggle() {
@@ -3662,23 +3751,12 @@ for (let i = 1; i <= 50; i++) {
 
 
 window.getCreatureColor = function(creature) {
-    const typeColors = {
-        "Fire": {r: 229, g: 57, b: 53},
-        "Water": {r: 30, g: 136, b: 229},
-        "Nature": {r: 67, g: 160, b: 71},
-        "Electric": {r: 253, g: 216, b: 53},
-        "Ice": {r: 3, g: 169, b: 244},
-        "Earth": {r: 109, g: 76, b: 65},
-        "Rock": {r: 117, g: 117, b: 117},
-        "Wind": {r: 129, g: 212, b: 250},
-        "Light": {r: 255, g: 238, b: 88},
-        "Dark": {r: 33, g: 33, b: 33},
-        "Cosmic": {r: 142, g: 36, b: 170},
-        "Normal": {r: 158, g: 158, b: 158}
-    };
-
     let pType = creature.type ? creature.type.split('-')[0] : 'Normal';
-    let baseCol = typeColors[pType] || typeColors['Normal'];
+    let rgbaStr = window.TYPE_COLORS[pType] || window.TYPE_COLORS['Normal'];
+
+    // Parse rgba(r, g, b, a) to {r, g, b}
+    let parts = rgbaStr.match(/\d+/g);
+    let baseCol = { r: parseInt(parts[0]), g: parseInt(parts[1]), b: parseInt(parts[2]) };
 
     // Generate deterministic shade based on string
     let seedStr = String(creature.baseId || creature.name || '');
@@ -3999,6 +4077,11 @@ const STORAGE_KEY = 'wildpulse_collected_creatures';
 collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
+// Sync globals
+window.collectedCreatures = collectedCreatures;
+window.playerParty = collectedCreatures;
+window.collectedCreaturesIds = collectedCreaturesIds;
+
 // Stats System
 window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
     battlesWon: 0,
@@ -4013,9 +4096,12 @@ window.saveStats = function() {
     localStorage.setItem('wildpulse_stats', JSON.stringify(window.gameStats));
 };
 
-// Also assign abilities to existing collected creatures
+// Also assign abilities and ensure HP to existing collected creatures
 collectedCreatures.forEach(c => {
-    window.assignAbility(c);
+    if (window.assignAbility) window.assignAbility(c);
+    if (c.currentHp === undefined) {
+        c.currentHp = window.getEffectiveStat ? window.getEffectiveStat(c, 'health') : (c.stats ? c.stats.health : 60);
+    }
 });
 localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
 
@@ -4410,23 +4496,9 @@ window.renderPartyList = function() {
         const card = document.createElement('div');
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
-        const typeColors = {
-            "Fire": "rgba(229, 57, 53, 0.8)",
-            "Water": "rgba(30, 136, 229, 0.8)",
-            "Nature": "rgba(67, 160, 71, 0.8)",
-            "Electric": "rgba(253, 216, 53, 0.8)",
-            "Ice": "rgba(3, 169, 244, 0.8)",
-            "Earth": "rgba(109, 76, 65, 0.8)",
-            "Rock": "rgba(117, 117, 117, 0.8)",
-            "Wind": "rgba(129, 212, 250, 0.8)",
-            "Light": "rgba(255, 238, 88, 0.8)",
-            "Dark": "rgba(33, 33, 33, 0.8)",
-            "Cosmic": "rgba(142, 36, 170, 0.8)",
-            "Normal": "rgba(158, 158, 158, 0.8)"
-        };
         const types = c.type ? c.type.split('-') : [];
-        const color1 = typeColors[types[0]] || 'rgba(30, 60, 90, 0.8)';
-        const color2 = types.length > 1 ? (typeColors[types[1]] || color1) : color1;
+        const color1 = window.TYPE_COLORS[types[0]] || 'rgba(30, 60, 90, 0.8)';
+        const color2 = types.length > 1 ? (window.TYPE_COLORS[types[1]] || color1) : color1;
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
 
@@ -4552,23 +4624,9 @@ window.renderStorageList = function() {
         const card = document.createElement('div');
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
-        const typeColors = {
-            "Fire": "rgba(229, 57, 53, 0.8)",
-            "Water": "rgba(30, 136, 229, 0.8)",
-            "Nature": "rgba(67, 160, 71, 0.8)",
-            "Electric": "rgba(253, 216, 53, 0.8)",
-            "Ice": "rgba(3, 169, 244, 0.8)",
-            "Earth": "rgba(109, 76, 65, 0.8)",
-            "Rock": "rgba(117, 117, 117, 0.8)",
-            "Wind": "rgba(129, 212, 250, 0.8)",
-            "Light": "rgba(255, 238, 88, 0.8)",
-            "Dark": "rgba(33, 33, 33, 0.8)",
-            "Cosmic": "rgba(142, 36, 170, 0.8)",
-            "Normal": "rgba(158, 158, 158, 0.8)"
-        };
         const types = c.type ? c.type.split('-') : [];
-        const color1 = typeColors[types[0]] || 'rgba(30, 60, 90, 0.8)';
-        const color2 = types.length > 1 ? (typeColors[types[1]] || color1) : color1;
+        const color1 = window.TYPE_COLORS[types[0]] || 'rgba(30, 60, 90, 0.8)';
+        const color2 = types.length > 1 ? (window.TYPE_COLORS[types[1]] || color1) : color1;
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
 
@@ -5323,28 +5381,12 @@ function logBattle(msg) {
 }
 
 function updateBattleUI() {
-    // Colors
-    const typeColors = {
-        "Fire": "rgba(229, 57, 53, 0.8)",
-        "Water": "rgba(30, 136, 229, 0.8)",
-        "Nature": "rgba(67, 160, 71, 0.8)",
-        "Electric": "rgba(253, 216, 53, 0.8)",
-        "Ice": "rgba(3, 169, 244, 0.8)",
-        "Earth": "rgba(109, 76, 65, 0.8)",
-        "Rock": "rgba(117, 117, 117, 0.8)",
-        "Wind": "rgba(129, 212, 250, 0.8)",
-        "Light": "rgba(255, 238, 88, 0.8)",
-        "Dark": "rgba(33, 33, 33, 0.8)",
-        "Cosmic": "rgba(142, 36, 170, 0.8)",
-        "Normal": "rgba(158, 158, 158, 0.8)"
-    };
-
     // Set background
     const pTypes = currentPlayer && currentPlayer.type ? currentPlayer.type.split('-') : [];
-    const pColor = typeColors[pTypes[0]] || 'rgba(30, 60, 90, 0.8)';
+    const pColor = window.TYPE_COLORS[pTypes[0]] || 'rgba(30, 60, 90, 0.8)';
 
     const eTypes = currentEnemy && currentEnemy.type ? currentEnemy.type.split('-') : [];
-    const eColor = typeColors[eTypes[0]] || 'rgba(30, 60, 90, 0.8)';
+    const eColor = window.TYPE_COLORS[eTypes[0]] || 'rgba(30, 60, 90, 0.8)';
 
     document.getElementById('battleModal').style.backgroundImage = `linear-gradient(90deg, ${pColor}, ${eColor})`;
     document.getElementById('battleModal').style.backgroundColor = 'transparent';
@@ -7369,6 +7411,18 @@ function create() {
     window.lightningOverlay.setScrollFactor(0);
     window.lightningOverlay.setAlpha(0);
 
+    let windParticles = this.add.particles('pollen_particle');
+    windParticles.setDepth(3000);
+    window.windEmitter = windParticles.createEmitter({
+        speed: { min: 200, max: 500 },
+        lifespan: 2000,
+        quantity: 0,
+        frequency: 50,
+        scale: { start: 0.2, end: 0.1 },
+        alpha: { start: 0.3, end: 0 },
+        emitZone: window.sharedEmitZone
+    });
+
     window.cloudGroup = this.physics.add.group();
     window.cloudReflectionGroup = this.physics.add.group();
     // More clouds for the larger map
@@ -9315,8 +9369,9 @@ function update() {
     }
 
     if (window.lightningOverlay) {
-        if ((window.weatherPattern === 'thunderstorm' || window.weatherPattern === 'thundersnow') && Math.random() < 0.01) {
+        if ((window.weatherPattern === 'thunderstorm' || window.weatherPattern === 'thundersnow') && Math.random() < 0.005) {
             window.lightningOverlay.setAlpha(0.8);
+            if (window.WildPulseMusic && window.WildPulseMusic.triggerThunder) window.WildPulseMusic.triggerThunder();
         } else if (window.lightningOverlay.alpha > 0) {
             window.lightningOverlay.setAlpha(Math.max(0, window.lightningOverlay.alpha - 0.05));
         }
@@ -9448,7 +9503,14 @@ function update() {
         lerpQuantity(window.rainEmitter, targetRain);
         lerpQuantity(window.snowflakeEmitter, targetSnow);
 
+        let targetWind = (window.weatherPattern !== 'none') ? 2 : 0;
+        lerpQuantity(window.windEmitter, targetWind);
+
         if (window.rainEmitter) window.rainEmitter.setSpeedX(windVx * 1.5);
+        if (window.windEmitter) {
+            window.windEmitter.setSpeedX(windVx * 2);
+            window.windEmitter.setSpeedY(windVy * 2);
+        }
     }
 
     // Update Clouds
