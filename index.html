@@ -1496,7 +1496,7 @@ var collectedCreatures = [];
 var collectedCreaturesIds = new Set();
 window.inBattle = false;
 let currentEnemy = null;
-let currentPlayer = null;
+var currentPlayer = null;
 let currentEnemySprite = null;
 window.remotePlayers = window.remotePlayerSprites;
 let remotePlayers = window.remotePlayers; // userId -> Phaser sprite
@@ -4697,6 +4697,8 @@ window.exitGame = function() {
         window.cameraFollowsPlayer = false;
         closeMenuModal();
         document.getElementById('menuBtn').style.display = 'none';
+        document.getElementById('socialToggleBtn').style.display = 'none';
+        document.getElementById('socialSidebar').classList.remove('open');
         document.getElementById('startModal').style.display = 'flex';
         if (timeText) timeText.setVisible(false);
         if (window.coordText) window.coordText.setVisible(false);
