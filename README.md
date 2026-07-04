@@ -141,3 +141,11 @@ WildPulse Odyssey Creature Collecting Game
     - **Atmospheric Audio Engine**: The procedural music engine is now season-aware, automatically shifting musical scales and melodies to match the mood of Spring, Summer, Fall, and Winter.
     - **Weather-Aware Layers**: Dynamic weather patterns now trigger real-time audio effects, such as soft brown noise for rain or crisp white noise for snow, enhancing environmental immersion.
     - **Enhanced State Transitions**: Music for Battles, PvP duels, and Trading now features more distinct BPM ramps and synth variations, making every gameplay shift feel unique and impactful.
+
+### New Features (v18)
+- **Peer-to-Peer (P2P) Multiplayer**:
+    - **Decentralized Architecture**: Replaced the traditional client-server model with a robust WebRTC P2P system using a Star Topology.
+    - **Dynamic Host Migration**: The player with the lowest join index automatically becomes the "Host," serving as a relay for all other peers. If the Host leaves, the role seamlessly migrates to the next player, keeping the session alive.
+    - **Server-Lite Signaling**: The backend server is now a minimal signaling relay, used only for participant discovery and initial handshakes, significantly reducing server load.
+    - **P2P Systems Integration**: Movement, chat, identity, trading, and PvP battle data are now transmitted directly between players via high-performance WebRTC data channels.
+    - **Synchronized World State**: Implemented deterministic client-side seeding and shared epoch timing to ensure all P2P clients remain perfectly synchronized with respect to world generation, weather, and the day/night cycle without a central authority.

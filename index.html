@@ -8,6 +8,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -1288,6 +1289,157 @@ let multiplayerRoom = null;
 let socket = null;
 let globalPlayerList = [];
 window.roomUsers = {}; // userId -> { index }
+window.p2pPeers = {}; // userId -> SimplePeer instance
+window.isHost = false;
+window.myUserId = null;
+window.myIndex = null;
+
+window.updateHostStatus = function() {
+    const allUsers = Object.entries(window.roomUsers).map(([id, data]) => ({ id, index: data.index }));
+    allUsers.push({ id: window.myUserId, index: window.myIndex });
+
+    // Sort by index
+    allUsers.sort((a, b) => a.index - b.index);
+
+    const hostId = allUsers[0]?.id;
+    const wasHost = window.isHost;
+    window.isHost = (hostId === window.myUserId);
+
+    if (window.isHost && !wasHost) {
+        console.log("[P2P] I am now the Host.");
+        window.showModernNotification("You are now the Host of this world.");
+    }
+};
+
+window.initP2PConnection = function(targetUserId, initiator) {
+    if (window.p2pPeers[targetUserId]) return;
+
+    console.log(`[P2P] Initializing connection to ${targetUserId}, initiator: ${initiator}`);
+    const peer = new SimplePeer({
+        initiator: initiator,
+        trickle: false
+    });
+
+    peer.on('signal', data => {
+        socket.emit('signal', { target: targetUserId, signal: data });
+    });
+
+    peer.on('connect', () => {
+        console.log(`[P2P] Connected to ${targetUserId}`);
+        // Send initial identity and position
+        const identity = {
+            type: 'identity',
+            name: window.cachedPlayerName,
+            color: window.cachedPlayerColor,
+            auraColor: window.cachedPlayerAuraColor,
+            pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
+            patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
+        };
+        peer.send(JSON.stringify(identity));
+
+        const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
+        const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
+        peer.send(JSON.stringify({
+            type: 'pos',
+            x: px,
+            y: py,
+            vx: 0,
+            vy: 0,
+            level: window.collectedCreatures[0]?.level || 1
+        }));
+    });
+
+    peer.on('data', data => {
+        const msg = JSON.parse(data);
+        window.handleP2PMessage(targetUserId, msg);
+    });
+
+    peer.on('close', () => {
+        console.log(`[P2P] Connection to ${targetUserId} closed`);
+        delete window.p2pPeers[targetUserId];
+    });
+
+    peer.on('error', err => {
+        console.error(`[P2P] Error with ${targetUserId}:`, err);
+    });
+
+    window.p2pPeers[targetUserId] = peer;
+};
+
+window.handleP2PMessage = function(userId, msg) {
+    // Host-Relay Logic (Star Topology)
+    if (window.isHost) {
+        if (msg.target) {
+            // Targeted relay
+            if (msg.target === window.myUserId) {
+                // It's for me
+                processMessage(userId, msg);
+            } else if (window.p2pPeers[msg.target] && window.p2pPeers[msg.target].connected) {
+                // Relay to target
+                window.p2pPeers[msg.target].send(JSON.stringify({ ...msg, sender: userId }));
+            }
+        } else {
+            // Broadcast relay
+            Object.entries(window.p2pPeers).forEach(([peerId, peer]) => {
+                if (peerId !== userId) {
+                    peer.send(JSON.stringify({ ...msg, sender: userId }));
+                }
+            });
+            processMessage(userId, msg);
+        }
+    } else {
+        processMessage(msg.sender || userId, msg);
+    }
+
+    function processMessage(senderId, data) {
+        if (data.type === 'chat-message') {
+            if (window.receiveChatMessage) window.receiveChatMessage(data);
+            return;
+        }
+        if (data.type === 'update-identity') {
+            // Already handled by identity message type usually, but we can update name here if needed
+            return;
+        }
+        window.updateRemotePlayerState(senderId, data);
+        if (window.handleMultiplayerMessage) {
+            window.handleMultiplayerMessage(senderId, data);
+        }
+    }
+};
+
+window.sendP2P = function(targetUserId, msg) {
+    if (window.isHost) {
+        if (window.p2pPeers[targetUserId] && window.p2pPeers[targetUserId].connected) {
+            window.p2pPeers[targetUserId].send(JSON.stringify(msg));
+        }
+    } else {
+        // I am client, send to host with target field
+        const hostId = window.getHostId();
+        if (hostId && window.p2pPeers[hostId] && window.p2pPeers[hostId].connected) {
+            window.p2pPeers[hostId].send(JSON.stringify({ ...msg, target: targetUserId }));
+        }
+    }
+};
+
+window.broadcastP2P = function(msg) {
+    if (msg.target) {
+        window.sendP2P(msg.target, msg);
+        return;
+    }
+    const data = JSON.stringify(msg);
+    Object.values(window.p2pPeers).forEach(peer => {
+        if (peer.connected) {
+            peer.send(data);
+        }
+    });
+};
+
+window.getHostId = function() {
+    const allUsers = Object.entries(window.roomUsers).map(([id, data]) => ({ id, index: data.index }));
+    allUsers.push({ id: window.myUserId, index: window.myIndex });
+    allUsers.sort((a, b) => a.index - b.index);
+    return allUsers[0]?.id;
+};
 
 window.initializeMultiplayer = function() {
     console.log("Initializing Multiplayer...");
@@ -1299,7 +1451,10 @@ window.initializeMultiplayer = function() {
         hash = storedRoom.charCodeAt(i) + ((hash << 5) - hash);
     }
     window.initialRoomSeed = Math.abs(hash) || 123456789;
+    window.roomSeed = window.initialRoomSeed;
     window.gameSeed = window.initialRoomSeed;
+    // Use a fixed epoch for P2P rooms so weather/time is synced across all clients without a central clock
+    window.serverStartTime = 1704067200000; // Jan 1st 2024
     console.log(`[Multiplayer] Pre-calculated seed for ${storedRoom}: ${window.initialRoomSeed}`);
 
     // Proactively start the game world so it's visible on the start screen
@@ -1314,29 +1469,21 @@ window.initializeMultiplayer = function() {
 
     socket.on('connect', () => {
         console.log("Connected to server");
+        window.myUserId = socket.id;
         const storedRoom = localStorage.getItem('wildpulse_world_code') || 'GLOBAL';
         socket.emit('join-room', storedRoom.toUpperCase());
     });
 
     socket.on('assigned-index', (data) => {
         const index = typeof data === 'object' ? data.index : data;
+        window.myIndex = index;
         window.playerIndexCount = index;
         if (typeof data === 'object') {
             window.clientServerOffset = data.serverNow - Date.now();
-            window.serverStartTime = data.startTime;
-            window.roomSeed = data.roomSeed;
-            window.initialRoomSeed = data.roomSeed;
-            window.gameSeed = data.roomSeed;
-            console.log(`[Multiplayer] Room synced. Offset: ${window.clientServerOffset}ms, Seed: ${window.roomSeed}`);
         }
 
         console.log(`[Multiplayer] Assigned index: ${index}.`);
-
-        socket.emit('player-data', { type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
-
-        const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
-        const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
-        socket.emit('player-data', { type: 'pos', x: px, y: py, vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
+        window.updateHostStatus();
     });
 
     socket.on('room-users', (users) => {
@@ -1345,23 +1492,27 @@ window.initializeMultiplayer = function() {
             const userId = u.userId || u;
             const index = (u.index !== undefined && u.index !== null) ? u.index : null;
             window.remotePlayerIndices[userId] = index;
+            window.roomUsers[userId] = { index: index };
 
-            // Sync initial state if server provided it
-            if (u.identity) {
-                console.log(`[Multiplayer] Pre-populating identity for ${userId}`);
-                window.updateRemotePlayerState(userId, { type: 'identity', ...u.identity });
+            // Start P2P connection to Host (if I'm not host) or to everyone (if I'm host)
+            // Simpler: Every non-host connects to host.
+            // But wait, the goal says "multiple players in one shared game session".
+            // A star topology where everyone connects to one host is simplest for authority.
+            window.updateHostStatus();
+            if (window.isHost) {
+                // I am host, but I don't initiate to people already there?
+                // Actually, if I join and I'm host, it means I'm the only one.
+            } else {
+                // I'm a client, I should connect to the host.
+                // We'll find who is host.
+                const allUsers = Object.entries(window.roomUsers).map(([id, data]) => ({ id, index: data.index }));
+                allUsers.push({ id: window.myUserId, index: window.myIndex });
+                allUsers.sort((a, b) => a.index - b.index);
+                const hostId = allUsers[0].id;
+                if (hostId !== window.myUserId) {
+                    window.initP2PConnection(hostId, true);
+                }
             }
-            if (u.pos) {
-                console.log(`[Multiplayer] Pre-populating position for ${userId}`);
-                window.updateRemotePlayerState(userId, { type: 'pos', ...u.pos });
-            }
-
-            console.log(`[Multiplayer] Sending handshake to existing user ${userId}`);
-            socket.emit('player-data', { target: userId, type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
-
-            const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
-            const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
-            socket.emit('player-data', { target: userId, type: 'pos', x: px, y: py, vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
         });
         if (window.updateSocialUI) window.updateSocialUI();
     });
@@ -1371,13 +1522,19 @@ window.initializeMultiplayer = function() {
         const index = (data.index !== undefined && data.index !== null) ? data.index : null;
         console.log(`[Multiplayer] User joined: ${userId} (Index: ${index})`);
         window.remotePlayerIndices[userId] = index;
+        window.roomUsers[userId] = { index: index };
 
-        console.log(`[Multiplayer] Sending handshake to newcomer ${userId}`);
-        socket.emit('player-data', { target: userId, type: 'identity', name: window.cachedPlayerName, color: window.cachedPlayerColor, auraColor: window.cachedPlayerAuraColor, pattern: localStorage.getItem('wildpulse_player_pattern') || 'None', patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000' });
+        window.updateHostStatus();
+        // If I am host, I expect the newcomer to initiate?
+        // Or if I am host, I initiate to them? SimplePeer needs one side to initiate.
+        // Let's say newcomers always initiate to the host.
+        if (window.isHost) {
+            // Newcomer will initiate to me.
+        } else {
+            // I'm a client, if a new host joined (shouldn't happen unless current host left)
+            // For now, let's just let the newcomer initiate to the host.
+        }
 
-        const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
-        const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
-        socket.emit('player-data', { target: userId, type: 'pos', x: px, y: py, vx: 0, vy: 0, level: window.collectedCreatures[0]?.level || 1 });
         if (window.updateSocialUI) window.updateSocialUI();
     });
 
@@ -1385,48 +1542,43 @@ window.initializeMultiplayer = function() {
         delete window.remotePlayerState[userId];
         delete window.remotePlayerIdentities[userId];
         delete window.remotePlayerIndices[userId];
+        delete window.roomUsers[userId];
+        if (window.p2pPeers[userId]) {
+            window.p2pPeers[userId].destroy();
+            delete window.p2pPeers[userId];
+        }
         if (window.removeRemotePlayer) window.removeRemotePlayer(userId);
+        window.updateHostStatus();
         if (window.updateSocialUI) window.updateSocialUI();
+
+        // If I just became host, existing clients should connect to me?
+        // Actually they should already be connected if I was in the room.
+        // If the host left, we need to establish new P2P connections to the new host.
+        if (window.isHost) {
+            // I am new host, existing clients need to connect to me.
+            // They will also run updateHostStatus and see me as host.
+            // Let's have clients initiate to new host.
+        } else {
+            // I'm still a client, check if host changed.
+            const allUsers = Object.entries(window.roomUsers).map(([id, data]) => ({ id, index: data.index }));
+            allUsers.push({ id: window.myUserId, index: window.myIndex });
+            allUsers.sort((a, b) => a.index - b.index);
+            const hostId = allUsers[0].id;
+            if (hostId !== window.myUserId && !window.p2pPeers[hostId]) {
+                window.initP2PConnection(hostId, true);
+            }
+        }
     });
 
-    socket.on('player-data', (payload) => {
+    socket.on('signal', (payload) => {
         const userId = payload.sender;
-
-        // Mutual Discovery: If we receive data from someone we don't know yet, send them our info
-        if (!window.remotePlayerState[userId] || !window.remotePlayerIdentities[userId]) {
-            console.log(`[Multiplayer] Discovered/Updated player ${userId} from packet, sending handshake...`);
-            socket.emit('player-data', {
-                target: userId,
-                type: 'identity',
-                name: window.cachedPlayerName,
-                color: window.cachedPlayerColor,
-                auraColor: window.cachedPlayerAuraColor,
-                pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
-                patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
-            });
-            const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
-            const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
-            socket.emit('player-data', {
-                target: userId,
-                type: 'pos',
-                x: px,
-                y: py,
-                vx: 0,
-                vy: 0,
-                battle: !!window.inBattle,
-                level: window.collectedCreatures[0]?.level || 1
-            });
+        if (!window.p2pPeers[userId]) {
+            window.initP2PConnection(userId, false);
         }
-
-        window.updateRemotePlayerState(userId, payload.msg);
-        if (window.handleMultiplayerMessage) {
-            window.handleMultiplayerMessage(userId, payload.msg);
-        }
+        window.p2pPeers[userId].signal(payload.signal);
     });
 
-    socket.on('chat-message', (data) => {
-        if (window.receiveChatMessage) window.receiveChatMessage(data);
-    });
+
 
     socket.on('global-users', (users) => {
         globalPlayerList = users;
@@ -2016,9 +2168,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Broadcast identity update to all peers
-        if (socket && socket.connected) {
-            socket.emit('update-identity', { name: name });
-            socket.emit('player-data', {
+        if (Object.keys(window.p2pPeers).length > 0) {
+            window.broadcastP2P( { type: 'update-identity', name: name });
+            window.broadcastP2P( {
                 type: 'identity',
                 name: name,
                 color: color,
@@ -4342,7 +4494,7 @@ document.getElementById('sendChatBtn')?.addEventListener('click', () => {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
     if (text && socket && socket.connected) {
-        socket.emit('chat-message', { text: text });
+        window.broadcastP2P( { type: 'chat-message', text: text });
         input.value = '';
     }
 });
@@ -5257,8 +5409,8 @@ window.sendTradeOffer = function() {
 
     const creature = collectedCreatures.find(c => String(c.id) === String(creatureId));
 
-    if (socket && socket.connected) {
-        socket.emit('player-data', {
+    if (Object.keys(window.p2pPeers).length > 0) {
+        window.broadcastP2P( {
             target: targetUserId,
             type: 'trade_offer',
             creature: creature
@@ -5276,8 +5428,8 @@ window.acceptTradeOffer = function() {
     // In a full implementation, both sides would offer a creature.
     window.saveCollected(pendingTradeOffer.creature);
 
-    if (socket && socket.connected) {
-        socket.emit('player-data', {
+    if (Object.keys(window.p2pPeers).length > 0) {
+        window.broadcastP2P( {
             target: pendingTradeOffer.from,
             type: 'trade_accept',
             creatureId: pendingTradeOffer.creature.id
@@ -5296,8 +5448,8 @@ window.acceptTradeOffer = function() {
 window.rejectTradeOffer = function() {
     if (!pendingTradeOffer) return;
 
-    if (socket && socket.connected) {
-        socket.emit('player-data', {
+    if (Object.keys(window.p2pPeers).length > 0) {
+        window.broadcastP2P( {
             target: pendingTradeOffer.from,
             type: 'trade_reject'
         });
@@ -5322,8 +5474,8 @@ window.sendPvpOffer = function() {
          return;
     }
 
-    if (socket && socket.connected) {
-        socket.emit('player-data', {
+    if (Object.keys(window.p2pPeers).length > 0) {
+        window.broadcastP2P( {
             target: targetUserId,
             type: 'pvp_offer',
             firstCreature: activeParty[0]
@@ -5343,8 +5495,8 @@ window.acceptPvpOffer = function() {
         return;
     }
 
-    if (socket && socket.connected) {
-        socket.emit('player-data', {
+    if (Object.keys(window.p2pPeers).length > 0) {
+        window.broadcastP2P( {
             target: pendingPvpOffer.from,
             type: 'pvp_accept',
             firstCreature: activeParty[0]
@@ -5363,8 +5515,8 @@ window.acceptPvpOffer = function() {
 window.rejectPvpOffer = function() {
     if (!pendingPvpOffer) return;
 
-    if (socket && socket.connected) {
-        socket.emit('player-data', {
+    if (Object.keys(window.p2pPeers).length > 0) {
+        window.broadcastP2P( {
             target: pendingPvpOffer.from,
             type: 'pvp_reject'
         });
@@ -7235,9 +7387,9 @@ function create() {
     };
     const posMsg = { type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 };
 
-    if (socket && socket.connected) {
-        socket.emit('player-data', identityMsg);
-        socket.emit('player-data', posMsg);
+    if (Object.keys(window.p2pPeers).length > 0) {
+        window.broadcastP2P( identityMsg);
+        window.broadcastP2P( posMsg);
     }
 
 
@@ -8286,8 +8438,8 @@ window.doBattleSwap = function(newCreature) {
     window.updateBattleUI();
 
     if (window.isPvpBattle) {
-        if (socket && socket.connected) {
-            socket.emit('player-data', {
+        if (Object.keys(window.p2pPeers).length > 0) {
+            window.broadcastP2P( {
                 target: window.pvpOpponentId,
                 type: 'pvp_swap',
                 creature: newCreature
@@ -8325,8 +8477,8 @@ window.handlePvpMessage = function(userId, msg) {
             window.logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span><span style="color:#9e9e9e"> fainted!</span>`);
             if (window.handleFaint(currentPlayer)) {
                 // Battle over, loss
-                if (socket && socket.connected) {
-                    socket.emit('player-data', {
+                if (Object.keys(window.p2pPeers).length > 0) {
+                    window.broadcastP2P( {
                         target: window.pvpOpponentId,
                         type: 'pvp_faint'
                     });
@@ -8431,7 +8583,7 @@ window.handlePlayerTurn = function(action) {
 
         window.doPlayerAction(action, () => {
             if (typeof socket !== 'undefined' && socket && socket.connected) {
-                socket.emit('player-data', {
+                window.broadcastP2P( {
                     target: window.pvpOpponentId,
                     type: 'pvp_action',
                     action: action,
@@ -8482,8 +8634,8 @@ window.closeBattleModal = function() {
 
     if (result === 'caught' && currentEnemy) {
         // Broadcast catch to all peers
-        if (socket && socket.connected) {
-            socket.emit('player-data', {
+        if (Object.keys(window.p2pPeers).length > 0) {
+            window.broadcastP2P( {
                 type: 'creature_caught',
                 creatureId: currentEnemy.id
             });
@@ -9134,7 +9286,7 @@ function update() {
             };
 
             if (typeof socket !== 'undefined' && socket && socket.connected) {
-                socket.emit('player-data', msgObj);
+                window.broadcastP2P( msgObj);
             }
 
             this.lastX = player.x;
