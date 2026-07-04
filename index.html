@@ -5355,6 +5355,11 @@ function processLogQueue() {
     const div = document.createElement('div');
     log.appendChild(div);
 
+    // Limit DOM bloat: keep only last 30 messages
+    while (log.children.length > 30) {
+        log.removeChild(log.firstChild);
+    }
+
     // Strip simple HTML tags for the typewriter effect to work correctly
     // Since we sometimes use <b> tags
     const isHtml = msg.includes('<');
@@ -5545,7 +5550,7 @@ function setupDynamicGrass(scene) {
         }
     };
 
-    for (let i = 0; i < 400; i++) {
+    for (let i = 0; i < 200; i++) {
         window.grassBlades.push({
             x: Math.random() * 100,
             y: Math.random() * 100,
@@ -7437,8 +7442,8 @@ function create() {
         emitZone: window.sharedEmitZone
     });
 
-    window.cloudGroup = this.physics.add.group();
-    window.cloudReflectionGroup = this.physics.add.group();
+    window.cloudGroup = this.add.group();
+    window.cloudReflectionGroup = this.add.group();
     // More clouds for the larger map
     const cloudRng = mulberry32(stableSeed || 12345);
     for (let i = 0; i < 750; i++) {
@@ -7886,7 +7891,10 @@ window.showFloatingText = function(containerId, text, color) {
 };
 
 window.doPlayerAction = function(action, callback) {
-    if (!window.inBattle) return;
+    if (!window.inBattle) {
+        if (callback) callback();
+        return;
+    }
     let canMove = processStatuses(currentPlayer);
     if (currentPlayer.currentHp <= 0) {
         updateBattleUI();
@@ -8019,7 +8027,10 @@ window.doPlayerAction = function(action, callback) {
 };
 
 window.doEnemyAction = function(callback) {
-    if (!window.inBattle) return;
+    if (!window.inBattle) {
+        if (callback) callback();
+        return;
+    }
     let canMove = processStatuses(currentEnemy);
     if (!canMove) {
         updateBattleUI();
@@ -8476,6 +8487,7 @@ window.endBattle = function(result) {
             }
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+        isActionRunning = false;
     }, 1500);
 };
 
@@ -9426,7 +9438,7 @@ function update() {
 
     // Call the dynamic grass update function
     if (window.updateDynamicGrass) {
-        if (!window.lastGrassUpdate || this.time.now - window.lastGrassUpdate > 66) {
+        if (!window.lastGrassUpdate || this.time.now - window.lastGrassUpdate > 100) {
             window.lastGrassUpdate = this.time.now;
             window.updateDynamicGrass(this, this.time.now, windVx, windVy);
         }
@@ -9532,6 +9544,8 @@ function update() {
     if (window.cloudGroup && window.cloudReflectionGroup) {
         let clouds = window.cloudGroup.getChildren();
         let cloudReflections = window.cloudReflectionGroup.getChildren();
+        const cam = this.cameras.main;
+        const viewPadding = 1500; // Culling range for clouds
 
         let cloudGlobalAlphaMod = 1.0;
         if (dayNightTime >= 7 && dayNightTime <= 19) {
@@ -9548,7 +9562,36 @@ function update() {
             let cloud = clouds[i];
             let cloudReflection = cloudReflections[i];
 
-            cloud.body.setVelocity(windVx * 0.5, windVy * 0.5);
+            // Movement without physics
+            cloud.x += (windVx * 0.5) * (dt / 1000);
+            cloud.y += (windVy * 0.5) * (dt / 1000);
+
+            // Performance: Cull clouds far from view
+            const isNearView = (cloud.x >= cam.scrollX - viewPadding && cloud.x <= cam.scrollX + cam.width + viewPadding &&
+                                cloud.y >= cam.scrollY - viewPadding && cloud.y <= cam.scrollY + cam.height + viewPadding);
+
+            if (!isNearView) {
+                if (cloud.visible) {
+                    cloud.setVisible(false);
+                    if (cloudReflection) cloudReflection.setVisible(false);
+                }
+                // Still wrap around world
+                if (cloud.x < -1000) cloud.x = WORLD_SIZE + 1000;
+                if (cloud.x > WORLD_SIZE + 1000) cloud.x = -1000;
+                if (cloud.y < -1000) cloud.y = WORLD_SIZE + 1000;
+                if (cloud.y > WORLD_SIZE + 1000) cloud.y = -1000;
+
+                if (cloudReflection) {
+                    cloudReflection.x = cloud.x;
+                    cloudReflection.y = cloud.y;
+                }
+                continue;
+            }
+
+            if (!cloud.visible) {
+                cloud.setVisible(true);
+                if (cloudReflection) cloudReflection.setVisible(true);
+            }
 
             // Dynamic shape and size oscillation
             let time = this.time.now / 5000;
