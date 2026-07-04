@@ -1295,13 +1295,9 @@ window.myUserId = null;
 window.myIndex = null;
 
 window.updateHostStatus = function() {
-    const allUsers = Object.entries(window.roomUsers).map(([id, data]) => ({ id, index: data.index }));
-    allUsers.push({ id: window.myUserId, index: window.myIndex });
+    const hostId = window.getHostId();
+    if (!hostId) return;
 
-    // Sort by index
-    allUsers.sort((a, b) => a.index - b.index);
-
-    const hostId = allUsers[0]?.id;
     const wasHost = window.isHost;
     window.isHost = (hostId === window.myUserId);
 
@@ -1455,8 +1451,16 @@ window.broadcastP2P = function(msg) {
 };
 
 window.getHostId = function() {
-    const allUsers = Object.entries(window.roomUsers).map(([id, data]) => ({ id, index: data.index }));
-    allUsers.push({ id: window.myUserId, index: window.myIndex });
+    const allUsers = Object.entries(window.roomUsers)
+        .filter(([id, data]) => data.index !== null && data.index !== undefined)
+        .map(([id, data]) => ({ id, index: data.index }));
+
+    if (window.myIndex !== null && window.myIndex !== undefined) {
+        allUsers.push({ id: window.myUserId, index: window.myIndex });
+    }
+
+    if (allUsers.length === 0) return null;
+
     allUsers.sort((a, b) => a.index - b.index);
     return allUsers[0]?.id;
 };
@@ -1513,34 +1517,22 @@ window.initializeMultiplayer = function() {
             const index = (u.index !== undefined && u.index !== null) ? u.index : null;
             window.remotePlayerIndices[userId] = index;
             window.roomUsers[userId] = { index: index };
-
-            // Start P2P connection to Host (if I'm not host) or to everyone (if I'm host)
-            // Simpler: Every non-host connects to host.
-            // But wait, the goal says "multiple players in one shared game session".
-            // A star topology where everyone connects to one host is simplest for authority.
-            window.updateHostStatus();
-            if (window.isHost) {
-                // I am host, but I don't initiate to people already there?
-                // Actually, if I join and I'm host, it means I'm the only one.
-            } else {
-                // I'm a client, I should connect to the host.
-                // We'll find who is host.
-                const allUsers = Object.entries(window.roomUsers).map(([id, data]) => ({ id, index: data.index }));
-                allUsers.push({ id: window.myUserId, index: window.myIndex });
-                allUsers.sort((a, b) => a.index - b.index);
-                const hostId = allUsers[0].id;
-                if (hostId !== window.myUserId) {
-                    window.initP2PConnection(hostId, true);
-                }
-            }
         });
+
+        window.updateHostStatus();
+        if (!window.isHost) {
+            const hostId = window.getHostId();
+            if (hostId && hostId !== window.myUserId) {
+                window.initP2PConnection(hostId, true);
+            }
+        }
         if (window.updateSocialUI) window.updateSocialUI();
     });
 
     socket.on('user-joined', (data) => {
         const userId = data.userId || data;
         const index = (data.index !== undefined && data.index !== null) ? data.index : null;
-        console.log(`[Multiplayer] User joined: ${userId} (Index: ${index})`);
+        console.log(`[Multiplayer] User joined: ${userId} (Index: ${index}) | Total Peers: ${Object.keys(window.roomUsers).length + 1}`);
         window.remotePlayerIndices[userId] = index;
         window.roomUsers[userId] = { index: index };
 
@@ -1592,6 +1584,7 @@ window.initializeMultiplayer = function() {
 
     socket.on('signal', (payload) => {
         const userId = payload.sender;
+        console.log(`[P2P] Received signal from ${userId}`);
         if (!window.p2pPeers[userId]) {
             window.initP2PConnection(userId, false);
         }
@@ -4401,12 +4394,15 @@ window.closeMenuModal = function() {
 
 
 window.openSocialSidebar = function() {
-    closeMenuModal();
+    if (window.closeMenuModal) window.closeMenuModal();
     document.getElementById('socialSidebar').classList.add('open');
 
     const ownCode = localStorage.getItem('wildpulse_own_world_code');
-    document.getElementById('sidebarOwnWorld').innerText = ownCode || "-------";
-    document.getElementById('sidebarCurrentWorld').innerText = multiplayerRoom || "GLOBAL";
+    const ownWorldBadge = document.getElementById('sidebarOwnWorld');
+    if (ownWorldBadge) ownWorldBadge.innerText = ownCode || "-------";
+
+    const currentWorldBadge = document.getElementById('sidebarCurrentWorld');
+    if (currentWorldBadge) currentWorldBadge.innerText = multiplayerRoom || "GLOBAL";
 
     window.updateSocialUI();
 };
@@ -4442,6 +4438,8 @@ window.updateSocialUI = function() {
     playerListContainer.appendChild(localLi);
 
     const roomUsers = new Set([...Object.keys(window.remotePlayerIndices || {}), ...Object.keys(window.roomUsers || {})]);
+    if (window.myUserId) roomUsers.delete(window.myUserId);
+
     if (roomUsers.size > 0) {
         roomUsers.forEach(pid => {
             const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[pid]) || {};
@@ -4560,12 +4558,15 @@ window.teleportToPlayer = function(userId) {
 };
 
 window.joinFriendCodeDirect = function(code) {
-    const upperCode = (code || "").toUpperCase();
+    const upperCode = (code || "").toString().trim().toUpperCase();
+    if (!upperCode) return;
+
     if (upperCode === (multiplayerRoom || "").toUpperCase()) {
         window.showModernNotification("You are already in this world!");
         return;
     }
 
+    console.log(`[Multiplayer] Switching to world: ${upperCode}`);
     // Leave current room and join new one
     // Just reload the page but setting the new code
     localStorage.setItem('wildpulse_world_code', upperCode);
