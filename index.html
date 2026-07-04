@@ -1396,6 +1396,26 @@ window.handleP2PMessage = function(userId, msg) {
             if (window.receiveChatMessage) window.receiveChatMessage(data);
             return;
         }
+
+        // Mutual Discovery: If we receive an identity from someone we don't know well, send ours back
+        if (data.type === 'identity' && !window.remotePlayerIdentities[senderId]) {
+            const myIdentity = {
+                type: 'identity',
+                name: window.cachedPlayerName,
+                color: window.cachedPlayerColor,
+                auraColor: window.cachedPlayerAuraColor,
+                pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
+                patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
+            };
+            // Broadcast it back so they (and others if relayed) see us
+            if (window.isHost) {
+                window.broadcastP2P(myIdentity);
+            } else {
+                // Targeted back to sender via Host relay
+                window.sendP2P(senderId, myIdentity);
+            }
+        }
+
         if (data.type === 'update-identity') {
             // Already handled by identity message type usually, but we can update name here if needed
             return;
@@ -1835,7 +1855,7 @@ window.WildPulseMusic = {
 
         // Bass Loop
         this.loops.push(new Tone.Loop(time => {
-            const season = window.currentSeason || 'Spring';
+            const season = window.currentSeason || 'Summer';
             let scale = ["C2", "G1", "F1", "C2"];
 
             if (this.state === 'BATTLE' || this.state === 'PVP') {
@@ -1857,7 +1877,7 @@ window.WildPulseMusic = {
         // Lead Loop
         this.loops.push(new Tone.Loop(time => {
             if (Math.random() > 0.5) {
-                const season = window.currentSeason || 'Spring';
+                const season = window.currentSeason || 'Summer';
                 let scale = ["C4", "E4", "G4", "A4", "B4"];
 
                 if (this.state === 'BATTLE' || this.state === 'PVP') {
@@ -4421,8 +4441,8 @@ window.updateSocialUI = function() {
     localLi.innerHTML = `<div><span style="font-weight:bold; color:#00ff96;">${localName} (You)</span></div>`;
     playerListContainer.appendChild(localLi);
 
-    const roomUsers = Object.keys(window.remotePlayerIdentities || {});
-    if (roomUsers.length > 0) {
+    const roomUsers = new Set([...Object.keys(window.remotePlayerIndices || {}), ...Object.keys(window.roomUsers || {})]);
+    if (roomUsers.size > 0) {
         roomUsers.forEach(pid => {
             const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[pid]) || {};
             const index = (window.remotePlayerIndices[pid] !== null && window.remotePlayerIndices[pid] !== undefined) ? window.remotePlayerIndices[pid] : '?';
@@ -6080,7 +6100,7 @@ function generateWaterTextures(scene) {
 function generateTreeTextures(scene) {
     // Pre-generate dynamic tree textures
     const generateTree = (baseKey, trunkColor, defaultLeafColors, isTall = false) => {
-        const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+        const seasons = ['Summer', 'Fall', 'Winter', 'Spring'];
 
         seasons.forEach(season => {
             let leafColors;
@@ -6981,9 +7001,9 @@ function create() {
         // Cleanup stale or left players
         for (const id in sprites) {
             const lastUpdate = state[id]?.lastUpdate || 0;
-            const isStale = (now - lastUpdate > 30000); // 30 second timeout
+            const isStale = (lastUpdate > 0 && now - lastUpdate > 30000); // 30 second timeout, but only if they have sent an update
 
-            if (!window.remotePlayerIndices[id] || isStale) {
+            if ((!window.remotePlayerIndices[id] && !(window.roomUsers && window.roomUsers[id])) || isStale) {
                 console.log(`[Multiplayer] Cleaning up player ${id} (Stale: ${isStale})`);
                 if (sprites[id].label) sprites[id].label.destroy();
                 if (sprites[id].aura) sprites[id].aura.destroy();
@@ -6996,9 +7016,10 @@ function create() {
         }
 
         // Ensure all users in room have sprites (Force Registration)
-        for (const id in window.remotePlayerIndices) {
+        const allUserIds = new Set([...Object.keys(window.remotePlayerIndices || {}), ...Object.keys(window.roomUsers || {})]);
+        for (const id of allUserIds) {
             if (!sprites[id]) {
-                const data = state[id] || { x: 10050, y: 10050, lastUpdate: now };
+                const data = state[id] || { x: 10050, y: 10050, lastUpdate: 0 };
                 if (!state[id]) state[id] = data;
 
                 const identity = window.remotePlayerIdentities[id] || {};
@@ -8911,7 +8932,7 @@ function update() {
         }
 
         let seasonIndex = Math.floor((wildpulse_inGameDays % 120) / 30);
-        const seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
+        const seasons = ['Summer', 'Fall', 'Winter', 'Spring'];
         let newSeason = seasons[seasonIndex];
 
         if (newSeason !== window.currentSeason) {
