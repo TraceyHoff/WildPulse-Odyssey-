@@ -179,16 +179,22 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #f9f9f9;
+            padding: 15px;
+            border: 1px solid #87CEEB;
+            border-radius: 12px;
+            background: rgba(30, 60, 90, 0.4);
             cursor: pointer;
-            color: black;
-            text-shadow: none;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
         }
         .swap-item:hover {
-            background: #eaeaea;
+            background: rgba(50, 80, 110, 0.6);
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0,255,255,0.4);
         }
         .swap-item-info {
             display: flex;
@@ -199,6 +205,16 @@
             width: 40px;
             height: 40px;
             image-rendering: pixelated;
+        }
+
+        #swapPartyList {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
         }
 
         #menuBtn {
@@ -314,6 +330,49 @@
             flex-direction: column;
             align-items: center;
             position: fixed !important;
+            padding-top: 50px !important;
+            background: linear-gradient(135deg, rgba(10, 20, 35, 0.98), rgba(20, 40, 60, 0.95)) !important;
+            backdrop-filter: blur(15px);
+            border: 2px solid #00ffd2 !important;
+            color: #fff;
+        }
+
+        #swapPartyList {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1000px;
+            margin-top: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .swap-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 210, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .swap-item:hover {
+            background: rgba(0, 255, 210, 0.1);
+            border-color: #00ffd2;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 255, 210, 0.2);
+        }
+
+        .swap-item-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
 
         #tradeModal select, #tradeModal button, #pvpModal select, #pvpModal button, #journalModal button {
@@ -726,8 +785,8 @@
 
 <div id="battleSwapModal" style="display:none;">
     <button class="close-btn" id="closeSwapBtn" aria-label="Close Swap">X</button>
-    <h2>Swap Creature</h2>
-    <div id="swapPartyList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    <h2 style="font-size: 32px; margin-bottom: 30px; text-shadow: 0 0 10px rgba(0,255,150,0.5);">Swap Creature</h2>
+    <div id="swapPartyList"></div>
 </div>
 
 <button id="menuBtn">Menu</button>
@@ -1521,7 +1580,8 @@ var currentPlayer = null;
 let currentEnemySprite = null;
 window.remotePlayers = window.remotePlayerSprites;
 let remotePlayers = window.remotePlayers; // userId -> Phaser sprite
-let isActionRunning = false;
+window.isActionRunning = false;
+var isActionRunning = window.isActionRunning;
 let dayNightTime = 12.0;
 let dayNightOverlay;
 let sunSprite;
@@ -1529,7 +1589,7 @@ let moonSprite;
 window.timeText = undefined;
 let timeText;
 let lastDayNightUpdate = 0;
-let battleLogQueue = [];
+window.battleLogQueue = [];
 let isTyping = false;
 window.WildPulseMusic = {
     initialized: false,
@@ -5346,45 +5406,57 @@ window.startGame = function() {
 
 
 function processLogQueue() {
-    if (isTyping || battleLogQueue.length === 0) return;
+    // If already typing, let the current loop handle it.
+    if (isTyping) return;
+
+    const log = document.getElementById('battleLog');
+    if (!log || battleLogQueue.length === 0) return;
 
     isTyping = true;
-    const msg = battleLogQueue.shift();
-    const log = document.getElementById('battleLog');
 
-    const div = document.createElement('div');
-    log.appendChild(div);
-
-    // Limit DOM bloat: keep only last 30 messages
-    while (log.children.length > 30) {
-        log.removeChild(log.firstChild);
-    }
-
-    // Strip simple HTML tags for the typewriter effect to work correctly
-    // Since we sometimes use <b> tags
-    const isHtml = msg.includes('<');
-
-    if (isHtml) {
-        div.innerHTML = DOMPurify.sanitize(msg);
-        log.scrollTop = log.scrollHeight;
-        isTyping = false;
-        setTimeout(processLogQueue, 50);
-        return;
-    }
-
-    let i = 0;
-    function typeChar() {
-        if (i < msg.length) {
-            div.innerHTML += msg.charAt(i);
-            i++;
-            log.scrollTop = log.scrollHeight;
-            setTimeout(typeChar, 20); // typing speed
-        } else {
+    // Internal recursive function to process the next message
+    function processNext() {
+        if (battleLogQueue.length === 0) {
             isTyping = false;
-            setTimeout(processLogQueue, 50); // wait before next message
+            return;
         }
+
+        const msg = battleLogQueue.shift();
+        const div = document.createElement('div');
+        log.appendChild(div);
+
+        // Limit DOM bloat: keep only last 30 messages
+        while (log.children.length > 30) {
+            log.removeChild(log.firstChild);
+        }
+
+        // If queue is long (>2), or it's HTML, or it's a PvP battle, render instantly to avoid lag
+        const isHtml = msg.includes('<');
+        if (isHtml || battleLogQueue.length > 2 || window.isPvpBattle) {
+            div.innerHTML = DOMPurify.sanitize(msg);
+            log.scrollTop = log.scrollHeight;
+            // Short pause between instant messages
+            setTimeout(processNext, 30);
+            return;
+        }
+
+        // Otherwise, use typewriter effect for immersion
+        let i = 0;
+        function typeChar() {
+            if (i < msg.length) {
+                div.innerHTML += msg.charAt(i);
+                i++;
+                log.scrollTop = log.scrollHeight;
+                setTimeout(typeChar, 10); // Faster typewriter speed (10ms)
+            } else {
+                // Pause slightly before next message
+                setTimeout(processNext, 200);
+            }
+        }
+        typeChar();
     }
-    typeChar();
+
+    processNext();
 }
 
 function logBattle(msg) {
@@ -5392,7 +5464,7 @@ function logBattle(msg) {
     processLogQueue();
 }
 
-function updateBattleUI() {
+window.updateBattleUI = function() {
     const isCombatActive = window.inBattle && window.pendingBattleResult === null;
     const battleCloseBtn = document.getElementById('battleCloseBtn');
     if (battleCloseBtn) battleCloseBtn.style.display = isCombatActive ? 'none' : 'flex';
@@ -7720,6 +7792,7 @@ function collectCreature(playerCollider, creatureSprite) {
     currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
     currentPlayer.isDefending = false;
     currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+    window.currentPlayer = currentPlayer;
 
     document.getElementById('battleModal').style.display = 'block';
     document.getElementById('battleControls').style.display = 'grid'; // Ensure controls are shown
@@ -7830,16 +7903,17 @@ window.handleFaint = function(target) {
         return true;
     } else {
         // Sync fainted creature's HP
-        let orig = collectedCreatures.find(c => c.id === currentPlayer.id);
+        let orig = collectedCreatures.find(c => String(c.id) === String(currentPlayer?.id));
         if (orig) {
             orig.currentHp = 0;
             orig.status = null;
         }
 
-        let next = collectedCreatures.find(c => !c.stored && c.currentHp > 0 && c.id !== currentPlayer.id);
+        let next = collectedCreatures.find(c => !c.stored && c.currentHp > 0 && String(c.id) !== String(currentPlayer?.id));
         if (next) {
 
             currentPlayer = JSON.parse(JSON.stringify(next));
+            window.currentPlayer = currentPlayer;
             currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
             // Retain saved HP when switching in
             currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
@@ -8131,7 +8205,14 @@ window.openBattleSwapModal = function() {
     let swapList = document.getElementById('swapPartyList');
     swapList.innerHTML = '';
 
-    let availableCreatures = window.playerParty.filter(c => !c.stored && c.currentHp > 0 && c.id !== window.currentPlayer.id);
+    // Filter out stored creatures and those with no HP.
+    // ALSO filter out the currently active creature to prevent redundant swaps.
+    let availableCreatures = window.playerParty.filter(c => {
+        const isNotStored = !c.stored;
+        const hasHp = c.currentHp > 0;
+        const isNotActive = String(c.id) !== String(window.currentPlayer?.id);
+        return isNotStored && hasHp && isNotActive;
+    });
 
     if (availableCreatures.length === 0) {
         window.logBattle("No other healthy creatures to swap in!");
@@ -8150,17 +8231,24 @@ window.openBattleSwapModal = function() {
 
         div.innerHTML = `
             <div class="swap-item-info">
-                <img src="${creature.sprite}" alt="${creature.name}">
+                <div style="width: 50px; height: 50px; background: ${creature.color || '#fff'}; border-radius: 8px; box-shadow: 0 0 10px rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.1);"></div>
                 <div>
-                    <strong>${creature.nickname || creature.name}</strong> Lvl ${creature.level}<br>
-                    <span style="font-size: 12px; color: #666;">${typeHtml}</span><br>
-                    HP: ${Math.floor(creature.currentHp)}/${creature.maxHp}
+                    <strong style="font-size: 18px; color: #00ffd2;">${creature.nickname || creature.name}</strong>
+                    <span style="color: #2196F3; font-weight: bold; margin-left: 5px;">Lvl ${creature.level}</span><br>
+                    <span style="font-size: 13px; color: #bbb;">${typeHtml}</span><br>
+                    <div style="width: 150px; height: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; margin-top: 6px; overflow: hidden;">
+                        <div style="height: 100%; width: ${hpPercent}%; background: linear-gradient(90deg, #4caf50, #81c784); box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);"></div>
+                    </div>
+                    <span style="font-size: 11px; color: #eee; margin-top: 2px; display: inline-block;">HP: ${Math.floor(creature.currentHp)} / ${creature.maxHp}</span>
                 </div>
             </div>
-            <button style="padding: 5px 15px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">Swap</button>
+            <button style="padding: 10px 20px; background: linear-gradient(180deg, #00ffd2, #008f7a); color: #0a1423; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,255,210,0.3);">Select</button>
         `;
 
-        div.onclick = () => window.doBattleSwap(creature);
+        div.onclick = (e) => {
+            e.stopPropagation();
+            window.doBattleSwap(creature);
+        };
         swapList.appendChild(div);
     });
 
@@ -8172,12 +8260,12 @@ window.closeBattleSwapModal = function() {
 };
 
 window.doBattleSwap = function(newCreature) {
-    if (isActionRunning) return;
-    isActionRunning = true;
+    if (window.isActionRunning) return;
+    window.isActionRunning = true;
 
     // Sync current creature HP/Status back to party before swapping out
     if (window.currentPlayer) {
-        let activeCreature = collectedCreatures.find(c => c.id === window.currentPlayer.id);
+        let activeCreature = collectedCreatures.find(c => String(c.id) === String(window.currentPlayer.id));
         if (activeCreature) {
             activeCreature.currentHp = Math.max(0, window.currentPlayer.currentHp);
             activeCreature.status = window.currentPlayer.status;
@@ -8187,7 +8275,11 @@ window.doBattleSwap = function(newCreature) {
 
     window.closeBattleSwapModal();
     window.logBattle(`You swapped in ${newCreature.nickname || newCreature.name}!`);
+
+    // Use JSON clone to prevent reference issues but ensure we update global pointers correctly
     window.currentPlayer = JSON.parse(JSON.stringify(newCreature));
+    currentPlayer = window.currentPlayer; // Sync local global
+
     window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
     window.currentPlayer.isDefending = false;
     window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
@@ -8201,16 +8293,16 @@ window.doBattleSwap = function(newCreature) {
                 creature: newCreature
             });
         }
-        isActionRunning = false;
+        window.isActionRunning = false;
         return;
     }
 
     // Swapping takes the player's turn, so the enemy gets to attack
     setTimeout(() => {
-        if (window.inBattle && window.currentEnemy.currentHp > 0) {
-            window.doEnemyAction(() => { isActionRunning = false; });
+        if (window.inBattle && window.currentEnemy && window.currentEnemy.currentHp > 0) {
+            window.doEnemyAction(() => { window.isActionRunning = false; });
         } else {
-            isActionRunning = false;
+            window.isActionRunning = false;
         }
     }, 1000);
 };
@@ -8295,8 +8387,8 @@ window.startPvpBattle = function(opponentId, opponentCreature, myCreature, isIni
 };
 
 window.handlePlayerTurn = function(action) {
-    if (!window.inBattle || isActionRunning) return;
-    isActionRunning = true;
+    if (!window.inBattle || window.isActionRunning) return;
+    window.isActionRunning = true;
     window.swappedThisTurn = false;
 
     let pSpe = window.getEffectiveStat(currentPlayer, 'speed');
@@ -8333,7 +8425,7 @@ window.handlePlayerTurn = function(action) {
     if (window.isPvpBattle) {
         if (action === 'catch') {
             window.logBattle(`<span style="color:#f44336">You cannot catch other players' creatures!</span>`);
-            isActionRunning = false;
+            window.isActionRunning = false;
             return;
         }
 
@@ -8349,7 +8441,7 @@ window.handlePlayerTurn = function(action) {
                     enemyStatus: currentEnemy.status
                 });
             }
-            isActionRunning = false;
+            window.isActionRunning = false;
         });
         return;
     }
@@ -8357,17 +8449,17 @@ window.handlePlayerTurn = function(action) {
     if (playerGoesFirst) {
         window.doPlayerAction(action, () => {
             if (window.inBattle && currentEnemy.currentHp > 0) {
-                window.doEnemyAction(() => { isActionRunning = false; });
+                window.doEnemyAction(() => { window.isActionRunning = false; });
             } else {
-                isActionRunning = false;
+                window.isActionRunning = false;
             }
         });
     } else {
         window.doEnemyAction(() => {
             if (window.inBattle && currentPlayer.currentHp > 0 && !window.swappedThisTurn) {
-                window.doPlayerAction(action, () => { isActionRunning = false; });
+                window.doPlayerAction(action, () => { window.isActionRunning = false; });
             } else {
-                isActionRunning = false;
+                window.isActionRunning = false;
             }
         });
     }
@@ -8380,7 +8472,7 @@ window.closeBattleModal = function() {
     document.getElementById('battleCloseBtn').style.display = 'none';
     let result = window.pendingBattleResult;
     window.pendingBattleResult = null;
-    isActionRunning = false;
+    window.isActionRunning = false;
 
     if (result === 'win' && window.pendingLevelUp) {
         document.getElementById('levelUpModal').style.display = 'block';
@@ -8425,7 +8517,7 @@ window.endBattle = function(result) {
         document.getElementById('battleControls').style.display = 'none';
         document.getElementById('battleCloseBtn').style.display = 'flex'; // Show close button
 
-        let activeCreature = collectedCreatures.find(c => c.id === currentPlayer.id);
+        let activeCreature = collectedCreatures.find(c => String(c.id) === String(currentPlayer?.id));
         if (activeCreature) {
             activeCreature.currentHp = Math.max(0, currentPlayer.currentHp);
             activeCreature.status = currentPlayer.status;
@@ -8487,7 +8579,7 @@ window.endBattle = function(result) {
             }
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-        isActionRunning = false;
+        window.isActionRunning = false;
     }, 1500);
 };
 
