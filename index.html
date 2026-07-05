@@ -2046,16 +2046,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.initializeMultiplayer(multiplayerRoom);
 
-    document.getElementById('startGameBtn').addEventListener('click', () => {
-        document.getElementById('startModal').style.display = 'none';
-        document.getElementById('menuBtn').style.display = 'block';
-        document.getElementById('socialToggleBtn').style.display = 'block';
+    window.startGameSession = function() {
+        const startModal = document.getElementById('startModal');
+        if (startModal) startModal.style.display = 'none';
+
+        const menuBtn = document.getElementById('menuBtn');
+        if (menuBtn) menuBtn.style.display = 'block';
+
+        const socialToggleBtn = document.getElementById('socialToggleBtn');
+        if (socialToggleBtn) socialToggleBtn.style.display = 'block';
+
         try {
             if (typeof window.timeText !== 'undefined' && window.timeText) window.timeText.setVisible(true);
             if (window.coordText) window.coordText.setVisible(true);
             if (window.WildPulseMusic) window.WildPulseMusic.start();
         } catch(e) {}
         window.gameStarted = true;
+    };
+
+    document.getElementById('startGameBtn').addEventListener('click', () => {
+        window.startGameSession();
     });
 
 
@@ -2202,6 +2212,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Phaser start is triggered in initializeMultiplayer for immediate world visibility
+
+    // Auto-start game if coming from world code join
+    if (sessionStorage.getItem('wildpulse_skip_start_modal') === 'true') {
+        sessionStorage.removeItem('wildpulse_skip_start_modal');
+        if (window.startGameSession) window.startGameSession();
+    }
 });
 
 document.addEventListener('click', function(e) {
@@ -4570,6 +4586,7 @@ window.joinFriendCodeDirect = function(code) {
     // Leave current room and join new one
     // Just reload the page but setting the new code
     localStorage.setItem('wildpulse_world_code', upperCode);
+    sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
     window.location.reload();
 };
 
@@ -4594,6 +4611,7 @@ window.returnToOwnWorld = function() {
         return;
     }
     localStorage.setItem('wildpulse_world_code', ownCode);
+    sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
     window.location.reload();
 };
 
