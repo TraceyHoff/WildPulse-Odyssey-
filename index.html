@@ -1477,8 +1477,8 @@ window.initializeMultiplayer = function() {
     window.initialRoomSeed = Math.abs(hash) || 123456789;
     window.roomSeed = window.initialRoomSeed;
     window.gameSeed = window.initialRoomSeed;
-    // Use a fixed epoch for P2P rooms so weather/time is synced across all clients without a central clock
-    window.serverStartTime = 1704067200000; // Jan 1st 2024
+    // Fallback epoch for P2P rooms; serverStartTime will be synced from server in join-room
+    window.serverStartTime = Date.now();
     console.log(`[Multiplayer] Pre-calculated seed for ${storedRoom}: ${window.initialRoomSeed}`);
 
     // Proactively start the game world so it's visible on the start screen
@@ -1504,6 +1504,10 @@ window.initializeMultiplayer = function() {
         window.playerIndexCount = index;
         if (typeof data === 'object') {
             window.clientServerOffset = data.serverNow - Date.now();
+            if (data.serverStartTime) {
+                window.serverStartTime = data.serverStartTime;
+                console.log(`[Multiplayer] Synced server start time: ${new Date(window.serverStartTime).toLocaleString()}`);
+            }
         }
 
         console.log(`[Multiplayer] Assigned index: ${index}.`);
@@ -1941,7 +1945,8 @@ window.WildPulseMusic = {
         const weather = window.weatherPattern || 'none';
         const hasWeather = (weather !== 'none');
         if (this.reverb) {
-            const targetWet = hasWeather ? 0.8 : 0.3;
+            const intensity = window.weatherIntensity || 0;
+            const targetWet = hasWeather ? 0.3 + (0.5 * intensity) : 0.3;
             if (Math.abs(this.reverb.wet.value - targetWet) > 0.05) {
                 this.reverb.wet.rampTo(targetWet, 4);
             }
@@ -1951,38 +1956,40 @@ window.WildPulseMusic = {
         if (this.state === 'EXPLORING') {
             let targetWindVol = -60;
             let targetRainVol = -60;
+            const intensity = window.weatherIntensity || 0;
 
-            if (weather !== 'none') {
-                targetWindVol = -35 + (window.windSpeed || 0) * 0.05;
-                musicDucking -= 2;
+            if (weather !== 'none' && intensity > 0) {
+                const baseWind = -45;
+                targetWindVol = baseWind + (20 * intensity); // -45 to -25
+                musicDucking -= (4 * intensity);
                 // Modulate wind LFO speed by wind speed
                 if (this.windLFO) this.windLFO.frequency.rampTo(0.05 + (window.windSpeed / 500), 1);
             }
 
-            if (weather.includes('rain') || weather.includes('storm')) {
-                targetRainVol = (weather === 'thunderstorm') ? -18 : -30;
-                musicDucking -= 4;
-                if (weather === 'thunderstorm') musicDucking -= 4;
+            if ((weather.includes('rain') || weather.includes('storm')) && intensity > 0) {
+                const baseRain = -40;
+                const maxRain = (weather === 'thunderstorm') ? -15 : -25;
+                targetRainVol = baseRain + ((maxRain - baseRain) * intensity);
+                musicDucking -= (6 * intensity);
+                if (weather === 'thunderstorm') musicDucking -= (4 * intensity);
             }
 
             if (this.synths.wind) {
-                // Wind uses LFO so we target the base offset if possible, but Tone volume ramp works
-                if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 2) {
-                    this.synths.wind.volume.rampTo(targetWindVol, 2);
+                if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 1) {
+                    this.synths.wind.volume.rampTo(targetWindVol, 1);
                 }
-                if (targetWindVol > -55 && this.synths.wind.state !== 'started') this.synths.wind.triggerAttack();
-                else if (targetWindVol <= -55 && this.synths.wind.state === 'started') this.synths.wind.triggerRelease();
+                if (targetWindVol > -58 && this.synths.wind.state !== 'started') this.synths.wind.triggerAttack();
+                else if (targetWindVol <= -58 && this.synths.wind.state === 'started') this.synths.wind.triggerRelease();
             }
 
             if (this.synths.rain) {
-                // Natural variation: subtle random fluctuation
-                const variation = (Math.random() - 0.5) * 4;
+                const variation = (Math.random() - 0.5) * 2;
                 const finalRainVol = targetRainVol + variation;
 
                 if (Math.abs(this.synths.rain.volume.value - finalRainVol) > 1) {
                     this.synths.rain.volume.rampTo(finalRainVol, 1);
                 }
-                if (targetRainVol > -55) {
+                if (targetRainVol > -58) {
                     if (this.synths.rain.state !== 'started') this.synths.rain.triggerAttack();
                     if (weather === 'thunderstorm') {
                         this.synths.rain.noise.type = 'white';
@@ -7577,6 +7584,7 @@ function create() {
     window.weatherTimer = 0;
     window.cloudCoverage = 'partly_cloudy'; // clear, partly_cloudy, cloudy
     window.weatherPattern = 'none'; // none, light_rain, heavy_rain, thunderstorm
+    window.weatherIntensity = 0;
 
     window.sharedEmitZone = { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth + 600, window.innerHeight + 600) };
 
@@ -9620,63 +9628,68 @@ function update() {
     // Update Weather states
     if (window.serverStartTime && window.roomSeed) {
         const roomAgeMs = Date.now() + (window.clientServerOffset || 0) - window.serverStartTime;
-        const intervalIndex = Math.floor(roomAgeMs / 20000);
-        const weatherRng = mulberry32(window.roomSeed + intervalIndex);
 
-        let rCloud = weatherRng();
-        if (rCloud < 0.33) window.cloudCoverage = 'clear';
-        else if (rCloud < 0.66) window.cloudCoverage = 'partly_cloudy';
-        else window.cloudCoverage = 'cloudy';
+        // 15-minute global cycle (900,000ms)
+        const CYCLE_DURATION = 900000;
+        const COOLDOWN_DURATION = 600000; // 10 minutes
+        const WEATHER_WINDOW = 300000;   // 5 minutes
+        const RAMP_TIME = 30000;         // 30 seconds
 
-        if (window.cloudCoverage === 'cloudy') {
-            let rWeather = weatherRng();
-            if (window.currentSeason === 'Spring' || window.currentSeason === 'Summer' || window.currentSeason === 'Fall') {
-                if (rWeather < 0.4) window.weatherPattern = 'none';
-                else if (rWeather < 0.6) window.weatherPattern = 'light_rain';
-                else if (rWeather < 0.8) window.weatherPattern = 'heavy_rain';
-                else window.weatherPattern = 'thunderstorm';
-            } else if (window.currentSeason === 'Winter') {
-                if (rWeather < 0.4) window.weatherPattern = 'none';
-                else if (rWeather < 0.6) window.weatherPattern = 'light_snow';
-                else if (rWeather < 0.8) window.weatherPattern = 'heavy_snow';
-                else window.weatherPattern = 'thundersnow';
+        const cycleIndex = Math.floor(roomAgeMs / CYCLE_DURATION);
+        const timeInCycle = roomAgeMs % CYCLE_DURATION;
+
+        const cycleRng = mulberry32(window.roomSeed + cycleIndex);
+
+        // Deterministic event properties for this cycle
+        const eventDuration = 120000 + cycleRng() * 180000; // 2 to 5 minutes
+        const eventStartOffset = cycleRng() * (WEATHER_WINDOW - eventDuration);
+        const eventStartTime = COOLDOWN_DURATION + eventStartOffset;
+        const eventEndTime = eventStartTime + eventDuration;
+
+        let targetPattern = 'none';
+        let targetIntensity = 0;
+        let targetCloud = 'partly_cloudy';
+
+        if (timeInCycle >= eventStartTime && timeInCycle <= eventEndTime) {
+            // Weather is active
+            targetCloud = 'cloudy';
+            const rWeather = cycleRng();
+            if (window.currentSeason === 'Winter') {
+                if (rWeather < 0.4) targetPattern = 'light_snow';
+                else if (rWeather < 0.8) targetPattern = 'heavy_snow';
+                else targetPattern = 'thundersnow';
             } else {
-                window.weatherPattern = 'none';
+                if (rWeather < 0.4) targetPattern = 'light_rain';
+                else if (rWeather < 0.8) targetPattern = 'heavy_rain';
+                else targetPattern = 'thunderstorm';
+            }
+
+            // Calculate intensity with 30s ramp up/down
+            const timeSinceStart = timeInCycle - eventStartTime;
+            const timeUntilEnd = eventEndTime - timeInCycle;
+
+            if (timeSinceStart < RAMP_TIME) {
+                targetIntensity = timeSinceStart / RAMP_TIME;
+            } else if (timeUntilEnd < RAMP_TIME) {
+                targetIntensity = timeUntilEnd / RAMP_TIME;
+            } else {
+                targetIntensity = 1.0;
             }
         } else {
-            window.weatherPattern = 'none';
+            // Cooldown or outside window
+            targetPattern = 'none';
+            targetIntensity = 0;
+            const rCloud = cycleRng();
+            targetCloud = (rCloud < 0.5) ? 'clear' : 'partly_cloudy';
         }
+
+        window.weatherPattern = targetPattern;
+        window.weatherIntensity = targetIntensity;
+        window.cloudCoverage = targetCloud;
     } else {
-        window.weatherTimer += 1;
-        if (window.weatherTimer > 1200) { // Approx 20 seconds at 60fps
-            window.weatherTimer = 0;
-
-            // Randomize clouds
-            let rCloud = Math.random();
-            if (rCloud < 0.33) window.cloudCoverage = 'clear';
-            else if (rCloud < 0.66) window.cloudCoverage = 'partly_cloudy';
-            else window.cloudCoverage = 'cloudy';
-
-            // Weather only happens if cloudy
-            if (window.cloudCoverage === 'cloudy') {
-                let rWeather = Math.random();
-                if (window.currentSeason === 'Spring' || window.currentSeason === 'Summer' || window.currentSeason === 'Fall') {
-                    if (rWeather < 0.4) window.weatherPattern = 'none';
-                    else if (rWeather < 0.6) window.weatherPattern = 'light_rain';
-                    else if (rWeather < 0.8) window.weatherPattern = 'heavy_rain';
-                    else window.weatherPattern = 'thunderstorm';
-                } else if (window.currentSeason === 'Winter') {
-                    if (rWeather < 0.4) window.weatherPattern = 'none';
-                    else if (rWeather < 0.6) window.weatherPattern = 'light_snow';
-                    else if (rWeather < 0.8) window.weatherPattern = 'heavy_snow';
-                    else window.weatherPattern = 'thundersnow';
-                } else {
-                    window.weatherPattern = 'none';
-                }
-            } else {
-                window.weatherPattern = 'none';
-            }
-        }
+        window.weatherPattern = 'none';
+        window.weatherIntensity = 0;
+        window.cloudCoverage = 'partly_cloudy';
     }
 
     if (window.lightningOverlay) {
@@ -9777,10 +9790,10 @@ function update() {
             targetPollen = 2 + Math.floor(timeOscillation * 4);
         }
 
-        if (window.weatherPattern.includes('rain')) {
-            if (window.weatherPattern === 'light_rain') targetRain = 3;
-            else if (window.weatherPattern === 'heavy_rain') targetRain = 8;
-            else if (window.weatherPattern === 'thunderstorm') targetRain = 15;
+        if (window.weatherPattern.includes('rain') || window.weatherPattern.includes('storm')) {
+            if (window.weatherPattern === 'light_rain') targetRain = 20 * window.weatherIntensity;
+            else if (window.weatherPattern === 'heavy_rain') targetRain = 60 * window.weatherIntensity;
+            else if (window.weatherPattern === 'thunderstorm') targetRain = 120 * window.weatherIntensity;
 
             targetPollen = 0; targetLeafRed = 0; targetLeafYellow = 0; targetLeafMixed = 0;
             targetLeafGreen1 = 0; targetLeafGreen2 = 0;
@@ -9788,21 +9801,23 @@ function update() {
 
         if (window.currentSeason === 'Winter') {
             let snowCount = 2 + Math.floor(timeOscillation * 4);
-            if (window.weatherPattern === 'light_snow') targetSnow = snowCount + 3;
-            else if (window.weatherPattern === 'heavy_snow') targetSnow = snowCount + 8;
-            else if (window.weatherPattern === 'thundersnow') targetSnow = snowCount + 15;
+            if (window.weatherPattern === 'light_snow') targetSnow = (snowCount + 30) * window.weatherIntensity;
+            else if (window.weatherPattern === 'heavy_snow') targetSnow = (snowCount + 80) * window.weatherIntensity;
+            else if (window.weatherPattern === 'thundersnow') targetSnow = (snowCount + 150) * window.weatherIntensity;
             else targetSnow = snowCount;
         }
 
         // Apply quantities with smooth lerping
         const lerpQuantity = (emitter, target) => {
             if (!emitter) return;
-            let current = emitter.quantity;
-            if (Math.abs(current - target) < 0.1) {
-                emitter.setQuantity(target);
+            if (emitter._currentQuantity === undefined) emitter._currentQuantity = 0;
+            let current = emitter._currentQuantity;
+            if (Math.abs(current - target) < 0.01) {
+                emitter._currentQuantity = target;
             } else {
-                emitter.setQuantity(current + (target - current) * 0.02);
+                emitter._currentQuantity = current + (target - current) * 0.05; // Faster lerp for intensity responsiveness
             }
+            emitter.setQuantity(emitter._currentQuantity);
         };
 
         lerpQuantity(window.leafRedEmitter, targetLeafRed);
@@ -9814,7 +9829,7 @@ function update() {
         lerpQuantity(window.rainEmitter, targetRain);
         lerpQuantity(window.snowflakeEmitter, targetSnow);
 
-        let targetWind = (window.weatherPattern !== 'none') ? 2 : 0;
+        let targetWind = (window.weatherPattern !== 'none') ? 5 * window.weatherIntensity : 0;
         lerpQuantity(window.windEmitter, targetWind);
 
         if (window.rainEmitter) window.rainEmitter.setSpeedX(windVx * 1.5);
@@ -9831,16 +9846,16 @@ function update() {
         const cam = this.cameras.main;
         const viewPadding = 1500; // Culling range for clouds
 
-        let cloudGlobalAlphaMod = 1.0;
+        let cloudGlobalAlphaMod = 0;
         if (dayNightTime >= 7 && dayNightTime <= 19) {
             cloudGlobalAlphaMod = 1.0;
         } else if (dayNightTime > 6 && dayNightTime < 7) {
             cloudGlobalAlphaMod = (dayNightTime - 6);
         } else if (dayNightTime > 19 && dayNightTime < 20) {
             cloudGlobalAlphaMod = (20 - dayNightTime);
-        } else {
-            cloudGlobalAlphaMod = 0;
         }
+        // Clouds should be visible during storms even at night
+        cloudGlobalAlphaMod = Math.max(cloudGlobalAlphaMod, (window.weatherIntensity || 0) * 0.7);
 
         for (let i = 0; i < clouds.length; i++) {
             let cloud = clouds[i];
@@ -9893,16 +9908,22 @@ function update() {
             // Weather cloud coverage adjustment
             let coverageMod = 1.0;
             let scaleMod = 1.0;
+            const intensity = window.weatherIntensity || 0;
+
             if (window.cloudCoverage === 'clear') {
                 coverageMod = 0.0;
             } else if (window.cloudCoverage === 'partly_cloudy') {
                 coverageMod = (cloud.seed < Math.PI) ? 1.0 : 0.0; // About half the clouds
             } else if (window.cloudCoverage === 'cloudy') {
                 coverageMod = 1.0;
-                scaleMod = 5.0;
+                scaleMod = 1.0 + (4.0 * intensity); // Grows with intensity
             }
 
             let targetAlpha = originalAlpha * cloudGlobalAlphaMod * coverageMod;
+            if (window.cloudCoverage === 'cloudy') {
+                // Darken and thicken clouds during storm
+                targetAlpha = Math.min(0.8, targetAlpha + (0.4 * intensity));
+            }
             let currentAlpha = cloud.alpha;
             let newAlpha = currentAlpha + (targetAlpha - currentAlpha) * 0.01; // Smooth transition
 

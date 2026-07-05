@@ -11,6 +11,7 @@ app.use(express.static(path.join(__dirname, '/')));
 
 const globalUsers = {}; // Map of socket.id -> { name, room, index }
 const roomNextIndex = {};
+const roomStartTime = {};
 
 io.on('connection', (socket) => {
   globalUsers[socket.id] = { name: 'Anonymous', room: null, index: null };
@@ -46,6 +47,7 @@ io.on('connection', (socket) => {
     // Deterministic seed generation from roomId moved to client for P2P
     // We still assign an index to help with Host designation (e.g. index 0 is Host)
     if (!roomNextIndex[roomId]) roomNextIndex[roomId] = 0;
+    if (!roomStartTime[roomId]) roomStartTime[roomId] = Date.now();
     const playerIndex = roomNextIndex[roomId]++;
 
     if (globalUsers[socket.id]) {
@@ -54,7 +56,8 @@ io.on('connection', (socket) => {
 
     socket.emit('assigned-index', {
         index: playerIndex,
-        serverNow: Date.now()
+        serverNow: Date.now(),
+        serverStartTime: roomStartTime[roomId]
     });
 
     socket.to(roomId).emit('user-joined', { userId: socket.id, index: playerIndex });
@@ -95,6 +98,7 @@ io.on('connection', (socket) => {
         const room = io.sockets.adapter.rooms.get(roomId);
         if (room && room.size <= 1) {
             delete roomNextIndex[roomId];
+            delete roomStartTime[roomId];
             console.log(`[Server] Cleaned up metadata for empty room: ${roomId}`);
         }
     }
