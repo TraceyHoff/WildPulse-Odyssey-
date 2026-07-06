@@ -9030,7 +9030,7 @@ function update() {
     if (window.weatherPattern && window.weatherPattern !== 'none') {
         if (window.weatherPattern.includes('light')) weatherAlpha = 0.15;
         else if (window.weatherPattern.includes('heavy')) weatherAlpha = 0.25;
-        else if (window.weatherPattern.includes('thunder')) weatherAlpha = 0.35;
+        else if (window.weatherPattern.includes('thunder')) weatherAlpha = 0.6;
     }
 
     let targetAlpha = Math.max(dayNightAlpha, weatherAlpha);
@@ -9695,6 +9695,7 @@ function update() {
     if (window.lightningOverlay) {
         if ((window.weatherPattern === 'thunderstorm' || window.weatherPattern === 'thundersnow') && Math.random() < 0.005) {
             window.lightningOverlay.setAlpha(0.8);
+            if (dayNightOverlay) dayNightOverlay.setAlpha(0.1);
             if (window.WildPulseMusic && window.WildPulseMusic.triggerThunder) window.WildPulseMusic.triggerThunder();
         } else if (window.lightningOverlay.alpha > 0) {
             window.lightningOverlay.setAlpha(Math.max(0, window.lightningOverlay.alpha - 0.05));
@@ -9758,7 +9759,7 @@ function update() {
             window.leafGreen2Emitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
             window.leafGreen2Emitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
             window.snowflakeEmitter.setSpeedX({ min: windVx * 0.2, max: windVx * 0.4 });
-            window.snowflakeEmitter.setSpeedY({ min: windVy * 0.2, max: windVy * 0.4 });
+            window.snowflakeEmitter.setSpeedY({ min: 20 + windVy * 0.4, max: 100 + windVy * 0.4 });
         }
 
         if (window.sharedEmitZone && window.sharedEmitZone.source) {
@@ -9832,7 +9833,13 @@ function update() {
         let targetWind = (window.weatherPattern !== 'none') ? 5 * window.weatherIntensity : 0;
         lerpQuantity(window.windEmitter, targetWind);
 
-        if (window.rainEmitter) window.rainEmitter.setSpeedX(windVx * 1.5);
+        if (window.rainEmitter) {
+            window.rainEmitter.setSpeedX(windVx * 1.5);
+            window.rainEmitter.setSpeedY({ min: 400 + windVy, max: 600 + windVy });
+            // Align rain with velocity vector
+            let rainAngle = Math.atan2(500 + windVy, windVx * 1.5) * (180 / Math.PI) - 90;
+            window.rainEmitter.setRotate(rainAngle);
+        }
         if (window.windEmitter) {
             window.windEmitter.setSpeedX(windVx * 2);
             window.windEmitter.setSpeedY(windVy * 2);
