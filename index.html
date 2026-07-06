@@ -874,6 +874,11 @@
 // ==================== SESSION INITIALIZATION ====================
 var wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
 window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
+window.clientServerOffset = 0;
+window.windAngle = 0;
+window.windSpeed = 200;
+window.targetWindAngle = 0;
+window.targetWindSpeed = 200;
 
 window.TYPE_COLORS = {
     "Fire": "rgba(255, 69, 0, 0.85)",     // OrangeRed
@@ -6734,7 +6739,8 @@ function preload() {
     generateMiscTextures(this);
 }
 
-let mapData = []; // To store 100x100 grid data
+window.mapData = []; // To store 100x100 grid data
+let mapData = window.mapData;
 let obstaclesGroup;
 let hospitalGroup;
 let tradeGroup;
@@ -7697,10 +7703,24 @@ function create() {
         emitting: false
     });
 
+    window.rainSplashEmitter = rippleParticles.createEmitter({
+        speed: 0,
+        lifespan: 600,
+        quantity: 1,
+        frequency: -1,
+        scale: { start: 0.05, end: 0.4 },
+        alpha: { start: 0.4, end: 0 },
+        emitting: false
+    });
+
     window.lightningOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0xFFFFFF);
     window.lightningOverlay.setDepth(9999);
     window.lightningOverlay.setScrollFactor(0);
     window.lightningOverlay.setAlpha(0);
+
+    window.lightningGraphics = this.add.graphics();
+    window.lightningGraphics.setDepth(9998);
+    window.lightningGraphics.setScrollFactor(0);
 
     let windParticles = this.add.particles('pollen_particle');
     windParticles.setDepth(3000);
@@ -9693,11 +9713,76 @@ function update() {
     }
 
     if (window.lightningOverlay) {
-        if ((window.weatherPattern === 'thunderstorm' || window.weatherPattern === 'thundersnow') && Math.random() < 0.005) {
-            window.lightningOverlay.setAlpha(0.8);
-            if (dayNightOverlay) dayNightOverlay.setAlpha(0.1);
+        if ((window.weatherPattern === 'thunderstorm' || window.weatherPattern === 'thundersnow') && Math.random() < 0.005 && !window.lightningActive) {
+            window.lightningActive = true;
+            let flashes = 0;
+            const maxFlashes = 2 + Math.floor(Math.random() * 3);
+
+            const triggerFlash = () => {
+                const intensity = 0.5 + Math.random() * 0.5;
+                window.lightningOverlay.setAlpha(intensity);
+                if (dayNightOverlay) dayNightOverlay.setAlpha(0.1);
+
+                // Environmental lighting: tint entities white briefly
+                if (typeof player !== 'undefined' && player) player.setTint(0xffffff);
+                if (typeof creaturesGroup !== 'undefined' && creaturesGroup) creaturesGroup.getChildren().forEach(c => c.setTint(0xffffff));
+                if (window.remotePlayerSprites) Object.values(window.remotePlayerSprites).forEach(rp => rp.setTint(0xffffff));
+
+                // Draw procedural lightning bolt
+                if (window.lightningGraphics) {
+                    window.lightningGraphics.clear();
+                    window.lightningGraphics.lineStyle(4, 0xffffff, 1);
+                    window.lightningGraphics.beginPath();
+                    let lx = Math.random() * window.innerWidth;
+                    let ly = 0;
+                    window.lightningGraphics.moveTo(lx, ly);
+                    for (let i = 0; i < 5; i++) {
+                        lx += (Math.random() - 0.5) * 200;
+                        ly += (window.innerHeight / 5) + (Math.random() - 0.5) * 100;
+                        window.lightningGraphics.lineTo(lx, ly);
+                    }
+                    window.lightningGraphics.strokePath();
+                }
+
+                setTimeout(() => {
+                    window.lightningOverlay.setAlpha(0);
+                    if (window.lightningGraphics) window.lightningGraphics.clear();
+
+                    // Restore original tints
+                    if (player) {
+                        if (localStorage.getItem('wildpulse_player_pattern') && localStorage.getItem('wildpulse_player_pattern') !== 'None') {
+                            player.setTint(0xffffff);
+                        } else {
+                            player.setTint(player.originalColor || 0xFFFFFF);
+                        }
+                    }
+                    if (typeof creaturesGroup !== 'undefined' && creaturesGroup) creaturesGroup.getChildren().forEach(c => {
+                        const data = c.getData('creatureData');
+                        if (data && data.color) c.setTint(data.color);
+                    });
+                    if (window.remotePlayerSprites) {
+                        Object.entries(window.remotePlayerSprites).forEach(([id, rp]) => {
+                            const identity = window.remotePlayerIdentities[id] || {};
+                            if (identity.pattern && identity.pattern !== 'None') {
+                                rp.setTint(0xffffff);
+                            } else {
+                                rp.setTint(rp.originalColor || 0xFFFFFF);
+                            }
+                        });
+                    }
+
+                    flashes++;
+                    if (flashes < maxFlashes) {
+                        setTimeout(triggerFlash, 50 + Math.random() * 100);
+                    } else {
+                        window.lightningActive = false;
+                    }
+                }, 50 + Math.random() * 50);
+            };
+
+            triggerFlash();
             if (window.WildPulseMusic && window.WildPulseMusic.triggerThunder) window.WildPulseMusic.triggerThunder();
-        } else if (window.lightningOverlay.alpha > 0) {
+        } else if (window.lightningOverlay.alpha > 0 && !window.lightningActive) {
             window.lightningOverlay.setAlpha(Math.max(0, window.lightningOverlay.alpha - 0.05));
         }
     }
@@ -9838,7 +9923,23 @@ function update() {
             window.rainEmitter.setSpeedY({ min: 400 + windVy, max: 600 + windVy });
             // Align rain with velocity vector
             let rainAngle = Math.atan2(500 + windVy, windVx * 1.5) * (180 / Math.PI) - 90;
-            window.rainEmitter.setRotate(rainAngle);
+            if (window.rainEmitter.setRotation) {
+                window.rainEmitter.setRotation(rainAngle);
+            }
+
+            // Trigger splashes on water tiles
+            if (window.currentSeason !== 'Winter' && (window.weatherPattern.includes('rain') || window.weatherPattern.includes('storm'))) {
+                const numSplashes = Math.floor(window.weatherIntensity * 5);
+                for (let i = 0; i < numSplashes; i++) {
+                    const rx = cam.scrollX + Math.random() * cam.width;
+                    const ry = cam.scrollY + Math.random() * cam.height;
+                    const col = Math.floor(rx / 100);
+                    const row = Math.floor(ry / 100);
+                    if (mapData[row] && mapData[row][col] === 'obs') {
+                        window.rainSplashEmitter.emitParticleAt(rx, ry);
+                    }
+                }
+            }
         }
         if (window.windEmitter) {
             window.windEmitter.setSpeedX(windVx * 2);
