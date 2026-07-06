@@ -10051,6 +10051,11 @@ function update() {
 
                 cloud.setAlpha(newAlpha);
                 cloud.setScale((cloud.baseScaleX + scaleOscX) * scaleMod, (cloud.baseScaleY + scaleOscY) * scaleMod);
+
+                if (cloudReflection) {
+                    cloudReflection.setScale((cloud.baseScaleX + scaleOscX) * scaleMod, -((cloud.baseScaleY + scaleOscY) * scaleMod));
+                    cloudReflection.setAlpha(newAlpha);
+                }
             }
 
             // Wrap around viewport in WORLD space
@@ -10062,8 +10067,6 @@ function update() {
             if (cloudReflection) {
                 cloudReflection.x = cloud.x;
                 cloudReflection.y = cloud.y;
-                cloudReflection.setScale((cloud.baseScaleX + scaleOscX) * scaleMod, -((cloud.baseScaleY + scaleOscY) * scaleMod));
-                cloudReflection.setAlpha(newAlpha);
             }
         }
     }
