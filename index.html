@@ -4528,6 +4528,12 @@ window.receiveChatMessage = function(data) {
     `;
 
     chatMessages.appendChild(msgDiv);
+
+    // Performance: Limit chat history to 100 messages to prevent DOM bloat
+    while (chatMessages.children.length > 100) {
+        chatMessages.removeChild(chatMessages.firstChild);
+    }
+
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
     // If sidebar is closed, maybe show a notification?
@@ -4535,6 +4541,11 @@ window.receiveChatMessage = function(data) {
         window.showModernNotification(`New message from ${name}`);
     }
 };
+
+// Global performance trackers
+window.lastUiUpdate = 0;
+window.lastShadowDayNightTime = 0;
+window.shadowParams = null;
 
 document.getElementById('sendChatBtn')?.addEventListener('click', () => {
     const input = document.getElementById('chatInput');
@@ -9011,20 +9022,24 @@ function update() {
         }
     }
 
-    let hours = Math.floor(dayNightTime);
-    let minutes = Math.floor((dayNightTime % 1) * 60);
+    // Performance: Throttle UI Text Updates
+    if (!window.lastUiUpdate || now - window.lastUiUpdate > 200) {
+        window.lastUiUpdate = now;
+        let hours = Math.floor(dayNightTime);
+        let minutes = Math.floor((dayNightTime % 1) * 60);
 
-    let period = hours >= 12 ? 'PM' : 'AM';
-    let displayHours = hours % 12;
-    if (displayHours === 0) displayHours = 12;
+        let period = hours >= 12 ? 'PM' : 'AM';
+        let displayHours = hours % 12;
+        if (displayHours === 0) displayHours = 12;
 
-    let hStr = displayHours < 10 ? '0' + displayHours : displayHours.toString();
-    let mStr = minutes < 10 ? '0' + minutes : minutes.toString();
-    if (timeText) timeText.setText(hStr + ":" + mStr + " " + period);
+        let hStr = displayHours < 10 ? '0' + displayHours : displayHours.toString();
+        let mStr = minutes < 10 ? '0' + minutes : minutes.toString();
+        if (timeText) timeText.setText(hStr + ":" + mStr + " " + period);
 
-    // Update World Coordinates UI
-    if (window.coordText && player) {
-        window.coordText.setText(`X: ${Math.floor(player.x)}, Y: ${Math.floor(player.y)}`);
+        // Update World Coordinates UI
+        if (window.coordText && player) {
+            window.coordText.setText(`X: ${Math.floor(player.x)}, Y: ${Math.floor(player.y)}`);
+        }
     }
 
     // Calculate smooth day/night alpha
@@ -9075,8 +9090,9 @@ function update() {
         window.starSprite.tilePositionY = 0;
     }
 
-    // Star twinkling effect
-    if (!window.lastStarUpdate || this.time.now - window.lastStarUpdate > 100) { // Throttle updates
+    // Star twinkling effect - Performance: only update if visible and throttled
+    const isStarVisible = (window.currentSeason !== 'Winter' && targetAlpha > 0.1);
+    if (isStarVisible && (!window.lastStarUpdate || this.time.now - window.lastStarUpdate > 150)) {
         window.lastStarUpdate = this.time.now;
         const starTexture = this.textures.get('starfield_tex');
         const starCanvas = starTexture.getSourceImage();
@@ -9097,6 +9113,35 @@ function update() {
     const frame16fps = Math.floor(this.time.now / 125) % 16;
     let treeRotation = Math.sin(this.time.now / 500) * (window.windSpeed / 5000);
 
+    // Performance: Throttle shadow parameter calculations (once per frame for all trees)
+    if (!window.shadowParams || Math.abs(dayNightTime - (window.lastShadowDayNightTime || 0)) > 0.005) {
+        window.lastShadowDayNightTime = dayNightTime;
+        let sScaleY = 1.0;
+        let sAngle = 0;
+        let sAlpha = 0.0;
+
+        if (dayNightTime >= 6 && dayNightTime < 20) {
+            let tp = (dayNightTime - 6) / 14;
+            sAngle = -Math.PI/2 + (Math.PI * tp);
+            let sunElevation = Math.sin(Math.PI * tp);
+            sScaleY = 0.5 + (1 - sunElevation) * 0.8;
+
+            if (dayNightTime >= 7 && dayNightTime <= 19) {
+                sAlpha = 0.4 * sunElevation;
+            } else if (dayNightTime > 6 && dayNightTime < 7) {
+                sAlpha = 0.4 * sunElevation * (dayNightTime - 6);
+            } else if (dayNightTime > 19 && dayNightTime < 20) {
+                sAlpha = 0.4 * sunElevation * (20 - dayNightTime);
+            }
+        } else {
+            let tp = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
+            sAngle = -Math.PI/2 + (Math.PI * tp);
+            sAlpha = 0;
+        }
+        window.shadowParams = { sScaleY, sAngle, sAlpha };
+    }
+
+    const { sScaleY, sAngle, sAlpha } = window.shadowParams;
     for (const key in activeTiles) {
         const sprites = activeTiles[key];
         sprites.forEach(sprite => {
@@ -9130,47 +9175,11 @@ function update() {
             } else if (sprite.isTreeReflection) {
                 sprite.setRotation(treeRotation); // Reverse rotation for reflection
             } else if (sprite.isTreeShadow) {
-                // Determine shadow properties from time of day
-                let shadowScaleY = 1.0;
-                let shadowAngle = 0;
-                let shadowAlpha = 0.0;
-                let shadowColor = 0x000000;
-
-                let timeProgress = 0;
-                if (dayNightTime >= 6 && dayNightTime < 20) {
-                    timeProgress = (dayNightTime - 6) / 14;
-                    // Morning (6am, prog 0) -> shadow points West (left, -PI/2)
-                    // Noon (1pm, prog 0.5) -> shadow points North (up, PI)
-                    // Evening (8pm, prog 1) -> shadow points East (right, PI/2)
-                    shadowAngle = -Math.PI/2 + (Math.PI * timeProgress);
-
-                    let sunElevation = Math.sin(Math.PI * timeProgress);
-                    shadowScaleY = 0.5 + (1 - sunElevation) * 0.8;
-
-                    // Fade logic 7 AM to 7 PM
-                    if (dayNightTime >= 7 && dayNightTime <= 19) {
-                        shadowAlpha = 0.4 * sunElevation;
-                    } else if (dayNightTime > 6 && dayNightTime < 7) {
-                        shadowAlpha = 0.4 * sunElevation * (dayNightTime - 6);
-                    } else if (dayNightTime > 19 && dayNightTime < 20) {
-                        shadowAlpha = 0.4 * sunElevation * (20 - dayNightTime);
-                    } else {
-                        shadowAlpha = 0;
-                    }
-
-                } else {
-                    timeProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
-                    shadowAngle = -Math.PI/2 + (Math.PI * timeProgress);
-
-                    let moonElevation = Math.sin(Math.PI * timeProgress);
-                    shadowScaleY = 0.5 + (1 - moonElevation) * 0.8;
-                    shadowAlpha = 0; // Tree shadows don't show at night
-                }
-
-                sprite.setScale(1, shadowScaleY);
-                sprite.setRotation(shadowAngle + treeRotation);
-                sprite.setAlpha(shadowAlpha);
-                sprite.setVisible(shadowAlpha > 0);
+                // Use throttled shadow parameters (destructured outside loop for performance)
+                sprite.setScale(1, sScaleY);
+                sprite.setRotation(sAngle + treeRotation);
+                sprite.setAlpha(sAlpha);
+                sprite.setVisible(sAlpha > 0);
                 sprite.setTintFill(0x000000);
             }
         });
@@ -10000,43 +10009,49 @@ function update() {
                 if (cloudReflection) cloudReflection.setVisible(true);
             }
 
-            // Dynamic shape and size oscillation
-            let time = this.time.now / 5000;
-            let scaleOscX = Math.sin(time + cloud.seed) * 0.3;
-            let scaleOscY = Math.cos(time + cloud.seed) * 0.3;
-            // Scale is now updated further below with scaleMod
+            // Performance: Throttle visual updates for clouds (every 10 frames)
+            if (!cloud.lastVisualUpdate || window.aiFrameCounter % 10 === 0) {
+                cloud.lastVisualUpdate = true;
 
-            // Extract the original alpha and apply the day/night modifier
-            let originalAlpha = cloud.getData('originalAlpha');
-            if (originalAlpha === undefined) {
-                originalAlpha = cloud.alpha;
-                cloud.setData('originalAlpha', originalAlpha);
+                // Dynamic shape and size oscillation
+                let time = this.time.now / 5000;
+                let scaleOscX = Math.sin(time + cloud.seed) * 0.3;
+                let scaleOscY = Math.cos(time + cloud.seed) * 0.3;
+                // Scale is now updated further below with scaleMod
+
+                // Extract the original alpha and apply the day/night modifier
+                let originalAlpha = cloud.getData('originalAlpha');
+                if (originalAlpha === undefined) {
+                    originalAlpha = cloud.alpha;
+                    cloud.setData('originalAlpha', originalAlpha);
+                }
+
+                // Weather cloud coverage adjustment
+                let coverageMod = 1.0;
+                let scaleMod = 1.0;
+                const intensity = window.weatherIntensity || 0;
+
+                if (window.cloudCoverage === 'clear') {
+                    coverageMod = 0.0;
+                } else if (window.cloudCoverage === 'partly_cloudy') {
+                    coverageMod = (cloud.seed < Math.PI) ? 1.0 : 0.0; // About half the clouds
+                } else if (window.cloudCoverage === 'cloudy') {
+                    coverageMod = 1.0;
+                    scaleMod = 1.0 + (4.0 * intensity); // Grows with intensity
+                }
+
+                let targetAlpha = originalAlpha * cloudGlobalAlphaMod * coverageMod;
+                if (window.cloudCoverage === 'cloudy') {
+                    // Darken and thicken clouds during storm
+                    targetAlpha = Math.min(0.8, targetAlpha + (0.4 * intensity));
+                }
+                let currentAlpha = cloud.alpha;
+                // Interpolation increased to 0.1 to account for 10-frame throttle
+                let newAlpha = currentAlpha + (targetAlpha - currentAlpha) * 0.1;
+
+                cloud.setAlpha(newAlpha);
+                cloud.setScale((cloud.baseScaleX + scaleOscX) * scaleMod, (cloud.baseScaleY + scaleOscY) * scaleMod);
             }
-
-            // Weather cloud coverage adjustment
-            let coverageMod = 1.0;
-            let scaleMod = 1.0;
-            const intensity = window.weatherIntensity || 0;
-
-            if (window.cloudCoverage === 'clear') {
-                coverageMod = 0.0;
-            } else if (window.cloudCoverage === 'partly_cloudy') {
-                coverageMod = (cloud.seed < Math.PI) ? 1.0 : 0.0; // About half the clouds
-            } else if (window.cloudCoverage === 'cloudy') {
-                coverageMod = 1.0;
-                scaleMod = 1.0 + (4.0 * intensity); // Grows with intensity
-            }
-
-            let targetAlpha = originalAlpha * cloudGlobalAlphaMod * coverageMod;
-            if (window.cloudCoverage === 'cloudy') {
-                // Darken and thicken clouds during storm
-                targetAlpha = Math.min(0.8, targetAlpha + (0.4 * intensity));
-            }
-            let currentAlpha = cloud.alpha;
-            let newAlpha = currentAlpha + (targetAlpha - currentAlpha) * 0.01; // Smooth transition
-
-            cloud.setAlpha(newAlpha);
-            cloud.setScale((cloud.baseScaleX + scaleOscX) * scaleMod, (cloud.baseScaleY + scaleOscY) * scaleMod);
 
             // Wrap around viewport in WORLD space
             if (cloud.x < -1000) cloud.x = WORLD_SIZE + 1000;
