@@ -1153,6 +1153,173 @@ window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
     }
 };
 
+window.generateWeatherIcons = function(scene) {
+    const icons = [
+        { key: 'weather_clear', draw: (ctx) => {
+            // Sun
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(32, 32, 15, 0, Math.PI * 2);
+            ctx.fill();
+            // Rays
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(32 + Math.cos(angle) * 18, 32 + Math.sin(angle) * 18);
+                ctx.lineTo(32 + Math.cos(angle) * 26, 32 + Math.sin(angle) * 26);
+                ctx.stroke();
+            }
+        }},
+        { key: 'weather_partly_cloudy', draw: (ctx) => {
+            // Sun
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(40, 24, 12, 0, Math.PI * 2);
+            ctx.fill();
+            // Cloud
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(20, 40, 10, 0, Math.PI * 2);
+            ctx.arc(32, 40, 12, 0, Math.PI * 2);
+            ctx.arc(44, 40, 10, 0, Math.PI * 2);
+            ctx.arc(32, 30, 10, 0, Math.PI * 2);
+            ctx.fill();
+        }},
+        { key: 'weather_cloudy', draw: (ctx) => {
+            ctx.fillStyle = '#CCCCCC';
+            ctx.beginPath();
+            ctx.arc(20, 35, 12, 0, Math.PI * 2);
+            ctx.arc(35, 35, 15, 0, Math.PI * 2);
+            ctx.arc(50, 35, 12, 0, Math.PI * 2);
+            ctx.arc(35, 20, 12, 0, Math.PI * 2);
+            ctx.fill();
+        }},
+        { key: 'weather_light_rain', draw: (ctx) => {
+            // Cloud
+            ctx.fillStyle = '#AAAAAA';
+            ctx.beginPath();
+            ctx.arc(20, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 25, 12, 0, Math.PI * 2);
+            ctx.arc(44, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 15, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Raindrops
+            ctx.strokeStyle = '#00BFFF';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 3; i++) {
+                const x = 20 + i * 12;
+                ctx.beginPath();
+                ctx.moveTo(x, 40);
+                ctx.lineTo(x - 2, 48);
+                ctx.stroke();
+            }
+        }},
+        { key: 'weather_heavy_rain', draw: (ctx) => {
+            ctx.fillStyle = '#888888';
+            ctx.beginPath();
+            ctx.arc(20, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 25, 12, 0, Math.PI * 2);
+            ctx.arc(44, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 15, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#00BFFF';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 5; i++) {
+                const x = 15 + i * 8;
+                ctx.beginPath();
+                ctx.moveTo(x, 35);
+                ctx.lineTo(x - 4, 55);
+                ctx.stroke();
+            }
+        }},
+        { key: 'weather_thunderstorm', draw: (ctx) => {
+            ctx.fillStyle = '#444444';
+            ctx.beginPath();
+            ctx.arc(20, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 25, 12, 0, Math.PI * 2);
+            ctx.arc(44, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 15, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Lightning
+            ctx.strokeStyle = '#FFFF00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(32, 35);
+            ctx.lineTo(25, 45);
+            ctx.lineTo(35, 45);
+            ctx.lineTo(28, 58);
+            ctx.stroke();
+        }},
+        { key: 'weather_light_snow', draw: (ctx) => {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(20, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 25, 12, 0, Math.PI * 2);
+            ctx.arc(44, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 15, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(20 + i * 12, 45, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }},
+        { key: 'weather_heavy_snow', draw: (ctx) => {
+            ctx.fillStyle = '#EEEEEE';
+            ctx.beginPath();
+            ctx.arc(20, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 25, 12, 0, Math.PI * 2);
+            ctx.arc(44, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 15, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFFFFF';
+            for (let i = 0; i < 6; i++) {
+                ctx.beginPath();
+                ctx.arc(15 + (i % 3) * 15, 40 + Math.floor(i / 3) * 10, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }},
+        { key: 'weather_thundersnow', draw: (ctx) => {
+            ctx.fillStyle = '#DDDDDD';
+            ctx.beginPath();
+            ctx.arc(20, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 25, 12, 0, Math.PI * 2);
+            ctx.arc(44, 25, 10, 0, Math.PI * 2);
+            ctx.arc(32, 15, 10, 0, Math.PI * 2);
+            ctx.fill();
+            // Lightning
+            ctx.strokeStyle = '#FFFF00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(40, 35);
+            ctx.lineTo(35, 45);
+            ctx.lineTo(45, 45);
+            ctx.lineTo(40, 55);
+            ctx.stroke();
+            // Snow
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(20, 45, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(30, 52, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }}
+    ];
+
+    icons.forEach(icon => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        icon.draw(ctx);
+        scene.textures.addCanvas(icon.key, canvas);
+    });
+};
+
 window.updateCharacterPreview = function() {
     const canvas = document.getElementById('characterPreviewCanvas');
     if (!canvas) return;
@@ -2072,6 +2239,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             if (typeof window.timeText !== 'undefined' && window.timeText) window.timeText.setVisible(true);
             if (window.coordText) window.coordText.setVisible(true);
+            if (window.weatherIcon) window.weatherIcon.setVisible(true);
+            if (window.weatherLabel) window.weatherLabel.setVisible(true);
             if (window.WildPulseMusic) window.WildPulseMusic.start();
         } catch(e) {}
         window.gameStarted = true;
@@ -6741,6 +6910,7 @@ function generateMiscTextures(scene) {
 }
 
 function preload() {
+    window.generateWeatherIcons(this);
     generateCelestialReflections(this);
     setupDynamicGrass(this);
     generateWaterTextures(this);
@@ -7499,6 +7669,10 @@ function create() {
 
     // World Coordinates UI
     window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(5000).setVisible(false);
+
+    // Weather UI (Top Left)
+    window.weatherIcon = this.add.sprite(30, 30, 'weather_clear').setScrollFactor(0).setDepth(5000).setVisible(false);
+    window.weatherLabel = this.add.text(70, 15, "Clear Skies", { fontSize: '20px', fill: '#FFFFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
 
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
@@ -9048,6 +9222,65 @@ function update() {
         // Update World Coordinates UI
         if (window.coordText && player) {
             window.coordText.setText(`X: ${Math.floor(player.x)}, Y: ${Math.floor(player.y)}`);
+        }
+
+        // Update Weather UI
+        if (window.weatherIcon && window.weatherLabel && !window.weatherIcon.isTransitioning) {
+            let weatherTexture = 'weather_clear';
+            let weatherDesc = 'Clear Skies';
+
+            if (window.weatherPattern && window.weatherPattern !== 'none') {
+                if (window.weatherPattern === 'light_rain') {
+                    weatherTexture = 'weather_light_rain';
+                    weatherDesc = 'Light Rain';
+                } else if (window.weatherPattern === 'heavy_rain') {
+                    weatherTexture = 'weather_heavy_rain';
+                    weatherDesc = 'Heavy Rain';
+                } else if (window.weatherPattern === 'thunderstorm') {
+                    weatherTexture = 'weather_thunderstorm';
+                    weatherDesc = 'Thunderstorm';
+                } else if (window.weatherPattern === 'light_snow') {
+                    weatherTexture = 'weather_light_snow';
+                    weatherDesc = 'Light Snow';
+                } else if (window.weatherPattern === 'heavy_snow') {
+                    weatherTexture = 'weather_heavy_snow';
+                    weatherDesc = 'Heavy Snow';
+                } else if (window.weatherPattern === 'thundersnow') {
+                    weatherTexture = 'weather_thundersnow';
+                    weatherDesc = 'Thundersnow Storm';
+                }
+            } else {
+                if (window.cloudCoverage === 'partly_cloudy') {
+                    weatherTexture = 'weather_partly_cloudy';
+                    weatherDesc = 'Partly Cloudy';
+                } else if (window.cloudCoverage === 'cloudy') {
+                    weatherTexture = 'weather_cloudy';
+                    weatherDesc = 'Cloudy';
+                }
+            }
+
+            if (window.weatherIcon.texture.key !== weatherTexture) {
+                window.weatherIcon.isTransitioning = true;
+                this.tweens.add({
+                    targets: [window.weatherIcon, window.weatherLabel],
+                    alpha: 0,
+                    duration: 500,
+                    onComplete: () => {
+                        window.weatherIcon.setTexture(weatherTexture);
+                        window.weatherLabel.setText(weatherDesc);
+                        this.tweens.add({
+                            targets: [window.weatherIcon, window.weatherLabel],
+                            alpha: 1,
+                            duration: 500,
+                            onComplete: () => {
+                                window.weatherIcon.isTransitioning = false;
+                            }
+                        });
+                    }
+                });
+            } else {
+                window.weatherLabel.setText(weatherDesc);
+            }
         }
     }
 
