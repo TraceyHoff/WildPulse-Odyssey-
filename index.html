@@ -6458,8 +6458,8 @@ function generateCloudTextures(scene) {
 
     cloudPuffs.forEach(puff => {
         let cloudGrad = cloudCtx.createRadialGradient(puff.x, puff.y, 0, puff.x, puff.y, puff.r);
-        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
-        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.2)');
+        cloudGrad.addColorStop(0, 'rgba(0, 0, 0, 0.7)');
+        cloudGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.3)');
         cloudGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         cloudCtx.fillStyle = cloudGrad;
         cloudCtx.beginPath();
@@ -6475,7 +6475,7 @@ function generateCloudTextures(scene) {
     const cloudReflCtx = cloudReflCanvas.getContext('2d');
     cloudPuffs.forEach(puff => {
         let reflGrad = cloudReflCtx.createRadialGradient(puff.x, puff.y, 0, puff.x, puff.y, puff.r);
-        reflGrad.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        reflGrad.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
         reflGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
         cloudReflCtx.fillStyle = reflGrad;
         cloudReflCtx.beginPath();
@@ -9072,15 +9072,15 @@ function update() {
     // Weather brightness adjustment
     let weatherAlpha = 0;
     if (window.cloudCoverage === 'partly_cloudy') {
-        weatherAlpha = 0.07;
+        weatherAlpha = 0.02;
     } else if (window.cloudCoverage === 'cloudy') {
-        weatherAlpha = 0.15;
+        weatherAlpha = 0.05;
     }
 
     if (window.weatherPattern && window.weatherPattern !== 'none') {
-        if (window.weatherPattern.includes('light')) weatherAlpha = 0.25;
-        else if (window.weatherPattern.includes('heavy')) weatherAlpha = 0.4;
-        else if (window.weatherPattern.includes('thunder')) weatherAlpha = 0.6;
+        if (window.weatherPattern.includes('light')) weatherAlpha = 0.1;
+        else if (window.weatherPattern.includes('heavy')) weatherAlpha = 0.15;
+        else if (window.weatherPattern.includes('thunder')) weatherAlpha = 0.2;
     }
 
     let targetAlpha = Math.max(dayNightAlpha, weatherAlpha);
@@ -10059,13 +10059,13 @@ function update() {
                     coverageMod = (cloud.seed < Math.PI) ? 1.0 : 0.0; // About half the clouds
                 } else if (window.cloudCoverage === 'cloudy') {
                     coverageMod = 1.0;
-                    scaleMod = 1.0 + (4.0 * intensity); // Grows with intensity
+                    scaleMod = 1.0 + (1.5 * intensity); // Grows with intensity
                 }
 
                 let targetAlpha = originalAlpha * cloudGlobalAlphaMod * coverageMod;
                 if (window.cloudCoverage === 'cloudy') {
                     // Darken and thicken clouds during storm
-                    targetAlpha = Math.min(0.8, targetAlpha + (0.4 * intensity));
+                    targetAlpha = Math.min(0.95, targetAlpha + (0.6 * intensity));
                 }
                 let currentAlpha = cloud.alpha;
                 // Interpolation increased to 0.1 to account for 10-frame throttle
