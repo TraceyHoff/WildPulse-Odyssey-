@@ -879,6 +879,7 @@ window.windAngle = 0;
 window.windSpeed = 200;
 window.targetWindAngle = 0;
 window.targetWindSpeed = 200;
+window.lastWindIntervalIndex = -1;
 
 window.TYPE_COLORS = {
     "Fire": "rgba(255, 69, 0, 0.85)",     // OrangeRed
@@ -7492,6 +7493,7 @@ function create() {
 
     // Day and Night Cycle
     dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(4000).setAlpha(0);
+    window.dayNightOverlay = dayNightOverlay;
     timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
     window.timeText = timeText;
 
@@ -9069,9 +9071,15 @@ function update() {
 
     // Weather brightness adjustment
     let weatherAlpha = 0;
+    if (window.cloudCoverage === 'partly_cloudy') {
+        weatherAlpha = 0.07;
+    } else if (window.cloudCoverage === 'cloudy') {
+        weatherAlpha = 0.15;
+    }
+
     if (window.weatherPattern && window.weatherPattern !== 'none') {
-        if (window.weatherPattern.includes('light')) weatherAlpha = 0.15;
-        else if (window.weatherPattern.includes('heavy')) weatherAlpha = 0.25;
+        if (window.weatherPattern.includes('light')) weatherAlpha = 0.25;
+        else if (window.weatherPattern.includes('heavy')) weatherAlpha = 0.4;
         else if (window.weatherPattern.includes('thunder')) weatherAlpha = 0.6;
     }
 
@@ -9811,10 +9819,13 @@ function update() {
     if (window.serverStartTime && window.roomSeed) {
         const roomAgeMs = Date.now() + (window.clientServerOffset || 0) - window.serverStartTime;
         const windIntervalIndex = Math.floor(roomAgeMs / 10000);
-        const windRng = mulberry32(window.roomSeed + windIntervalIndex + 999);
-
-        window.targetWindAngle = (window.targetWindAngle || 0) + (windRng() - 0.5) * Math.PI / 2;
-        window.targetWindSpeed = 50 + windRng() * 200;
+        if (windIntervalIndex !== window.lastWindIntervalIndex) {
+            window.lastWindIntervalIndex = windIntervalIndex;
+            const windRng = mulberry32(window.roomSeed + windIntervalIndex + 999);
+            // Use absolute deterministic angle for synchronization
+            window.targetWindAngle = windRng() * Math.PI * 2;
+            window.targetWindSpeed = 50 + windRng() * 200;
+        }
     } else {
         window.windTimer += 1;
         if (window.windTimer > 600) { // Change wind target approx every 10 seconds
