@@ -7599,7 +7599,7 @@ function create() {
     window.windTimer = 0;
 
     window.weatherTimer = 0;
-    window.cloudCoverage = 'partly_cloudy'; // clear, partly_cloudy, cloudy
+    window.cloudCoverage = 'clear'; // clear, partly_cloudy, cloudy
     window.weatherPattern = 'none'; // none, light_rain, heavy_rain, thunderstorm
     window.weatherIntensity = 0;
 
@@ -7608,7 +7608,8 @@ function create() {
     let leafRedParticles = this.add.particles('leaf_particle_red');
     leafRedParticles.setDepth(3000);
     window.leafRedEmitter = leafRedParticles.createEmitter({
-        speed: { min: 50, max: 150 },
+        speedX: 0,
+        speedY: 0,
         lifespan: 8000,
         quantity: 3,
         frequency: 100,
@@ -7620,7 +7621,8 @@ function create() {
     let leafYellowParticles = this.add.particles('leaf_particle_yellow');
     leafYellowParticles.setDepth(3000);
     window.leafYellowEmitter = leafYellowParticles.createEmitter({
-        speed: { min: 50, max: 150 },
+        speedX: 0,
+        speedY: 0,
         lifespan: 8000,
         quantity: 3,
         frequency: 100,
@@ -7633,7 +7635,8 @@ function create() {
     let leafMixedParticles = this.add.particles('leaf_particle_mixed');
     leafMixedParticles.setDepth(3000);
     window.leafMixedEmitter = leafMixedParticles.createEmitter({
-        speed: { min: 50, max: 150 },
+        speedX: 0,
+        speedY: 0,
         lifespan: 8000,
         quantity: 3,
         frequency: 100,
@@ -7645,7 +7648,8 @@ function create() {
     let pollenParticles = this.add.particles('pollen_particle');
     pollenParticles.setDepth(3000);
     window.pollenEmitter = pollenParticles.createEmitter({
-        speed: { min: 20, max: 80 },
+        speedX: 0,
+        speedY: 0,
         lifespan: 10000,
         quantity: 6,
         frequency: 80,
@@ -7656,7 +7660,8 @@ function create() {
     let leafGreen1Particles = this.add.particles('leaf_particle_green1');
     leafGreen1Particles.setDepth(3000);
     window.leafGreen1Emitter = leafGreen1Particles.createEmitter({
-        speed: { min: 50, max: 150 },
+        speedX: 0,
+        speedY: 0,
         lifespan: 8000,
         quantity: 0,
         frequency: 100,
@@ -7668,7 +7673,8 @@ function create() {
     let leafGreen2Particles = this.add.particles('leaf_particle_green2');
     leafGreen2Particles.setDepth(3000);
     window.leafGreen2Emitter = leafGreen2Particles.createEmitter({
-        speed: { min: 50, max: 150 },
+        speedX: 0,
+        speedY: 0,
         lifespan: 8000,
         quantity: 0,
         frequency: 100,
@@ -7680,8 +7686,8 @@ function create() {
     let snowflakeParticles = this.add.particles('snowflake_particle');
     snowflakeParticles.setDepth(3000);
     window.snowflakeEmitter = snowflakeParticles.createEmitter({
-        speedY: { min: 20, max: 100 },
-        speedX: { min: -20, max: 20 },
+        speedY: 0,
+        speedX: 0,
         lifespan: 12000,
         quantity: 0,
         frequency: 50,
@@ -7693,8 +7699,8 @@ function create() {
     let rainParticles = this.add.particles('rain_particle');
     rainParticles.setDepth(3000);
     window.rainEmitter = rainParticles.createEmitter({
-        speedY: { min: 400, max: 600 },
-        speedX: { min: 0, max: 0 },
+        speedY: 0,
+        speedX: 0,
         lifespan: 2000,
         quantity: 0,
         frequency: 10,
@@ -7736,7 +7742,8 @@ function create() {
     let windParticles = this.add.particles('pollen_particle');
     windParticles.setDepth(3000);
     window.windEmitter = windParticles.createEmitter({
-        speed: { min: 200, max: 500 },
+        speedX: 0,
+        speedY: 0,
         lifespan: 2000,
         quantity: 0,
         frequency: 50,
@@ -9708,8 +9715,12 @@ function update() {
             // Cooldown or outside window
             targetPattern = 'none';
             targetIntensity = 0;
-            const rCloud = cycleRng();
-            targetCloud = (rCloud < 0.5) ? 'clear' : 'partly_cloudy';
+            if (cycleIndex === 0 && timeInCycle < COOLDOWN_DURATION) {
+                targetCloud = 'clear';
+            } else {
+                const rCloud = cycleRng();
+                targetCloud = (rCloud < 0.5) ? 'clear' : 'partly_cloudy';
+            }
         }
 
         window.weatherPattern = targetPattern;
@@ -9838,22 +9849,22 @@ function update() {
 
     // Update emitters
     if (window.leafRedEmitter && window.leafYellowEmitter && window.leafMixedEmitter && window.pollenEmitter) {
-        window.leafRedEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
-        window.leafRedEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
-        window.leafYellowEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
-        window.leafYellowEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
-        window.leafMixedEmitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
-        window.leafMixedEmitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
-        window.pollenEmitter.setSpeedX({ min: windVx * 0.4, max: windVx * 0.6 });
-        window.pollenEmitter.setSpeedY({ min: windVy * 0.4, max: windVy * 0.6 });
+        window.leafRedEmitter.setSpeedX(windVx);
+        window.leafRedEmitter.setSpeedY(windVy);
+        window.leafYellowEmitter.setSpeedX(windVx);
+        window.leafYellowEmitter.setSpeedY(windVy);
+        window.leafMixedEmitter.setSpeedX(windVx);
+        window.leafMixedEmitter.setSpeedY(windVy);
+        window.pollenEmitter.setSpeedX(windVx);
+        window.pollenEmitter.setSpeedY(windVy);
 
         if (window.leafGreen1Emitter && window.leafGreen2Emitter && window.snowflakeEmitter) {
-            window.leafGreen1Emitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
-            window.leafGreen1Emitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
-            window.leafGreen2Emitter.setSpeedX({ min: windVx * 0.8, max: windVx * 1.2 });
-            window.leafGreen2Emitter.setSpeedY({ min: windVy * 0.8, max: windVy * 1.2 });
-            window.snowflakeEmitter.setSpeedX({ min: windVx * 0.2, max: windVx * 0.4 });
-            window.snowflakeEmitter.setSpeedY({ min: 20 + windVy * 0.4, max: 100 + windVy * 0.4 });
+            window.leafGreen1Emitter.setSpeedX(windVx);
+            window.leafGreen1Emitter.setSpeedY(windVy);
+            window.leafGreen2Emitter.setSpeedX(windVx);
+            window.leafGreen2Emitter.setSpeedY(windVy);
+            window.snowflakeEmitter.setSpeedX(windVx);
+            window.snowflakeEmitter.setSpeedY(60 + windVy);
         }
 
         if (window.sharedEmitZone && window.sharedEmitZone.source) {
@@ -9928,10 +9939,10 @@ function update() {
         lerpQuantity(window.windEmitter, targetWind);
 
         if (window.rainEmitter) {
-            window.rainEmitter.setSpeedX(windVx * 1.5);
-            window.rainEmitter.setSpeedY({ min: 400 + windVy, max: 600 + windVy });
+            window.rainEmitter.setSpeedX(windVx);
+            window.rainEmitter.setSpeedY(500 + windVy);
             // Align rain with velocity vector
-            let rainAngle = Math.atan2(500 + windVy, windVx * 1.5) * (180 / Math.PI) - 90;
+            let rainAngle = Math.atan2(500 + windVy, windVx) * (180 / Math.PI) - 90;
             if (window.rainEmitter.setRotation) {
                 window.rainEmitter.setRotation(rainAngle);
             }
@@ -9951,8 +9962,8 @@ function update() {
             }
         }
         if (window.windEmitter) {
-            window.windEmitter.setSpeedX(windVx * 2);
-            window.windEmitter.setSpeedY(windVy * 2);
+            window.windEmitter.setSpeedX(windVx);
+            window.windEmitter.setSpeedY(windVy);
         }
     }
 
