@@ -576,6 +576,14 @@
                 <option value="Scales">Scales</option>
                 <option value="Flame">Flame</option>
                 <option value="Galaxy">Galaxy</option>
+                <option value="Lightning">Lightning</option>
+                <option value="Spirit">Spirit</option>
+                <option value="Crystal">Crystal</option>
+                <option value="Dragon">Dragon</option>
+                <option value="Panda">Panda</option>
+                <option value="Skull">Skull</option>
+                <option value="Cross">Cross</option>
+                <option value="Moon">Moon</option>
             </select>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
@@ -638,6 +646,23 @@
     <div id="swapPartyList"></div>
 </div>
 
+<div id="challengeModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 700; justify-content: center; align-items: center; flex-direction: column; color: white;">
+    <div style="background: linear-gradient(135deg, rgba(30, 20, 10, 0.95), rgba(40, 30, 0, 0.95)); padding: 40px; border-radius: 15px; border: 2px solid #ffd700; box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3); text-align: center; min-width: 400px; position: relative;">
+        <button class="close-btn" id="closeChallengeBtn" aria-label="Close Challenge">X</button>
+        <h2 style="color: #ffd700; font-size: 32px; margin-top: 0; text-shadow: 0 0 10px rgba(255,215,0,0.5);">Crown Challenge</h2>
+        <div style="margin: 25px 0; font-size: 18px; line-height: 1.6;">
+            <p>Welcome to the Infinite Challenge! Face endless battles that get tougher as you grow.</p>
+            <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,215,0,0.3); margin: 20px 0;">
+                <p style="margin: 5px 0;">Current Tier: <span id="challengeTierText" style="color: #ffd700; font-weight: bold; font-size: 24px;">1</span></p>
+                <p style="margin: 5px 0; font-size: 16px; color: #aaa;">Difficulty: <span id="challengeDifficultyText">Normal</span></p>
+                <p style="margin: 5px 0; font-size: 16px; color: #4caf50;">XP Bonus: <span id="challengeXpBonusText">+10%</span></p>
+            </div>
+        </div>
+        <button id="startChallengeBtn" style="width: 100%; padding: 15px; font-size: 20px; background: linear-gradient(180deg, #ffd700, #b8860b); color: #000; border: none; cursor: pointer; border-radius: 12px; font-weight: bold; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">ENTER THE ARENA</button>
+        <p style="font-size: 14px; color: #888; margin-top: 15px;">Your progress is saved automatically.</p>
+    </div>
+</div>
+
 <button id="menuBtn">Menu</button>
 
 <div id="menuModal">
@@ -683,8 +708,7 @@ window.roomSeed = parseInt(localStorage.getItem('wildpulse_world_seed'));
 window.gameSeed = window.roomSeed;
 window.initialRoomSeed = window.roomSeed;
 
-const savedElapsed = parseInt(localStorage.getItem('wildpulse_total_elapsed_ms')) || 0;
-window.serverStartTime = Date.now() - savedElapsed;
+window.totalElapsedMs = parseInt(localStorage.getItem('wildpulse_total_elapsed_ms')) || 0;
 
 window.windAngle = 0;
 window.windSpeed = 200;
@@ -956,6 +980,120 @@ window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
         for (let i = 0; i < 30; i++) {
             pCtx.fillRect(rng() * 40, rng() * 40, 1, 1);
         }
+    } else if (pattern === 'Lightning') {
+        pCtx.strokeStyle = patternColor;
+        pCtx.lineWidth = 2;
+        for (let i = 0; i < 5; i++) {
+            let lx = rng() * 40;
+            let ly = 0;
+            pCtx.beginPath();
+            pCtx.moveTo(lx, ly);
+            for (let j = 0; j < 4; j++) {
+                lx += (rng() - 0.5) * 15;
+                ly += 10;
+                pCtx.lineTo(lx, ly);
+            }
+            pCtx.stroke();
+        }
+    } else if (pattern === 'Spirit') {
+        pCtx.globalAlpha = 0.5;
+        for (let i = 0; i < 8; i++) {
+            let sx = rng() * 40;
+            let sy = rng() * 40;
+            pCtx.beginPath();
+            pCtx.arc(sx, sy, 4 + rng() * 4, 0, Math.PI * 2);
+            pCtx.fill();
+            // Tail
+            pCtx.beginPath();
+            pCtx.moveTo(sx, sy);
+            pCtx.quadraticCurveTo(sx + 10, sy + 10, sx + (rng() - 0.5) * 20, sy + 15);
+            pCtx.stroke();
+        }
+        pCtx.globalAlpha = 1.0;
+    } else if (pattern === 'Crystal') {
+        for (let i = 0; i < 10; i++) {
+            let cx = rng() * 40;
+            let cy = rng() * 40;
+            let sz = 4 + rng() * 6;
+            pCtx.beginPath();
+            pCtx.moveTo(cx, cy - sz);
+            pCtx.lineTo(cx + sz/2, cy);
+            pCtx.lineTo(cx, cy + sz);
+            pCtx.lineTo(cx - sz/2, cy);
+            pCtx.closePath();
+            pCtx.fill();
+            pCtx.strokeStyle = 'rgba(255,255,255,0.5)';
+            pCtx.stroke();
+        }
+    } else if (pattern === 'Dragon') {
+        // Interlocking semi-circles (scales)
+        pCtx.strokeStyle = patternColor;
+        pCtx.lineWidth = 1.5;
+        for (let y = 0; y < 50; y += 8) {
+            let offset = (Math.floor(y / 8) % 2 === 0) ? 0 : 5;
+            for (let x = -5 + offset; x < 50; x += 10) {
+                pCtx.beginPath();
+                pCtx.arc(x, y, 6, 0, Math.PI);
+                pCtx.stroke();
+                // small dot in middle
+                pCtx.beginPath();
+                pCtx.arc(x, y-2, 1, 0, Math.PI * 2);
+                pCtx.fill();
+            }
+        }
+    } else if (pattern === 'Panda') {
+        pCtx.fillStyle = patternColor;
+        for (let i = 0; i < 6; i++) {
+            pCtx.beginPath();
+            pCtx.arc(rng() * 40, rng() * 40, 5 + rng() * 5, 0, Math.PI * 2);
+            pCtx.fill();
+        }
+    } else if (pattern === 'Skull') {
+        for (let i = 0; i < 4; i++) {
+            let sx = 5 + rng() * 30;
+            let sy = 5 + rng() * 30;
+            // Skull head
+            pCtx.beginPath();
+            pCtx.arc(sx, sy, 5, 0, Math.PI * 2);
+            pCtx.fill();
+            // Jaw
+            pCtx.fillRect(sx - 3, sy + 3, 6, 4);
+            // Eyes (cutout)
+            pCtx.save();
+            pCtx.globalCompositeOperation = 'destination-out';
+            pCtx.beginPath();
+            pCtx.arc(sx - 2, sy - 1, 1.5, 0, Math.PI * 2);
+            pCtx.arc(sx + 2, sy - 1, 1.5, 0, Math.PI * 2);
+            pCtx.fill();
+            pCtx.restore();
+        }
+    } else if (pattern === 'Cross') {
+        pCtx.lineWidth = 3;
+        for (let i = 0; i < 8; i++) {
+            let cx = rng() * 40;
+            let cy = rng() * 40;
+            pCtx.beginPath();
+            pCtx.moveTo(cx - 4, cy);
+            pCtx.lineTo(cx + 4, cy);
+            pCtx.moveTo(cx, cy - 4);
+            pCtx.lineTo(cx, cy + 4);
+            pCtx.stroke();
+        }
+    } else if (pattern === 'Moon') {
+        for (let i = 0; i < 6; i++) {
+            let mx = rng() * 40;
+            let my = rng() * 40;
+            pCtx.beginPath();
+            pCtx.arc(mx, my, 5, 0, Math.PI * 2);
+            pCtx.fill();
+            // Shadow to make crescent
+            pCtx.save();
+            pCtx.globalCompositeOperation = 'destination-out';
+            pCtx.beginPath();
+            pCtx.arc(mx + 3, my, 5, 0, Math.PI * 2);
+            pCtx.fill();
+            pCtx.restore();
+        }
     }
 };
 
@@ -1124,6 +1262,47 @@ window.generateWeatherIcons = function(scene) {
         icon.draw(ctx);
         scene.textures.addCanvas(icon.key, canvas);
     });
+};
+
+window.generateChallengeTile = function(scene) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const ctx = canvas.getContext('2d');
+
+    // Gold Background
+    const grad = ctx.createRadialGradient(50, 50, 10, 50, 50, 50);
+    grad.addColorStop(0, '#ffd700');
+    grad.addColorStop(1, '#b8860b');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 100, 100);
+
+    // Border
+    ctx.strokeStyle = '#8b4513';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(2, 2, 96, 96);
+
+    // Crown Icon (Black)
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.moveTo(20, 70); // Base
+    ctx.lineTo(80, 70);
+    ctx.lineTo(85, 30);
+    ctx.lineTo(70, 50);
+    ctx.lineTo(50, 20);
+    ctx.lineTo(30, 50);
+    ctx.lineTo(15, 30);
+    ctx.closePath();
+    ctx.fill();
+
+    // Small jewels
+    ctx.fillStyle = '#ff0000';
+    ctx.beginPath(); ctx.arc(50, 30, 3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#0000ff';
+    ctx.beginPath(); ctx.arc(35, 45, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(65, 45, 2, 0, Math.PI*2); ctx.fill();
+
+    scene.textures.addCanvas('challenge_tile', canvas);
 };
 
 window.updateCharacterPreview = function() {
@@ -1649,6 +1828,34 @@ window.WildPulseMusic = {
     }
 };
 
+window.PATTERN_UNLOCKS = {
+    'None': { condition: 'Default', check: () => true },
+    'Dots': { condition: 'Default', check: () => true },
+    'Stripes': { condition: 'Default', check: () => true },
+    'Checkerboard': { condition: 'Default', check: () => true },
+    'Camo': { condition: 'Win 5 battles', check: (s) => (s.battlesWon || 0) >= 5 },
+    'Stars': { condition: 'Catch 5 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 5 },
+    'Hearts': { condition: 'Win 10 battles', check: (s) => (s.battlesWon || 0) >= 10 },
+    'Waves': { condition: 'Win 20 battles', check: (s) => (s.battlesWon || 0) >= 20 },
+    'Bricks': { condition: 'Reach Challenge Tier 2', check: () => (window.challengeTier || 1) >= 2 },
+    'Honeycomb': { condition: 'Catch 10 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 10 },
+    'Leopard': { condition: 'Win 30 battles', check: (s) => (s.battlesWon || 0) >= 30 },
+    'Zebra': { condition: 'Catch 15 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 15 },
+    'Tiger': { condition: 'Win 50 battles', check: (s) => (s.battlesWon || 0) >= 50 },
+    'Circuit': { condition: 'Reach Challenge Tier 5', check: () => (window.challengeTier || 1) >= 5 },
+    'Scales': { condition: 'Catch 20 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 20 },
+    'Flame': { condition: 'Win 75 battles', check: (s) => (s.battlesWon || 0) >= 75 },
+    'Galaxy': { condition: 'Reach Challenge Tier 10', check: () => (window.challengeTier || 1) >= 10 },
+    'Lightning': { condition: 'Win 100 battles', check: (s) => (s.battlesWon || 0) >= 100 },
+    'Spirit': { condition: 'Catch 30 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 30 },
+    'Crystal': { condition: 'Reach Challenge Tier 15', check: () => (window.challengeTier || 1) >= 15 },
+    'Dragon': { condition: 'Reach Challenge Tier 20', check: () => (window.challengeTier || 1) >= 20 },
+    'Panda': { condition: 'Win 150 battles', check: (s) => (s.battlesWon || 0) >= 150 },
+    'Skull': { condition: 'Win 200 battles', check: (s) => (s.battlesWon || 0) >= 200 },
+    'Cross': { condition: 'Catch 50 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 50 },
+    'Moon': { condition: 'Reach Challenge Tier 25', check: () => (window.challengeTier || 1) >= 25 }
+};
+
 window.gameStarted = false;
 window.cameraFollowsPlayer = false;
 window.playerVx = 0;
@@ -1709,6 +1916,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     document.getElementById('menuJournalBtn')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(); });
+    document.getElementById('startChallengeBtn')?.addEventListener('click', () => { if (window.startChallengeBattle) window.startChallengeBattle(); });
+    document.getElementById('closeChallengeBtn')?.addEventListener('click', () => { if (window.closeChallengeModal) window.closeChallengeModal(); });
     document.getElementById('startDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('exitGameBtn')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
@@ -1761,6 +1970,23 @@ document.addEventListener('DOMContentLoaded', () => {
     playerPatternColorInput.value = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
 
     document.getElementById('customizeBtn')?.addEventListener('click', () => {
+        // Refresh pattern options based on unlocks
+        if (window.PATTERN_UNLOCKS && window.gameStats) {
+            const select = document.getElementById('playerPatternSelect');
+            const currentValue = select.value;
+            select.innerHTML = '';
+
+            Object.entries(window.PATTERN_UNLOCKS).forEach(([pattern, data]) => {
+                const isUnlocked = data.check(window.gameStats);
+                const option = document.createElement('option');
+                option.value = pattern;
+                option.text = isUnlocked ? pattern : `${pattern} (Locked: ${data.condition})`;
+                option.disabled = !isUnlocked;
+                if (pattern === currentValue) option.selected = true;
+                select.appendChild(option);
+            });
+        }
+
         customizationModal.style.display = 'flex';
         window.updateCharacterPreview();
     });
@@ -3961,6 +4187,20 @@ window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
 };
 
 window.saveStats = function() {
+    // Check for new pattern unlocks
+    if (window.PATTERN_UNLOCKS && window.gameStats) {
+        const previousUnlocks = JSON.parse(localStorage.getItem('wildpulse_unlocked_patterns_cache')) || [];
+        const currentUnlocks = [];
+        Object.entries(window.PATTERN_UNLOCKS).forEach(([pattern, data]) => {
+            if (data.check(window.gameStats)) {
+                currentUnlocks.push(pattern);
+                if (!previousUnlocks.includes(pattern) && data.condition !== 'Default') {
+                    window.showModernNotification(`✨ NEW SKIN UNLOCKED: ${pattern}! ✨`, 5000);
+                }
+            }
+        });
+        localStorage.setItem('wildpulse_unlocked_patterns_cache', JSON.stringify(currentUnlocks));
+    }
     localStorage.setItem('wildpulse_stats', JSON.stringify(window.gameStats));
 };
 
@@ -4011,9 +4251,12 @@ window.saveCollected = function(creature) {
         creature.stored = activeParty.length >= 6;
         creature.currentHp = window.getEffectiveStat(creature, 'health');
 
+        window.gameStats.creaturesCaught++;
         window.collectedCreaturesIds.add(creature.id);
         window.collectedCreatures.push(creature);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(window.collectedCreatures));
+        // Check for unlocks related to catching creatures
+        if (window.saveStats) window.saveStats();
     }
 };
 window.collectedCreatures = collectedCreatures;
@@ -4126,6 +4369,101 @@ window.closeJournalModal = function() {
         _m_journalModal.style.display = 'none';
         _m_journalModal.children[0].classList.remove('modal-fade-out');
     }, 190);
+};
+
+window.challengeTier = parseInt(localStorage.getItem('wildpulse_challenge_tier')) || 1;
+window.inChallengeBattle = false;
+
+window.openChallengeModal = function() {
+    if (window.inBattle) return;
+    const modal = document.getElementById('challengeModal');
+    const tierText = document.getElementById('challengeTierText');
+    const diffText = document.getElementById('challengeDifficultyText');
+    const xpBonusText = document.getElementById('challengeXpBonusText');
+
+    tierText.innerText = window.challengeTier;
+    let difficulty = "Normal";
+    if (window.challengeTier > 20) difficulty = "Impossible";
+    else if (window.challengeTier > 15) difficulty = "Nightmare";
+    else if (window.challengeTier > 10) difficulty = "Extreme";
+    else if (window.challengeTier > 5) difficulty = "Hard";
+    diffText.innerText = difficulty;
+    xpBonusText.innerText = `+${(window.challengeTier * 10)}%`;
+
+    modal.style.display = 'flex';
+};
+
+window.closeChallengeModal = function() {
+    document.getElementById('challengeModal').style.display = 'none';
+};
+
+window.startChallengeBattle = function() {
+    if (window.inBattle) return;
+    window.closeChallengeModal();
+
+    if (!collectedCreatures.some(c => !c.stored && c.currentHp > 0)) {
+        window.showModernNotification("You have no healthy creatures to battle with!");
+        return;
+    }
+
+    window.inBattle = true;
+    window.inChallengeBattle = true;
+
+    if (player && player.body) {
+        player.body.setVelocity(0);
+        player.body.moves = false;
+    }
+
+    // Determine enemy level based on tier
+    const maxPlayerLevel = Math.max(...collectedCreatures.map(c => c.level || 1));
+    const enemyLevel = maxPlayerLevel + (window.challengeTier * 3);
+
+    // Pick a random base creature for the challenge
+    const rng = Math.random;
+    const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+    currentEnemy = JSON.parse(JSON.stringify(basePrototype));
+    currentEnemy.level = enemyLevel;
+    currentEnemy.xp = 0;
+    currentEnemy.isShiny = rng() < 0.05; // 5x more likely in challenge
+
+    // Assign stats/ability/etc
+    if (currentEnemy.stats) {
+        for (let stat in currentEnemy.stats) {
+            currentEnemy.stats[stat] += Math.floor(rng() * 32); // Random IVs
+            if (currentEnemy.isShiny) currentEnemy.stats[stat] = Math.floor(currentEnemy.stats[stat] * 1.2);
+        }
+    }
+    const natures = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty", "Serious", "Jolly", "Naive", "Modest", "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
+    currentEnemy.nature = natures[Math.floor(rng() * natures.length)];
+    const typeAbilities = window.abilities[currentEnemy.type] || window.abilities["Nature"];
+    currentEnemy.ability = typeAbilities[Math.floor(rng() * typeAbilities.length)];
+    currentEnemy.id = "challenge_" + Date.now();
+    currentEnemy.color = window.getCreatureColor(currentEnemy);
+
+    currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
+    currentEnemy.currentHp = currentEnemy.maxHp;
+    currentEnemy.isDefending = false;
+    currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    let firstHealthy = collectedCreatures.find(c => !c.stored && c.currentHp > 0);
+    window.currentPlayer = JSON.parse(JSON.stringify(firstHealthy));
+    currentPlayer = window.currentPlayer;
+    currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
+    currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
+    currentPlayer.isDefending = false;
+    currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    document.getElementById('battleModal').style.display = 'block';
+    document.getElementById('battleControls').style.display = 'grid';
+    document.getElementById('battleCloseBtn').style.display = 'none';
+    document.getElementById('battleLog').innerHTML = '';
+    window.battleLogQueue = [];
+
+    logBattle(`<span style="color:#ffd700; font-size: 1.2em;">--- CHALLENGE TIER ${window.challengeTier} ---</span>`);
+    logBattle(`The arena gates open... Challenge opponent <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level}) approaches!`);
+    logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
+
+    window.updateBattleUI();
 };
 
 window.openHelpModal = function() {
@@ -4482,6 +4820,9 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_currentSeason');
         localStorage.removeItem('wildpulse_world_seed');
         localStorage.removeItem('wildpulse_total_elapsed_ms');
+        localStorage.removeItem('wildpulse_challenge_tier');
+        localStorage.removeItem('wildpulse_unlocked_patterns_cache');
+        localStorage.removeItem('wildpulse_stats');
         location.reload();
     }
 };
@@ -4489,10 +4830,7 @@ window.deleteProgress = function() {
 window.exitGame = function() {
     if (confirm('Are you sure you want to exit to the main menu?')) {
         // Save elapsed time
-        if (window.serverStartTime) {
-            const elapsed = Date.now() - window.serverStartTime;
-            localStorage.setItem('wildpulse_total_elapsed_ms', elapsed.toString());
-        }
+        localStorage.setItem('wildpulse_total_elapsed_ms', window.totalElapsedMs.toString());
 
         window.gameStarted = false;
         window.cameraFollowsPlayer = false;
@@ -6202,6 +6540,7 @@ function generateMiscTextures(scene) {
 
 function preload() {
     window.generateWeatherIcons(this);
+    window.generateChallengeTile(this);
     generateCelestialReflections(this);
     setupDynamicGrass(this);
     generateWaterTextures(this);
@@ -6295,6 +6634,16 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             let sSprite = storeGroup.create(posX, posY, 'store_tile');
             sSprite.setVisible(false);
             sprites.push(sSprite);
+        }
+    } else if (mapData[r][c] === 'challenge') {
+        let challenge = scene.add.sprite(posX, posY, 'challenge_tile');
+        challenge.setDepth(-1);
+        sprites.push(challenge);
+
+        if (challengeGroup) {
+            let cSprite = challengeGroup.create(posX, posY, 'challenge_tile');
+            cSprite.setVisible(false);
+            sprites.push(cSprite);
         }
     } else {
         // Add drop shadow
@@ -6483,6 +6832,7 @@ function create() {
     window.treesGroup = this.physics.add.staticGroup();
     hospitalGroup = this.physics.add.staticGroup();
     storeGroup = this.physics.add.staticGroup();
+    challengeGroup = this.physics.add.staticGroup();
 
     // Procedural generation
 
@@ -6558,6 +6908,7 @@ function create() {
 
     // Force hospital to be at 100, 100
     mapData[100][100] = 'hospital';
+    mapData[100][99] = 'challenge';
     // Trade tile directly south
     // Store tile next to trade
     mapData[101][101] = 'store';
@@ -6996,6 +7347,7 @@ function create() {
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
     this.physics.add.overlap(player, storeGroup, openStoreModal, null, this);
+    this.physics.add.overlap(player, challengeGroup, () => { if (window.openChallengeModal) window.openChallengeModal(); }, null, this);
 
     window.addEventListener('resize', () => {
         if (!game || !game.scale) return;
@@ -7943,8 +8295,19 @@ window.closeBattleModal = function() {
     if (typeof player !== 'undefined' && player) player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
 
     if (result === 'win') {
-        currentEnemySprite.destroy();
-        if (game) respawnEnemyBase();
+        if (window.inChallengeBattle) {
+            window.challengeTier++;
+            localStorage.setItem('wildpulse_challenge_tier', window.challengeTier.toString());
+            window.inChallengeBattle = false;
+            setTimeout(() => {
+                if (confirm(`Challenge Victory! You've reached Tier ${window.challengeTier}. Continue to next battle?`)) {
+                    window.startChallengeBattle();
+                }
+            }, 500);
+        } else {
+            currentEnemySprite.destroy();
+            if (game) respawnEnemyBase();
+        }
     } else if (result === 'caught') {
         window.saveCollected(currentEnemy);
         currentEnemySprite.destroy();
@@ -7992,7 +8355,8 @@ window.endBattle = function(result) {
         }
 
         if (result === 'win' && !window.isPvpBattle) {
-            let xpGained = Math.floor(currentEnemy.level * 25);
+            let xpMultiplier = window.inChallengeBattle ? (1 + window.challengeTier * 0.1) : 1.0;
+            let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
             // Record stats before level up
@@ -8151,6 +8515,9 @@ function update() {
     if (!window.lastSaveTime) window.lastSaveTime = 0;
     // Redundant now definition removed
     const shouldSave = (now - window.lastSaveTime > 2000);
+    if (shouldSave && window.gameStarted) {
+        localStorage.setItem('wildpulse_total_elapsed_ms', window.totalElapsedMs.toString());
+    }
 
     if (!window.aiFrameCounter) window.aiFrameCounter = 0;
     window.aiFrameCounter++;
@@ -8159,27 +8526,18 @@ function update() {
     // Animate background
 
     // Day Night Cycle Update
-    let dt = this.game.loop.delta;
+    const dt = this.game.loop.delta || 16.66; // Fallback to ~60fps if delta is missing
 
     // 24 hours = 20 real minutes = 1200 seconds = 1,200,000 ms
     // 1 in-game hour = 50,000 ms
     if (window.gameStarted) {
-        if (window.serverStartTime) {
-            const roomAgeMs = Date.now() - window.serverStartTime;
-            const totalInGameHours = roomAgeMs / 50000;
-            dayNightTime = totalInGameHours % 24;
-            const newInGameDays = Math.floor(totalInGameHours / 24);
-            if (newInGameDays !== wildpulse_inGameDays) {
-                wildpulse_inGameDays = newInGameDays;
-                localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
-            }
-        } else {
-            dayNightTime += (dt / 50000);
-            if (dayNightTime >= 24.0) {
-                dayNightTime -= 24.0;
-                wildpulse_inGameDays += 1;
-                localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
-            }
+        window.totalElapsedMs += dt;
+        const totalInGameHours = window.totalElapsedMs / 50000;
+        dayNightTime = totalInGameHours % 24;
+        const newInGameDays = Math.floor(totalInGameHours / 24);
+        if (newInGameDays !== wildpulse_inGameDays) {
+            wildpulse_inGameDays = newInGameDays;
+            localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
         }
 
         let seasonIndex = Math.floor((wildpulse_inGameDays % 120) / 30);
@@ -8913,9 +9271,9 @@ function update() {
 
 
     // Update Weather states - Performance: Throttle deterministic calculations (every 1s)
-    if (window.serverStartTime && window.roomSeed && (!window.lastWeatherCalcUpdate || now - window.lastWeatherCalcUpdate > 1000)) {
+    if (window.roomSeed && (!window.lastWeatherCalcUpdate || now - window.lastWeatherCalcUpdate > 1000)) {
         window.lastWeatherCalcUpdate = now;
-        const roomAgeMs = Date.now() - window.serverStartTime;
+        const roomAgeMs = window.totalElapsedMs;
 
         // 15-minute global cycle (900,000ms)
         const CYCLE_DURATION = 900000;
@@ -8978,7 +9336,7 @@ function update() {
         window.weatherPattern = targetPattern;
         window.weatherIntensity = targetIntensity;
         window.cloudCoverage = targetCloud;
-    } else if (!window.serverStartTime || !window.roomSeed) {
+    } else if (!window.roomSeed) {
         window.weatherPattern = 'none';
         window.weatherIntensity = 0;
         window.cloudCoverage = 'partly_cloudy';
@@ -9060,9 +9418,9 @@ function update() {
     }
 
     // Update Wind - Performance: Throttle deterministic calculations (every 1s)
-    if (window.serverStartTime && window.roomSeed && (!window.lastWindCalcUpdate || now - window.lastWindCalcUpdate > 1000)) {
+    if (window.roomSeed && (!window.lastWindCalcUpdate || now - window.lastWindCalcUpdate > 1000)) {
         window.lastWindCalcUpdate = now;
-        const roomAgeMs = Date.now() - window.serverStartTime;
+        const roomAgeMs = window.totalElapsedMs;
         const windIntervalIndex = Math.floor(roomAgeMs / 10000);
         if (windIntervalIndex !== window.lastWindIntervalIndex) {
             window.lastWindIntervalIndex = windIntervalIndex;
@@ -9071,7 +9429,7 @@ function update() {
             window.targetWindAngle = windRng() * Math.PI * 2;
             window.targetWindSpeed = 50 + windRng() * 200;
         }
-    } else if (!window.serverStartTime || !window.roomSeed) {
+    } else if (!window.roomSeed) {
         window.windTimer += 1;
         if (window.windTimer > 600) { // Change wind target approx every 10 seconds
             window.targetWindAngle = window.windAngle + (Math.random() - 0.5) * Math.PI / 2;
