@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WildPulse Odyssey</title>
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.11.1/simplepeer.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -532,156 +530,6 @@
         border-radius: 4px;
     }
 
-    /* Social Sidebar Styles */
-    #socialSidebar {
-        position: fixed;
-        right: -350px;
-        top: 0;
-        width: 350px;
-        height: 100vh;
-        background: linear-gradient(135deg, rgba(10, 20, 30, 0.95), rgba(0, 5, 10, 0.95));
-        backdrop-filter: blur(20px);
-        z-index: 5000;
-        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-left: 1px solid rgba(0, 255, 150, 0.3);
-        display: flex;
-        flex-direction: column;
-        color: white;
-    }
-    #socialSidebar.open {
-        right: 0;
-    }
-    #socialToggleBtn {
-        position: fixed;
-        top: 20px;
-        right: 120px; /* Offset from Menu button */
-        padding: 12px 20px;
-        background: linear-gradient(180deg, #6200ea, #3700b3);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        z-index: 101;
-        display: none; /* Initially hidden until game starts */
-    }
-    .social-tabs {
-        display: flex;
-        background: rgba(255, 255, 255, 0.05);
-        padding: 10px 10px 0 10px;
-    }
-    .social-tab {
-        flex: 1;
-        padding: 10px;
-        text-align: center;
-        cursor: pointer;
-        border-radius: 8px 8px 0 0;
-        transition: background 0.2s;
-        font-weight: bold;
-        color: #888;
-    }
-    .social-tab.active {
-        background: rgba(255, 255, 255, 0.1);
-        color: #00ff96;
-        border-bottom: 2px solid #00ff96;
-    }
-    .social-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 15px;
-    }
-    .social-tab-panel {
-        display: none;
-    }
-    .social-tab-panel.active {
-        display: block;
-    }
-    .chat-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    #chatMessages {
-        flex: 1;
-        overflow-y: auto;
-        margin-bottom: 10px;
-        font-size: 14px;
-        padding-right: 5px;
-    }
-    .chat-msg {
-        margin-bottom: 8px;
-        word-wrap: break-word;
-        background: rgba(255, 255, 255, 0.03);
-        padding: 6px 10px;
-        border-radius: 8px;
-    }
-    .chat-msg .sender {
-        font-weight: bold;
-        color: #42a5f5;
-        margin-right: 5px;
-    }
-    .chat-msg .time {
-        font-size: 10px;
-        color: #666;
-        float: right;
-    }
-    .chat-input-area {
-        display: flex;
-        gap: 5px;
-    }
-    #chatInput {
-        flex: 1;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid #444;
-        color: white;
-        padding: 8px;
-        border-radius: 8px;
-    }
-    #sendChatBtn {
-        background: #6200ea;
-        border: none;
-        color: white;
-        padding: 0 15px;
-        border-radius: 8px;
-        cursor: pointer;
-    }
-    .player-list-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-        margin-bottom: 8px;
-    }
-    .player-actions {
-        display: flex;
-        gap: 5px;
-    }
-    .player-actions button {
-        padding: 4px 8px;
-        font-size: 11px;
-        border-radius: 4px;
-    }
-    .world-settings-area {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 15px;
-        border-radius: 12px;
-        margin-top: 10px;
-    }
-    .world-settings-area h4 {
-        margin-top: 0;
-        color: #00ff96;
-    }
-    .world-code-badge {
-        background: #222;
-        padding: 10px;
-        border-radius: 8px;
-        font-family: monospace;
-        font-size: 18px;
-        text-align: center;
-        margin: 10px 0;
-        border: 1px dashed #555;
-    }
 </style>
 
 </head>
@@ -791,54 +639,6 @@
 </div>
 
 <button id="menuBtn">Menu</button>
-<button id="socialToggleBtn">Social</button>
-
-<div id="socialSidebar">
-    <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin:0;">Social</h3>
-        <button id="closeSocialBtn" style="background:none; border:none; color:#888; cursor:pointer; font-size:20px;">×</button>
-    </div>
-    <div class="social-tabs">
-        <div class="social-tab active" data-tab="players">Players</div>
-        <div class="social-tab" data-tab="chat">Chat</div>
-        <div class="social-tab" data-tab="world">World</div>
-    </div>
-    <div class="social-content">
-        <div id="playersPanel" class="social-tab-panel active">
-            <div id="playerListContainer"></div>
-        </div>
-        <div id="chatPanel" class="social-tab-panel">
-            <div class="chat-container">
-                <div id="chatMessages"></div>
-                <div class="chat-input-area">
-                    <input type="text" id="chatInput" placeholder="Type a message...">
-                    <button id="sendChatBtn">Send</button>
-                </div>
-            </div>
-        </div>
-        <div id="worldPanel" class="social-tab-panel">
-            <div class="world-settings-area">
-                <h4>Current Instance</h4>
-                <div id="sidebarCurrentWorld" class="world-code-badge">GLOBAL</div>
-                <p style="font-size: 12px; color: #aaa;">You are in the shared global instance.</p>
-            </div>
-
-            <div class="world-settings-area">
-                <h4>Private World</h4>
-                <p style="font-size: 12px; color: #aaa; margin-bottom: 10px;">Enter a code to join a private instance with friends.</p>
-                <input type="text" id="worldCodeInput" placeholder="ENTER CODE" style="width:100%; padding:10px; border-radius:8px; border:1px solid #444; background:#000; color:white; box-sizing:border-box; margin-bottom:10px; text-transform:uppercase;">
-                <button id="joinWorldBtn" style="width:100%; padding:10px; background:linear-gradient(180deg, #4caf50, #2e7d32); border:none; border-radius:8px; color:white; cursor:pointer; font-weight:bold;">JOIN WORLD</button>
-            </div>
-
-            <div class="world-settings-area">
-                <h4>Your World Code</h4>
-                <div id="sidebarOwnWorld" class="world-code-badge">-------</div>
-                <button id="sidebarCopyCodeBtn" style="width:100%; padding:8px; background:rgba(255,255,255,0.1); border:1px solid #444; border-radius:8px; color:white; cursor:pointer;">Copy My Code</button>
-                <button id="sidebarReturnOwnBtn" style="width:100%; padding:8px; background:linear-gradient(180deg, #9c27b0, #6a1b9a); border:none; border-radius:8px; color:white; cursor:pointer; margin-top:10px;">Return to My World</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
@@ -874,7 +674,18 @@
 // ==================== SESSION INITIALIZATION ====================
 var wildpulse_inGameDays = parseInt(localStorage.getItem('wildpulse_inGameDays')) || 0;
 window.currentSeason = localStorage.getItem('wildpulse_currentSeason') || 'Summer';
-window.clientServerOffset = 0;
+
+// Singleplayer Persistence
+if (!localStorage.getItem('wildpulse_world_seed')) {
+    localStorage.setItem('wildpulse_world_seed', Math.floor(Math.random() * 2000000000).toString());
+}
+window.roomSeed = parseInt(localStorage.getItem('wildpulse_world_seed'));
+window.gameSeed = window.roomSeed;
+window.initialRoomSeed = window.roomSeed;
+
+const savedElapsed = parseInt(localStorage.getItem('wildpulse_total_elapsed_ms')) || 0;
+window.serverStartTime = Date.now() - savedElapsed;
+
 window.windAngle = 0;
 window.windSpeed = 200;
 window.targetWindAngle = 0;
@@ -895,11 +706,6 @@ window.TYPE_COLORS = {
     "Cosmic": "rgba(255, 0, 255, 0.85)",    // Magenta
     "Normal": "rgba(169, 169, 169, 0.85)"  // DarkGray
 };
-
-window.remotePlayerState = {};
-window.remotePlayerSprites = {};
-window.remotePlayerIdentities = {};
-window.remotePlayerIndices = {};
 
 // mulberry32 is a robust 32-bit PRNG
 window.mulberry32 = function(a) {
@@ -1457,323 +1263,6 @@ function escapeHtml(unsafe) {
          .replace(/'/g, "&#039;");
 }
 
-// ==================== MULTIPLAYER LOBBY ====================
-let multiplayerRoom = null;
-let socket = null;
-let globalPlayerList = [];
-window.roomUsers = {}; // userId -> { index }
-window.p2pPeers = {}; // userId -> SimplePeer instance
-window.isHost = false;
-window.myUserId = null;
-window.myIndex = null;
-
-window.updateHostStatus = function() {
-    const hostId = window.getHostId();
-    if (!hostId) return;
-
-    const wasHost = window.isHost;
-    window.isHost = (hostId === window.myUserId);
-
-    if (window.isHost && !wasHost) {
-        console.log("[P2P] I am now the Host.");
-        window.showModernNotification("You are now the Host of this world.");
-    }
-};
-
-window.initP2PConnection = function(targetUserId, initiator) {
-    if (window.p2pPeers[targetUserId]) return;
-
-    console.log(`[P2P] Initializing connection to ${targetUserId}, initiator: ${initiator}`);
-    const peer = new SimplePeer({
-        initiator: initiator,
-        trickle: false
-    });
-
-    peer.on('signal', data => {
-        socket.emit('signal', { target: targetUserId, signal: data });
-    });
-
-    peer.on('connect', () => {
-        console.log(`[P2P] Connected to ${targetUserId}`);
-        // Send initial identity and position
-        const identity = {
-            type: 'identity',
-            name: window.cachedPlayerName,
-            color: window.cachedPlayerColor,
-            auraColor: window.cachedPlayerAuraColor,
-            pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
-            patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
-        };
-        peer.send(JSON.stringify(identity));
-
-        const px = (typeof player !== "undefined" && player && typeof player.x === 'number' && !isNaN(player.x)) ? Math.round(player.x) : 10050;
-        const py = (typeof player !== "undefined" && player && typeof player.y === 'number' && !isNaN(player.y)) ? Math.round(player.y) : 10050;
-        peer.send(JSON.stringify({
-            type: 'pos',
-            x: px,
-            y: py,
-            vx: 0,
-            vy: 0,
-            level: window.collectedCreatures[0]?.level || 1
-        }));
-    });
-
-    peer.on('data', data => {
-        const msg = JSON.parse(data);
-        window.handleP2PMessage(targetUserId, msg);
-    });
-
-    peer.on('close', () => {
-        console.log(`[P2P] Connection to ${targetUserId} closed`);
-        delete window.p2pPeers[targetUserId];
-    });
-
-    peer.on('error', err => {
-        console.error(`[P2P] Error with ${targetUserId}:`, err);
-    });
-
-    window.p2pPeers[targetUserId] = peer;
-};
-
-window.handleP2PMessage = function(userId, msg) {
-    // Host-Relay Logic (Star Topology)
-    if (window.isHost) {
-        if (msg.target) {
-            // Targeted relay
-            if (msg.target === window.myUserId) {
-                // It's for me
-                processMessage(userId, msg);
-            } else if (window.p2pPeers[msg.target] && window.p2pPeers[msg.target].connected) {
-                // Relay to target
-                window.p2pPeers[msg.target].send(JSON.stringify({ ...msg, sender: userId }));
-            }
-        } else {
-            // Broadcast relay
-            Object.entries(window.p2pPeers).forEach(([peerId, peer]) => {
-                if (peerId !== userId) {
-                    peer.send(JSON.stringify({ ...msg, sender: userId }));
-                }
-            });
-            processMessage(userId, msg);
-        }
-    } else {
-        processMessage(msg.sender || userId, msg);
-    }
-
-    function processMessage(senderId, data) {
-        if (data.type === 'chat-message') {
-            if (window.receiveChatMessage) window.receiveChatMessage(data);
-            return;
-        }
-
-        // Mutual Discovery: If we receive an identity from someone we don't know well, send ours back
-        if (data.type === 'identity' && !window.remotePlayerIdentities[senderId]) {
-            const myIdentity = {
-                type: 'identity',
-                name: window.cachedPlayerName,
-                color: window.cachedPlayerColor,
-                auraColor: window.cachedPlayerAuraColor,
-                pattern: localStorage.getItem('wildpulse_player_pattern') || 'None',
-                patternColor: localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000'
-            };
-            // Broadcast it back so they (and others if relayed) see us
-            if (window.isHost) {
-                window.broadcastP2P(myIdentity);
-            } else {
-                // Targeted back to sender via Host relay
-                window.sendP2P(senderId, myIdentity);
-            }
-        }
-
-        if (data.type === 'update-identity') {
-            // Already handled by identity message type usually, but we can update name here if needed
-            return;
-        }
-        window.updateRemotePlayerState(senderId, data);
-        if (window.handleMultiplayerMessage) {
-            window.handleMultiplayerMessage(senderId, data);
-        }
-    }
-};
-
-window.sendP2P = function(targetUserId, msg) {
-    if (window.isHost) {
-        if (window.p2pPeers[targetUserId] && window.p2pPeers[targetUserId].connected) {
-            window.p2pPeers[targetUserId].send(JSON.stringify(msg));
-        }
-    } else {
-        // I am client, send to host with target field
-        const hostId = window.getHostId();
-        if (hostId && window.p2pPeers[hostId] && window.p2pPeers[hostId].connected) {
-            window.p2pPeers[hostId].send(JSON.stringify({ ...msg, target: targetUserId }));
-        }
-    }
-};
-
-window.broadcastP2P = function(msg) {
-    if (msg.target) {
-        window.sendP2P(msg.target, msg);
-        return;
-    }
-    const data = JSON.stringify(msg);
-    Object.values(window.p2pPeers).forEach(peer => {
-        if (peer.connected) {
-            peer.send(data);
-        }
-    });
-};
-
-window.getHostId = function() {
-    const allUsers = Object.entries(window.roomUsers)
-        .filter(([id, data]) => data.index !== null && data.index !== undefined)
-        .map(([id, data]) => ({ id, index: data.index }));
-
-    if (window.myIndex !== null && window.myIndex !== undefined) {
-        allUsers.push({ id: window.myUserId, index: window.myIndex });
-    }
-
-    if (allUsers.length === 0) return null;
-
-    allUsers.sort((a, b) => a.index - b.index);
-    return allUsers[0]?.id;
-};
-
-window.initializeMultiplayer = function() {
-    console.log("Initializing Multiplayer...");
-
-    // Pre-calculate deterministic seed from room name (matching server logic)
-    const storedRoom = (localStorage.getItem('wildpulse_world_code') || 'GLOBAL').toUpperCase();
-    let hash = 0;
-    for (let i = 0; i < storedRoom.length; i++) {
-        hash = storedRoom.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    window.initialRoomSeed = Math.abs(hash) || 123456789;
-    window.roomSeed = window.initialRoomSeed;
-    window.gameSeed = window.initialRoomSeed;
-    // Fallback epoch for P2P rooms; serverStartTime will be synced from server in join-room
-    window.serverStartTime = Date.now();
-    console.log(`[Multiplayer] Pre-calculated seed for ${storedRoom}: ${window.initialRoomSeed}`);
-
-    // Proactively start the game world so it's visible on the start screen
-    if (window.startGame) window.startGame();
-
-    if (typeof io === 'undefined') {
-        console.warn("[Multiplayer] Socket.io not found. Multiplayer disabled.");
-        return;
-    }
-    socket = io();
-    window.socket = socket;
-
-    socket.on('connect', () => {
-        console.log("Connected to server");
-        window.myUserId = socket.id;
-        const storedRoom = localStorage.getItem('wildpulse_world_code') || 'GLOBAL';
-        socket.emit('join-room', storedRoom.toUpperCase());
-    });
-
-    socket.on('assigned-index', (data) => {
-        const index = typeof data === 'object' ? data.index : data;
-        window.myIndex = index;
-        window.playerIndexCount = index;
-        if (typeof data === 'object') {
-            window.clientServerOffset = data.serverNow - Date.now();
-            if (data.serverStartTime) {
-                window.serverStartTime = data.serverStartTime;
-                console.log(`[Multiplayer] Synced server start time: ${new Date(window.serverStartTime).toLocaleString()}`);
-            }
-        }
-
-        console.log(`[Multiplayer] Assigned index: ${index}.`);
-        window.updateHostStatus();
-    });
-
-    socket.on('room-users', (users) => {
-        console.log(`[Multiplayer] Received room-users list, count: ${users.length}`);
-        users.forEach(u => {
-            const userId = u.userId || u;
-            const index = (u.index !== undefined && u.index !== null) ? u.index : null;
-            window.remotePlayerIndices[userId] = index;
-            window.roomUsers[userId] = { index: index };
-        });
-
-        window.updateHostStatus();
-        if (!window.isHost) {
-            const hostId = window.getHostId();
-            if (hostId && hostId !== window.myUserId) {
-                window.initP2PConnection(hostId, true);
-            }
-        }
-        if (window.updateSocialUI) window.updateSocialUI();
-    });
-
-    socket.on('user-joined', (data) => {
-        const userId = data.userId || data;
-        const index = (data.index !== undefined && data.index !== null) ? data.index : null;
-        console.log(`[Multiplayer] User joined: ${userId} (Index: ${index}) | Total Peers: ${Object.keys(window.roomUsers).length + 1}`);
-        window.remotePlayerIndices[userId] = index;
-        window.roomUsers[userId] = { index: index };
-
-        window.updateHostStatus();
-        // If I am host, I expect the newcomer to initiate?
-        // Or if I am host, I initiate to them? SimplePeer needs one side to initiate.
-        // Let's say newcomers always initiate to the host.
-        if (window.isHost) {
-            // Newcomer will initiate to me.
-        } else {
-            // I'm a client, if a new host joined (shouldn't happen unless current host left)
-            // For now, let's just let the newcomer initiate to the host.
-        }
-
-        if (window.updateSocialUI) window.updateSocialUI();
-    });
-
-    socket.on('user-left', (userId) => {
-        delete window.remotePlayerState[userId];
-        delete window.remotePlayerIdentities[userId];
-        delete window.remotePlayerIndices[userId];
-        delete window.roomUsers[userId];
-        if (window.p2pPeers[userId]) {
-            window.p2pPeers[userId].destroy();
-            delete window.p2pPeers[userId];
-        }
-        if (window.removeRemotePlayer) window.removeRemotePlayer(userId);
-        window.updateHostStatus();
-        if (window.updateSocialUI) window.updateSocialUI();
-
-        // If I just became host, existing clients should connect to me?
-        // Actually they should already be connected if I was in the room.
-        // If the host left, we need to establish new P2P connections to the new host.
-        if (window.isHost) {
-            // I am new host, existing clients need to connect to me.
-            // They will also run updateHostStatus and see me as host.
-            // Let's have clients initiate to new host.
-        } else {
-            // I'm still a client, check if host changed.
-            const allUsers = Object.entries(window.roomUsers).map(([id, data]) => ({ id, index: data.index }));
-            allUsers.push({ id: window.myUserId, index: window.myIndex });
-            allUsers.sort((a, b) => a.index - b.index);
-            const hostId = allUsers[0].id;
-            if (hostId !== window.myUserId && !window.p2pPeers[hostId]) {
-                window.initP2PConnection(hostId, true);
-            }
-        }
-    });
-
-    socket.on('signal', (payload) => {
-        const userId = payload.sender;
-        console.log(`[P2P] Received signal from ${userId}`);
-        if (!window.p2pPeers[userId]) {
-            window.initP2PConnection(userId, false);
-        }
-        window.p2pPeers[userId].signal(payload.signal);
-    });
-
-
-
-    socket.on('global-users', (users) => {
-        globalPlayerList = users;
-    });
-};
 
     function switchPartyTab(tab) {
         if (tab === 'party') {
@@ -1845,44 +1334,6 @@ window.initializeMultiplayer = function() {
     <p id="breedResult"></p>
 </div>
 
-<div id="tradeModal" style="display:none; position:absolute; color:white; z-index:700; text-align:center;">
-        <button class="close-btn close-trade-btn" aria-label="Close Trade">X</button>
-    <h2>Trade Center</h2>
-    <div id="tradeSection">
-        <label>Select Creature to Trade:</label>
-        <select id="tradeCreatureSelect"></select>
-        <br>
-        <label>Select Player to Trade With:</label>
-        <select id="tradePlayerSelect"></select>
-        <button id="sendTradeBtn">Send Trade Offer</button>
-    </div>
-    <div id="tradeIncomingSection" style="display:none; margin-top:20px; border-top:1px solid #555; padding-top:10px;">
-        <h3>Incoming Trade Offer!</h3>
-        <p id="tradeOfferText"></p>
-        <button id="acceptTradeBtn" style="background: linear-gradient(180deg, #4caf50, #388e3c);">Accept Trade</button>
-        <button id="rejectTradeBtn" style="background: linear-gradient(180deg, #f44336, #d32f2f);">Reject Trade</button>
-    </div>
-    <button class="close-trade-btn">Close</button>
-    <p id="tradeResult"></p>
-</div>
-
-<div id="pvpModal" style="display:none; position:absolute; color:white; z-index:750; text-align:center;">
-    <button class="close-btn close-pvp-btn" aria-label="Close PvP">X</button>
-    <h2>PvP Center</h2>
-    <div id="pvpSection">
-        <label>Select Player to Battle:</label>
-        <select id="pvpPlayerSelect"></select>
-        <button id="sendPvpBtn">Send Battle Offer</button>
-    </div>
-    <div id="pvpIncomingSection" style="display:none; margin-top:20px; border-top:1px solid #555; padding-top:10px;">
-        <h3>Incoming Battle Offer!</h3>
-        <p id="pvpOfferText"></p>
-        <button id="acceptPvpBtn" style="background: linear-gradient(180deg, #4caf50, #388e3c);">Accept Battle</button>
-        <button id="rejectPvpBtn" style="background: linear-gradient(180deg, #f44336, #d32f2f);">Reject Battle</button>
-    </div>
-    <button class="close-pvp-btn">Close</button>
-    <p id="pvpResult"></p>
-</div>
 
 <div id="journalModal" style="display:none; position:absolute; color:white; z-index:800; text-align:center;">
     <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
@@ -1920,7 +1371,7 @@ window.inBattle = false;
 let currentEnemy = null;
 var currentPlayer = null;
 let currentEnemySprite = null;
-window.remotePlayers = window.remotePlayerSprites;
+window.remotePlayers = [];
 let remotePlayers = window.remotePlayers; // userId -> Phaser sprite
 window.isActionRunning = false;
 var isActionRunning = window.isActionRunning;
@@ -2213,18 +1664,8 @@ window.cachedPlayerAuraColor = localStorage.getItem('wildpulse_player_aura_color
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Auto-start multiplayer and game logic
-    let ownRoomCode = (localStorage.getItem('wildpulse_own_world_code') || "").toUpperCase();
-    if (!ownRoomCode) {
-        // Generate random 8 char code
-        ownRoomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-        localStorage.setItem('wildpulse_own_world_code', ownRoomCode);
-    }
-    const savedRoomCode = (localStorage.getItem('wildpulse_world_code') || "GLOBAL").toUpperCase();
-    multiplayerRoom = savedRoomCode;
-    localStorage.setItem('wildpulse_world_code', multiplayerRoom);
-
-    window.initializeMultiplayer(multiplayerRoom);
+    // Proactively start the game world so it's visible on the start screen
+    if (window.startGame) window.startGame();
 
     window.startGameSession = function() {
         const startModal = document.getElementById('startModal');
@@ -2232,9 +1673,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const menuBtn = document.getElementById('menuBtn');
         if (menuBtn) menuBtn.style.display = 'block';
-
-        const socialToggleBtn = document.getElementById('socialToggleBtn');
-        if (socialToggleBtn) socialToggleBtn.style.display = 'block';
 
         try {
             if (typeof window.timeText !== 'undefined' && window.timeText) window.timeText.setVisible(true);
@@ -2373,7 +1811,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Broadcast identity update to all peers
-        if (Object.keys(window.p2pPeers).length > 0) {
+        if (false) {
             window.broadcastP2P( { type: 'update-identity', name: name });
             window.broadcastP2P( {
                 type: 'identity',
@@ -2393,7 +1831,8 @@ document.addEventListener('DOMContentLoaded', () => {
         customizationModal.style.display = 'none';
     });
 
-    // Phaser start is triggered in initializeMultiplayer for immediate world visibility
+    // Proactively start the game world so it's visible on the start screen
+    if (window.startGame) window.startGame();
 
     // Auto-start game if coming from world code join
     if (sessionStorage.getItem('wildpulse_skip_start_modal') === 'true') {
@@ -4624,164 +4063,10 @@ document.querySelectorAll('.social-tab').forEach(tab => {
     });
 });
 
-window.updateSocialUI = function() {
-    const playerListContainer = document.getElementById('playerListContainer');
-    if (!playerListContainer) return;
-
-    playerListContainer.innerHTML = '';
-    const localLi = document.createElement('div');
-    localLi.className = 'player-list-item';
-    const localName = escapeHtml(window.cachedPlayerName || 'You');
-    localLi.innerHTML = `<div><span style="font-weight:bold; color:#00ff96;">${localName} (You)</span></div>`;
-    playerListContainer.appendChild(localLi);
-
-    const roomUsers = new Set([...Object.keys(window.remotePlayerIndices || {}), ...Object.keys(window.roomUsers || {})]);
-    if (window.myUserId) roomUsers.delete(window.myUserId);
-
-    if (roomUsers.size > 0) {
-        roomUsers.forEach(pid => {
-            const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[pid]) || {};
-            const index = (window.remotePlayerIndices[pid] !== null && window.remotePlayerIndices[pid] !== undefined) ? window.remotePlayerIndices[pid] : '?';
-            const name = escapeHtml(identity.name || `Player ${index}`);
-            const safeColor = escapeHtml(identity.color || '#fff');
-
-            const item = document.createElement('div');
-            item.className = 'player-list-item';
-
-            const nameArea = document.createElement('div');
-            nameArea.innerHTML = `<span style="color:${safeColor}; font-weight:bold;">${name}</span><br><span style="font-size:10px; color:#666;">${pid.substring(0,8)}</span>`;
-
-            const actionsArea = document.createElement('div');
-            actionsArea.className = 'player-actions';
-
-            const tpBtn = document.createElement('button');
-            tpBtn.innerText = 'TP';
-            tpBtn.style.background = '#2196f3';
-            tpBtn.onclick = () => window.teleportToPlayer(pid);
-
-            const tradeBtn = document.createElement('button');
-            tradeBtn.innerText = 'Trade';
-            tradeBtn.style.background = '#4caf50';
-            tradeBtn.onclick = () => window.openTradeModal(pid);
-
-            const pvpBtn = document.createElement('button');
-            pvpBtn.innerText = 'PvP';
-            pvpBtn.style.background = '#f44336';
-            pvpBtn.onclick = () => window.openPvpModal(pid);
-
-            actionsArea.appendChild(tpBtn);
-            actionsArea.appendChild(tradeBtn);
-            actionsArea.appendChild(pvpBtn);
-
-            item.appendChild(nameArea);
-            item.appendChild(actionsArea);
-            playerListContainer.appendChild(item);
-        });
-    }
-};
-
-// Chat Logic
-window.receiveChatMessage = function(data) {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'chat-msg';
-
-    const time = new Date(data.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const name = data.senderName || 'Anonymous';
-
-    msgDiv.innerHTML = `
-        <span class="time">${time}</span>
-        <span class="sender">${escapeHtml(name)}:</span>
-        <span class="text">${escapeHtml(data.text)}</span>
-    `;
-
-    chatMessages.appendChild(msgDiv);
-
-    // Performance: Limit chat history to 100 messages to prevent DOM bloat
-    while (chatMessages.children.length > 100) {
-        chatMessages.removeChild(chatMessages.firstChild);
-    }
-
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // If sidebar is closed, maybe show a notification?
-    if (!document.getElementById('socialSidebar').classList.contains('open')) {
-        window.showModernNotification(`New message from ${name}`);
-    }
-};
-
 // Global performance trackers
 window.lastUiUpdate = 0;
 window.lastShadowDayNightTime = 0;
 window.shadowParams = null;
-
-document.getElementById('sendChatBtn')?.addEventListener('click', () => {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (text && socket && socket.connected) {
-        window.broadcastP2P( { type: 'chat-message', text: text });
-        input.value = '';
-    }
-});
-
-document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        document.getElementById('sendChatBtn').click();
-    }
-});
-
-// World Switching Logic
-document.getElementById('joinWorldBtn')?.addEventListener('click', () => {
-    const input = document.getElementById('worldCodeInput');
-    const code = input.value.trim().toUpperCase();
-    if (code) {
-        window.joinFriendCodeDirect(code);
-    }
-});
-
-document.getElementById('sidebarCopyCodeBtn')?.addEventListener('click', () => {
-    const ownCode = localStorage.getItem('wildpulse_own_world_code');
-    if (ownCode) {
-        navigator.clipboard.writeText(ownCode);
-        window.showModernNotification("World code copied to clipboard!");
-    }
-});
-
-document.getElementById('sidebarReturnOwnBtn')?.addEventListener('click', () => {
-    const ownCode = localStorage.getItem('wildpulse_own_world_code');
-    window.joinFriendCodeDirect(ownCode);
-});
-
-window.teleportToPlayer = function(userId) {
-    if (remotePlayers[userId]) {
-        const targetX = remotePlayers[userId].x;
-        const targetY = remotePlayers[userId].y;
-        player.x = targetX;
-        player.y = targetY;
-        if (window.showModernNotification) window.showModernNotification("Teleported to player!");
-    } else {
-        if (window.showModernNotification) window.showModernNotification("Player position not yet known.");
-    }
-};
-
-window.joinFriendCodeDirect = function(code) {
-    const upperCode = (code || "").toString().trim().toUpperCase();
-    if (!upperCode) return;
-
-    if (upperCode === (multiplayerRoom || "").toUpperCase()) {
-        window.showModernNotification("You are already in this world!");
-        return;
-    }
-
-    console.log(`[Multiplayer] Switching to world: ${upperCode}`);
-    // Leave current room and join new one
-    // Just reload the page but setting the new code
-    localStorage.setItem('wildpulse_world_code', upperCode);
-    sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-    window.location.reload();
-};
 
 window.copyWorldCode = function() {
     const ownCode = localStorage.getItem('wildpulse_own_world_code');
@@ -5195,18 +4480,24 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_player_y');
         localStorage.removeItem('wildpulse_inGameDays');
         localStorage.removeItem('wildpulse_currentSeason');
+        localStorage.removeItem('wildpulse_world_seed');
+        localStorage.removeItem('wildpulse_total_elapsed_ms');
         location.reload();
     }
 };
 
 window.exitGame = function() {
     if (confirm('Are you sure you want to exit to the main menu?')) {
+        // Save elapsed time
+        if (window.serverStartTime) {
+            const elapsed = Date.now() - window.serverStartTime;
+            localStorage.setItem('wildpulse_total_elapsed_ms', elapsed.toString());
+        }
+
         window.gameStarted = false;
         window.cameraFollowsPlayer = false;
-        closeMenuModal();
+        if (window.closeMenuModal) window.closeMenuModal();
         document.getElementById('menuBtn').style.display = 'none';
-        document.getElementById('socialToggleBtn').style.display = 'none';
-        document.getElementById('socialSidebar').classList.remove('open');
         document.getElementById('startModal').style.display = 'flex';
         if (timeText) timeText.setVisible(false);
         if (window.coordText) window.coordText.setVisible(false);
@@ -5501,7 +4792,7 @@ window.openTradeModal = function(targetUserId) {
 
     // Give it a tiny bit of time to fetch global users, otherwise fallback to known users
     setTimeout(() => {
-        const roomUsers = Object.keys(window.remotePlayerIdentities || {});
+        const roomUsers = Object.keys({});
         let usersToDisplay = [...roomUsers];
 
         if (globalPlayerList) {
@@ -5512,7 +4803,7 @@ window.openTradeModal = function(targetUserId) {
         }
 
         if (usersToDisplay.length === 0) {
-            usersToDisplay = Object.keys(remotePlayers);
+            usersToDisplay = [];
         }
 
         usersToDisplay.forEach(userId => {
@@ -5573,7 +4864,7 @@ window.openPvpModal = function(targetUserId) {
     if (socket) socket.emit('fetch-global-users');
 
     setTimeout(() => {
-        const roomUsers = Object.keys(window.remotePlayerIdentities || {});
+        const roomUsers = Object.keys({});
         let usersToDisplay = [...roomUsers];
 
         if (globalPlayerList) {
@@ -5584,7 +4875,7 @@ window.openPvpModal = function(targetUserId) {
         }
 
         if (usersToDisplay.length === 0) {
-            usersToDisplay = Object.keys(remotePlayers);
+            usersToDisplay = [];
         }
 
         usersToDisplay.forEach(userId => {
@@ -5641,7 +4932,7 @@ window.sendTradeOffer = function() {
 
     const creature = collectedCreatures.find(c => String(c.id) === String(creatureId));
 
-    if (Object.keys(window.p2pPeers).length > 0) {
+    if (false) {
         window.broadcastP2P( {
             target: targetUserId,
             type: 'trade_offer',
@@ -5660,7 +4951,7 @@ window.acceptTradeOffer = function() {
     // In a full implementation, both sides would offer a creature.
     window.saveCollected(pendingTradeOffer.creature);
 
-    if (Object.keys(window.p2pPeers).length > 0) {
+    if (false) {
         window.broadcastP2P( {
             target: pendingTradeOffer.from,
             type: 'trade_accept',
@@ -5680,7 +4971,7 @@ window.acceptTradeOffer = function() {
 window.rejectTradeOffer = function() {
     if (!pendingTradeOffer) return;
 
-    if (Object.keys(window.p2pPeers).length > 0) {
+    if (false) {
         window.broadcastP2P( {
             target: pendingTradeOffer.from,
             type: 'trade_reject'
@@ -5706,7 +4997,7 @@ window.sendPvpOffer = function() {
          return;
     }
 
-    if (Object.keys(window.p2pPeers).length > 0) {
+    if (false) {
         window.broadcastP2P( {
             target: targetUserId,
             type: 'pvp_offer',
@@ -5727,7 +5018,7 @@ window.acceptPvpOffer = function() {
         return;
     }
 
-    if (Object.keys(window.p2pPeers).length > 0) {
+    if (false) {
         window.broadcastP2P( {
             target: pendingPvpOffer.from,
             type: 'pvp_accept',
@@ -5747,7 +5038,7 @@ window.acceptPvpOffer = function() {
 window.rejectPvpOffer = function() {
     if (!pendingPvpOffer) return;
 
-    if (Object.keys(window.p2pPeers).length > 0) {
+    if (false) {
         window.broadcastP2P( {
             target: pendingPvpOffer.from,
             type: 'pvp_reject'
@@ -6925,9 +6216,7 @@ window.mapData = []; // To store 100x100 grid data
 let mapData = window.mapData;
 let obstaclesGroup;
 let hospitalGroup;
-let tradeGroup;
 let storeGroup;
-let pvpGroup;
 let activeTiles = {}; // Track active viewport tiles to cull
 
 function spawnTile(scene, r, c, tileSize, cols, rows) {
@@ -6996,17 +6285,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             hSprite.setVisible(false); // Make physics body invisible since we render sprite
             sprites.push(hSprite);
         }
-    } else if (mapData[r][c] === 'trade') {
-        let trade = scene.add.sprite(posX, posY, 'trade_tile');
-        trade.setDepth(-1);
-        sprites.push(trade);
-
-        // Add to trade physics group
-        if (tradeGroup) {
-            let tSprite = tradeGroup.create(posX, posY, 'trade_tile');
-            tSprite.setVisible(false);
-            sprites.push(tSprite);
-        }
     } else if (mapData[r][c] === 'store') {
         let store = scene.add.sprite(posX, posY, 'store_tile');
         store.setDepth(-1);
@@ -7017,17 +6295,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             let sSprite = storeGroup.create(posX, posY, 'store_tile');
             sSprite.setVisible(false);
             sprites.push(sSprite);
-        }
-    } else if (mapData[r][c] === 'pvp') {
-        let pvp = scene.add.sprite(posX, posY, 'pvp_tile');
-        pvp.setDepth(-1);
-        sprites.push(pvp);
-
-        // Add to pvp physics group
-        if (pvpGroup) {
-            let pSprite = pvpGroup.create(posX, posY, 'pvp_tile');
-            pSprite.setVisible(false);
-            sprites.push(pSprite);
         }
     } else {
         // Add drop shadow
@@ -7206,180 +6473,6 @@ function destroyTile(key) {
 }
 
 function create() {
-    const playerColors = [0xFF0000, 0x00FF00, 0x0000FF, 0xFF00FF, 0x00FFFF];
-    window.synchronizeRemotePlayers = (scene) => {
-        const state = window.remotePlayerState;
-        const sprites = window.remotePlayerSprites;
-        const now = Date.now();
-
-        // Cleanup stale or left players
-        for (const id in sprites) {
-            const lastUpdate = state[id]?.lastUpdate || 0;
-            const isStale = (lastUpdate > 0 && now - lastUpdate > 30000); // 30 second timeout, but only if they have sent an update
-
-            if ((!window.remotePlayerIndices[id] && !(window.roomUsers && window.roomUsers[id])) || isStale) {
-                console.log(`[Multiplayer] Cleaning up player ${id} (Stale: ${isStale})`);
-                if (sprites[id].label) sprites[id].label.destroy();
-                if (sprites[id].aura) sprites[id].aura.destroy();
-                sprites[id].destroy();
-                delete sprites[id];
-                delete state[id];
-                const texKey = 'player_tex_' + id;
-                if (scene.textures.exists(texKey)) scene.textures.remove(texKey);
-            }
-        }
-
-        // Ensure all users in room have sprites (Force Registration) - Performance: Throttle ID list creation (every 1s)
-        if (!window.cachedRemoteUserIds || !window.lastRemoteIdUpdate || now - window.lastRemoteIdUpdate > 1000) {
-            window.cachedRemoteUserIds = new Set([...Object.keys(window.remotePlayerIndices || {}), ...Object.keys(window.roomUsers || {})]);
-            window.lastRemoteIdUpdate = now;
-        }
-        for (const id of window.cachedRemoteUserIds) {
-            if (!sprites[id]) {
-                const data = state[id] || { x: 10050, y: 10050, lastUpdate: 0 };
-                if (!state[id]) state[id] = data;
-
-                const identity = window.remotePlayerIdentities[id] || {};
-                const pIndex = window.remotePlayerIndices[id] || 0;
-                const customName = identity.name || ('P' + pIndex);
-                const customColor = identity.color ? parseInt(identity.color.replace('#', '0x')) : playerColors[pIndex % playerColors.length];
-                const auraColor = identity.auraColor ? parseInt(identity.auraColor.replace('#', '0x')) : 0x00FFFF;
-
-                console.log(`[Multiplayer] Force-registering sprite for user ${id}`);
-                const rp = scene.add.sprite((typeof data.x === 'number') ? data.x : 10050, (typeof data.y === 'number') ? data.y : 10050, 'player_tex');
-                rp.originalColor = customColor;
-                rp.aura = scene.add.sprite(rp.x, rp.y, 'aura_tex');
-                rp.aura.setTint(auraColor); rp.aura.setAlpha(0.8); rp.aura.setDepth(rp.depth - 0.01); rp.aura.setBlendMode(Phaser.BlendModes.ADD);
-                scene.physics.add.existing(rp);
-                rp.setDepth(10);
-                rp.label = scene.add.text(rp.x, rp.y - 30, customName, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
-                rp.label.setDepth(10);
-                sprites[id] = rp;
-
-                // Baked texture check
-                const texKey = 'player_tex_' + id;
-                if (identity.pattern && identity.pattern !== 'None') {
-                    window.generatePlayerTexture(scene, texKey, identity.color || '#FFFFFF', identity.pattern, identity.patternColor || '#FF0000');
-                    rp.setTexture(texKey);
-                    rp.setTint(0xffffff);
-                }
-            }
-        }
-
-        for (const id in state) {
-            if (!sprites[id]) continue; // Already handled above
-
-            const rp = sprites[id];
-            const data = state[id];
-            const identity = window.remotePlayerIdentities[id] || {};
-
-            // Interpolation logic
-            if (data.x !== undefined && data.y !== undefined) {
-                const tx = data.x;
-                const ty = data.y;
-                const vx = data.vx || 0;
-                const vy = data.vy || 0;
-                const lastUpdate = data.lastUpdate || now;
-                const dt = now - lastUpdate;
-
-                if (dt > 200) {
-                    const extrapolationTime = Math.min(dt / 1000, 1.0);
-                    const projectedX = tx + (vx * extrapolationTime);
-                    const projectedY = ty + (vy * extrapolationTime);
-                    rp.x += (projectedX - rp.x) * 0.1;
-                    rp.y += (projectedY - rp.y) * 0.1;
-                } else {
-                    rp.x += (tx - rp.x) * 0.2;
-                    rp.y += (ty - rp.y) * 0.2;
-                }
-            }
-
-            // Performance: Throttle visual sync (baked textures, swimming, labels) to every 200ms
-            if (!rp.lastVisualUpdate || now - rp.lastVisualUpdate > 200) {
-                rp.lastVisualUpdate = now;
-
-                // Sync Identity visuals
-                const texKey = 'player_tex_' + id;
-                if (identity.pattern && identity.pattern !== 'None') {
-                    if (rp.texture.key !== texKey) {
-                        window.generatePlayerTexture(scene, texKey, identity.color || '#FFFFFF', identity.pattern, identity.patternColor || '#FF0000');
-                        rp.setTexture(texKey);
-                        rp.setTint(0xffffff);
-                    }
-                } else {
-                    if (rp.texture.key !== 'player_tex') {
-                        rp.setTexture('player_tex');
-                    }
-                    if (identity.color) {
-                        const c = parseInt(identity.color.replace('#', '0x'));
-                        if (rp.originalColor !== c) {
-                            rp.originalColor = c;
-                            rp.setTint(c);
-                        }
-                    }
-                }
-
-                if (identity.auraColor && rp.aura) {
-                    const ac = parseInt(identity.auraColor.replace('#', '0x'));
-                    if (rp.aura.tintTopLeft !== ac) rp.aura.setTint(ac);
-                }
-
-                // Swimming visuals
-                const rCol = Math.floor(rp.x / 100);
-                const rRow = Math.floor(rp.y / 100);
-                const rpInWater = (mapData[rRow] && mapData[rRow][rCol] === 'obs');
-                rp._isInWater = rpInWater; // Cache for culling logic
-                if (rpInWater && window.currentSeason !== 'Winter') {
-                    rp.setTint(0x88ccff);
-                    rp.setAlpha(0.7);
-                    const bob = Math.sin((now + (id.charCodeAt(0)*100)) / 200) * 4;
-                    rp.setCrop(0, 0, 40, 25 + bob);
-                    rp.setOrigin(0.5, 0.4);
-                    if (rp.aura) rp.aura.setVisible(false);
-                } else {
-                    rp.setTint(rp.originalColor || 0xFFFFFF);
-                    rp.setAlpha(1.0);
-                    rp.setCrop();
-                    rp.setOrigin(0.5, 0.5);
-                    if (rp.aura) rp.aura.setVisible(rp.visible);
-                }
-
-                // Label Sync
-                const pIndex = (window.remotePlayerIndices && window.remotePlayerIndices[id]) ? window.remotePlayerIndices[id] : 0;
-                let labelText = (identity.name || ('P' + pIndex));
-                if (data.level) labelText += ' | Lvl ' + data.level;
-                if (data.battle) labelText += ' (In Battle)';
-                if (rp.label) {
-                    rp.label.setText(labelText);
-                }
-            }
-
-            if (rp.label) {
-                rp.label.x = rp.x;
-                rp.label.y = rp.y - 30;
-                rp.label.setDepth(10 + rp.y / 10000);
-            }
-
-            // Shared Components
-            rp.setDepth(10 + rp.y / 10000);
-            if (rp.aura) {
-                rp.aura.x = rp.x;
-                rp.aura.y = rp.y;
-                rp.aura.setDepth(rp.depth - 0.01);
-            }
-
-            // Culling
-            const cam = scene.cameras.main;
-            const viewPadding = 300;
-            const isVisible = (rp.x >= cam.scrollX - viewPadding && rp.x <= cam.scrollX + cam.width + viewPadding &&
-                               rp.y >= cam.scrollY - viewPadding && rp.y <= cam.scrollY + cam.height + viewPadding);
-            if (rp.visible !== isVisible) {
-                rp.setVisible(isVisible);
-                if (rp.aura) rp.aura.setVisible(isVisible && !rp._isInWater);
-                if (rp.label) rp.label.setVisible(isVisible);
-            }
-        }
-    };
     // Generate map terrain
     const TILE_SIZE = 100;
     const cols = WORLD_SIZE / TILE_SIZE; // 100
@@ -7389,9 +6482,7 @@ function create() {
     obstaclesGroup = this.physics.add.staticGroup();
     window.treesGroup = this.physics.add.staticGroup();
     hospitalGroup = this.physics.add.staticGroup();
-    tradeGroup = this.physics.add.staticGroup();
     storeGroup = this.physics.add.staticGroup();
-    pvpGroup = this.physics.add.staticGroup();
 
     // Procedural generation
 
@@ -7468,11 +6559,9 @@ function create() {
     // Force hospital to be at 100, 100
     mapData[100][100] = 'hospital';
     // Trade tile directly south
-    mapData[101][100] = 'trade';
     // Store tile next to trade
     mapData[101][101] = 'store';
     // PvP tile directly right of trade
-    mapData[100][101] = 'pvp';
 
     // Calculate water depth distances using 2-pass Manhattan algorithm
     window.waterDist = [];
@@ -7634,7 +6723,7 @@ function create() {
     };
     const posMsg = { type: 'pos', x: Math.round(player.x), y: Math.round(player.y), vx: 0, vy: 0 };
 
-    if (Object.keys(window.p2pPeers).length > 0) {
+    if (false) {
         window.broadcastP2P( identityMsg);
         window.broadcastP2P( posMsg);
     }
@@ -7702,71 +6791,6 @@ function create() {
     this.input.on('pointerup', () => {
         pointerTarget = null;
     });
-
-    // Set up multiplayer message handler for Phaser scene
-    if (typeof window.playerIndexCount === 'undefined') window.playerIndexCount = 1; // Local player is P1
-    window.handleMultiplayerMessage = (userId, msg) => {
-        // Identity and position are now handled by synchronizeRemotePlayers reconciliation loop
-        if (msg.type === 'identity' || msg.type === 'pos' || msg.type === 'position') return;
-
-        if (msg.type === 'creature_caught') {
-            const creatureId = msg.creatureId;
-            creaturesGroup.getChildren().forEach(creature => {
-                const data = creature.getData('creatureData');
-                if (data && data.id === creatureId) {
-                    creature.destroy();
-                }
-            });
-        } else if (msg.type === 'trade_offer') {
-            pendingTradeOffer = {
-                from: userId,
-                creature: msg.creature
-            };
-            document.getElementById('tradeIncomingSection').style.display = 'block';
-            document.getElementById('tradeOfferText').innerText = `Player ${userId.substring(0, 5)}... offered a Level ${msg.creature.level} ${msg.creature.name}!`;
-        } else if (msg.type === 'trade_accept') {
-            // Remove the creature from our party
-            const index = collectedCreatures.findIndex(c => String(c.id) === String(msg.creatureId));
-            if (index !== -1) {
-                collectedCreatures.splice(index, 1);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-                document.getElementById('tradeResult').innerText = `Trade accepted! Player ${userId.substring(0, 5)}... took the creature.`;
-            }
-        } else if (msg.type === 'trade_reject') {
-            document.getElementById('tradeResult').innerText = `Player ${userId.substring(0, 5)}... rejected your trade offer.`;
-        } else if (msg.type === 'pvp_offer') {
-            pendingPvpOffer = {
-                from: userId,
-                firstCreature: msg.firstCreature
-            };
-            document.getElementById('pvpIncomingSection').style.display = 'block';
-            document.getElementById('pvpOfferText').innerText = `Player ${userId.substring(0, 5)}... challenged you to a battle with Level ${msg.firstCreature.level} ${msg.firstCreature.name}!`;
-        } else if (msg.type === 'pvp_accept') {
-            document.getElementById('pvpResult').innerText = `Battle accepted! Starting...`;
-            const activeParty = collectedCreatures.filter(c => !c.stored && c.currentHp > 0);
-            window.startPvpBattle(userId, msg.firstCreature, activeParty[0], true);
-            window.closePvpModal();
-        } else if (msg.type === 'pvp_reject') {
-            document.getElementById('pvpResult').innerText = `Player ${userId.substring(0, 5)}... rejected your battle offer.`;
-        } else if (msg.type === 'pvp_action' || msg.type === 'pvp_swap' || msg.type === 'pvp_faint') {
-            if (window.handlePvpMessage) window.handlePvpMessage(userId, msg);
-        }
-    };
-
-    window.removeRemotePlayer = (userId) => {
-        if (remotePlayers[userId]) {
-            if (remotePlayers[userId].label) remotePlayers[userId].label.destroy();
-            if (remotePlayers[userId].aura) remotePlayers[userId].aura.destroy();
-            remotePlayers[userId].destroy();
-            delete remotePlayers[userId];
-
-            // Cleanup dynamic texture to prevent memory leak
-            const texKey = "player_tex_" + userId;
-            if (game && game.scene.scenes[0] && game.scene.scenes[0].textures.exists(texKey)) {
-                game.scene.scenes[0].textures.remove(texKey);
-            }
-        }
-    };
 
     // Creatures setup
     creaturesGroup = this.physics.add.group();
@@ -7971,9 +6995,7 @@ function create() {
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
-    this.physics.add.overlap(player, tradeGroup, openTradeModal, null, this);
     this.physics.add.overlap(player, storeGroup, openStoreModal, null, this);
-    this.physics.add.overlap(player, pvpGroup, openPvpModal, null, this);
 
     window.addEventListener('resize', () => {
         if (!game || !game.scale) return;
@@ -8712,7 +7734,7 @@ window.doBattleSwap = function(newCreature) {
     window.updateBattleUI();
 
     if (window.isPvpBattle) {
-        if (Object.keys(window.p2pPeers).length > 0) {
+        if (false) {
             window.broadcastP2P( {
                 target: window.pvpOpponentId,
                 type: 'pvp_swap',
@@ -8751,7 +7773,7 @@ window.handlePvpMessage = function(userId, msg) {
             window.logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span><span style="color:#9e9e9e"> fainted!</span>`);
             if (window.handleFaint(currentPlayer)) {
                 // Battle over, loss
-                if (Object.keys(window.p2pPeers).length > 0) {
+                if (false) {
                     window.broadcastP2P( {
                         target: window.pvpOpponentId,
                         type: 'pvp_faint'
@@ -8908,7 +7930,7 @@ window.closeBattleModal = function() {
 
     if (result === 'caught' && currentEnemy) {
         // Broadcast catch to all peers
-        if (Object.keys(window.p2pPeers).length > 0) {
+        if (false) {
             window.broadcastP2P( {
                 type: 'creature_caught',
                 creatureId: currentEnemy.id
@@ -9066,7 +8088,6 @@ function respawnEnemyBase() {
 }
 
 function update() {
-    if (window.synchronizeRemotePlayers) window.synchronizeRemotePlayers(this);
     if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
 
@@ -9106,18 +8127,6 @@ function update() {
     const speed = 200;
     if (typeof Phaser === 'undefined') return;
 
-    let tradeOverlap = false;
-    if (tradeGroup) {
-        tradeGroup.getChildren().forEach(tile => {
-            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
-                tradeOverlap = true;
-            }
-        });
-    }
-    if (!tradeOverlap) {
-        window.tradeModalClosedFlag = false;
-    }
-
     let storeOverlap = false;
     if (typeof storeGroup !== 'undefined' && storeGroup) {
         storeGroup.getChildren().forEach(tile => {
@@ -9130,17 +8139,6 @@ function update() {
         window.storeModalClosedFlag = false;
     }
 
-    let pvpOverlap = false;
-    if (typeof pvpGroup !== 'undefined' && pvpGroup) {
-        pvpGroup.getChildren().forEach(tile => {
-            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
-                pvpOverlap = true;
-            }
-        });
-    }
-    if (!pvpOverlap) {
-        window.pvpModalClosedFlag = false;
-    }
 
     let activeParty = collectedCreatures.filter(c => !c.stored);
     activeParty.forEach(c => {
@@ -9167,7 +8165,7 @@ function update() {
     // 1 in-game hour = 50,000 ms
     if (window.gameStarted) {
         if (window.serverStartTime) {
-            const roomAgeMs = Date.now() + (window.clientServerOffset || 0) - window.serverStartTime;
+            const roomAgeMs = Date.now() - window.serverStartTime;
             const totalInGameHours = roomAgeMs / 50000;
             dayNightTime = totalInGameHours % 24;
             const newInGameDays = Math.floor(totalInGameHours / 24);
@@ -9917,7 +8915,7 @@ function update() {
     // Update Weather states - Performance: Throttle deterministic calculations (every 1s)
     if (window.serverStartTime && window.roomSeed && (!window.lastWeatherCalcUpdate || now - window.lastWeatherCalcUpdate > 1000)) {
         window.lastWeatherCalcUpdate = now;
-        const roomAgeMs = Date.now() + (window.clientServerOffset || 0) - window.serverStartTime;
+        const roomAgeMs = Date.now() - window.serverStartTime;
 
         // 15-minute global cycle (900,000ms)
         const CYCLE_DURATION = 900000;
@@ -10000,7 +8998,7 @@ function update() {
                 // Environmental lighting: tint entities white briefly
                 if (typeof player !== 'undefined' && player) player.setTint(0xffffff);
                 if (typeof creaturesGroup !== 'undefined' && creaturesGroup) creaturesGroup.getChildren().forEach(c => c.setTint(0xffffff));
-                if (window.remotePlayerSprites) Object.values(window.remotePlayerSprites).forEach(rp => rp.setTint(0xffffff));
+                if ([]) Object.values([]).forEach(rp => rp.setTint(0xffffff));
 
                 // Draw procedural lightning bolt
                 if (window.lightningGraphics) {
@@ -10034,8 +9032,8 @@ function update() {
                         const data = c.getData('creatureData');
                         if (data && data.color) c.setTint(data.color);
                     });
-                    if (window.remotePlayerSprites) {
-                        Object.entries(window.remotePlayerSprites).forEach(([id, rp]) => {
+                    if ([]) {
+                        Object.entries([]).forEach(([id, rp]) => {
                             const identity = window.remotePlayerIdentities[id] || {};
                             if (identity.pattern && identity.pattern !== 'None') {
                                 rp.setTint(0xffffff);
@@ -10064,7 +9062,7 @@ function update() {
     // Update Wind - Performance: Throttle deterministic calculations (every 1s)
     if (window.serverStartTime && window.roomSeed && (!window.lastWindCalcUpdate || now - window.lastWindCalcUpdate > 1000)) {
         window.lastWindCalcUpdate = now;
-        const roomAgeMs = Date.now() + (window.clientServerOffset || 0) - window.serverStartTime;
+        const roomAgeMs = Date.now() - window.serverStartTime;
         const windIntervalIndex = Math.floor(roomAgeMs / 10000);
         if (windIntervalIndex !== window.lastWindIntervalIndex) {
             window.lastWindIntervalIndex = windIntervalIndex;
