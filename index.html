@@ -3946,9 +3946,9 @@ window.getRawScaledStat = function(creature, statName) {
     let lvl = creature.level || 1;
     let val = 0;
     if (statName === 'health') {
-        val = (base * 0.4) + (base * lvl * 0.05);
+        val = (base * 0.4) + (base * lvl * 0.15);
     } else {
-        val = base + (base * (lvl - 1) * 0.05);
+        val = base + (base * (lvl - 1) * 0.15);
     }
     let bonus = 0;
     if (creature.bonusStats && creature.bonusStats[statName]) {
@@ -4415,8 +4415,7 @@ window.startChallengeBattle = function() {
     }
 
     // Determine enemy level based on tier
-    const maxPlayerLevel = Math.max(...collectedCreatures.map(c => c.level || 1));
-    const enemyLevel = maxPlayerLevel + (window.challengeTier * 3);
+    const enemyLevel = window.challengeTier;
 
     // Pick a random base creature for the challenge
     const rng = Math.random;
