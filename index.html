@@ -635,7 +635,7 @@
     <div class="battle-controls" id="battleControls">
         <button class="btn-attack">Attack</button>
         <button class="btn-swap">Swap</button>
-        <button class="btn-catch">Catch</button>
+        <button id="battleCatchBtn" class="btn-catch">Catch</button>
         <button class="btn-run">Run</button>
     </div>
 </div>
@@ -1833,27 +1833,27 @@ window.PATTERN_UNLOCKS = {
     'Dots': { condition: 'Default', check: () => true },
     'Stripes': { condition: 'Default', check: () => true },
     'Checkerboard': { condition: 'Default', check: () => true },
-    'Camo': { condition: 'Win 5 battles', check: (s) => (s.battlesWon || 0) >= 5 },
-    'Stars': { condition: 'Catch 5 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 5 },
-    'Hearts': { condition: 'Win 10 battles', check: (s) => (s.battlesWon || 0) >= 10 },
-    'Waves': { condition: 'Win 20 battles', check: (s) => (s.battlesWon || 0) >= 20 },
-    'Bricks': { condition: 'Reach Challenge Tier 2', check: () => (window.challengeTier || 1) >= 2 },
-    'Honeycomb': { condition: 'Catch 10 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 10 },
-    'Leopard': { condition: 'Win 30 battles', check: (s) => (s.battlesWon || 0) >= 30 },
-    'Zebra': { condition: 'Catch 15 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 15 },
-    'Tiger': { condition: 'Win 50 battles', check: (s) => (s.battlesWon || 0) >= 50 },
-    'Circuit': { condition: 'Reach Challenge Tier 5', check: () => (window.challengeTier || 1) >= 5 },
-    'Scales': { condition: 'Catch 20 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 20 },
-    'Flame': { condition: 'Win 75 battles', check: (s) => (s.battlesWon || 0) >= 75 },
-    'Galaxy': { condition: 'Reach Challenge Tier 10', check: () => (window.challengeTier || 1) >= 10 },
-    'Lightning': { condition: 'Win 100 battles', check: (s) => (s.battlesWon || 0) >= 100 },
-    'Spirit': { condition: 'Catch 30 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 30 },
-    'Crystal': { condition: 'Reach Challenge Tier 15', check: () => (window.challengeTier || 1) >= 15 },
-    'Dragon': { condition: 'Reach Challenge Tier 20', check: () => (window.challengeTier || 1) >= 20 },
-    'Panda': { condition: 'Win 150 battles', check: (s) => (s.battlesWon || 0) >= 150 },
-    'Skull': { condition: 'Win 200 battles', check: (s) => (s.battlesWon || 0) >= 200 },
-    'Cross': { condition: 'Catch 50 creatures', check: () => (window.collectedCreaturesIds.size || 0) >= 50 },
-    'Moon': { condition: 'Reach Challenge Tier 25', check: () => (window.challengeTier || 1) >= 25 }
+    'Camo': { condition: 'Locked', check: () => false },
+    'Stars': { condition: 'Locked', check: () => false },
+    'Hearts': { condition: 'Locked', check: () => false },
+    'Waves': { condition: 'Locked', check: () => false },
+    'Bricks': { condition: 'Locked', check: () => false },
+    'Honeycomb': { condition: 'Locked', check: () => false },
+    'Leopard': { condition: 'Locked', check: () => false },
+    'Zebra': { condition: 'Locked', check: () => false },
+    'Tiger': { condition: 'Locked', check: () => false },
+    'Circuit': { condition: 'Locked', check: () => false },
+    'Scales': { condition: 'Locked', check: () => false },
+    'Flame': { condition: 'Locked', check: () => false },
+    'Galaxy': { condition: 'Locked', check: () => false },
+    'Lightning': { condition: 'Locked', check: () => false },
+    'Spirit': { condition: 'Locked', check: () => false },
+    'Crystal': { condition: 'Locked', check: () => false },
+    'Dragon': { condition: 'Locked', check: () => false },
+    'Panda': { condition: 'Locked', check: () => false },
+    'Skull': { condition: 'Locked', check: () => false },
+    'Cross': { condition: 'Locked', check: () => false },
+    'Moon': { condition: 'Locked', check: () => false }
 };
 
 window.gameStarted = false;
@@ -1899,7 +1899,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelector('.btn-attack')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('attack'); });
     document.querySelector('.btn-swap')?.addEventListener('click', () => { if (window.openBattleSwapModal) window.openBattleSwapModal(); });
-    document.querySelector('.btn-catch')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('catch'); });
+    document.getElementById('battleCatchBtn')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('catch'); });
     document.querySelector('.btn-run')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('run'); });
 
     document.getElementById('menuBtn')?.addEventListener('click', () => { if (window.openMenuModal) window.openMenuModal(); });
@@ -5481,6 +5481,9 @@ window.updateBattleUI = function() {
     const battleCloseBtn = document.getElementById('battleCloseBtn');
     if (battleCloseBtn) battleCloseBtn.style.display = isCombatActive ? 'none' : 'flex';
 
+    const catchBtn = document.getElementById('battleCatchBtn');
+    if (catchBtn) catchBtn.style.display = (isCombatActive && !window.inChallengeBattle) ? 'block' : 'none';
+
     const pvpCloseBtns = document.querySelectorAll('.close-pvp-btn');
     pvpCloseBtns.forEach(btn => btn.style.display = isCombatActive ? 'none' : 'flex');
 
@@ -7847,6 +7850,12 @@ window.doPlayerAction = function(action, callback) {
         }
 
     } else if (action === 'catch') {
+        if (window.inChallengeBattle) {
+            logBattle("<b>Challenge creatures cannot be caught!</b>");
+            updateBattleUI();
+            if (callback) setTimeout(callback, 1500);
+            return;
+        }
         if (collectedCreatures.length >= 1375) {
             logBattle("<b>Your storage is full! You cannot catch more creatures.</b>");
             updateBattleUI();
@@ -8289,15 +8298,17 @@ window.closeBattleModal = function() {
         }
     }
 
+    const wasInChallenge = window.inChallengeBattle;
     window.inBattle = false;
+    window.inChallengeBattle = false; // Reset challenge flag
+
     if (typeof player !== 'undefined' && player && player.body) player.body.moves = true;
     if (typeof player !== 'undefined' && player) player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
 
     if (result === 'win') {
-        if (window.inChallengeBattle) {
+        if (wasInChallenge) {
             window.challengeTier++;
             localStorage.setItem('wildpulse_challenge_tier', window.challengeTier.toString());
-            window.inChallengeBattle = false;
             setTimeout(() => {
                 if (confirm(`Challenge Victory! You've reached Tier ${window.challengeTier}. Continue to next battle?`)) {
                     window.startChallengeBattle();
@@ -8531,7 +8542,7 @@ function update() {
     // 1 in-game hour = 50,000 ms
     if (window.gameStarted) {
         window.totalElapsedMs += dt;
-        const totalInGameHours = window.totalElapsedMs / 50000;
+        const totalInGameHours = (window.totalElapsedMs / 50000) + 12;
         dayNightTime = totalInGameHours % 24;
         const newInGameDays = Math.floor(totalInGameHours / 24);
         if (newInGameDays !== wildpulse_inGameDays) {
