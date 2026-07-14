@@ -4264,8 +4264,59 @@ window.collectedCreaturesIds = collectedCreaturesIds;
 
 
 
+// ==================== MUTUAL EXCLUSION MODAL HELPERS ====================
+window.challengeModalClosedFlag = false;
+
+window.isAnyModalOpen = function() {
+    const modals = [
+        'menuModal', 'partyModal', 'storageModal', 'helpModal',
+        'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
+        'battleModal', 'battleSwapModal', 'challengeModal',
+        'journalModal', 'storeModal', 'customizationModal'
+    ];
+    for (let id of modals) {
+        let el = document.getElementById(id);
+        if (el && el.style.display !== 'none' && el.style.display !== '') {
+            return true;
+        }
+    }
+    return false;
+};
+
+window.closeAllModals = function(exceptId) {
+    const modals = [
+        { id: 'menuModal', close: () => { if (window.closeMenuModal) window.closeMenuModal(); } },
+        { id: 'partyModal', close: () => { if (window.closePartyModal) window.closePartyModal(); } },
+        { id: 'storageModal', close: () => { if (window.closeStorageModal) window.closeStorageModal(); } },
+        { id: 'helpModal', close: () => { if (window.closeHelpModal) window.closeHelpModal(); } },
+        { id: 'breedingModal', close: () => { if (window.closeBreedingModal) window.closeBreedingModal(); } },
+        { id: 'journalModal', close: () => { if (window.closeJournalModal) window.closeJournalModal(); } },
+        { id: 'storeModal', close: () => { if (window.closeStoreModal) window.closeStoreModal(); } },
+        { id: 'challengeModal', close: () => { if (window.closeChallengeModal) window.closeChallengeModal(); } },
+        { id: 'battleSwapModal', close: () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); } },
+        { id: 'tradeModal', close: () => { if (window.closeTradeModal) window.closeTradeModal(); } },
+        { id: 'pvpModal', close: () => { if (window.closePvpModal) window.closePvpModal(); } }
+    ];
+    if (exceptId !== 'customizationModal') {
+        let el = document.getElementById('customizationModal');
+        if (el) el.style.display = 'none';
+    }
+    for (let m of modals) {
+        if (m.id === exceptId) continue;
+        let el = document.getElementById(m.id);
+        if (el && el.style.display !== 'none' && el.style.display !== '') {
+            if (m.close) {
+                m.close();
+            } else {
+                el.style.display = 'none';
+            }
+        }
+    }
+};
+
 // ==================== MENU & PARTY ====================
 window.openMenuModal = function() {
+    window.closeAllModals('menuModal');
     document.getElementById('menuModal').style.display = 'block';
 };
 window.closeMenuModal = function() {
@@ -4339,7 +4390,7 @@ window.returnToOwnWorld = function() {
 
 
 window.openJournalModal = function() {
-    closeMenuModal();
+    window.closeAllModals('journalModal');
 
     // Calculate unique Gen 1 and Gen 2 creatures
     const gen1Set = new Set();
@@ -4375,7 +4426,11 @@ window.challengeTier = parseInt(localStorage.getItem('wildpulse_challenge_tier')
 window.inChallengeBattle = false;
 
 window.openChallengeModal = function() {
+    if (window.challengeModalClosedFlag) return;
     if (window.inBattle) return;
+    if (window.isAnyModalOpen()) return;
+    window.closeAllModals('challengeModal');
+
     const modal = document.getElementById('challengeModal');
     const tierText = document.getElementById('challengeTierText');
     const diffText = document.getElementById('challengeDifficultyText');
@@ -4394,6 +4449,7 @@ window.openChallengeModal = function() {
 };
 
 window.closeChallengeModal = function() {
+    window.challengeModalClosedFlag = true;
     document.getElementById('challengeModal').style.display = 'none';
 };
 
@@ -8511,6 +8567,18 @@ function update() {
     }
     if (!storeOverlap) {
         window.storeModalClosedFlag = false;
+    }
+
+    let challengeOverlap = false;
+    if (typeof challengeGroup !== 'undefined' && challengeGroup) {
+        challengeGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
+                challengeOverlap = true;
+            }
+        });
+    }
+    if (!challengeOverlap) {
+        window.challengeModalClosedFlag = false;
     }
 
 
