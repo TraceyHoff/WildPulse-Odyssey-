@@ -165,3 +165,15 @@ WildPulse Odyssey Creature Collecting Game
 - **Exit State Cleanliness**:
     - **Main Menu UI Guard**: Wrapped Phaser's throttled UI text and weather refresh blocks inside `window.gameStarted` checks.
     - **Weather Element Hiding**: Upgraded `window.exitGame` to completely hide and reset the opacity of the weather status icon and labels upon return to the main menu.
+
+### New Features (v21)
+- **Combined Stat Modifier Visuals**:
+    - **Dual Nature & Mood Tracking**: Upgraded the Party Modal to calculate and display real-time effective stats when modified positively or negatively by both a creature's Nature and Mood.
+    - **Color-Coded Status Enhancements**: Displays the net stat modifiers dynamically using Lime (positive) or Red/Coral (negative) to clearly highlight the tier-based boosts or reductions.
+- **Unified Nature & Mood Scaling**:
+    - **Structured Object Migration**: Replaced legacy text-based nature/mood properties with fully realized, structured Nature and Mood objects for all creatures, including wild spawns and challenge opponents.
+    - **Battle Stability**: Ensured all stat buffs and debuffs from unique mood and nature combinations work and scale correctly in battles, challenges, and training.
+- **Procedural Combat Sprites**:
+    - **Interactive Battle Visuals**: Added a procedural rendering engine for combatants in Battles and Challenges, replacing the solid color blocks with dynamically drawn, high-quality creature canvas icons.
+    - **Dynamic Feature Drawing**: Automatically depicts physical features (such as wings, tails, and horns/claws) based on the creature's traits/descriptions, uses type-themed background glowing auras and pupils, and overlays golden sparkles for Shiny variants.
+    - **Swap Reactive**: Sprites are fully reactive and automatically update during battles when creatures are swapped in or out.
