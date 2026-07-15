@@ -149,3 +149,19 @@ WildPulse Odyssey Creature Collecting Game
     - **Server-Lite Signaling**: The backend server is now a minimal signaling relay, used only for participant discovery and initial handshakes, significantly reducing server load.
     - **P2P Systems Integration**: Movement, chat, identity, trading, and PvP battle data are now transmitted directly between players via high-performance WebRTC data channels.
     - **Synchronized World State**: Implemented deterministic client-side seeding and shared epoch timing to ensure all P2P clients remain perfectly synchronized with respect to world generation, weather, and the day/night cycle without a central authority.
+
+### New Features (v19)
+- **Single-Player Evolution**:
+    - **Focused Experience**: Optimized the codebase into a dedicated, high-performance single-player journey by cleanly removing legacy multiplayer libraries, trade/PvP menus, and network sync overhead.
+    - **Deterministic Seeding & Local Storage**: Integrated complete offline persistence, tracking game days, custom patterns, and room configurations seamlessly via localStorage.
+
+### New Features (v20)
+- **Safe Spawn Mechanics**:
+    - **Spawn Protection**: Modified procedural generation and player respawn validation algorithms to guarantee the player never spawns on or next to the Crown Challenge tile or Hospital tile. New games start safely at coordinate `(10550, 10550)`, eliminating accidental modal triggers.
+- **Perfect Responsive Modals**:
+    - **Unified Adaptive Layout**: Re-engineered styling for all in-game modals—including Menu, Party, Storage, Breeding, Level Up, Journal, Store, and Battle Modals.
+    - **Pinned Viewport Navigation**: Converted modal close buttons (`.close-btn`) to `position: fixed` to pin them in the top-right corner of the viewport, ensuring they are always visible and clickable, regardless of scroll depth.
+    - **Small-Screen Adaptation**: Introduced media queries for devices narrower than 600px. The battle interface automatically converts to a clean single-column layout, and battle buttons adapt into a comfortable 2x2 grid to prevent any overlaps.
+- **Exit State Cleanliness**:
+    - **Main Menu UI Guard**: Wrapped Phaser's throttled UI text and weather refresh blocks inside `window.gameStarted` checks.
+    - **Weather Element Hiding**: Upgraded `window.exitGame` to completely hide and reset the opacity of the weather status icon and labels upon return to the main menu.
