@@ -6871,6 +6871,37 @@ let hospitalGroup;
 let storeGroup;
 let activeTiles = {}; // Track active viewport tiles to cull
 
+window.isInsideAnyActiveCamera = function(x, y, scene, padding) {
+    if (!scene) return false;
+    const pad = padding || 0;
+
+    // Check main camera
+    const cam1 = scene.cameras.main;
+    if (cam1) {
+        const left = cam1.scrollX - pad;
+        const right = cam1.scrollX + cam1.width + pad;
+        const top = cam1.scrollY - pad;
+        const bottom = cam1.scrollY + cam1.height + pad;
+        if (x >= left && x <= right && y >= top && y <= bottom) {
+            return true;
+        }
+    }
+
+    // Check camera 2 if coop is active
+    if (window.coopActive && window.camera2) {
+        const cam2 = window.camera2;
+        const left = cam2.scrollX - pad;
+        const right = cam2.scrollX + cam2.width + pad;
+        const top = cam2.scrollY - pad;
+        const bottom = cam2.scrollY + cam2.height + pad;
+        if (x >= left && x <= right && y >= top && y <= bottom) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
 function spawnTile(scene, r, c, tileSize, cols, rows) {
     let sprites = [];
     let posX = c * tileSize + tileSize / 2;
@@ -9312,26 +9343,39 @@ function update() {
 
     const buffer = 2; // Render 2 tiles outside view
 
-    const minCol = Math.max(0, Math.floor(cam.scrollX / TILE_SIZE) - buffer);
-    const maxCol = Math.min((mapData[0] || []).length - 1, Math.floor((cam.scrollX + cam.width) / TILE_SIZE) + buffer);
-    const minRow = Math.max(0, Math.floor(cam.scrollY / TILE_SIZE) - buffer);
-    const maxRow = Math.min(mapData.length - 1, Math.floor((cam.scrollY + cam.height) / TILE_SIZE) + buffer);
-
     // Track which tiles we need this frame
     let neededTiles = new Set();
 
-    for (let r = minRow; r <= maxRow; r++) {
-        for (let c = minCol; c <= maxCol; c++) {
-            if (mapData[r]) {
-                const key = `${r},${c}`;
-                neededTiles.add(key);
-                if (!activeTiles[key]) {
-                    activeTiles[key] = spawnTile(this, r, c, TILE_SIZE, mapData[0].length, mapData.length);
-                    activeTiles[key].tileR = r;
-                    activeTiles[key].tileC = c;
-                    window.waterMaskDirty = true;
+    const camerasToCheck = [this.cameras.main];
+    if (window.coopActive && window.camera2) {
+        camerasToCheck.push(window.camera2);
+    }
+
+    for (const activeCam of camerasToCheck) {
+        const minCol = Math.max(0, Math.floor(activeCam.scrollX / TILE_SIZE) - buffer);
+        const maxCol = Math.min((mapData[0] || []).length - 1, Math.floor((activeCam.scrollX + activeCam.width) / TILE_SIZE) + buffer);
+        const minRow = Math.max(0, Math.floor(activeCam.scrollY / TILE_SIZE) - buffer);
+        const maxRow = Math.min(mapData.length - 1, Math.floor((activeCam.scrollY + activeCam.height) / TILE_SIZE) + buffer);
+
+        for (let r = minRow; r <= maxRow; r++) {
+            for (let c = minCol; c <= maxCol; c++) {
+                if (mapData[r]) {
+                    neededTiles.add(`${r},${c}`);
                 }
             }
+        }
+    }
+
+    // Spawn tiles needed this frame
+    for (const key of neededTiles) {
+        if (!activeTiles[key]) {
+            const parts = key.split(',');
+            const r = parseInt(parts[0], 10);
+            const c = parseInt(parts[1], 10);
+            activeTiles[key] = spawnTile(this, r, c, TILE_SIZE, mapData[0].length, mapData.length);
+            activeTiles[key].tileR = r;
+            activeTiles[key].tileC = c;
+            window.waterMaskDirty = true;
         }
     }
 
@@ -9781,20 +9825,28 @@ function update() {
 
     // Creature wandering logic & culling
     creaturesGroup.getChildren().forEach(creature => {
-        const isVisible = (creature.x >= viewLeft && creature.x <= viewRight && creature.y >= viewTop && creature.y <= viewBottom);
+        const isVisible = window.isInsideAnyActiveCamera(creature.x, creature.y, this, 300);
         creature.setVisible(isVisible);
 
         if (updateAIThisFrame) {
             // Background wandering continues even if invisible
             if (Math.random() < 0.02) {
-                const distToPlayer = Math.hypot(player.x - creature.x, player.y - creature.y);
+                let distToPlayer = Math.hypot(player.x - creature.x, player.y - creature.y);
+                let closestPlayer = player;
+                if (window.coopActive && window.player2) {
+                    const distToP2 = Math.hypot(window.player2.x - creature.x, window.player2.y - creature.y);
+                    if (distToP2 < distToPlayer) {
+                        distToPlayer = distToP2;
+                        closestPlayer = window.player2;
+                    }
+                }
 
-                // Teleport creatures that are too far away to just outside the viewport
+                // Teleport creatures that are too far away to just outside the viewport of the closest player
                 if (distToPlayer > 2500) {
                     const angle = Math.random() * Math.PI * 2;
                     const rDist = 1000 + Math.random() * 1000; // 1000 to 2000 px away
-                    const targetX = Phaser.Math.Clamp(player.x + Math.cos(angle) * rDist, 100, WORLD_SIZE - 100);
-                    const targetY = Phaser.Math.Clamp(player.y + Math.sin(angle) * rDist, 100, WORLD_SIZE - 100);
+                    const targetX = Phaser.Math.Clamp(closestPlayer.x + Math.cos(angle) * rDist, 100, WORLD_SIZE - 100);
+                    const targetY = Phaser.Math.Clamp(closestPlayer.y + Math.sin(angle) * rDist, 100, WORLD_SIZE - 100);
 
                     const col = Math.floor(targetX / 100);
                     const row = Math.floor(targetY / 100);
@@ -9848,15 +9900,23 @@ function update() {
                 return;
             }
 
-            const isVisible = (fish.x >= viewLeft && fish.x <= viewRight && fish.y >= viewTop && fish.y <= viewBottom);
+            const isVisible = window.isInsideAnyActiveCamera(fish.x, fish.y, this, 300);
             fish.setVisible(isVisible);
 
             if (updateAIThisFrame && isVisible) {
                 let distToPlayer = Math.hypot(player.x - fish.x, player.y - fish.y);
+                let closestPlayer = player;
+                if (window.coopActive && window.player2) {
+                    const distToP2 = Math.hypot(window.player2.x - fish.x, window.player2.y - fish.y);
+                    if (distToP2 < distToPlayer) {
+                        distToPlayer = distToP2;
+                        closestPlayer = window.player2;
+                    }
+                }
 
                 if (distToPlayer < 250) {
-                    // Flee from player
-                    let angle = Math.atan2(fish.y - player.y, fish.x - player.x);
+                    // Flee from the closest player
+                    let angle = Math.atan2(fish.y - closestPlayer.y, fish.x - closestPlayer.x);
                     let fleeDist = 150;
                     let targetX = fish.x + Math.cos(angle) * fleeDist;
                     let targetY = fish.y + Math.sin(angle) * fleeDist;
@@ -9877,7 +9937,7 @@ function update() {
                         for(let t of lakeTiles) {
                             let tx = t.c * TILE_SIZE + TILE_SIZE/2;
                             let ty = t.r * TILE_SIZE + TILE_SIZE/2;
-                            let d = Math.hypot(tx - player.x, ty - player.y);
+                            let d = Math.hypot(tx - closestPlayer.x, ty - closestPlayer.y);
                             if(d > maxDist) {
                                 maxDist = d;
                                 bestTile = t;
@@ -10136,8 +10196,25 @@ function update() {
         }
 
         if (window.sharedEmitZone && window.sharedEmitZone.source) {
-            window.sharedEmitZone.source.x = viewLeft;
-            window.sharedEmitZone.source.y = viewTop;
+            if (window.coopActive && window.camera2) {
+                // Alternate between camera 1 and camera 2 based on frame counter to distribute particles evenly across viewports
+                if (window.aiFrameCounter % 2 === 0) {
+                    window.sharedEmitZone.source.x = this.cameras.main.scrollX - 300;
+                    window.sharedEmitZone.source.y = this.cameras.main.scrollY - 300;
+                    window.sharedEmitZone.source.width = this.cameras.main.width + 600;
+                    window.sharedEmitZone.source.height = this.cameras.main.height + 600;
+                } else {
+                    window.sharedEmitZone.source.x = window.camera2.scrollX - 300;
+                    window.sharedEmitZone.source.y = window.camera2.scrollY - 300;
+                    window.sharedEmitZone.source.width = window.camera2.width + 600;
+                    window.sharedEmitZone.source.height = window.camera2.height + 600;
+                }
+            } else {
+                window.sharedEmitZone.source.x = viewLeft;
+                window.sharedEmitZone.source.y = viewTop;
+                window.sharedEmitZone.source.width = cam.width + 600;
+                window.sharedEmitZone.source.height = cam.height + 600;
+            }
         }
 
         // Dynamic, Season-Aware Particles
@@ -10218,13 +10295,20 @@ function update() {
             // Trigger splashes on water tiles
             if (window.currentSeason !== 'Winter' && (window.weatherPattern.includes('rain') || window.weatherPattern.includes('storm'))) {
                 const numSplashes = Math.floor(window.weatherIntensity * 5);
-                for (let i = 0; i < numSplashes; i++) {
-                    const rx = cam.scrollX + Math.random() * cam.width;
-                    const ry = cam.scrollY + Math.random() * cam.height;
-                    const col = Math.floor(rx / 100);
-                    const row = Math.floor(ry / 100);
-                    if (mapData[row] && mapData[row][col] === 'obs') {
-                        window.rainSplashEmitter.emitParticleAt(rx, ry);
+                const camerasToSplash = [this.cameras.main];
+                if (window.coopActive && window.camera2) {
+                    camerasToSplash.push(window.camera2);
+                }
+
+                for (const activeCam of camerasToSplash) {
+                    for (let i = 0; i < numSplashes; i++) {
+                        const rx = activeCam.scrollX + Math.random() * activeCam.width;
+                        const ry = activeCam.scrollY + Math.random() * activeCam.height;
+                        const col = Math.floor(rx / 100);
+                        const row = Math.floor(ry / 100);
+                        if (mapData[row] && mapData[row][col] === 'obs') {
+                            window.rainSplashEmitter.emitParticleAt(rx, ry);
+                        }
                     }
                 }
             }
@@ -10264,8 +10348,7 @@ function update() {
                 cloud.y += (windVy * 0.5) * (dt / 1000) * 3;
 
                 // Performance: Cull clouds far from view
-                const isNearView = (cloud.x >= cam.scrollX - viewPadding && cloud.x <= cam.scrollX + cam.width + viewPadding &&
-                                    cloud.y >= cam.scrollY - viewPadding && cloud.y <= cam.scrollY + cam.height + viewPadding);
+                const isNearView = window.isInsideAnyActiveCamera(cloud.x, cloud.y, this, viewPadding);
 
                 if (!isNearView) {
                     if (cloud.visible) {
