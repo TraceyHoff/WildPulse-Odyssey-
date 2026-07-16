@@ -1593,7 +1593,8 @@ function escapeHtml(unsafe) {
 window.player = undefined;
 let player;
 let cursors;
-let pointerTarget = null;
+window.pointerTarget = null;
+window.pointer2Target = null;
 let creaturesGroup;
 let popupText;
 let popupBackground;
@@ -7447,19 +7448,8 @@ function create() {
         right: Phaser.Input.Keyboard.KeyCodes.D
     });
 
-    this.input.on('pointerdown', (pointer) => {
-        pointerTarget = { x: pointer.worldX, y: pointer.worldY };
-    });
-
-    this.input.on('pointermove', (pointer) => {
-        if (pointer.isDown) {
-            pointerTarget = { x: pointer.worldX, y: pointer.worldY };
-        }
-    });
-
-    this.input.on('pointerup', () => {
-        pointerTarget = null;
-    });
+    // Support up to 4 simultaneous active pointers for split screen co-op multi-touch on one device
+    this.input.addPointer(3);
 
     // Creatures setup
     creaturesGroup = this.physics.add.group();
@@ -9439,6 +9429,49 @@ function update() {
 
     if (window.inBattle) return;
 
+    // Dynamic pointer targeting for multi-touch co-op controls
+    if (window.gameStarted) {
+        window.pointerTarget = null;
+        window.pointer2Target = null;
+
+        // Collect all active pointers that are currently down
+        const activePointers = [];
+        if (this.input.manager && this.input.manager.pointers) {
+            this.input.manager.pointers.forEach(p => {
+                if (p && p.isDown && !activePointers.includes(p)) {
+                    activePointers.push(p);
+                }
+            });
+        }
+
+        if (window.coopActive) {
+            const screenXDivider = window.innerWidth / 2;
+            activePointers.forEach(p => {
+                if (p.x < screenXDivider) {
+                    // Left half: Player 1 controls
+                    const wp = this.cameras.main.getWorldPoint(p.x, p.y);
+                    window.pointerTarget = { x: wp.x, y: wp.y };
+                } else {
+                    // Right half: Player 2 controls
+                    if (window.camera2) {
+                        const wp = window.camera2.getWorldPoint(p.x, p.y);
+                        window.pointer2Target = { x: wp.x, y: wp.y };
+                    }
+                }
+            });
+        } else {
+            // Single player: entire screen controls Player 1
+            if (activePointers.length > 0) {
+                const p = activePointers[0];
+                const wp = this.cameras.main.getWorldPoint(p.x, p.y);
+                window.pointerTarget = { x: wp.x, y: wp.y };
+            }
+        }
+    } else {
+        window.pointerTarget = null;
+        window.pointer2Target = null;
+    }
+
     let targetVx = 0;
     let targetVy = 0;
     let moveSpeed = isSwimming ? speed * 0.5 : speed;
@@ -9522,9 +9555,9 @@ function update() {
         }
 
         // Pointer movement (if active and overriding keyboard or not moving via keyboard)
-        if (pointerTarget) {
-            const dx = pointerTarget.x - player.x;
-            const dy = pointerTarget.y - player.y;
+        if (window.pointerTarget) {
+            const dx = window.pointerTarget.x - player.x;
+            const dy = window.pointerTarget.y - player.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             if (distance > 10) {
                 targetVx = (dx / distance) * moveSpeed;
@@ -9532,13 +9565,13 @@ function update() {
                 movedX = true;
                 movedY = true;
             } else {
-                pointerTarget = null;
+                window.pointerTarget = null;
             }
         }
     } else {
         targetVx = 0;
         targetVy = 0;
-        pointerTarget = null;
+        window.pointerTarget = null;
     }
 
     if (onIce) {
@@ -9653,6 +9686,21 @@ function update() {
                         p2TargetVx = p2Speed;
                         p2MovedX = true;
                     }
+                }
+            }
+
+            // Player 2 Pointer movement (if active)
+            if (window.pointer2Target) {
+                const dx = window.pointer2Target.x - window.player2.x;
+                const dy = window.pointer2Target.y - window.player2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 10) {
+                    p2TargetVx = (dx / distance) * p2Speed;
+                    p2TargetVy = (dy / distance) * p2Speed;
+                    p2MovedX = true;
+                    p2MovedY = true;
+                } else {
+                    window.pointer2Target = null;
                 }
             }
         }
