@@ -1594,6 +1594,34 @@ function escapeHtml(unsafe) {
     <button class="close-store-btn" style="margin-top: 20px; padding: 10px; width: 100%; background: linear-gradient(180deg, #555, #222); border-radius: 12px; border: 1px solid #777; color: white; cursor: pointer;">Close</button>
 </div>
 
+<div id="tradeModal" style="display:none; position:fixed; color:white; z-index:910; text-align:center;">
+    <button class="close-btn close-trade-btn" aria-label="Close Trade">X</button>
+    <h2>Local Split-Screen Trade</h2>
+    <div style="display: flex; justify-content: space-around; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+        <!-- Player 1 Column -->
+        <div style="flex: 1; min-width: 220px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #4caf50; box-sizing: border-box;">
+            <h3>Player 1 (P1)</h3>
+            <label>Offer Creature:</label>
+            <select id="tradeCreatureSelectP1" style="width: 100%; margin: 10px 0; padding: 8px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 14px;"></select>
+            <div id="tradeP1Sprite" style="width: 80px; height: 80px; background: #fff; margin: 10px auto; border-radius: 8px;"></div>
+            <div id="tradeP1PreviewText" style="margin-top: 10px; font-size: 13px; color: #bbb; line-height: 1.4;"></div>
+        </div>
+        <!-- Player 2 Column -->
+        <div style="flex: 1; min-width: 220px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #ff9800; box-sizing: border-box;">
+            <h3>Player 2 (P2)</h3>
+            <label>Offer Creature:</label>
+            <select id="tradeCreatureSelectP2" style="width: 100%; margin: 10px 0; padding: 8px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 14px;"></select>
+            <div id="tradeP2Sprite" style="width: 80px; height: 80px; background: #fff; margin: 10px auto; border-radius: 8px;"></div>
+            <div id="tradeP2PreviewText" style="margin-top: 10px; font-size: 13px; color: #bbb; line-height: 1.4;"></div>
+        </div>
+    </div>
+    <div style="margin-top: 30px;">
+        <button id="confirmTradeBtn" style="padding: 12px 30px; font-size: 18px; font-weight: bold; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 1px solid #a5d6a7; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">Execute Trade</button>
+        <p id="tradeResultText" style="margin-top: 15px; font-weight: bold; font-size: 16px; color: #ffd700; min-height: 20px;"></p>
+    </div>
+    <button class="close-trade-btn" style="margin-top: 20px; padding: 10px; width: 100%; background: linear-gradient(180deg, #555, #222); border-radius: 12px; border: 1px solid #777; color: white; cursor: pointer;">Close</button>
+</div>
+
 <script>
 
 window.player = undefined;
@@ -4533,6 +4561,9 @@ window.collectedCreatures = collectedCreatures;
 window.playerParty = collectedCreatures;
 window.collectedCreaturesIds = collectedCreaturesIds;
 
+window.collectedCreatures2 = JSON.parse(localStorage.getItem('wildpulse_collected_creatures2')) || [];
+window.collectedCreaturesIds2 = new Set(window.collectedCreatures2.map(c => c.id));
+
 // Stats System
 window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
     battlesWon: 0,
@@ -5553,70 +5584,117 @@ window.storeModalClosedFlag = false;
 window.pvpModalClosedFlag = false;
 let pendingPvpOffer = null;
 
-window.openTradeModal = function(targetUserId) {
-    if (window.tradeModalClosedFlag) return;
+window.openTradeModal = function() {
+    window.tradeModalClosedFlag = false;
     if (window.inBattle) return;
-    const s1 = document.getElementById('tradeCreatureSelect');
+    if (!window.coopActive) {
+        window.showModernNotification("Activate 2-Player Co-op to trade creatures!");
+        return;
+    }
+
+    const s1 = document.getElementById('tradeCreatureSelectP1');
     s1.innerHTML = '';
-    collectedCreatures.filter(c => !c.stored).forEach(c => {
+    const p1Party = window.collectedCreatures.filter(c => !c.stored);
+    p1Party.forEach(c => {
         const option = document.createElement('option');
         option.value = c.id;
-        option.text = `${c.name} (Gen ${c.generation})`;
+        option.text = `${c.name} (Lvl ${c.level})`;
         s1.appendChild(option);
     });
 
-    const s2 = document.getElementById('tradePlayerSelect');
+    const s2 = document.getElementById('tradeCreatureSelectP2');
     s2.innerHTML = '';
+    const p2Party = window.collectedCreatures2.filter(c => !c.stored);
+    p2Party.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.id;
+        option.text = `${c.name} (Lvl ${c.level})`;
+        s2.appendChild(option);
+    });
 
-    if (socket) socket.emit('fetch-global-users');
-
-    // Give it a tiny bit of time to fetch global users, otherwise fallback to known users
-    setTimeout(() => {
-        const roomUsers = Object.keys({});
-        let usersToDisplay = [...roomUsers];
-
-        if (globalPlayerList) {
-            globalPlayerList.forEach(u => {
-                const uid = u.userId || u;
-                if (!usersToDisplay.includes(uid)) usersToDisplay.push(uid);
-            });
+    s1.onchange = () => {
+        const val = s1.value;
+        const c = p1Party.find(item => String(item.id) === String(val));
+        if (c) {
+            window.drawCreatureSprite('tradeP1Sprite', c);
+            document.getElementById('tradeP1PreviewText').innerText = `Type: ${c.type}${c.type2 ? '/' + c.type2 : ''}\nHP: ${c.currentHp || window.getEffectiveStat(c, 'health')}/${window.getEffectiveStat(c, 'health')}`;
+        } else {
+            document.getElementById('tradeP1Sprite').innerHTML = '';
+            document.getElementById('tradeP1PreviewText').innerText = '';
         }
+    };
 
-        if (usersToDisplay.length === 0) {
-            usersToDisplay = [];
+    s2.onchange = () => {
+        const val = s2.value;
+        const c = p2Party.find(item => String(item.id) === String(val));
+        if (c) {
+            window.drawCreatureSprite('tradeP2Sprite', c);
+            document.getElementById('tradeP2PreviewText').innerText = `Type: ${c.type}${c.type2 ? '/' + c.type2 : ''}\nHP: ${c.currentHp || window.getEffectiveStat(c, 'health')}/${window.getEffectiveStat(c, 'health')}`;
+        } else {
+            document.getElementById('tradeP2Sprite').innerHTML = '';
+            document.getElementById('tradeP2PreviewText').innerText = '';
         }
+    };
 
-        usersToDisplay.forEach(userId => {
-            const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) || {};
-            const option = document.createElement('option');
-            option.value = userId;
-            option.text = identity.name ? `${identity.name} (${userId.substring(0, 5)}...)` : `Player ${userId.substring(0, 5)}...`;
-            s2.appendChild(option);
-        });
+    if (p1Party.length > 0) s1.onchange();
+    if (p2Party.length > 0) s2.onchange();
 
-        if (usersToDisplay.length === 0) {
-            const option = document.createElement('option');
-            option.value = "";
-            option.text = "No players available";
-            s2.appendChild(option);
-        } else if (targetUserId) {
-            s2.value = targetUserId;
-        }
-
-        document.getElementById('tradeResult').innerText = '';
-        document.getElementById('tradeModal').style.display = 'block';
-    }, 100);
+    document.getElementById('tradeResultText').innerText = '';
+    document.getElementById('tradeModal').style.display = 'block';
 };
 
 window.closeTradeModal = function() {
     window.tradeModalClosedFlag = true;
     let _m_tradeModal = document.getElementById('tradeModal');
-    _m_tradeModal.children[0].classList.add('modal-fade-out');
-    setTimeout(() => {
+    if (_m_tradeModal) {
         _m_tradeModal.style.display = 'none';
-        _m_tradeModal.children[0].classList.remove('modal-fade-out');
-    }, 190);
+    }
 };
+
+// Bind execute trade button click once
+setTimeout(() => {
+    const btn = document.getElementById('confirmTradeBtn');
+    if (btn) {
+        btn.onclick = () => {
+            const s1 = document.getElementById('tradeCreatureSelectP1');
+            const s2 = document.getElementById('tradeCreatureSelectP2');
+            if (!s1 || !s2 || !s1.value || !s2.value) {
+                document.getElementById('tradeResultText').innerText = "Both players must select a creature to trade!";
+                return;
+            }
+
+            const p1Index = window.collectedCreatures.findIndex(c => String(c.id) === String(s1.value));
+            const p2Index = window.collectedCreatures2.findIndex(c => String(c.id) === String(s2.value));
+
+            if (p1Index === -1 || p2Index === -1) {
+                document.getElementById('tradeResultText').innerText = "Invalid selection.";
+                return;
+            }
+
+            const c1 = window.collectedCreatures[p1Index];
+            const c2 = window.collectedCreatures2[p2Index];
+
+            // Swap them!
+            window.collectedCreatures.splice(p1Index, 1);
+            window.collectedCreatures2.splice(p2Index, 1);
+
+            window.collectedCreatures.push(c2);
+            window.collectedCreatures2.push(c1);
+
+            window.collectedCreaturesIds = new Set(window.collectedCreatures.map(c => c.id));
+            window.collectedCreaturesIds2 = new Set(window.collectedCreatures2.map(c => c.id));
+
+            localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
+            localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+
+            document.getElementById('tradeResultText').innerText = `Successfully traded ${c1.name} and ${c2.name}!`;
+
+            setTimeout(() => {
+                window.openTradeModal();
+            }, 1500);
+        };
+    }
+}, 500);
 
 window.openStoreModal = function() {
     if (window.storeModalClosedFlag) return;
@@ -5634,61 +5712,62 @@ window.closeStoreModal = function() {
     }, 190);
 };
 
-window.openPvpModal = function(targetUserId) {
-    if (window.pvpModalClosedFlag) return;
+window.openPvpModal = function() {
     if (window.inBattle) return;
+    if (!window.coopActive) {
+        window.showModernNotification("Activate 2-Player Co-op to initiate local PvP battle!");
+        return;
+    }
 
-    const s2 = document.getElementById('pvpPlayerSelect');
-    s2.innerHTML = '';
+    const hasHealthyP1 = window.collectedCreatures.some(c => !c.stored && c.currentHp > 0);
+    const hasHealthyP2 = window.collectedCreatures2.some(c => !c.stored && c.currentHp > 0);
 
-    if (socket) socket.emit('fetch-global-users');
+    if (!hasHealthyP1 || !hasHealthyP2) {
+        window.showModernNotification("Both players must have at least one healthy creature to battle!");
+        return;
+    }
 
-    setTimeout(() => {
-        const roomUsers = Object.keys({});
-        let usersToDisplay = [...roomUsers];
+    window.inBattle = true;
+    window.isLocalPvp = true;
+    window.localPvpTurn = 1; // Player 1 chooses first
+    window.localPvpActions = {};
 
-        if (globalPlayerList) {
-            globalPlayerList.forEach(u => {
-                const uid = u.userId || u;
-                if (!usersToDisplay.includes(uid)) usersToDisplay.push(uid);
-            });
-        }
+    let firstHealthyP1 = window.collectedCreatures.find(c => !c.stored && c.currentHp > 0);
+    window.currentPlayer = JSON.parse(JSON.stringify(firstHealthyP1));
+    window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
+    window.currentPlayer.currentHp = window.currentPlayer.currentHp !== undefined ? window.currentPlayer.currentHp : window.currentPlayer.maxHp;
+    window.currentPlayer.isDefending = false;
+    window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+    currentPlayer = window.currentPlayer;
 
-        if (usersToDisplay.length === 0) {
-            usersToDisplay = [];
-        }
+    let firstHealthyP2 = window.collectedCreatures2.find(c => !c.stored && c.currentHp > 0);
+    window.currentEnemy = JSON.parse(JSON.stringify(firstHealthyP2));
+    window.currentEnemy.maxHp = window.getEffectiveStat(window.currentEnemy, 'health');
+    window.currentEnemy.currentHp = window.currentEnemy.currentHp !== undefined ? window.currentEnemy.currentHp : window.currentEnemy.maxHp;
+    window.currentEnemy.isDefending = false;
+    window.currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+    currentEnemy = window.currentEnemy;
 
-        usersToDisplay.forEach(userId => {
-            const identity = (window.remotePlayerIdentities && window.remotePlayerIdentities[userId]) || {};
-            const option = document.createElement('option');
-            option.value = userId;
-            option.text = identity.name ? `${identity.name} (${userId.substring(0, 5)}...)` : `Player ${userId.substring(0, 5)}...`;
-            s2.appendChild(option);
-        });
+    document.getElementById('battleModal').style.display = 'block';
+    document.getElementById('battleControls').style.display = 'grid';
+    document.getElementById('battleCloseBtn').style.display = 'none';
+    const catchBtn = document.getElementById('battleCatchBtn');
+    if (catchBtn) catchBtn.style.display = 'none'; // No catching in PvP!
 
-        if (usersToDisplay.length === 0) {
-            const option = document.createElement('option');
-            option.value = "";
-            option.text = "No players available";
-            s2.appendChild(option);
-        } else if (targetUserId) {
-            s2.value = targetUserId;
-        }
+    document.getElementById('battleLog').innerHTML = '';
+    window.battleLogQueue = [];
+    window.isActionRunning = false;
 
-        document.getElementById('pvpResult').innerText = '';
-        document.getElementById('pvpModal').style.display = 'block';
-    }, 100);
+    window.logBattle(`Local PvP Battle Started!`);
+    window.logBattle(`Player 1 sends out <span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span>!`);
+    window.logBattle(`Player 2 sends out <span style="color:#f44336">${window.currentEnemy.nickname || window.currentEnemy.name}</span>!`);
+    window.logBattle(`Player 1's Turn: Choose action!`);
+
+    window.updateBattleUI();
 };
 
 window.closePvpModal = function() {
-    if (window.inBattle) return;
-    window.pvpModalClosedFlag = true;
-    let _m_pvpModal = document.getElementById('pvpModal');
-    _m_pvpModal.children[0].classList.add('modal-fade-out');
-    setTimeout(() => {
-        _m_pvpModal.style.display = 'none';
-        _m_pvpModal.children[0].classList.remove('modal-fade-out');
-    }, 190);
+    window.isLocalPvp = false;
 };
 
 window.sendTradeOffer = function() {
@@ -8185,16 +8264,16 @@ window.handleFaint = function(target) {
         endBattle('win');
         return true;
     } else {
+        const activeParty = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         // Sync fainted creature's HP
-        let orig = collectedCreatures.find(c => String(c.id) === String(currentPlayer?.id));
+        let orig = activeParty.find(c => String(c.id) === String(currentPlayer?.id));
         if (orig) {
             orig.currentHp = 0;
             orig.status = null;
         }
 
-        let next = collectedCreatures.find(c => !c.stored && c.currentHp > 0 && String(c.id) !== String(currentPlayer?.id));
+        let next = activeParty.find(c => !c.stored && c.currentHp > 0 && String(c.id) !== String(currentPlayer?.id));
         if (next) {
-
             currentPlayer = JSON.parse(JSON.stringify(next));
             window.currentPlayer = currentPlayer;
             currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
@@ -8552,39 +8631,126 @@ window.doBattleSwap = function(newCreature) {
     if (window.isActionRunning) return;
     window.isActionRunning = true;
 
-    // Sync current creature HP/Status back to party before swapping out
+    if (window.isLocalPvp) {
+        if (window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1)) {
+            // Swap Player 1
+            if (window.currentPlayer) {
+                let activeCreature = window.collectedCreatures.find(c => String(c.id) === String(window.currentPlayer.id));
+                if (activeCreature) {
+                    activeCreature.currentHp = Math.max(0, window.currentPlayer.currentHp);
+                    activeCreature.status = window.currentPlayer.status;
+                    localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
+                }
+            }
+            window.closeBattleSwapModal();
+            window.logBattle(`Player 1 swapped in ${newCreature.nickname || newCreature.name}!`);
+
+            window.currentPlayer = JSON.parse(JSON.stringify(newCreature));
+            currentPlayer = window.currentPlayer;
+
+            window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
+            window.currentPlayer.isDefending = false;
+            window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+            window.updateBattleUI();
+
+            if (window.localPvpForceSwap === 1) {
+                window.localPvpForceSwap = null;
+                window.localPvpTurn = 1;
+                window.localPvpActions = {};
+                window.isActionRunning = false;
+                window.logBattle(`Player 1's Turn: Choose action!`);
+                window.updateBattleUI();
+            } else {
+                window.localPvpActions.p1 = 'swap';
+                window.localPvpTurn = 2;
+                window.isActionRunning = false;
+                window.logBattle(`Player 2's Turn: Choose action!`);
+                window.updateBattleUI();
+            }
+            return;
+        } else {
+            // Swap Player 2
+            if (window.currentEnemy) {
+                let activeCreature = window.collectedCreatures2.find(c => String(c.id) === String(window.currentEnemy.id));
+                if (activeCreature) {
+                    activeCreature.currentHp = Math.max(0, window.currentEnemy.currentHp);
+                    activeCreature.status = window.currentEnemy.status;
+                    localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+                }
+            }
+            window.closeBattleSwapModal();
+            window.logBattle(`Player 2 swapped in ${newCreature.nickname || newCreature.name}!`);
+
+            window.currentEnemy = JSON.parse(JSON.stringify(newCreature));
+            currentEnemy = window.currentEnemy;
+
+            window.currentEnemy.maxHp = window.getEffectiveStat(window.currentEnemy, 'health');
+            window.currentEnemy.isDefending = false;
+            window.currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+            window.updateBattleUI();
+
+            if (window.localPvpForceSwap === 2) {
+                window.localPvpForceSwap = null;
+                window.localPvpTurn = 1;
+                window.localPvpActions = {};
+                window.isActionRunning = false;
+                window.logBattle(`Player 1's Turn: Choose action!`);
+                window.updateBattleUI();
+            } else {
+                window.localPvpActions.p2 = 'swap';
+                if (window.localPvpActions.p1 && window.localPvpActions.p1 !== 'swap') {
+                    // Player 1 had an attack/defend action, run it!
+                    window.isActionRunning = true;
+                    runLocalPvpAction(1, window.localPvpActions.p1, () => {
+                        setTimeout(() => {
+                            if (window.currentPlayer) window.currentPlayer.isDefending = false;
+                            if (window.currentEnemy) window.currentEnemy.isDefending = false;
+
+                            checkLocalPvpFaintsOrEnd(() => {
+                                window.localPvpTurn = 1;
+                                window.localPvpActions = {};
+                                window.isActionRunning = false;
+                                window.logBattle(`Player 1's Turn: Choose action!`);
+                                window.updateBattleUI();
+                            });
+                        }, 1000);
+                    });
+                } else {
+                    // Both swapped or no action, reset round
+                    window.localPvpTurn = 1;
+                    window.localPvpActions = {};
+                    window.isActionRunning = false;
+                    window.logBattle(`Player 1's Turn: Choose action!`);
+                    window.updateBattleUI();
+                }
+            }
+            return;
+        }
+    }
+
+    // Normal wild battle swap
+    const activeParty = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const storageKey = window.activeBattlePlayer === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+
     if (window.currentPlayer) {
-        let activeCreature = collectedCreatures.find(c => String(c.id) === String(window.currentPlayer.id));
+        let activeCreature = activeParty.find(c => String(c.id) === String(window.currentPlayer.id));
         if (activeCreature) {
             activeCreature.currentHp = Math.max(0, window.currentPlayer.currentHp);
             activeCreature.status = window.currentPlayer.status;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+            localStorage.setItem(storageKey, JSON.stringify(activeParty));
         }
     }
 
     window.closeBattleSwapModal();
     window.logBattle(`You swapped in ${newCreature.nickname || newCreature.name}!`);
 
-    // Use JSON clone to prevent reference issues but ensure we update global pointers correctly
     window.currentPlayer = JSON.parse(JSON.stringify(newCreature));
-    currentPlayer = window.currentPlayer; // Sync local global
+    currentPlayer = window.currentPlayer;
 
     window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
     window.currentPlayer.isDefending = false;
     window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
     window.updateBattleUI();
-
-    if (window.isPvpBattle) {
-        if (false) {
-            window.broadcastP2P( {
-                target: window.pvpOpponentId,
-                type: 'pvp_swap',
-                creature: newCreature
-            });
-        }
-        window.isActionRunning = false;
-        return;
-    }
 
     // Swapping takes the player's turn, so the enemy gets to attack
     setTimeout(() => {
@@ -8675,10 +8841,213 @@ window.startPvpBattle = function(opponentId, opponentCreature, myCreature, isIni
     window.updateBattleUI();
 };
 
+window.isLocalPvp = false;
+window.localPvpTurn = null;
+window.localPvpActions = {};
+window.localPvpForceSwap = null;
+
+window.executeLocalPvpRound = function() {
+    let p1Action = window.localPvpActions.p1;
+    let p2Action = window.localPvpActions.p2;
+
+    let p1Spe = window.getEffectiveStat(window.currentPlayer, 'speed');
+    let p2Spe = window.getEffectiveStat(window.currentEnemy, 'speed');
+
+    let p1SpeedMulti = 1;
+    let p2SpeedMulti = 1;
+    if (window.currentPlayer.ability && window.currentPlayer.ability.type === 'speed' && Math.random() < window.currentPlayer.ability.chance) {
+        p1SpeedMulti = window.currentPlayer.ability.value;
+    }
+    if (window.currentEnemy.ability && window.currentEnemy.ability.type === 'speed' && Math.random() < window.currentEnemy.ability.chance) {
+        p2SpeedMulti = window.currentEnemy.ability.value;
+    }
+
+    let p1Speed = p1Spe * p1SpeedMulti;
+    let p2Speed = p2Spe * p2SpeedMulti;
+
+    let p1GoesFirst = p1Speed > p2Speed || (p1Speed === p2Speed && Math.random() >= 0.5);
+
+    const step1 = () => {
+        if (!window.inBattle) {
+            window.isActionRunning = false;
+            return;
+        }
+        if (p1Action === 'swap') {
+            if (p2Action === 'swap') {
+                step3();
+            } else {
+                runLocalPvpAction(2, p2Action, () => {
+                    setTimeout(step3, 1000);
+                });
+            }
+        } else if (p2Action === 'swap') {
+            runLocalPvpAction(1, p1Action, () => {
+                setTimeout(step3, 1000);
+            });
+        } else {
+            if (p1GoesFirst) {
+                runLocalPvpAction(1, p1Action, () => {
+                    setTimeout(step2, 1000);
+                });
+            } else {
+                runLocalPvpAction(2, p2Action, () => {
+                    setTimeout(step2, 1000);
+                });
+            }
+        }
+    };
+
+    const step2 = () => {
+        if (!window.inBattle || window.currentPlayer.currentHp <= 0 || window.currentEnemy.currentHp <= 0) {
+            checkLocalPvpFaintsOrEnd();
+            return;
+        }
+        if (p1GoesFirst) {
+            runLocalPvpAction(2, p2Action, () => {
+                setTimeout(step3, 1000);
+            });
+        } else {
+            runLocalPvpAction(1, p1Action, () => {
+                setTimeout(step3, 1000);
+            });
+        }
+    };
+
+    const step3 = () => {
+        if (window.currentPlayer) window.currentPlayer.isDefending = false;
+        if (window.currentEnemy) window.currentEnemy.isDefending = false;
+
+        checkLocalPvpFaintsOrEnd(() => {
+            window.localPvpTurn = 1;
+            window.localPvpActions = {};
+            window.isActionRunning = false;
+            window.logBattle(`Player 1's Turn: Choose action!`);
+            window.updateBattleUI();
+        });
+    };
+
+    step1();
+};
+
+function runLocalPvpAction(playerNum, action, callback) {
+    if (playerNum === 1) {
+        if (action === 'defend') {
+            window.currentPlayer.isDefending = true;
+            window.logBattle(`<span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span> is <span style="color:#42a5f5">defending!</span>`);
+            window.updateBattleUI();
+            if (callback) callback();
+        } else {
+            window.doPlayerAction('attack', callback);
+        }
+    } else {
+        if (action === 'defend') {
+            window.currentEnemy.isDefending = true;
+            window.logBattle(`<span style="color:#f44336">${window.currentEnemy.nickname || window.currentEnemy.name}</span> is <span style="color:#42a5f5">defending!</span>`);
+            window.updateBattleUI();
+            if (callback) callback();
+        } else {
+            window.doEnemyAction(callback);
+        }
+    }
+}
+
+function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
+    if (window.currentPlayer.currentHp <= 0) {
+        let orig = window.collectedCreatures.find(c => String(c.id) === String(window.currentPlayer?.id));
+        if (orig) {
+            orig.currentHp = 0;
+            orig.status = null;
+            localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
+        }
+
+        let next = window.collectedCreatures.find(c => !c.stored && c.currentHp > 0);
+        if (next) {
+            window.logBattle(`Player 1's creature fainted! Please swap in a healthy creature.`);
+            window.localPvpForceSwap = 1;
+            window.playerParty = window.collectedCreatures;
+            window.isActionRunning = false;
+            window.openBattleSwapModal();
+        } else {
+            window.logBattle(`Player 1 has no healthy creatures left! Player 2 wins!`);
+            window.endBattle('loss');
+        }
+    } else if (window.currentEnemy.currentHp <= 0) {
+        let orig = window.collectedCreatures2.find(c => String(c.id) === String(window.currentEnemy?.id));
+        if (orig) {
+            orig.currentHp = 0;
+            orig.status = null;
+            localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+        }
+
+        let next = window.collectedCreatures2.find(c => !c.stored && c.currentHp > 0);
+        if (next) {
+            window.logBattle(`Player 2's creature fainted! Please swap in a healthy creature.`);
+            window.localPvpForceSwap = 2;
+            window.playerParty = window.collectedCreatures2;
+            window.isActionRunning = false;
+            window.openBattleSwapModal();
+        } else {
+            window.logBattle(`Player 2 has no healthy creatures left! Player 1 wins!`);
+            window.endBattle('win');
+        }
+    } else {
+        if (nextTurnCallback) nextTurnCallback();
+    }
+}
+
 window.handlePlayerTurn = function(action) {
     if (!window.inBattle || window.isActionRunning) return;
     window.isActionRunning = true;
     window.swappedThisTurn = false;
+
+    if (window.isLocalPvp) {
+        if (window.localPvpTurn === 1) {
+            if (action === 'catch') {
+                window.logBattle(`<span style="color:#f44336">You cannot catch other players' creatures!</span>`);
+                window.isActionRunning = false;
+                return;
+            }
+            if (action === 'run') {
+                window.logBattle(`Player 1 fled! Player 2 wins!`);
+                window.endBattle('loss');
+                return;
+            }
+            if (action === 'swap') {
+                window.playerParty = window.collectedCreatures;
+                window.openBattleSwapModal();
+                window.isActionRunning = false;
+                return;
+            }
+
+            window.localPvpActions.p1 = action;
+            window.localPvpTurn = 2;
+            window.isActionRunning = false;
+            window.logBattle(`Player 2's Turn: Choose action!`);
+            window.updateBattleUI();
+            return;
+        } else if (window.localPvpTurn === 2) {
+            if (action === 'catch') {
+                window.logBattle(`<span style="color:#f44336">You cannot catch other players' creatures!</span>`);
+                window.isActionRunning = false;
+                return;
+            }
+            if (action === 'run') {
+                window.logBattle(`Player 2 fled! Player 1 wins!`);
+                window.endBattle('win');
+                return;
+            }
+            if (action === 'swap') {
+                window.playerParty = window.collectedCreatures2;
+                window.openBattleSwapModal();
+                window.isActionRunning = false;
+                return;
+            }
+
+            window.localPvpActions.p2 = action;
+            window.executeLocalPvpRound();
+            return;
+        }
+    }
 
     let pSpe = window.getEffectiveStat(currentPlayer, 'speed');
     let eSpe = window.getEffectiveStat(currentEnemy, 'speed');
@@ -8819,69 +9188,107 @@ window.endBattle = function(result) {
         document.getElementById('battleControls').style.display = 'none';
         document.getElementById('battleCloseBtn').style.display = 'flex'; // Show close button
 
-        let activeCreature = collectedCreatures.find(c => String(c.id) === String(currentPlayer?.id));
+        const activeParty = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+        const storageKey = window.activeBattlePlayer === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+
+        let activeCreature = activeParty.find(c => String(c.id) === String(currentPlayer?.id));
         if (activeCreature) {
             activeCreature.currentHp = Math.max(0, currentPlayer.currentHp);
             activeCreature.status = currentPlayer.status;
+            localStorage.setItem(storageKey, JSON.stringify(activeParty));
         }
 
-        if (window.isPvpBattle) {
-            if (result === 'win') {
-                window.gameStats.pvpBattlesWon++;
-                window.saveStats();
-            } else if (result === 'loss') {
-                window.gameStats.pvpBattlesLost++;
-                window.saveStats();
+        if (window.isLocalPvp) {
+            let activeCreature2 = window.collectedCreatures2.find(c => String(c.id) === String(window.currentEnemy?.id));
+            if (activeCreature2) {
+                activeCreature2.currentHp = Math.max(0, window.currentEnemy.currentHp);
+                activeCreature2.status = window.currentEnemy.status;
+                localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
             }
-            window.isPvpBattle = false;
-            window.pvpOpponentId = null;
+
+            if (result === 'win') {
+                window.logBattle(`Player 1 wins!`);
+            } else if (result === 'loss') {
+                window.logBattle(`Player 2 wins!`);
+            }
+            window.isLocalPvp = false;
+            window.localPvpTurn = null;
+            window.localPvpActions = {};
+            window.localPvpForceSwap = null;
         } else {
-            if (result === 'win') {
-                window.gameStats.battlesWon++;
-                window.saveStats();
-            } else if (result === 'loss') {
-                window.gameStats.battlesLost++;
-                window.saveStats();
+            if (window.isPvpBattle) {
+                if (result === 'win') {
+                    window.gameStats.pvpBattlesWon++;
+                    window.saveStats();
+                } else if (result === 'loss') {
+                    window.gameStats.pvpBattlesLost++;
+                    window.saveStats();
+                }
+                window.isPvpBattle = false;
+                window.pvpOpponentId = null;
+            } else {
+                if (result === 'win') {
+                    if (window.activeBattlePlayer === 2) {
+                        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0 };
+                        window.gameStats2.battlesWon = (window.gameStats2.battlesWon || 0) + 1;
+                        localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                    } else {
+                        window.gameStats.battlesWon++;
+                        window.saveStats();
+                    }
+                } else if (result === 'loss') {
+                    if (window.activeBattlePlayer === 2) {
+                        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0 };
+                        window.gameStats2.battlesLost = (window.gameStats2.battlesLost || 0) + 1;
+                        localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                    } else {
+                        window.gameStats.battlesLost++;
+                        window.saveStats();
+                    }
+                }
             }
         }
 
-        if (result === 'win' && !window.isPvpBattle) {
+        if (result === 'win' && !window.isPvpBattle && !window.isLocalPvp) {
             let xpMultiplier = window.inChallengeBattle ? (1 + window.challengeTier * 0.1) : 1.0;
             let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
-            // Record stats before level up
-            let oldStats = {};
-            ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
-                oldStats[stat] = window.getEffectiveStat(collectedCreatures[0], stat);
-            });
-
-            let leveledUp = window.gainXp(collectedCreatures[0], xpGained);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-
-            if (leveledUp) {
-                document.getElementById('levelUpTitle').innerText = `${collectedCreatures[0].nickname || collectedCreatures[0].name} reached Level ${collectedCreatures[0].level}!`;
-                let statsHtml = '';
-
-                if (collectedCreatures[0].growthSpurtThisLevel) {
-                    statsHtml += `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em;">✨ Growth Spurt! All stats increased! ✨</div>`;
-                    collectedCreatures[0].growthSpurtThisLevel = false;
-                }
-
-                const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
-
+            // Add XP to the battling creature (currentPlayer) inside the activeParty!
+            let expTarget = activeParty.find(c => String(c.id) === String(currentPlayer?.id)) || activeParty[0];
+            if (expTarget) {
+                let oldStats = {};
                 ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
-                    let newStat = window.getEffectiveStat(collectedCreatures[0], stat);
-                    let diff = newStat - oldStats[stat];
-                    if (diff > 0) {
-                        statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldStats[stat].toFixed(1)} <span style="color:#4caf50">➔ ${newStat.toFixed(1)} (+${diff.toFixed(1)})</span></div>`;
-                    }
+                    oldStats[stat] = window.getEffectiveStat(expTarget, stat);
                 });
-                document.getElementById('levelUpStats').innerHTML = statsHtml;
-                window.pendingLevelUp = true;
+
+                let leveledUp = window.gainXp(expTarget, xpGained);
+                localStorage.setItem(storageKey, JSON.stringify(activeParty));
+
+                if (leveledUp) {
+                    document.getElementById('levelUpTitle').innerText = `${expTarget.nickname || expTarget.name} reached Level ${expTarget.level}!`;
+                    let statsHtml = '';
+
+                    if (expTarget.growthSpurtThisLevel) {
+                        statsHtml += `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em;">✨ Growth Spurt! All stats increased! ✨</div>`;
+                        expTarget.growthSpurtThisLevel = false;
+                    }
+
+                    const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
+
+                    ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
+                        let newStat = window.getEffectiveStat(expTarget, stat);
+                        let diff = newStat - oldStats[stat];
+                        if (diff > 0) {
+                            statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldStats[stat].toFixed(1)} <span style="color:#4caf50">➔ ${newStat.toFixed(1)} (+${diff.toFixed(1)})</span></div>`;
+                        }
+                    });
+                    document.getElementById('levelUpStats').innerHTML = statsHtml;
+                    window.pendingLevelUp = true;
+                }
             }
         }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+        localStorage.setItem(storageKey, JSON.stringify(activeParty));
         window.isActionRunning = false;
     }, 1500);
 };
