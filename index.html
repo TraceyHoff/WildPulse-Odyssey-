@@ -101,6 +101,93 @@
             box-sizing: border-box;
         }
 
+        /* Split Screen Symmetrical Co-op Layout */
+        .coop-columns {
+            display: flex;
+            flex-direction: column; /* Default stack on mobile/non-coop */
+            gap: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .coop-column {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .p2-col {
+            display: none !important; /* Hide Player 2's column by default in single player */
+        }
+
+        body.coop-active-layout .coop-columns {
+            flex-direction: row !important;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: nowrap;
+        }
+        body.coop-active-layout .coop-column {
+            flex: 1 !important;
+            width: 50% !important;
+            min-width: 0 !important;
+            display: block !important;
+        }
+        body.coop-active-layout .p2-col {
+            display: block !important; /* Show Player 2's column in co-op layout */
+        }
+        body.coop-active-layout #levelUpSingleContainer {
+            display: none !important;
+        }
+
+        body.coop-active-layout #breedingModal > *:not(.close-btn),
+        body.coop-active-layout #menuModal > *:not(.close-btn),
+        body.coop-active-layout #partyModal > *:not(.close-btn),
+        body.coop-active-layout #storageModal > *:not(.close-btn),
+        body.coop-active-layout #helpModal > *:not(.close-btn),
+        body.coop-active-layout #levelUpModal > *:not(.close-btn),
+        body.coop-active-layout #journalModal > *:not(.close-btn),
+        body.coop-active-layout #storeModal > *:not(.close-btn) {
+            max-width: none !important;
+            width: 100% !important;
+        }
+
+        /* Adjustments for modals and lists in split screen to prevent overflowing */
+        body.coop-active-layout #breedingModal,
+        body.coop-active-layout #menuModal,
+        body.coop-active-layout #partyModal,
+        body.coop-active-layout #storageModal,
+        body.coop-active-layout #helpModal,
+        body.coop-active-layout #levelUpModal,
+        body.coop-active-layout #tradeModal,
+        body.coop-active-layout #journalModal,
+        body.coop-active-layout #storeModal {
+            padding: 40px 10px 15px 10px !important;
+        }
+
+        /* Adjust battle controls grid in split screen to fit narrow half viewports */
+        body.coop-active-layout #battleModal {
+            padding: 40px 10px 15px 10px !important;
+        }
+        body.coop-active-layout #battleModal > *:not(.close-btn) {
+            max-width: none !important;
+            width: 100% !important;
+        }
+        body.coop-active-layout .battle-controls {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 6px !important;
+        }
+        body.coop-active-layout .battle-controls button {
+            font-size: 13px !important;
+            padding: 10px 5px !important;
+        }
+        body.coop-active-layout .battle-log {
+            height: 110px !important;
+            font-size: 13px !important;
+        }
+        body.coop-active-layout .combatant {
+            padding: 6px !important;
+        }
+        body.coop-active-layout .combatant h3 {
+            font-size: 14px !important;
+        }
+
         .close-btn {
             position: fixed !important;
             top: 15px !important;
@@ -726,32 +813,67 @@
 
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
-    <h2>Menu</h2>
-    <button id="menuPartyBtn">Party</button>
-    <button id="menuStorageBtn">Storage Box</button>
-    <button id="breedBtn">Breeding Center</button>
-    <button id="menuJournalBtn">Creature Journal</button>
-    <button id="menuHelpBtn">Help</button>
-    <button id="menuMusicBtn">Music: ON</button>
-    <button id="menuDeleteBtn">Delete Progress</button>
-    <button id="menuCustomizeBtn">Customize Character</button>
-    <button id="coopToggleBtn">Toggle Co-op (2 Player)</button>
-    <button id="fullscreenToggleBtn">Toggle Fullscreen</button>
-    <button id="exitGameBtn">Exit Game</button>
+    <div class="coop-columns">
+        <!-- Player 1 Column -->
+        <div class="coop-column p1-col">
+            <h2 style="color: #4caf50; text-align: center; margin-top: 0;">Player 1 Menu</h2>
+            <button id="menuPartyBtn" style="width: 100%; margin: 8px 0;">Party</button>
+            <button id="menuStorageBtn" style="width: 100%; margin: 8px 0;">Storage Box</button>
+            <button id="breedBtn" style="width: 100%; margin: 8px 0;">Breeding Center</button>
+            <button id="menuJournalBtn" style="width: 100%; margin: 8px 0;">Creature Journal</button>
+            <button id="menuCustomizeBtn" style="width: 100%; margin: 8px 0;">Customize Character</button>
+            <button id="menuHelpBtn" style="width: 100%; margin: 8px 0;">Help</button>
+        </div>
+        <!-- Player 2 Column -->
+        <div class="coop-column p2-col">
+            <h2 style="color: #ff9800; text-align: center; margin-top: 0;">Player 2 Menu</h2>
+            <button id="menuPartyBtn_P2" style="width: 100%; margin: 8px 0;">Party</button>
+            <button id="menuStorageBtn_P2" style="width: 100%; margin: 8px 0;">Storage Box</button>
+            <button id="breedBtn_P2" style="width: 100%; margin: 8px 0;">Breeding Center</button>
+            <button id="menuJournalBtn_P2" style="width: 100%; margin: 8px 0;">Creature Journal</button>
+            <button id="menuCustomizeBtn_P2" style="width: 100%; margin: 8px 0;">Customize Character</button>
+            <button id="menuHelpBtn_P2" style="width: 100%; margin: 8px 0;">Help</button>
+        </div>
+    </div>
+    <!-- Global Buttons -->
+    <div class="global-menu-buttons" style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 550px; margin: 20px auto 0 auto; box-sizing: border-box;">
+        <button id="menuMusicBtn" style="width: 100%; margin: 0;">Music: ON</button>
+        <button id="coopToggleBtn" style="width: 100%; margin: 0;">Toggle Co-op (2 Player)</button>
+        <button id="fullscreenToggleBtn" style="width: 100%; margin: 0;">Toggle Fullscreen</button>
+        <button id="menuDeleteBtn" style="width: 100%; margin: 0; background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a;">Delete Progress</button>
+        <button id="exitGameBtn" style="width: 100%; margin: 0;">Exit Game</button>
+    </div>
 </div>
 <div id="partyModal">
     <button class="close-btn close-party-btn" aria-label="Close Party">X</button>
-    <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #555; padding-bottom: 5px;">
-        <h2 id="tabParty" style="cursor: pointer; margin: 0; color: #4caf50;" onclick="switchPartyTab('party')">Party</h2>
-        <h2 id="tabStats" style="cursor: pointer; margin: 0; color: #888;" onclick="switchPartyTab('stats')">Stats</h2>
+    <div class="coop-columns">
+        <!-- Player 1 Column -->
+        <div class="coop-column p1-col">
+            <h2 style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Party</h2>
+            <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #555; padding-bottom: 5px;">
+                <h3 id="tabParty_P1" style="cursor: pointer; margin: 0; color: #4caf50;" onclick="window.switchPartyTab('party', 1)">Party</h3>
+                <h3 id="tabStats_P1" style="cursor: pointer; margin: 0; color: #888;" onclick="window.switchPartyTab('stats', 1)">Stats</h3>
+            </div>
+            <div id="partyTabContent_P1">
+                <div id="partyList"></div>
+            </div>
+            <div id="statsTabContent_P1" style="display: none; font-size: 16px;"></div>
+        </div>
+
+        <!-- Player 2 Column -->
+        <div class="coop-column p2-col">
+            <h2 style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Party</h2>
+            <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #555; padding-bottom: 5px;">
+                <h3 id="tabParty_P2" style="cursor: pointer; margin: 0; color: #4caf50;" onclick="window.switchPartyTab('party', 2)">Party</h3>
+                <h3 id="tabStats_P2" style="cursor: pointer; margin: 0; color: #888;" onclick="window.switchPartyTab('stats', 2)">Stats</h3>
+            </div>
+            <div id="partyTabContent_P2">
+                <div id="partyList_P2"></div>
+            </div>
+            <div id="statsTabContent_P2" style="display: none; font-size: 16px;"></div>
+        </div>
     </div>
-    <div id="partyTabContent">
-        <div id="partyList"></div>
-    </div>
-    <div id="statsTabContent" style="display: none; font-size: 18px;">
-        <!-- Stats will be rendered here -->
-    </div>
-    <button class="close-party-btn">Close</button>
+    <button class="close-party-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #555, #222); border-color: #777;">Close</button>
 </div>
 
 <div id="modernNotification" class="notification-popup"></div>
@@ -1504,92 +1626,175 @@ function escapeHtml(unsafe) {
 }
 
 
-    function switchPartyTab(tab) {
+    window.switchPartyTab = function(tab, playerNum = 1) {
+        const pPrefix = playerNum === 2 ? '_P2' : '_P1';
+        const partyContent = playerNum === 2 ? document.getElementById('partyTabContent_P2') : (document.getElementById('partyTabContent_P1') || document.getElementById('partyTabContent'));
+        const statsContent = playerNum === 2 ? document.getElementById('statsTabContent_P2') : (document.getElementById('statsTabContent_P1') || document.getElementById('statsTabContent'));
+        const tabParty = document.getElementById('tabParty' + pPrefix) || document.getElementById('tabParty');
+        const tabStats = document.getElementById('tabStats' + pPrefix) || document.getElementById('tabStats');
+
         if (tab === 'party') {
-            document.getElementById('partyTabContent').style.display = 'block';
-            document.getElementById('statsTabContent').style.display = 'none';
-            document.getElementById('tabParty').style.color = '#4caf50';
-            document.getElementById('tabStats').style.color = '#888';
+            if (partyContent) partyContent.style.display = 'block';
+            if (statsContent) statsContent.style.display = 'none';
+            if (tabParty) tabParty.style.color = '#4caf50';
+            if (tabStats) tabStats.style.color = '#888';
         } else if (tab === 'stats') {
-            document.getElementById('partyTabContent').style.display = 'none';
-            document.getElementById('statsTabContent').style.display = 'block';
-            document.getElementById('tabParty').style.color = '#888';
-            document.getElementById('tabStats').style.color = '#4caf50';
-            if (window.renderStatsTab) window.renderStatsTab();
+            if (partyContent) partyContent.style.display = 'none';
+            if (statsContent) statsContent.style.display = 'block';
+            if (tabParty) tabParty.style.color = '#888';
+            if (tabStats) tabStats.style.color = '#4caf50';
+            if (window.renderStatsTab) window.renderStatsTab(playerNum);
         }
-    }
+    };
 </script>
 
 <div id="storageModal" style="display:none; position:absolute; color:white; z-index:350;">
     <button class="close-btn close-storage-btn" aria-label="Close Storage">X</button>
-    <h2>Storage Box</h2>
-    <div id="storageList"></div>
-    <button class="close-storage-btn">Close</button>
+    <div class="coop-columns">
+        <!-- Player 1 Column -->
+        <div class="coop-column p1-col">
+            <h2 style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Storage</h2>
+            <div id="storageList"></div>
+        </div>
+
+        <!-- Player 2 Column -->
+        <div class="coop-column p2-col">
+            <h2 style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Storage</h2>
+            <div id="storageList_P2"></div>
+        </div>
+    </div>
+    <button class="close-storage-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #555, #222); border-color: #777;">Close</button>
 </div>
 
 <div id="helpModal" style="display:none; position:absolute; z-index:400; color:white; overflow-y:auto; font-size:16px;">
     <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
-    <h2>How to Play</h2>
-    <p>• Roam grass to encounter creatures. Move with ARROWS or WASD.</p>
-    <p>• Menu: View Party, Breed creatures, or Delete Progress.</p>
-    <h3>Stats</h3>
-    <p>HP: Health | Atk: Physical dmg | Def: Physical resist<br>Spe: Speed | SpA: Special dmg | SpD: Special resist</p>
-
-    <h3>Type Matchups</h3>
-    <div id="typeChartContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
-
-    <h3>Natures</h3>
-    <p>Natures modify stats. They provide exact stat buffs or debuffs!</p>
-    <div id="naturesListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
-
-    <h3>Moods</h3>
-    <p>Moods modify stats based on the creature's temperament!</p>
-    <div id="moodsListContainer" style="max-height: 200px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
-
-    <h3>Breeding & Shinies</h3>
-    <p>Offspring blend parents' stats and natures. There is a 0.1% chance to find a Shiny creature (+20% stats). Shinies have a 25% chance to pass down their rarity to offspring.</p>
-    <button class="close-help-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer;">Close</button>
+    <div class="coop-columns">
+        <!-- Info Column -->
+        <div class="coop-column">
+            <h2 style="margin-top: 0; color: #4caf50;">How to Play</h2>
+            <p>• Roam grass to encounter creatures. Move with ARROWS or WASD.</p>
+            <p>• Menu: View Party, Breed creatures, or Delete Progress.</p>
+            <h3>Stats</h3>
+            <p>HP: Health | Atk: Physical dmg | Def: Physical resist<br>Spe: Speed | SpA: Special dmg | SpD: Special resist</p>
+            <h3>Breeding & Shinies</h3>
+            <p>Offspring blend parents' stats and natures. There is a 0.1% chance to find a Shiny creature (+20% stats). Shinies have a 25% chance to pass down their rarity to offspring.</p>
+        </div>
+        <!-- Type Matchups & Natures Column -->
+        <div class="coop-column">
+            <h2 style="margin-top: 0; color: #ff9800;">Type Chart & Natures</h2>
+            <h3>Type Matchups</h3>
+            <div id="typeChartContainer" style="max-height: 150px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+            <h3>Natures</h3>
+            <div id="naturesListContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+            <h3>Moods</h3>
+            <div id="moodsListContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+        </div>
+    </div>
+    <button class="close-help-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #555, #222); border-color: #777;">Close</button>
 </div>
 
 <div id="levelUpModal">
     <button class="close-btn close-levelup-btn" aria-label="Close Level Up">X</button>
-    <h2 id="levelUpTitle">Level Up!</h2>
-    <div id="levelUpStats" style="font-size: 18px; margin: 20px 0;"></div>
-    <button class="close-levelup-btn">Awesome!</button>
+    <div class="coop-columns">
+        <!-- Player 1 Level Up Column -->
+        <div class="coop-column p1-col">
+            <h2 id="levelUpTitle_P1" style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Level Up!</h2>
+            <div id="levelUpStats_P1" style="font-size: 18px; margin: 20px 0;"></div>
+        </div>
+
+        <!-- Player 2 Level Up Column -->
+        <div class="coop-column p2-col">
+            <h2 id="levelUpTitle_P2" style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Level Up!</h2>
+            <div id="levelUpStats_P2" style="font-size: 18px; margin: 20px 0;"></div>
+        </div>
+    </div>
+    <!-- Non-coop fallback fallback-container -->
+    <div id="levelUpSingleContainer" style="width: 100%; text-align: center;">
+        <h2 id="levelUpTitle" style="margin-top: 0;">Level Up!</h2>
+        <div id="levelUpStats" style="font-size: 18px; margin: 20px 0;"></div>
+    </div>
+    <button class="close-levelup-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #42a5f5, #1565c0); border-color: #90caf9; color: white;">Awesome!</button>
 </div>
 
 <div id="breedingModal">
     <button class="close-btn close-breeding-btn" aria-label="Close Breeding Center">X</button>
-    <h2>Breeding Center</h2>
-    <div>
-        <label>Parent 1:</label>
-        <select id="parent1Select"></select>
+    <div class="coop-columns">
+        <!-- Player 1 Column -->
+        <div class="coop-column p1-col">
+            <h2 style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Breeding</h2>
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label style="display: block; margin-bottom: 5px;">Parent 1:</label>
+                <select id="parent1Select" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box;"></select>
+            </div>
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label style="display: block; margin-bottom: 5px;">Parent 2:</label>
+                <select id="parent2Select" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box;"></select>
+            </div>
+            <button id="doBreedBtn" onclick="window.doBreed(1)" style="width: 100%; padding: 10px; font-size: 16px;">Breed!</button>
+            <p id="breedResult" style="min-height: 20px; font-weight: bold; margin-top: 15px; text-align: center; color: #4caf50;"></p>
+        </div>
+
+        <!-- Player 2 Column -->
+        <div class="coop-column p2-col">
+            <h2 style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Breeding</h2>
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label style="display: block; margin-bottom: 5px;">Parent 1:</label>
+                <select id="parent1Select_P2" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box;"></select>
+            </div>
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label style="display: block; margin-bottom: 5px;">Parent 2:</label>
+                <select id="parent2Select_P2" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box;"></select>
+            </div>
+            <button id="doBreedBtn_P2" onclick="window.doBreed(2)" style="width: 100%; padding: 10px; font-size: 16px;">Breed!</button>
+            <p id="breedResult_P2" style="min-height: 20px; font-weight: bold; margin-top: 15px; text-align: center; color: #ff9800;"></p>
+        </div>
     </div>
-    <div>
-        <label>Parent 2:</label>
-        <select id="parent2Select"></select>
-    </div>
-    <button id="doBreedBtn">Breed!</button>
-    <button class="close-breeding-btn">Close</button>
-    <p id="breedResult"></p>
+    <button class="close-breeding-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #555, #222); border-color: #777;">Close</button>
 </div>
 
 
 <div id="journalModal" style="display:none; position:absolute; color:white; z-index:800; text-align:center;">
     <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
-    <h2>Creature Journal</h2>
-    <div id="journalStats" style="font-size: 18px; margin: 20px 0;">
-        <p>Gen 1 Creatures Collected: <span id="journalGen1Count" style="color:#4caf50;">0 / 50</span></p>
-        <p>Gen 2 Unique Species Discovered: <span id="journalGen2Count" style="color:#2196F3;">0</span></p>
+    <div class="coop-columns">
+        <!-- Player 1 Column -->
+        <div class="coop-column p1-col">
+            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 15px;">Player 1 Journal</h2>
+            <div id="journalStats" style="font-size: 18px; margin: 20px 0;">
+                <p>Gen 1 Creatures Collected: <span id="journalGen1Count" style="color:#4caf50;">0 / 50</span></p>
+                <p>Gen 2 Unique Species Discovered: <span id="journalGen2Count" style="color:#2196F3;">0</span></p>
+            </div>
+        </div>
+
+        <!-- Player 2 Column -->
+        <div class="coop-column p2-col">
+            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 15px;">Player 2 Journal</h2>
+            <div id="journalStats_P2" style="font-size: 18px; margin: 20px 0;">
+                <p>Gen 1 Creatures Collected: <span id="journalGen1Count_P2" style="color:#4caf50;">0 / 50</span></p>
+                <p>Gen 2 Unique Species Discovered: <span id="journalGen2Count_P2" style="color:#2196F3;">0</span></p>
+            </div>
+        </div>
     </div>
-    <button class="close-journal-btn">Close</button>
+    <button class="close-journal-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #555, #222); border-color: #777;">Close</button>
 </div>
 
 <div id="storeModal" style="display:none; position:fixed; color:white; z-index:900; text-align:center;">
     <button class="close-btn close-store-btn" aria-label="Close Store">X</button>
-    <h2>Store</h2>
-    <div id="storeContent" style="margin-top:20px;">
-        <p>Welcome to the store! (Features coming soon)</p>
+    <div class="coop-columns">
+        <!-- Player 1 Store Column -->
+        <div class="coop-column p1-col">
+            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 15px;">Player 1 Store</h2>
+            <div id="storeContent">
+                <p>Welcome to the store! (Features coming soon)</p>
+            </div>
+        </div>
+
+        <!-- Player 2 Store Column -->
+        <div class="coop-column p2-col">
+            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 15px;">Player 2 Store</h2>
+            <div id="storeContent_P2">
+                <p>Welcome to the store! (Features coming soon)</p>
+            </div>
+        </div>
     </div>
     <button class="close-store-btn" style="margin-top: 20px; padding: 10px; width: 100%; background: linear-gradient(180deg, #555, #222); border-radius: 12px; border: 1px solid #777; color: white; cursor: pointer;">Close</button>
 </div>
@@ -1999,6 +2204,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menuStorageBtn')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(); });
     document.getElementById('breedBtn')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(); });
     document.getElementById('menuHelpBtn')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(); });
+
+    // Player 2 Menu Buttons Click Listeners
+    document.getElementById('menuPartyBtn_P2')?.addEventListener('click', () => { if (window.openPartyModal) window.openPartyModal(); });
+    document.getElementById('menuStorageBtn_P2')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(); });
+    document.getElementById('breedBtn_P2')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(); });
+    document.getElementById('menuHelpBtn_P2')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(); });
     document.getElementById('menuMusicBtn')?.addEventListener('click', () => {
         if (window.WildPulseMusic) {
             const isMuted = window.WildPulseMusic.toggle();
@@ -2006,6 +2217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     document.getElementById('menuJournalBtn')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(); });
+    document.getElementById('menuJournalBtn_P2')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(); });
     document.getElementById('startChallengeBtn')?.addEventListener('click', () => { if (window.startChallengeBattle) window.startChallengeBattle(); });
     document.getElementById('closeChallengeBtn')?.addEventListener('click', () => { if (window.closeChallengeModal) window.closeChallengeModal(); });
     document.getElementById('startDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
@@ -2094,10 +2306,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Helper function to open character customization modal
-    window.openCustomizationModal = function() {
+    window.openCustomizationModal = function(playerNum = 1) {
         if (window.closeMenuModal) window.closeMenuModal();
 
-        window.activeCustomPlayer = 1;
+        window.activeCustomPlayer = playerNum;
 
         const selectionDiv = document.getElementById('customPlayerSelection');
         if (selectionDiv) {
@@ -2107,13 +2319,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnP1 = document.getElementById('customSelectP1');
         const btnP2 = document.getElementById('customSelectP2');
         if (btnP1 && btnP2) {
-            btnP1.style.background = 'linear-gradient(180deg, #42a5f5, #1565c0)';
-            btnP1.style.borderColor = '#90caf9';
-            btnP2.style.background = 'linear-gradient(180deg, #555, #222)';
-            btnP2.style.borderColor = '#777';
+            if (playerNum === 2) {
+                btnP2.style.background = 'linear-gradient(180deg, #42a5f5, #1565c0)';
+                btnP2.style.borderColor = '#90caf9';
+                btnP1.style.background = 'linear-gradient(180deg, #555, #222)';
+                btnP1.style.borderColor = '#777';
+            } else {
+                btnP1.style.background = 'linear-gradient(180deg, #42a5f5, #1565c0)';
+                btnP1.style.borderColor = '#90caf9';
+                btnP2.style.background = 'linear-gradient(180deg, #555, #222)';
+                btnP2.style.borderColor = '#777';
+            }
         }
 
-        window.loadCustomPlayerInputs(1);
+        window.loadCustomPlayerInputs(playerNum);
 
         // Refresh pattern options based on unlocks
         if (window.PATTERN_UNLOCKS && window.gameStats) {
@@ -2144,7 +2363,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('menuCustomizeBtn')?.addEventListener('click', () => {
-        window.openCustomizationModal();
+        window.openCustomizationModal(1);
+    });
+
+    document.getElementById('menuCustomizeBtn_P2')?.addEventListener('click', () => {
+        window.openCustomizationModal(2);
     });
 
     // Selector Button Listeners
@@ -4633,17 +4856,23 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
     localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
 }
 
-window.saveCollected = function(creature) {
-    if (!window.collectedCreaturesIds.has(creature.id)) {
-        const activeParty = window.collectedCreatures.filter(c => !c.stored);
+window.saveCollected = function(creature, playerNum = 1) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const idSet = playerNum === 2 ? window.collectedCreaturesIds2 : window.collectedCreaturesIds;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+    const stats = playerNum === 2 ? (window.gameStats2 || window.gameStats) : window.gameStats;
+    const statsKey = playerNum === 2 ? 'wildpulse_stats2' : 'wildpulse_stats';
+
+    if (!idSet.has(creature.id)) {
+        const activeParty = list.filter(c => !c.stored);
         creature.stored = activeParty.length >= 6;
         creature.currentHp = window.getEffectiveStat(creature, 'health');
 
-        window.gameStats.creaturesCaught++;
-        window.collectedCreaturesIds.add(creature.id);
-        window.collectedCreatures.push(creature);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(window.collectedCreatures));
-        // Check for unlocks related to catching creatures
+        if (stats) stats.creaturesCaught = (stats.creaturesCaught || 0) + 1;
+        idSet.add(creature.id);
+        list.push(creature);
+        localStorage.setItem(key, JSON.stringify(list));
+        localStorage.setItem(statsKey, JSON.stringify(stats));
         if (window.saveStats) window.saveStats();
     }
 };
@@ -4780,23 +5009,41 @@ window.returnToOwnWorld = function() {
 window.openJournalModal = function() {
     window.closeAllModals('journalModal');
 
-    // Calculate unique Gen 1 and Gen 2 creatures
+    // Calculate unique Gen 1 and Gen 2 creatures for Player 1
     const gen1Set = new Set();
     const gen2Set = new Set();
 
-    collectedCreatures.forEach(c => {
+    window.collectedCreatures.forEach(c => {
         if (!c.generation || c.generation === 1) {
-            // Uniquely identify base creatures by their name or baseId
             gen1Set.add(c.baseId || c.name);
         } else if (c.generation === 2) {
-            // For gen 2, uniqueness is based on the combination of parents,
-            // which results in their unique generated name.
             gen2Set.add(c.name);
         }
     });
 
-    document.getElementById('journalGen1Count').innerText = gen1Set.size + ' / 50';
-    document.getElementById('journalGen2Count').innerText = gen2Set.size + ' / 2500';
+    const g1CountP1 = document.getElementById('journalGen1Count');
+    const g2CountP1 = document.getElementById('journalGen2Count');
+    if (g1CountP1) g1CountP1.innerText = gen1Set.size + ' / 50';
+    if (g2CountP1) g2CountP1.innerText = gen2Set.size + ' / 2500';
+
+    // Calculate unique Gen 1 and Gen 2 creatures for Player 2
+    if (window.coopActive) {
+        const gen1Set2 = new Set();
+        const gen2Set2 = new Set();
+
+        window.collectedCreatures2.forEach(c => {
+            if (!c.generation || c.generation === 1) {
+                gen1Set2.add(c.baseId || c.name);
+            } else if (c.generation === 2) {
+                gen2Set2.add(c.name);
+            }
+        });
+
+        const g1CountP2 = document.getElementById('journalGen1Count_P2');
+        const g2CountP2 = document.getElementById('journalGen2Count_P2');
+        if (g1CountP2) g1CountP2.innerText = gen1Set2.size + ' / 50';
+        if (g2CountP2) g2CountP2.innerText = gen2Set2.size + ' / 2500';
+    }
 
     document.getElementById('journalModal').style.display = 'block';
 };
@@ -4970,15 +5217,18 @@ window.closeHelpModal = function() {
 };
 window.openPartyModal = function() {
     closeMenuModal();
-    if (typeof switchPartyTab === 'function') switchPartyTab('party');
+    if (typeof window.switchPartyTab === 'function') {
+        window.switchPartyTab('party', 1);
+        window.switchPartyTab('party', 2);
+    }
     document.getElementById('partyModal').style.display = 'block';
-    renderPartyList();
+    window.renderPartyList();
 };
 
 window.openStorageModal = function() {
     closeMenuModal();
     document.getElementById('storageModal').style.display = 'block';
-    renderStorageList();
+    window.renderStorageList();
 };
 
 window.closeStorageModal = function() {
@@ -4989,11 +5239,25 @@ window.closePartyModal = function() {
 };
 
 window.renderPartyList = function() {
-    const list = document.getElementById('partyList');
+    // Render Player 1
+    renderPartyForPlayer(1);
+
+    // Render Player 2
+    if (window.coopActive) {
+        renderPartyForPlayer(2);
+    }
+};
+
+function renderPartyForPlayer(playerNum = 1) {
+    const targetId = playerNum === 2 ? 'partyList_P2' : 'partyList';
+    const list = document.getElementById(targetId);
+    if (!list) return;
+
     list.innerHTML = '';
     const fragment = document.createDocumentFragment();
 
-    const activeParty = collectedCreatures.filter(c => !c.stored);
+    const creaturesList = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const activeParty = creaturesList.filter(c => !c.stored);
 
     if (activeParty.length === 0) {
         list.innerHTML = '<p>Your party is empty.</p>';
@@ -5008,7 +5272,7 @@ window.renderPartyList = function() {
 
     activeParty.forEach((c) => {
         // Find original index
-        const index = collectedCreatures.findIndex(orig => orig.id === c.id);
+        const index = creaturesList.findIndex(orig => orig.id === c.id);
         const card = document.createElement('div');
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
@@ -5017,7 +5281,6 @@ window.renderPartyList = function() {
         const color2 = types.length > 1 ? (window.TYPE_COLORS[types[1]] || color1) : color1;
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
-
 
         const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
 
@@ -5099,7 +5362,7 @@ window.renderPartyList = function() {
 
         card.innerHTML = `
             <div>
-                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20"> <button class="save-name-btn" data-index="${index}">Save</button> - <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span></h3>
+                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20"> <button class="save-name-btn" onclick="window.saveName(this, ${index}, ${playerNum})">Save</button> - <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span></h3>
                 <p><strong>Level <span style="color:#2196F3">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:#2196F3">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span></p>
                 <div class="creature-description">
                     <p style="color: #ccc; font-style: italic;">${c.description}</p>
@@ -5118,24 +5381,38 @@ window.renderPartyList = function() {
                 </div>
             </div>
             <div class="party-controls">
-                <button class="move-up-btn" data-index="${index}" aria-label="Move Up">▲</button>
-                <button class="move-down-btn" data-index="${index}" aria-label="Move Down">▼</button>
-                <button class="store-btn" data-index="${index}" style="background-color: #2196F3; color: white;">Store</button>
-                <button class="release-btn" data-index="${index}" style="background-color: #f44336; color: white;">Release</button>
+                <button class="move-up-btn" onclick="window.moveUp(${index}, ${playerNum})" aria-label="Move Up">▲</button>
+                <button class="move-down-btn" onclick="window.moveDown(${index}, ${playerNum})" aria-label="Move Down">▼</button>
+                <button class="store-btn" onclick="window.storeCreature(${index}, ${playerNum})" style="background-color: #2196F3; color: white;">Store</button>
+                <button class="release-btn" onclick="window.releaseCreature(${index}, ${playerNum})" style="background-color: #f44336; color: white;">Release</button>
             </div>
         `;
         fragment.appendChild(card);
     });
 
     list.appendChild(fragment);
-};
+}
 
 window.renderStorageList = function() {
-    const list = document.getElementById('storageList');
+    // Render Player 1
+    renderStorageForPlayer(1);
+
+    // Render Player 2
+    if (window.coopActive) {
+        renderStorageForPlayer(2);
+    }
+};
+
+function renderStorageForPlayer(playerNum = 1) {
+    const targetId = playerNum === 2 ? 'storageList_P2' : 'storageList';
+    const list = document.getElementById(targetId);
+    if (!list) return;
+
     list.innerHTML = '';
     const fragment = document.createDocumentFragment();
 
-    const storageBox = collectedCreatures.filter(c => c.stored);
+    const listSource = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const storageBox = listSource.filter(c => c.stored);
 
     if (storageBox.length === 0) {
         list.innerHTML = '<p>Your storage box is empty.</p>';
@@ -5144,14 +5421,14 @@ window.renderStorageList = function() {
 
     const storageGrid = document.createElement('div');
     storageGrid.style.display = 'grid';
-    storageGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+    storageGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(240px, 1fr))';
     storageGrid.style.gap = '15px';
     storageGrid.style.maxHeight = '60vh';
     storageGrid.style.overflowY = 'auto';
     storageGrid.style.padding = '10px';
 
     storageBox.forEach((c) => {
-        const index = collectedCreatures.findIndex(orig => orig.id === c.id);
+        const index = listSource.findIndex(orig => orig.id === c.id);
         const card = document.createElement('div');
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
@@ -5161,14 +5438,13 @@ window.renderStorageList = function() {
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
 
-
         const nameHtml = `<h4>${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''}</h4>`;
         const abilityText = c.ability ? `<span style="color:${c.ability.color}" data-tooltip="${c.ability.message}">${c.ability.name}</span>` : 'None';
         const typeHtml = `<p>Lvl ${c.level} | Type: <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span> | Gen ${c.generation}</p><p>Ability: ${abilityText}</p>`;
 
         let actionHtml = `<div class="party-controls">`;
-        actionHtml += `<button class="retrieve-btn" data-index="${index}" style="background-color: #4CAF50; color: white;">Retrieve</button>`;
-        actionHtml += `<button class="release-btn" data-index="${index}" style="background-color: #f44336; color: white;">Release</button>`;
+        actionHtml += `<button class="retrieve-btn" onclick="window.retrieveCreature(${index}, ${playerNum})" style="background-color: #4CAF50; color: white;">Retrieve</button>`;
+        actionHtml += `<button class="release-btn" onclick="window.releaseCreature(${index}, ${playerNum})" style="background-color: #f44336; color: white;">Release</button>`;
         actionHtml += `</div>`;
 
         card.innerHTML = "<div>" + nameHtml + typeHtml + "</div>" + actionHtml;
@@ -5177,92 +5453,103 @@ window.renderStorageList = function() {
 
     fragment.appendChild(storageGrid);
     list.appendChild(fragment);
-};
+}
 
-window.saveName = function(btn, index) {
-    collectedCreatures[index].nickname = escapeHtml(btn.previousElementSibling.value || collectedCreatures[index].name);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+window.saveName = function(btn, index, playerNum = 1) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+    list[index].nickname = escapeHtml(btn.previousElementSibling.value || list[index].name);
+    localStorage.setItem(key, JSON.stringify(list));
     window.renderPartyList();
 };
 
-window.moveUp = function(index) {
+window.moveUp = function(index, playerNum = 1) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+
     // Find the previous active creature index
     let targetIndex = -1;
     for (let i = index - 1; i >= 0; i--) {
-        if (!collectedCreatures[i].stored) {
+        if (!list[i].stored) {
             targetIndex = i;
             break;
         }
     }
 
-    if (targetIndex !== -1 && !collectedCreatures[index].stored) {
-        let temp = collectedCreatures[index];
-        collectedCreatures[index] = collectedCreatures[targetIndex];
-        collectedCreatures[targetIndex] = temp;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+    if (targetIndex !== -1 && !list[index].stored) {
+        let temp = list[index];
+        list[index] = list[targetIndex];
+        list[targetIndex] = temp;
+        localStorage.setItem(key, JSON.stringify(list));
         window.renderPartyList();
     }
 };
 
-window.moveDown = function(index) {
+window.moveDown = function(index, playerNum = 1) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+
     // Find the next active creature index
     let targetIndex = -1;
-    for (let i = index + 1; i < collectedCreatures.length; i++) {
-        if (!collectedCreatures[i].stored) {
+    for (let i = index + 1; i < list.length; i++) {
+        if (!list[i].stored) {
             targetIndex = i;
             break;
         }
     }
 
-    if (targetIndex !== -1 && !collectedCreatures[index].stored) {
-        let temp = collectedCreatures[index];
-        collectedCreatures[index] = collectedCreatures[targetIndex];
-        collectedCreatures[targetIndex] = temp;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+    if (targetIndex !== -1 && !list[index].stored) {
+        let temp = list[index];
+        list[index] = list[targetIndex];
+        list[targetIndex] = temp;
+        localStorage.setItem(key, JSON.stringify(list));
         window.renderPartyList();
     }
 };
 
-
-
-window.storeCreature = function(index) {
-    if (index < 0 || index >= collectedCreatures.length) return;
-    const activeParty = collectedCreatures.filter(c => !c.stored);
+window.storeCreature = function(index, playerNum = 1) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+    const activeParty = list.filter(c => !c.stored);
 
     if (activeParty.length <= 1) {
         alert("You cannot store your last active party creature!");
         return;
     }
 
-    collectedCreatures[index].stored = true;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+    list[index].stored = true;
+    localStorage.setItem(key, JSON.stringify(list));
     window.renderPartyList();
 };
 
-window.retrieveCreature = function(index) {
-    if (index < 0 || index >= collectedCreatures.length) return;
-
-    const activeParty = collectedCreatures.filter(c => !c.stored);
+window.retrieveCreature = function(index, playerNum = 1) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+    const activeParty = list.filter(c => !c.stored);
     if (activeParty.length >= 6) {
         alert("Your party is full! Store a creature first.");
         return;
     }
 
-    collectedCreatures[index].stored = false;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+    list[index].stored = false;
+    localStorage.setItem(key, JSON.stringify(list));
     window.renderStorageList();
 };
 
-window.releaseCreature = function(index) {
-    if (collectedCreatures.length <= 1) {
+window.releaseCreature = function(index, playerNum = 1) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+    const idSet = playerNum === 2 ? window.collectedCreaturesIds2 : window.collectedCreaturesIds;
+
+    if (list.length <= 1) {
         alert("You cannot release your last creature!");
         return;
     }
-    if (confirm('Are you sure you want to release ' + collectedCreatures[index].name + '?')) {
-        collectedCreaturesIds.delete(collectedCreatures[index].id);
-        collectedCreatures.splice(index, 1);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-        renderPartyList();
+    if (confirm('Are you sure you want to release ' + list[index].name + '?')) {
+        idSet.delete(list[index].id);
+        list.splice(index, 1);
+        localStorage.setItem(key, JSON.stringify(list));
+        window.renderPartyList();
         if (document.getElementById('storageModal').style.display === 'block') {
             window.renderStorageList();
         }
@@ -5496,9 +5783,11 @@ window.breed = function(parent1, parent2) {
     return child;
 };
 
-function populateSelect(selectElement) {
+function populateSelect(selectElement, playerNum = 1) {
+    if (!selectElement) return;
     selectElement.innerHTML = '';
-    collectedCreatures.forEach(c => {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    list.forEach(c => {
         const option = document.createElement('option');
         option.value = c.id;
         option.text = `${c.name} (Gen ${c.generation})`;
@@ -5508,11 +5797,19 @@ function populateSelect(selectElement) {
 
 window.openBreedingModal = function() {
     document.getElementById('breedingModal').style.display = 'block';
-    const s1 = document.getElementById('parent1Select');
-    const s2 = document.getElementById('parent2Select');
-    populateSelect(s1);
-    populateSelect(s2);
+
+    // Player 1 SELECTS
+    populateSelect(document.getElementById('parent1Select'), 1);
+    populateSelect(document.getElementById('parent2Select'), 1);
     document.getElementById('breedResult').innerText = '';
+
+    // Player 2 SELECTS
+    if (window.coopActive) {
+        populateSelect(document.getElementById('parent1Select_P2'), 2);
+        populateSelect(document.getElementById('parent2Select_P2'), 2);
+        const res2 = document.getElementById('breedResult_P2');
+        if (res2) res2.innerText = '';
+    }
 };
 
 window.closeBreedingModal = function() {
@@ -5535,45 +5832,49 @@ window.closeLevelUpModal = function() {
     }, 190);
 };
 
-window.doBreed = function() {
-    const id1 = document.getElementById('parent1Select').value;
-    const id2 = document.getElementById('parent2Select').value;
+window.doBreed = function(playerNum = 1) {
+    const pPrefix = playerNum === 2 ? '_P2' : '';
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const resEl = document.getElementById(playerNum === 2 ? 'breedResult_P2' : 'breedResult');
+
+    const id1 = document.getElementById('parent1Select' + pPrefix).value;
+    const id2 = document.getElementById('parent2Select' + pPrefix).value;
 
     if (!id1 || !id2) {
-        document.getElementById('breedResult').innerText = 'Please collect and select two parents.';
+        if (resEl) resEl.innerText = 'Please collect and select two parents.';
         return;
     }
 
     if (id1 === id2) {
-        document.getElementById('breedResult').innerText = 'Cannot breed a creature with itself.';
+        if (resEl) resEl.innerText = 'Cannot breed a creature with itself.';
         return;
     }
 
-    const p1Index = collectedCreatures.findIndex(c => String(c.id) === String(id1));
-    const p2Index = collectedCreatures.findIndex(c => String(c.id) === String(id2));
+    const p1Index = list.findIndex(c => String(c.id) === String(id1));
+    const p2Index = list.findIndex(c => String(c.id) === String(id2));
 
     if (p1Index !== -1 && p2Index !== -1) {
-        const p1 = collectedCreatures[p1Index];
-        const p2 = collectedCreatures[p2Index];
+        const p1 = list[p1Index];
+        const p2 = list[p2Index];
 
         // Ensure compatibility - either same type, or based on typeChart if they are somewhat compatible
         // Let's use the type modifier. If it's 0, they can't breed.
         const compatibility = window.getTypeModifier(p1.type, p2.type);
         if (compatibility === 0 && !(p1.generation === 1 && p2.generation === 1)) {
-             document.getElementById('breedResult').innerText = `Incompatible types: ${p1.type} cannot breed with ${p2.type}.`;
+             if (resEl) resEl.innerText = `Incompatible types: ${p1.type} cannot breed with ${p2.type}.`;
              return;
         }
 
         const child = window.breed(p1, p2);
 
         // Add the child
-        window.saveCollected(child);
+        window.saveCollected(child, playerNum);
 
-        document.getElementById('breedResult').innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents remain in your party.`;
+        if (resEl) resEl.innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents remain in your party.`;
 
         // Re-populate to show new child
-        populateSelect(document.getElementById('parent1Select'));
-        populateSelect(document.getElementById('parent2Select'));
+        populateSelect(document.getElementById('parent1Select' + pPrefix), playerNum);
+        populateSelect(document.getElementById('parent2Select' + pPrefix), playerNum);
     }
 };
 
@@ -9266,7 +9567,6 @@ window.endBattle = function(result) {
                 localStorage.setItem(storageKey, JSON.stringify(activeParty));
 
                 if (leveledUp) {
-                    document.getElementById('levelUpTitle').innerText = `${expTarget.nickname || expTarget.name} reached Level ${expTarget.level}!`;
                     let statsHtml = '';
 
                     if (expTarget.growthSpurtThisLevel) {
@@ -9283,7 +9583,24 @@ window.endBattle = function(result) {
                             statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldStats[stat].toFixed(1)} <span style="color:#4caf50">➔ ${newStat.toFixed(1)} (+${diff.toFixed(1)})</span></div>`;
                         }
                     });
-                    document.getElementById('levelUpStats').innerHTML = statsHtml;
+
+                    if (window.coopActive) {
+                        const targetPlayerNum = window.activeBattlePlayer === 2 ? 2 : 1;
+                        if (targetPlayerNum === 2) {
+                            document.getElementById('levelUpTitle_P2').innerText = `${expTarget.nickname || expTarget.name} reached Level ${expTarget.level}!`;
+                            document.getElementById('levelUpStats_P2').innerHTML = statsHtml;
+                            document.getElementById('levelUpTitle_P1').innerText = "Player 1";
+                            document.getElementById('levelUpStats_P1').innerHTML = `<p style="color:#aaa; font-style:italic;">Watching partner level up...</p>`;
+                        } else {
+                            document.getElementById('levelUpTitle_P1').innerText = `${expTarget.nickname || expTarget.name} reached Level ${expTarget.level}!`;
+                            document.getElementById('levelUpStats_P1').innerHTML = statsHtml;
+                            document.getElementById('levelUpTitle_P2').innerText = "Player 2";
+                            document.getElementById('levelUpStats_P2').innerHTML = `<p style="color:#aaa; font-style:italic;">Watching partner level up...</p>`;
+                        }
+                    } else {
+                        document.getElementById('levelUpTitle').innerText = `${expTarget.nickname || expTarget.name} reached Level ${expTarget.level}!`;
+                        document.getElementById('levelUpStats').innerHTML = statsHtml;
+                    }
                     window.pendingLevelUp = true;
                 }
             }
@@ -9297,6 +9614,9 @@ window.coopActive = false;
 window.enableCoop = function(scene) {
     if (window.coopActive) return;
     window.coopActive = true;
+
+    // Toggle body class for split screen layout styling
+    document.body.classList.add('coop-active-layout');
 
     // 1. Create Player 2 sprite next to Player 1 (or default spawning if player doesn't exist)
     const basePlayerX = (player && typeof player.x === 'number') ? player.x : 10550;
@@ -9364,6 +9684,9 @@ window.enableCoop = function(scene) {
 window.disableCoop = function(scene) {
     if (!window.coopActive) return;
     window.coopActive = false;
+
+    // Remove body class for split screen layout styling
+    document.body.classList.remove('coop-active-layout');
 
     // 1. Destroy Player 2 elements
     if (window.player2) {
