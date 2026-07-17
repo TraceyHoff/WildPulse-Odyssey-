@@ -4330,6 +4330,941 @@ window.getCreatureColor = function(creature) {
     return (r << 16) | (g << 8) | b;
 };
 
+window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackground = false) {
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.clearRect(0, 0, size, size);
+
+    // Virtual coordinate scaling: all drawing code runs inside a virtual 100x100 space!
+    ctx.scale(size / 100, size / 100);
+
+    const types = creature.type ? creature.type.split('-') : ['Normal'];
+    const type1 = types[0];
+    const typeColor1 = window.TYPE_COLORS[type1] || 'rgba(169, 169, 169, 0.85)';
+
+    // Fantasy color mapping helper
+    const mapFantasyColor = (colStr, defaultCol = '#ffffff') => {
+        if (!colStr) return defaultCol;
+        if (colStr.startsWith('#') || colStr.startsWith('rgb')) return colStr;
+        const lower = colStr.toLowerCase();
+        const mapping = {
+            ruby: '#e0115f',
+            crimson: '#dc143c',
+            emerald: '#50c878',
+            sapphire: '#0f52ba',
+            gold: '#ffd700',
+            azure: '#007fff',
+            violet: '#8f00ff',
+            onyx: '#353839',
+            obsidian: '#151515',
+            turquoise: '#30d5c8',
+            teal: '#008080',
+            amber: '#ffbf00',
+            amethyst: '#9966cc',
+            quartz: '#e6e6fa',
+            pearl: '#eae0c8',
+            silver: '#c0c0c0',
+            bronze: '#cd7f32',
+            copper: '#b87333',
+            coral: '#ff7f50',
+            frost: '#a5f2f3',
+            snow: '#fafaff',
+            lava: '#cf1020',
+            shadow: '#2a2a2a',
+            void: '#120a2a',
+            storm: '#4f738e',
+            plasma: '#b500ff',
+            magma: '#ff3300',
+            moss: '#8a9a86',
+            leaf: '#4caf50',
+            flora: '#ff69b4',
+            bloom: '#ff85a2',
+            cinder: '#4b3621'
+        };
+        for (let key in mapping) {
+            if (lower.includes(key)) return mapping[key];
+        }
+        return colStr;
+    };
+
+    // Parse base body color
+    let baseColorHex = '#' + (creature.color || 0xffffff).toString(16).padStart(6, '0');
+    let bodyColor = mapFantasyColor(creature.skinFurColor, baseColorHex);
+    let eyesCol = mapFantasyColor(creature.eyesColor, typeColor1);
+    let wingsCol = mapFantasyColor(creature.wingsColor, typeColor1);
+    let tailCol = mapFantasyColor(creature.tailColor, bodyColor);
+    let clawHornCol = mapFantasyColor(creature.clawHornColor, '#f5f5f5');
+    let featCol = mapFantasyColor(creature.uniqueFeatureColor, typeColor1);
+
+    // 1. Draw Background & Aura if requested (e.g. for battle UI)
+    if (drawBackground) {
+        // Background gradient
+        const bgGrad = ctx.createRadialGradient(50, 50, 5, 50, 50, 50);
+        bgGrad.addColorStop(0, 'rgba(30, 40, 55, 0.9)');
+        bgGrad.addColorStop(1, 'rgba(10, 15, 25, 0.95)');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 100, 100);
+
+        // Glowing elemental aura
+        const auraGrad = ctx.createRadialGradient(50, 50, 10, 50, 50, 45);
+        auraGrad.addColorStop(0, typeColor1.replace('0.85', '0.4').replace('0.8', '0.4').replace('1)', '0.4)'));
+        auraGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(50, 50, 45, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 2. Draw Unique Feature (Back Layer/Trail/Halo)
+    const uFeat = (creature.uniqueFeature || '').toLowerCase();
+    if (uFeat) {
+        ctx.save();
+        if (uFeat.includes('halo') || uFeat.includes('glow') || uFeat.includes('flash')) {
+            // Draw a shiny halo ring behind the head
+            ctx.strokeStyle = featCol;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = featCol;
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(50, 42, 34, 0, Math.PI * 2);
+            ctx.stroke();
+        } else if (uFeat.includes('trail') || uFeat.includes('breath') || uFeat.includes('flare') || uFeat.includes('droplets')) {
+            // Flowing particles or flames behind/underneath
+            ctx.fillStyle = featCol;
+            ctx.globalAlpha = 0.6;
+            for (let i = 0; i < 6; i++) {
+                let px = 30 + Math.sin(i) * 20;
+                let py = 65 + i * 4;
+                ctx.beginPath();
+                ctx.arc(px, py, 3 + (i % 3), 0, Math.PI * 2);
+                ctx.fill();
+                let px2 = 70 - Math.sin(i) * 20;
+                ctx.beginPath();
+                ctx.arc(px2, py, 3 + (i % 3), 0, Math.PI * 2);
+                ctx.fill();
+            }
+        } else if (uFeat.includes('cloud') || uFeat.includes('dust') || uFeat.includes('smoke')) {
+            // Draw small puffy clouds behind/around the base
+            ctx.fillStyle = featCol;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(35, 75, 12, 0, Math.PI * 2);
+            ctx.arc(50, 78, 14, 0, Math.PI * 2);
+            ctx.arc(65, 75, 12, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (uFeat.includes('shield') || uFeat.includes('orbs') || uFeat.includes('barrage')) {
+            // Crystalline/shining defensive nodes floating around
+            ctx.fillStyle = featCol;
+            for (let i = 0; i < 3; i++) {
+                let angle = (i * Math.PI * 2) / 3;
+                let ox = 50 + Math.cos(angle) * 38;
+                let oy = 50 + Math.sin(angle) * 38;
+                ctx.beginPath();
+                ctx.arc(ox, oy, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        } else if (uFeat.includes('tendrils') || uFeat.includes('flora') || uFeat.includes('vines') || uFeat.includes('crown')) {
+            // Leafy/plant tendrils crawling from top/sides
+            ctx.fillStyle = '#4caf50';
+            ctx.strokeStyle = '#2e7d32';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            // Left tendril
+            ctx.moveTo(35, 30);
+            ctx.quadraticCurveTo(20, 15, 15, 30);
+            // Right tendril
+            ctx.moveTo(65, 30);
+            ctx.quadraticCurveTo(80, 15, 85, 30);
+            ctx.stroke();
+            // Leaf ovals
+            ctx.beginPath();
+            ctx.ellipse(15, 30, 4, 8, Math.PI/4, 0, Math.PI*2);
+            ctx.ellipse(85, 30, 4, 8, -Math.PI/4, 0, Math.PI*2);
+            ctx.fill();
+        } else if (uFeat.includes('sparks') || uFeat.includes('shock') || uFeat.includes('lightning')) {
+            // Electric spikes or arcs
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(25, 25); ctx.lineTo(15, 40); ctx.lineTo(25, 45); ctx.lineTo(10, 60);
+            ctx.moveTo(75, 25); ctx.lineTo(85, 40); ctx.lineTo(75, 45); ctx.lineTo(90, 60);
+            ctx.stroke();
+        } else if (uFeat.includes('spiral') || uFeat.includes('nebula') || uFeat.includes('cosmic')) {
+            // Starry/spiral galaxy disk representation
+            ctx.strokeStyle = featCol;
+            ctx.lineWidth = 2.5;
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.ellipse(50, 50, 44, 18, Math.PI/12, 0, Math.PI*1.8);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    // 3. Draw Wings (Behind Body)
+    const wingsVal = (creature.wings || '').toLowerCase();
+    const hasWings = wingsVal !== 'none' && wingsVal !== '';
+    if (hasWings) {
+        ctx.fillStyle = wingsCol;
+        ctx.strokeStyle = wingsCol;
+        ctx.lineWidth = 1;
+        if (wingsVal.includes('feathered') || wingsVal.includes('snowy')) {
+            // Beautiful feathered wing layer ellipses
+            ctx.beginPath();
+            ctx.ellipse(28, 44, 12, 24, -Math.PI / 4, 0, Math.PI * 2);
+            ctx.ellipse(20, 40, 9, 18, -Math.PI / 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(72, 44, 12, 24, Math.PI / 4, 0, Math.PI * 2);
+            ctx.ellipse(80, 40, 9, 18, Math.PI / 3, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (wingsVal.includes('leathery') || wingsVal.includes('bat-like')) {
+            // Sharp peaked bat-like wings
+            const drawBatWing = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                ctx.moveTo(35, 45);
+                ctx.quadraticCurveTo(20, 20, 10, 30);
+                ctx.quadraticCurveTo(15, 45, 12, 55);
+                ctx.quadraticCurveTo(24, 52, 28, 60);
+                ctx.quadraticCurveTo(32, 54, 35, 45);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            };
+            drawBatWing(true);
+            drawBatWing(false);
+        } else if (wingsVal.includes('crystal')) {
+            // Angular jagged crystal shards
+            const drawCrystalWing = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                ctx.moveTo(35, 45);
+                ctx.lineTo(12, 26);
+                ctx.lineTo(18, 48);
+                ctx.lineTo(8, 52);
+                ctx.lineTo(32, 58);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            };
+            drawCrystalWing(true);
+            drawCrystalWing(false);
+        } else if (wingsVal.includes('insectoid') || wingsVal.includes('gossamer')) {
+            // Translucent dual lobe ovals with veins
+            ctx.save();
+            ctx.globalAlpha = 0.5;
+            ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+            ctx.lineWidth = 1.5;
+            // Left wings
+            ctx.beginPath();
+            ctx.ellipse(26, 40, 10, 22, -Math.PI / 6, 0, Math.PI * 2);
+            ctx.ellipse(22, 50, 7, 15, -Math.PI / 4, 0, Math.PI * 2);
+            ctx.fill(); ctx.stroke();
+            // Right wings
+            ctx.beginPath();
+            ctx.ellipse(74, 40, 10, 22, Math.PI / 6, 0, Math.PI * 2);
+            ctx.ellipse(78, 50, 7, 15, Math.PI / 4, 0, Math.PI * 2);
+            ctx.fill(); ctx.stroke();
+            ctx.restore();
+        } else if (wingsVal.includes('leafy') || wingsVal.includes('leaf')) {
+            // Green leaf shaped wings
+            ctx.fillStyle = '#2e7d32';
+            ctx.beginPath();
+            ctx.ellipse(26, 45, 10, 22, -Math.PI / 4, 0, Math.PI * 2);
+            ctx.ellipse(74, 45, 10, 22, Math.PI / 4, 0, Math.PI * 2);
+            ctx.fill();
+            // Leaf veins
+            ctx.strokeStyle = '#1b5e20';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(32, 48); ctx.lineTo(18, 34);
+            ctx.moveTo(68, 48); ctx.lineTo(82, 34);
+            ctx.stroke();
+        } else if (wingsVal.includes('flame') || wingsVal.includes('energy')) {
+            // Wavy flame points
+            ctx.fillStyle = '#ff5722';
+            ctx.beginPath();
+            ctx.moveTo(35, 45); ctx.quadraticCurveTo(15, 20, 10, 40); ctx.quadraticCurveTo(25, 45, 15, 60); ctx.quadraticCurveTo(35, 55, 35, 45);
+            ctx.moveTo(65, 45); ctx.quadraticCurveTo(85, 20, 90, 40); ctx.quadraticCurveTo(75, 45, 85, 60); ctx.quadraticCurveTo(65, 55, 65, 45);
+            ctx.fill();
+        } else {
+            // Standard rounded elegant wings
+            ctx.beginPath();
+            ctx.ellipse(30, 45, 12, 22, -Math.PI / 6, 0, Math.PI * 2);
+            ctx.ellipse(70, 45, 12, 22, Math.PI / 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // 4. Draw Tail (Behind Body)
+    const tailVal = (creature.tail || '').toLowerCase();
+    const hasTail = tailVal !== 'none' && tailVal !== '';
+    if (hasTail) {
+        ctx.save();
+        ctx.fillStyle = tailCol;
+        ctx.strokeStyle = tailCol;
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        if (tailVal.includes('fish-like') || tailVal.includes('fin') || tailVal.includes('paddle')) {
+            // Wide fish tail fin
+            ctx.beginPath();
+            ctx.moveTo(50, 65);
+            ctx.quadraticCurveTo(70, 75, 76, 76);
+            ctx.stroke();
+            // Fan fin shape at the end
+            ctx.beginPath();
+            ctx.moveTo(76, 76);
+            ctx.lineTo(88, 65);
+            ctx.lineTo(85, 85);
+            ctx.closePath();
+            ctx.fill();
+        } else if (tailVal.includes('bushy') || tailVal.includes('fluffy') || tailVal.includes('flowing')) {
+            // Cloud-like large puffy tail
+            ctx.beginPath();
+            ctx.arc(68, 68, 11, 0, Math.PI * 2);
+            ctx.arc(78, 60, 13, 0, Math.PI * 2);
+            ctx.arc(82, 70, 10, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (tailVal.includes('sparking') || tailVal.includes('cable') || tailVal.includes('electric')) {
+            // Zigzag cable tail with plug spark
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(50, 65);
+            ctx.lineTo(62, 74);
+            ctx.lineTo(58, 80);
+            ctx.lineTo(74, 86);
+            ctx.stroke();
+            // Little spark star
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(74, 86, 5, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (tailVal.includes('clubbed') || tailVal.includes('rocky') || tailVal.includes('mace')) {
+            // Heavy mace tail
+            ctx.beginPath();
+            ctx.moveTo(50, 65);
+            ctx.quadraticCurveTo(68, 74, 72, 75);
+            ctx.stroke();
+            // Big circle
+            ctx.fillStyle = '#6d4c41';
+            ctx.beginPath();
+            ctx.arc(74, 75, 8, 0, Math.PI * 2);
+            ctx.fill();
+            // spikes on club
+            ctx.fillStyle = '#d7ccc8';
+            ctx.beginPath();
+            ctx.moveTo(74, 65); ctx.lineTo(74, 69); ctx.lineTo(78, 69); ctx.closePath();
+            ctx.moveTo(84, 75); ctx.lineTo(80, 75); ctx.lineTo(80, 79); ctx.closePath();
+            ctx.fill();
+        } else if (tailVal.includes('stardust') || tailVal.includes('comet') || tailVal.includes('energy')) {
+            // Flowing sparkling trail dots
+            ctx.fillStyle = tailCol;
+            ctx.globalAlpha = 0.8;
+            for (let i = 0; i < 5; i++) {
+                let tx = 55 + i * 7;
+                let ty = 66 + Math.sin(i) * 5;
+                ctx.beginPath();
+                ctx.arc(tx, ty, 6 - i, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        } else {
+            // Standard smooth scaly/classic curved tail
+            ctx.beginPath();
+            ctx.moveTo(50, 65);
+            ctx.quadraticCurveTo(75, 75, 80, 55);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    // 5. Draw Limbs (Bottom Layer)
+    const limbsVal = (creature.limbs || '').toLowerCase();
+    ctx.fillStyle = bodyColor;
+    ctx.strokeStyle = bodyColor;
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+
+    if (limbsVal.includes('talons') || limbsVal.includes('claw')) {
+        // Sharp bird talons
+        const drawTalon = (tx) => {
+            ctx.strokeStyle = '#f5b041';
+            ctx.lineWidth = 3.5;
+            ctx.beginPath();
+            ctx.moveTo(tx, 70);
+            ctx.lineTo(tx - 5, 80);
+            ctx.moveTo(tx, 70);
+            ctx.lineTo(tx, 82);
+            ctx.moveTo(tx, 70);
+            ctx.lineTo(tx + 5, 80);
+            ctx.stroke();
+        };
+        drawTalon(38);
+        drawTalon(62);
+    } else if (limbsVal.includes('legs') || limbsVal.includes('paws') || limbsVal.includes('hooves')) {
+        // Stout rectangular legs
+        ctx.fillRect(36, 68, 7, 13);
+        ctx.fillRect(57, 68, 7, 13);
+        // Feet/hooves base
+        ctx.fillStyle = '#4e342e';
+        ctx.fillRect(35, 78, 9, 4);
+        ctx.fillRect(56, 78, 9, 4);
+    } else if (limbsVal.includes('tentacles') || limbsVal.includes('pseudopods')) {
+        // Sinuous curving tentacles
+        ctx.lineWidth = 3.5;
+        const drawTentacle = (sx, offsetAngle) => {
+            ctx.beginPath();
+            ctx.moveTo(sx, 70);
+            ctx.bezierCurveTo(sx + offsetAngle, 76, sx - offsetAngle, 82, sx, 87);
+            ctx.stroke();
+        };
+        drawTentacle(32, 8);
+        drawTentacle(44, 4);
+        drawTentacle(56, -4);
+        drawTentacle(68, -8);
+    } else if (limbsVal.includes('mechanical')) {
+        // Segmented mechanical robot joints
+        ctx.strokeStyle = '#78909c';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(35, 70); ctx.lineTo(26, 78); ctx.lineTo(30, 84);
+        ctx.moveTo(65, 70); ctx.lineTo(74, 78); ctx.lineTo(70, 84);
+        ctx.stroke();
+    } else if (limbsVal.includes('hovering') || limbsVal.includes('base')) {
+        // Glowing exhaust jet ring
+        const jetGrad = ctx.createLinearGradient(40, 70, 40, 84);
+        jetGrad.addColorStop(0, '#00ffff');
+        jetGrad.addColorStop(1, 'rgba(0,0,255,0)');
+        ctx.fillStyle = jetGrad;
+        ctx.beginPath();
+        ctx.moveTo(42, 70);
+        ctx.lineTo(35, 84);
+        ctx.lineTo(65, 84);
+        ctx.lineTo(58, 70);
+        ctx.closePath();
+        ctx.fill();
+    } else if (limbsVal !== 'none' && limbsVal !== '') {
+        // Default small generic feet ovals
+        ctx.beginPath();
+        ctx.ellipse(38, 72, 5, 8, 0, 0, Math.PI * 2);
+        ctx.ellipse(62, 72, 5, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // 6. Draw Main Body Shape & Size
+    const bSize = (creature.bodySize || '').toLowerCase();
+    const bType = (creature.bodyType || '').toLowerCase();
+
+    // Determine dimensions based on body size
+    let rx = 22;
+    let ry = 22;
+    if (bSize.includes('colossal') || bSize.includes('massive') || bSize.includes('towering') || bSize.includes('immense') || bSize.includes('large')) {
+        rx = 27;
+        ry = 27;
+    } else if (bSize.includes('tiny') || bSize.includes('miniscule') || bSize.includes('diminutive') || bSize.includes('small') || bSize.includes('petite')) {
+        rx = 16;
+        ry = 16;
+    } else if (bSize.includes('slender') || bSize.includes('graceful')) {
+        rx = 18;
+        ry = 25;
+    } else if (bSize.includes('stout') || bSize.includes('blocky')) {
+        rx = 25;
+        ry = 19;
+    }
+
+    // Body drawing helper
+    const drawBodyPath = () => {
+        ctx.beginPath();
+        if (bType.includes('rounded') || bType.includes('rotund')) {
+            let r = Math.max(rx, ry);
+            ctx.arc(50, 50, r, 0, Math.PI * 2);
+        } else if (bType.includes('blocky') || bType.includes('angular') || bType.includes('stout')) {
+            // Rounded rectangle/box body
+            ctx.roundRect(50 - rx, 50 - ry, rx * 2, ry * 2, 8);
+        } else if (bType.includes('spiky')) {
+            // Star/spiky circle
+            let spikes = 12;
+            let outerRad = Math.max(rx, ry);
+            let innerRad = outerRad - 6;
+            for (let i = 0; i < spikes * 2; i++) {
+                let angle = (i * Math.PI) / spikes;
+                let r = (i % 2 === 0) ? outerRad : innerRad;
+                ctx.lineTo(50 + Math.cos(angle) * r, 50 + Math.sin(angle) * r);
+            }
+            ctx.closePath();
+        } else if (bType.includes('bipedal') || bType.includes('burly') || bType.includes('muscular') || bType.includes('bulky')) {
+            // Pear shape (wider at base)
+            ctx.moveTo(50 - rx * 0.7, 50 - ry);
+            ctx.quadraticCurveTo(50, 50 - ry * 1.2, 50 + rx * 0.7, 50 - ry);
+            ctx.quadraticCurveTo(50 + rx * 1.1, 50 + ry, 50, 50 + ry * 1.1);
+            ctx.quadraticCurveTo(50 - rx * 1.1, 50 + ry, 50 - rx * 0.7, 50 - ry);
+            ctx.closePath();
+        } else if (bType.includes('sleek') || bType.includes('lanky') || bType.includes('agile') || bType.includes('graceful')) {
+            // Upward egg shape
+            ctx.moveTo(50 - rx * 1.1, 50);
+            ctx.quadraticCurveTo(50 - rx * 1.0, 50 - ry * 1.1, 50, 50 - ry * 1.1);
+            ctx.quadraticCurveTo(50 + rx * 1.0, 50 - ry * 1.1, 50 + rx * 1.1, 50);
+            ctx.quadraticCurveTo(50 + rx * 0.7, 50 + ry * 1.0, 50, 50 + ry * 1.0);
+            ctx.quadraticCurveTo(50 - rx * 0.7, 50 + ry * 1.0, 50 - rx * 1.1, 50);
+            ctx.closePath();
+        } else {
+            // Standard smooth ellipse
+            ctx.ellipse(50, 50, rx, ry, 0, 0, Math.PI * 2);
+        }
+    };
+
+    // Draw main body shape
+    ctx.fillStyle = bodyColor;
+    ctx.strokeStyle = '#222222';
+    ctx.lineWidth = 1.5;
+    drawBodyPath();
+    ctx.fill();
+
+    // 7. Draw Patterns & Textures (Clipped to Main Body)
+    ctx.save();
+    drawBodyPath();
+    ctx.clip();
+
+    const patternVal = (creature.pattern || '').toLowerCase();
+    const skinVal = (creature.skinFurType || '').toLowerCase();
+
+    // Draw Pattern
+    if (patternVal.includes('tiger stripes') || patternVal.includes('stripes') || patternVal.includes('electric stripes')) {
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        // Slanted horizontal lines
+        for (let py = 32; py <= 68; py += 8) {
+            ctx.beginPath();
+            ctx.moveTo(50 - rx, py);
+            ctx.lineTo(50 - rx + 12, py + 3);
+            ctx.lineTo(50 - rx, py + 6);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(50 + rx, py - 4);
+            ctx.lineTo(50 + rx - 12, py - 1);
+            ctx.lineTo(50 + rx, py + 2);
+            ctx.closePath();
+            ctx.fill();
+        }
+    } else if (patternVal.includes('bioluminescent') || patternVal.includes('spots') || patternVal.includes('dappled') || patternVal.includes('speckles')) {
+        // Glowing round dots
+        ctx.fillStyle = featCol;
+        ctx.shadowColor = featCol;
+        ctx.shadowBlur = 6;
+        for (let i = 0; i < 8; i++) {
+            let sx = 50 + Math.sin(i * 1.7) * (rx * 0.6);
+            let sy = 50 + Math.cos(i * 1.2) * (ry * 0.6);
+            ctx.beginPath();
+            ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.shadowBlur = 0; // reset shadow
+    } else if (patternVal.includes('patches') || patternVal.includes('mottled') || patternVal.includes('camouflage')) {
+        // Big organic blotches
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        for (let i = 0; i < 4; i++) {
+            let px = 50 + (Math.sin(i * 3) * rx * 0.4);
+            let py = 50 + (Math.cos(i * 2.5) * ry * 0.4);
+            ctx.beginPath();
+            ctx.arc(px, py, 6 + i, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    } else if (patternVal.includes('checkerboard')) {
+        // Grid pattern
+        ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let lx = 10; lx <= 90; lx += 10) {
+            ctx.moveTo(lx, 0); ctx.lineTo(lx, 100);
+            ctx.moveTo(0, lx); ctx.lineTo(100, lx);
+        }
+        ctx.stroke();
+    } else if (patternVal.includes('swirls') || patternVal.includes('breezy')) {
+        // Elegant wind swirls
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(50, 48, 10, 0, Math.PI, false);
+        ctx.arc(42, 54, 6, Math.PI, 0, true);
+        ctx.stroke();
+    } else if (patternVal.includes('runes') || patternVal.includes('geometric')) {
+        // Tribal runic cross lines
+        ctx.strokeStyle = featCol;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(50, 50 - ry * 0.7); ctx.lineTo(50, 50 + ry * 0.7);
+        ctx.moveTo(50 - rx * 0.7, 50); ctx.lineTo(50 + rx * 0.7, 50);
+        ctx.stroke();
+    } else if (patternVal.includes('cracked')) {
+        // Lava or stone cracks
+        ctx.strokeStyle = '#d84315';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(50, 50 - ry); ctx.lineTo(46, 50); ctx.lineTo(54, 56); ctx.lineTo(50, 50 + ry);
+        ctx.moveTo(50 - rx, 50); ctx.lineTo(46, 50); ctx.lineTo(54, 52); ctx.lineTo(50 + rx, 50);
+        ctx.stroke();
+    } else if (patternVal.includes('gradient')) {
+        // Linear colored sheen gradient
+        const sheen = ctx.createLinearGradient(30, 30, 70, 70);
+        sheen.addColorStop(0, 'rgba(255,255,255,0.25)');
+        sheen.addColorStop(0.5, 'rgba(255,255,255,0)');
+        sheen.addColorStop(1, 'rgba(0,0,0,0.25)');
+        ctx.fillStyle = sheen;
+        ctx.fillRect(0,0,100,100);
+    }
+
+    // Draw Skin Textures
+    if (skinVal.includes('scaly') || skinVal.includes('armored')) {
+        // overlapping scales pattern
+        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+        ctx.lineWidth = 1;
+        for (let sy = 32; sy <= 68; sy += 6) {
+            for (let sx = 50 - rx + 3; sx <= 50 + rx - 3; sx += 8) {
+                ctx.beginPath();
+                ctx.arc(sx, sy, 4, 0, Math.PI);
+                ctx.stroke();
+            }
+        }
+    } else if (skinVal.includes('furry') || skinVal.includes('woolly') || skinVal.includes('thick') || skinVal.includes('bristly')) {
+        // Small dark fuzzy hash strokes
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 15; i++) {
+            let hx = 50 - rx * 0.6 + Math.random() * (rx * 1.2);
+            let hy = 50 - ry * 0.6 + Math.random() * (ry * 1.2);
+            ctx.beginPath();
+            ctx.moveTo(hx, hy);
+            ctx.lineTo(hx + 3, hy - 3);
+            ctx.stroke();
+        }
+    } else if (skinVal.includes('smooth') || skinVal.includes('metallic') || skinVal.includes('prismatic')) {
+        // Curved shiny specular reflection highlight arc
+        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        ctx.beginPath();
+        ctx.ellipse(50 - rx * 0.3, 50 - ry * 0.3, rx * 0.5, ry * 0.5, -Math.PI / 4, 0, Math.PI * 2);
+        ctx.fill();
+    } else if (skinVal.includes('leafy')) {
+        // Green leaf veins
+        ctx.strokeStyle = '#2e7d32';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(50, 50 - ry); ctx.lineTo(50, 50 + ry);
+        ctx.moveTo(50, 42); ctx.lineTo(50 - 10, 34);
+        ctx.moveTo(50, 42); ctx.lineTo(50 + 10, 34);
+        ctx.stroke();
+    } else if (skinVal.includes('gaseous') || skinVal.includes('translucent')) {
+        // Radial soft center wash
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.beginPath();
+        ctx.arc(50, 50, rx * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    ctx.restore(); // end of clipping block
+
+    // Draw thin black stroke outline around the main body to look crisp!
+    ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+    ctx.lineWidth = 2;
+    drawBodyPath();
+    ctx.stroke();
+
+    // 8. Draw Horns/Antlers/Crest (On Top of Head)
+    const hornVal = (creature.clawHorn || '').toLowerCase();
+    const hasHorns = hornVal !== 'none' && hornVal !== '';
+    if (hasHorns) {
+        ctx.fillStyle = clawHornCol;
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 1.5;
+
+        let hOffset = rx * 0.5;
+        let hy = 50 - ry * 0.8;
+
+        if (hornVal.includes('spiraling') || hornVal.includes('curved') || hornVal.includes('majestic')) {
+            // Elegant large curved/twisted horns
+            const drawSingleHorn = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                ctx.moveTo(50 - hOffset, hy + 5);
+                ctx.quadraticCurveTo(50 - hOffset * 1.5, hy - 18, 50 - hOffset * 2.2, hy - 12);
+                ctx.quadraticCurveTo(50 - hOffset * 1.4, hy - 10, 50 - hOffset + 5, hy + 5);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+                // Spiral ribbed lines
+                ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(50 - hOffset * 1.2, hy - 4); ctx.lineTo(50 - hOffset * 0.8, hy - 6);
+                ctx.moveTo(50 - hOffset * 1.6, hy - 11); ctx.lineTo(50 - hOffset * 1.2, hy - 13);
+                ctx.stroke();
+                ctx.restore();
+            };
+            drawSingleHorn(true);
+            drawSingleHorn(false);
+        } else if (hornVal.includes('antlers') || hornVal.includes('glowing')) {
+            // Beautiful branching deer antlers
+            ctx.fillStyle = clawHornCol;
+            ctx.strokeStyle = clawHornCol;
+            ctx.lineWidth = 3.5;
+            const drawAntler = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                ctx.moveTo(50 - hOffset, hy + 2);
+                ctx.lineTo(50 - hOffset - 12, hy - 14); // main branch
+                ctx.moveTo(50 - hOffset - 6, hy - 6);
+                ctx.lineTo(50 - hOffset - 18, hy - 6);  // side branch 1
+                ctx.moveTo(50 - hOffset - 9, hy - 10);
+                ctx.lineTo(50 - hOffset - 15, hy - 18); // side branch 2
+                ctx.stroke();
+                ctx.restore();
+            };
+            drawAntler(true);
+            drawAntler(false);
+        } else if (hornVal.includes('spikes') || hornVal.includes('jagged')) {
+            // Multiple sharp spikes protruding up
+            ctx.beginPath();
+            ctx.moveTo(42, hy); ctx.lineTo(38, hy - 12); ctx.lineTo(46, hy - 2);
+            ctx.moveTo(50, hy - 2); ctx.lineTo(50, hy - 16); ctx.lineTo(54, hy - 2);
+            ctx.moveTo(58, hy); ctx.lineTo(62, hy - 12); ctx.lineTo(54, hy - 2);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        } else if (hornVal.includes('crest') || hornVal.includes('fins')) {
+            // Singular sleek feather or fin crest in center
+            ctx.fillStyle = wingsCol; // Matches wing color
+            ctx.beginPath();
+            ctx.moveTo(50, hy + 4);
+            ctx.quadraticCurveTo(55, hy - 18, 50, hy - 24);
+            ctx.quadraticCurveTo(42, hy - 12, 50, hy + 4);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        } else if (hornVal.includes('tusks')) {
+            // Big curved tusks protruding down from sides of head
+            ctx.beginPath();
+            ctx.moveTo(50 - rx * 0.7, 56);
+            ctx.quadraticCurveTo(50 - rx * 1.1, 68, 50 - rx * 0.5, 71);
+            ctx.quadraticCurveTo(50 - rx * 0.9, 64, 50 - rx * 0.7, 56);
+            ctx.moveTo(50 + rx * 0.7, 56);
+            ctx.quadraticCurveTo(50 + rx * 1.1, 68, 50 + rx * 0.5, 71);
+            ctx.quadraticCurveTo(50 + rx * 0.9, 64, 50 + rx * 0.7, 56);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        } else {
+            // Default short stubby horns/ears
+            ctx.beginPath();
+            ctx.moveTo(50 - rx * 0.45, hy + 6);
+            ctx.lineTo(50 - rx * 0.65, hy - 8);
+            ctx.lineTo(50 - rx * 0.2, hy + 4);
+            ctx.moveTo(50 + rx * 0.45, hy + 6);
+            ctx.lineTo(50 + rx * 0.65, hy - 8);
+            ctx.lineTo(50 + rx * 0.2, hy + 4);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        }
+    }
+
+    // 9. Draw Eyes (On Front of Body)
+    const eyesVal = (creature.eyes || '').toLowerCase();
+    ctx.save();
+
+    const drawSingleEye = (ex, ey, eRad, style) => {
+        // Sclera/White
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        if (style.includes('fierce') || style.includes('narrow') || style.includes('cunning') || style.includes('slanted')) {
+            // Angry sharp almond shape
+            ctx.ellipse(ex, ey, eRad * 1.2, eRad * 0.7, 0, 0, Math.PI * 2);
+        } else {
+            // Standard circle
+            ctx.arc(ex, ey, eRad, 0, Math.PI * 2);
+        }
+        ctx.fill(); ctx.stroke();
+
+        // Pupil
+        if (style.includes('blind')) {
+            // Solid foggy grey
+            ctx.fillStyle = '#cfd8dc';
+            ctx.beginPath();
+            ctx.arc(ex, ey, eRad * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+        } else if (style.includes('void-like')) {
+            // Swirling black hole
+            ctx.fillStyle = '#120a2a';
+            ctx.beginPath();
+            ctx.arc(ex, ey, eRad * 0.8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = featCol;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        } else {
+            // Normal pupil colored with eyesCol
+            ctx.fillStyle = eyesCol;
+            ctx.beginPath();
+            if (style.includes('starry')) {
+                // Draw tiny 4-pointed star pupil
+                let pSize = eRad * 0.7;
+                ctx.moveTo(ex, ey - pSize);
+                ctx.lineTo(ex + pSize/3, ey - pSize/3);
+                ctx.lineTo(ex + pSize, ey);
+                ctx.lineTo(ex + pSize/3, ey + pSize/3);
+                ctx.lineTo(ex, ey + pSize);
+                ctx.lineTo(ex - pSize/3, ey + pSize/3);
+                ctx.lineTo(ex - pSize, ey);
+                ctx.lineTo(ex - pSize/3, ey - pSize/3);
+                ctx.closePath();
+            } else {
+                ctx.arc(ex, ey, eRad * 0.55, 0, Math.PI * 2);
+            }
+            ctx.fill();
+
+            // Pupil Center (dark slit for fierce/snake or circle for gentle)
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            if (style.includes('fierce') || style.includes('narrow') || style.includes('cold') || style.includes('piercing')) {
+                ctx.ellipse(ex, ey, eRad * 0.15, eRad * 0.45, 0, 0, Math.PI * 2);
+            } else {
+                ctx.arc(ex, ey, eRad * 0.25, 0, Math.PI * 2);
+            }
+            ctx.fill();
+
+            // Sparkling Reflection Highlights
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(ex - eRad * 0.25, ey - eRad * 0.25, eRad * 0.2, 0, Math.PI * 2);
+            if (style.includes('watery') || style.includes('gentle') || style.includes('clear')) {
+                ctx.arc(ex + eRad * 0.25, ey + eRad * 0.15, eRad * 0.15, 0, Math.PI * 2);
+            }
+            ctx.fill();
+        }
+
+        // Eyebrows
+        if (style.includes('fierce') || style.includes('piercing') || style.includes('cold')) {
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.moveTo(ex - eRad * 1.3, ey - eRad * 0.85);
+            ctx.lineTo(ex + eRad * 1.1, ey - eRad * 0.35);
+            ctx.stroke();
+        }
+    };
+
+    let eyeY = 46;
+    let eyeRadius = 4.8;
+    // Scale eyes slightly based on body size
+    if (rx < 18) eyeRadius = 3.6;
+
+    if (eyesVal.includes('cyclopic')) {
+        // One huge central eye
+        drawSingleEye(50, eyeY - 2, eyeRadius * 1.7, eyesVal);
+    } else if (eyesVal.includes('multiple')) {
+        // Six small spider eyes!
+        drawSingleEye(40, eyeY - 4, eyeRadius * 0.6, eyesVal);
+        drawSingleEye(60, eyeY - 4, eyeRadius * 0.6, eyesVal);
+        drawSingleEye(44, eyeY, eyeRadius * 0.7, eyesVal);
+        drawSingleEye(56, eyeY, eyeRadius * 0.7, eyesVal);
+        drawSingleEye(48, eyeY + 4, eyeRadius * 0.5, eyesVal);
+        drawSingleEye(52, eyeY + 4, eyeRadius * 0.5, eyesVal);
+    } else {
+        // Two standard eyes
+        let eDist = rx * 0.38;
+        drawSingleEye(50 - eDist, eyeY, eyeRadius, eyesVal);
+        drawSingleEye(50 + eDist, eyeY, eyeRadius, eyesVal);
+    }
+    ctx.restore();
+
+    // 10. Draw Teeth & Mouth
+    const teethVal = (creature.teeth || '').toLowerCase();
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#222222';
+    ctx.lineWidth = 1.5;
+
+    let mouthY = 57;
+
+    if (teethVal !== 'none' && teethVal !== '') {
+        ctx.beginPath();
+        if (teethVal.includes('sharp') || teethVal.includes('needle') || teethVal.includes('wicked') || teethVal.includes('fangs')) {
+            // Sharp sawtooth mouth
+            ctx.moveTo(42, mouthY);
+            ctx.lineTo(44, mouthY + 3); ctx.lineTo(46, mouthY);
+            ctx.lineTo(48, mouthY + 3); ctx.lineTo(50, mouthY);
+            ctx.lineTo(52, mouthY + 3); ctx.lineTo(54, mouthY);
+            ctx.lineTo(56, mouthY + 3); ctx.lineTo(58, mouthY);
+            // Lower teeth
+            ctx.lineTo(56, mouthY - 3); ctx.lineTo(54, mouthY);
+            ctx.lineTo(52, mouthY - 3); ctx.lineTo(50, mouthY);
+            ctx.lineTo(48, mouthY - 3); ctx.lineTo(46, mouthY);
+            ctx.lineTo(44, mouthY - 3); ctx.lineTo(42, mouthY);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        } else if (teethVal.includes('mandibles')) {
+            // Insect pincers curving around the mouth
+            ctx.strokeStyle = clawHornCol;
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(42, mouthY - 2); ctx.quadraticCurveTo(46, mouthY + 6, 48, mouthY + 1);
+            ctx.moveTo(58, mouthY - 2); ctx.quadraticCurveTo(54, mouthY + 6, 52, mouthY + 1);
+            ctx.stroke();
+        } else {
+            // Flat/blunt cartoon grin
+            ctx.fillRect(44, mouthY - 2, 12, 4);
+            ctx.strokeRect(44, mouthY - 2, 12, 4);
+        }
+    } else {
+        // Simple cute curved smile line
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(50, mouthY - 1, 4, 0, Math.PI, false);
+        ctx.stroke();
+    }
+
+    // 11. Shiny Sparkles (Golden stars)
+    if (creature.isShiny) {
+        ctx.fillStyle = '#ffd700';
+        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 8;
+        const drawSparkle = (sx, sy, s) => {
+            ctx.beginPath();
+            ctx.moveTo(sx, sy - s);
+            ctx.lineTo(sx + s/3, sy - s/3);
+            ctx.lineTo(sx + s, sy);
+            ctx.lineTo(sx + s/3, sy + s/3);
+            ctx.lineTo(sx, sy + s);
+            ctx.lineTo(sx - s/3, sy + s/3);
+            ctx.lineTo(sx - s, sy);
+            ctx.lineTo(sx - s/3, sy - s/3);
+            ctx.closePath();
+            ctx.fill();
+        };
+        drawSparkle(21, 21, 5.5);
+        drawSparkle(79, 23, 6.5);
+        drawSparkle(25, 75, 4.5);
+        ctx.shadowBlur = 0;
+    }
+
+    ctx.restore();
+};
+
 window.drawCreatureSprite = function(elementId, creature) {
     const el = document.getElementById(elementId);
     if (!el) return;
@@ -4348,131 +5283,7 @@ window.drawCreatureSprite = function(elementId, creature) {
     canvas.style.boxShadow = '0 0 15px rgba(0,0,0,0.5)';
     canvas.style.border = '2px solid rgba(255,255,255,0.2)';
 
-    const ctx = canvas.getContext('2d');
-
-    // Background based on element types/color
-    const types = creature.type ? creature.type.split('-') : ['Normal'];
-    const type1 = types[0];
-    const typeColor1 = window.TYPE_COLORS[type1] || 'rgba(169, 169, 169, 0.85)';
-
-    // Clear canvas
-    ctx.clearRect(0, 0, 100, 100);
-
-    // Draw background gradient inside the sprite box
-    const bgGrad = ctx.createRadialGradient(50, 50, 5, 50, 50, 50);
-    bgGrad.addColorStop(0, 'rgba(30, 40, 55, 0.9)');
-    bgGrad.addColorStop(1, 'rgba(10, 15, 25, 0.95)');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, 100, 100);
-
-    // Draw creature color-coded glowing aura based on its primary type
-    const auraGrad = ctx.createRadialGradient(50, 50, 10, 50, 50, 45);
-    auraGrad.addColorStop(0, typeColor1.replace('0.85', '0.4').replace('0.8', '0.4'));
-    auraGrad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = auraGrad;
-    ctx.beginPath();
-    ctx.arc(50, 50, 45, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Creature base color
-    let cColorStr = '#' + (creature.color || 0xffffff).toString(16).padStart(6, '0');
-
-    // Draw wings if the creature has wings in its description or wings property
-    const hasWings = (creature.wings && creature.wings !== 'none') ||
-                     (creature.description && creature.description.toLowerCase().includes('wing'));
-    if (hasWings) {
-        ctx.fillStyle = typeColor1; // Wing color matches elemental type
-        // Left Wing
-        ctx.beginPath();
-        ctx.ellipse(30, 45, 12, 22, -Math.PI / 6, 0, Math.PI * 2);
-        ctx.fill();
-        // Right Wing
-        ctx.beginPath();
-        ctx.ellipse(70, 45, 12, 22, Math.PI / 6, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    // Draw tail if creature has tail in description or tail property
-    const hasTail = (creature.tail && creature.tail !== 'none') ||
-                    (creature.description && creature.description.toLowerCase().includes('tail'));
-    if (hasTail) {
-        ctx.strokeStyle = cColorStr;
-        ctx.lineWidth = 6;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(50, 65);
-        ctx.quadraticCurveTo(75, 75, 80, 55);
-        ctx.stroke();
-    }
-
-    // Draw main body shape (let's make it a cute rounded creature body)
-    ctx.fillStyle = cColorStr;
-    ctx.beginPath();
-    ctx.arc(50, 50, 24, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw horns/ears if creature has horns in description or clawHorn property
-    const hasHorns = (creature.clawHorn && creature.clawHorn !== 'none') ||
-                     (creature.description && creature.description.toLowerCase().includes('horn'));
-    if (hasHorns) {
-        ctx.fillStyle = '#f5f5f5'; // Horn color (ivory/white)
-        // Left Horn
-        ctx.beginPath();
-        ctx.moveTo(40, 32);
-        ctx.lineTo(35, 15);
-        ctx.lineTo(46, 28);
-        ctx.closePath();
-        ctx.fill();
-        // Right Horn
-        ctx.beginPath();
-        ctx.moveTo(60, 32);
-        ctx.lineTo(65, 15);
-        ctx.lineTo(54, 28);
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    // Draw eyes
-    ctx.fillStyle = '#ffffff';
-    // Left eye white
-    ctx.beginPath();
-    ctx.arc(42, 46, 5, 0, Math.PI * 2);
-    ctx.fill();
-    // Right eye white
-    ctx.beginPath();
-    ctx.arc(58, 46, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Pupils (defaulting to type-themed colors, e.g., Fire = Red pupil, water = Blue, etc.)
-    ctx.fillStyle = typeColor1;
-    ctx.beginPath();
-    ctx.arc(42, 46, 2.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(58, 46, 2.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Shiny sparkles if the creature is shiny!
-    if (creature.isShiny) {
-        ctx.fillStyle = '#ffd700';
-        // Draw little 4-pointed stars
-        const drawSparkle = (sx, sy, size) => {
-            ctx.beginPath();
-            ctx.moveTo(sx, sy - size);
-            ctx.lineTo(sx + size/3, sy - size/3);
-            ctx.lineTo(sx + size, sy);
-            ctx.lineTo(sx + size/3, sy + size/3);
-            ctx.lineTo(sx, sy + size);
-            ctx.lineTo(sx - size/3, sy + size/3);
-            ctx.lineTo(sx - size, sy);
-            ctx.lineTo(sx - size/3, sy - size/3);
-            ctx.closePath();
-            ctx.fill();
-        };
-        drawSparkle(22, 22, 5);
-        drawSparkle(78, 24, 6);
-        drawSparkle(25, 75, 4);
-    }
+    window.renderCreatureCanvas(canvas, creature, 100, true);
 
     el.appendChild(canvas);
 };
@@ -5364,8 +6175,9 @@ function renderPartyForPlayer(playerNum = 1) {
             <div>
                 <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20"> <button class="save-name-btn" onclick="window.saveName(this, ${index}, ${playerNum})">Save</button> - <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span></h3>
                 <p><strong>Level <span style="color:#2196F3">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:#2196F3">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span></p>
-                <div class="creature-description">
-                    <p style="color: #ccc; font-style: italic;">${c.description}</p>
+                <div class="creature-description" style="display: flex; gap: 15px; align-items: center; margin-bottom: 10px;">
+                    <div class="creature-sprite-container" style="flex-shrink: 0; width: 80px; height: 80px;"></div>
+                    <p style="color: #ccc; font-style: italic; margin: 0; flex-grow: 1;">${c.description}</p>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 10px;">
                     ${natureHtml}
@@ -5387,6 +6199,19 @@ function renderPartyForPlayer(playerNum = 1) {
                 <button class="release-btn" onclick="window.releaseCreature(${index}, ${playerNum})" style="background-color: #f44336; color: white;">Release</button>
             </div>
         `;
+
+        const spriteContainer = card.querySelector('.creature-sprite-container');
+        if (spriteContainer) {
+            const canv = document.createElement('canvas');
+            canv.width = 80;
+            canv.height = 80;
+            canv.style.display = 'block';
+            canv.style.borderRadius = '8px';
+            canv.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+            canv.style.border = '1px solid rgba(255,255,255,0.1)';
+            window.renderCreatureCanvas(canv, c, 80, true);
+            spriteContainer.appendChild(canv);
+        }
         fragment.appendChild(card);
     });
 
@@ -5447,7 +6272,29 @@ function renderStorageForPlayer(playerNum = 1) {
         actionHtml += `<button class="release-btn" onclick="window.releaseCreature(${index}, ${playerNum})" style="background-color: #f44336; color: white;">Release</button>`;
         actionHtml += `</div>`;
 
-        card.innerHTML = "<div>" + nameHtml + typeHtml + "</div>" + actionHtml;
+        card.innerHTML = `
+            <div style="display: flex; gap: 15px; align-items: center; width: 100%; margin-bottom: 10px;">
+                <div class="creature-sprite-container" style="flex-shrink: 0; width: 64px; height: 64px;"></div>
+                <div style="flex-grow: 1;">
+                    ${nameHtml}
+                    ${typeHtml}
+                </div>
+            </div>
+            ${actionHtml}
+        `;
+
+        const spriteContainer = card.querySelector('.creature-sprite-container');
+        if (spriteContainer) {
+            const canv = document.createElement('canvas');
+            canv.width = 64;
+            canv.height = 64;
+            canv.style.display = 'block';
+            canv.style.borderRadius = '6px';
+            canv.style.boxShadow = '0 0 8px rgba(0,0,0,0.5)';
+            canv.style.border = '1px solid rgba(255,255,255,0.1)';
+            window.renderCreatureCanvas(canv, c, 64, true);
+            spriteContainer.appendChild(canv);
+        }
         storageGrid.appendChild(card);
     });
 
@@ -8367,7 +9214,23 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     clonedData.id = "spawn_" + (spawnIndex !== undefined ? spawnIndex : Date.now()) + "_" + Math.floor(sRng() * 1000000);
 
     if (!clonedData.color) clonedData.color = window.getCreatureColor(clonedData);
-    const sprite = scene.add.rectangle(x, y, 30, 30, clonedData.color);
+
+    // Generate dynamic texture for species
+    let isShiny = !!clonedData.isShiny;
+    let speciesId = (clonedData.generation && clonedData.generation > 1) ? clonedData.name : (clonedData.baseId || clonedData.name || 'default');
+    let sanitizedId = String(speciesId).replace(/[^a-zA-Z0-9_]/g, '_');
+    let textureKey = `creature_tex_${sanitizedId}_${isShiny ? 'shiny' : 'normal'}`;
+
+    if (!scene.textures.exists(textureKey)) {
+        const dCanvas = document.createElement('canvas');
+        dCanvas.width = 64;
+        dCanvas.height = 64;
+        window.renderCreatureCanvas(dCanvas, clonedData, 64, false); // false = no background/aura for world sprite!
+        scene.textures.addCanvas(textureKey, dCanvas);
+    }
+
+    const sprite = scene.add.sprite(x, y, textureKey);
+    sprite.setDisplaySize(38, 38);
     scene.physics.add.existing(sprite);
     sprite.setDepth(10);
     sprite.setData('creatureData', clonedData);
@@ -10976,8 +11839,7 @@ function update() {
                         }
                     }
                     if (typeof creaturesGroup !== 'undefined' && creaturesGroup) creaturesGroup.getChildren().forEach(c => {
-                        const data = c.getData('creatureData');
-                        if (data && data.color) c.setTint(data.color);
+                        if (c.clearTint) c.clearTint();
                     });
                     if ([]) {
                         Object.entries([]).forEach(([id, rp]) => {
