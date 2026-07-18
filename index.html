@@ -118,19 +118,32 @@
         }
 
         body.coop-active-layout .coop-columns {
-            flex-direction: row !important;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: nowrap;
-        }
-        body.coop-active-layout .coop-column {
-            flex: 1 !important;
-            width: 50% !important;
-            min-width: 0 !important;
             display: block !important;
         }
+        body.coop-active-layout .coop-column {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
+            backdrop-filter: blur(25px);
+            padding: 40px 20px !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+            pointer-events: auto !important;
+            display: none; /* Managed by window.updateModalVisibility() */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+            z-index: 1000 !important;
+        }
+        body.coop-active-layout .p1-col {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
         body.coop-active-layout .p2-col {
-            display: block !important; /* Show Player 2's column in co-op layout */
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
         }
         body.coop-active-layout #levelUpSingleContainer {
             display: none !important;
@@ -158,12 +171,161 @@
         body.coop-active-layout #tradeModal,
         body.coop-active-layout #journalModal,
         body.coop-active-layout #storeModal {
-            padding: 40px 10px 15px 10px !important;
+            padding: 0 !important;
+            background: transparent !important;
+            pointer-events: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            backdrop-filter: none !important;
         }
 
-        /* Adjust battle controls grid in split screen to fit narrow half viewports */
+        /* Close Button styling inside columns and viewport modals */
+        .coop-column .close-btn {
+            display: none !important;
+        }
+        body.coop-active-layout .close-btn {
+            display: none !important;
+        }
+        body.coop-active-layout .coop-column .close-btn {
+            display: flex !important;
+            position: absolute !important;
+            top: 15px !important;
+            right: 15px !important;
+            z-index: 1100 !important;
+        }
+
+        /* Help Modal Specific Overrides under Co-op */
+        body.coop-active-layout #helpModal.p1-help-active,
+        body.coop-active-layout #helpModal.p2-help-active {
+            display: block !important;
+            background: transparent !important;
+            pointer-events: none !important;
+        }
+        body.coop-active-layout #helpModal.p1-help-active .coop-columns,
+        body.coop-active-layout #helpModal.p2-help-active .coop-columns {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
+            backdrop-filter: blur(25px);
+            padding: 40px 20px !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+            pointer-events: auto !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+            z-index: 1000 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 15px !important;
+        }
+        body.coop-active-layout #helpModal.p1-help-active .coop-columns {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #helpModal.p2-help-active .coop-columns {
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #helpModal .coop-column {
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            background: transparent !important;
+            backdrop-filter: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            display: block !important;
+        }
+
+        /* Customization Modal Specific Overrides under Co-op */
+        body.coop-active-layout #customizationModal {
+            background: transparent !important;
+            pointer-events: none !important;
+        }
+        body.coop-active-layout #customizationModal > div {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            max-width: none !important;
+            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
+            backdrop-filter: blur(25px);
+            padding: 40px 20px !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+            pointer-events: auto !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+        }
+        body.coop-active-layout #customizationModal.p1-customization-active > div {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #customizationModal.p2-customization-active > div {
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* Challenge Modal Specific Overrides under Co-op */
+        body.coop-active-layout #challengeModal {
+            background: transparent !important;
+            pointer-events: none !important;
+        }
+        body.coop-active-layout #challengeModal > div {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            max-width: none !important;
+            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
+            backdrop-filter: blur(25px);
+            padding: 40px 20px !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+            pointer-events: auto !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+        }
+        body.coop-active-layout #challengeModal.p1-challenge-active > div {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #challengeModal.p2-challenge-active > div {
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* Battle Modal styling and positioning under co-op */
         body.coop-active-layout #battleModal {
             padding: 40px 10px 15px 10px !important;
+            background-color: transparent !important;
+        }
+        body.coop-active-layout #battleModal.p1-battle-active {
+            left: 0 !important;
+            right: auto !important;
+            width: 50vw !important;
+            max-width: none !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #battleModal.p2-battle-active {
+            left: 50vw !important;
+            right: auto !important;
+            width: 50vw !important;
+            max-width: none !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #battleModal.pvp-battle-active {
+            left: 0 !important;
+            right: 0 !important;
+            width: 100vw !important;
+            max-width: none !important;
         }
         body.coop-active-layout #battleModal > *:not(.close-btn) {
             max-width: none !important;
@@ -367,6 +529,26 @@
             color: white;
             border: none;
             cursor: pointer;
+            z-index: 150 !important;
+        }
+        #menuBtn_P2 {
+            display: none;
+        }
+        body.coop-active-layout #menuBtn {
+            right: auto !important;
+            left: 20px !important;
+        }
+        body.coop-active-layout #menuBtn_P2 {
+            display: block !important;
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            padding: 12px 24px !important;
+            font-size: 18px !important;
+            background: linear-gradient(180deg, #ff9800, #e65100) !important;
+            color: white !important;
+            border: none !important;
+            cursor: pointer !important;
             z-index: 150 !important;
         }
         #menuModal {
@@ -810,12 +992,14 @@
 </div>
 
 <button id="menuBtn">Menu</button>
+<button id="menuBtn_P2" style="display: none;">Menu</button>
 
 <div id="menuModal">
     <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
     <div class="coop-columns">
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
+            <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
             <h2 style="color: #4caf50; text-align: center; margin-top: 0;">Player 1 Menu</h2>
             <button id="menuPartyBtn" style="width: 100%; margin: 8px 0;">Party</button>
             <button id="menuStorageBtn" style="width: 100%; margin: 8px 0;">Storage Box</button>
@@ -826,6 +1010,7 @@
         </div>
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
+            <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
             <h2 style="color: #ff9800; text-align: center; margin-top: 0;">Player 2 Menu</h2>
             <button id="menuPartyBtn_P2" style="width: 100%; margin: 8px 0;">Party</button>
             <button id="menuStorageBtn_P2" style="width: 100%; margin: 8px 0;">Storage Box</button>
@@ -849,6 +1034,7 @@
     <div class="coop-columns">
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
+            <button class="close-btn close-party-btn" aria-label="Close Party">X</button>
             <h2 style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Party</h2>
             <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #555; padding-bottom: 5px;">
                 <h3 id="tabParty_P1" style="cursor: pointer; margin: 0; color: #4caf50;" onclick="window.switchPartyTab('party', 1)">Party</h3>
@@ -862,6 +1048,7 @@
 
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
+            <button class="close-btn close-party-btn" aria-label="Close Party">X</button>
             <h2 style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Party</h2>
             <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #555; padding-bottom: 5px;">
                 <h3 id="tabParty_P2" style="cursor: pointer; margin: 0; color: #4caf50;" onclick="window.switchPartyTab('party', 2)">Party</h3>
@@ -1653,12 +1840,14 @@ function escapeHtml(unsafe) {
     <div class="coop-columns">
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
+            <button class="close-btn close-storage-btn" aria-label="Close Storage">X</button>
             <h2 style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Storage</h2>
             <div id="storageList"></div>
         </div>
 
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
+            <button class="close-btn close-storage-btn" aria-label="Close Storage">X</button>
             <h2 style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Storage</h2>
             <div id="storageList_P2"></div>
         </div>
@@ -1669,6 +1858,7 @@ function escapeHtml(unsafe) {
 <div id="helpModal" style="display:none; position:absolute; z-index:400; color:white; overflow-y:auto; font-size:16px;">
     <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
     <div class="coop-columns">
+        <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
         <!-- Info Column -->
         <div class="coop-column">
             <h2 style="margin-top: 0; color: #4caf50;">How to Play</h2>
@@ -1698,12 +1888,14 @@ function escapeHtml(unsafe) {
     <div class="coop-columns">
         <!-- Player 1 Level Up Column -->
         <div class="coop-column p1-col">
+            <button class="close-btn close-levelup-btn" aria-label="Close Level Up">X</button>
             <h2 id="levelUpTitle_P1" style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Level Up!</h2>
             <div id="levelUpStats_P1" style="font-size: 18px; margin: 20px 0;"></div>
         </div>
 
         <!-- Player 2 Level Up Column -->
         <div class="coop-column p2-col">
+            <button class="close-btn close-levelup-btn" aria-label="Close Level Up">X</button>
             <h2 id="levelUpTitle_P2" style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Level Up!</h2>
             <div id="levelUpStats_P2" style="font-size: 18px; margin: 20px 0;"></div>
         </div>
@@ -1721,6 +1913,7 @@ function escapeHtml(unsafe) {
     <div class="coop-columns">
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
+            <button class="close-btn close-breeding-btn" aria-label="Close Breeding Center">X</button>
             <h2 style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Breeding</h2>
             <div style="margin-bottom: 15px; text-align: left;">
                 <label style="display: block; margin-bottom: 5px;">Parent 1:</label>
@@ -1736,6 +1929,7 @@ function escapeHtml(unsafe) {
 
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
+            <button class="close-btn close-breeding-btn" aria-label="Close Breeding Center">X</button>
             <h2 style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Breeding</h2>
             <div style="margin-bottom: 15px; text-align: left;">
                 <label style="display: block; margin-bottom: 5px;">Parent 1:</label>
@@ -1758,6 +1952,7 @@ function escapeHtml(unsafe) {
     <div class="coop-columns">
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
+            <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
             <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 15px;">Player 1 Journal</h2>
             <div id="journalStats" style="font-size: 18px; margin: 20px 0;">
                 <p>Gen 1 Creatures Collected: <span id="journalGen1Count" style="color:#4caf50;">0 / 50</span></p>
@@ -1767,6 +1962,7 @@ function escapeHtml(unsafe) {
 
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
+            <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
             <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 15px;">Player 2 Journal</h2>
             <div id="journalStats_P2" style="font-size: 18px; margin: 20px 0;">
                 <p>Gen 1 Creatures Collected: <span id="journalGen1Count_P2" style="color:#4caf50;">0 / 50</span></p>
@@ -1782,6 +1978,7 @@ function escapeHtml(unsafe) {
     <div class="coop-columns">
         <!-- Player 1 Store Column -->
         <div class="coop-column p1-col">
+            <button class="close-btn close-store-btn" aria-label="Close Store">X</button>
             <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 15px;">Player 1 Store</h2>
             <div id="storeContent">
                 <p>Welcome to the store! (Features coming soon)</p>
@@ -1790,6 +1987,7 @@ function escapeHtml(unsafe) {
 
         <!-- Player 2 Store Column -->
         <div class="coop-column p2-col">
+            <button class="close-btn close-store-btn" aria-label="Close Store">X</button>
             <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 15px;">Player 2 Store</h2>
             <div id="storeContent_P2">
                 <p>Welcome to the store! (Features coming soon)</p>
@@ -2197,29 +2395,33 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('battleCatchBtn')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('catch'); });
     document.querySelector('.btn-run')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('run'); });
 
-    document.getElementById('menuBtn')?.addEventListener('click', () => { if (window.openMenuModal) window.openMenuModal(); });
+    document.getElementById('menuBtn')?.addEventListener('click', () => { if (window.openMenuModal) window.openMenuModal(1); });
+    document.getElementById('menuBtn_P2')?.addEventListener('click', () => { if (window.openMenuModal) window.openMenuModal(2); });
     document.getElementById('closeSwapBtn')?.addEventListener('click', () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); });
 
-    document.getElementById('menuPartyBtn')?.addEventListener('click', () => { if (window.openPartyModal) window.openPartyModal(); });
-    document.getElementById('menuStorageBtn')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(); });
-    document.getElementById('breedBtn')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(); });
-    document.getElementById('menuHelpBtn')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(); });
+    document.getElementById('menuPartyBtn')?.addEventListener('click', () => { if (window.openPartyModal) window.openPartyModal(1); });
+    document.getElementById('menuStorageBtn')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(1); });
+    document.getElementById('breedBtn')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(1); });
+    document.getElementById('menuHelpBtn')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(1); });
 
     // Player 2 Menu Buttons Click Listeners
-    document.getElementById('menuPartyBtn_P2')?.addEventListener('click', () => { if (window.openPartyModal) window.openPartyModal(); });
-    document.getElementById('menuStorageBtn_P2')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(); });
-    document.getElementById('breedBtn_P2')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(); });
-    document.getElementById('menuHelpBtn_P2')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(); });
+    document.getElementById('menuPartyBtn_P2')?.addEventListener('click', () => { if (window.openPartyModal) window.openPartyModal(2); });
+    document.getElementById('menuStorageBtn_P2')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(2); });
+    document.getElementById('breedBtn_P2')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(2); });
+    document.getElementById('menuHelpBtn_P2')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(2); });
     document.getElementById('menuMusicBtn')?.addEventListener('click', () => {
         if (window.WildPulseMusic) {
             const isMuted = window.WildPulseMusic.toggle();
             document.getElementById('menuMusicBtn').innerText = isMuted ? "Music: OFF" : "Music: ON";
         }
     });
-    document.getElementById('menuJournalBtn')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(); });
-    document.getElementById('menuJournalBtn_P2')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(); });
+    document.getElementById('menuJournalBtn')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(1); });
+    document.getElementById('menuJournalBtn_P2')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(2); });
     document.getElementById('startChallengeBtn')?.addEventListener('click', () => { if (window.startChallengeBattle) window.startChallengeBattle(); });
-    document.getElementById('closeChallengeBtn')?.addEventListener('click', () => { if (window.closeChallengeModal) window.closeChallengeModal(); });
+    document.getElementById('closeChallengeBtn')?.addEventListener('click', () => {
+        const playerNum = (window.p2ActiveModal === 'challengeModal') ? 2 : 1;
+        if (window.closeChallengeModal) window.closeChallengeModal(playerNum);
+    });
     document.getElementById('startDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('exitGameBtn')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
@@ -2234,11 +2436,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.enableCoop(scene);
                 document.getElementById('coopToggleBtn').innerText = "Disable Co-op";
             }
-            if (window.closeMenuModal) window.closeMenuModal();
+            if (window.closeMenuModal) {
+                window.closeMenuModal(1);
+                window.closeMenuModal(2);
+            }
         }
     });
 
-    document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeMenuModal) window.closeMenuModal(); }));
+    document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', () => {
+        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        if (window.closeMenuModal) window.closeMenuModal(playerNum);
+    }));
     document.getElementById('fullscreenToggleBtn')?.addEventListener('click', () => {
         if (game && game.scale) {
             if (game.scale.isFullscreen) {
@@ -2258,18 +2466,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    document.querySelectorAll('.close-party-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closePartyModal) window.closePartyModal(); }));
-    document.querySelectorAll('.close-storage-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeStorageModal) window.closeStorageModal(); }));
-    document.querySelectorAll('.close-help-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeHelpModal) window.closeHelpModal(); }));
-    document.querySelectorAll('.close-journal-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeJournalModal) window.closeJournalModal(); }));
+    document.querySelectorAll('.close-party-btn').forEach(btn => btn.addEventListener('click', () => {
+        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        if (window.closePartyModal) window.closePartyModal(playerNum);
+    }));
+    document.querySelectorAll('.close-storage-btn').forEach(btn => btn.addEventListener('click', () => {
+        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        if (window.closeStorageModal) window.closeStorageModal(playerNum);
+    }));
+    document.querySelectorAll('.close-help-btn').forEach(btn => btn.addEventListener('click', () => {
+        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        if (window.closeHelpModal) window.closeHelpModal(playerNum);
+    }));
+    document.querySelectorAll('.close-journal-btn').forEach(btn => btn.addEventListener('click', () => {
+        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        if (window.closeJournalModal) window.closeJournalModal(playerNum);
+    }));
 
     document.getElementById('doBreedBtn')?.addEventListener('click', () => { if (window.doBreed) window.doBreed(); });
-    document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeBreedingModal) window.closeBreedingModal(); }));
-    document.querySelectorAll('.close-levelup-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeLevelUpModal) window.closeLevelUpModal(); }));
+    document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', () => {
+        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        if (window.closeBreedingModal) window.closeBreedingModal(playerNum);
+    }));
+    document.querySelectorAll('.close-levelup-btn').forEach(btn => btn.addEventListener('click', () => {
+        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        if (window.closeLevelUpModal) window.closeLevelUpModal(playerNum);
+    }));
     document.getElementById('battleCloseBtn')?.addEventListener('click', () => { if (window.closeBattleModal) window.closeBattleModal(); });
 
     document.querySelectorAll('.close-trade-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeTradeModal) window.closeTradeModal(); }));
-    document.querySelectorAll('.close-store-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closeStoreModal) window.closeStoreModal(); }));
+    document.querySelectorAll('.close-store-btn').forEach(btn => btn.addEventListener('click', () => {
+        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        if (window.closeStoreModal) window.closeStoreModal(playerNum);
+    }));
     document.querySelectorAll('.close-pvp-btn').forEach(btn => btn.addEventListener('click', () => { if (window.closePvpModal) window.closePvpModal(); }));
     document.getElementById('sendTradeBtn')?.addEventListener('click', () => { if (window.sendTradeOffer) window.sendTradeOffer(); });
     document.getElementById('acceptTradeBtn')?.addEventListener('click', () => { if (window.acceptTradeOffer) window.acceptTradeOffer(); });
@@ -2307,7 +2536,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper function to open character customization modal
     window.openCustomizationModal = function(playerNum = 1) {
-        if (window.closeMenuModal) window.closeMenuModal();
+        if (window.coopActive) {
+            window.closeMenuModal(playerNum);
+            window.closeAllModalsForPlayer(playerNum, 'customizationModal');
+            if (playerNum === 2) window.p2ActiveModal = 'customizationModal';
+            else window.p1ActiveModal = 'customizationModal';
+        } else {
+            if (window.closeMenuModal) window.closeMenuModal();
+        }
 
         window.activeCustomPlayer = playerNum;
 
@@ -2351,8 +2587,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        customizationModal.style.display = 'flex';
+        if (window.coopActive) {
+            window.updateModalVisibility();
+        } else {
+            customizationModal.style.display = 'flex';
+        }
         window.updateCharacterPreview();
+    };
+
+    window.closeCustomizationModal = function(playerNum = 1) {
+        if (window.coopActive) {
+            window.p1ActiveModal = null;
+            window.p2ActiveModal = null;
+            window.updateModalVisibility();
+        } else {
+            const customizationModal = document.getElementById('customizationModal');
+            if (customizationModal) customizationModal.style.display = 'none';
+        }
     };
 
     // Initialize inputs from localStorage initially (P1)
@@ -2511,11 +2762,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         window.showModernNotification("Character updated!");
-        customizationModal.style.display = 'none';
+        window.closeCustomizationModal(window.activeCustomPlayer);
     });
 
     document.getElementById('closeCustomizationBtn')?.addEventListener('click', () => {
-        customizationModal.style.display = 'none';
+        window.closeCustomizationModal(window.activeCustomPlayer);
     });
 
     // Proactively start the game world so it's visible on the start screen
@@ -5695,6 +5946,9 @@ window.collectedCreaturesIds = collectedCreaturesIds;
 // ==================== MUTUAL EXCLUSION MODAL HELPERS ====================
 window.challengeModalClosedFlag = false;
 
+window.p1ActiveModal = null;
+window.p2ActiveModal = null;
+
 window.isAnyModalOpen = function() {
     const modals = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
@@ -5709,6 +5963,134 @@ window.isAnyModalOpen = function() {
         }
     }
     return false;
+};
+
+window.updateModalVisibility = function() {
+    if (!window.coopActive) {
+        // Reset classes and styles in case co-op was just disabled
+        const modalIds = [
+            'menuModal', 'partyModal', 'storageModal', 'helpModal',
+            'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal',
+            'challengeModal', 'battleModal'
+        ];
+        modalIds.forEach(id => {
+            const modalEl = document.getElementById(id);
+            if (modalEl) {
+                modalEl.style.background = '';
+                modalEl.style.pointerEvents = '';
+                modalEl.style.boxShadow = '';
+                modalEl.style.backdropFilter = '';
+                modalEl.classList.remove('p1-help-active', 'p2-help-active', 'p1-customization-active', 'p2-customization-active', 'p1-challenge-active', 'p2-challenge-active');
+                const p1Col = modalEl.querySelector('.p1-col');
+                const p2Col = modalEl.querySelector('.p2-col');
+                if (p1Col) p1Col.style.display = '';
+                if (p2Col) p2Col.style.display = '';
+            }
+        });
+        return;
+    }
+
+    const modalIds = [
+        'menuModal', 'partyModal', 'storageModal', 'helpModal',
+        'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal',
+        'challengeModal'
+    ];
+
+    modalIds.forEach(id => {
+        const modalEl = document.getElementById(id);
+        if (!modalEl) return;
+
+        const p1Open = (window.p1ActiveModal === id);
+        const p2Open = (window.p2ActiveModal === id);
+
+        if (p1Open || p2Open) {
+            modalEl.style.display = 'block';
+            modalEl.style.background = 'transparent';
+            modalEl.style.pointerEvents = 'none';
+            modalEl.style.boxShadow = 'none';
+            modalEl.style.backdropFilter = 'none';
+
+            const p1Col = modalEl.querySelector('.p1-col');
+            const p2Col = modalEl.querySelector('.p2-col');
+
+            if (p1Col) {
+                p1Col.style.display = p1Open ? 'block' : 'none';
+                p1Col.style.pointerEvents = 'auto';
+            }
+            if (p2Col) {
+                p2Col.style.display = p2Open ? 'block' : 'none';
+                p2Col.style.pointerEvents = 'auto';
+            }
+
+            if (id === 'helpModal') {
+                if (p1Open) {
+                    modalEl.classList.add('p1-help-active');
+                    modalEl.classList.remove('p2-help-active');
+                } else if (p2Open) {
+                    modalEl.classList.add('p2-help-active');
+                    modalEl.classList.remove('p1-help-active');
+                }
+            }
+
+            if (id === 'customizationModal') {
+                if (p1Open) {
+                    modalEl.classList.add('p1-customization-active');
+                    modalEl.classList.remove('p2-customization-active');
+                } else if (p2Open) {
+                    modalEl.classList.add('p2-customization-active');
+                    modalEl.classList.remove('p1-customization-active');
+                }
+            }
+
+            if (id === 'challengeModal') {
+                if (p1Open) {
+                    modalEl.classList.add('p1-challenge-active');
+                    modalEl.classList.remove('p2-challenge-active');
+                } else if (p2Open) {
+                    modalEl.classList.add('p2-challenge-active');
+                    modalEl.classList.remove('p1-challenge-active');
+                }
+            }
+        } else {
+            modalEl.style.display = 'none';
+            if (id === 'helpModal') {
+                modalEl.classList.remove('p1-help-active', 'p2-help-active');
+            }
+            if (id === 'customizationModal') {
+                modalEl.classList.remove('p1-customization-active', 'p2-customization-active');
+            }
+            if (id === 'challengeModal') {
+                modalEl.classList.remove('p1-challenge-active', 'p2-challenge-active');
+            }
+        }
+    });
+};
+
+window.closeAllModalsForPlayer = function(playerNum, exceptId) {
+    if (!window.coopActive) {
+        window.closeAllModals(exceptId);
+        return;
+    }
+
+    const modals = [
+        { id: 'menuModal', close: (p) => { if (window.closeMenuModal) window.closeMenuModal(p); } },
+        { id: 'partyModal', close: (p) => { if (window.closePartyModal) window.closePartyModal(p); } },
+        { id: 'storageModal', close: (p) => { if (window.closeStorageModal) window.closeStorageModal(p); } },
+        { id: 'helpModal', close: (p) => { if (window.closeHelpModal) window.closeHelpModal(p); } },
+        { id: 'breedingModal', close: (p) => { if (window.closeBreedingModal) window.closeBreedingModal(p); } },
+        { id: 'journalModal', close: (p) => { if (window.closeJournalModal) window.closeJournalModal(p); } },
+        { id: 'storeModal', close: (p) => { if (window.closeStoreModal) window.closeStoreModal(p); } },
+        { id: 'challengeModal', close: (p) => { if (window.closeChallengeModal) window.closeChallengeModal(p); } },
+        { id: 'customizationModal', close: (p) => { if (window.closeCustomizationModal) window.closeCustomizationModal(p); } }
+    ];
+
+    modals.forEach(m => {
+        if (m.id === exceptId) return;
+        const currentActive = (playerNum === 2) ? window.p2ActiveModal : window.p1ActiveModal;
+        if (currentActive === m.id) {
+            m.close(playerNum);
+        }
+    });
 };
 
 window.closeAllModals = function(exceptId) {
@@ -5743,12 +6125,32 @@ window.closeAllModals = function(exceptId) {
 };
 
 // ==================== MENU & PARTY ====================
-window.openMenuModal = function() {
-    window.closeAllModals('menuModal');
-    document.getElementById('menuModal').style.display = 'block';
+window.openMenuModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        window.closeAllModalsForPlayer(playerNum, 'menuModal');
+        if (playerNum === 2) window.p2ActiveModal = 'menuModal';
+        else window.p1ActiveModal = 'menuModal';
+        window.updateModalVisibility();
+    } else {
+        window.closeAllModals('menuModal');
+        document.getElementById('menuModal').style.display = 'block';
+    }
 };
-window.closeMenuModal = function() {
-    let _m_menuModal = document.getElementById('menuModal'); _m_menuModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_menuModal.style.display = 'none'; _m_menuModal.children[0].classList.remove('modal-fade-out'); }, 190);
+window.closeMenuModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        let _m_menuModal = document.getElementById('menuModal');
+        if (_m_menuModal) {
+            _m_menuModal.children[0].classList.add('modal-fade-out');
+            setTimeout(() => {
+                _m_menuModal.style.display = 'none';
+                _m_menuModal.children[0].classList.remove('modal-fade-out');
+            }, 190);
+        }
+    }
 };
 
 
@@ -5817,65 +6219,98 @@ window.returnToOwnWorld = function() {
 
 
 
-window.openJournalModal = function() {
-    window.closeAllModals('journalModal');
-
-    // Calculate unique Gen 1 and Gen 2 creatures for Player 1
-    const gen1Set = new Set();
-    const gen2Set = new Set();
-
-    window.collectedCreatures.forEach(c => {
-        if (!c.generation || c.generation === 1) {
-            gen1Set.add(c.baseId || c.name);
-        } else if (c.generation === 2) {
-            gen2Set.add(c.name);
-        }
-    });
-
-    const g1CountP1 = document.getElementById('journalGen1Count');
-    const g2CountP1 = document.getElementById('journalGen2Count');
-    if (g1CountP1) g1CountP1.innerText = gen1Set.size + ' / 50';
-    if (g2CountP1) g2CountP1.innerText = gen2Set.size + ' / 2500';
-
-    // Calculate unique Gen 1 and Gen 2 creatures for Player 2
+window.openJournalModal = function(playerNum = 1) {
     if (window.coopActive) {
-        const gen1Set2 = new Set();
-        const gen2Set2 = new Set();
-
-        window.collectedCreatures2.forEach(c => {
+        window.closeMenuModal(playerNum);
+        window.closeAllModalsForPlayer(playerNum, 'journalModal');
+        if (playerNum === 2) {
+            window.p2ActiveModal = 'journalModal';
+            const gen1Set2 = new Set();
+            const gen2Set2 = new Set();
+            window.collectedCreatures2.forEach(c => {
+                if (!c.generation || c.generation === 1) {
+                    gen1Set2.add(c.baseId || c.name);
+                } else if (c.generation === 2) {
+                    gen2Set2.add(c.name);
+                }
+            });
+            const g1CountP2 = document.getElementById('journalGen1Count_P2');
+            const g2CountP2 = document.getElementById('journalGen2Count_P2');
+            if (g1CountP2) g1CountP2.innerText = gen1Set2.size + ' / 50';
+            if (g2CountP2) g2CountP2.innerText = gen2Set2.size + ' / 2500';
+        } else {
+            window.p1ActiveModal = 'journalModal';
+            const gen1Set = new Set();
+            const gen2Set = new Set();
+            window.collectedCreatures.forEach(c => {
+                if (!c.generation || c.generation === 1) {
+                    gen1Set.add(c.baseId || c.name);
+                } else if (c.generation === 2) {
+                    gen2Set.add(c.name);
+                }
+            });
+            const g1CountP1 = document.getElementById('journalGen1Count');
+            const g2CountP1 = document.getElementById('journalGen2Count');
+            if (g1CountP1) g1CountP1.innerText = gen1Set.size + ' / 50';
+            if (g2CountP1) g2CountP1.innerText = gen2Set.size + ' / 2500';
+        }
+        window.updateModalVisibility();
+    } else {
+        window.closeAllModals('journalModal');
+        const gen1Set = new Set();
+        const gen2Set = new Set();
+        window.collectedCreatures.forEach(c => {
             if (!c.generation || c.generation === 1) {
-                gen1Set2.add(c.baseId || c.name);
+                gen1Set.add(c.baseId || c.name);
             } else if (c.generation === 2) {
-                gen2Set2.add(c.name);
+                gen2Set.add(c.name);
             }
         });
-
-        const g1CountP2 = document.getElementById('journalGen1Count_P2');
-        const g2CountP2 = document.getElementById('journalGen2Count_P2');
-        if (g1CountP2) g1CountP2.innerText = gen1Set2.size + ' / 50';
-        if (g2CountP2) g2CountP2.innerText = gen2Set2.size + ' / 2500';
+        const g1CountP1 = document.getElementById('journalGen1Count');
+        const g2CountP1 = document.getElementById('journalGen2Count');
+        if (g1CountP1) g1CountP1.innerText = gen1Set.size + ' / 50';
+        if (g2CountP1) g2CountP1.innerText = gen2Set.size + ' / 2500';
+        document.getElementById('journalModal').style.display = 'block';
     }
-
-    document.getElementById('journalModal').style.display = 'block';
 };
 
-window.closeJournalModal = function() {
-    let _m_journalModal = document.getElementById('journalModal');
-    _m_journalModal.children[0].classList.add('modal-fade-out');
-    setTimeout(() => {
-        _m_journalModal.style.display = 'none';
-        _m_journalModal.children[0].classList.remove('modal-fade-out');
-    }, 190);
+window.closeJournalModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        let _m_journalModal = document.getElementById('journalModal');
+        if (_m_journalModal) {
+            _m_journalModal.children[0].classList.add('modal-fade-out');
+            setTimeout(() => {
+                _m_journalModal.style.display = 'none';
+                _m_journalModal.children[0].classList.remove('modal-fade-out');
+            }, 190);
+        }
+    }
 };
 
 window.challengeTier = parseInt(localStorage.getItem('wildpulse_challenge_tier')) || 1;
 window.inChallengeBattle = false;
 
-window.openChallengeModal = function() {
+window.openChallengeModal = function(playerCollider) {
     if (window.challengeModalClosedFlag) return;
     if (window.inBattle) return;
-    if (window.isAnyModalOpen()) return;
-    window.closeAllModals('challengeModal');
+
+    let playerNum = 1;
+    if (window.coopActive && playerCollider === window.player2) {
+        playerNum = 2;
+    }
+
+    if (window.coopActive) {
+        window.closeAllModalsForPlayer(playerNum, 'challengeModal');
+        if (playerNum === 2) window.p2ActiveModal = 'challengeModal';
+        else window.p1ActiveModal = 'challengeModal';
+    } else {
+        if (window.isAnyModalOpen()) return;
+        window.closeAllModals('challengeModal');
+    }
 
     const modal = document.getElementById('challengeModal');
     const tierText = document.getElementById('challengeTierText');
@@ -5891,12 +6326,22 @@ window.openChallengeModal = function() {
     diffText.innerText = difficulty;
     xpBonusText.innerText = `+${(window.challengeTier * 10)}%`;
 
-    modal.style.display = 'flex';
+    if (window.coopActive) {
+        window.updateModalVisibility();
+    } else {
+        modal.style.display = 'flex';
+    }
 };
 
-window.closeChallengeModal = function() {
+window.closeChallengeModal = function(playerNum = 1) {
     window.challengeModalClosedFlag = true;
-    document.getElementById('challengeModal').style.display = 'none';
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        document.getElementById('challengeModal').style.display = 'none';
+    }
 };
 
 window.startChallengeBattle = function() {
@@ -6018,35 +6463,99 @@ window.openHelpModal = function() {
     let moodContainer = document.getElementById('moodsListContainer');
     if(moodContainer) moodContainer.innerHTML = '<ul style="margin:0; padding-left:20px; font-size:14px; color:#ddd;">' + moodsHtml + '</ul>';
 
-    document.getElementById('helpModal').style.display = 'block';
-};
-
-
-
-window.closeHelpModal = function() {
-    let _m_helpModal = document.getElementById('helpModal'); _m_helpModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_helpModal.style.display = 'none'; _m_helpModal.children[0].classList.remove('modal-fade-out'); }, 190);
-};
-window.openPartyModal = function() {
-    closeMenuModal();
-    if (typeof window.switchPartyTab === 'function') {
-        window.switchPartyTab('party', 1);
-        window.switchPartyTab('party', 2);
+    if (window.coopActive) {
+        window.updateModalVisibility();
+    } else {
+        document.getElementById('helpModal').style.display = 'block';
     }
-    document.getElementById('partyModal').style.display = 'block';
-    window.renderPartyList();
 };
 
-window.openStorageModal = function() {
-    closeMenuModal();
-    document.getElementById('storageModal').style.display = 'block';
-    window.renderStorageList();
+window.closeHelpModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        let _m_helpModal = document.getElementById('helpModal');
+        if (_m_helpModal) {
+            _m_helpModal.children[0].classList.add('modal-fade-out');
+            setTimeout(() => {
+                _m_helpModal.style.display = 'none';
+                _m_helpModal.children[0].classList.remove('modal-fade-out');
+            }, 190);
+        }
+    }
 };
 
-window.closeStorageModal = function() {
-    let _m_storageModal = document.getElementById('storageModal'); _m_storageModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_storageModal.style.display = 'none'; _m_storageModal.children[0].classList.remove('modal-fade-out'); }, 190);
+window.openPartyModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        window.closeMenuModal(playerNum);
+        window.closeAllModalsForPlayer(playerNum, 'partyModal');
+        if (playerNum === 2) window.p2ActiveModal = 'partyModal';
+        else window.p1ActiveModal = 'partyModal';
+        if (typeof window.switchPartyTab === 'function') {
+            window.switchPartyTab('party', playerNum);
+        }
+        window.updateModalVisibility();
+        window.renderPartyList();
+    } else {
+        closeMenuModal();
+        if (typeof window.switchPartyTab === 'function') {
+            window.switchPartyTab('party', 1);
+            window.switchPartyTab('party', 2);
+        }
+        document.getElementById('partyModal').style.display = 'block';
+        window.renderPartyList();
+    }
 };
-window.closePartyModal = function() {
-    let _m_partyModal = document.getElementById('partyModal'); _m_partyModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_partyModal.style.display = 'none'; _m_partyModal.children[0].classList.remove('modal-fade-out'); }, 190);
+
+window.openStorageModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        window.closeMenuModal(playerNum);
+        window.closeAllModalsForPlayer(playerNum, 'storageModal');
+        if (playerNum === 2) window.p2ActiveModal = 'storageModal';
+        else window.p1ActiveModal = 'storageModal';
+        window.updateModalVisibility();
+        window.renderStorageList();
+    } else {
+        closeMenuModal();
+        document.getElementById('storageModal').style.display = 'block';
+        window.renderStorageList();
+    }
+};
+
+window.closeStorageModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        let _m_storageModal = document.getElementById('storageModal');
+        if (_m_storageModal) {
+            _m_storageModal.children[0].classList.add('modal-fade-out');
+            setTimeout(() => {
+                _m_storageModal.style.display = 'none';
+                _m_storageModal.children[0].classList.remove('modal-fade-out');
+            }, 190);
+        }
+    }
+};
+
+window.closePartyModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        let _m_partyModal = document.getElementById('partyModal');
+        if (_m_partyModal) {
+            _m_partyModal.children[0].classList.add('modal-fade-out');
+            setTimeout(() => {
+                _m_partyModal.style.display = 'none';
+                _m_partyModal.children[0].classList.remove('modal-fade-out');
+            }, 190);
+        }
+    }
 };
 
 window.renderPartyList = function() {
@@ -6642,25 +7151,48 @@ function populateSelect(selectElement, playerNum = 1) {
     });
 }
 
-window.openBreedingModal = function() {
-    document.getElementById('breedingModal').style.display = 'block';
-
-    // Player 1 SELECTS
-    populateSelect(document.getElementById('parent1Select'), 1);
-    populateSelect(document.getElementById('parent2Select'), 1);
-    document.getElementById('breedResult').innerText = '';
-
-    // Player 2 SELECTS
+window.openBreedingModal = function(playerNum = 1) {
     if (window.coopActive) {
-        populateSelect(document.getElementById('parent1Select_P2'), 2);
-        populateSelect(document.getElementById('parent2Select_P2'), 2);
-        const res2 = document.getElementById('breedResult_P2');
-        if (res2) res2.innerText = '';
+        window.closeMenuModal(playerNum);
+        window.closeAllModalsForPlayer(playerNum, 'breedingModal');
+        if (playerNum === 2) {
+            window.p2ActiveModal = 'breedingModal';
+            populateSelect(document.getElementById('parent1Select_P2'), 2);
+            populateSelect(document.getElementById('parent2Select_P2'), 2);
+            const res2 = document.getElementById('breedResult_P2');
+            if (res2) res2.innerText = '';
+        } else {
+            window.p1ActiveModal = 'breedingModal';
+            populateSelect(document.getElementById('parent1Select'), 1);
+            populateSelect(document.getElementById('parent2Select'), 1);
+            const res1 = document.getElementById('breedResult');
+            if (res1) res1.innerText = '';
+        }
+        window.updateModalVisibility();
+    } else {
+        document.getElementById('breedingModal').style.display = 'block';
+        // Player 1 SELECTS
+        populateSelect(document.getElementById('parent1Select'), 1);
+        populateSelect(document.getElementById('parent2Select'), 1);
+        document.getElementById('breedResult').innerText = '';
     }
 };
 
-window.closeBreedingModal = function() {
-    let _m_breedingModal = document.getElementById('breedingModal'); _m_breedingModal.children[0].classList.add('modal-fade-out'); setTimeout(() => { _m_breedingModal.style.display = 'none'; _m_breedingModal.children[0].classList.remove('modal-fade-out'); }, 190);
+window.closeBreedingModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        let _m_breedingModal = document.getElementById('breedingModal');
+        if (_m_breedingModal) {
+            _m_breedingModal.children[0].classList.add('modal-fade-out');
+            setTimeout(() => {
+                _m_breedingModal.style.display = 'none';
+                _m_breedingModal.children[0].classList.remove('modal-fade-out');
+            }, 190);
+        }
+    }
 };
 
 window.closeLevelUpModal = function() {
@@ -6844,20 +7376,41 @@ setTimeout(() => {
     }
 }, 500);
 
-window.openStoreModal = function() {
+window.openStoreModal = function(playerCollider) {
     if (window.storeModalClosedFlag) return;
     if (window.inBattle) return;
-    document.getElementById('storeModal').style.display = 'block';
+
+    let playerNum = 1;
+    if (window.coopActive && playerCollider === window.player2) {
+        playerNum = 2;
+    }
+
+    if (window.coopActive) {
+        window.closeAllModalsForPlayer(playerNum, 'storeModal');
+        if (playerNum === 2) window.p2ActiveModal = 'storeModal';
+        else window.p1ActiveModal = 'storeModal';
+        window.updateModalVisibility();
+    } else {
+        document.getElementById('storeModal').style.display = 'block';
+    }
 };
 
-window.closeStoreModal = function() {
+window.closeStoreModal = function(playerNum = 1) {
     window.storeModalClosedFlag = true;
-    let _m_storeModal = document.getElementById('storeModal');
-    _m_storeModal.children[0].classList.add('modal-fade-out');
-    setTimeout(() => {
-        _m_storeModal.style.display = 'none';
-        _m_storeModal.children[0].classList.remove('modal-fade-out');
-    }, 190);
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        let _m_storeModal = document.getElementById('storeModal');
+        if (_m_storeModal) {
+            _m_storeModal.children[0].classList.add('modal-fade-out');
+            setTimeout(() => {
+                _m_storeModal.style.display = 'none';
+                _m_storeModal.children[0].classList.remove('modal-fade-out');
+            }, 190);
+        }
+    }
 };
 
 window.openPvpModal = function() {
@@ -7150,6 +7703,20 @@ function logBattle(msg) {
 }
 
 window.updateBattleUI = function() {
+    const battleModal = document.getElementById('battleModal');
+    if (battleModal && window.coopActive) {
+        battleModal.classList.remove('p1-battle-active', 'p2-battle-active', 'pvp-battle-active');
+        if (window.isLocalPvp) {
+            battleModal.classList.add('pvp-battle-active');
+        } else if (window.activeBattlePlayer === 2) {
+            battleModal.classList.add('p2-battle-active');
+        } else {
+            battleModal.classList.add('p1-battle-active');
+        }
+    } else if (battleModal) {
+        battleModal.classList.remove('p1-battle-active', 'p2-battle-active', 'pvp-battle-active');
+    }
+
     const isCombatActive = window.inBattle && window.pendingBattleResult === null;
     const battleCloseBtn = document.getElementById('battleCloseBtn');
     if (battleCloseBtn) battleCloseBtn.style.display = isCombatActive ? 'none' : 'flex';
@@ -9273,9 +9840,18 @@ function collectCreature(playerCollider, creatureSprite) {
     });
     if (isAnyModalOpen) return;
 
-    if (collectedCreatures.length === 0) {
+    const isP2 = (window.coopActive && playerCollider === window.player2);
+    window.activeBattlePlayer = isP2 ? 2 : 1;
+    const activeParty = isP2 ? window.collectedCreatures2 : window.collectedCreatures;
+
+    if (activeParty.length === 0) {
         const data = JSON.parse(JSON.stringify(creatureSprite.getData('creatureData')));
-        window.saveCollected(data);
+        if (isP2) {
+            window.collectedCreatures2.push(data);
+            localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+        } else {
+            window.saveCollected(data);
+        }
         creatureSprite.destroy();
         const basePrototype = window.baseCreatures.find(c => c.id === data.baseId) || window.baseCreatures.find(c => c.name === data.name);
         spawnCreature(this, basePrototype || data, 500, 500);
@@ -9295,23 +9871,23 @@ function collectCreature(playerCollider, creatureSprite) {
     currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
 
     // Initialize HP
-    collectedCreatures.forEach(c => {
+    activeParty.forEach(c => {
         if (c.currentHp === undefined) c.currentHp = window.getEffectiveStat(c, 'health');
     });
 
 
 
-    if (!collectedCreatures.some(c => !c.stored && c.currentHp > 0)) {
+    if (!activeParty.some(c => !c.stored && c.currentHp > 0)) {
         // No healthy creatures
         window.inBattle = false;
         playerCollider.body.moves = true;
         window.showModernNotification("You have no healthy creatures! Find a hospital to heal them.");
-        player.x += (Math.random() < 0.5 ? 20 : -20); // Bounce off slightly
-        player.y += (Math.random() < 0.5 ? 20 : -20);
+        playerCollider.x += (Math.random() < 0.5 ? 20 : -20); // Bounce off slightly
+        playerCollider.y += (Math.random() < 0.5 ? 20 : -20);
         return;
     }
 
-    let firstHealthy = collectedCreatures.find(c => !c.stored && c.currentHp > 0);
+    let firstHealthy = activeParty.find(c => !c.stored && c.currentHp > 0);
     currentPlayer = JSON.parse(JSON.stringify(firstHealthy));
     currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
     // Use saved HP
@@ -10316,8 +10892,13 @@ window.closeBattleModal = function() {
     window.inBattle = false;
     window.inChallengeBattle = false; // Reset challenge flag
 
-    if (typeof player !== 'undefined' && player && player.body) player.body.moves = true;
-    if (typeof player !== 'undefined' && player) player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
+    if (window.coopActive && window.activeBattlePlayer === 2) {
+        if (window.player2 && window.player2.body) window.player2.body.moves = true;
+        if (window.player2) window.player2.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
+    } else {
+        if (player && player.body) player.body.moves = true;
+        if (player) player.lastBattleTime = game ? game.scene.scenes[0].time.now : 0;
+    }
 
     if (result === 'win') {
         if (wasInChallenge) {
@@ -10333,16 +10914,30 @@ window.closeBattleModal = function() {
             if (game) respawnEnemyBase();
         }
     } else if (result === 'caught') {
-        window.saveCollected(currentEnemy);
+        if (window.activeBattlePlayer === 2) {
+            window.collectedCreatures2.push(currentEnemy);
+            localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+        } else {
+            window.saveCollected(currentEnemy);
+        }
         currentEnemySprite.destroy();
         if (game) respawnEnemyBase();
     } else if (result === 'run') {
-        player.x += 100;
+        if (window.activeBattlePlayer === 2 && window.player2) {
+            window.player2.x += 100;
+        } else if (player) {
+            player.x += 100;
+        }
     } else if (result === 'loss') {
         alert('All your creatures fainted! Follow the arrow to the hospital to heal them.');
         let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10050, y: 10050 });
-        player.x = safePos.x;
-        player.y = safePos.y;
+        if (window.activeBattlePlayer === 2 && window.player2) {
+            window.player2.x = safePos.x;
+            window.player2.y = safePos.y;
+        } else if (player) {
+            player.x = safePos.x;
+            player.y = safePos.y;
+        }
     }
 };
 
@@ -11209,7 +11804,26 @@ function update() {
         window.lastSaveTime = now;
     }
 
-    if (window.inBattle) return;
+    let p1CanMove = true;
+    let p2CanMove = true;
+
+    if (window.inBattle) {
+        if (window.isLocalPvp) {
+            p1CanMove = false;
+            p2CanMove = false;
+        } else if (window.activeBattlePlayer === 2) {
+            p2CanMove = false;
+        } else {
+            p1CanMove = false;
+        }
+    }
+
+    if (!p1CanMove && player && player.body) {
+        player.body.setVelocity(0, 0);
+    }
+    if (!p2CanMove && window.player2 && window.player2.body) {
+        window.player2.body.setVelocity(0, 0);
+    }
 
     // Dynamic pointer targeting for multi-touch co-op controls
     if (window.gameStarted) {
@@ -11229,11 +11843,11 @@ function update() {
         if (window.coopActive) {
             const screenXDivider = window.innerWidth / 2;
             activePointers.forEach(p => {
-                if (p.x < screenXDivider) {
+                if (p.x < screenXDivider && p1CanMove) {
                     // Left half: Player 1 controls
                     const wp = this.cameras.main.getWorldPoint(p.x, p.y);
                     window.pointerTarget = { x: wp.x, y: wp.y };
-                } else {
+                } else if (p.x >= screenXDivider && p2CanMove) {
                     // Right half: Player 2 controls
                     if (window.camera2) {
                         const wp = window.camera2.getWorldPoint(p.x, p.y);
@@ -11243,7 +11857,7 @@ function update() {
             });
         } else {
             // Single player: entire screen controls Player 1
-            if (activePointers.length > 0) {
+            if (activePointers.length > 0 && p1CanMove) {
                 const p = activePointers[0];
                 const wp = this.cameras.main.getWorldPoint(p.x, p.y);
                 window.pointerTarget = { x: wp.x, y: wp.y };
@@ -11258,7 +11872,7 @@ function update() {
     let targetVy = 0;
     let moveSpeed = isSwimming ? speed * 0.5 : speed;
 
-    if (window.gameStarted) {
+    if (window.gameStarted && p1CanMove) {
         let wasdUp = false;
         let wasdDown = false;
         let wasdLeft = false;
@@ -11412,7 +12026,7 @@ function update() {
         let p2IsSwimming = p2InWater && window.currentSeason !== 'Winter';
         let p2Speed = p2IsSwimming ? speed * 0.5 : speed;
 
-        if (window.gameStarted) {
+        if (window.gameStarted && p2CanMove) {
             // Keyboard Controls (WASD)
             if (window.wasdKeys) {
                 if (window.wasdKeys.left.isDown) {
@@ -11488,40 +12102,46 @@ function update() {
         }
 
         // Apply P2 velocity with Ice physics fallback
-        if (p2OnIce) {
-            let accel = 10;
-            let friction = 2;
+        if (p2CanMove) {
+            if (p2OnIce) {
+                let accel = 10;
+                let friction = 2;
 
-            if (p2MovedX) {
-                if (p2TargetVx < 0) window.p2Vx = Math.max(window.p2Vx - accel, -p2Speed);
-                else if (p2TargetVx > 0) window.p2Vx = Math.min(window.p2Vx + accel, p2Speed);
+                if (p2MovedX) {
+                    if (p2TargetVx < 0) window.p2Vx = Math.max(window.p2Vx - accel, -p2Speed);
+                    else if (p2TargetVx > 0) window.p2Vx = Math.min(window.p2Vx + accel, p2Speed);
+                } else {
+                    if (window.p2Vx > 0) window.p2Vx = Math.max(window.p2Vx - friction, 0);
+                    else if (window.p2Vx < 0) window.p2Vx = Math.min(window.p2Vx + friction, 0);
+                }
+
+                if (p2MovedY) {
+                    if (p2TargetVy < 0) window.p2Vy = Math.max(window.p2Vy - accel, -p2Speed);
+                    else if (p2TargetVy > 0) window.p2Vy = Math.min(window.p2Vy + accel, p2Speed);
+                } else {
+                    if (window.p2Vy > 0) window.p2Vy = Math.max(window.p2Vy - friction, 0);
+                    else if (window.p2Vy < 0) window.p2Vy = Math.min(window.p2Vy + friction, 0);
+                }
+
+                if (window.player2.body) {
+                    window.player2.body.setVelocityX(window.p2Vx);
+                    window.player2.body.setVelocityY(window.p2Vy);
+                }
             } else {
-                if (window.p2Vx > 0) window.p2Vx = Math.max(window.p2Vx - friction, 0);
-                else if (window.p2Vx < 0) window.p2Vx = Math.min(window.p2Vx + friction, 0);
-            }
-
-            if (p2MovedY) {
-                if (p2TargetVy < 0) window.p2Vy = Math.max(window.p2Vy - accel, -p2Speed);
-                else if (p2TargetVy > 0) window.p2Vy = Math.min(window.p2Vy + accel, p2Speed);
-            } else {
-                if (window.p2Vy > 0) window.p2Vy = Math.max(window.p2Vy - friction, 0);
-                else if (window.p2Vy < 0) window.p2Vy = Math.min(window.p2Vy + friction, 0);
-            }
-
-            if (window.player2.body) {
-                window.player2.body.setVelocityX(window.p2Vx);
-                window.player2.body.setVelocityY(window.p2Vy);
+                if (p2MovedX || p2MovedY) {
+                    window.p2Vx = p2TargetVx;
+                    window.p2Vy = p2TargetVy;
+                    if (window.player2.body) window.player2.body.setVelocity(p2TargetVx, p2TargetVy);
+                } else {
+                    window.p2Vx = 0;
+                    window.p2Vy = 0;
+                    if (window.player2.body) window.player2.body.setVelocity(0, 0);
+                }
             }
         } else {
-            if (p2MovedX || p2MovedY) {
-                window.p2Vx = p2TargetVx;
-                window.p2Vy = p2TargetVy;
-                if (window.player2.body) window.player2.body.setVelocity(p2TargetVx, p2TargetVy);
-            } else {
-                window.p2Vx = 0;
-                window.p2Vy = 0;
-                if (window.player2.body) window.player2.body.setVelocity(0, 0);
-            }
+            window.p2Vx = 0;
+            window.p2Vy = 0;
+            if (window.player2 && window.player2.body) window.player2.body.setVelocity(0, 0);
         }
 
         // Swimming Visuals for P2
