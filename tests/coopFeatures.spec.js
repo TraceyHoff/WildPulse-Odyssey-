@@ -74,4 +74,92 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     });
     expect(isCloseBtnVisible).toBe(true);
   });
+
+  test('should prevent opening multiple modals simultaneously and prevent re-opening closed modal until leaving the tile', async ({ page }) => {
+    // Capture and print console logs from the page
+    page.on('console', msg => {
+      console.log('BROWSER LOG:', msg.text());
+    });
+
+    await page.waitForSelector('#menuBtn', { state: 'visible' });
+
+    // 1. Move player to the store tile coordinates (10150, 10150)
+    await page.evaluate(() => {
+      if (window.player) {
+        window.player.x = 10150;
+        window.player.y = 10150;
+      }
+    });
+
+    // Wait for Phaser's physics engine to register the overlap and automatically open the store modal
+    await page.waitForTimeout(500);
+
+    // Verify storeModal is now open automatically
+    const isStoreOpenAtStart = await page.evaluate(() => {
+      const store = document.getElementById('storeModal');
+      return store && window.getComputedStyle(store).display !== 'none';
+    });
+    expect(isStoreOpenAtStart).toBe(true);
+
+    // Close the store modal (simulating player closing it while still standing on the tile)
+    await page.evaluate(() => {
+      if (window.closeStoreModal) {
+        window.closeStoreModal();
+      }
+    });
+
+    // Wait for the modal fade-out transition/setTimeout (190ms) to complete (increased to 500ms for safety under CPU load)
+    await page.waitForTimeout(500);
+
+    // Verify storeModal is now closed
+    const isStoreClosedAfterClosing = await page.evaluate(() => {
+      const store = document.getElementById('storeModal');
+      return !store || window.getComputedStyle(store).display === 'none';
+    });
+    expect(isStoreClosedAfterClosing).toBe(true);
+
+    // Wait another 500ms to ensure the physics engine has processed multiple frames
+    // while the player remains on the tile. The store modal should remain closed.
+    await page.waitForTimeout(500);
+
+    const isStoreStillClosedOnTile = await page.evaluate(() => {
+      const store = document.getElementById('storeModal');
+      return !store || window.getComputedStyle(store).display === 'none';
+    });
+    expect(isStoreStillClosedOnTile).toBe(true);
+
+    // 2. Simulate leaving the tile by moving player away to (10550, 10550)
+    await page.evaluate(() => {
+      if (window.player) {
+        window.player.x = 10550;
+        window.player.y = 10550;
+      }
+    });
+
+    // Wait for Phaser loop to process the new position and clear the closed flag
+    await page.waitForTimeout(500);
+
+    // Verify closed flag has reset
+    const hasResetFlag = await page.evaluate(() => {
+      return window.p1StoreClosedWhileOverlapping === false;
+    });
+    expect(hasResetFlag).toBe(true);
+
+    // 3. Move player back onto the store tile (10150, 10150)
+    await page.evaluate(() => {
+      if (window.player) {
+        window.player.x = 10150;
+        window.player.y = 10150;
+      }
+    });
+
+    // Wait for Phaser loop to detect overlap and open the store modal again
+    await page.waitForTimeout(500);
+
+    const isStoreOpenOnReentry = await page.evaluate(() => {
+      const store = document.getElementById('storeModal');
+      return store && window.getComputedStyle(store).display !== 'none';
+    });
+    expect(isStoreOpenOnReentry).toBe(true);
+  });
 });

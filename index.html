@@ -6423,7 +6423,6 @@ window.challengeTier = parseInt(localStorage.getItem('wildpulse_challenge_tier')
 window.inChallengeBattle = false;
 
 window.openChallengeModal = function(playerCollider) {
-    if (window.challengeModalClosedFlag) return;
     if (window.inBattle) return;
 
     let playerNum = 1;
@@ -6431,12 +6430,24 @@ window.openChallengeModal = function(playerCollider) {
         playerNum = 2;
     }
 
+    if (playerNum === 2) {
+        if (window.p2ChallengeClosedWhileOverlapping) return;
+    } else {
+        if (window.p1ChallengeClosedWhileOverlapping) return;
+    }
+
+    if (window.coopActive) {
+        const activeModal = (playerNum === 2) ? window.p2ActiveModal : window.p1ActiveModal;
+        if (activeModal !== null) return;
+    } else {
+        if (window.isAnyModalOpen()) return;
+    }
+
     if (window.coopActive) {
         window.closeAllModalsForPlayer(playerNum, 'challengeModal');
         if (playerNum === 2) window.p2ActiveModal = 'challengeModal';
         else window.p1ActiveModal = 'challengeModal';
     } else {
-        if (window.isAnyModalOpen()) return;
         window.closeAllModals('challengeModal');
     }
 
@@ -6464,10 +6475,16 @@ window.openChallengeModal = function(playerCollider) {
 window.closeChallengeModal = function(playerNum = 1) {
     window.challengeModalClosedFlag = true;
     if (window.coopActive) {
-        if (playerNum === 2) window.p2ActiveModal = null;
-        else window.p1ActiveModal = null;
+        if (playerNum === 2) {
+            window.p2ActiveModal = null;
+            window.p2ChallengeClosedWhileOverlapping = true;
+        } else {
+            window.p1ActiveModal = null;
+            window.p1ChallengeClosedWhileOverlapping = true;
+        }
         window.updateModalVisibility();
     } else {
+        window.p1ChallengeClosedWhileOverlapping = true;
         document.getElementById('challengeModal').style.display = 'none';
     }
 };
@@ -7398,6 +7415,12 @@ let pendingTradeOffer = null;
 window.tradeModalClosedFlag = false;
 window.storeModalClosedFlag = false;
 window.pvpModalClosedFlag = false;
+
+window.p1StoreClosedWhileOverlapping = false;
+window.p2StoreClosedWhileOverlapping = false;
+window.p1ChallengeClosedWhileOverlapping = false;
+window.p2ChallengeClosedWhileOverlapping = false;
+
 let pendingPvpOffer = null;
 
 window.openTradeModal = function() {
@@ -7513,12 +7536,24 @@ setTimeout(() => {
 }, 500);
 
 window.openStoreModal = function(playerCollider) {
-    if (window.storeModalClosedFlag) return;
     if (window.inBattle) return;
 
     let playerNum = 1;
     if (window.coopActive && playerCollider === window.player2) {
         playerNum = 2;
+    }
+
+    if (playerNum === 2) {
+        if (window.p2StoreClosedWhileOverlapping) return;
+    } else {
+        if (window.p1StoreClosedWhileOverlapping) return;
+    }
+
+    if (window.coopActive) {
+        const activeModal = (playerNum === 2) ? window.p2ActiveModal : window.p1ActiveModal;
+        if (activeModal !== null) return;
+    } else {
+        if (window.isAnyModalOpen()) return;
     }
 
     if (window.coopActive) {
@@ -7534,10 +7569,16 @@ window.openStoreModal = function(playerCollider) {
 window.closeStoreModal = function(playerNum = 1) {
     window.storeModalClosedFlag = true;
     if (window.coopActive) {
-        if (playerNum === 2) window.p2ActiveModal = null;
-        else window.p1ActiveModal = null;
+        if (playerNum === 2) {
+            window.p2ActiveModal = null;
+            window.p2StoreClosedWhileOverlapping = true;
+        } else {
+            window.p1ActiveModal = null;
+            window.p1StoreClosedWhileOverlapping = true;
+        }
         window.updateModalVisibility();
     } else {
+        window.p1StoreClosedWhileOverlapping = true;
         let _m_storeModal = document.getElementById('storeModal');
         if (_m_storeModal) {
             _m_storeModal.children[0].classList.add('modal-fade-out');
@@ -9751,7 +9792,7 @@ function create() {
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
     this.physics.add.overlap(player, storeGroup, openStoreModal, null, this);
-    this.physics.add.overlap(player, challengeGroup, () => { if (window.openChallengeModal) window.openChallengeModal(); }, null, this);
+    this.physics.add.overlap(player, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, this);
 
     window.addEventListener('resize', () => {
         if (!game || !game.scale) return;
@@ -11269,7 +11310,7 @@ window.enableCoop = function(scene) {
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, creaturesGroup, collectCreature, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, hospitalGroup, healParty, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, storeGroup, openStoreModal, null, scene));
-    window.p2Colliders.push(scene.physics.add.overlap(window.player2, challengeGroup, () => { if (window.openChallengeModal) window.openChallengeModal(); }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, scene));
 
     // 2. Set up split screen cameras
     const halfWidth = window.innerWidth / 2;
@@ -11438,6 +11479,22 @@ function update() {
         });
     }
     if (!storeOverlap) {
+        window.p1StoreClosedWhileOverlapping = false;
+    }
+
+    let p2StoreOverlap = false;
+    if (window.coopActive && window.player2 && typeof storeGroup !== 'undefined' && storeGroup) {
+        storeGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(window.player2.x, window.player2.y, tile.x, tile.y) < 100) {
+                p2StoreOverlap = true;
+            }
+        });
+    }
+    if (!p2StoreOverlap) {
+        window.p2StoreClosedWhileOverlapping = false;
+    }
+
+    if (!storeOverlap && (!window.coopActive || !p2StoreOverlap)) {
         window.storeModalClosedFlag = false;
     }
 
@@ -11450,6 +11507,22 @@ function update() {
         });
     }
     if (!challengeOverlap) {
+        window.p1ChallengeClosedWhileOverlapping = false;
+    }
+
+    let p2ChallengeOverlap = false;
+    if (window.coopActive && window.player2 && typeof challengeGroup !== 'undefined' && challengeGroup) {
+        challengeGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(window.player2.x, window.player2.y, tile.x, tile.y) < 100) {
+                p2ChallengeOverlap = true;
+            }
+        });
+    }
+    if (!p2ChallengeOverlap) {
+        window.p2ChallengeClosedWhileOverlapping = false;
+    }
+
+    if (!challengeOverlap && (!window.coopActive || !p2ChallengeOverlap)) {
         window.challengeModalClosedFlag = false;
     }
 
