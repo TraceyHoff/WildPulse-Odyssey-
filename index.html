@@ -11430,6 +11430,62 @@ function respawnEnemyBase() {
     spawnCreature(game.scene.scenes[0], basePrototype || currentEnemy, rx, ry);
 }
 
+function isPointerOverButton(p) {
+    if (!p) return false;
+    const events = [p.downEvent, p.event];
+    for (const e of events) {
+        if (!e) continue;
+        let target = e.target;
+        while (target) {
+            if (target.tagName) {
+                const tag = target.tagName.toLowerCase();
+                if (tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea' || tag === 'a') {
+                    return true;
+                }
+                if (target.classList && (
+                    target.classList.contains('close-btn') ||
+                    target.classList.contains('close-menu-btn') ||
+                    target.classList.contains('close-party-btn') ||
+                    target.classList.contains('close-storage-btn') ||
+                    target.classList.contains('close-help-btn') ||
+                    target.classList.contains('close-levelup-btn') ||
+                    target.classList.contains('close-breeding-btn') ||
+                    target.classList.contains('close-journal-btn') ||
+                    target.classList.contains('close-store-btn') ||
+                    target.classList.contains('close-trade-btn') ||
+                    target.classList.contains('close-pvp-btn') ||
+                    target.classList.contains('btn') ||
+                    target.classList.contains('save-name-btn') ||
+                    target.classList.contains('move-up-btn') ||
+                    target.classList.contains('move-down-btn') ||
+                    target.classList.contains('store-btn') ||
+                    target.classList.contains('release-btn') ||
+                    target.classList.contains('retrieve-btn')
+                )) {
+                    return true;
+                }
+                if (target.getAttribute && (target.getAttribute('role') === 'button' || target.getAttribute('onclick'))) {
+                    return true;
+                }
+            }
+            if (target.style && target.style.cursor === 'pointer') {
+                return true;
+            }
+            try {
+                const computed = window.getComputedStyle(target);
+                if (computed && computed.cursor === 'pointer') {
+                    return true;
+                }
+            } catch (err) {}
+            if (target.tagName && target.tagName.toLowerCase() === 'canvas') {
+                break;
+            }
+            target = target.parentNode;
+        }
+    }
+    return false;
+}
+
 function update() {
     if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
@@ -12083,6 +12139,9 @@ function update() {
         if (this.input.manager && this.input.manager.pointers) {
             this.input.manager.pointers.forEach(p => {
                 if (p && p.isDown && !activePointers.includes(p)) {
+                    if (isPointerOverButton(p)) {
+                        return;
+                    }
                     activePointers.push(p);
                 }
             });
