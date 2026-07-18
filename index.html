@@ -588,6 +588,11 @@
         #menuModal button#coopToggleBtn { background: linear-gradient(180deg, #ba68c8, #7b1fa2); border-color: #e1bee7; }
         #menuModal button#fullscreenToggleBtn { background: linear-gradient(180deg, #78909c, #37474f); border-color: #b0bec5; }
         #menuModal button#exitGameBtn { background: linear-gradient(180deg, #ff9800, #e65100); border-color: #ffcc80; }
+        #menuModal button:not(.close-btn) {
+            width: fit-content !important;
+            margin: 10px auto !important;
+            padding: 10px 0px !important;
+        }
         #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn, #journalModal button, #pvpModal button.close-pvp-btn { background: linear-gradient(180deg, #555, #222); border-color: #777; }
         #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn, #pvpModal button#sendPvpBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
 
@@ -1007,6 +1012,11 @@
             <button id="menuJournalBtn" style="width: 100%; margin: 8px 0;">Creature Journal</button>
             <button id="menuCustomizeBtn" style="width: 100%; margin: 8px 0;">Customize Character</button>
             <button id="menuHelpBtn" style="width: 100%; margin: 8px 0;">Help</button>
+            <button id="menuMusicBtn" style="width: 100%; margin: 8px 0;">Music: ON</button>
+            <button id="coopToggleBtn" style="width: 100%; margin: 8px 0;">Toggle Co-op (2 Player)</button>
+            <button id="fullscreenToggleBtn" style="width: 100%; margin: 8px 0;">Toggle Fullscreen</button>
+            <button id="menuDeleteBtn" style="width: 100%; margin: 8px 0; background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a;">Delete Progress</button>
+            <button id="exitGameBtn" style="width: 100%; margin: 8px 0;">Exit Game</button>
         </div>
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
@@ -1018,15 +1028,12 @@
             <button id="menuJournalBtn_P2" style="width: 100%; margin: 8px 0;">Creature Journal</button>
             <button id="menuCustomizeBtn_P2" style="width: 100%; margin: 8px 0;">Customize Character</button>
             <button id="menuHelpBtn_P2" style="width: 100%; margin: 8px 0;">Help</button>
+            <button id="menuMusicBtn_P2" style="width: 100%; margin: 8px 0;">Music: ON</button>
+            <button id="coopToggleBtn_P2" style="width: 100%; margin: 8px 0;">Toggle Co-op (2 Player)</button>
+            <button id="fullscreenToggleBtn_P2" style="width: 100%; margin: 8px 0;">Toggle Fullscreen</button>
+            <button id="menuDeleteBtn_P2" style="width: 100%; margin: 8px 0; background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a;">Delete Progress</button>
+            <button id="exitGameBtn_P2" style="width: 100%; margin: 8px 0;">Exit Game</button>
         </div>
-    </div>
-    <!-- Global Buttons -->
-    <div class="global-menu-buttons" style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 550px; margin: 20px auto 0 auto; box-sizing: border-box;">
-        <button id="menuMusicBtn" style="width: 100%; margin: 0;">Music: ON</button>
-        <button id="coopToggleBtn" style="width: 100%; margin: 0;">Toggle Co-op (2 Player)</button>
-        <button id="fullscreenToggleBtn" style="width: 100%; margin: 0;">Toggle Fullscreen</button>
-        <button id="menuDeleteBtn" style="width: 100%; margin: 0; background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a;">Delete Progress</button>
-        <button id="exitGameBtn" style="width: 100%; margin: 0;">Exit Game</button>
     </div>
 </div>
 <div id="partyModal">
@@ -2409,12 +2416,27 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menuStorageBtn_P2')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(2); });
     document.getElementById('breedBtn_P2')?.addEventListener('click', () => { if (window.openBreedingModal) window.openBreedingModal(2); });
     document.getElementById('menuHelpBtn_P2')?.addEventListener('click', () => { if (window.openHelpModal) window.openHelpModal(2); });
-    document.getElementById('menuMusicBtn')?.addEventListener('click', () => {
+    window.updateCoopButtons = function() {
+        const text = window.coopActive ? "Disable Co-op" : "Toggle Co-op (2 Player)";
+        const btn1 = document.getElementById('coopToggleBtn');
+        const btn2 = document.getElementById('coopToggleBtn_P2');
+        if (btn1) btn1.innerText = text;
+        if (btn2) btn2.innerText = text;
+    };
+
+    const handleMusicToggle = () => {
         if (window.WildPulseMusic) {
             const isMuted = window.WildPulseMusic.toggle();
-            document.getElementById('menuMusicBtn').innerText = isMuted ? "Music: OFF" : "Music: ON";
+            const text = isMuted ? "Music: OFF" : "Music: ON";
+            const btn1 = document.getElementById('menuMusicBtn');
+            const btn2 = document.getElementById('menuMusicBtn_P2');
+            if (btn1) btn1.innerText = text;
+            if (btn2) btn2.innerText = text;
         }
-    });
+    };
+    document.getElementById('menuMusicBtn')?.addEventListener('click', handleMusicToggle);
+    document.getElementById('menuMusicBtn_P2')?.addEventListener('click', handleMusicToggle);
+
     document.getElementById('menuJournalBtn')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(1); });
     document.getElementById('menuJournalBtn_P2')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(2); });
     document.getElementById('startChallengeBtn')?.addEventListener('click', () => { if (window.startChallengeBattle) window.startChallengeBattle(); });
@@ -2424,30 +2446,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('startDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
+    document.getElementById('menuDeleteBtn_P2')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('exitGameBtn')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
+    document.getElementById('exitGameBtn_P2')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
 
-    document.getElementById('coopToggleBtn')?.addEventListener('click', () => {
+    const handleCoopToggle = () => {
         if (game && game.scene.scenes[0]) {
             const scene = game.scene.scenes[0];
             if (window.coopActive) {
                 window.disableCoop(scene);
-                document.getElementById('coopToggleBtn').innerText = "Toggle Co-op (2 Player)";
             } else {
                 window.enableCoop(scene);
-                document.getElementById('coopToggleBtn').innerText = "Disable Co-op";
             }
             if (window.closeMenuModal) {
                 window.closeMenuModal(1);
                 window.closeMenuModal(2);
             }
         }
-    });
+    };
+    document.getElementById('coopToggleBtn')?.addEventListener('click', handleCoopToggle);
+    document.getElementById('coopToggleBtn_P2')?.addEventListener('click', handleCoopToggle);
 
     document.querySelectorAll('.close-menu-btn').forEach(btn => btn.addEventListener('click', () => {
         const playerNum = btn.closest('.p2-col') ? 2 : 1;
         if (window.closeMenuModal) window.closeMenuModal(playerNum);
     }));
-    document.getElementById('fullscreenToggleBtn')?.addEventListener('click', () => {
+
+    const handleFullscreenToggle = () => {
         if (game && game.scale) {
             if (game.scale.isFullscreen) {
                 game.scale.stopFullscreen();
@@ -2465,7 +2490,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+    };
+    document.getElementById('fullscreenToggleBtn')?.addEventListener('click', handleFullscreenToggle);
+    document.getElementById('fullscreenToggleBtn_P2')?.addEventListener('click', handleFullscreenToggle);
+
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            if (window.coopActive && screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(err => {
+                    console.warn('Could not lock orientation to landscape:', err);
+                });
+            }
+        } else {
+            if (screen.orientation && screen.orientation.unlock) {
+                try {
+                    screen.orientation.unlock();
+                } catch (e) {}
+            }
+        }
     });
+
     document.querySelectorAll('.close-party-btn').forEach(btn => btn.addEventListener('click', () => {
         const playerNum = btn.closest('.p2-col') ? 2 : 1;
         if (window.closePartyModal) window.closePartyModal(playerNum);
@@ -6933,8 +6977,9 @@ window.exitGame = function() {
         // Disable co-op if active
         if (window.coopActive && game && game.scene.scenes[0]) {
             window.disableCoop(game.scene.scenes[0]);
-            const coopBtn = document.getElementById('coopToggleBtn');
-            if (coopBtn) coopBtn.innerText = "Toggle Co-op (2 Player)";
+        }
+        if (window.updateCoopButtons) {
+            window.updateCoopButtons();
         }
 
         // Save elapsed time
@@ -11076,6 +11121,18 @@ window.enableCoop = function(scene) {
     // Toggle body class for split screen layout styling
     document.body.classList.add('coop-active-layout');
 
+    // Force fullscreen mode immediately when entering split screen mode
+    if (game && game.scale && !game.scale.isFullscreen) {
+        game.scale.startFullscreen();
+    }
+
+    // Lock orientation to landscape if supported
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(err => {
+            console.warn('Could not lock orientation to landscape:', err);
+        });
+    }
+
     // 1. Create Player 2 sprite next to Player 1 (or default spawning if player doesn't exist)
     const basePlayerX = (player && typeof player.x === 'number') ? player.x : 10550;
     const basePlayerY = (player && typeof player.y === 'number') ? player.y : 10550;
@@ -11137,11 +11194,19 @@ window.enableCoop = function(scene) {
 
     window.waterMaskDirty = true;
     window.showModernNotification("Co-op split screen enabled!");
+    if (window.updateCoopButtons) window.updateCoopButtons();
 };
 
 window.disableCoop = function(scene) {
     if (!window.coopActive) return;
     window.coopActive = false;
+
+    // Unlock orientation if supported
+    if (screen.orientation && screen.orientation.unlock) {
+        try {
+            screen.orientation.unlock();
+        } catch (e) {}
+    }
 
     // Remove body class for split screen layout styling
     document.body.classList.remove('coop-active-layout');
@@ -11174,6 +11239,7 @@ window.disableCoop = function(scene) {
 
     window.waterMaskDirty = true;
     window.showModernNotification("Co-op split screen disabled.");
+    if (window.updateCoopButtons) window.updateCoopButtons();
 };
 
 window.getStrictSafeDryLandSpawn = function(enemyObj, targetPos = null) {
