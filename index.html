@@ -6540,8 +6540,15 @@ window.startChallengeBattle = function() {
     window.updateBattleUI();
 };
 
-window.openHelpModal = function() {
-    closeMenuModal();
+window.openHelpModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        window.closeMenuModal(playerNum);
+        window.closeAllModalsForPlayer(playerNum, 'helpModal');
+        if (playerNum === 2) window.p2ActiveModal = 'helpModal';
+        else window.p1ActiveModal = 'helpModal';
+    } else {
+        closeMenuModal();
+    }
 
     // Generate Type Chart HTML
     let allTypes = Object.keys(window.typeChart);
@@ -11896,7 +11903,11 @@ function update() {
             if (!window.rippleEmitter.emitting) window.rippleEmitter.start();
         }
     } else if (typeof player !== 'undefined' && player) {
-        player.setTint(player.originalColor || 0xFFFFFF);
+        if (localStorage.getItem('wildpulse_player_pattern') && localStorage.getItem('wildpulse_player_pattern') !== 'None') {
+            player.setTint(0xffffff);
+        } else {
+            player.setTint(player.originalColor || 0xFFFFFF);
+        }
         player.setAlpha(1.0);
         player.setCrop();
         player.setOrigin(0.5, 0.5);
@@ -11964,6 +11975,20 @@ function update() {
         } else if (window.activeBattlePlayer === 2) {
             p2CanMove = false;
         } else {
+            p1CanMove = false;
+        }
+    }
+
+    // Block movement if modal is open for a player
+    if (window.coopActive) {
+        if (window.p1ActiveModal !== null) {
+            p1CanMove = false;
+        }
+        if (window.p2ActiveModal !== null) {
+            p2CanMove = false;
+        }
+    } else {
+        if (window.isAnyModalOpen && window.isAnyModalOpen()) {
             p1CanMove = false;
         }
     }
@@ -12303,7 +12328,11 @@ function update() {
             window.player2.setOrigin(0.5, 0.4);
             if (window.player2.aura) window.player2.aura.setVisible(false);
         } else {
-            window.player2.setTint(window.player2.originalColor || 0xFFFFFF);
+            if (localStorage.getItem('wildpulse_player2_pattern') && localStorage.getItem('wildpulse_player2_pattern') !== 'None') {
+                window.player2.setTint(0xffffff);
+            } else {
+                window.player2.setTint(window.player2.originalColor || 0xFFFFFF);
+            }
             window.player2.setAlpha(1.0);
             window.player2.setCrop();
             window.player2.setOrigin(0.5, 0.5);
@@ -12606,6 +12635,13 @@ function update() {
                             player.setTint(0xffffff);
                         } else {
                             player.setTint(player.originalColor || 0xFFFFFF);
+                        }
+                    }
+                    if (window.player2) {
+                        if (localStorage.getItem('wildpulse_player2_pattern') && localStorage.getItem('wildpulse_player2_pattern') !== 'None') {
+                            window.player2.setTint(0xffffff);
+                        } else {
+                            window.player2.setTint(window.player2.originalColor || 0xFFFFFF);
                         }
                     }
                     if (typeof creaturesGroup !== 'undefined' && creaturesGroup) creaturesGroup.getChildren().forEach(c => {
