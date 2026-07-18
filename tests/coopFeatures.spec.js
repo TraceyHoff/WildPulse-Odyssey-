@@ -162,4 +162,140 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     });
     expect(isStoreOpenOnReentry).toBe(true);
   });
+
+  test('should trigger trade modal on overlap and prevent re-triggering until leaving the tile', async ({ page }) => {
+    // 1. Enable co-op first so we can trade
+    await page.waitForSelector('#menuBtn', { state: 'visible' });
+    await page.click('#menuBtn');
+    await page.waitForSelector('#menuModal', { state: 'visible' });
+    await page.click('#coopToggleBtn');
+
+    const isCoopActive = await page.evaluate(() => window.coopActive);
+    expect(isCoopActive).toBe(true);
+
+    // 2. Move Player 1 to trade tile (10050, 10150)
+    await page.evaluate(() => {
+      if (window.player) {
+        window.player.x = 10050;
+        window.player.y = 10150;
+      }
+    });
+
+    // Wait for overlap detection
+    await page.waitForTimeout(500);
+
+    // Verify tradeModal is open
+    const isTradeOpen = await page.evaluate(() => {
+      const modal = document.getElementById('tradeModal');
+      return modal && window.getComputedStyle(modal).display !== 'none';
+    });
+    expect(isTradeOpen).toBe(true);
+
+    // Close trade modal
+    await page.evaluate(() => {
+      if (window.closeTradeModal) {
+        window.closeTradeModal();
+      }
+    });
+
+    await page.waitForTimeout(500);
+
+    // Verify tradeModal is closed
+    const isTradeClosed = await page.evaluate(() => {
+      const modal = document.getElementById('tradeModal');
+      return !modal || window.getComputedStyle(modal).display === 'none';
+    });
+    expect(isTradeClosed).toBe(true);
+
+    // Ensure it doesn't reopen while standing on it
+    await page.waitForTimeout(500);
+    const isTradeStillClosed = await page.evaluate(() => {
+      const modal = document.getElementById('tradeModal');
+      return !modal || window.getComputedStyle(modal).display === 'none';
+    });
+    expect(isTradeStillClosed).toBe(true);
+
+    // Leave trade tile
+    await page.evaluate(() => {
+      if (window.player) {
+        window.player.x = 10550;
+        window.player.y = 10550;
+      }
+    });
+
+    await page.waitForTimeout(500);
+
+    // Verify flags reset
+    const hasResetTradeFlags = await page.evaluate(() => {
+      return window.p1TradeClosedWhileOverlapping === false;
+    });
+    expect(hasResetTradeFlags).toBe(true);
+  });
+
+  test('should trigger PvP battle on overlap and prevent re-triggering until leaving the tile', async ({ page }) => {
+    // 1. Enable co-op first
+    await page.waitForSelector('#menuBtn', { state: 'visible' });
+    await page.click('#menuBtn');
+    await page.waitForSelector('#menuModal', { state: 'visible' });
+    await page.click('#coopToggleBtn');
+
+    // 2. Move Player 1 to pvp tile (10150, 10050)
+    await page.evaluate(() => {
+      if (window.player) {
+        window.player.x = 10150;
+        window.player.y = 10050;
+      }
+    });
+
+    // Wait for overlap detection
+    await page.waitForTimeout(500);
+
+    // Verify battleModal is open (which local PvP opens)
+    const isBattleOpen = await page.evaluate(() => {
+      const modal = document.getElementById('battleModal');
+      return modal && window.getComputedStyle(modal).display !== 'none' && window.isLocalPvp === true;
+    });
+    expect(isBattleOpen).toBe(true);
+
+    // Close PvP battle (ends battle)
+    await page.evaluate(() => {
+      if (window.closePvpModal) {
+        window.closePvpModal();
+      }
+      if (window.endBattle) {
+        window.endBattle('run'); // end battle by running
+      }
+    });
+
+    await page.waitForTimeout(500);
+
+    // Verify battleModal/PvP state is closed/false
+    const isLocalPvpActive = await page.evaluate(() => {
+      return window.isLocalPvp;
+    });
+    expect(isLocalPvpActive).toBe(false);
+
+    // Ensure it doesn't reopen while standing on it
+    await page.waitForTimeout(500);
+    const isPvpReopened = await page.evaluate(() => {
+      return window.isLocalPvp;
+    });
+    expect(isPvpReopened).toBe(false);
+
+    // Leave pvp tile
+    await page.evaluate(() => {
+      if (window.player) {
+        window.player.x = 10550;
+        window.player.y = 10550;
+      }
+    });
+
+    await page.waitForTimeout(500);
+
+    // Verify flags reset
+    const hasResetPvpFlags = await page.evaluate(() => {
+      return window.p1PvpClosedWhileOverlapping === false;
+    });
+    expect(hasResetPvpFlags).toBe(true);
+  });
 });
