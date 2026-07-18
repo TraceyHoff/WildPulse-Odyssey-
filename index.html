@@ -113,7 +113,7 @@
             width: 100%;
             box-sizing: border-box;
         }
-        .p2-col {
+        body:not(.coop-active-layout) .p2-col {
             display: none !important; /* Hide Player 2's column by default in single player */
         }
 
@@ -183,10 +183,23 @@
         .coop-column .close-btn {
             display: none !important;
         }
-        body.coop-active-layout .close-btn {
+        body.coop-active-layout .close-btn:not(#battleCloseBtn):not(#closeChallengeBtn) {
             display: none !important;
         }
         body.coop-active-layout .coop-column .close-btn {
+            display: flex !important;
+            position: absolute !important;
+            top: 15px !important;
+            right: 15px !important;
+            z-index: 1100 !important;
+        }
+        body.coop-active-layout #battleCloseBtn {
+            position: absolute !important;
+            top: 15px !important;
+            right: 15px !important;
+            z-index: 1100 !important;
+        }
+        body.coop-active-layout #closeChallengeBtn {
             display: flex !important;
             position: absolute !important;
             top: 15px !important;
@@ -5930,36 +5943,82 @@ collectedCreatures.forEach(c => {
 });
 localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
 
+window.collectedCreatures2.forEach(c => {
+    if (window.assignAbility) window.assignAbility(c);
+    if (c.currentHp === undefined) {
+        c.currentHp = window.getEffectiveStat ? window.getEffectiveStat(c, 'health') : (c.stats ? c.stats.health : 60);
+    }
+});
+localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+
 // Provide a starting creature if the player is new
 if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
-    let randomIndex = Math.floor(Math.random() * window.baseCreatures.length);
-    let starter = JSON.parse(JSON.stringify(window.baseCreatures[randomIndex]));
+    const gen1Creatures = window.baseCreatures.filter(c => !c.generation || c.generation === 1);
+    if (gen1Creatures.length > 0) {
+        let randomIndex = Math.floor(Math.random() * gen1Creatures.length);
+        let starter = JSON.parse(JSON.stringify(gen1Creatures[randomIndex]));
 
-    // Assign IVs
-    if (starter.stats) {
-        for (let stat in starter.stats) {
-            starter.stats[stat] += Math.floor(Math.random() * 32);
+        // Assign IVs
+        if (starter.stats) {
+            for (let stat in starter.stats) {
+                starter.stats[stat] += Math.floor(Math.random() * 32);
+            }
         }
-    }
 
-    // Starter Shiny Chance
-    starter.isShiny = Math.random() < 0.001;
-    if (starter.isShiny && starter.stats) {
-        for (let stat in starter.stats) {
-            starter.stats[stat] = Math.floor(starter.stats[stat] * 1.2);
+        // Starter Shiny Chance
+        starter.isShiny = Math.random() < 0.001;
+        if (starter.isShiny && starter.stats) {
+            for (let stat in starter.stats) {
+                starter.stats[stat] = Math.floor(starter.stats[stat] * 1.2);
+            }
         }
+
+        starter.baseId = starter.id;
+        starter.nature = window.getRandomNature(true);
+        starter.mood = window.getRandomMood(true);
+        starter.level = 1;
+        starter.xp = 0;
+        starter.id = Date.now().toString() + "_starter";
+
+        collectedCreaturesIds.add(starter.id);
+        collectedCreatures.push(starter);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
     }
+}
 
-    starter.baseId = starter.id;
-    starter.nature = window.getRandomNature(true);
-    starter.mood = window.getRandomMood(true);
-    starter.level = 1;
-    starter.xp = 0;
-    starter.id = Date.now().toString() + "_starter";
+// Provide a starting creature if Player 2 is new
+if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
+    const gen1Creatures = window.baseCreatures.filter(c => !c.generation || c.generation === 1);
+    if (gen1Creatures.length > 0) {
+        let randomIndex = Math.floor(Math.random() * gen1Creatures.length);
+        let starter = JSON.parse(JSON.stringify(gen1Creatures[randomIndex]));
 
-    collectedCreaturesIds.add(starter.id);
-    collectedCreatures.push(starter);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+        // Assign IVs
+        if (starter.stats) {
+            for (let stat in starter.stats) {
+                starter.stats[stat] += Math.floor(Math.random() * 32);
+            }
+        }
+
+        // Starter Shiny Chance
+        starter.isShiny = Math.random() < 0.001;
+        if (starter.isShiny && starter.stats) {
+            for (let stat in starter.stats) {
+                starter.stats[stat] = Math.floor(starter.stats[stat] * 1.2);
+            }
+        }
+
+        starter.baseId = starter.id;
+        starter.nature = window.getRandomNature(true);
+        starter.mood = window.getRandomMood(true);
+        starter.level = 1;
+        starter.xp = 0;
+        starter.id = Date.now().toString() + "_starter_p2";
+
+        window.collectedCreaturesIds2.add(starter.id);
+        window.collectedCreatures2.push(starter);
+        localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+    }
 }
 
 window.saveCollected = function(creature, playerNum = 1) {
