@@ -9049,7 +9049,8 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         sprites.push(grass);
 
         let hash = (r * 31 + c * 17) % 100;
-        if (hash < 12 && window.treesGroup) {
+        const isAboveHospital = (r === 99 && c === 100);
+        if (hash < 12 && window.treesGroup && !isAboveHospital) {
             const treeTypes = ['tree_pine', 'tree_oak', 'tree_birch', 'tree_maple', 'tree_cherry', 'tree_willow'];
             const treeType = treeTypes[hash % treeTypes.length];
             const seasonKey = treeType + '_' + (window.currentSeason || 'Summer');
@@ -9517,6 +9518,7 @@ function create() {
     // Player setup
     const savedX = localStorage.getItem('wildpulse_player_x');
     const savedY = localStorage.getItem('wildpulse_player_y');
+    window.isNewGameSession = !savedX;
     let startX = savedX ? parseFloat(savedX) : 105 * 100 + 50; // Updated to new game default coordinate far from hospital/challenge
     let startY = savedY ? parseFloat(savedY) : 105 * 100 + 50;
 
@@ -11161,7 +11163,7 @@ window.closeBattleModal = function() {
             player.x += 100;
         }
     } else if (result === 'loss') {
-        alert('All your creatures fainted! Follow the arrow to the hospital to heal them.');
+        window.showModernNotification('All your creatures fainted! Follow the arrow to the hospital to heal them.', 6000);
         let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10050, y: 10050 });
         if (window.activeBattlePlayer === 2 && window.player2) {
             window.player2.x = safePos.x;
@@ -11322,11 +11324,30 @@ window.enableCoop = function(scene) {
         });
     }
 
+    const isNewGame = !!window.isNewGameSession;
+    if (isNewGame) {
+        if (player) {
+            player.x = 10050;
+            player.y = 9950;
+            if (player.aura) {
+                player.aura.x = 10050;
+                player.aura.y = 9950;
+            }
+            if (window.localPlayerLabel) {
+                window.localPlayerLabel.x = 10050;
+                window.localPlayerLabel.y = 9950 - 30;
+            }
+        }
+        // Save initial coordinates so they persist correctly
+        localStorage.setItem('wildpulse_player_x', '10050');
+        localStorage.setItem('wildpulse_player_y', '9950');
+    }
+
     // 1. Create Player 2 sprite next to Player 1 (or default spawning if player doesn't exist)
-    const basePlayerX = (player && typeof player.x === 'number') ? player.x : 10550;
-    const basePlayerY = (player && typeof player.y === 'number') ? player.y : 10550;
-    const p2X = Phaser.Math.Clamp(basePlayerX + 50, 100, WORLD_SIZE - 100);
-    const p2Y = Phaser.Math.Clamp(basePlayerY, 100, WORLD_SIZE - 100);
+    const basePlayerX = isNewGame ? 10050 : ((player && typeof player.x === 'number') ? player.x : 10550);
+    const basePlayerY = isNewGame ? 9950 : ((player && typeof player.y === 'number') ? player.y : 10550);
+    const p2X = isNewGame ? 10050 : Phaser.Math.Clamp(basePlayerX + 50, 100, WORLD_SIZE - 100);
+    const p2Y = isNewGame ? 9950 : Phaser.Math.Clamp(basePlayerY, 100, WORLD_SIZE - 100);
 
     const p2Color = localStorage.getItem('wildpulse_player2_color') || '#FFA500';
     const p2Pattern = localStorage.getItem('wildpulse_player2_pattern') || 'Stripes';
