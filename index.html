@@ -183,28 +183,49 @@
         .coop-column .close-btn {
             display: none !important;
         }
-        body.coop-active-layout .close-btn:not(#battleCloseBtn):not(#closeChallengeBtn) {
+        body.coop-active-layout #menuModal > .close-btn,
+        body.coop-active-layout #partyModal > .close-btn,
+        body.coop-active-layout #storageModal > .close-btn,
+        body.coop-active-layout #helpModal > .close-btn,
+        body.coop-active-layout #breedingModal > .close-btn,
+        body.coop-active-layout #levelUpModal > .close-btn,
+        body.coop-active-layout #journalModal > .close-btn,
+        body.coop-active-layout #storeModal > .close-btn,
+        body.coop-active-layout #tradeModal > .close-btn,
+        body.coop-active-layout #customizationModal > .close-btn {
             display: none !important;
         }
-        body.coop-active-layout .coop-column .close-btn {
-            display: flex !important;
-            position: absolute !important;
-            top: 15px !important;
-            right: 15px !important;
-            z-index: 1100 !important;
-        }
+        body.coop-active-layout .coop-column .close-btn,
+        body.coop-active-layout .coop-columns .close-btn,
+        body.coop-active-layout #customizationModal .close-btn,
+        body.coop-active-layout #challengeModal .close-btn,
         body.coop-active-layout #battleCloseBtn {
-            position: absolute !important;
-            top: 15px !important;
-            right: 15px !important;
-            z-index: 1100 !important;
-        }
-        body.coop-active-layout #closeChallengeBtn {
             display: flex !important;
             position: absolute !important;
             top: 15px !important;
             right: 15px !important;
             z-index: 1100 !important;
+        }
+
+        /* Hide bottom grey/colored non-close-btn close buttons in co-op mode */
+        body.coop-active-layout .close-party-btn:not(.close-btn),
+        body.coop-active-layout .close-storage-btn:not(.close-btn),
+        body.coop-active-layout .close-help-btn:not(.close-btn),
+        body.coop-active-layout .close-breeding-btn:not(.close-btn),
+        body.coop-active-layout .close-journal-btn:not(.close-btn),
+        body.coop-active-layout .close-store-btn:not(.close-btn),
+        body.coop-active-layout .close-trade-btn:not(.close-btn),
+        body.coop-active-layout .close-levelup-btn:not(.close-btn),
+        body.coop-active-layout #closeCustomizationBtn {
+            display: none !important;
+        }
+
+        /* Trade Modal Specific Overrides under Co-op */
+        body.coop-active-layout #tradeModal {
+            pointer-events: auto !important;
+            background: rgba(0, 0, 0, 0.85) !important;
+            padding: 40px 20px !important;
+            backdrop-filter: blur(25px) !important;
         }
 
         /* Help Modal Specific Overrides under Co-op */
@@ -884,7 +905,8 @@
 </div>
 
 <div id="customizationModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
-    <div style="background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)); padding: 25px 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)); padding: 25px 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
+        <button class="close-btn" id="closeCustomizationBtnTop" aria-label="Close Customization">X</button>
         <h2 style="margin-top: 0;">Customize Character</h2>
         <div id="customPlayerSelection" style="margin-bottom: 20px; display: none; justify-content: center; gap: 15px;">
             <button id="customSelectP1" style="flex: 1; padding: 10px; font-size: 16px; background: linear-gradient(180deg, #42a5f5, #1565c0); border: 2px solid #90caf9; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;">Player 1</button>
@@ -2823,6 +2845,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('closeCustomizationBtn')?.addEventListener('click', () => {
+        window.closeCustomizationModal(window.activeCustomPlayer);
+    });
+    document.getElementById('closeCustomizationBtnTop')?.addEventListener('click', () => {
         window.closeCustomizationModal(window.activeCustomPlayer);
     });
 
