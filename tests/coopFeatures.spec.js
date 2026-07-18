@@ -298,4 +298,91 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     });
     expect(hasResetPvpFlags).toBe(true);
   });
+
+  test('should spawn both Player 1 and Player 2 on the tile directly above the hospital (10050, 9950) when starting a new game in split-screen co-op', async ({ page }) => {
+    // 1. Ensure page loads fresh with clear local storage (already done in beforeEach)
+    await page.waitForSelector('#menuBtn', { state: 'visible' });
+
+    // 2. Open menu and enable co-op
+    await page.click('#menuBtn');
+    await page.waitForSelector('#menuModal', { state: 'visible' });
+    await page.click('#coopToggleBtn');
+
+    // 3. Verify coopActive is true
+    const isCoopActive = await page.evaluate(() => window.coopActive);
+    expect(isCoopActive).toBe(true);
+
+    // 4. Retrieve positions of Player 1 and Player 2
+    const p1Pos = await page.evaluate(() => {
+      return window.player ? { x: window.player.x, y: window.player.y } : null;
+    });
+    const p2Pos = await page.evaluate(() => {
+      return window.player2 ? { x: window.player2.x, y: window.player2.y } : null;
+    });
+
+    expect(p1Pos).not.toBeNull();
+    expect(p2Pos).not.toBeNull();
+
+    // 5. Assert that both players spawned on the tile directly above the hospital tile (10050, 9950)
+    expect(p1Pos.x).toBe(10050);
+    expect(p1Pos.y).toBe(9950);
+    expect(p2Pos.x).toBe(10050);
+    expect(p2Pos.y).toBe(9950);
+
+    // 6. Assert that player coordinates are saved correctly in localStorage
+    const savedX = await page.evaluate(() => localStorage.getItem('wildpulse_player_x'));
+    const savedY = await page.evaluate(() => localStorage.getItem('wildpulse_player_y'));
+    expect(parseFloat(savedX)).toBe(10050);
+    expect(parseFloat(savedY)).toBe(9950);
+  });
+
+  test('should assert that when combat ends with a loss, showModernNotification is called instead of alert', async ({ page }) => {
+    // 1. Wait for page load
+    await page.waitForSelector('#menuBtn', { state: 'visible' });
+
+    // 2. Set up mocks for alert and showModernNotification, then trigger a defeat
+    const result = await page.evaluate(() => {
+      let alertCalled = false;
+      let alertMessage = '';
+      let notificationCalled = false;
+      let notificationMessage = '';
+
+      // Override alert
+      window.alert = (msg) => {
+        alertCalled = true;
+        alertMessage = msg;
+      };
+
+      // Spy on showModernNotification
+      const origShowModernNotification = window.showModernNotification;
+      window.showModernNotification = (msg, dur) => {
+        notificationCalled = true;
+        notificationMessage = msg;
+        if (origShowModernNotification) {
+          origShowModernNotification(msg, dur);
+        }
+      };
+
+      // Mock required battle state variables to trigger loss flow
+      window.inBattle = true;
+      window.pendingBattleResult = 'loss';
+
+      // Call the closeBattleModal function to trigger handleBattleFinish('loss')
+      if (window.closeBattleModal) {
+        window.closeBattleModal();
+      }
+
+      return {
+        alertCalled,
+        alertMessage,
+        notificationCalled,
+        notificationMessage
+      };
+    });
+
+    // 3. Verify that alert was NOT called, and showModernNotification WAS called with correct text
+    expect(result.alertCalled).toBe(false);
+    expect(result.notificationCalled).toBe(true);
+    expect(result.notificationMessage).toContain('All your creatures fainted');
+  });
 });
