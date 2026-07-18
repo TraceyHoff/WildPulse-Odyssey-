@@ -7423,13 +7423,25 @@ window.p2ChallengeClosedWhileOverlapping = false;
 
 let pendingPvpOffer = null;
 
-window.openTradeModal = function() {
-    window.tradeModalClosedFlag = false;
+window.openTradeModal = function(playerCollider) {
     if (window.inBattle) return;
     if (!window.coopActive) {
         window.showModernNotification("Activate 2-Player Co-op to trade creatures!");
         return;
     }
+
+    let playerNum = 1;
+    if (window.coopActive && playerCollider === window.player2) {
+        playerNum = 2;
+    }
+
+    if (playerNum === 2) {
+        if (window.p2TradeClosedWhileOverlapping) return;
+    } else {
+        if (window.p1TradeClosedWhileOverlapping) return;
+    }
+
+    window.tradeModalClosedFlag = false;
 
     const s1 = document.getElementById('tradeCreatureSelectP1');
     s1.innerHTML = '';
@@ -7484,6 +7496,8 @@ window.openTradeModal = function() {
 
 window.closeTradeModal = function() {
     window.tradeModalClosedFlag = true;
+    window.p1TradeClosedWhileOverlapping = true;
+    window.p2TradeClosedWhileOverlapping = true;
     let _m_tradeModal = document.getElementById('tradeModal');
     if (_m_tradeModal) {
         _m_tradeModal.style.display = 'none';
@@ -7590,15 +7604,26 @@ window.closeStoreModal = function(playerNum = 1) {
     }
 };
 
-window.openPvpModal = function() {
+window.openPvpModal = function(playerCollider) {
     if (window.inBattle) return;
     if (!window.coopActive) {
         window.showModernNotification("Activate 2-Player Co-op to initiate local PvP battle!");
         return;
     }
 
-    const hasHealthyP1 = window.collectedCreatures.some(c => !c.stored && c.currentHp > 0);
-    const hasHealthyP2 = window.collectedCreatures2.some(c => !c.stored && c.currentHp > 0);
+    let playerNum = 1;
+    if (window.coopActive && playerCollider === window.player2) {
+        playerNum = 2;
+    }
+
+    if (playerNum === 2) {
+        if (window.p2PvpClosedWhileOverlapping) return;
+    } else {
+        if (window.p1PvpClosedWhileOverlapping) return;
+    }
+
+    const hasHealthyP1 = window.collectedCreatures.some(c => !c.stored && (c.currentHp === undefined || c.currentHp > 0));
+    const hasHealthyP2 = window.collectedCreatures2.some(c => !c.stored && (c.currentHp === undefined || c.currentHp > 0));
 
     if (!hasHealthyP1 || !hasHealthyP2) {
         window.showModernNotification("Both players must have at least one healthy creature to battle!");
@@ -7610,7 +7635,7 @@ window.openPvpModal = function() {
     window.localPvpTurn = 1; // Player 1 chooses first
     window.localPvpActions = {};
 
-    let firstHealthyP1 = window.collectedCreatures.find(c => !c.stored && c.currentHp > 0);
+    let firstHealthyP1 = window.collectedCreatures.find(c => !c.stored && (c.currentHp === undefined || c.currentHp > 0));
     window.currentPlayer = JSON.parse(JSON.stringify(firstHealthyP1));
     window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
     window.currentPlayer.currentHp = window.currentPlayer.currentHp !== undefined ? window.currentPlayer.currentHp : window.currentPlayer.maxHp;
@@ -7618,7 +7643,7 @@ window.openPvpModal = function() {
     window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
     currentPlayer = window.currentPlayer;
 
-    let firstHealthyP2 = window.collectedCreatures2.find(c => !c.stored && c.currentHp > 0);
+    let firstHealthyP2 = window.collectedCreatures2.find(c => !c.stored && (c.currentHp === undefined || c.currentHp > 0));
     window.currentEnemy = JSON.parse(JSON.stringify(firstHealthyP2));
     window.currentEnemy.maxHp = window.getEffectiveStat(window.currentEnemy, 'health');
     window.currentEnemy.currentHp = window.currentEnemy.currentHp !== undefined ? window.currentEnemy.currentHp : window.currentEnemy.maxHp;
@@ -7646,6 +7671,8 @@ window.openPvpModal = function() {
 
 window.closePvpModal = function() {
     window.isLocalPvp = false;
+    window.p1PvpClosedWhileOverlapping = true;
+    window.p2PvpClosedWhileOverlapping = true;
 };
 
 window.sendTradeOffer = function() {
@@ -8975,6 +9002,8 @@ let mapData = window.mapData;
 let obstaclesGroup;
 let hospitalGroup;
 let storeGroup;
+let tradeGroup;
+let pvpGroup;
 let activeTiles = {}; // Track active viewport tiles to cull
 
 window.isInsideAnyActiveCamera = function(x, y, scene, padding) {
@@ -9094,6 +9123,26 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             let cSprite = challengeGroup.create(posX, posY, 'challenge_tile');
             cSprite.setVisible(false);
             sprites.push(cSprite);
+        }
+    } else if (mapData[r][c] === 'trade') {
+        let trade = scene.add.sprite(posX, posY, 'trade_tile');
+        trade.setDepth(-1);
+        sprites.push(trade);
+
+        if (tradeGroup) {
+            let tSprite = tradeGroup.create(posX, posY, 'trade_tile');
+            tSprite.setVisible(false);
+            sprites.push(tSprite);
+        }
+    } else if (mapData[r][c] === 'pvp') {
+        let pvp = scene.add.sprite(posX, posY, 'pvp_tile');
+        pvp.setDepth(-1);
+        sprites.push(pvp);
+
+        if (pvpGroup) {
+            let pSprite = pvpGroup.create(posX, posY, 'pvp_tile');
+            pSprite.setVisible(false);
+            sprites.push(pSprite);
         }
     } else {
         // Add drop shadow
@@ -9283,6 +9332,8 @@ function create() {
     hospitalGroup = this.physics.add.staticGroup();
     storeGroup = this.physics.add.staticGroup();
     challengeGroup = this.physics.add.staticGroup();
+    tradeGroup = this.physics.add.staticGroup();
+    pvpGroup = this.physics.add.staticGroup();
 
     // Procedural generation
 
@@ -9360,9 +9411,11 @@ function create() {
     mapData[100][100] = 'hospital';
     mapData[100][99] = 'challenge';
     // Trade tile directly south
+    mapData[101][100] = 'trade';
     // Store tile next to trade
     mapData[101][101] = 'store';
     // PvP tile directly right of trade
+    mapData[100][101] = 'pvp';
 
     // Calculate water depth distances using 2-pass Manhattan algorithm
     window.waterDist = [];
@@ -9793,6 +9846,8 @@ function create() {
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
     this.physics.add.overlap(player, storeGroup, openStoreModal, null, this);
     this.physics.add.overlap(player, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, this);
+    this.physics.add.overlap(player, tradeGroup, (pCol) => { if (window.openTradeModal) window.openTradeModal(pCol); }, null, this);
+    this.physics.add.overlap(player, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, this);
 
     window.addEventListener('resize', () => {
         if (!game || !game.scale) return;
@@ -11151,6 +11206,8 @@ window.endBattle = function(result) {
             window.localPvpTurn = null;
             window.localPvpActions = {};
             window.localPvpForceSwap = null;
+            window.p1PvpClosedWhileOverlapping = true;
+            window.p2PvpClosedWhileOverlapping = true;
         } else {
             if (window.isPvpBattle) {
                 if (result === 'win') {
@@ -11311,6 +11368,8 @@ window.enableCoop = function(scene) {
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, hospitalGroup, healParty, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, storeGroup, openStoreModal, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, tradeGroup, (pCol) => { if (window.openTradeModal) window.openTradeModal(pCol); }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, scene));
 
     // 2. Set up split screen cameras
     const halfWidth = window.innerWidth / 2;
@@ -11580,6 +11639,62 @@ function update() {
 
     if (!challengeOverlap && (!window.coopActive || !p2ChallengeOverlap)) {
         window.challengeModalClosedFlag = false;
+    }
+
+    let tradeOverlap = false;
+    if (typeof tradeGroup !== 'undefined' && tradeGroup) {
+        tradeGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
+                tradeOverlap = true;
+            }
+        });
+    }
+    if (!tradeOverlap) {
+        window.p1TradeClosedWhileOverlapping = false;
+    }
+
+    let p2TradeOverlap = false;
+    if (window.coopActive && window.player2 && typeof tradeGroup !== 'undefined' && tradeGroup) {
+        tradeGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(window.player2.x, window.player2.y, tile.x, tile.y) < 100) {
+                p2TradeOverlap = true;
+            }
+        });
+    }
+    if (!p2TradeOverlap) {
+        window.p2TradeClosedWhileOverlapping = false;
+    }
+
+    if (!tradeOverlap && (!window.coopActive || !p2TradeOverlap)) {
+        window.tradeModalClosedFlag = false;
+    }
+
+    let pvpOverlap = false;
+    if (typeof pvpGroup !== 'undefined' && pvpGroup) {
+        pvpGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
+                pvpOverlap = true;
+            }
+        });
+    }
+    if (!pvpOverlap) {
+        window.p1PvpClosedWhileOverlapping = false;
+    }
+
+    let p2PvpOverlap = false;
+    if (window.coopActive && window.player2 && typeof pvpGroup !== 'undefined' && pvpGroup) {
+        pvpGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(window.player2.x, window.player2.y, tile.x, tile.y) < 100) {
+                p2PvpOverlap = true;
+            }
+        });
+    }
+    if (!p2PvpOverlap) {
+        window.p2PvpClosedWhileOverlapping = false;
+    }
+
+    if (!pvpOverlap && (!window.coopActive || !p2PvpOverlap)) {
+        window.pvpModalClosedFlag = false;
     }
 
 
