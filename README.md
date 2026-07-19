@@ -177,3 +177,34 @@ WildPulse Odyssey Creature Collecting Game
     - **Interactive Battle Visuals**: Added a procedural rendering engine for combatants in Battles and Challenges, replacing the solid color blocks with dynamically drawn, high-quality creature canvas icons.
     - **Dynamic Feature Drawing**: Automatically depicts physical features (such as wings, tails, and horns/claws) based on the creature's traits/descriptions, uses type-themed background glowing auras and pupils, and overlays golden sparkles for Shiny variants.
     - **Swap Reactive**: Sprites are fully reactive and automatically update during battles when creatures are swapped in or out.
+
+### New Features (v22)
+- **Local Split-Screen Co-Op**:
+    - **True Local Multiplayer**: Introducing an offline 2-player split-screen local co-op mode. Enabling co-op dynamically halves the screen into side-by-side viewports (50vw each) controlled by independent Phaser cameras.
+    - **Targeted Camera Following**: Viewports follow Player 1 and Player 2 respectively, allowing both players to explore the vast world completely independently.
+    - **Dynamic Controls Mapping**: Player 1 utilizes keyboard Arrow keys or Gamepad 0, while Player 2 operates via keyboard WASD or Gamepad 1 (with smart single-gamepad fallbacks).
+    - **Independent Modals & UI Layout**: Player menus, character customization, breeding, and level-ups load in separate side-by-side containers (`.p1-col` and `.p2-col`). Modals block movement controls only for the player interacting with them, ensuring uninterrupted exploration for the other player.
+    - **Split-Screen Touchscreen Support**: Fully optimized multi-touch scanning for mobile/tablet screens. Touches on the left half of the display target Player 1, while the right half maps to Player 2.
+
+### New Features (v23)
+- **Offline PvP Battles & Creature Trading**:
+    - **Interactive Action Tiles**: Added special map action tiles at coordinates `[100][101]` (PvP Battle) and `[101][100]` (Creature Trade) near the central spawn area for immediate split-screen local interaction.
+    - **Local Split-Screen PvP**: Fight against each other in a localized PvP arena. The combat interface displays dual inputs with a turn-based resolution state powered by `localPvpTurn` and `localPvpActions`.
+    - **Local Creature Trading**: Exchange creatures between Player 1 and Player 2 using a dedicated dual-panel `#tradeModal`, with full real-time validation and localized data updating.
+    - **Player 2 Independence & Progression**: Player 2's starting state is initialized with a cloned Gen-1 starter creature, and all of Player 2's creatures and game stats are fully isolated and persisted inside `localStorage`.
+
+### New Features (v24)
+- **Tiered Infinite Challenge System**:
+    - **Infinite Battle Arena**: Access a high-level battle tier challenge by interacting with the golden crown tile located at coordinate `[100][99]`.
+    - **Adaptive Scaling**: Opponent levels scale directly based on your current challenge tier. Higher tiers grant massive scaled XP rewards (`BaseXP * (1 + Tier * 0.1)`).
+    - **Challenge-Exclusive Rules**: Standard creature catching is strictly disabled during challenge battles to preserve the competitive integrity of the gauntlet.
+    - **Progression Persistence**: Your current challenge tier is fully tracked and persisted within `localStorage` under `wildpulse_challenge_tier`.
+
+### New Features (v25)
+- **UI/UX & Engine Polish**:
+    - **Safe Hospital Spawn**: Programmatically restricted players from spawning directly on top of or next to the Hospital or Challenge tiles to prevent accidental modal triggers on startup. New game starts cleanly above the hospital at row 99, column 100.
+    - **Modern Error/Loss Notifications**: Replaced annoying, browser-blocking native `alert()` dialogs on battle loss with sleek, non-blocking HTML overlay notifications using `window.showModernNotification`.
+    - **Responsive Modal Close Buttons**: Converted close buttons to absolute/fixed positioning so they remain pinned and accessible at the top right of the viewport even when scrolling through menus.
+    - **Optimized Weather & Performance**:
+        - Explicitly reset and hide weather status indicators when exiting to the main menu.
+        - Throttled wind direction recalculations, cloud visual updates, and distance-based culling to run on interval-based frames, maintaining a smooth 60 FPS under heavy rendering loads.
