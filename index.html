@@ -2045,7 +2045,7 @@ function escapeHtml(unsafe) {
     <div style="display: flex; justify-content: space-around; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
         <!-- Player 1 Column -->
         <div style="flex: 1; min-width: 220px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #4caf50; box-sizing: border-box;">
-            <h3>Player 1 (P1)</h3>
+            <h3 id="tradeTitleP1">Player 1 (P1)</h3>
             <label>Offer Creature:</label>
             <select id="tradeCreatureSelectP1" style="width: 100%; margin: 10px 0; padding: 8px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 14px;"></select>
             <div id="tradeP1Sprite" style="width: 80px; height: 80px; background: #fff; margin: 10px auto; border-radius: 8px;"></div>
@@ -2053,7 +2053,7 @@ function escapeHtml(unsafe) {
         </div>
         <!-- Player 2 Column -->
         <div style="flex: 1; min-width: 220px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #ff9800; box-sizing: border-box;">
-            <h3>Player 2 (P2)</h3>
+            <h3 id="tradeTitleP2">Player 2 (P2)</h3>
             <label>Offer Creature:</label>
             <select id="tradeCreatureSelectP2" style="width: 100%; margin: 10px 0; padding: 8px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 14px;"></select>
             <div id="tradeP2Sprite" style="width: 80px; height: 80px; background: #fff; margin: 10px auto; border-radius: 8px;"></div>
@@ -2403,6 +2403,13 @@ window.playerParty = collectedCreatures;
 window.cachedPlayerName = localStorage.getItem('wildpulse_player_name') || "";
 window.cachedPlayerColor = localStorage.getItem('wildpulse_player_color') || "#FFFFFF";
 window.cachedPlayerAuraColor = localStorage.getItem('wildpulse_player_aura_color') || "#00FFFF";
+
+window.getP1Name = function() {
+    return window.cachedPlayerName || localStorage.getItem('wildpulse_player_name') || 'Player 1';
+};
+window.getP2Name = function() {
+    return localStorage.getItem('wildpulse_player2_name') || 'Player 2';
+};
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -7443,6 +7450,11 @@ window.openTradeModal = function(playerCollider) {
 
     window.tradeModalClosedFlag = false;
 
+    const tradeTitleP1 = document.getElementById('tradeTitleP1');
+    const tradeTitleP2 = document.getElementById('tradeTitleP2');
+    if (tradeTitleP1) tradeTitleP1.innerText = window.getP1Name();
+    if (tradeTitleP2) tradeTitleP2.innerText = window.getP2Name();
+
     const s1 = document.getElementById('tradeCreatureSelectP1');
     s1.innerHTML = '';
     const p1Party = window.collectedCreatures.filter(c => !c.stored);
@@ -7662,9 +7674,9 @@ window.openPvpModal = function(playerCollider) {
     window.isActionRunning = false;
 
     window.logBattle(`Local PvP Battle Started!`);
-    window.logBattle(`Player 1 sends out <span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span>!`);
-    window.logBattle(`Player 2 sends out <span style="color:#f44336">${window.currentEnemy.nickname || window.currentEnemy.name}</span>!`);
-    window.logBattle(`Player 1's Turn: Choose action!`);
+    window.logBattle(`${window.getP1Name()} sends out <span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span>!`);
+    window.logBattle(`${window.getP2Name()} sends out <span style="color:#f44336">${window.currentEnemy.nickname || window.currentEnemy.name}</span>!`);
+    window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
 
     window.updateBattleUI();
 };
@@ -10617,7 +10629,7 @@ window.doBattleSwap = function(newCreature) {
                 }
             }
             window.closeBattleSwapModal();
-            window.logBattle(`Player 1 swapped in ${newCreature.nickname || newCreature.name}!`);
+            window.logBattle(`${window.getP1Name()} swapped in ${newCreature.nickname || newCreature.name}!`);
 
             window.currentPlayer = JSON.parse(JSON.stringify(newCreature));
             currentPlayer = window.currentPlayer;
@@ -10632,13 +10644,13 @@ window.doBattleSwap = function(newCreature) {
                 window.localPvpTurn = 1;
                 window.localPvpActions = {};
                 window.isActionRunning = false;
-                window.logBattle(`Player 1's Turn: Choose action!`);
+                window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
                 window.updateBattleUI();
             } else {
                 window.localPvpActions.p1 = 'swap';
                 window.localPvpTurn = 2;
                 window.isActionRunning = false;
-                window.logBattle(`Player 2's Turn: Choose action!`);
+                window.logBattle(`${window.getP2Name()}'s Turn: Choose action!`);
                 window.updateBattleUI();
             }
             return;
@@ -10653,7 +10665,7 @@ window.doBattleSwap = function(newCreature) {
                 }
             }
             window.closeBattleSwapModal();
-            window.logBattle(`Player 2 swapped in ${newCreature.nickname || newCreature.name}!`);
+            window.logBattle(`${window.getP2Name()} swapped in ${newCreature.nickname || newCreature.name}!`);
 
             window.currentEnemy = JSON.parse(JSON.stringify(newCreature));
             currentEnemy = window.currentEnemy;
@@ -10668,7 +10680,7 @@ window.doBattleSwap = function(newCreature) {
                 window.localPvpTurn = 1;
                 window.localPvpActions = {};
                 window.isActionRunning = false;
-                window.logBattle(`Player 1's Turn: Choose action!`);
+                window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
                 window.updateBattleUI();
             } else {
                 window.localPvpActions.p2 = 'swap';
@@ -10684,7 +10696,7 @@ window.doBattleSwap = function(newCreature) {
                                 window.localPvpTurn = 1;
                                 window.localPvpActions = {};
                                 window.isActionRunning = false;
-                                window.logBattle(`Player 1's Turn: Choose action!`);
+                                window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
                                 window.updateBattleUI();
                             });
                         }, 1000);
@@ -10694,7 +10706,7 @@ window.doBattleSwap = function(newCreature) {
                     window.localPvpTurn = 1;
                     window.localPvpActions = {};
                     window.isActionRunning = false;
-                    window.logBattle(`Player 1's Turn: Choose action!`);
+                    window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
                     window.updateBattleUI();
                 }
             }
@@ -10895,7 +10907,7 @@ window.executeLocalPvpRound = function() {
             window.localPvpTurn = 1;
             window.localPvpActions = {};
             window.isActionRunning = false;
-            window.logBattle(`Player 1's Turn: Choose action!`);
+            window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
             window.updateBattleUI();
         });
     };
@@ -10936,13 +10948,13 @@ function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
 
         let next = window.collectedCreatures.find(c => !c.stored && c.currentHp > 0);
         if (next) {
-            window.logBattle(`Player 1's creature fainted! Please swap in a healthy creature.`);
+            window.logBattle(`${window.getP1Name()}'s creature fainted! Please swap in a healthy creature.`);
             window.localPvpForceSwap = 1;
             window.playerParty = window.collectedCreatures;
             window.isActionRunning = false;
             window.openBattleSwapModal();
         } else {
-            window.logBattle(`Player 1 has no healthy creatures left! Player 2 wins!`);
+            window.logBattle(`${window.getP1Name()} has no healthy creatures left! ${window.getP2Name()} wins!`);
             window.endBattle('loss');
         }
     } else if (window.currentEnemy.currentHp <= 0) {
@@ -10955,13 +10967,13 @@ function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
 
         let next = window.collectedCreatures2.find(c => !c.stored && c.currentHp > 0);
         if (next) {
-            window.logBattle(`Player 2's creature fainted! Please swap in a healthy creature.`);
+            window.logBattle(`${window.getP2Name()}'s creature fainted! Please swap in a healthy creature.`);
             window.localPvpForceSwap = 2;
             window.playerParty = window.collectedCreatures2;
             window.isActionRunning = false;
             window.openBattleSwapModal();
         } else {
-            window.logBattle(`Player 2 has no healthy creatures left! Player 1 wins!`);
+            window.logBattle(`${window.getP2Name()} has no healthy creatures left! ${window.getP1Name()} wins!`);
             window.endBattle('win');
         }
     } else {
@@ -10982,7 +10994,7 @@ window.handlePlayerTurn = function(action) {
                 return;
             }
             if (action === 'run') {
-                window.logBattle(`Player 1 fled! Player 2 wins!`);
+                window.logBattle(`${window.getP1Name()} fled! ${window.getP2Name()} wins!`);
                 window.endBattle('loss');
                 return;
             }
@@ -10996,7 +11008,7 @@ window.handlePlayerTurn = function(action) {
             window.localPvpActions.p1 = action;
             window.localPvpTurn = 2;
             window.isActionRunning = false;
-            window.logBattle(`Player 2's Turn: Choose action!`);
+            window.logBattle(`${window.getP2Name()}'s Turn: Choose action!`);
             window.updateBattleUI();
             return;
         } else if (window.localPvpTurn === 2) {
@@ -11006,7 +11018,7 @@ window.handlePlayerTurn = function(action) {
                 return;
             }
             if (action === 'run') {
-                window.logBattle(`Player 2 fled! Player 1 wins!`);
+                window.logBattle(`${window.getP2Name()} fled! ${window.getP1Name()} wins!`);
                 window.endBattle('win');
                 return;
             }
@@ -11200,9 +11212,9 @@ window.endBattle = function(result) {
             }
 
             if (result === 'win') {
-                window.logBattle(`Player 1 wins!`);
+                window.logBattle(`${window.getP1Name()} wins!`);
             } else if (result === 'loss') {
-                window.logBattle(`Player 2 wins!`);
+                window.logBattle(`${window.getP2Name()} wins!`);
             }
             window.isLocalPvp = false;
             window.localPvpTurn = null;
