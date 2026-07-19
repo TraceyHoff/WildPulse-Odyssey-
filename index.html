@@ -46,6 +46,46 @@
             }
         }
 
+        @keyframes creatureIdleBreath {
+            0% {
+                transform: translateY(0px) scale(1) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-2px) scale(1.02) rotate(1deg);
+            }
+            100% {
+                transform: translateY(0px) scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes creatureIdleFloat {
+            0% {
+                transform: translateY(0px) scale(1) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-3px) scale(1.01) rotate(-1deg);
+            }
+            100% {
+                transform: translateY(0px) scale(1) rotate(0deg);
+            }
+        }
+
+        #pSprite canvas,
+        #tradeP1Sprite canvas,
+        .creature-sprite-container canvas,
+        .party-member .creature-sprite-container canvas,
+        .breeding-parent-slot canvas {
+            animation: creatureIdleBreath 3.5s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        #eSprite canvas,
+        #tradeP2Sprite canvas,
+        .storage-grid canvas {
+            animation: creatureIdleFloat 4s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
         /* Tooltips */
         #tooltip {
             position: absolute;
@@ -4837,6 +4877,67 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.beginPath();
             ctx.ellipse(50, 50, 44, 18, Math.PI/12, 0, Math.PI*1.8);
             ctx.stroke();
+        } else if (uFeat.includes('angelic') || uFeat.includes('wings') || uFeat.includes('butterfly')) {
+            // Draw large glowing wings outline in the background
+            ctx.strokeStyle = featCol;
+            ctx.lineWidth = 3;
+            ctx.shadowColor = featCol;
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            // Left wing outline
+            ctx.moveTo(35, 45);
+            ctx.quadraticCurveTo(10, 15, 12, 35);
+            ctx.quadraticCurveTo(15, 55, 35, 50);
+            // Right wing outline
+            ctx.moveTo(65, 45);
+            ctx.quadraticCurveTo(90, 15, 88, 35);
+            ctx.quadraticCurveTo(85, 55, 65, 50);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        } else if (uFeat.includes('aurora') || uFeat.includes('ribbon') || uFeat.includes('wave')) {
+            // Neon glowing wavy lines in the background
+            ctx.strokeStyle = featCol;
+            ctx.lineWidth = 4;
+            ctx.globalAlpha = 0.55;
+            ctx.beginPath();
+            ctx.moveTo(10, 30);
+            ctx.bezierCurveTo(30, 10, 70, 50, 90, 30);
+            ctx.moveTo(10, 50);
+            ctx.bezierCurveTo(30, 30, 70, 70, 90, 50);
+            ctx.stroke();
+        } else if (uFeat.includes('crystal growths') || uFeat.includes('geode') || uFeat.includes('shards') || uFeat.includes('growths') || uFeat.includes('coral')) {
+            // Sharp geode spikes growing from sides
+            ctx.fillStyle = featCol;
+            ctx.strokeStyle = '#222222';
+            ctx.lineWidth = 1.5;
+            // Left shards
+            ctx.beginPath();
+            ctx.moveTo(25, 40); ctx.lineTo(10, 35); ctx.lineTo(20, 50); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(22, 55); ctx.lineTo(8, 60); ctx.lineTo(18, 65); ctx.closePath(); ctx.fill(); ctx.stroke();
+            // Right shards
+            ctx.beginPath();
+            ctx.moveTo(75, 40); ctx.lineTo(90, 35); ctx.lineTo(80, 50); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(78, 55); ctx.lineTo(92, 60); ctx.lineTo(82, 65); ctx.closePath(); ctx.fill(); ctx.stroke();
+        } else if (uFeat.includes('rings') || uFeat.includes('saturn') || uFeat.includes('orbital')) {
+            // Planetary orbiting ring
+            ctx.strokeStyle = featCol;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.ellipse(50, 50, 48, 12, Math.PI / 6, 0, Math.PI * 2);
+            ctx.stroke();
+        } else if (uFeat.includes('volcano') || uFeat.includes('geyser') || uFeat.includes('smoke-stacks') || uFeat.includes('chimneys')) {
+            // Steam columns rising from the back
+            ctx.fillStyle = 'rgba(200, 200, 200, 0.4)';
+            ctx.beginPath();
+            // Stack 1
+            ctx.arc(38, 25, 8, 0, Math.PI*2);
+            ctx.arc(35, 15, 10, 0, Math.PI*2);
+            // Stack 2
+            ctx.arc(62, 25, 8, 0, Math.PI*2);
+            ctx.arc(65, 15, 10, 0, Math.PI*2);
+            ctx.fill();
         }
         ctx.restore();
     }
@@ -4936,6 +5037,94 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.moveTo(35, 45); ctx.quadraticCurveTo(15, 20, 10, 40); ctx.quadraticCurveTo(25, 45, 15, 60); ctx.quadraticCurveTo(35, 55, 35, 45);
             ctx.moveTo(65, 45); ctx.quadraticCurveTo(85, 20, 90, 40); ctx.quadraticCurveTo(75, 45, 85, 60); ctx.quadraticCurveTo(65, 55, 65, 45);
             ctx.fill();
+        } else if (wingsVal.includes('butterfly') || wingsVal.includes('moth') || wingsVal.includes('psychedelic')) {
+            // Elegant butterfly wing shape with circular patterns
+            const drawButterfly = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                // Upper lobe
+                ctx.ellipse(24, 35, 14, 22, -Math.PI / 6, 0, Math.PI * 2);
+                // Lower lobe
+                ctx.ellipse(26, 52, 9, 14, -Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+                // Accent spot
+                ctx.fillStyle = '#000000';
+                ctx.beginPath(); ctx.arc(22, 35, 3.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(21, 34, 1.2, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            };
+            drawButterfly(true);
+            ctx.fillStyle = wingsCol; // Reset fillStyle
+            drawButterfly(false);
+        } else if (wingsVal.includes('angelic') || wingsVal.includes('divine') || wingsVal.includes('seraph')) {
+            // Three stacked feather layers
+            const drawSeraphWing = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                ctx.ellipse(28, 36, 11, 22, -Math.PI / 4, 0, Math.PI * 2);
+                ctx.ellipse(22, 44, 9, 18, -Math.PI / 3, 0, Math.PI * 2);
+                ctx.ellipse(18, 52, 7, 14, -Math.PI / 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            };
+            drawSeraphWing(true);
+            drawSeraphWing(false);
+        } else if (wingsVal.includes('shadowy') || wingsVal.includes('void') || wingsVal.includes('spectral')) {
+            // Wispy smoky wings
+            ctx.save();
+            ctx.globalAlpha = 0.45;
+            ctx.fillStyle = '#120a2a';
+            const drawShadowWing = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                ctx.moveTo(35, 45);
+                ctx.bezierCurveTo(15, 20, 5, 45, 12, 62);
+                ctx.bezierCurveTo(20, 52, 28, 58, 35, 45);
+                ctx.fill();
+                ctx.restore();
+            };
+            drawShadowWing(true);
+            drawShadowWing(false);
+            ctx.restore();
+        } else if (wingsVal.includes('clockwork') || wingsVal.includes('steampunk') || wingsVal.includes('geared')) {
+            // Segmented bronze plates and gear joints
+            ctx.fillStyle = '#cd7f32';
+            ctx.strokeStyle = '#3e2723';
+            ctx.lineWidth = 1.5;
+            const drawGearedWing = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                // Gear joint
+                ctx.beginPath(); ctx.arc(33, 45, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                // Metal strut
+                ctx.beginPath();
+                ctx.moveTo(33, 45); ctx.lineTo(12, 32); ctx.lineTo(15, 38); ctx.closePath();
+                ctx.fill(); ctx.stroke();
+                // Blade plates
+                ctx.fillStyle = '#b87333';
+                ctx.beginPath();
+                ctx.moveTo(22, 38); ctx.lineTo(8, 28); ctx.lineTo(16, 42); ctx.lineTo(5, 38); ctx.closePath();
+                ctx.fill(); ctx.stroke();
+                ctx.restore();
+            };
+            drawGearedWing(true);
+            drawGearedWing(false);
         } else {
             // Standard rounded elegant wings
             ctx.beginPath();
@@ -5019,6 +5208,80 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.arc(tx, ty, 6 - i, 0, Math.PI * 2);
                 ctx.fill();
             }
+        } else if (tailVal.includes('scythe') || tailVal.includes('blade') || tailVal.includes('crescent-blade')) {
+            // Sharp curved metal crescent blade at the end
+            ctx.strokeStyle = '#b0bec5';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(50, 65);
+            ctx.quadraticCurveTo(68, 70, 72, 60);
+            ctx.stroke();
+            // Blade
+            ctx.fillStyle = '#eceff1';
+            ctx.strokeStyle = '#37474f';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(72, 60);
+            ctx.quadraticCurveTo(88, 48, 85, 75);
+            ctx.quadraticCurveTo(78, 65, 72, 60);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        } else if (tailVal.includes('scorpion') || tailVal.includes('stinger') || tailVal.includes('venomous')) {
+            // Jointed curved segment tail ending in needle stinger
+            ctx.strokeStyle = bodyColor;
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.moveTo(50, 65);
+            ctx.quadraticCurveTo(72, 75, 78, 55); // high arc
+            ctx.stroke();
+            // Stinger bulb
+            ctx.fillStyle = featCol;
+            ctx.beginPath();
+            ctx.arc(78, 55, 6, 0, Math.PI * 2);
+            ctx.fill();
+            // Sharp point
+            ctx.strokeStyle = '#111';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(78, 55);
+            ctx.quadraticCurveTo(86, 51, 88, 44);
+            ctx.stroke();
+        } else if (tailVal.includes('bulb') || tailVal.includes('lantern') || tailVal.includes('glowing-pod')) {
+            // Dextrous cord with a glowing bulb
+            ctx.strokeStyle = '#3e2723';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(50, 65);
+            ctx.quadraticCurveTo(70, 75, 75, 75);
+            ctx.stroke();
+            // Lantern
+            ctx.fillStyle = featCol;
+            ctx.shadowColor = featCol;
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(75, 75, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+            // Metal cap
+            ctx.fillStyle = '#795548';
+            ctx.fillRect(72, 71, 6, 3);
+        } else if (tailVal.includes('feather-fan') || tailVal.includes('peacock') || tailVal.includes('display')) {
+            // Beautiful peacock style fan plumes
+            ctx.fillStyle = tailCol;
+            for (let i = -2; i <= 2; i++) {
+                let angle = (i * Math.PI) / 8;
+                let tx = 50 + Math.cos(angle) * 28;
+                let ty = 65 + Math.sin(angle) * 28;
+                ctx.beginPath();
+                ctx.ellipse(tx, ty, 5, 12, angle + Math.PI/2, 0, Math.PI * 2);
+                ctx.fill();
+                // Eye spot inside feather
+                ctx.fillStyle = featCol;
+                ctx.beginPath();
+                ctx.arc(tx + Math.cos(angle)*5, ty + Math.sin(angle)*5, 2.5, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = tailCol; // Restore
+            }
         } else {
             // Standard smooth scaly/classic curved tail
             ctx.beginPath();
@@ -5094,6 +5357,55 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         ctx.lineTo(58, 70);
         ctx.closePath();
         ctx.fill();
+    } else if (limbsVal.includes('wheels') || limbsVal.includes('treads') || limbsVal.includes('rollers')) {
+        // Double steel/rubber wheels
+        ctx.fillStyle = '#424242';
+        ctx.strokeStyle = '#90a4ae';
+        ctx.lineWidth = 2.5;
+        // Left wheel
+        ctx.beginPath(); ctx.arc(36, 75, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(36, 75, 2, 0, Math.PI * 2); ctx.fill();
+        // Right wheel
+        ctx.fillStyle = '#424242';
+        ctx.beginPath(); ctx.arc(64, 75, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(64, 75, 2, 0, Math.PI * 2); ctx.fill();
+    } else if (limbsVal.includes('roots') || limbsVal.includes('vines') || limbsVal.includes('botanical')) {
+        // Plant-like branch roots clutching the ground
+        ctx.strokeStyle = '#5d4037';
+        ctx.lineWidth = 3;
+        // Root 1
+        ctx.beginPath(); ctx.moveTo(35, 68); ctx.quadraticCurveTo(28, 76, 24, 82); ctx.stroke();
+        // Root 2
+        ctx.beginPath(); ctx.moveTo(42, 68); ctx.quadraticCurveTo(45, 78, 48, 83); ctx.stroke();
+        // Root 3
+        ctx.beginPath(); ctx.moveTo(58, 68); ctx.quadraticCurveTo(55, 78, 52, 83); ctx.stroke();
+        // Root 4
+        ctx.beginPath(); ctx.moveTo(65, 68); ctx.quadraticCurveTo(72, 76, 76, 82); ctx.stroke();
+    } else if (limbsVal.includes('cloud-puff') || limbsVal.includes('ghostly-wisp')) {
+        // soft white/purple puff cloud trail underneath
+        ctx.fillStyle = featCol;
+        ctx.globalAlpha = 0.65;
+        ctx.beginPath();
+        ctx.arc(38, 74, 9, 0, Math.PI * 2);
+        ctx.arc(50, 76, 12, 0, Math.PI * 2);
+        ctx.arc(62, 74, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+    } else if (limbsVal.includes('fins') || limbsVal.includes('flippers') || limbsVal.includes('swimming')) {
+        // Wide flippers on the sides of the base
+        ctx.fillStyle = bodyColor;
+        ctx.strokeStyle = '#222222';
+        ctx.lineWidth = 1.5;
+        // Left flipper
+        ctx.beginPath();
+        ctx.ellipse(32, 70, 6, 14, -Math.PI / 3, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        // Right flipper
+        ctx.beginPath();
+        ctx.ellipse(68, 70, 6, 14, Math.PI / 3, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
     } else if (limbsVal !== 'none' && limbsVal !== '') {
         // Default small generic feet ovals
         ctx.beginPath();
@@ -5109,12 +5421,26 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     // Determine dimensions based on body size
     let rx = 22;
     let ry = 22;
-    if (bSize.includes('colossal') || bSize.includes('massive') || bSize.includes('towering') || bSize.includes('immense') || bSize.includes('large')) {
+    if (bSize.includes('colossal') || bSize.includes('massive') || bSize.includes('towering') || bSize.includes('immense') || bSize.includes('large') || bSize.includes('giant') || bSize.includes('titan')) {
         rx = 27;
         ry = 27;
-    } else if (bSize.includes('tiny') || bSize.includes('miniscule') || bSize.includes('diminutive') || bSize.includes('small') || bSize.includes('petite')) {
+        if (bSize.includes('giant') || bSize.includes('titan')) {
+            rx = 32;
+            ry = 32;
+        }
+    } else if (bSize.includes('tiny') || bSize.includes('miniscule') || bSize.includes('diminutive') || bSize.includes('small') || bSize.includes('petite') || bSize.includes('microscopic') || bSize.includes('nano')) {
         rx = 16;
         ry = 16;
+        if (bSize.includes('microscopic') || bSize.includes('nano')) {
+            rx = 13;
+            ry = 13;
+        }
+    } else if (bSize.includes('elongated') || bSize.includes('serpentine')) {
+        rx = 14;
+        ry = 32;
+    } else if (bSize.includes('flat') || bSize.includes('disk-like') || bSize.includes('pancake')) {
+        rx = 32;
+        ry = 12;
     } else if (bSize.includes('slender') || bSize.includes('graceful')) {
         rx = 18;
         ry = 25;
@@ -5129,6 +5455,41 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         if (bType.includes('rounded') || bType.includes('rotund')) {
             let r = Math.max(rx, ry);
             ctx.arc(50, 50, r, 0, Math.PI * 2);
+        } else if (bType.includes('star-shaped') || bType.includes('celestial') || bType.includes('astral')) {
+            // Draw a beautiful 5-pointed star body
+            let spikes = 5;
+            let outerRad = Math.max(rx, ry);
+            let innerRad = outerRad * 0.4;
+            for (let i = 0; i < spikes * 2; i++) {
+                let angle = (i * Math.PI) / spikes - Math.PI / 2;
+                let r = (i % 2 === 0) ? outerRad : innerRad;
+                ctx.lineTo(50 + Math.cos(angle) * r, 50 + Math.sin(angle) * r);
+            }
+            ctx.closePath();
+        } else if (bType.includes('diamond') || bType.includes('crystalline') || bType.includes('prism') || bType.includes('geode')) {
+            // Rhombus diamond shape
+            ctx.moveTo(50, 50 - ry);
+            ctx.lineTo(50 + rx, 50);
+            ctx.lineTo(50, 50 + ry);
+            ctx.lineTo(50 - rx, 50);
+            ctx.closePath();
+        } else if (bType.includes('triangle') || bType.includes('pyramid') || bType.includes('conical')) {
+            // Triangle with rounded base vertices
+            ctx.moveTo(50, 50 - ry);
+            ctx.lineTo(50 + rx, 50 + ry);
+            ctx.lineTo(50 - rx, 50 + ry);
+            ctx.closePath();
+        } else if (bType.includes('heart-shaped') || bType.includes('amorous')) {
+            // Heart shape
+            ctx.moveTo(50, 50 + ry * 0.7);
+            ctx.bezierCurveTo(50 - rx * 1.3, 50 - ry * 0.5, 50 - rx * 0.6, 50 - ry * 1.3, 50, 50 - ry * 0.5);
+            ctx.bezierCurveTo(50 + rx * 0.6, 50 - ry * 1.3, 50 + rx * 1.3, 50 - ry * 0.5, 50, 50 + ry * 0.7);
+            ctx.closePath();
+        } else if (bType.includes('crescent') || bType.includes('moon-like')) {
+            // Crescent moon body
+            ctx.arc(46, 50, rx, -Math.PI / 1.7, Math.PI / 1.7, false);
+            ctx.arc(54 - rx * 0.2, 50, rx * 0.8, Math.PI / 2, -Math.PI / 2, true);
+            ctx.closePath();
         } else if (bType.includes('blocky') || bType.includes('angular') || bType.includes('stout')) {
             // Rounded rectangle/box body
             ctx.roundRect(50 - rx, 50 - ry, rx * 2, ry * 2, 8);
@@ -5263,6 +5624,49 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         sheen.addColorStop(1, 'rgba(0,0,0,0.25)');
         ctx.fillStyle = sheen;
         ctx.fillRect(0,0,100,100);
+    } else if (patternVal.includes('spiral') || patternVal.includes('hypnotic') || patternVal.includes('vortex')) {
+        // Spiraling vortex line
+        ctx.strokeStyle = featCol;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let theta = 0; theta < 25; theta += 0.2) {
+            let r = theta * 0.8;
+            if (r > rx) break;
+            let px = 50 + Math.cos(theta) * r;
+            let py = 50 + Math.sin(theta) * r;
+            if (theta === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+    } else if (patternVal.includes('zigzag') || patternVal.includes('lightning-bolts')) {
+        // Jagged tech lines
+        ctx.strokeStyle = featCol;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(50 - rx, 50 - ry * 0.3); ctx.lineTo(50 - rx * 0.3, 50 - ry * 0.1); ctx.lineTo(50 + rx * 0.2, 50 + ry * 0.1); ctx.lineTo(50 + rx, 50 + ry * 0.3);
+        ctx.moveTo(50 - rx, 50 + ry * 0.3); ctx.lineTo(50 - rx * 0.2, 50 - ry * 0.1); ctx.lineTo(50 + rx * 0.3, 50 + ry * 0.2); ctx.lineTo(50 + rx, 50 - ry * 0.3);
+        ctx.stroke();
+    } else if (patternVal.includes('heart') || patternVal.includes('love-spots')) {
+        // Scattered mini heart shapes
+        ctx.fillStyle = '#ff4081';
+        for (let i = 0; i < 5; i++) {
+            let hx = 50 + Math.sin(i * 1.5) * (rx * 0.5);
+            let hy = 50 + Math.cos(i * 2.1) * (ry * 0.5);
+            ctx.beginPath();
+            ctx.arc(hx - 2, hy, 2, 0, Math.PI * 2);
+            ctx.arc(hx + 2, hy, 2, 0, Math.PI * 2);
+            ctx.moveTo(hx - 4, hy);
+            ctx.lineTo(hx, hy + 4);
+            ctx.lineTo(hx + 4, hy);
+            ctx.closePath();
+            ctx.fill();
+        }
+    } else if (patternVal.includes('ringed') || patternVal.includes('target') || patternVal.includes('bullseye')) {
+        // Concentric target rings
+        ctx.strokeStyle = featCol;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(50, 50, rx * 0.3, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(50, 50, rx * 0.6, 0, Math.PI * 2); ctx.stroke();
     }
 
     // Draw Skin Textures
@@ -5310,6 +5714,40 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         ctx.beginPath();
         ctx.arc(50, 50, rx * 0.5, 0, Math.PI * 2);
         ctx.fill();
+    } else if (skinVal.includes('crystalline') || skinVal.includes('faceted') || skinVal.includes('diamond-hide')) {
+        // Diamond facets
+        ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        // Inner facets
+        ctx.moveTo(50, 50 - ry); ctx.lineTo(50, 50 + ry);
+        ctx.moveTo(50 - rx, 50); ctx.lineTo(50 + rx, 50);
+        ctx.moveTo(50 - rx * 0.7, 50 - ry * 0.7); ctx.lineTo(50 + rx * 0.7, 50 + ry * 0.7);
+        ctx.moveTo(50 + rx * 0.7, 50 - ry * 0.7); ctx.lineTo(50 - rx * 0.7, 50 + ry * 0.7);
+        ctx.stroke();
+    } else if (skinVal.includes('circuitry') || skinVal.includes('digital') || skinVal.includes('matrix')) {
+        // Glow tech circuitry lines
+        ctx.strokeStyle = '#00e5ff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(50, 30); ctx.lineTo(50, 70); ctx.lineTo(35, 70);
+        ctx.moveTo(40, 45); ctx.lineTo(65, 45); ctx.lineTo(65, 60);
+        ctx.stroke();
+        // Tech nodes
+        ctx.fillStyle = '#00e5ff';
+        ctx.beginPath(); ctx.arc(50, 30, 2, 0, Math.PI*2); ctx.arc(35, 70, 2, 0, Math.PI*2); ctx.arc(65, 60, 2, 0, Math.PI*2); ctx.fill();
+    } else if (skinVal.includes('bubble') || skinVal.includes('liquid') || skinVal.includes('lava-lamp')) {
+        // Soft bubbles
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 6; i++) {
+            let bx = 50 + Math.sin(i * 2.3) * (rx * 0.4);
+            let by = 50 + Math.cos(i * 1.8) * (ry * 0.4);
+            ctx.beginPath();
+            ctx.arc(bx, by, 3 + (i % 3), 0, Math.PI*2);
+            ctx.fill(); ctx.stroke();
+        }
     }
 
     ctx.restore(); // end of clipping block
@@ -5396,6 +5834,59 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.quadraticCurveTo(42, hy - 12, 50, hy + 4);
             ctx.closePath();
             ctx.fill(); ctx.stroke();
+        } else if (hornVal.includes('unicorn') || hornVal.includes('spiral-lance')) {
+            // A single long spiraling horn in the center
+            ctx.beginPath();
+            ctx.moveTo(47, hy + 5);
+            ctx.lineTo(50, hy - 25);
+            ctx.lineTo(53, hy + 5);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+            // Spiral ribs
+            ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(48, hy - 5); ctx.lineTo(52, hy - 8);
+            ctx.moveTo(49, hy - 15); ctx.lineTo(51, hy - 18);
+            ctx.stroke();
+        } else if (hornVal.includes('crown') || hornVal.includes('diadem') || hornVal.includes('regal')) {
+            // A beautiful 3-pointed crown
+            ctx.fillStyle = '#ffd700';
+            ctx.strokeStyle = '#3e2723';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(40, hy + 5);
+            ctx.lineTo(36, hy - 8);
+            ctx.lineTo(44, hy - 2);
+            ctx.lineTo(50, hy - 12); // center point
+            ctx.lineTo(56, hy - 2);
+            ctx.lineTo(64, hy - 8);
+            ctx.lineTo(60, hy + 5);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+            // Little jewels on points
+            ctx.fillStyle = featCol;
+            ctx.beginPath();
+            ctx.arc(36, -8 + hy, 1.8, 0, Math.PI*2);
+            ctx.arc(50, -12 + hy, 1.8, 0, Math.PI*2);
+            ctx.arc(64, -8 + hy, 1.8, 0, Math.PI*2);
+            ctx.fill();
+        } else if (hornVal.includes('ram-horns') || hornVal.includes('curling') || hornVal.includes('curled')) {
+            // Large circular curled ram horns on both sides
+            const drawRamHorn = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                ctx.arc(50 - rx * 0.7, hy + 3, 10, -Math.PI / 2, Math.PI, false);
+                ctx.quadraticCurveTo(50 - rx * 0.7 - 12, hy + 13, 50 - rx * 0.7 - 4, hy + 5);
+                ctx.stroke();
+                ctx.restore();
+            };
+            drawRamHorn(true);
+            drawRamHorn(false);
         } else if (hornVal.includes('tusks')) {
             // Big curved tusks protruding down from sides of head
             ctx.beginPath();
@@ -5426,6 +5917,42 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     ctx.save();
 
     const drawSingleEye = (ex, ey, eRad, style) => {
+        if (style.includes('visored') || style.includes('cyborg') || style.includes('laser')) {
+            // Cyborg glowing line
+            ctx.fillStyle = featCol;
+            ctx.shadowColor = featCol;
+            ctx.shadowBlur = 6;
+            ctx.fillRect(ex - eRad * 1.5, ey - 2, eRad * 3, 4);
+            ctx.shadowBlur = 0;
+            return;
+        } else if (style.includes('xd-eyes') || style.includes('cross') || style.includes('dead')) {
+            // Dramatic X eyes
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2.5;
+            // Left stroke of X
+            ctx.beginPath(); ctx.moveTo(ex - eRad, ey - eRad); ctx.lineTo(ex + eRad, ey + eRad); ctx.stroke();
+            // Right stroke of X
+            ctx.beginPath(); ctx.moveTo(ex + eRad, ey - eRad); ctx.lineTo(ex - eRad, ey + eRad); ctx.stroke();
+            return;
+        } else if (style.includes('anime') || style.includes('sparkling-cute') || style.includes('sparkling')) {
+            // Huge gorgeous sparkling anime eyes
+            ctx.fillStyle = '#000000';
+            ctx.beginPath(); ctx.arc(ex, ey, eRad * 1.3, 0, Math.PI * 2); ctx.fill();
+            // Colored iris
+            ctx.fillStyle = eyesCol;
+            ctx.beginPath(); ctx.arc(ex, ey + eRad * 0.2, eRad * 0.9, 0, Math.PI * 2); ctx.fill();
+            // Pupil
+            ctx.fillStyle = '#000000';
+            ctx.beginPath(); ctx.arc(ex, ey + eRad * 0.3, eRad * 0.55, 0, Math.PI * 2); ctx.fill();
+            // Two high sparkling white highlights
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(ex - eRad * 0.4, ey - eRad * 0.4, eRad * 0.35, 0, Math.PI * 2);
+            ctx.arc(ex + eRad * 0.4, ey + eRad * 0.1, eRad * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            return;
+        }
+
         // Sclera/White
         ctx.fillStyle = '#ffffff';
         ctx.strokeStyle = '#222222';
