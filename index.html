@@ -12006,15 +12006,13 @@ window.enableCoop = function(scene) {
     const isNewGame = !!window.isNewGameSession;
     if (isNewGame) {
         if (player) {
-            player.x = 10050;
-            player.y = 9950;
+            player.setPosition(10050, 9950);
+            if (player.body) player.body.reset(10050, 9950);
             if (player.aura) {
-                player.aura.x = 10050;
-                player.aura.y = 9950;
+                player.aura.setPosition(10050, 9950);
             }
             if (window.localPlayerLabel) {
-                window.localPlayerLabel.x = 10050;
-                window.localPlayerLabel.y = 9950 - 30;
+                window.localPlayerLabel.setPosition(10050, 9950 - 30);
             }
         }
         // Save initial coordinates so they persist correctly
