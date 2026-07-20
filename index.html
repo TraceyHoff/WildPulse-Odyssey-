@@ -1020,6 +1020,24 @@
     <div class="spinner"></div>
     <h2>Loading World...</h2>
 </div>
+
+<!-- Hospital Directional Arrows Overlay -->
+<div id="p1HospitalArrow" style="position: fixed; top: 60px; left: 50%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
+    <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
+        <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffffff" stroke-width="2"/>
+        <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ff4d4d" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-size: 9px; color: white; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Hospital</div>
+</div>
+
+<div id="p2HospitalArrow" style="position: fixed; top: 60px; left: 75%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
+    <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
+        <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffffff" stroke-width="2"/>
+        <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ff4d4d" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-size: 9px; color: white; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Hospital</div>
+</div>
+
 <div id="tooltip"></div>
 
 
@@ -8697,6 +8715,11 @@ window.exitGame = function() {
         });
 
         window.gameStarted = false;
+        const p1Arrow = document.getElementById('p1HospitalArrow');
+        const p2Arrow = document.getElementById('p2HospitalArrow');
+        if (p1Arrow) p1Arrow.style.display = 'none';
+        if (p2Arrow) p2Arrow.style.display = 'none';
+
         window.cameraFollowsPlayer = false;
         if (window.closeMenuModal) window.closeMenuModal();
         document.getElementById('menuBtn').style.display = 'none';
@@ -11274,6 +11297,7 @@ function create() {
 
     // Creatures setup
     creaturesGroup = this.physics.add.group();
+    window.creaturesGroup = creaturesGroup;
     creaturesGroup.setDepth(1);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
@@ -11517,6 +11541,99 @@ function create() {
     document.getElementById('loadingScreen').style.display = 'none';
 }
 
+function updateHospitalArrows() {
+    const p1Arrow = document.getElementById('p1HospitalArrow');
+    const p2Arrow = document.getElementById('p2HospitalArrow');
+    if (!p1Arrow || !p2Arrow) return;
+
+    if (!window.gameStarted) {
+        p1Arrow.style.display = 'none';
+        p2Arrow.style.display = 'none';
+        return;
+    }
+
+    // Determine P1 arrow visibility
+    let p1Visible = true;
+    if (window.coopActive) {
+        const battleModal = document.getElementById('battleModal');
+        const battleActive = battleModal && battleModal.style.display === 'flex' &&
+            (battleModal.classList.contains('p1-battle-active') ||
+             battleModal.classList.contains('pvp-battle-active'));
+        if (battleActive || window.p1ActiveModal !== null) {
+            p1Visible = false;
+        }
+    } else {
+        if (window.inBattle || (window.isAnyModalOpen && window.isAnyModalOpen())) {
+            p1Visible = false;
+        }
+    }
+
+    if (p1Visible && player) {
+        p1Arrow.style.display = 'flex';
+        p1Arrow.style.left = window.coopActive ? '25%' : '50%';
+
+        // Calculate direction to hospital center at (10050, 10050)
+        const dx = 10050 - player.x;
+        const dy = 10050 - player.y;
+        const distance = Math.hypot(dx, dy);
+
+        // Fade arrows slightly when very close to the hospital
+        if (distance < 150) {
+            p1Arrow.style.opacity = '0.2';
+        } else {
+            p1Arrow.style.opacity = '1';
+        }
+
+        const angleRad = Math.atan2(dy, dx);
+        const angleDeg = (angleRad * 180) / Math.PI;
+
+        const svgElement = p1Arrow.querySelector('svg');
+        if (svgElement) {
+            svgElement.style.transform = `rotate(${angleDeg}deg)`;
+        }
+    } else {
+        p1Arrow.style.display = 'none';
+    }
+
+    // Determine P2 arrow visibility
+    let p2Visible = false;
+    if (window.coopActive && window.player2) {
+        p2Visible = true;
+        const battleModal = document.getElementById('battleModal');
+        const battleActive = battleModal && battleModal.style.display === 'flex' &&
+            (battleModal.classList.contains('p2-battle-active') ||
+             battleModal.classList.contains('pvp-battle-active'));
+        if (battleActive || window.p2ActiveModal !== null) {
+            p2Visible = false;
+        }
+    }
+
+    if (p2Visible && window.player2) {
+        p2Arrow.style.display = 'flex';
+        p2Arrow.style.left = '75%';
+
+        const dx = 10050 - window.player2.x;
+        const dy = 10050 - window.player2.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance < 150) {
+            p2Arrow.style.opacity = '0.2';
+        } else {
+            p2Arrow.style.opacity = '1';
+        }
+
+        const angleRad = Math.atan2(dy, dx);
+        const angleDeg = (angleRad * 180) / Math.PI;
+
+        const svgElement = p2Arrow.querySelector('svg');
+        if (svgElement) {
+            svgElement.style.transform = `rotate(${angleDeg}deg)`;
+        }
+    } else {
+        p2Arrow.style.display = 'none';
+    }
+}
+
 function healParty(playerCollider, hospitalCollider) {
     if (window.inBattle) return;
 
@@ -11666,6 +11783,35 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     sprite.setDepth(10);
     sprite.setData('creatureData', clonedData);
     creaturesGroup.add(sprite);
+
+    // Create element symbol text above creature
+    const emojiMap = {
+        "Fire": "🔥",
+        "Water": "💧",
+        "Nature": "🍃",
+        "Electric": "⚡",
+        "Ice": "❄️",
+        "Earth": "🪨",
+        "Wind": "💨",
+        "Light": "☀️",
+        "Dark": "🌙",
+        "Cosmic": "🪐"
+    };
+    const symbolEmoji = emojiMap[clonedData.type] || "❓";
+    const symbolText = scene.add.text(x, y - 24, symbolEmoji, {
+        fontSize: '12px',
+        stroke: '#000000',
+        strokeThickness: 3
+    }).setOrigin(0.5);
+    symbolText.setDepth(11);
+    sprite.setData('symbolText', symbolText);
+
+    // Ensure symbol text is destroyed when creature sprite is destroyed
+    sprite.on('destroy', () => {
+        if (symbolText) {
+            symbolText.destroy();
+        }
+    });
 }
 
 function collectCreature(playerCollider, creatureSprite) {
@@ -13217,6 +13363,11 @@ function update() {
     if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
 
+    // Update hospital directional arrows
+    if (typeof updateHospitalArrows === 'function') {
+        updateHospitalArrows();
+    }
+
     if (window.waterLeaves) {
         window.waterLeaves = window.waterLeaves.filter(leaf => leaf.active);
         window.waterLeaves.forEach(leaf => {
@@ -13680,6 +13831,10 @@ function update() {
     if (creaturesGroup) {
         creaturesGroup.getChildren().forEach(c => {
             if (c.setDepth) c.setDepth(10 + c.y / 10000);
+            const symbolText = c.getData('symbolText');
+            if (symbolText) {
+                symbolText.setDepth(c.depth + 1);
+            }
         });
     }
 
@@ -14341,6 +14496,14 @@ function update() {
         if (tx !== undefined && ty !== undefined) {
             creature.x += (tx - creature.x) * 0.015;
             creature.y += (ty - creature.y) * 0.015;
+        }
+
+        // Sync symbol text position and visibility
+        const symbolText = creature.getData('symbolText');
+        if (symbolText) {
+            symbolText.setPosition(creature.x, creature.y - 24);
+            symbolText.setVisible(isVisible);
+            symbolText.setDepth(creature.depth + 1);
         }
     });
 
