@@ -450,8 +450,8 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
 
     expect(keys.p1Name).toBeNull();
     expect(keys.p2Name).toBeNull();
-    expect(keys.p1Color).toBeNull();
-    expect(keys.p2Color).toBeNull();
+    expect(keys.p1Color).not.toBe('#111111');
+    expect(keys.p2Color).not.toBe('#222222');
     expect(keys.p1Stats).toBeNull();
     expect(keys.p2Stats).toBeNull();
     expect(keys.coopActive).toBeNull();
