@@ -609,8 +609,8 @@
             display: none;
         }
         body.coop-active-layout #menuBtn {
-            right: auto !important;
-            left: 20px !important;
+            right: calc(50vw + 20px) !important;
+            left: auto !important;
         }
         body.coop-active-layout #menuBtn_P2 {
             display: block !important;
@@ -1022,7 +1022,7 @@
 </div>
 
 <!-- Hospital Directional Arrows Overlay -->
-<div id="p1HospitalArrow" style="position: fixed; top: 60px; left: 50%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
+<div id="p1HospitalArrow" style="position: fixed; top: 20px; left: 50%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
     <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
         <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffffff" stroke-width="2"/>
         <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ff4d4d" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
@@ -1030,7 +1030,7 @@
     <div style="font-size: 9px; color: white; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Hospital</div>
 </div>
 
-<div id="p2HospitalArrow" style="position: fixed; top: 60px; left: 75%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
+<div id="p2HospitalArrow" style="position: fixed; top: 20px; left: 75%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
     <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
         <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffffff" stroke-width="2"/>
         <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ff4d4d" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
@@ -13963,7 +13963,10 @@ function update() {
         let bob = Math.sin(this.time.now / 200) * 4;
         player.setCrop(0, 0, 40, 25 + bob);
         player.setOrigin(0.5, 0.4);
-        if (player.aura) player.aura.setVisible(false);
+        if (player.aura) {
+            player.aura.setVisible(player.visible);
+            player.aura.setAlpha(0.25);
+        }
         if (window.rippleEmitter) {
             window.rippleEmitter.setVisible(true);
             window.rippleEmitter.setPosition(player.x, player.y + 15);
@@ -13978,7 +13981,10 @@ function update() {
         player.setAlpha(1.0);
         player.setCrop();
         player.setOrigin(0.5, 0.5);
-        if (player.aura) player.aura.setVisible(player.visible);
+        if (player.aura) {
+            player.aura.setVisible(player.visible);
+            player.aura.setAlpha(0.8);
+        }
         if (window.rippleEmitter) {
             if (window.rippleEmitter.emitting) window.rippleEmitter.stop();
             window.rippleEmitter.setVisible(false);
@@ -14396,7 +14402,10 @@ function update() {
             let bob = Math.sin(this.time.now / 200) * 4;
             window.player2.setCrop(0, 0, 40, 25 + bob);
             window.player2.setOrigin(0.5, 0.4);
-            if (window.player2.aura) window.player2.aura.setVisible(false);
+            if (window.player2.aura) {
+                window.player2.aura.setVisible(window.player2.visible);
+                window.player2.aura.setAlpha(0.25);
+            }
         } else {
             if (localStorage.getItem('wildpulse_player2_pattern') && localStorage.getItem('wildpulse_player2_pattern') !== 'None') {
                 window.player2.setTint(0xffffff);
@@ -14406,7 +14415,10 @@ function update() {
             window.player2.setAlpha(1.0);
             window.player2.setCrop();
             window.player2.setOrigin(0.5, 0.5);
-            if (window.player2.aura) window.player2.aura.setVisible(window.player2.visible);
+            if (window.player2.aura) {
+                window.player2.aura.setVisible(window.player2.visible);
+                window.player2.aura.setAlpha(0.8);
+            }
         }
 
         // Aura and Label positioning
