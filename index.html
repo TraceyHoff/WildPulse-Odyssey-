@@ -1121,9 +1121,6 @@
             <button id="menuJournalBtn_P2" style="width: 100%; margin: 8px 0;">Creature Journal</button>
             <button id="menuCustomizeBtn_P2" style="width: 100%; margin: 8px 0;">Customize Character</button>
             <button id="menuHelpBtn_P2" style="width: 100%; margin: 8px 0;">Help</button>
-            <button id="menuMusicBtn_P2" style="width: 100%; margin: 8px 0;">Music: ON</button>
-            <button id="coopToggleBtn_P2" style="width: 100%; margin: 8px 0;">Toggle Co-op (2 Player)</button>
-            <button id="fullscreenToggleBtn_P2" style="width: 100%; margin: 8px 0;">Toggle Fullscreen</button>
         </div>
     </div>
 </div>
@@ -2698,6 +2695,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.startGame) window.startGame();
 
     window.startGameSession = function() {
+        if (!localStorage.getItem('wildpulse_player_color')) {
+            if (window.randomizePlayerCustomization) {
+                window.randomizePlayerCustomization(1);
+
+                const color = localStorage.getItem('wildpulse_player_color') || '#FFFFFF';
+                const pattern = localStorage.getItem('wildpulse_player_pattern') || 'None';
+                const patternColor = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
+                const shape = localStorage.getItem('wildpulse_player_shape') || 'Square';
+                const auraColor = localStorage.getItem('wildpulse_player_aura_color') || '#00FFFF';
+
+                window.cachedPlayerColor = color;
+                window.cachedPlayerAuraColor = auraColor;
+
+                if (game && game.scene && game.scene.scenes[0]) {
+                    const scene = game.scene.scenes[0];
+                    if (window.generatePlayerTexture) {
+                        window.generatePlayerTexture(scene, 'player_tex', color, pattern, patternColor, shape);
+                    }
+                    if (player) {
+                        player.setTexture('player_tex');
+                        player.originalColor = parseInt(color.replace('#', '0x'));
+                        if (pattern && pattern !== 'None') {
+                            player.setTint(0xffffff);
+                        } else {
+                            player.setTint(player.originalColor);
+                        }
+                        if (player.aura) {
+                            player.aura.setTint(parseInt(auraColor.replace('#', '0x')));
+                        }
+                    }
+                }
+            }
+        }
+
         const startModal = document.getElementById('startModal');
         if (startModal) startModal.style.display = 'none';
 
@@ -2931,6 +2962,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper function to open character customization modal
     window.openCustomizationModal = function(playerNum = 1) {
+        if (playerNum === 1 && !localStorage.getItem('wildpulse_player_color')) {
+            if (window.randomizePlayerCustomization) {
+                window.randomizePlayerCustomization(1);
+
+                const color = localStorage.getItem('wildpulse_player_color') || '#FFFFFF';
+                const pattern = localStorage.getItem('wildpulse_player_pattern') || 'None';
+                const patternColor = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
+                const shape = localStorage.getItem('wildpulse_player_shape') || 'Square';
+                const auraColor = localStorage.getItem('wildpulse_player_aura_color') || '#00FFFF';
+
+                window.cachedPlayerColor = color;
+                window.cachedPlayerAuraColor = auraColor;
+
+                if (game && game.scene && game.scene.scenes[0]) {
+                    const scene = game.scene.scenes[0];
+                    if (window.generatePlayerTexture) {
+                        window.generatePlayerTexture(scene, 'player_tex', color, pattern, patternColor, shape);
+                    }
+                    if (player) {
+                        player.setTexture('player_tex');
+                        player.originalColor = parseInt(color.replace('#', '0x'));
+                        if (pattern && pattern !== 'None') {
+                            player.setTint(0xffffff);
+                        } else {
+                            player.setTint(player.originalColor);
+                        }
+                        if (player.aura) {
+                            player.aura.setTint(parseInt(auraColor.replace('#', '0x')));
+                        }
+                    }
+                }
+            }
+        } else if (playerNum === 2 && !localStorage.getItem('wildpulse_player2_color')) {
+            if (window.randomizePlayerCustomization) {
+                window.randomizePlayerCustomization(2);
+            }
+        }
+
         if (window.coopActive) {
             window.closeMenuModal(playerNum);
             window.closeAllModalsForPlayer(playerNum, 'customizationModal');
@@ -7868,6 +7937,60 @@ window.closeJournalModal = function(playerNum = 1) {
 window.challengeTier = parseInt(localStorage.getItem('wildpulse_challenge_tier')) || 1;
 window.inChallengeBattle = false;
 
+// Randomize customization for a new game
+window.randomizePlayerCustomization = function(playerNum) {
+    const keyPrefix = playerNum === 2 ? 'wildpulse_player2_' : 'wildpulse_player_';
+
+    // 1. Generate random colors
+    const getRandomHexColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    const color = getRandomHexColor();
+    const auraColor = getRandomHexColor();
+    const patternColor = getRandomHexColor();
+
+    // 2. Select randomized unlocked pattern
+    let unlockedPatterns = ['None'];
+    if (window.PATTERN_UNLOCKS) {
+        const stats = window.gameStats || {};
+        unlockedPatterns = Object.keys(window.PATTERN_UNLOCKS).filter(pat => {
+            try {
+                return window.PATTERN_UNLOCKS[pat].check(stats);
+            } catch(e) {
+                return false;
+            }
+        });
+    }
+    if (unlockedPatterns.length === 0) {
+        unlockedPatterns = ['None', 'Dots', 'Stripes', 'Checkerboard'];
+    }
+    const pattern = unlockedPatterns[Math.floor(Math.random() * unlockedPatterns.length)];
+
+    // 3. Select randomized unlocked shape
+    const tier = window.challengeTier || 1;
+    const shapes = [
+        { id: 'Square', tier: 1 },
+        { id: 'Triangle', tier: 3 },
+        { id: 'Horizontal Diamond', tier: 5 },
+        { id: 'Vertical Diamond', tier: 7 },
+        { id: 'Rectangle', tier: 9 },
+        { id: 'Octagon', tier: 11 },
+        { id: 'Hexagon', tier: 13 },
+        { id: 'Star', tier: 15 },
+        { id: 'Circle', tier: 17 },
+        { id: 'Heart', tier: 19 },
+        { id: 'Crescent', tier: 21 },
+        { id: 'Pentagon', tier: 23 }
+    ];
+    const unlockedShapes = shapes.filter(sh => sh.tier <= tier).map(sh => sh.id);
+    const shape = unlockedShapes[Math.floor(Math.random() * unlockedShapes.length)];
+
+    // 4. Save to localStorage
+    localStorage.setItem(keyPrefix + 'color', color);
+    localStorage.setItem(keyPrefix + 'aura_color', auraColor);
+    localStorage.setItem(keyPrefix + 'pattern', pattern);
+    localStorage.setItem(keyPrefix + 'pattern_color', patternColor);
+    localStorage.setItem(keyPrefix + 'shape', shape);
+};
+
 window.openChallengeModal = function(playerCollider) {
     if (window.inBattle) return;
 
@@ -11127,15 +11250,15 @@ function create() {
     // Day and Night Cycle
     dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(4000).setAlpha(0);
     window.dayNightOverlay = dayNightOverlay;
-    timeText = this.add.text(20, window.innerHeight - 40, "12:00 PM", { fontSize: '24px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
+    timeText = this.add.text(20, window.innerHeight - 25, "12:00 PM", { fontSize: '12px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
     window.timeText = timeText;
 
     // World Coordinates UI
     window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(5000).setVisible(false);
 
     // Weather UI (Top Left)
-    window.weatherIcon = this.add.sprite(30, 30, 'weather_clear').setScrollFactor(0).setDepth(5000).setVisible(false);
-    window.weatherLabel = this.add.text(70, 15, "Clear Skies", { fontSize: '20px', fill: '#FFFFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
+    window.weatherIcon = this.add.sprite(25, 25, 'weather_clear').setScrollFactor(0).setDepth(5000).setVisible(false).setScale(0.5);
+    window.weatherLabel = this.add.text(45, 17, "Clear Skies", { fontSize: '10px', fill: '#FFFFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
 
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
@@ -11380,7 +11503,7 @@ function create() {
             dayNightOverlay.setSize(window.innerWidth, window.innerHeight);
         }
         if (timeText) {
-            timeText.setPosition(20, window.innerHeight - 40);
+            timeText.setPosition(20, window.innerHeight - 25);
         }
         if (window.coordText) {
             window.coordText.setPosition(window.innerWidth - 20, window.innerHeight - 40);
@@ -12865,6 +12988,12 @@ window.enableCoop = function(scene) {
     const basePlayerY = isNewGame ? 9950 : ((player && typeof player.y === 'number') ? player.y : 10550);
     const p2X = isNewGame ? 10050 : Phaser.Math.Clamp(basePlayerX + 50, 100, WORLD_SIZE - 100);
     const p2Y = isNewGame ? 9950 : Phaser.Math.Clamp(basePlayerY, 100, WORLD_SIZE - 100);
+
+    if (!localStorage.getItem('wildpulse_player2_color')) {
+        if (window.randomizePlayerCustomization) {
+            window.randomizePlayerCustomization(2);
+        }
+    }
 
     const p2Color = localStorage.getItem('wildpulse_player2_color') || '#FFA500';
     const p2Pattern = localStorage.getItem('wildpulse_player2_pattern') || 'Stripes';
