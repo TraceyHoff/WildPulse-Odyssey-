@@ -1118,20 +1118,6 @@
             <button id="menuMusicBtn_P2" style="width: 100%; margin: 8px 0;">Music: ON</button>
             <button id="coopToggleBtn_P2" style="width: 100%; margin: 8px 0;">Toggle Co-op (2 Player)</button>
             <button id="fullscreenToggleBtn_P2" style="width: 100%; margin: 8px 0;">Toggle Fullscreen</button>
-            <button id="menuDeleteBtn_P2" style="width: 100%; margin: 8px 0; background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a;">Delete Progress</button>
-            <button id="exitGameBtn_P2" style="width: 100%; margin: 8px 0;">Exit Game</button>
-            <div style="margin-top: 15px; padding: 10px; border-top: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.2); border-radius: 8px; font-size: 0.85em; text-align: left;">
-                <div style="font-weight: bold; color: #ff9800; margin-bottom: 8px; text-align: center;">Performance Settings</div>
-                <label style="display: flex; align-items: center; gap: 8px; margin: 6px 0; cursor: pointer;">
-                    <input type="checkbox" id="perfParticlesP2" checked style="cursor: pointer;"> Weather Particles
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; margin: 6px 0; cursor: pointer;">
-                    <input type="checkbox" id="perfLowSpawnsP2" style="cursor: pointer;"> Lower Spawns Limit
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; margin: 6px 0; cursor: pointer;">
-                    <input type="checkbox" id="perfLowDrawP2" style="cursor: pointer;"> Lower Draw Distance
-                </label>
-            </div>
         </div>
     </div>
 </div>
@@ -8341,8 +8327,11 @@ window.releaseCreature = function(index, playerNum = 1) {
 window.deleteProgress = function() {
     if (confirm('Are you sure? This will erase all save data.')) {
         localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('wildpulse_collected_creatures2');
         localStorage.removeItem('wildpulse_player_x');
         localStorage.removeItem('wildpulse_player_y');
+        localStorage.removeItem('wildpulse_player2_x');
+        localStorage.removeItem('wildpulse_player2_y');
         localStorage.removeItem('wildpulse_inGameDays');
         localStorage.removeItem('wildpulse_currentSeason');
         localStorage.removeItem('wildpulse_world_seed');
@@ -8350,6 +8339,22 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_challenge_tier');
         localStorage.removeItem('wildpulse_unlocked_patterns_cache');
         localStorage.removeItem('wildpulse_stats');
+        localStorage.removeItem('wildpulse_stats2');
+        localStorage.removeItem('wildpulse_coop_active');
+
+        // Reset customization settings for both players
+        localStorage.removeItem('wildpulse_player_name');
+        localStorage.removeItem('wildpulse_player_color');
+        localStorage.removeItem('wildpulse_player_aura_color');
+        localStorage.removeItem('wildpulse_player_pattern');
+        localStorage.removeItem('wildpulse_player_pattern_color');
+
+        localStorage.removeItem('wildpulse_player2_name');
+        localStorage.removeItem('wildpulse_player2_color');
+        localStorage.removeItem('wildpulse_player2_aura_color');
+        localStorage.removeItem('wildpulse_player2_pattern');
+        localStorage.removeItem('wildpulse_player2_pattern_color');
+
         location.reload();
     }
 };

@@ -2,13 +2,11 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Co-op Split Screen and Player 2 Features', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000');
-    // Clear local storage to simulate a brand-new game session
-    await page.evaluate(() => {
+    await page.addInitScript(() => {
       localStorage.clear();
       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
     });
-    await page.reload();
+    await page.goto('http://localhost:3000');
   });
 
   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
@@ -384,5 +382,78 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     expect(result.alertCalled).toBe(false);
     expect(result.notificationCalled).toBe(true);
     expect(result.notificationMessage).toContain('All your creatures fainted');
+  });
+
+  test('should not contain Delete Progress, Exit Game, or Performance Settings in Player 2 menu modal', async ({ page }) => {
+    // 1. Wait for page to load and menu button to be present
+    await page.waitForSelector('#menuBtn', { state: 'visible' });
+
+    // 2. Query elements in P2 menu column
+    const elementsState = await page.evaluate(() => {
+      const p2Col = document.querySelector('#menuModal .p2-col');
+      if (!p2Col) return null;
+
+      const hasDeleteBtn = !!p2Col.querySelector('#menuDeleteBtn_P2');
+      const hasExitBtn = !!p2Col.querySelector('#exitGameBtn_P2');
+      // Performance settings is inside a div containing text 'Performance Settings'
+      const hasPerfSettings = [...p2Col.querySelectorAll('div')].some(d => d.textContent.includes('Performance Settings'));
+
+      return {
+        hasDeleteBtn,
+        hasExitBtn,
+        hasPerfSettings
+      };
+    });
+
+    expect(elementsState).not.toBeNull();
+    expect(elementsState.hasDeleteBtn).toBe(false);
+    expect(elementsState.hasExitBtn).toBe(false);
+    expect(elementsState.hasPerfSettings).toBe(false);
+  });
+
+  test('should clear both player 1 and player 2 data when progress is deleted', async ({ page }) => {
+    // 1. Set dummy values for both players in localStorage
+    await page.evaluate(() => {
+      localStorage.setItem('wildpulse_collected_creatures', JSON.stringify([{ id: 'c1' }]));
+      localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify([{ id: 'c2' }]));
+      localStorage.setItem('wildpulse_player_name', 'Alice');
+      localStorage.setItem('wildpulse_player2_name', 'Bob');
+      localStorage.setItem('wildpulse_player_color', '#111111');
+      localStorage.setItem('wildpulse_player2_color', '#222222');
+      localStorage.setItem('wildpulse_stats', JSON.stringify({ battlesWon: 5 }));
+      localStorage.setItem('wildpulse_stats2', JSON.stringify({ battlesWon: 2 }));
+      localStorage.setItem('wildpulse_coop_active', 'true');
+
+      // Mock confirm to return true
+      window.confirm = () => true;
+    });
+
+    // Execute deleteProgress and wait for navigation (reload)
+    const navigationPromise = page.waitForNavigation();
+    await page.evaluate(() => {
+      window.deleteProgress();
+    });
+    await navigationPromise;
+
+    // 2. Assert that all keys are deleted on reload
+    const keys = await page.evaluate(() => {
+      return {
+        p1Name: localStorage.getItem('wildpulse_player_name'),
+        p2Name: localStorage.getItem('wildpulse_player2_name'),
+        p1Color: localStorage.getItem('wildpulse_player_color'),
+        p2Color: localStorage.getItem('wildpulse_player2_color'),
+        p1Stats: localStorage.getItem('wildpulse_stats'),
+        p2Stats: localStorage.getItem('wildpulse_stats2'),
+        coopActive: localStorage.getItem('wildpulse_coop_active')
+      };
+    });
+
+    expect(keys.p1Name).toBeNull();
+    expect(keys.p2Name).toBeNull();
+    expect(keys.p1Color).toBeNull();
+    expect(keys.p2Color).toBeNull();
+    expect(keys.p1Stats).toBeNull();
+    expect(keys.p2Stats).toBeNull();
+    expect(keys.coopActive).toBeNull();
   });
 });
