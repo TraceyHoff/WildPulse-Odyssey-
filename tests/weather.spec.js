@@ -2,12 +2,10 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Weather and Particles', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000');
-    // Bypass the start modal to reach the game
-    await page.evaluate(() => {
+    await page.addInitScript(() => {
       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
     });
-    await page.reload();
+    await page.goto('http://localhost:3000');
     // Wait for Phaser to initialize and emitters to be created
     await page.waitForFunction(() => window.leafRedEmitter !== undefined);
   });

@@ -2,12 +2,10 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('isPointerOverButton', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000');
-    // Bypass the start modal to reach the game directly
-    await page.evaluate(() => {
+    await page.addInitScript(() => {
       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
     });
-    await page.reload();
+    await page.goto('http://localhost:3000');
   });
 
   test('correctly identifies buttons and interactive elements, and ignores canvas', async ({ page }) => {

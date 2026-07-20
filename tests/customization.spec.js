@@ -2,12 +2,10 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('In-game Character Customization', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000');
-    // Bypass the start modal to reach the game directly
-    await page.evaluate(() => {
+    await page.addInitScript(() => {
       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
     });
-    await page.reload();
+    await page.goto('http://localhost:3000');
   });
 
   test('should open customization from in-game menu and customize character', async ({ page }) => {
