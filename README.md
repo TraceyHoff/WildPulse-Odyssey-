@@ -208,3 +208,12 @@ WildPulse Odyssey Creature Collecting Game
     - **Optimized Weather & Performance**:
         - Explicitly reset and hide weather status indicators when exiting to the main menu.
         - Throttled wind direction recalculations, cloud visual updates, and distance-based culling to run on interval-based frames, maintaining a smooth 60 FPS under heavy rendering loads.
+
+### New Features (v26)
+- **Character Body Shape Customization**:
+    - **Visual Geometry Variety**: Introduced character customization body shapes to break away from the simple default square template.
+    - **11 New Geometric Shapes**: Added high-fidelity mathematical canvas path drawing for 11 new unique body shapes, including Triangle, Horizontal Diamond, Vertical Diamond, Rectangle, Octagon, Hexagon, Star, Circle, Heart, Crescent, and Pentagon.
+    - **Clipping Pattern Scalers**: Standard pattern configurations (such as Stripes, Dots, and Camouflage) seamlessly scale, translate, and clip themselves to remain bounded precisely inside the chosen shape silhouette.
+- **Progression-Based Unlocks**:
+    - **Crown Challenge Milestones**: Programmed body shape options to unlock dynamically via the Crown Challenge tiered gauntlet, rewarding high-level achievements.
+    - **Locked Dropdowns**: Default "Square" is available from Tier 1, while advanced shapes are locked behind higher tiers (e.g. Triangle at Tier 3, Star at Tier 15, Pentagon at Tier 23), displaying as locked and disabled in the customization dropdown until earned.
