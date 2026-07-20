@@ -965,6 +965,12 @@
             <input type="color" id="playerAuraColorInput" value="#00FFFF" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #222; cursor: pointer;">
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Body Shape:</label>
+            <select id="playerShapeSelect" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer;">
+                <option value="Square">Square</option>
+            </select>
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Skin Pattern:</label>
             <select id="playerPatternSelect" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer;">
                 <option value="None">None</option>
@@ -1202,6 +1208,138 @@ window.mulberry32 = function(a) {
       return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
 }
+
+// Draw path for character body shapes within any x, y and size box
+window.drawPlayerShapePath = function(ctx, shape, x, y, size) {
+    ctx.beginPath();
+    const half = size / 2;
+    const cx = x + half;
+    const cy = y + half;
+
+    if (shape === 'Triangle') {
+        // Isosceles triangle pointing up
+        ctx.moveTo(cx, y);
+        ctx.lineTo(x + size, y + size);
+        ctx.lineTo(x, y + size);
+    } else if (shape === 'Horizontal Diamond') {
+        // Wide diamond shape
+        ctx.moveTo(cx, y + size * 0.15);
+        ctx.lineTo(x + size, cy);
+        ctx.lineTo(cx, y + size * 0.85);
+        ctx.lineTo(x, cy);
+    } else if (shape === 'Vertical Diamond') {
+        // Tall diamond shape
+        ctx.moveTo(cx, y);
+        ctx.lineTo(x + size * 0.15, cy);
+        ctx.lineTo(cx, y + size);
+        ctx.lineTo(x + size * 0.85, cy);
+    } else if (shape === 'Rectangle') {
+        // Vertical rectangle centered in the space
+        ctx.rect(x + size * 0.15, y, size * 0.7, size);
+    } else if (shape === 'Octagon') {
+        // 8-sided polygon
+        const offset = size * 0.28;
+        ctx.moveTo(x + offset, y);
+        ctx.lineTo(x + size - offset, y);
+        ctx.lineTo(x + size, y + offset);
+        ctx.lineTo(x + size, y + size - offset);
+        ctx.lineTo(x + size - offset, y + size);
+        ctx.lineTo(x + offset, y + size);
+        ctx.lineTo(x, y + size - offset);
+        ctx.lineTo(x, y + offset);
+    } else if (shape === 'Hexagon') {
+        // 6-sided polygon
+        ctx.moveTo(cx, y);
+        ctx.lineTo(x + size, y + size * 0.25);
+        ctx.lineTo(x + size, y + size * 0.75);
+        ctx.lineTo(cx, y + size);
+        ctx.lineTo(x, y + size * 0.75);
+        ctx.lineTo(x, y + size * 0.25);
+    } else if (shape === 'Star') {
+        // 5-pointed star
+        const spikes = 5;
+        const outerRadius = half;
+        const innerRadius = half * 0.4;
+        let rot = (Math.PI / 2) * 3;
+        const step = Math.PI / spikes;
+
+        ctx.moveTo(cx, cy - outerRadius);
+        for (let i = 0; i < spikes; i++) {
+            let px = cx + Math.cos(rot) * outerRadius;
+            let py = cy + Math.sin(rot) * outerRadius;
+            ctx.lineTo(px, py);
+            rot += step;
+
+            px = cx + Math.cos(rot) * innerRadius;
+            py = cy + Math.sin(rot) * innerRadius;
+            ctx.lineTo(px, py);
+            rot += step;
+        }
+    } else if (shape === 'Circle') {
+        ctx.arc(cx, cy, half, 0, Math.PI * 2);
+    } else if (shape === 'Heart') {
+        const hx = x + half;
+        const hy = y + size * 0.3;
+        ctx.moveTo(hx, hy);
+        ctx.bezierCurveTo(hx + half * 0.4, hy - half * 0.6, hx + half, hy + half * 0.2, hx, y + size * 0.95);
+        ctx.bezierCurveTo(hx - half, hy + half * 0.2, hx - half * 0.4, hy - half * 0.6, hx, hy);
+    } else if (shape === 'Crescent') {
+        ctx.arc(cx - size * 0.1, cy, half * 0.9, -Math.PI / 2.5, Math.PI / 2.5, false);
+        ctx.arc(cx + size * 0.1, cy, half * 0.8, Math.PI / 2.5, -Math.PI / 2.5, true);
+    } else if (shape === 'Pentagon') {
+        ctx.moveTo(cx, y);
+        ctx.lineTo(x + size, y + size * 0.38);
+        ctx.lineTo(x + size * 0.8, y + size);
+        ctx.lineTo(x + size * 0.2, y + size);
+        ctx.lineTo(x, y + size * 0.38);
+    } else {
+        // Default: Square
+        ctx.rect(x, y, size, size);
+    }
+    ctx.closePath();
+};
+
+// Populate the Shape select box based on Crown Challenge Tier unlocks
+window.updateShapeSelect = function() {
+    const shapeSelect = document.getElementById('playerShapeSelect');
+    if (!shapeSelect) return;
+
+    const currentValue = shapeSelect.value;
+    shapeSelect.innerHTML = '';
+
+    const shapes = [
+        { id: 'Square', name: 'Square', tier: 1 },
+        { id: 'Triangle', name: 'Triangle', tier: 3 },
+        { id: 'Horizontal Diamond', name: 'Horizontal Diamond', tier: 5 },
+        { id: 'Vertical Diamond', name: 'Vertical Diamond', tier: 7 },
+        { id: 'Rectangle', name: 'Rectangle', tier: 9 },
+        { id: 'Octagon', name: 'Octagon', tier: 11 },
+        { id: 'Hexagon', name: 'Hexagon', tier: 13 },
+        { id: 'Star', name: 'Star', tier: 15 },
+        { id: 'Circle', name: 'Circle', tier: 17 },
+        { id: 'Heart', name: 'Heart', tier: 19 },
+        { id: 'Crescent', name: 'Crescent', tier: 21 },
+        { id: 'Pentagon', name: 'Pentagon', tier: 23 }
+    ];
+
+    shapes.forEach(sh => {
+        const opt = document.createElement('option');
+        opt.value = sh.id;
+        const currentTier = window.challengeTier || 1;
+        if (sh.tier <= currentTier) {
+            opt.textContent = sh.name;
+            opt.disabled = false;
+        } else {
+            opt.textContent = `${sh.name} (Locked - Tier ${sh.tier})`;
+            opt.disabled = true;
+        }
+        shapeSelect.appendChild(opt);
+    });
+
+    if (currentValue && Array.from(shapeSelect.options).some(o => o.value === currentValue && !o.disabled)) {
+        shapeSelect.value = currentValue;
+    }
+};
 
 // Shared pattern drawing logic
 window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
@@ -1797,16 +1935,28 @@ window.updateCharacterPreview = function() {
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, width, height);
 
-    // Draw Character Square
+    // Draw Character Shape
     const charSize = 40;
     const charX = centerX - charSize / 2;
     const charY = centerY - charSize / 2;
 
+    const shapeSelect = document.getElementById('playerShapeSelect');
+    const shape = shapeSelect ? shapeSelect.value : 'Square';
+
+    ctx.save();
+    if (window.drawPlayerShapePath) {
+        window.drawPlayerShapePath(ctx, shape, charX, charY, charSize);
+    } else {
+        ctx.beginPath();
+        ctx.rect(charX, charY, charSize, charSize);
+        ctx.closePath();
+    }
     ctx.fillStyle = color;
-    ctx.fillRect(charX, charY, charSize, charSize);
+    ctx.fill();
+    ctx.clip();
 
     // Draw Pattern
-    // Create a temporary canvas for the pattern to clip it to the character square
+    // Create a temporary canvas for the pattern to clip it to the character shape
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = charSize;
     tempCanvas.height = charSize;
@@ -1817,6 +1967,7 @@ window.updateCharacterPreview = function() {
     }
 
     ctx.drawImage(tempCanvas, charX, charY);
+    ctx.restore();
 
     // Draw Name
     ctx.fillStyle = '#FFFFFF';
@@ -2741,12 +2892,40 @@ document.addEventListener('DOMContentLoaded', () => {
             playerAuraColorInput.value = localStorage.getItem('wildpulse_player2_aura_color') || '#FF0000';
             playerPatternSelect.value = localStorage.getItem('wildpulse_player2_pattern') || 'Stripes';
             playerPatternColorInput.value = localStorage.getItem('wildpulse_player2_pattern_color') || '#FF0000';
+
+            if (window.updateShapeSelect) {
+                window.updateShapeSelect();
+            }
+            const savedShape = localStorage.getItem('wildpulse_player2_shape') || 'Square';
+            const shapeSelect = document.getElementById('playerShapeSelect');
+            if (shapeSelect) {
+                const selectedOpt = Array.from(shapeSelect.options).find(o => o.value === savedShape);
+                if (selectedOpt && !selectedOpt.disabled) {
+                    shapeSelect.value = savedShape;
+                } else {
+                    shapeSelect.value = 'Square';
+                }
+            }
         } else {
             playerNameInput.value = localStorage.getItem('wildpulse_player_name') || '';
             playerColorInput.value = localStorage.getItem('wildpulse_player_color') || '#FFFFFF';
             playerAuraColorInput.value = localStorage.getItem('wildpulse_player_aura_color') || '#00FFFF';
             playerPatternSelect.value = localStorage.getItem('wildpulse_player_pattern') || 'None';
             playerPatternColorInput.value = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
+
+            if (window.updateShapeSelect) {
+                window.updateShapeSelect();
+            }
+            const savedShape = localStorage.getItem('wildpulse_player_shape') || 'Square';
+            const shapeSelect = document.getElementById('playerShapeSelect');
+            if (shapeSelect) {
+                const selectedOpt = Array.from(shapeSelect.options).find(o => o.value === savedShape);
+                if (selectedOpt && !selectedOpt.disabled) {
+                    shapeSelect.value = savedShape;
+                } else {
+                    shapeSelect.value = 'Square';
+                }
+            }
         }
     };
 
@@ -2905,8 +3084,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Character preview live updates
-    [playerNameInput, playerColorInput, playerAuraColorInput, playerPatternSelect, playerPatternColorInput].forEach(el => {
+    const playerShapeSelect = document.getElementById('playerShapeSelect');
+    [playerNameInput, playerColorInput, playerAuraColorInput, playerShapeSelect, playerPatternSelect, playerPatternColorInput].forEach(el => {
         el?.addEventListener('input', () => {
+            window.updateCharacterPreview();
+        });
+        el?.addEventListener('change', () => {
             window.updateCharacterPreview();
         });
     });
@@ -2917,6 +3100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const auraColor = playerAuraColorInput.value;
         const pattern = playerPatternSelect.value;
         const patternColor = playerPatternColorInput.value;
+        const shape = playerShapeSelect ? playerShapeSelect.value : 'Square';
 
         if (window.activeCustomPlayer === 2) {
             localStorage.setItem('wildpulse_player2_name', name);
@@ -2924,6 +3108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('wildpulse_player2_aura_color', auraColor);
             localStorage.setItem('wildpulse_player2_pattern', pattern);
             localStorage.setItem('wildpulse_player2_pattern_color', patternColor);
+            localStorage.setItem('wildpulse_player2_shape', shape);
 
             if (window.p2Label) window.p2Label.setText(name || "P2");
             if (typeof window.player2 !== 'undefined' && window.player2) {
@@ -2932,7 +3117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Bake pattern into texture and set tint to white
                 if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
-                    window.generatePlayerTexture(game.scene.scenes[0], 'player2_tex', color, pattern, patternColor);
+                    window.generatePlayerTexture(game.scene.scenes[0], 'player2_tex', color, pattern, patternColor, shape);
                     window.player2.setTexture('player2_tex');
                     window.player2.setTint(0xffffff);
                 } else {
@@ -2950,6 +3135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('wildpulse_player_aura_color', auraColor);
             localStorage.setItem('wildpulse_player_pattern', pattern);
             localStorage.setItem('wildpulse_player_pattern_color', patternColor);
+            localStorage.setItem('wildpulse_player_shape', shape);
 
             window.cachedPlayerName = name;
             window.cachedPlayerColor = color;
@@ -2963,7 +3149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Bake pattern into texture and set tint to white
                 if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
-                    window.generatePlayerTexture(game.scene.scenes[0], 'player_tex', color, pattern, patternColor);
+                    window.generatePlayerTexture(game.scene.scenes[0], 'player_tex', color, pattern, patternColor, shape);
                     player.setTexture('player_tex');
                     player.setTint(0xffffff);
                 } else {
@@ -8348,12 +8534,14 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_player_aura_color');
         localStorage.removeItem('wildpulse_player_pattern');
         localStorage.removeItem('wildpulse_player_pattern_color');
+        localStorage.removeItem('wildpulse_player_shape');
 
         localStorage.removeItem('wildpulse_player2_name');
         localStorage.removeItem('wildpulse_player2_color');
         localStorage.removeItem('wildpulse_player2_aura_color');
         localStorage.removeItem('wildpulse_player2_pattern');
         localStorage.removeItem('wildpulse_player2_pattern_color');
+        localStorage.removeItem('wildpulse_player2_shape');
 
         location.reload();
     }
@@ -10235,18 +10423,28 @@ function generateMiscTextures(scene) {
 
 
     // Generate player texture
-    window.generatePlayerTexture = function(scene, textureKey, baseColor, pattern, patternColor) {
+    window.generatePlayerTexture = function(scene, textureKey, baseColor, pattern, patternColor, shape = 'Square') {
         const pCanvas = document.createElement('canvas');
         pCanvas.width = 40;
         pCanvas.height = 40;
         const pCtx = pCanvas.getContext('2d');
 
-        // Draw base color
+        // Draw base color with selected shape
+        pCtx.save();
+        if (window.drawPlayerShapePath) {
+            window.drawPlayerShapePath(pCtx, shape, 0, 0, 40);
+        } else {
+            pCtx.beginPath();
+            pCtx.rect(0, 0, 40, 40);
+            pCtx.closePath();
+        }
         pCtx.fillStyle = baseColor || '#FFFFFF';
-        pCtx.fillRect(0, 0, 40, 40);
+        pCtx.fill();
+        pCtx.clip();
 
         // Apply pattern
         window.drawPlayerPattern(pCtx, pattern, patternColor);
+        pCtx.restore();
 
         if (scene.textures.exists(textureKey)) {
             scene.textures.get(textureKey).source[0].image = pCanvas;
@@ -10258,7 +10456,8 @@ function generateMiscTextures(scene) {
 
     const savedPattern = localStorage.getItem('wildpulse_player_pattern') || 'None';
     const savedPatternColor = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
-    window.generatePlayerTexture(scene, 'player_tex', window.cachedPlayerColor, savedPattern, savedPatternColor);
+    const savedShape = localStorage.getItem('wildpulse_player_shape') || 'Square';
+    window.generatePlayerTexture(scene, 'player_tex', window.cachedPlayerColor, savedPattern, savedPatternColor, savedShape);
 
     // Generate ripple texture
     const rippleCanvas = document.createElement('canvas');
@@ -12674,7 +12873,8 @@ window.enableCoop = function(scene) {
     const p2Name = localStorage.getItem('wildpulse_player2_name') || 'P2';
 
     // Generate Player 2 unique texture
-    window.generatePlayerTexture(scene, 'player2_tex', p2Color, p2Pattern, p2PatternColor);
+    const p2Shape = localStorage.getItem('wildpulse_player2_shape') || 'Square';
+    window.generatePlayerTexture(scene, 'player2_tex', p2Color, p2Pattern, p2PatternColor, p2Shape);
 
     window.player2 = scene.add.sprite(p2X, p2Y, 'player2_tex');
     window.player2.originalColor = parseInt(p2Color.replace('#', '0x'));
