@@ -652,12 +652,12 @@
             filter: brightness(1.2);
             box-shadow: 0 0 15px rgba(0,255,100,0.6);
         }
-        #menuModal button#menuPartyBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
-        #menuModal button#menuStorageBtn { background: linear-gradient(180deg, #8d6e63, #4e342e); border-color: #bcaaa4; }
-        #menuModal button#breedBtn { background: linear-gradient(180deg, #ffca28, #ff8f00); border-color: #ffe082; color: #333; text-shadow: none; }
-        #menuModal button#menuJournalBtn { background: linear-gradient(180deg, #ab47bc, #6a1b9a); border-color: #ce93d8; color: white; }
-        #menuModal button#menuHelpBtn { background: linear-gradient(180deg, #26c6da, #00838f); border-color: #80deea; }
-        #menuModal button#menuCustomizeBtn { background: linear-gradient(180deg, #42a5f5, #1565c0); border-color: #90caf9; color: white; }
+        #menuModal button#menuPartyBtn, #menuModal button#menuPartyBtn_P2 { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
+        #menuModal button#menuStorageBtn, #menuModal button#menuStorageBtn_P2 { background: linear-gradient(180deg, #8d6e63, #4e342e); border-color: #bcaaa4; }
+        #menuModal button#breedBtn, #menuModal button#breedBtn_P2 { background: linear-gradient(180deg, #ffca28, #ff8f00); border-color: #ffe082; color: #333; text-shadow: none; }
+        #menuModal button#menuJournalBtn, #menuModal button#menuJournalBtn_P2 { background: linear-gradient(180deg, #ab47bc, #6a1b9a); border-color: #ce93d8; color: white; }
+        #menuModal button#menuHelpBtn, #menuModal button#menuHelpBtn_P2 { background: linear-gradient(180deg, #26c6da, #00838f); border-color: #80deea; }
+        #menuModal button#menuCustomizeBtn, #menuModal button#menuCustomizeBtn_P2 { background: linear-gradient(180deg, #42a5f5, #1565c0); border-color: #90caf9; color: white; }
         #menuModal button#menuDeleteBtn { background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a; }
         #menuModal button#coopToggleBtn { background: linear-gradient(180deg, #ba68c8, #7b1fa2); border-color: #e1bee7; }
         #menuModal button#fullscreenToggleBtn { background: linear-gradient(180deg, #78909c, #37474f); border-color: #b0bec5; }
@@ -9110,6 +9110,9 @@ window.doBreed = function(playerNum = 1) {
         window.saveCollected(child, playerNum);
 
         if (resEl) resEl.innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents remain in your party.`;
+
+        const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
+        window.showModernNotification(`✨ ${playerName} successfully bred ${child.name} (Gen ${child.generation})! ✨`, 5000);
 
         // Re-populate to show new child
         populateSelect(document.getElementById('parent1Select' + pPrefix), playerNum);
