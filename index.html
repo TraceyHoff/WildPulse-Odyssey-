@@ -1115,12 +1115,14 @@
 
 <!-- Inventory Slots Overlay -->
 <div id="p1InventorySlots" class="inventory-slots-container">
+    <div id="p1ActiveBuffs" style="color: #ffeb3b; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 2px black; text-align: center; margin-bottom: 5px; white-space: pre-line;"></div>
     <div class="inventory-slot"></div>
     <div class="inventory-slot"></div>
     <div class="inventory-slot"></div>
 </div>
 
 <div id="p2InventorySlots" class="inventory-slots-container">
+    <div id="p2ActiveBuffs" style="color: #ffeb3b; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 2px black; text-align: center; margin-bottom: 5px; white-space: pre-line;"></div>
     <div class="inventory-slot"></div>
     <div class="inventory-slot"></div>
     <div class="inventory-slot"></div>
@@ -2877,6 +2879,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.coopActive) {
             const p2Slots = document.getElementById('p2InventorySlots');
             if (p2Slots) p2Slots.style.display = 'flex';
+        }
+
+        if (window.updateInventoryUI) {
+            window.updateInventoryUI();
         }
 
         window.gameStarted = true;
@@ -7593,6 +7599,420 @@ window.collectedCreaturesIds = collectedCreaturesIds;
 window.collectedCreatures2 = JSON.parse(localStorage.getItem('wildpulse_collected_creatures2')) || [];
 window.collectedCreaturesIds2 = new Set(window.collectedCreatures2.map(c => c.id));
 
+// Inventories and Active Buff Timers
+window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [];
+window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [];
+
+window.p1RepellentTime = parseFloat(localStorage.getItem('wildpulse_p1RepellentTime')) || 0;
+window.p2RepellentTime = parseFloat(localStorage.getItem('wildpulse_p2RepellentTime')) || 0;
+window.p1JankJuiceTime = parseFloat(localStorage.getItem('wildpulse_p1JankJuiceTime')) || 0;
+window.p2JankJuiceTime = parseFloat(localStorage.getItem('wildpulse_p2JankJuiceTime')) || 0;
+
+window.saveInventory = function() {
+    localStorage.setItem('wildpulse_inventory', JSON.stringify(window.p1Inventory));
+    localStorage.setItem('wildpulse_inventory2', JSON.stringify(window.p2Inventory));
+};
+
+window.saveActiveBuffTimers = function() {
+    localStorage.setItem('wildpulse_p1RepellentTime', window.p1RepellentTime.toString());
+    localStorage.setItem('wildpulse_p2RepellentTime', window.p2RepellentTime.toString());
+    localStorage.setItem('wildpulse_p1JankJuiceTime', window.p1JankJuiceTime.toString());
+    localStorage.setItem('wildpulse_p2JankJuiceTime', window.p2JankJuiceTime.toString());
+};
+
+// Inventory Helper and Stacking Logic
+window.canAddInventoryItem = function(playerNum, itemName) {
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    for (let item of inv) {
+        if (item.name === itemName && item.quantity < 10) {
+            return true;
+        }
+    }
+    if (inv.length < 3) {
+        return true;
+    }
+    return false;
+};
+
+window.addInventoryItem = function(playerNum, itemName) {
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    for (let item of inv) {
+        if (item.name === itemName && item.quantity < 10) {
+            item.quantity++;
+            window.saveInventory();
+            return true;
+        }
+    }
+    if (inv.length < 3) {
+        inv.push({ name: itemName, quantity: 1 });
+        window.saveInventory();
+        return true;
+    }
+    return false;
+};
+
+// Store Content and Purchase Logic
+window.buyStoreItem = function(playerNum, itemName, price) {
+    const stats = playerNum === 2 ? window.gameStats2 : window.gameStats;
+    if (!stats) return;
+
+    const coins = stats.coins !== undefined ? stats.coins : 0;
+    if (coins < price) {
+        window.showModernNotification("🪙 Not enough coins!");
+        return;
+    }
+
+    if (!window.canAddInventoryItem(playerNum, itemName)) {
+        window.showModernNotification("🎒 Inventory full! No space for this item.");
+        return;
+    }
+
+    stats.coins = coins - price;
+    if (playerNum === 2) {
+        localStorage.setItem('wildpulse_stats2', JSON.stringify(stats));
+    } else {
+        window.saveStats();
+    }
+
+    window.addInventoryItem(playerNum, itemName);
+
+    if (window.updateMenuCoins) window.updateMenuCoins();
+    if (window.updateStoreUI) window.updateStoreUI();
+    if (window.updateInventoryUI) window.updateInventoryUI();
+
+    window.showModernNotification(`🛒 Bought ${itemName}! Sent directly to your inventory.`);
+};
+
+window.updateStoreUI = function() {
+    const items = [
+        { name: "Repellent", icon: "🧴", price: 50, desc: "Stops wild creature attacks for 60 seconds." },
+        { name: "HP Booster", icon: "💚", price: 150, desc: "Permanently raises creature's HP by 10." },
+        { name: "Attack Booster", icon: "⚔️", price: 120, desc: "Permanently raises creature's Attack by 5." },
+        { name: "Defense Booster", icon: "🛡️", price: 120, desc: "Permanently raises creature's Defense by 5." },
+        { name: "Speed Booster", icon: "⚡", price: 120, desc: "Permanently raises creature's Speed by 5." },
+        { name: "Sp. Atk Booster", icon: "🔮", price: 120, desc: "Permanently raises creature's Sp. Atk by 5." },
+        { name: "Sp. Def Booster", icon: "🧿", price: 120, desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Jank Juice", icon: "🧃", price: 100, desc: "Greatly increases wild shiny spawn rate for 60s." },
+        { name: "Healing Juice Bottle", icon: "🧪", price: 40, desc: "Heals one creature or revives with 50% HP." },
+        { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." }
+    ];
+
+    const renderColumn = (playerNum, containerId) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const coins = playerNum === 2 ? (window.gameStats2?.coins || 0) : (window.gameStats?.coins || 0);
+
+        let html = `
+            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
+                🪙 Coins: <span style="font-size: 18px;">${coins}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 180px); overflow-y: auto; padding-right: 5px;">
+        `;
+
+        items.forEach(item => {
+            const canAfford = coins >= item.price;
+            const btnStyle = canAfford
+                ? "background: linear-gradient(180deg, #4caf50, #2e7d32); border: 1px solid #a5d6a7; cursor: pointer;"
+                : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
+
+            html += `
+                <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
+                    <div style="font-size: 24px; min-width: 35px; text-align: center;">${item.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 14px; color: #fff;">${item.name}</div>
+                        <div style="font-size: 11px; color: #aaa; margin-top: 2px;">${item.desc}</div>
+                    </div>
+                    <div style="text-align: right; min-width: 80px;">
+                        <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">🪙 ${item.price}</div>
+                        <button class="buy-item-btn" onclick="window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}">
+                            Buy
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+        container.innerHTML = html;
+    };
+
+    renderColumn(1, 'storeContent');
+    renderColumn(2, 'storeContent_P2');
+};
+
+// Creature Selection Popup Modal
+window.promptCreatureSelection = function(playerNum, titleText, callback) {
+    const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const activeParty = party.filter(c => !c.stored);
+
+    if (activeParty.length === 0) {
+        window.showModernNotification("❌ You have no creatures in your party!");
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0,0,0,0.7)';
+    overlay.style.zIndex = '300000';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+
+    const dialog = document.createElement('div');
+    dialog.style.background = 'linear-gradient(135deg, #112a1a, #071510)';
+    dialog.style.border = '2px solid #a5d6a7';
+    dialog.style.borderRadius = '12px';
+    dialog.style.padding = '20px';
+    dialog.style.width = '320px';
+    dialog.style.maxWidth = '90%';
+    dialog.style.color = 'white';
+    dialog.style.textAlign = 'center';
+    dialog.style.boxShadow = '0 8px 24px rgba(0,0,0,0.6)';
+
+    const title = document.createElement('h3');
+    title.innerText = titleText;
+    title.style.margin = '0 0 15px 0';
+    title.style.color = '#a5d6a7';
+    dialog.appendChild(title);
+
+    activeParty.forEach((creature) => {
+        const maxHp = window.getEffectiveStat(creature, 'health');
+        const currHp = creature.currentHp !== undefined ? creature.currentHp : maxHp;
+
+        const btn = document.createElement('button');
+        btn.className = 'creature-select-btn';
+        btn.style.display = 'block';
+        btn.style.width = '100%';
+        btn.style.margin = '10px 0';
+        btn.style.padding = '10px';
+        btn.style.background = 'rgba(255,255,255,0.1)';
+        btn.style.border = '1px solid rgba(255,255,255,0.2)';
+        btn.style.borderRadius = '8px';
+        btn.style.color = 'white';
+        btn.style.cursor = 'pointer';
+        btn.style.textAlign = 'left';
+        btn.style.fontSize = '13px';
+        btn.style.transition = 'background 0.2s';
+
+        btn.onmouseover = () => { btn.style.background = 'rgba(255,255,255,0.2)'; };
+        btn.onmouseout = () => { btn.style.background = 'rgba(255,255,255,0.1)'; };
+
+        let hpColor = '#4caf50';
+        if (currHp <= 0) hpColor = '#f44336';
+        else if (currHp < maxHp * 0.4) hpColor = '#ff9800';
+
+        btn.innerHTML = `
+            <div style="font-weight: bold;">${creature.nickname || creature.name} (Lvl ${creature.level})</div>
+            <div style="font-size: 11px; color: #aaa; margin-top: 3px;">
+                HP: <span style="color: ${hpColor}; font-weight: bold;">${currHp.toFixed(0)} / ${maxHp.toFixed(0)}</span>
+                ${currHp <= 0 ? ' <span style="color:#f44336; font-weight:bold;">[FAINTED]</span>' : ''}
+            </div>
+        `;
+
+        btn.onclick = () => {
+            document.body.removeChild(overlay);
+            callback(creature);
+        };
+
+        dialog.appendChild(btn);
+    });
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.innerText = "Cancel";
+    cancelBtn.style.marginTop = '15px';
+    cancelBtn.style.padding = '8px 16px';
+    cancelBtn.style.background = '#e53935';
+    cancelBtn.style.border = 'none';
+    cancelBtn.style.borderRadius = '6px';
+    cancelBtn.style.color = 'white';
+    cancelBtn.style.cursor = 'pointer';
+    cancelBtn.style.width = '100%';
+    cancelBtn.style.fontWeight = 'bold';
+    cancelBtn.onclick = () => {
+        document.body.removeChild(overlay);
+    };
+    dialog.appendChild(cancelBtn);
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+};
+
+// Item Use Logic
+window.useInventoryItem = function(playerNum, slotIndex) {
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const item = inv[slotIndex];
+    if (!item) return;
+
+    const consumeItem = () => {
+        item.quantity--;
+        if (item.quantity <= 0) {
+            inv.splice(slotIndex, 1);
+        }
+        window.saveInventory();
+        if (window.updateInventoryUI) window.updateInventoryUI();
+        if (window.updateStoreUI) window.updateStoreUI();
+    };
+
+    if (item.name === "Repellent") {
+        if (playerNum === 2) {
+            window.p2RepellentTime = (window.p2RepellentTime || 0) + 60000;
+        } else {
+            window.p1RepellentTime = (window.p1RepellentTime || 0) + 60000;
+        }
+        window.saveActiveBuffTimers();
+        consumeItem();
+        window.showModernNotification("🧴 Repellent active! Wild encounters prevented for 60 seconds.");
+    }
+    else if (item.name === "Jank Juice") {
+        if (playerNum === 2) {
+            window.p2JankJuiceTime = (window.p2JankJuiceTime || 0) + 60000;
+        } else {
+            window.p1JankJuiceTime = (window.p1JankJuiceTime || 0) + 60000;
+        }
+        window.saveActiveBuffTimers();
+        consumeItem();
+        window.showModernNotification("🧃 Jank Juice active! Wild shiny spawn rates significantly increased for 60 seconds.");
+    }
+    else if (item.name === "Healing Juice Jug") {
+        const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+        const activeParty = party.filter(c => !c.stored);
+
+        if (activeParty.length === 0) {
+            window.showModernNotification("❌ You have no creatures to heal.");
+            return;
+        }
+
+        activeParty.forEach(creature => {
+            const maxHp = window.getEffectiveStat(creature, 'health');
+            creature.currentHp = maxHp;
+        });
+
+        const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
+        localStorage.setItem(storageKey, JSON.stringify(party));
+
+        consumeItem();
+        if (window.renderPartyList) window.renderPartyList();
+        window.showModernNotification("🏺 Fully healed and revived all active party creatures!");
+    }
+    else if (item.name === "Healing Juice Bottle") {
+        window.promptCreatureSelection(playerNum, "Choose Creature to Heal", (creature) => {
+            const maxHp = window.getEffectiveStat(creature, 'health');
+            const wasFainted = creature.currentHp <= 0;
+
+            if (wasFainted) {
+                creature.currentHp = Math.floor(0.5 * maxHp);
+            } else {
+                creature.currentHp = maxHp;
+            }
+
+            const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
+            localStorage.setItem(storageKey, JSON.stringify(party));
+
+            consumeItem();
+            if (window.renderPartyList) window.renderPartyList();
+            window.showModernNotification(`🧪 ${creature.nickname || creature.name} has been ${wasFainted ? 'revived with 50% HP' : 'fully healed'}!`);
+        });
+    }
+    else if (item.name.endsWith("Booster")) {
+        window.promptCreatureSelection(playerNum, `Boost Stats of Which Creature?`, (creature) => {
+            if (!creature.bonusStats) {
+                creature.bonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
+            }
+
+            let statName = "";
+            let boostAmount = 5;
+
+            if (item.name === "HP Booster") {
+                statName = "health";
+                boostAmount = 10;
+                creature.bonusStats.health += boostAmount;
+                const newMax = window.getEffectiveStat(creature, 'health');
+                creature.currentHp = Math.min((creature.currentHp || 0) + boostAmount, newMax);
+            } else if (item.name === "Attack Booster") {
+                statName = "attack";
+                creature.bonusStats.attack += boostAmount;
+            } else if (item.name === "Defense Booster") {
+                statName = "defense";
+                creature.bonusStats.defense += boostAmount;
+            } else if (item.name === "Speed Booster") {
+                statName = "speed";
+                creature.bonusStats.speed += boostAmount;
+            } else if (item.name === "Sp. Atk Booster") {
+                statName = "specialAttack";
+                creature.bonusStats.specialAttack += boostAmount;
+            } else if (item.name === "Sp. Def Booster") {
+                statName = "specialDefense";
+                creature.bonusStats.specialDefense += boostAmount;
+            }
+
+            const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
+            localStorage.setItem(storageKey, JSON.stringify(party));
+
+            consumeItem();
+            if (window.renderPartyList) window.renderPartyList();
+            window.showModernNotification(`✨ Permanently boosted ${creature.nickname || creature.name}'s ${statName.toUpperCase()} stat!`);
+        });
+    }
+};
+
+// Render Inventory UI
+window.updateInventoryUI = function() {
+    const itemIcons = {
+        "Repellent": "🧴",
+        "HP Booster": "💚",
+        "Attack Booster": "⚔️",
+        "Defense Booster": "🛡️",
+        "Speed Booster": "⚡",
+        "Sp. Atk Booster": "🔮",
+        "Sp. Def Booster": "🧿",
+        "Jank Juice": "🧃",
+        "Healing Juice Bottle": "🧪",
+        "Healing Juice Jug": "🏺"
+    };
+
+    const updatePlayerSlots = (playerNum, containerId) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const slots = container.getElementsByClassName('inventory-slot');
+        const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+
+        for (let i = 0; i < 3; i++) {
+            const slot = slots[i];
+            if (!slot) continue;
+
+            const item = inv[i];
+            if (item) {
+                const icon = itemIcons[item.name] || "📦";
+                slot.innerHTML = `
+                    <div class="inventory-item-inner" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; position: relative;" title="${item.name}: Click to use">
+                        ${icon}
+                        <span style="position: absolute; bottom: 2px; right: 4px; background: rgba(0,0,0,0.85); color: #fff; border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: bold; line-height: 1;">
+                            ${item.quantity}
+                        </span>
+                    </div>
+                `;
+                slot.onclick = () => {
+                    window.useInventoryItem(playerNum, i);
+                };
+            } else {
+                slot.innerHTML = "";
+                slot.onclick = null;
+            }
+        }
+    };
+
+    updatePlayerSlots(1, 'p1InventorySlots');
+    updatePlayerSlots(2, 'p2InventorySlots');
+};
+
 // Stats System
 window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
     battlesWon: 0,
@@ -11906,8 +12326,12 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         }
     }
 
-    // 0.1% Shiny Chance
-    clonedData.isShiny = sRng() < 0.001;
+    // 0.1% Shiny Chance (increases to 15% if Jank Juice is active)
+    let shinyChance = 0.001;
+    if ((window.p1JankJuiceTime && window.p1JankJuiceTime > 0) || (window.p2JankJuiceTime && window.p2JankJuiceTime > 0)) {
+        shinyChance = 0.15;
+    }
+    clonedData.isShiny = sRng() < shinyChance;
     if (clonedData.isShiny && clonedData.stats) {
         for (let stat in clonedData.stats) {
             clonedData.stats[stat] = Math.floor(clonedData.stats[stat] * 1.2);
@@ -12023,6 +12447,10 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
 function collectCreature(playerCollider, creatureSprite) {
     if (window.inBattle) return;
+    const isP2Player = (window.coopActive && playerCollider === window.player2);
+    if (isP2Player && window.p2RepellentTime && window.p2RepellentTime > 0) return;
+    if (!isP2Player && window.p1RepellentTime && window.p1RepellentTime > 0) return;
+
     if (playerCollider.lastBattleTime && this.time.now - playerCollider.lastBattleTime < 5000) return;
 
     // Prevent battles when hospital or trade tile is on screen
@@ -13622,6 +14050,72 @@ function update() {
     // Update hospital directional arrows
     if (typeof updateHospitalArrows === 'function') {
         updateHospitalArrows();
+    }
+
+    let deltaMs = this.game.loop.delta || 16;
+
+    // Decrement Player 1 Buff Timers
+    if (window.p1RepellentTime && window.p1RepellentTime > 0) {
+        window.p1RepellentTime = Math.max(0, window.p1RepellentTime - deltaMs);
+        if (window.p1RepellentTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("🧴 Player 1 Repellent effect has worn off.");
+        }
+    }
+    if (window.p1JankJuiceTime && window.p1JankJuiceTime > 0) {
+        window.p1JankJuiceTime = Math.max(0, window.p1JankJuiceTime - deltaMs);
+        if (window.p1JankJuiceTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("🧃 Player 1 Jank Juice effect has worn off.");
+        }
+    }
+
+    // Decrement Player 2 Buff Timers
+    if (window.p2RepellentTime && window.p2RepellentTime > 0) {
+        window.p2RepellentTime = Math.max(0, window.p2RepellentTime - deltaMs);
+        if (window.p2RepellentTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("🧴 Player 2 Repellent effect has worn off.");
+        }
+    }
+    if (window.p2JankJuiceTime && window.p2JankJuiceTime > 0) {
+        window.p2JankJuiceTime = Math.max(0, window.p2JankJuiceTime - deltaMs);
+        if (window.p2JankJuiceTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("🧃 Player 2 Jank Juice effect has worn off.");
+        }
+    }
+
+    // Periodically save timers to keep them synced on disk (e.g. every 3 seconds)
+    if (!window.lastTimerSaveTime) window.lastTimerSaveTime = 0;
+    if (now - window.lastTimerSaveTime > 3000) {
+        window.saveActiveBuffTimers();
+        window.lastTimerSaveTime = now;
+    }
+
+    // Update Buff Indicator displays inside HUD
+    const p1Buffs = document.getElementById('p1ActiveBuffs');
+    if (p1Buffs) {
+        let txts = [];
+        if (window.p1RepellentTime && window.p1RepellentTime > 0) {
+            txts.push(`🧴 Repel: ${Math.ceil(window.p1RepellentTime / 1000)}s`);
+        }
+        if (window.p1JankJuiceTime && window.p1JankJuiceTime > 0) {
+            txts.push(`🧃 Shiny: ${Math.ceil(window.p1JankJuiceTime / 1000)}s`);
+        }
+        p1Buffs.innerText = txts.join('\n');
+    }
+
+    const p2Buffs = document.getElementById('p2ActiveBuffs');
+    if (p2Buffs) {
+        let txts = [];
+        if (window.p2RepellentTime && window.p2RepellentTime > 0) {
+            txts.push(`🧴 Repel: ${Math.ceil(window.p2RepellentTime / 1000)}s`);
+        }
+        if (window.p2JankJuiceTime && window.p2JankJuiceTime > 0) {
+            txts.push(`🧃 Shiny: ${Math.ceil(window.p2JankJuiceTime / 1000)}s`);
+        }
+        p2Buffs.innerText = txts.join('\n');
     }
 
     if (window.waterLeaves) {
