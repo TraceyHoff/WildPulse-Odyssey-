@@ -152,6 +152,7 @@
         .coop-column {
             width: 100%;
             box-sizing: border-box;
+            position: relative;
         }
         body:not(.coop-active-layout) .p2-col {
             display: none !important; /* Hide Player 2's column by default in single player */
@@ -1207,6 +1208,9 @@
     <div class="coop-columns">
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
+            <div id="p1CoinsContainer" style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 12px; border: 1px solid #ffd700; color: #ffd700; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 4px; pointer-events: none; z-index: 1001;">
+                🪙 <span id="p1CoinsCount">0</span>
+            </div>
             <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
             <h2 style="color: #4caf50; text-align: center; margin-top: 0;">Player 1 Menu</h2>
             <button id="menuPartyBtn" style="width: 100%; margin: 8px 0;">Party</button>
@@ -1235,6 +1239,9 @@
         </div>
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
+            <div id="p2CoinsContainer" style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 12px; border: 1px solid #ffd700; color: #ffd700; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 4px; pointer-events: none; z-index: 1001;">
+                🪙 <span id="p2CoinsCount">0</span>
+            </div>
             <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
             <h2 style="color: #ff9800; text-align: center; margin-top: 0;">Player 2 Menu</h2>
             <button id="menuPartyBtn_P2" style="width: 100%; margin: 8px 0;">Party</button>
@@ -3389,6 +3396,8 @@ document.addEventListener('DOMContentLoaded', () => {
         sessionStorage.removeItem('wildpulse_skip_start_modal');
         if (window.startGameSession) window.startGameSession();
     }
+
+    if (window.updateMenuCoins) window.updateMenuCoins();
 });
 
 document.addEventListener('click', function(e) {
@@ -7591,8 +7600,25 @@ window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || {
     creaturesTraded: 0,
     pvpBattlesWon: 0, // Placeholder
     pvpBattlesLost: 0, // Placeholder
-    distanceTraveled: 0
+    distanceTraveled: 0,
+    coins: 0
 };
+if (window.gameStats.coins === undefined) {
+    window.gameStats.coins = 0;
+}
+
+window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || {
+    battlesWon: 0,
+    battlesLost: 0,
+    creaturesTraded: 0,
+    pvpBattlesWon: 0,
+    pvpBattlesLost: 0,
+    distanceTraveled: 0,
+    coins: 0
+};
+if (window.gameStats2.coins === undefined) {
+    window.gameStats2.coins = 0;
+}
 
 window.saveStats = function() {
     // Check for new pattern unlocks
@@ -7610,6 +7636,9 @@ window.saveStats = function() {
         localStorage.setItem('wildpulse_unlocked_patterns_cache', JSON.stringify(currentUnlocks));
     }
     localStorage.setItem('wildpulse_stats', JSON.stringify(window.gameStats));
+    if (window.gameStats2) {
+        localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+    }
 };
 
 // Also assign abilities and ensure HP to existing collected creatures
@@ -7906,7 +7935,32 @@ window.closeAllModals = function(exceptId) {
 };
 
 // ==================== MENU & PARTY ====================
+window.updateMenuCoins = function() {
+    // Player 1
+    const p1Coins = (window.gameStats && window.gameStats.coins !== undefined) ? window.gameStats.coins : 0;
+    const p1CountEl = document.getElementById('p1CoinsCount');
+    if (p1CountEl) {
+        p1CountEl.innerText = p1Coins;
+    }
+
+    // Player 2
+    let p2Coins = 0;
+    if (window.gameStats2 && window.gameStats2.coins !== undefined) {
+        p2Coins = window.gameStats2.coins;
+    } else {
+        const stats2 = JSON.parse(localStorage.getItem('wildpulse_stats2'));
+        if (stats2 && stats2.coins !== undefined) {
+            p2Coins = stats2.coins;
+        }
+    }
+    const p2CountEl = document.getElementById('p2CoinsCount');
+    if (p2CountEl) {
+        p2CountEl.innerText = p2Coins;
+    }
+};
+
 window.openMenuModal = function(playerNum = 1) {
+    if (window.updateMenuCoins) window.updateMenuCoins();
     if (window.coopActive) {
         window.closeAllModalsForPlayer(playerNum, 'menuModal');
         if (playerNum === 2) window.p2ActiveModal = 'menuModal';
@@ -13117,13 +13171,20 @@ window.closeBattleModal = function() {
 };
 
 window.endBattle = function(result) {
+    if (window.currentEnemy) currentEnemy = window.currentEnemy;
+    if (window.currentPlayer) currentPlayer = window.currentPlayer;
     setTimeout(() => {
+        let activeParty = null;
+        let storageKey = null;
+        try {
+        if (window.currentEnemy) currentEnemy = window.currentEnemy;
+        if (window.currentPlayer) currentPlayer = window.currentPlayer;
         window.pendingBattleResult = result;
         document.getElementById('battleControls').style.display = 'none';
         document.getElementById('battleCloseBtn').style.display = 'flex'; // Show close button
 
-        const activeParty = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
-        const storageKey = window.activeBattlePlayer === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+        activeParty = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+        storageKey = window.activeBattlePlayer === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
 
         let activeCreature = activeParty.find(c => String(c.id) === String(currentPlayer?.id));
         if (activeCreature) {
@@ -13142,9 +13203,21 @@ window.endBattle = function(result) {
 
             if (result === 'win') {
                 window.logBattle(`${window.getP1Name()} wins!`);
+                if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                window.gameStats.coins += 80;
+                window.saveStats();
+                window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins!`);
             } else if (result === 'loss') {
                 window.logBattle(`${window.getP2Name()} wins!`);
+                if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
+                if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+                window.gameStats2.coins += 80;
+                localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                window.saveStats();
+                window.showModernNotification(`🪙 ${window.getP2Name()} won 80 coins!`);
             }
+            if (window.updateMenuCoins) window.updateMenuCoins();
+
             window.isLocalPvp = false;
             window.localPvpTurn = null;
             window.localPvpActions = {};
@@ -13155,26 +13228,41 @@ window.endBattle = function(result) {
             if (window.isPvpBattle) {
                 if (result === 'win') {
                     window.gameStats.pvpBattlesWon++;
+                    if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                    window.gameStats.coins += 80;
                     window.saveStats();
+                    window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins!`);
                 } else if (result === 'loss') {
                     window.gameStats.pvpBattlesLost++;
                     window.saveStats();
                 }
+                if (window.updateMenuCoins) window.updateMenuCoins();
                 window.isPvpBattle = false;
                 window.pvpOpponentId = null;
             } else {
                 if (result === 'win') {
+                    const wildLevel = currentEnemy ? (currentEnemy.level || 1) : 1;
+                    const coinReward = Math.min(260, 20 + 2 * wildLevel);
+
                     if (window.activeBattlePlayer === 2) {
-                        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0 };
+                        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesWon = (window.gameStats2.battlesWon || 0) + 1;
+                        if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+                        window.gameStats2.coins += coinReward;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                        window.saveStats();
+                        window.showModernNotification(`🪙 ${window.getP2Name()} earned ${coinReward} coins!`);
                     } else {
                         window.gameStats.battlesWon++;
+                        if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                        window.gameStats.coins += coinReward;
                         window.saveStats();
+                        window.showModernNotification(`🪙 ${window.getP1Name()} earned ${coinReward} coins!`);
                     }
+                    if (window.updateMenuCoins) window.updateMenuCoins();
                 } else if (result === 'loss') {
                     if (window.activeBattlePlayer === 2) {
-                        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0 };
+                        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesLost = (window.gameStats2.battlesLost || 0) + 1;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                     } else {
@@ -13240,7 +13328,12 @@ window.endBattle = function(result) {
                 }
             }
         }
-        localStorage.setItem(storageKey, JSON.stringify(activeParty));
+        } catch (e) {
+            console.error("Error in endBattle setTimeout:", e);
+        }
+        if (activeParty && storageKey) {
+            localStorage.setItem(storageKey, JSON.stringify(activeParty));
+        }
         window.isActionRunning = false;
     }, 1500);
 };
