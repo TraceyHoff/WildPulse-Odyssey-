@@ -718,6 +718,57 @@
             margin-right: 5px;
         }
 
+        .party-card.dark-text {
+            color: #111111 !important;
+            text-shadow: none !important;
+        }
+        .party-card.dark-text h3,
+        .party-card.dark-text p,
+        .party-card.dark-text p strong,
+        .party-card.dark-text p em,
+        .party-card.dark-text h4,
+        .party-card.dark-text div,
+        .party-card.dark-text span:not([style*="color"]) {
+            color: #111111 !important;
+            text-shadow: none !important;
+        }
+        .party-card.dark-text .creature-description p {
+            color: #222222 !important;
+            text-shadow: none !important;
+        }
+        .party-card.dark-text h3 {
+            border-bottom-color: #444444 !important;
+        }
+        .party-card input.creature-name {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #87CEEB;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            width: 120px;
+        }
+        .party-card button.save-name-btn {
+            background: linear-gradient(180deg, #5c6bc0, #283593);
+            border: none;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-left: 5px;
+        }
+        .party-card.dark-text input.creature-name {
+            background: rgba(255, 255, 255, 0.4) !important;
+            border: 1px solid #111111 !important;
+            color: #111111 !important;
+        }
+        .party-card.dark-text button.save-name-btn {
+            background: linear-gradient(180deg, #ffffff, #cccccc) !important;
+            border: 1px solid #111111 !important;
+            color: #111111 !important;
+        }
+
         #levelUpModal {
             display: none;
             position: absolute;
@@ -8333,15 +8384,31 @@ function renderPartyForPlayer(playerNum = 1) {
         // Find original index
         const index = creaturesList.findIndex(orig => orig.id === c.id);
         const card = document.createElement('div');
-        card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
         const types = c.type ? c.type.split('-') : [];
+        const isDarkText = types.includes('Light') || types.includes('Electric');
+        card.className = 'party-card' + (c.isShiny ? ' shiny' : '') + (isDarkText ? ' dark-text' : '');
+
         const color1 = window.TYPE_COLORS[types[0]] || 'rgba(30, 60, 90, 0.8)';
         const color2 = types.length > 1 ? (window.TYPE_COLORS[types[1]] || color1) : color1;
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
 
-        const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
+        const statColors = isDarkText ? {
+            health: '#1b5e20',
+            attack: '#b71c1c',
+            defense: '#4a148c',
+            speed: '#e65100',
+            specialAttack: '#006064',
+            specialDefense: '#880e4f'
+        } : {
+            health: '#4caf50',
+            attack: '#ff9800',
+            defense: '#9c27b0',
+            speed: '#ffeb3b',
+            specialAttack: '#00bcd4',
+            specialDefense: '#e91e63'
+        };
 
         const statsHtml = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].map(stat => {
             let base = c.stats[stat] || 50;
@@ -8363,10 +8430,10 @@ function renderPartyForPlayer(playerNum = 1) {
                 if (c.mood.decrease === stat) { affected = true; netFactor *= (1 - mTier * 0.05); }
             }
             if (affected) {
-                let effColor = 'white';
-                if (netFactor > 1.0001) effColor = 'lime';
-                else if (netFactor < 0.9999) effColor = '#ff4d4d';
-                else effColor = 'orange';
+                let effColor = isDarkText ? '#222' : 'white';
+                if (netFactor > 1.0001) effColor = isDarkText ? '#1b5e20' : 'lime';
+                else if (netFactor < 0.9999) effColor = isDarkText ? '#b71c1c' : '#ff4d4d';
+                else effColor = isDarkText ? '#e65100' : 'orange';
                 effHtml = ` <span style="color:${effColor}">(Eff: ${eff})</span>`;
             }
             return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature and Mood modifications."><span style="color:${statColor};">${stat}</span>: ${Math.floor(scaled)}${effHtml}</div>`;
@@ -8377,16 +8444,16 @@ function renderPartyForPlayer(playerNum = 1) {
             parentsHtml = `<p><em>Parents: ${c.parents.name1} (${c.parents.type1}) & ${c.parents.name2} (${c.parents.type2})</em></p>`;
         }
 
-        let natureColor = 'white';
+        let natureColor = isDarkText ? '#222' : 'white';
         if (c.nature) {
             if (c.nature.increase && !c.nature.decrease) {
-                natureColor = '#4caf50';
+                natureColor = isDarkText ? '#1b5e20' : '#4caf50';
             }
             else if (!c.nature.increase && c.nature.decrease) {
-                natureColor = '#f44336';
+                natureColor = isDarkText ? '#b71c1c' : '#f44336';
             }
             else if (c.nature.increase && c.nature.decrease) {
-                natureColor = '#ff9800';
+                natureColor = isDarkText ? '#e65100' : '#ff9800';
             }
         }
         let natureTooltip = c.nature ? `${c.nature.name} (Tier ${c.nature.tier || 2}): ` : '';
@@ -8399,11 +8466,11 @@ function renderPartyForPlayer(playerNum = 1) {
         }
         let natureHtml = c.nature ? `<p data-tooltip="${natureTooltip}">Nature: <span style="color:${natureColor};">${c.nature.name}</span></p>` : '<p>Nature: None</p>';
 
-        let moodColor = 'white';
+        let moodColor = isDarkText ? '#222' : 'white';
         if (c.mood) {
-            if (c.mood.increase && !c.mood.decrease) moodColor = '#4caf50';
-            else if (!c.mood.increase && c.mood.decrease) moodColor = '#f44336';
-            else if (c.mood.increase && c.mood.decrease) moodColor = '#ff9800';
+            if (c.mood.increase && !c.mood.decrease) moodColor = isDarkText ? '#1b5e20' : '#4caf50';
+            else if (!c.mood.increase && c.mood.decrease) moodColor = isDarkText ? '#b71c1c' : '#f44336';
+            else if (c.mood.increase && c.mood.decrease) moodColor = isDarkText ? '#e65100' : '#ff9800';
         }
         let moodTooltip = c.mood ? `${c.mood.name} (Tier ${c.mood.tier || 2}): ` : '';
         if (c.mood) {
@@ -8415,14 +8482,23 @@ function renderPartyForPlayer(playerNum = 1) {
         }
         let moodHtml = c.mood ? `<p data-tooltip="${moodTooltip}">Mood: <span style="color:${moodColor};">${c.mood.name}</span></p>` : '<p>Mood: None</p>';
 
-        let abilityHtml = c.ability ? `<p data-tooltip="${c.ability.message}">Ability: <span style="color:${c.ability.color};">${c.ability.name}</span></p>` : '<p>Ability: None</p>';
+        let abilityColor = c.ability ? c.ability.color : 'white';
+        if (isDarkText && abilityColor === 'white') {
+            abilityColor = '#222';
+        } else if (isDarkText) {
+            if (abilityColor === '#ffeb3b' || abilityColor === 'yellow' || abilityColor === '#00ffff' || abilityColor === 'cyan') {
+                abilityColor = '#e65100';
+            }
+        }
+        let abilityHtml = c.ability ? `<p data-tooltip="${c.ability.message}">Ability: <span style="color:${abilityColor};">${c.ability.name}</span></p>` : '<p>Ability: None</p>';
 
         let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
+        const lvlColor = isDarkText ? '#0d47a1' : '#2196F3';
 
         card.innerHTML = `
             <div>
                 <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20"> <button class="save-name-btn" onclick="window.saveName(this, ${index}, ${playerNum})">Save</button> - <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span></h3>
-                <p><strong>Level <span style="color:#2196F3">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:#2196F3">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span></p>
+                <p><strong>Level <span style="color:${lvlColor}">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:${lvlColor}">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span></p>
                 <div class="creature-description" style="display: flex; gap: 15px; align-items: center; margin-bottom: 10px;">
                     <div class="creature-sprite-container" style="flex-shrink: 0; width: 80px; height: 80px;"></div>
                     <p style="color: #ccc; font-style: italic; margin: 0; flex-grow: 1;">${c.description}</p>
@@ -11778,7 +11854,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     }
 
     const sprite = scene.add.sprite(x, y, textureKey);
-    sprite.setDisplaySize(38, 38);
+    sprite.setDisplaySize(40, 40);
     scene.physics.add.existing(sprite);
     sprite.setDepth(10);
     sprite.setData('creatureData', clonedData);
