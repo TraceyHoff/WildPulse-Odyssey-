@@ -625,6 +625,46 @@
             cursor: pointer !important;
             z-index: 150 !important;
         }
+        /* Inventory Slots CSS */
+        .inventory-slots-container {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none; /* Initially hidden, managed by window.gameStarted */
+            flex-direction: column;
+            gap: 12px;
+            z-index: 450; /* Above Phaser's canvas, below main modal overlays */
+        }
+        #p1InventorySlots {
+            left: 20px;
+        }
+        #p2InventorySlots {
+            right: 20px;
+        }
+        .inventory-slot {
+            width: 48px;
+            height: 48px;
+            background: rgba(10, 30, 20, 0.75);
+            border: 2px solid rgba(165, 214, 167, 0.4);
+            border-radius: 10px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8), 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .inventory-slot::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        }
+        .inventory-slot:hover {
+            transform: scale(1.08);
+            border-color: rgba(165, 214, 167, 1);
+            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5), 0 0 12px rgba(102, 187, 106, 0.6);
+            background: rgba(15, 45, 30, 0.85);
+        }
         #menuModal {
             display: none;
             position: absolute;
@@ -1070,6 +1110,19 @@
 <div id="loadingScreen">
     <div class="spinner"></div>
     <h2>Loading World...</h2>
+</div>
+
+<!-- Inventory Slots Overlay -->
+<div id="p1InventorySlots" class="inventory-slots-container">
+    <div class="inventory-slot"></div>
+    <div class="inventory-slot"></div>
+    <div class="inventory-slot"></div>
+</div>
+
+<div id="p2InventorySlots" class="inventory-slots-container">
+    <div class="inventory-slot"></div>
+    <div class="inventory-slot"></div>
+    <div class="inventory-slot"></div>
 </div>
 
 <!-- Hospital Directional Arrows Overlay -->
@@ -2811,6 +2864,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.weatherLabel) window.weatherLabel.setVisible(true);
             if (window.WildPulseMusic) window.WildPulseMusic.start();
         } catch(e) {}
+
+        const p1Slots = document.getElementById('p1InventorySlots');
+        if (p1Slots) p1Slots.style.display = 'flex';
+        if (window.coopActive) {
+            const p2Slots = document.getElementById('p2InventorySlots');
+            if (p2Slots) p2Slots.style.display = 'flex';
+        }
+
         window.gameStarted = true;
     };
 
@@ -2942,7 +3003,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.closeStorageModal) window.closeStorageModal(playerNum);
     }));
     document.querySelectorAll('.close-help-btn').forEach(btn => btn.addEventListener('click', () => {
-        const playerNum = btn.closest('.p2-col') ? 2 : 1;
+        let playerNum = 1;
+        if (window.coopActive) {
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal && helpModal.classList.contains('p2-help-active')) {
+                playerNum = 2;
+            } else if (btn.closest('.p2-col')) {
+                playerNum = 2;
+            }
+        }
         if (window.closeHelpModal) window.closeHelpModal(playerNum);
     }));
     document.querySelectorAll('.close-journal-btn').forEach(btn => btn.addEventListener('click', () => {
@@ -8796,6 +8865,11 @@ window.exitGame = function() {
         if (p1Arrow) p1Arrow.style.display = 'none';
         if (p2Arrow) p2Arrow.style.display = 'none';
 
+        const p1Slots = document.getElementById('p1InventorySlots');
+        const p2Slots = document.getElementById('p2InventorySlots');
+        if (p1Slots) p1Slots.style.display = 'none';
+        if (p2Slots) p2Slots.style.display = 'none';
+
         window.cameraFollowsPlayer = false;
         if (window.closeMenuModal) window.closeMenuModal();
         document.getElementById('menuBtn').style.display = 'none';
@@ -13179,6 +13253,11 @@ window.enableCoop = function(scene) {
     // Toggle body class for split screen layout styling
     document.body.classList.add('coop-active-layout');
 
+    if (window.gameStarted) {
+        const p2Slots = document.getElementById('p2InventorySlots');
+        if (p2Slots) p2Slots.style.display = 'flex';
+    }
+
     // Force fullscreen mode immediately when entering split screen mode
     if (game && game.scale && !game.scale.isFullscreen) {
         game.scale.startFullscreen();
@@ -13294,6 +13373,9 @@ window.disableCoop = function(scene) {
 
     // Remove body class for split screen layout styling
     document.body.classList.remove('coop-active-layout');
+
+    const p2Slots = document.getElementById('p2InventorySlots');
+    if (p2Slots) p2Slots.style.display = 'none';
 
     // 1. Destroy Player 2 elements
     if (window.player2) {
@@ -13412,7 +13494,9 @@ function isPointerOverButton(p) {
                     target.classList.contains('move-down-btn') ||
                     target.classList.contains('store-btn') ||
                     target.classList.contains('release-btn') ||
-                    target.classList.contains('retrieve-btn')
+                    target.classList.contains('retrieve-btn') ||
+                    target.classList.contains('inventory-slot') ||
+                    target.classList.contains('inventory-slots-container')
                 )) {
                     return true;
                 }
