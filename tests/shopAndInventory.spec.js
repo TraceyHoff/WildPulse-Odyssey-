@@ -122,4 +122,60 @@ test.describe('Shop and Inventory Systems', () => {
     await expect(buffsIndicator).toContainText('Repel');
     await expect(buffsIndicator).toContainText('Shiny');
   });
+
+  test('should display dynamic available to buy quantity and each player coins', async ({ page }) => {
+    // Grant coins and prepare empty inventory
+    await page.evaluate(() => {
+        if (!window.gameStats) window.gameStats = { coins: 0 };
+        window.gameStats.coins = 350;
+        window.updateMenuCoins();
+        window.p1Inventory = [];
+        window.saveInventory();
+        window.updateInventoryUI();
+    });
+
+    // Open store modal (which now automatically calls updateStoreUI)
+    await page.evaluate(() => {
+        if (window.openStoreModal) window.openStoreModal();
+    });
+
+    await expect(page.locator('#storeModal')).toBeVisible();
+
+    // Verify Player 1 Coins are displayed as 350
+    const storeP1Col = page.locator('#storeContent');
+    await expect(storeP1Col).toContainText('Coins: 350');
+
+    // Since inventory is empty, dynamic available to buy for each item is 30 (10 per slot * 3 slots)
+    const repelLabel = storeP1Col.locator('.available-qty-label').first();
+    await expect(repelLabel).toContainText('Available to Buy: 30');
+
+    // Buy 1 Repellent
+    const buyRepellentBtn = page.locator('button[onclick*="Repellent"]').first();
+    await buyRepellentBtn.click();
+    await page.waitForTimeout(500);
+
+    // Dynamic available to buy for Repellent should now be 29 (since 1 is in slot, leaving 9 in that slot + 20 in other slots)
+    await expect(repelLabel).toContainText('Available to Buy: 29');
+
+    // Fill inventory slots with other unique items
+    const buyHPBoosterBtn = page.locator('button[onclick*="HP Booster"]').first();
+    const buyBottleBtn = page.locator('button[onclick*="Healing Juice Bottle"]').first();
+
+    await buyHPBoosterBtn.click();
+    await page.waitForTimeout(300);
+    await buyBottleBtn.click();
+    await page.waitForTimeout(300);
+
+    // Now inventory slots are:
+    // Slot 0: Repellent (1) - 9 left in slot
+    // Slot 1: HP Booster (1) - 9 left in slot
+    // Slot 2: Healing Juice Bottle (1) - 9 left in slot
+    // Total free slots = 0.
+    // Dynamic available to buy for Repellent should be 9
+    await expect(repelLabel).toContainText('Available to Buy: 9');
+
+    // Jank Juice is not in the inventory and we have 0 free slots.
+    // Dynamic available to buy for Jank Juice should be 0, button text should be "Full"
+    await expect(storeP1Col).toContainText('Available to Buy: 0');
+  });
 });

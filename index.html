@@ -7711,10 +7711,24 @@ window.updateStoreUI = function() {
         `;
 
         items.forEach(item => {
+            const inv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
+            let spaceInExisting = 0;
+            inv.forEach(invItem => {
+                if (invItem.name === item.name) {
+                    spaceInExisting += (10 - invItem.quantity);
+                }
+            });
+            const freeSlots = 3 - inv.length;
+            const available = spaceInExisting + (freeSlots * 10);
+
             const canAfford = coins >= item.price;
-            const btnStyle = canAfford
+            const hasSpace = available > 0;
+            const canBuy = canAfford && hasSpace;
+            const btnStyle = canBuy
                 ? "background: linear-gradient(180deg, #4caf50, #2e7d32); border: 1px solid #a5d6a7; cursor: pointer;"
                 : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
+
+            const btnText = !hasSpace ? "Full" : "Buy";
 
             html += `
                 <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
@@ -7722,11 +7736,12 @@ window.updateStoreUI = function() {
                     <div style="flex: 1;">
                         <div style="font-weight: bold; font-size: 14px; color: #fff;">${item.name}</div>
                         <div style="font-size: 11px; color: #aaa; margin-top: 2px;">${item.desc}</div>
+                        <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available}</div>
                     </div>
                     <div style="text-align: right; min-width: 80px;">
                         <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">🪙 ${item.price}</div>
                         <button class="buy-item-btn" onclick="window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}">
-                            Buy
+                            ${btnText}
                         </button>
                     </div>
                 </div>
@@ -9831,6 +9846,10 @@ window.openStoreModal = function(playerCollider) {
         if (activeModal !== null) return;
     } else {
         if (window.isAnyModalOpen()) return;
+    }
+
+    if (window.updateStoreUI) {
+        window.updateStoreUI();
     }
 
     if (window.coopActive) {
