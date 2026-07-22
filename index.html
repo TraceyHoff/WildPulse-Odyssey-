@@ -18,23 +18,36 @@
         canvas {
             display: block;
         }
-        /* Shared button styles for professional UI */
+        /* Shared button styles for professional UI - Re-engineered for Cyberpunk UI */
         button {
-            border-radius: 0 12px 0 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            color: #e0e0ff;
+            border-radius: 4px !important;
+            border: 1px solid rgba(0, 255, 210, 0.4) !important;
+            background: linear-gradient(180deg, rgba(8, 20, 32, 0.9), rgba(0, 143, 122, 0.35)) !important;
+            box-shadow: 0 0 10px rgba(0, 255, 210, 0.15), inset 0 0 5px rgba(0, 255, 210, 0.1) !important;
+            color: #00ffd2 !important;
+            font-family: 'Courier New', Courier, monospace, sans-serif !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1.5px !important;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            text-shadow: 0 0 5px rgba(0, 255, 210, 0.6) !important;
+            cursor: pointer;
         }
 
         /* General text color for readability and theme */
         p, h2, h3, label, div {
-            color: #e0e0ff;
+            color: #e0f7fa;
         }
         button:hover {
-            transform: scale(1.05);
-            filter: brightness(1.2);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+            transform: translateY(-2px) scale(1.03) !important;
+            background: linear-gradient(180deg, rgba(0, 255, 210, 0.25), rgba(0, 143, 122, 0.5)) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 210, 0.45), inset 0 0 10px rgba(0, 255, 210, 0.2) !important;
+            border-color: #00ffd2 !important;
+            filter: brightness(1.2) !important;
+        }
+        button:active {
+            transform: translateY(1px) scale(0.98) !important;
+            box-shadow: 0 0 5px rgba(0, 255, 210, 0.2) !important;
         }
 
         @keyframes modalFadeIn {
@@ -113,16 +126,52 @@
             transform: none !important;
             border-radius: 0 !important;
             margin: 0 !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border: 1px solid rgba(0, 255, 210, 0.25) !important;
             box-sizing: border-box;
             overflow-y: auto;
             padding: 50px 15px 15px 15px !important;
 
-            box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 35px rgba(0, 255, 210, 0.15), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
 
-            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
-            backdrop-filter: blur(25px);
+            background: linear-gradient(135deg, rgba(5, 12, 24, 0.97), rgba(10, 24, 44, 0.97)) !important;
+            backdrop-filter: blur(30px) !important;
             animation: modalFadeIn 0.2s ease-out;
+            color: #e0f7fa !important;
+        }
+
+        /* Scanlines overlay effect to emulate high-tech display panel */
+        #breedingModal::after, #menuModal::after, #partyModal::after, #storageModal::after, #helpModal::after, #levelUpModal::after, #tradeModal::after, #pvpModal::after, #journalModal::after, #battleSwapModal::after, #storeModal::after, #battleModal::after, #customizationModal::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 4px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* Redesign scrollbars inside modals to look futuristic/holographic */
+        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 210, 0.4);
+            border-radius: 3px;
+        }
+
+        /* General text elements high-tech adjustments */
+        #breedingModal h2, #menuModal h2, #partyModal h2, #storageModal h2, #helpModal h2, #levelUpModal h2, #tradeModal h2, #pvpModal h2, #journalModal h2, #battleSwapModal h2, #storeModal h2, #battleModal h2, #customizationModal h2 {
+            font-family: 'Courier New', Courier, monospace, sans-serif !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            letter-spacing: 2px !important;
+            text-shadow: 0 0 8px rgba(0, 255, 210, 0.6) !important;
+            color: #00ffd2 !important;
         }
 
         /* Direct Children Center Constraint */
@@ -492,7 +541,9 @@
             font-family: monospace;
             border-radius: 0 !important;
             margin: 0 !important;
-            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
+            background: linear-gradient(135deg, rgba(5, 12, 24, 0.97), rgba(10, 24, 44, 0.97)) !important;
+            border: 1px solid rgba(0, 255, 210, 0.25) !important;
+            box-shadow: 0 0 35px rgba(0, 255, 210, 0.15), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
             overflow-y: auto !important;
         }
 
@@ -680,36 +731,206 @@
             margin: 10px 0;
             padding: 10px;
             font-size: 16px;
-            background: linear-gradient(180deg, #2e7d32, #1b5e20);
-            color: white;
-            border: 1px solid #a5d6a7;
+            background: linear-gradient(180deg, rgba(8, 20, 32, 0.9), rgba(0, 143, 122, 0.35)) !important;
+            color: #00ffd2 !important;
+            border: 1px solid rgba(0, 255, 210, 0.4) !important;
             cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border-radius: 4px !important;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+            box-shadow: 0 0 10px rgba(0, 255, 210, 0.15) !important;
+            text-shadow: 0 0 5px rgba(0, 255, 210, 0.5) !important;
+            font-family: 'Courier New', Courier, monospace, sans-serif !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
         }
         #menuModal button:hover, #partyModal > button:hover, #storageModal > button:hover, #breedingModal button:hover, #helpModal button:hover, #tradeModal button:hover, #pvpModal button:hover {
-            transform: scale(1.05);
-            filter: brightness(1.2);
-            box-shadow: 0 0 15px rgba(0,255,100,0.6);
+            transform: translateY(-2px) scale(1.03) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 210, 0.45) !important;
+            filter: brightness(1.2) !important;
         }
-        #menuModal button#menuPartyBtn, #menuModal button#menuPartyBtn_P2 { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
-        #menuModal button#menuStorageBtn, #menuModal button#menuStorageBtn_P2 { background: linear-gradient(180deg, #8d6e63, #4e342e); border-color: #bcaaa4; }
-        #menuModal button#breedBtn, #menuModal button#breedBtn_P2 { background: linear-gradient(180deg, #ffca28, #ff8f00); border-color: #ffe082; color: #333; text-shadow: none; }
-        #menuModal button#menuJournalBtn, #menuModal button#menuJournalBtn_P2 { background: linear-gradient(180deg, #ab47bc, #6a1b9a); border-color: #ce93d8; color: white; }
-        #menuModal button#menuHelpBtn, #menuModal button#menuHelpBtn_P2 { background: linear-gradient(180deg, #26c6da, #00838f); border-color: #80deea; }
-        #menuModal button#menuCustomizeBtn, #menuModal button#menuCustomizeBtn_P2 { background: linear-gradient(180deg, #42a5f5, #1565c0); border-color: #90caf9; color: white; }
-        #menuModal button#menuDeleteBtn { background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a; }
-        #menuModal button#coopToggleBtn { background: linear-gradient(180deg, #ba68c8, #7b1fa2); border-color: #e1bee7; }
-        #menuModal button#fullscreenToggleBtn { background: linear-gradient(180deg, #78909c, #37474f); border-color: #b0bec5; }
-        #menuModal button#exitGameBtn { background: linear-gradient(180deg, #ff9800, #e65100); border-color: #ffcc80; }
+        #menuModal button#menuPartyBtn, #menuModal button#menuPartyBtn_P2 {
+            background: linear-gradient(180deg, rgba(46, 125, 50, 0.25), rgba(27, 94, 32, 0.5)) !important;
+            border: 1px solid #00ff66 !important;
+            color: #00ff66 !important;
+            text-shadow: 0 0 5px rgba(0, 255, 102, 0.6) !important;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.2) !important;
+        }
+        #menuModal button#menuPartyBtn:hover, #menuModal button#menuPartyBtn_P2:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.5) !important;
+            border-color: #00ff66 !important;
+        }
+        #menuModal button#menuStorageBtn, #menuModal button#menuStorageBtn_P2 {
+            background: linear-gradient(180deg, rgba(141, 110, 99, 0.25), rgba(78, 52, 46, 0.5)) !important;
+            border: 1px solid #ffa726 !important;
+            color: #ffa726 !important;
+            text-shadow: 0 0 5px rgba(255, 167, 38, 0.6) !important;
+            box-shadow: 0 0 10px rgba(255, 167, 38, 0.2) !important;
+        }
+        #menuModal button#menuStorageBtn:hover, #menuModal button#menuStorageBtn_P2:hover {
+            box-shadow: 0 0 20px rgba(255, 167, 38, 0.5) !important;
+            border-color: #ffa726 !important;
+        }
+        #menuModal button#breedBtn, #menuModal button#breedBtn_P2 {
+            background: linear-gradient(180deg, rgba(255, 202, 40, 0.25), rgba(255, 143, 0, 0.5)) !important;
+            border: 1px solid #ffd700 !important;
+            color: #ffd700 !important;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.6) !important;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2) !important;
+        }
+        #menuModal button#breedBtn:hover, #menuModal button#breedBtn_P2:hover {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5) !important;
+            border-color: #ffd700 !important;
+        }
+        #menuModal button#menuJournalBtn, #menuModal button#menuJournalBtn_P2 {
+            background: linear-gradient(180deg, rgba(171, 71, 188, 0.25), rgba(106, 27, 154, 0.5)) !important;
+            border: 1px solid #e040fb !important;
+            color: #e040fb !important;
+            text-shadow: 0 0 5px rgba(224, 64, 251, 0.6) !important;
+            box-shadow: 0 0 10px rgba(224, 64, 251, 0.2) !important;
+        }
+        #menuModal button#menuJournalBtn:hover, #menuModal button#menuJournalBtn_P2:hover {
+            box-shadow: 0 0 20px rgba(224, 64, 251, 0.5) !important;
+            border-color: #e040fb !important;
+        }
+        #menuModal button#menuHelpBtn, #menuModal button#menuHelpBtn_P2 {
+            background: linear-gradient(180deg, rgba(38, 198, 218, 0.25), rgba(0, 131, 143, 0.5)) !important;
+            border: 1px solid #00e5ff !important;
+            color: #00e5ff !important;
+            text-shadow: 0 0 5px rgba(0, 229, 255, 0.6) !important;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2) !important;
+        }
+        #menuModal button#menuHelpBtn:hover, #menuModal button#menuHelpBtn_P2:hover {
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.5) !important;
+            border-color: #00e5ff !important;
+        }
+        #menuModal button#menuCustomizeBtn, #menuModal button#menuCustomizeBtn_P2 {
+            background: linear-gradient(180deg, rgba(66, 165, 245, 0.25), rgba(21, 101, 192, 0.5)) !important;
+            border: 1px solid #29b6f6 !important;
+            color: #29b6f6 !important;
+            text-shadow: 0 0 5px rgba(41, 182, 246, 0.6) !important;
+            box-shadow: 0 0 10px rgba(41, 182, 246, 0.2) !important;
+        }
+        #menuModal button#menuCustomizeBtn:hover, #menuModal button#menuCustomizeBtn_P2:hover {
+            box-shadow: 0 0 20px rgba(41, 182, 246, 0.5) !important;
+            border-color: #29b6f6 !important;
+        }
+        #menuModal button#menuDeleteBtn, #startModal button#startDeleteBtn {
+            background: linear-gradient(180deg, rgba(239, 83, 80, 0.25), rgba(198, 40, 40, 0.5)) !important;
+            border: 1px solid #ff1744 !important;
+            color: #ff1744 !important;
+            text-shadow: 0 0 5px rgba(255, 23, 68, 0.6) !important;
+            box-shadow: 0 0 10px rgba(255, 23, 68, 0.2) !important;
+        }
+        #menuModal button#menuDeleteBtn:hover, #startModal button#startDeleteBtn:hover {
+            box-shadow: 0 0 20px rgba(255, 23, 68, 0.5) !important;
+            border-color: #ff1744 !important;
+        }
+        #menuModal button#coopToggleBtn {
+            background: linear-gradient(180deg, rgba(186, 104, 200, 0.25), rgba(123, 31, 162, 0.5)) !important;
+            border: 1px solid #d500f9 !important;
+            color: #d500f9 !important;
+            text-shadow: 0 0 5px rgba(213, 0, 249, 0.6) !important;
+            box-shadow: 0 0 10px rgba(213, 0, 249, 0.2) !important;
+        }
+        #menuModal button#coopToggleBtn:hover {
+            box-shadow: 0 0 20px rgba(213, 0, 249, 0.5) !important;
+            border-color: #d500f9 !important;
+        }
+        #menuModal button#fullscreenToggleBtn {
+            background: linear-gradient(180deg, rgba(120, 144, 156, 0.25), rgba(55, 71, 79, 0.5)) !important;
+            border: 1px solid #b0bec5 !important;
+            color: #b0bec5 !important;
+            text-shadow: 0 0 5px rgba(176, 190, 197, 0.6) !important;
+            box-shadow: 0 0 10px rgba(176, 190, 197, 0.2) !important;
+        }
+        #menuModal button#fullscreenToggleBtn:hover {
+            box-shadow: 0 0 20px rgba(176, 190, 197, 0.5) !important;
+            border-color: #b0bec5 !important;
+        }
+        #menuModal button#exitGameBtn {
+            background: linear-gradient(180deg, rgba(255, 152, 0, 0.25), rgba(230, 81, 0, 0.5)) !important;
+            border: 1px solid #ff9100 !important;
+            color: #ff9100 !important;
+            text-shadow: 0 0 5px rgba(255, 145, 0, 0.6) !important;
+            box-shadow: 0 0 10px rgba(255, 145, 0, 0.2) !important;
+        }
+        #menuModal button#exitGameBtn:hover {
+            box-shadow: 0 0 20px rgba(255, 145, 0, 0.5) !important;
+            border-color: #ff9100 !important;
+        }
         #menuModal button:not(.close-btn) {
             width: fit-content !important;
             margin: 10px auto !important;
-            padding: 10px 0px !important;
+            padding: 10px 20px !important;
         }
-        #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn, #journalModal button, #pvpModal button.close-pvp-btn { background: linear-gradient(180deg, #555, #222); border-color: #777; }
-        #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn, #pvpModal button#sendPvpBtn { background: linear-gradient(180deg, #66bb6a, #2e7d32); border-color: #a5d6a7; }
+        #partyModal > button, #storageModal > button, #breedingModal button:last-of-type, #helpModal button, #tradeModal button.close-trade-btn, #journalModal button, #pvpModal button.close-pvp-btn {
+            background: linear-gradient(180deg, rgba(80, 80, 80, 0.3), rgba(30, 30, 30, 0.6)) !important;
+            border-color: rgba(0, 255, 210, 0.3) !important;
+            color: #00ffd2 !important;
+        }
+        #breedingModal button:first-of-type, #tradeModal button#sendTradeBtn, #pvpModal button#sendPvpBtn {
+            background: linear-gradient(180deg, rgba(76, 175, 80, 0.3), rgba(46, 125, 50, 0.6)) !important;
+            border-color: #00ff66 !important;
+            color: #00ff66 !important;
+            text-shadow: 0 0 5px rgba(0, 255, 102, 0.6) !important;
+        }
+
+        /* Cyberpunk futuristic nested modal containers style overrides */
+        .party-card, .store-item-card, .store-grid > div, #tradeModal > div > div {
+            background: rgba(10, 25, 45, 0.7) !important;
+            border: 1px solid rgba(0, 255, 210, 0.3) !important;
+            box-shadow: 0 0 15px rgba(0, 255, 210, 0.1), inset 0 0 10px rgba(0, 255, 210, 0.05) !important;
+            border-radius: 6px !important;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        }
+        .party-card:hover, .store-item-card:hover, .store-grid > div:hover {
+            border-color: rgba(0, 255, 210, 0.6) !important;
+            box-shadow: 0 0 25px rgba(0, 255, 210, 0.25), inset 0 0 15px rgba(0, 255, 210, 0.1) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        .storage-box {
+            background: rgba(8, 16, 32, 0.8) !important;
+            border: 1px solid rgba(0, 255, 210, 0.3) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 210, 0.15) !important;
+            border-radius: 8px !important;
+        }
+        .storage-grid .creature-slot {
+            background: rgba(15, 35, 60, 0.5) !important;
+            border: 1px solid rgba(0, 255, 210, 0.2) !important;
+            border-radius: 4px !important;
+            transition: all 0.2s ease !important;
+        }
+        .storage-grid .creature-slot:hover {
+            border-color: rgba(0, 255, 210, 0.6) !important;
+            box-shadow: 0 0 12px rgba(0, 255, 210, 0.4) !important;
+            background: rgba(15, 35, 60, 0.8) !important;
+        }
+
+        /* Customize inner card of Challenge and Customization modals */
+        #challengeModal > div, #customizationModal > div {
+            background: linear-gradient(135deg, rgba(8, 12, 24, 0.96), rgba(12, 20, 36, 0.96)) !important;
+            border: 1px solid rgba(0, 255, 210, 0.3) !important;
+            box-shadow: 0 0 30px rgba(0, 255, 210, 0.15) !important;
+            border-radius: 8px !important;
+        }
+
+        /* High-tech dropdown select and input styling */
+        input[type="text"], select {
+            background: rgba(10, 20, 30, 0.85) !important;
+            border: 1px solid rgba(0, 255, 210, 0.4) !important;
+            border-radius: 4px !important;
+            color: #00ffd2 !important;
+            padding: 8px !important;
+            font-family: monospace !important;
+            outline: none !important;
+            transition: all 0.2s ease !important;
+        }
+        input[type="text"]:focus, select:focus {
+            border-color: #00ffd2 !important;
+            box-shadow: 0 0 10px rgba(0, 255, 210, 0.4) !important;
+        }
 
 
         #partyModal {
@@ -12731,15 +12952,19 @@ window.showFloatingText = function(containerId, text, color) {
 };
 
 window.doPlayerAction = function(action, callback) {
-    if (!window.inBattle) {
-        if (callback) callback();
-        return;
-    }
-    let canMove = processStatuses(currentPlayer);
-    if (currentPlayer.currentHp <= 0) {
-        updateBattleUI();
-        if (window.handleFaint(currentPlayer)) return;
-    } else if (!canMove) {
+    try {
+        if (!window.inBattle) {
+            if (callback) callback();
+            return;
+        }
+        let canMove = processStatuses(currentPlayer);
+        if (currentPlayer.currentHp <= 0) {
+            updateBattleUI();
+            if (window.handleFaint(currentPlayer)) return;
+            if (callback) setTimeout(callback, 1000);
+            else window.isActionRunning = false;
+            return;
+        } else if (!canMove) {
         updateBattleUI();
         if (callback) setTimeout(callback, 1000);
         return;
@@ -12870,15 +13095,21 @@ window.doPlayerAction = function(action, callback) {
     }
 
     if (callback) setTimeout(callback, 1000);
+    } catch (err) {
+        console.error("Error in doPlayerAction:", err);
+        window.isActionRunning = false;
+        if (callback) callback();
+    }
 };
 
 window.doEnemyAction = function(callback) {
-    if (!window.inBattle) {
-        if (callback) callback();
-        return;
-    }
-    let canMove = processStatuses(currentEnemy);
-    if (!canMove) {
+    try {
+        if (!window.inBattle) {
+            if (callback) callback();
+            return;
+        }
+        let canMove = processStatuses(currentEnemy);
+        if (!canMove) {
         updateBattleUI();
         if (currentPlayer.currentHp <= 0) {
             if (!window.handleFaint(currentPlayer)) {
@@ -12970,6 +13201,11 @@ window.doEnemyAction = function(callback) {
     }
 
     if (callback) setTimeout(callback, 1000);
+    } catch (err) {
+        console.error("Error in doEnemyAction:", err);
+        window.isActionRunning = false;
+        if (callback) callback();
+    }
 };
 
 window.openBattleSwapModal = function() {
