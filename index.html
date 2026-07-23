@@ -12473,8 +12473,8 @@ function updateHospitalArrows() {
     if (!p1Arrow || !p2Arrow) return;
 
     if (!window.gameStarted) {
-        p1Arrow.style.display = 'none';
-        p2Arrow.style.display = 'none';
+        if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
+        if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
         return;
     }
 
@@ -12495,8 +12495,8 @@ function updateHospitalArrows() {
     }
 
     if (p1Visible && player) {
-        p1Arrow.style.display = 'flex';
-        p1Arrow.style.left = window.coopActive ? '25%' : '50%';
+        const targetDisplay = 'flex';
+        const targetLeft = window.coopActive ? '25%' : '50%';
 
         // Calculate direction to hospital center at (10050, 10050)
         const dx = 10050 - player.x;
@@ -12504,21 +12504,24 @@ function updateHospitalArrows() {
         const distance = Math.hypot(dx, dy);
 
         // Fade arrows slightly when very close to the hospital
-        if (distance < 150) {
-            p1Arrow.style.opacity = '0.2';
-        } else {
-            p1Arrow.style.opacity = '1';
-        }
+        const targetOpacity = (distance < 150) ? '0.2' : '1';
 
         const angleRad = Math.atan2(dy, dx);
         const angleDeg = (angleRad * 180) / Math.PI;
+        const targetTransform = `rotate(${angleDeg}deg)`;
+
+        if (p1Arrow.style.display !== targetDisplay) p1Arrow.style.display = targetDisplay;
+        if (p1Arrow.style.left !== targetLeft) p1Arrow.style.left = targetLeft;
+        if (p1Arrow.style.opacity !== targetOpacity) p1Arrow.style.opacity = targetOpacity;
 
         const svgElement = p1Arrow.querySelector('svg');
         if (svgElement) {
-            svgElement.style.transform = `rotate(${angleDeg}deg)`;
+            if (svgElement.style.transform !== targetTransform) {
+                svgElement.style.transform = targetTransform;
+            }
         }
     } else {
-        p1Arrow.style.display = 'none';
+        if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
     }
 
     // Determine P2 arrow visibility
@@ -12535,28 +12538,31 @@ function updateHospitalArrows() {
     }
 
     if (p2Visible && window.player2) {
-        p2Arrow.style.display = 'flex';
-        p2Arrow.style.left = '75%';
+        const targetDisplay = 'flex';
+        const targetLeft = '75%';
 
         const dx = 10050 - window.player2.x;
         const dy = 10050 - window.player2.y;
         const distance = Math.hypot(dx, dy);
 
-        if (distance < 150) {
-            p2Arrow.style.opacity = '0.2';
-        } else {
-            p2Arrow.style.opacity = '1';
-        }
+        const targetOpacity = (distance < 150) ? '0.2' : '1';
 
         const angleRad = Math.atan2(dy, dx);
         const angleDeg = (angleRad * 180) / Math.PI;
+        const targetTransform = `rotate(${angleDeg}deg)`;
+
+        if (p2Arrow.style.display !== targetDisplay) p2Arrow.style.display = targetDisplay;
+        if (p2Arrow.style.left !== targetLeft) p2Arrow.style.left = targetLeft;
+        if (p2Arrow.style.opacity !== targetOpacity) p2Arrow.style.opacity = targetOpacity;
 
         const svgElement = p2Arrow.querySelector('svg');
         if (svgElement) {
-            svgElement.style.transform = `rotate(${angleDeg}deg)`;
+            if (svgElement.style.transform !== targetTransform) {
+                svgElement.style.transform = targetTransform;
+            }
         }
     } else {
-        p2Arrow.style.display = 'none';
+        if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
     }
 }
 
@@ -14434,7 +14440,11 @@ function update() {
         if (window.p1JankJuiceTime && window.p1JankJuiceTime > 0) {
             txts.push(`🧃 Shiny: ${Math.ceil(window.p1JankJuiceTime / 1000)}s`);
         }
-        p1Buffs.innerText = txts.join('\n');
+        const textVal = txts.join('\n');
+        if (window._lastP1BuffsText !== textVal) {
+            p1Buffs.innerText = textVal;
+            window._lastP1BuffsText = textVal;
+        }
     }
 
     const p2Buffs = document.getElementById('p2ActiveBuffs');
@@ -14446,7 +14456,11 @@ function update() {
         if (window.p2JankJuiceTime && window.p2JankJuiceTime > 0) {
             txts.push(`🧃 Shiny: ${Math.ceil(window.p2JankJuiceTime / 1000)}s`);
         }
-        p2Buffs.innerText = txts.join('\n');
+        const textVal = txts.join('\n');
+        if (window._lastP2BuffsText !== textVal) {
+            p2Buffs.innerText = textVal;
+            window._lastP2BuffsText = textVal;
+        }
     }
 
     if (window.waterLeaves) {
@@ -14982,7 +14996,11 @@ function update() {
     const buffer = window.perfLowerDrawDistance ? 1 : 2; // Render tiles outside view
 
     // Track which tiles we need this frame
-    let neededTiles = new Set();
+    if (!window._neededTilesSet) {
+        window._neededTilesSet = new Set();
+    }
+    const neededTiles = window._neededTilesSet;
+    neededTiles.clear();
 
     const camerasToCheck = [this.cameras.main];
     if (window.coopActive && window.camera2) {
@@ -14998,7 +15016,7 @@ function update() {
         for (let r = minRow; r <= maxRow; r++) {
             for (let c = minCol; c <= maxCol; c++) {
                 if (mapData[r]) {
-                    neededTiles.add(`${r},${c}`);
+                    neededTiles.add((r << 16) | c);
                 }
             }
         }
@@ -15007,9 +15025,8 @@ function update() {
     // Spawn tiles needed this frame
     for (const key of neededTiles) {
         if (!activeTiles[key]) {
-            const parts = key.split(',');
-            const r = parseInt(parts[0], 10);
-            const c = parseInt(parts[1], 10);
+            const r = (key >> 16) & 0xFFFF;
+            const c = key & 0xFFFF;
             activeTiles[key] = spawnTile(this, r, c, TILE_SIZE, mapData[0].length, mapData.length);
             activeTiles[key].tileR = r;
             activeTiles[key].tileC = c;
@@ -15019,7 +15036,8 @@ function update() {
 
     // Destroy tiles no longer in view
     for (const key in activeTiles) {
-        if (!neededTiles.has(key)) {
+        const intKey = parseInt(key, 10);
+        if (!neededTiles.has(intKey)) {
             destroyTile(key);
             window.waterMaskDirty = true;
         }
