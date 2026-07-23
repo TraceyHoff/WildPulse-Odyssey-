@@ -94,11 +94,11 @@ test.describe('Party Modal Text Color & Creature World Scaling Tests', () => {
     expect(emberfoxCard.className).not.toContain('dark-text');
   });
 
-  test('should scale wild creatures to the same size as the player character (40x40)', async ({ page }) => {
+  test('should scale wild creatures to the same size as the player character (48x48)', async ({ page }) => {
     // Wait for the game to load
     await page.waitForSelector('#menuBtn', { state: 'visible' });
 
-    // Verify wild creatures spawned have display size 40x40
+    // Verify wild creatures spawned have display size 48x48
     const sizes = await page.evaluate(() => {
       if (!window.creaturesGroup) return [];
       return window.creaturesGroup.getChildren().map(sprite => ({
@@ -107,11 +107,11 @@ test.describe('Party Modal Text Color & Creature World Scaling Tests', () => {
       }));
     });
 
-    // Check that at least some creatures are spawned and their display dimensions are exactly 40x40
+    // Check that at least some creatures are spawned and their display dimensions are exactly 48x48
     if (sizes.length > 0) {
       for (const size of sizes) {
-        expect(size.width).toBe(40);
-        expect(size.height).toBe(40);
+        expect(size.width).toBe(48);
+        expect(size.height).toBe(48);
       }
     } else {
       // Force spawn a creature to test
@@ -129,8 +129,8 @@ test.describe('Party Modal Text Color & Creature World Scaling Tests', () => {
         return child ? { width: child.displayWidth, height: child.displayHeight } : null;
       });
       expect(size).not.toBeNull();
-      expect(size.width).toBe(40);
-      expect(size.height).toBe(40);
+      expect(size.width).toBe(48);
+      expect(size.height).toBe(48);
     }
   });
 });
