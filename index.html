@@ -12912,12 +12912,7 @@ function collectCreature(playerCollider, creatureSprite) {
 
     if (hospitalOnScreen || tradeOnScreen || pvpOnScreen) return;
 
-    const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal'];
-    const isAnyModalOpen = modals.some(id => {
-        const el = document.getElementById(id);
-        return el && window.getComputedStyle(el).display !== 'none';
-    });
-    if (isAnyModalOpen) return;
+    if (window.isAnyModalOpen && window.isAnyModalOpen()) return;
 
     const isP2 = (window.coopActive && playerCollider === window.player2);
     window.activeBattlePlayer = isP2 ? 2 : 1;
@@ -14463,6 +14458,15 @@ function isPointerOverButton(p) {
                 if (tag === 'button' || tag === 'input' || tag === 'select' || tag === 'textarea' || tag === 'a') {
                     return true;
                 }
+                if (target.id && (
+                    target.id === 'breedingModal' || target.id === 'menuModal' || target.id === 'partyModal' ||
+                    target.id === 'storageModal' || target.id === 'helpModal' || target.id === 'levelUpModal' ||
+                    target.id === 'tradeModal' || target.id === 'pvpModal' || target.id === 'journalModal' ||
+                    target.id === 'battleSwapModal' || target.id === 'storeModal' || target.id === 'battleModal' ||
+                    target.id === 'customizationModal' || target.id === 'challengeModal' || target.id === 'socialSidebar'
+                )) {
+                    return true;
+                }
                 if (target.classList && (
                     target.classList.contains('close-btn') ||
                     target.classList.contains('close-menu-btn') ||
@@ -14494,12 +14498,6 @@ function isPointerOverButton(p) {
             if (target.style && target.style.cursor === 'pointer') {
                 return true;
             }
-            try {
-                const computed = window.getComputedStyle(target);
-                if (computed && computed.cursor === 'pointer') {
-                    return true;
-                }
-            } catch (err) {}
             if (target.tagName && target.tagName.toLowerCase() === 'canvas') {
                 break;
             }
@@ -14512,6 +14510,59 @@ function isPointerOverButton(p) {
 function update() {
     if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
+
+    // Dynamically show/hide inventory slots based on active modals or battles
+    if (window.gameStarted) {
+        let p1SlotsVisible = true;
+        let p2SlotsVisible = false;
+
+        if (window.coopActive) {
+            p2SlotsVisible = true;
+
+            // Player 1
+            const p1BattleActive = window.inBattle && (window.activeBattlePlayer === 1 || window.isLocalPvp);
+            if (window.p1ActiveModal !== null || p1BattleActive) {
+                p1SlotsVisible = false;
+            }
+
+            // Player 2
+            const p2BattleActive = window.inBattle && (window.activeBattlePlayer === 2 || window.isLocalPvp);
+            if (window.p2ActiveModal !== null || p2BattleActive) {
+                p2SlotsVisible = false;
+            }
+        } else {
+            // Single player: hide P1 slots if any modal is open (including battle/PvP)
+            if (window.isAnyModalOpen && window.isAnyModalOpen()) {
+                p1SlotsVisible = false;
+            }
+        }
+
+        const p1SlotsEl = document.getElementById('p1InventorySlots');
+        const p2SlotsEl = document.getElementById('p2InventorySlots');
+
+        const targetP1Display = p1SlotsVisible ? 'flex' : 'none';
+        if (p1SlotsEl && window._lastP1SlotsDisplay !== targetP1Display) {
+            p1SlotsEl.style.display = targetP1Display;
+            window._lastP1SlotsDisplay = targetP1Display;
+        }
+
+        const targetP2Display = p2SlotsVisible ? 'flex' : 'none';
+        if (p2SlotsEl && window._lastP2SlotsDisplay !== targetP2Display) {
+            p2SlotsEl.style.display = targetP2Display;
+            window._lastP2SlotsDisplay = targetP2Display;
+        }
+    } else {
+        const p1SlotsEl = document.getElementById('p1InventorySlots');
+        const p2SlotsEl = document.getElementById('p2InventorySlots');
+        if (p1SlotsEl && window._lastP1SlotsDisplay !== 'none') {
+            p1SlotsEl.style.display = 'none';
+            window._lastP1SlotsDisplay = 'none';
+        }
+        if (p2SlotsEl && window._lastP2SlotsDisplay !== 'none') {
+            p2SlotsEl.style.display = 'none';
+            window._lastP2SlotsDisplay = 'none';
+        }
+    }
 
     // Update hospital directional arrows
     if (typeof updateHospitalArrows === 'function') {
