@@ -7883,6 +7883,23 @@ window.collectedCreaturesIds2 = new Set(window.collectedCreatures2.map(c => c.id
 window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [];
 window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [];
 
+// Store Stock Initialization
+const defaultStock = {
+    "Repellent": 5,
+    "HP Booster": 5,
+    "Attack Booster": 5,
+    "Defense Booster": 5,
+    "Speed Booster": 5,
+    "Sp. Atk Booster": 5,
+    "Sp. Def Booster": 5,
+    "Jank Juice": 5,
+    "Healing Juice Bottle": 5,
+    "Healing Juice Jug": 5
+};
+window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
+window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
+window.wildpulse_lastReplenishDay = parseInt(localStorage.getItem('wildpulse_last_replenish_day')) || 0;
+
 window.p1RepellentTime = parseFloat(localStorage.getItem('wildpulse_p1RepellentTime')) || 0;
 window.p2RepellentTime = parseFloat(localStorage.getItem('wildpulse_p2RepellentTime')) || 0;
 window.p1JankJuiceTime = parseFloat(localStorage.getItem('wildpulse_p1JankJuiceTime')) || 0;
@@ -7936,6 +7953,14 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     const stats = playerNum === 2 ? window.gameStats2 : window.gameStats;
     if (!stats) return;
 
+    const stock = playerNum === 2 ? window.p2StoreStock : window.p1StoreStock;
+    const currentStock = stock[itemName] !== undefined ? stock[itemName] : 5;
+
+    if (currentStock <= 0) {
+        window.showModernNotification("❌ Item is out of stock!");
+        return;
+    }
+
     const coins = stats.coins !== undefined ? stats.coins : 0;
     if (coins < price) {
         window.showModernNotification("🪙 Not enough coins!");
@@ -7945,6 +7970,14 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     if (!window.canAddInventoryItem(playerNum, itemName)) {
         window.showModernNotification("🎒 Inventory full! No space for this item.");
         return;
+    }
+
+    // Decrement stock and save
+    stock[itemName] = currentStock - 1;
+    if (playerNum === 2) {
+        localStorage.setItem('wildpulse_store_stock_p2', JSON.stringify(window.p2StoreStock));
+    } else {
+        localStorage.setItem('wildpulse_store_stock_p1', JSON.stringify(window.p1StoreStock));
     }
 
     stats.coins = coins - price;
@@ -8001,14 +8034,21 @@ window.updateStoreUI = function() {
             const freeSlots = 3 - inv.length;
             const available = spaceInExisting + (freeSlots * 10);
 
+            const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 5) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 5);
             const canAfford = coins >= item.price;
             const hasSpace = available > 0;
-            const canBuy = canAfford && hasSpace;
+            const hasStock = stock > 0;
+            const canBuy = canAfford && hasSpace && hasStock;
             const btnStyle = canBuy
                 ? "background: linear-gradient(180deg, #4caf50, #2e7d32); border: 1px solid #a5d6a7; cursor: pointer;"
                 : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
 
-            const btnText = !hasSpace ? "Full" : "Buy";
+            let btnText = "Buy";
+            if (!hasSpace) {
+                btnText = "Full";
+            } else if (!hasStock) {
+                btnText = "Sold Out";
+            }
 
             html += `
                 <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
@@ -8016,7 +8056,7 @@ window.updateStoreUI = function() {
                     <div style="flex: 1;">
                         <div style="font-weight: bold; font-size: 14px; color: #fff;">${item.name}</div>
                         <div style="font-size: 11px; color: #aaa; margin-top: 2px;">${item.desc}</div>
-                        <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available}</div>
+                        <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available} | Stock: ${stock}</div>
                     </div>
                     <div style="text-align: right; min-width: 80px;">
                         <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">🪙 ${item.price}</div>
@@ -9582,6 +9622,9 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_stats');
         localStorage.removeItem('wildpulse_stats2');
         localStorage.removeItem('wildpulse_coop_active');
+        localStorage.removeItem('wildpulse_store_stock_p1');
+        localStorage.removeItem('wildpulse_store_stock_p2');
+        localStorage.removeItem('wildpulse_last_replenish_day');
 
         // Reset customization settings for both players
         localStorage.removeItem('wildpulse_player_name');
@@ -9655,6 +9698,14 @@ window.exitGame = function() {
         }
         if (player && player.body) {
             player.body.setVelocity(0, 0);
+        }
+        if (window.p1PetSprite) {
+            window.p1PetSprite.destroy();
+            window.p1PetSprite = null;
+        }
+        if (window.p2PetSprite) {
+            window.p2PetSprite.destroy();
+            window.p2PetSprite = null;
         }
     }
 };
@@ -12750,6 +12801,84 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     });
 }
 
+function updatePetFollow(scene, playerNum, playerObj, party) {
+    if (!playerObj || !playerObj.body) {
+        if (window['p' + playerNum + 'PetSprite']) {
+            window['p' + playerNum + 'PetSprite'].destroy();
+            window['p' + playerNum + 'PetSprite'] = null;
+        }
+        return;
+    }
+
+    let followCreature = party.find(c => !c.stored);
+    if (!followCreature) {
+        if (window['p' + playerNum + 'PetSprite']) {
+            window['p' + playerNum + 'PetSprite'].destroy();
+            window['p' + playerNum + 'PetSprite'] = null;
+        }
+        return;
+    }
+
+    let isShiny = !!followCreature.isShiny;
+    let speciesId = (followCreature.generation && followCreature.generation > 1) ? followCreature.name : (followCreature.baseId || followCreature.name || 'default');
+    let sanitizedId = String(speciesId).replace(/[^a-zA-Z0-9_]/g, '_');
+    let textureKey = `creature_tex_${sanitizedId}_${isShiny ? 'shiny' : 'normal'}`;
+
+    if (!scene.textures.exists(textureKey)) {
+        const dCanvas = document.createElement('canvas');
+        dCanvas.width = 64;
+        dCanvas.height = 64;
+        window.renderCreatureCanvas(dCanvas, followCreature, 64, false);
+        scene.textures.addCanvas(textureKey, dCanvas);
+    }
+
+    let pet = window['p' + playerNum + 'PetSprite'];
+    if (!pet) {
+        pet = scene.add.sprite(playerObj.x, playerObj.y, textureKey);
+        pet.setDisplaySize(36, 36);
+        scene.physics.add.existing(pet);
+        pet.setDepth(playerObj.depth - 0.02);
+        pet.setData('creatureId', followCreature.id);
+        window['p' + playerNum + 'PetSprite'] = pet;
+    } else {
+        if (pet.getData('creatureId') !== followCreature.id || pet.texture.key !== textureKey) {
+            pet.setTexture(textureKey);
+            pet.setData('creatureId', followCreature.id);
+        }
+    }
+
+    // Follow physics and logic
+    if (pet && pet.body) {
+        let dist = Phaser.Math.Distance.Between(pet.x, pet.y, playerObj.x, playerObj.y);
+        if (dist > 1500) {
+            pet.setPosition(playerObj.x, playerObj.y);
+            if (pet.body.reset) pet.body.reset(playerObj.x, playerObj.y);
+            pet.body.setVelocity(0, 0);
+        } else if (dist > 60) {
+            let angle = Phaser.Math.Angle.Between(pet.x, pet.y, playerObj.x, playerObj.y);
+            let petSpeed = 160;
+            if (dist > 120) {
+                petSpeed = 240;
+            }
+            pet.body.setVelocity(Math.cos(angle) * petSpeed, Math.sin(angle) * petSpeed);
+        } else if (dist < 40) {
+            pet.body.setVelocity(0, 0);
+        }
+
+        // Swimming Visuals for pet
+        let petCol = Math.floor(pet.x / 100);
+        let petRow = Math.floor(pet.y / 100);
+        let petInWater = (mapData[petRow] && mapData[petRow][petCol] === 'obs');
+        if (petInWater && window.currentSeason !== 'Winter') {
+            pet.setAlpha(0.6);
+            pet.setTint(0x88ccff);
+        } else {
+            pet.setAlpha(1.0);
+            pet.clearTint();
+        }
+    }
+}
+
 function collectCreature(playerCollider, creatureSprite) {
     if (window.inBattle) return;
     const isP2Player = (window.coopActive && playerCollider === window.player2);
@@ -14646,6 +14775,36 @@ function update() {
         if (newInGameDays !== wildpulse_inGameDays) {
             wildpulse_inGameDays = newInGameDays;
             localStorage.setItem('wildpulse_inGameDays', wildpulse_inGameDays);
+
+            // Check and handle shop stock replenishment once every 5 days
+            let nextReplenishMilestone = Math.floor(wildpulse_inGameDays / 5) * 5;
+            if (nextReplenishMilestone > window.wildpulse_lastReplenishDay) {
+                window.wildpulse_lastReplenishDay = nextReplenishMilestone;
+                localStorage.setItem('wildpulse_last_replenish_day', window.wildpulse_lastReplenishDay.toString());
+
+                const replenishmentStock = {
+                    "Repellent": 5,
+                    "HP Booster": 5,
+                    "Attack Booster": 5,
+                    "Defense Booster": 5,
+                    "Speed Booster": 5,
+                    "Sp. Atk Booster": 5,
+                    "Sp. Def Booster": 5,
+                    "Jank Juice": 5,
+                    "Healing Juice Bottle": 5,
+                    "Healing Juice Jug": 5
+                };
+                window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
+                window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
+                localStorage.setItem('wildpulse_store_stock_p1', JSON.stringify(window.p1StoreStock));
+                localStorage.setItem('wildpulse_store_stock_p2', JSON.stringify(window.p2StoreStock));
+
+                if (window.updateStoreUI) {
+                    window.updateStoreUI();
+                }
+
+                window.showModernNotification("🏪 The in-game shop has replenished its item stock!");
+            }
         }
 
         let seasonIndex = Math.floor((wildpulse_inGameDays % 120) / 30);
@@ -16192,6 +16351,25 @@ function update() {
             activeTilesCount++;
         }
         console.log(`[Viewport Performance] Active Tiles: ${activeTilesCount} | Visible Entities: ${visibleCreatures + visiblePlayers + 1}`);
+    }
+
+    // Update Pets Following Players
+    if (window.gameStarted) {
+        // Player 1 pet
+        let p1Party = window.collectedCreatures || [];
+        updatePetFollow(this, 1, player, p1Party);
+
+        // Player 2 pet
+        if (window.coopActive && window.player2) {
+            let p2Party = window.collectedCreatures2 || [];
+            updatePetFollow(this, 2, window.player2, p2Party);
+        } else {
+            // If coop is disabled, make sure Player 2's pet is destroyed if it exists
+            if (window.p2PetSprite) {
+                window.p2PetSprite.destroy();
+                window.p2PetSprite = null;
+            }
+        }
     }
 }
 
