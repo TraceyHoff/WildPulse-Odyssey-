@@ -21,6 +21,22 @@ test.describe('Shop and Inventory Systems', () => {
         // Clear inventory to start fresh
         window.p1Inventory = [];
         window.saveInventory();
+
+        // Reset stock to default (5) to ensure test isolated environment
+        window.p1StoreStock = {
+            "Repellent": 5,
+            "HP Booster": 5,
+            "Attack Booster": 5,
+            "Defense Booster": 5,
+            "Speed Booster": 5,
+            "Sp. Atk Booster": 5,
+            "Sp. Def Booster": 5,
+            "Jank Juice": 5,
+            "Healing Juice Bottle": 5,
+            "Healing Juice Jug": 5
+        };
+        localStorage.setItem('wildpulse_store_stock_p1', JSON.stringify(window.p1StoreStock));
+
         window.updateInventoryUI();
     });
 
@@ -131,6 +147,22 @@ test.describe('Shop and Inventory Systems', () => {
         window.updateMenuCoins();
         window.p1Inventory = [];
         window.saveInventory();
+
+        // Reset stock to default (5) to ensure test isolated environment
+        window.p1StoreStock = {
+            "Repellent": 5,
+            "HP Booster": 5,
+            "Attack Booster": 5,
+            "Defense Booster": 5,
+            "Speed Booster": 5,
+            "Sp. Atk Booster": 5,
+            "Sp. Def Booster": 5,
+            "Jank Juice": 5,
+            "Healing Juice Bottle": 5,
+            "Healing Juice Jug": 5
+        };
+        localStorage.setItem('wildpulse_store_stock_p1', JSON.stringify(window.p1StoreStock));
+
         window.updateInventoryUI();
     });
 
