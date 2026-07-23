@@ -59,6 +59,45 @@
             }
         }
 
+        @keyframes neonPulsate {
+            0% {
+                transform: scale(1.0);
+                text-shadow: 0 0 4px #fff, 0 0 10px #00ffd2, 0 0 20px #00ffd2, 0 0 30px #00ffd2;
+                color: #fff;
+            }
+            20% {
+                transform: scale(1.02);
+                text-shadow: 0 0 4px #fff, 0 0 10px #ff007f, 0 0 20px #ff007f, 0 0 30px #ff007f;
+                color: #ff007f;
+            }
+            40% {
+                transform: scale(0.98);
+                text-shadow: 0 0 4px #fff, 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700;
+                color: #ffd700;
+            }
+            60% {
+                transform: scale(1.02);
+                text-shadow: 0 0 4px #fff, 0 0 10px #00ff66, 0 0 20px #00ff66, 0 0 30px #00ff66;
+                color: #00ff66;
+            }
+            80% {
+                transform: scale(0.98);
+                text-shadow: 0 0 4px #fff, 0 0 10px #bf55ec, 0 0 20px #bf55ec, 0 0 30px #bf55ec;
+                color: #bf55ec;
+            }
+            100% {
+                transform: scale(1.0);
+                text-shadow: 0 0 4px #fff, 0 0 10px #00ffd2, 0 0 20px #00ffd2, 0 0 30px #00ffd2;
+                color: #fff;
+            }
+        }
+
+        .neon-title {
+            animation: neonPulsate 4s ease-in-out infinite !important;
+            font-family: 'Courier New', Courier, monospace, sans-serif !important;
+            letter-spacing: 3px;
+        }
+
         @keyframes creatureIdleBreath {
             0% {
                 transform: translateY(0px) scale(1) rotate(0deg);
@@ -1271,7 +1310,7 @@
 </head>
 <body>
 <div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
-    <h1 style="position: relative; z-index: 10; font-size: 48px; text-shadow: 2px 2px 4px #000; margin-bottom: 40px; color: #fff;">WildPulse Odyssey</h1>
+    <h1 class="neon-title" style="position: relative; z-index: 10; font-size: 48px; margin-bottom: 40px;">WildPulse Odyssey</h1>
     <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Start Game</button>
     <button id="customizeBtn" style="position: relative; z-index: 10; padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; border: 2px solid #90caf9; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Customize Character</button>
     <button id="startDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
@@ -12669,7 +12708,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     }
 
     const sprite = scene.add.sprite(x, y, textureKey);
-    sprite.setDisplaySize(40, 40);
+    sprite.setDisplaySize(48, 48);
     scene.physics.add.existing(sprite);
     sprite.setDepth(10);
     sprite.setData('creatureData', clonedData);
@@ -13908,16 +13947,22 @@ window.endBattle = function(result) {
                 window.logBattle(`${window.getP1Name()} wins!`);
                 if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
                 window.gameStats.coins += 80;
+                if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
+                if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+                window.gameStats2.coins += 2;
+                localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                 window.saveStats();
-                window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins!`);
+                window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins! ${window.getP2Name()} received 2 coins!`);
             } else if (result === 'loss') {
                 window.logBattle(`${window.getP2Name()} wins!`);
                 if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                 if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
                 window.gameStats2.coins += 80;
                 localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                window.gameStats.coins += 2;
                 window.saveStats();
-                window.showModernNotification(`🪙 ${window.getP2Name()} won 80 coins!`);
+                window.showModernNotification(`🪙 ${window.getP2Name()} won 80 coins! ${window.getP1Name()} received 2 coins!`);
             }
             if (window.updateMenuCoins) window.updateMenuCoins();
 
@@ -13937,7 +13982,10 @@ window.endBattle = function(result) {
                     window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins!`);
                 } else if (result === 'loss') {
                     window.gameStats.pvpBattlesLost++;
+                    if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                    window.gameStats.coins += 2;
                     window.saveStats();
+                    window.showModernNotification(`🪙 Received 2 coins on loss!`);
                 }
                 if (window.updateMenuCoins) window.updateMenuCoins();
                 window.isPvpBattle = false;
@@ -13967,11 +14015,19 @@ window.endBattle = function(result) {
                     if (window.activeBattlePlayer === 2) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesLost = (window.gameStats2.battlesLost || 0) + 1;
+                        if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+                        window.gameStats2.coins += 2;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                        window.saveStats();
+                        window.showModernNotification(`🪙 ${window.getP2Name()} received 2 coins on loss.`);
                     } else {
                         window.gameStats.battlesLost++;
+                        if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                        window.gameStats.coins += 2;
                         window.saveStats();
+                        window.showModernNotification(`🪙 ${window.getP1Name()} received 2 coins on loss.`);
                     }
+                    if (window.updateMenuCoins) window.updateMenuCoins();
                 }
             }
         }

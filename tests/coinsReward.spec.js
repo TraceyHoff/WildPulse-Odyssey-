@@ -155,8 +155,8 @@ test.describe('Coins Reward System', () => {
     });
 
     expect(results.firstWinCoinsP1).toBe(80);
-    expect(results.firstWinCoinsP2).toBe(0);
-    expect(results.secondWinCoinsP1).toBe(80);
-    expect(results.secondWinCoinsP2).toBe(80);
+    expect(results.firstWinCoinsP2).toBe(2);
+    expect(results.secondWinCoinsP1).toBe(82);
+    expect(results.secondWinCoinsP2).toBe(82);
   });
 });
