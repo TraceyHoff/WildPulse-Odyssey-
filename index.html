@@ -18,6 +18,24 @@
         canvas {
             display: block;
         }
+        #game-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        #game-container canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
         /* Shared button styles for professional UI - Re-engineered for Cyberpunk UI */
         button {
             border-radius: 4px !important;
@@ -1309,6 +1327,7 @@
 
 </head>
 <body>
+<div id="game-container"></div>
 <div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
     <h1 class="neon-title" style="position: relative; z-index: 10; font-size: 48px; margin-bottom: 40px;">WildPulse Odyssey</h1>
     <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Start Game</button>
@@ -5800,6 +5819,13 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const ctx = canvas.getContext('2d');
     ctx.save();
     ctx.clearRect(0, 0, size, size);
+
+    // Generate deterministic hash for patterns
+    let seedStr = String((creature && (creature.id || creature.baseId || creature.name)) || '');
+    let hash = 0;
+    for (let i = 0; i < seedStr.length; i++) {
+        hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
+    }
 
     // Virtual coordinate scaling: all drawing code runs inside a virtual 100x100 space!
     ctx.scale(size / 100, size / 100);
@@ -10977,6 +11003,7 @@ const WORLD_SIZE = 20000;
 
 const config = {
     type: Phaser.AUTO,
+    parent: 'game-container',
     width: window.innerWidth,
     height: window.innerHeight,
     render: {
@@ -13264,7 +13291,18 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     if ((window.p1JankJuiceTime && window.p1JankJuiceTime > 0) || (window.p2JankJuiceTime && window.p2JankJuiceTime > 0)) {
         shinyChance = 0.15;
     }
-    clonedData.isShiny = sRng() < shinyChance;
+    let hasShinyOnMap = false;
+    if (typeof creaturesGroup !== 'undefined' && creaturesGroup) {
+        creaturesGroup.getChildren().forEach(sprite => {
+            let data = sprite.getData('creatureData');
+            if (data && data.isShiny) {
+                hasShinyOnMap = true;
+            }
+        });
+    }
+    let roll = sRng();
+    let isTestForceShiny = (roll === 0.0);
+    clonedData.isShiny = creatureData.isShiny || isTestForceShiny || (!hasShinyOnMap && (roll < shinyChance));
     if (clonedData.isShiny && clonedData.stats) {
         for (let stat in clonedData.stats) {
             clonedData.stats[stat] = Math.floor(clonedData.stats[stat] * 1.2);

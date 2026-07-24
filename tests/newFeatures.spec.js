@@ -3,6 +3,16 @@ const { test, expect } = require('@playwright/test');
 test.describe('New Features Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3000');
+    // Start game session by clicking start button
+    await page.click('#startGameBtn');
+    // Wait for the game to start and the main menu button to be visible
+    await page.waitForSelector('#menuBtn', { state: 'visible' });
+    // Clear creaturesGroup to ensure tests have a clean slate and don't hit spawn limits
+    await page.evaluate(() => {
+      if (window.creaturesGroup) {
+        window.creaturesGroup.clear(true, true);
+      }
+    });
   });
 
   test('respawnEnemyBase chooses a different species', async ({ page }) => {
