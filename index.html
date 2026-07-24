@@ -8,6 +8,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
+        .gamepad-focused-p1 {
+            outline: 3px solid #00ffff !important;
+            box-shadow: 0 0 15px #00ffff, inset 0 0 5px #00ffff !important;
+            transform: scale(1.03) !important;
+            transition: all 0.15s ease !important;
+        }
+        .gamepad-focused-p2 {
+            outline: 3px solid #ff9800 !important;
+            box-shadow: 0 0 15px #ff9800, inset 0 0 5px #ff9800 !important;
+            transform: scale(1.03) !important;
+            transition: all 0.15s ease !important;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -9077,6 +9089,188 @@ window.challengeModalClosedFlag = false;
 window.p1ActiveModal = null;
 window.p2ActiveModal = null;
 
+window.getNavigableElements = function(container) {
+    if (!container) return [];
+    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick]');
+    return Array.from(all).filter(el => {
+        // Must be visible
+        if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
+
+        // Exclude elements inside hidden parents or if element itself is hidden
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+
+        // If it is a button/input, make sure it is not disabled
+        if (el.disabled) return false;
+
+        return true;
+    });
+};
+
+window.getActiveContainerForPlayer = function(playerNum) {
+    let activeId = playerNum === 2 ? window.p2ActiveModal : window.p1ActiveModal;
+    if (activeId) {
+        const el = document.getElementById(activeId);
+        if (el && el.style.display !== 'none' && el.style.display !== '') {
+            if (window.coopActive) {
+                const colClass = (playerNum === 2) ? '.p2-col' : '.p1-col';
+                const colEl = el.querySelector(colClass);
+                if (colEl) return colEl;
+            }
+            return el;
+        }
+    }
+
+    const modals = [
+        'menuModal', 'partyModal', 'storageModal', 'helpModal',
+        'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
+        'battleModal', 'battleSwapModal', 'challengeModal',
+        'journalModal', 'storeModal', 'customizationModal'
+    ];
+
+    for (let id of modals) {
+        const el = document.getElementById(id);
+        if (el && el.style.display !== 'none' && el.style.display !== '') {
+            if (window.coopActive) {
+                if (id === 'battleModal') {
+                    if (window.isLocalPvp) {
+                        if (window.localPvpTurn === playerNum) {
+                            return el;
+                        }
+                    } else if (window.activeBattlePlayer === playerNum) {
+                        return el;
+                    }
+                } else if (id === 'battleSwapModal') {
+                    if (window.activeBattlePlayer === playerNum || window.isLocalPvp) {
+                        return el;
+                    }
+                } else {
+                    const colClass = (playerNum === 2) ? '.p2-col' : '.p1-col';
+                    const colEl = el.querySelector(colClass);
+                    if (colEl && colEl.style.display !== 'none') {
+                        return colEl;
+                    }
+                }
+            } else {
+                if (playerNum === 1) {
+                    return el;
+                }
+            }
+        }
+    }
+    return null;
+};
+
+window.processGamepadInputForPlayer = function(playerNum, pad) {
+    if (!pad) return;
+
+    const stateKey = `gamepadPrevState_P${playerNum}`;
+    if (!window[stateKey]) {
+        window[stateKey] = {
+            Y: false,
+            X: false,
+            A: false,
+            Up: false,
+            Down: false,
+            Left: false,
+            Right: false
+        };
+    }
+    const prev = window[stateKey];
+
+    const currY = !!(pad.buttons[3] && pad.buttons[3].pressed);
+    const currX = !!(pad.buttons[2] && pad.buttons[2].pressed);
+    const currA = !!(pad.buttons[0] && pad.buttons[0].pressed);
+    const currUp = !!(pad.buttons[12] && pad.buttons[12].pressed);
+    const currDown = !!(pad.buttons[13] && pad.buttons[13].pressed);
+    const currLeft = !!(pad.buttons[14] && pad.buttons[14].pressed);
+    const currRight = !!(pad.buttons[15] && pad.buttons[15].pressed);
+
+    const justY = currY && !prev.Y;
+    const justX = currX && !prev.X;
+    const justA = currA && !prev.A;
+    const justUp = currUp && !prev.Up;
+    const justDown = currDown && !prev.Down;
+    const justLeft = currLeft && !prev.Left;
+    const justRight = currRight && !prev.Right;
+
+    prev.Y = currY;
+    prev.X = currX;
+    prev.A = currA;
+    prev.Up = currUp;
+    prev.Down = currDown;
+    prev.Left = currLeft;
+    prev.Right = currRight;
+
+    const container = window.getActiveContainerForPlayer(playerNum);
+    const inModal = (container !== null);
+
+    if (justY) {
+        if (!inModal) {
+            if (window.openMenuModal) {
+                window.openMenuModal(playerNum);
+            }
+        }
+    }
+
+    if (inModal) {
+        if (justUp || justDown || justLeft || justRight) {
+            const selectables = window.getNavigableElements(container);
+            if (selectables.length > 0) {
+                let focusIndex = selectables.findIndex(el => el.classList.contains(`gamepad-focused-p${playerNum}`) || el === document.activeElement);
+
+                if (focusIndex === -1) {
+                    if (justUp || justLeft) {
+                        focusIndex = selectables.length - 1;
+                    } else {
+                        focusIndex = 0;
+                    }
+                } else {
+                    selectables[focusIndex].classList.remove(`gamepad-focused-p${playerNum}`);
+
+                    if (justUp || justLeft) {
+                        focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
+                    } else if (justDown || justRight) {
+                        focusIndex = (focusIndex + 1) % selectables.length;
+                    }
+                }
+
+                const newEl = selectables[focusIndex];
+                newEl.classList.add(`gamepad-focused-p${playerNum}`);
+                try {
+                    newEl.focus();
+                } catch(e) {}
+                try {
+                    newEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                } catch(e) {}
+            }
+        }
+
+        if (justA) {
+            const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`);
+            if (focusedEl) {
+                focusedEl.click();
+            }
+        }
+
+        if (justX) {
+            container.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
+                el.classList.remove(`gamepad-focused-p${playerNum}`);
+            });
+            if (window.closeAllModalsForPlayer) {
+                window.closeAllModalsForPlayer(playerNum);
+            }
+            if (window.closeBattleSwapModal) window.closeBattleSwapModal();
+            if (window.closeTradeModal) window.closeTradeModal();
+            if (window.closePvpModal) window.closePvpModal();
+        }
+    } else {
+        document.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
+            el.classList.remove(`gamepad-focused-p${playerNum}`);
+        });
+    }
+};
+
 window.isAnyModalOpen = function() {
     const modals = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
@@ -15986,6 +16180,38 @@ function update() {
         localStorage.setItem('wildpulse_player_x', player.x);
         localStorage.setItem('wildpulse_player_y', player.y);
         window.lastSaveTime = now;
+    }
+
+    // Handle Gamepad Modal & Menu control input
+    if (this.input.gamepad && this.input.gamepad.total > 0) {
+        const cursors = window.cursors;
+        const p1KeyboardActive = cursors && (cursors.up.isDown || cursors.down.isDown || cursors.left.isDown || cursors.right.isDown);
+        const p2KeyboardActive = window.coopActive && window.wasdKeys && (window.wasdKeys.up.isDown || window.wasdKeys.down.isDown || window.wasdKeys.left.isDown || window.wasdKeys.right.isDown);
+
+        let p1Pad = null;
+        if (this.input.gamepad.total > 1) {
+            p1Pad = this.input.gamepad.getPad(0);
+        } else if (this.input.gamepad.total === 1) {
+            if (p2KeyboardActive || !p1KeyboardActive) {
+                p1Pad = this.input.gamepad.getPad(0);
+            }
+        }
+
+        let p2Pad = null;
+        if (window.coopActive) {
+            if (this.input.gamepad.total > 1) {
+                p2Pad = this.input.gamepad.getPad(1);
+            } else if (this.input.gamepad.total === 1 && p1KeyboardActive) {
+                p2Pad = this.input.gamepad.getPad(0);
+            }
+        }
+
+        if (p1Pad && window.processGamepadInputForPlayer) {
+            window.processGamepadInputForPlayer(1, p1Pad);
+        }
+        if (p2Pad && window.processGamepadInputForPlayer) {
+            window.processGamepadInputForPlayer(2, p2Pad);
+        }
     }
 
     let p1CanMove = true;
