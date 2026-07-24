@@ -6609,7 +6609,61 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     ctx.lineWidth = 4;
     ctx.lineCap = 'round';
 
-    if (limbsVal.includes('hovering pads') || limbsVal.includes('anti-grav') || limbsVal.includes('thrusters')) {
+    if (limbsVal.includes('ethereal limbs') || limbsVal.includes('ethereal')) {
+        // Semi-transparent blue/white wispy floaty limbs
+        ctx.save();
+        ctx.globalAlpha = 0.45;
+        ctx.fillStyle = '#e0f7fa';
+        ctx.strokeStyle = '#80deea';
+        ctx.lineWidth = 2;
+        // Left
+        ctx.beginPath();
+        ctx.ellipse(35, 74, 5, 10, -Math.PI / 6, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        // Right
+        ctx.beginPath();
+        ctx.ellipse(65, 74, 5, 10, Math.PI / 6, 0, Math.PI * 2);
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
+    } else if (limbsVal.includes('jointed appendages') || limbsVal.includes('jointed') || limbsVal.includes('appendages')) {
+        // Sharp multi-segmented crab/insect legs
+        ctx.strokeStyle = bodyColor;
+        ctx.lineWidth = 2.5;
+        const drawJointedLeg = (lx, isLeft) => {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(lx, 68);
+            if (isLeft) {
+                ctx.lineTo(lx - 12, 73);
+                ctx.lineTo(lx - 10, 84);
+            } else {
+                ctx.lineTo(lx + 12, 73);
+                ctx.lineTo(lx + 10, 84);
+            }
+            ctx.stroke();
+            ctx.restore();
+        };
+        drawJointedLeg(32, true);
+        drawJointedLeg(38, true);
+        drawJointedLeg(62, false);
+        drawJointedLeg(68, false);
+    } else if (limbsVal.includes('webbed feet') || limbsVal.includes('webbed')) {
+        // Flat webbed duck feet
+        ctx.fillStyle = '#ffb300';
+        ctx.strokeStyle = '#b77900';
+        ctx.lineWidth = 1;
+        const drawWebbedFoot = (fx) => {
+            ctx.beginPath();
+            ctx.moveTo(fx, 68);
+            ctx.lineTo(fx - 7, 80);
+            ctx.lineTo(fx, 77);
+            ctx.lineTo(fx + 7, 80);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        };
+        drawWebbedFoot(36);
+        drawWebbedFoot(64);
+    } else if (limbsVal.includes('hovering pads') || limbsVal.includes('anti-grav') || limbsVal.includes('thrusters')) {
         // High tech hover pads
         ctx.fillStyle = '#37474f';
         ctx.strokeStyle = '#00ffff';
@@ -7027,6 +7081,79 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.closePath();
             ctx.fill();
         }
+    } else if (patternVal.includes('glowing bands')) {
+        // Horizontal glowing neon lines across the body
+        ctx.strokeStyle = featCol;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = featCol;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(50 - rx, 42); ctx.lineTo(50 + rx, 42);
+        ctx.moveTo(50 - rx, 58); ctx.lineTo(50 + rx, 58);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    } else if (patternVal.includes('frost patches')) {
+        // Frost star points scattered on the body
+        ctx.fillStyle = '#b3e5fc';
+        for (let i = 0; i < 4; i++) {
+            let px = 50 + Math.sin(i * 1.5) * (rx * 0.5);
+            let py = 50 + Math.cos(i * 1.9) * (ry * 0.5);
+            ctx.beginPath();
+            ctx.moveTo(px, py - 4);
+            ctx.lineTo(px + 1, py - 1);
+            ctx.lineTo(px + 4, py);
+            ctx.lineTo(px + 1, py + 1);
+            ctx.lineTo(px, py + 4);
+            ctx.lineTo(px - 1, py + 1);
+            ctx.lineTo(px - 4, py);
+            ctx.lineTo(px - 1, py - 1);
+            ctx.closePath();
+            ctx.fill();
+        }
+    } else if (patternVal.includes('earthen bands')) {
+        // Stratified horizontal bands
+        ctx.fillStyle = 'rgba(109, 76, 65, 0.4)';
+        ctx.fillRect(50 - rx, 35, rx * 2, 7);
+        ctx.fillStyle = 'rgba(141, 110, 99, 0.4)';
+        ctx.fillRect(50 - rx, 55, rx * 2, 7);
+    } else if (patternVal.includes('shadow tribal marks') || patternVal.includes('tribal markings') || patternVal.includes('tribal')) {
+        // Swirling dark tribal patterns
+        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(42, 38); ctx.quadraticCurveTo(50, 48, 42, 58);
+        ctx.moveTo(58, 38); ctx.quadraticCurveTo(50, 48, 58, 58);
+        ctx.stroke();
+    } else if (patternVal.includes('sunburst designs') || patternVal.includes('sunburst')) {
+        // Rays radiating from the center of the body
+        ctx.strokeStyle = featCol;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        for (let i = 0; i < 8; i++) {
+            let angle = i * Math.PI / 4;
+            ctx.moveTo(50, 50);
+            ctx.lineTo(50 + Math.cos(angle) * (rx * 0.8), 50 + Math.sin(angle) * (ry * 0.8));
+        }
+        ctx.stroke();
+    } else if (patternVal.includes('stippled marks')) {
+        // Fine dotted stippling
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        const localRng = window.mulberry32(Math.abs(hash) || 12345);
+        for (let i = 0; i < 30; i++) {
+            let px = 50 - rx * 0.6 + localRng() * (rx * 1.2);
+            let py = 50 - ry * 0.6 + localRng() * (ry * 1.2);
+            ctx.fillRect(px, py, 1.2, 1.2);
+        }
+    } else if (patternVal.includes('leafy speckles')) {
+        // Small green leaf shapes scattered
+        ctx.fillStyle = '#4caf50';
+        for (let i = 0; i < 5; i++) {
+            let px = 50 + Math.sin(i * 1.6) * (rx * 0.5);
+            let py = 50 + Math.cos(i * 2.2) * (ry * 0.5);
+            ctx.beginPath();
+            ctx.ellipse(px, py, 1.5, 3.5, i, 0, Math.PI * 2);
+            ctx.fill();
+        }
     } else if (patternVal.includes('bioluminescent') || patternVal.includes('spots') || patternVal.includes('dappled') || patternVal.includes('speckles')) {
         // Glowing round dots
         ctx.fillStyle = featCol;
@@ -7138,7 +7265,33 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     }
 
     // Draw Skin Textures
-    if (skinVal.includes('wooden') || skinVal.includes('bark-like') || skinVal.includes('timber')) {
+    if (skinVal.includes('rough')) {
+        // Rough stone texture dots
+        ctx.fillStyle = 'rgba(0,0,0,0.18)';
+        const localRng = window.mulberry32((Math.abs(hash) || 12345) + 99);
+        for (let i = 0; i < 20; i++) {
+            let px = 50 - rx * 0.7 + localRng() * (rx * 1.4);
+            let py = 50 - ry * 0.7 + localRng() * (ry * 1.4);
+            ctx.fillRect(px, py, 1.8, 1.8);
+        }
+    } else if (skinVal.includes('mossy')) {
+        // Organic green mossy patches on the body
+        ctx.fillStyle = '#689f38';
+        for (let i = 0; i < 6; i++) {
+            let px = 50 + Math.sin(i * 1.8) * (rx * 0.5);
+            let py = 50 + Math.cos(i * 1.5) * (ry * 0.5);
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    } else if (skinVal.includes('silky') || skinVal.includes('soft')) {
+        // Soft gradient highlight overlay
+        const softGrad = ctx.createRadialGradient(50, 50, rx * 0.1, 50, 50, rx * 0.8);
+        softGrad.addColorStop(0, 'rgba(255,255,255,0.3)');
+        softGrad.addColorStop(1, 'rgba(0,0,0,0.1)');
+        ctx.fillStyle = softGrad;
+        ctx.fillRect(0, 0, 100, 100);
+    } else if (skinVal.includes('wooden') || skinVal.includes('bark-like') || skinVal.includes('timber')) {
         // Vertical bark-like tree splits and rings
         ctx.strokeStyle = 'rgba(78,52,46,0.35)';
         ctx.lineWidth = 1.5;
@@ -7203,9 +7356,10 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         // Small dark fuzzy hash strokes
         ctx.strokeStyle = 'rgba(0,0,0,0.2)';
         ctx.lineWidth = 1;
+        const localRng = window.mulberry32((Math.abs(hash) || 12345) + 333);
         for (let i = 0; i < 15; i++) {
-            let hx = 50 - rx * 0.6 + Math.random() * (rx * 1.2);
-            let hy = 50 - ry * 0.6 + Math.random() * (ry * 1.2);
+            let hx = 50 - rx * 0.6 + localRng() * (rx * 1.2);
+            let hy = 50 - ry * 0.6 + localRng() * (ry * 1.2);
             ctx.beginPath();
             ctx.moveTo(hx, hy);
             ctx.lineTo(hx + 3, hy - 3);
@@ -7362,6 +7516,36 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             };
             drawAntenna(true);
             drawAntenna(false);
+        } else if (hornVal.includes('ramming plates') || hornVal.includes('plate') || hornVal.includes('ramming')) {
+            // Thick heavy golden/bronze forehead plate
+            ctx.fillStyle = '#b87333'; // Bronze
+            ctx.strokeStyle = '#5d4037';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.roundRect(50 - rx * 0.5, hy + 2, rx, 6, 2);
+            ctx.fill(); ctx.stroke();
+        } else if (hornVal.includes('boulder horns') || hornVal.includes('boulder') || hornVal.includes('rocky horns')) {
+            // Thick, irregular rocky/stone horns
+            ctx.fillStyle = '#8d6e63';
+            ctx.strokeStyle = '#4e342e';
+            ctx.lineWidth = 1.8;
+            const drawBoulderHorn = (left) => {
+                ctx.save();
+                if (!left) {
+                    ctx.translate(100, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.beginPath();
+                ctx.moveTo(50 - hOffset, hy + 4);
+                ctx.lineTo(50 - hOffset - 6, hy - 10);
+                ctx.lineTo(50 - hOffset - 12, hy - 8);
+                ctx.lineTo(50 - hOffset + 2, hy + 5);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+                ctx.restore();
+            };
+            drawBoulderHorn(true);
+            drawBoulderHorn(false);
         } else if (hornVal.includes('goggles') || hornVal.includes('visor') || hornVal.includes('eyewear')) {
             // Steampunk brass goggles
             ctx.fillStyle = '#cd7f32'; // brass
@@ -7532,7 +7716,37 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     ctx.save();
 
     const drawSingleEye = (ex, ey, eRad, style) => {
-        if (style.includes('swirling') || style.includes('hypnotic') || style.includes('spiral eyes')) {
+        if (style.includes('fiery') || style.includes('glowing')) {
+            // Glowing fiery eyes
+            ctx.fillStyle = '#ff3d00';
+            ctx.shadowColor = '#ffd600';
+            ctx.shadowBlur = 6;
+            ctx.beginPath(); ctx.arc(ex, ey, eRad, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+            // Flame points above
+            ctx.fillStyle = '#ff9100';
+            ctx.beginPath();
+            ctx.moveTo(ex - 2, ey - eRad);
+            ctx.lineTo(ex, ey - eRad - 4);
+            ctx.lineTo(ex + 2, ey - eRad);
+            ctx.closePath();
+            ctx.fill();
+            return;
+        } else if (style.includes('electric')) {
+            // Yellow electric glowing eyes
+            ctx.fillStyle = '#ffd600';
+            ctx.shadowColor = '#ffff00';
+            ctx.shadowBlur = 6;
+            ctx.beginPath(); ctx.arc(ex, ey, eRad, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+            // Little lightning spark
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(ex - 1, ey - 2); ctx.lineTo(ex + 1, ey); ctx.lineTo(ex - 1, ey + 2);
+            ctx.stroke();
+            return;
+        } else if (style.includes('swirling') || style.includes('hypnotic') || style.includes('spiral eyes')) {
             // Hypnotic target/spiral
             ctx.fillStyle = '#ffffff';
             ctx.strokeStyle = '#222';
@@ -7743,7 +7957,22 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
 
     if (teethVal !== 'none' && teethVal !== '') {
         ctx.beginPath();
-        if (teethVal.includes('beak') || teethVal.includes('raptor') || teethVal.includes('avian')) {
+        if (teethVal.includes('crushing molars') || teethVal.includes('molars') || teethVal.includes('crushing')) {
+            // Wide flat blocky jaw teeth representation
+            ctx.fillStyle = '#eeeeee';
+            ctx.strokeStyle = '#424242';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.rect(42, mouthY - 3, 16, 6);
+            ctx.fill(); ctx.stroke();
+            // Tooth divisions
+            ctx.beginPath();
+            ctx.moveTo(42, mouthY); ctx.lineTo(58, mouthY); // middle line
+            ctx.moveTo(46, mouthY - 3); ctx.lineTo(46, mouthY + 3);
+            ctx.moveTo(50, mouthY - 3); ctx.lineTo(50, mouthY + 3);
+            ctx.moveTo(54, mouthY - 3); ctx.lineTo(54, mouthY + 3);
+            ctx.stroke();
+        } else if (teethVal.includes('beak') || teethVal.includes('raptor') || teethVal.includes('avian')) {
             // Pointed birds beak
             ctx.fillStyle = '#ffb300';
             ctx.strokeStyle = '#3e2723';
