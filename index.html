@@ -10692,6 +10692,7 @@ function setupDynamicGrass(scene) {
             bgCtx.fillStyle = gradient;
             bgCtx.fillRect(0, 0, 100, 100);
         }
+        window.forceGrassRefresh = true;
     };
 
     for (let i = 0; i < 200; i++) {
@@ -10735,9 +10736,6 @@ function setupDynamicGrass(scene) {
         const cvs = tex.getSourceImage();
         const ctx = cvs.getContext('2d', { willReadFrequently: true });
 
-        // Draw cached bg
-        ctx.drawImage(window.grassBgCanvas, 0, 0);
-
         // Wind offset logic based on actual wind velocities + a sine wave for natural pulsing
         const windPower = Math.sqrt(windVx * windVx + windVy * windVy);
         // Map wind speeds (e.g., -200 to 200) into offsets
@@ -10745,6 +10743,22 @@ function setupDynamicGrass(scene) {
         const wave = Math.sin(timeNow / 500) * 0.5 + 0.5;
         const offsetMultiplierX = (windVx / 100) * wave * 2;
         const offsetMultiplierY = (windVy / 100) * wave * 2;
+
+        const diffThreshold = (!window.perfWeatherParticles) ? 0.08 : 0.03;
+        const diffX = Math.abs(offsetMultiplierX - (window.lastGrassOffsetMultiplierX || 0));
+        const diffY = Math.abs(offsetMultiplierY - (window.lastGrassOffsetMultiplierY || 0));
+
+        // If change is minimal and not forced, we can skip the redraw and texture upload
+        if (!window.forceGrassRefresh && window.lastGrassOffsetMultiplierX !== undefined && diffX < diffThreshold && diffY < diffThreshold) {
+            return;
+        }
+
+        window.lastGrassOffsetMultiplierX = offsetMultiplierX;
+        window.lastGrassOffsetMultiplierY = offsetMultiplierY;
+        window.forceGrassRefresh = false;
+
+        // Draw cached bg
+        ctx.drawImage(window.grassBgCanvas, 0, 0);
 
         for (let i = 0; i < window.grassBlades.length; i++) {
             let blade = window.grassBlades[i];
@@ -11726,6 +11740,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (hospitalGroup) {
             let hSprite = hospitalGroup.create(posX, posY, 'hospital_tile');
             hSprite.setVisible(false); // Make physics body invisible since we render sprite
+            hSprite.isHospitalTile = true;
             sprites.push(hSprite);
         }
     } else if (mapData[r][c] === 'store') {
@@ -11737,6 +11752,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (storeGroup) {
             let sSprite = storeGroup.create(posX, posY, 'store_tile');
             sSprite.setVisible(false);
+            sSprite.isStoreTile = true;
             sprites.push(sSprite);
         }
     } else if (mapData[r][c] === 'challenge') {
@@ -11747,6 +11763,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (challengeGroup) {
             let cSprite = challengeGroup.create(posX, posY, 'challenge_tile');
             cSprite.setVisible(false);
+            cSprite.isChallengeTile = true;
             sprites.push(cSprite);
         }
     } else if (mapData[r][c] === 'trade') {
@@ -11757,6 +11774,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (tradeGroup) {
             let tSprite = tradeGroup.create(posX, posY, 'trade_tile');
             tSprite.setVisible(false);
+            tSprite.isTradeTile = true;
             sprites.push(tSprite);
         }
     } else if (mapData[r][c] === 'pvp') {
@@ -11767,6 +11785,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (pvpGroup) {
             let pSprite = pvpGroup.create(posX, posY, 'pvp_tile');
             pSprite.setVisible(false);
+            pSprite.isPvpTile = true;
             sprites.push(pSprite);
         }
     } else {
@@ -11943,7 +11962,21 @@ function destroyTile(key) {
                 if (sprite.isWaterLeaf && window.waterLeaves) {
                     window.waterLeaves = window.waterLeaves.filter(l => l !== sprite);
                 }
-                if (sprite.destroy) sprite.destroy();
+                if (sprite.isTree && window.treesGroup) {
+                    window.treesGroup.remove(sprite, true, true);
+                } else if (sprite.isHospitalTile && hospitalGroup) {
+                    hospitalGroup.remove(sprite, true, true);
+                } else if (sprite.isStoreTile && storeGroup) {
+                    storeGroup.remove(sprite, true, true);
+                } else if (sprite.isChallengeTile && challengeGroup) {
+                    challengeGroup.remove(sprite, true, true);
+                } else if (sprite.isTradeTile && tradeGroup) {
+                    tradeGroup.remove(sprite, true, true);
+                } else if (sprite.isPvpTile && pvpGroup) {
+                    pvpGroup.remove(sprite, true, true);
+                } else {
+                    if (sprite.destroy) sprite.destroy();
+                }
             }
         });
         delete activeTiles[key];
@@ -15026,7 +15059,8 @@ function update() {
 
     // Star twinkling effect - Performance: only update if visible and throttled
     const isStarVisible = (window.currentSeason !== 'Winter' && targetAlpha > 0.1);
-    if (isStarVisible && (!window.lastStarUpdate || this.time.now - window.lastStarUpdate > 150)) {
+    const starUpdateInterval = (!window.perfWeatherParticles) ? 450 : 150;
+    if (isStarVisible && (!window.lastStarUpdate || this.time.now - window.lastStarUpdate > starUpdateInterval)) {
         window.lastStarUpdate = this.time.now;
         const starTexture = this.textures.get('starfield_tex');
         const starCanvas = starTexture.getSourceImage();
@@ -16111,7 +16145,8 @@ function update() {
 
     // Call the dynamic grass update function
     if (window.updateDynamicGrass) {
-        if (!window.lastGrassUpdate || this.time.now - window.lastGrassUpdate > 100) {
+        const grassUpdateInterval = (!window.perfWeatherParticles) ? 300 : 100;
+        if (!window.lastGrassUpdate || this.time.now - window.lastGrassUpdate > grassUpdateInterval) {
             window.lastGrassUpdate = this.time.now;
             window.updateDynamicGrass(this, this.time.now, windVx, windVy);
         }
