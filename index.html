@@ -15777,6 +15777,95 @@ function update() {
         }
     }
 
+    // Player Status Indicators (exclamation/question marks) in Co-op Mode
+    if (window.coopActive && typeof player !== 'undefined' && player) {
+        const p1InModal = (window.p1ActiveModal !== null);
+        const p1InBattle = window.inBattle && (window.activeBattlePlayer === 1 || window.isLocalPvp);
+        const p2InModal = (window.p2ActiveModal !== null);
+        const p2InBattle = window.inBattle && (window.activeBattlePlayer === 2 || window.isLocalPvp);
+
+        let p1IndicatorText = '';
+        let p1IndicatorColor = '';
+        if (p1InModal) {
+            p1IndicatorText = '?';
+            p1IndicatorColor = '#33ff33';
+        } else if (p1InBattle && !p2InModal && !p2InBattle) {
+            p1IndicatorText = '!';
+            p1IndicatorColor = '#ff3333';
+        }
+
+        let p2IndicatorText = '';
+        let p2IndicatorColor = '';
+        if (p2InModal) {
+            p2IndicatorText = '?';
+            p2IndicatorColor = '#33ff33';
+        } else if (p2InBattle && !p1InModal && !p1InBattle) {
+            p2IndicatorText = '!';
+            p2IndicatorColor = '#ff3333';
+        }
+
+        // Player 1 Indicator
+        if (p1IndicatorText) {
+            if (!window.p1StatusIndicator) {
+                window.p1StatusIndicator = this.add.text(player.x, player.y - 55, p1IndicatorText, {
+                    fontSize: '24px',
+                    fontFamily: 'Courier New',
+                    fontWeight: 'bold',
+                    fill: p1IndicatorColor,
+                    stroke: '#000000',
+                    strokeThickness: 4
+                }).setOrigin(0.5);
+            } else {
+                window.p1StatusIndicator.setText(p1IndicatorText);
+                window.p1StatusIndicator.setStyle({ fill: p1IndicatorColor });
+                window.p1StatusIndicator.x = player.x;
+                window.p1StatusIndicator.y = player.y - 55;
+            }
+            window.p1StatusIndicator.setDepth(20 + player.y / 10000);
+            window.p1StatusIndicator.setVisible(player.visible);
+        } else {
+            if (window.p1StatusIndicator) {
+                window.p1StatusIndicator.destroy();
+                window.p1StatusIndicator = null;
+            }
+        }
+
+        // Player 2 Indicator
+        if (p2IndicatorText && window.player2) {
+            if (!window.p2StatusIndicator) {
+                window.p2StatusIndicator = this.add.text(window.player2.x, window.player2.y - 55, p2IndicatorText, {
+                    fontSize: '24px',
+                    fontFamily: 'Courier New',
+                    fontWeight: 'bold',
+                    fill: p2IndicatorColor,
+                    stroke: '#000000',
+                    strokeThickness: 4
+                }).setOrigin(0.5);
+            } else {
+                window.p2StatusIndicator.setText(p2IndicatorText);
+                window.p2StatusIndicator.setStyle({ fill: p2IndicatorColor });
+                window.p2StatusIndicator.x = window.player2.x;
+                window.p2StatusIndicator.y = window.player2.y - 55;
+            }
+            window.p2StatusIndicator.setDepth(20 + window.player2.y / 10000);
+            window.p2StatusIndicator.setVisible(window.player2.visible);
+        } else {
+            if (window.p2StatusIndicator) {
+                window.p2StatusIndicator.destroy();
+                window.p2StatusIndicator = null;
+            }
+        }
+    } else {
+        if (window.p1StatusIndicator) {
+            window.p1StatusIndicator.destroy();
+            window.p1StatusIndicator = null;
+        }
+        if (window.p2StatusIndicator) {
+            window.p2StatusIndicator.destroy();
+            window.p2StatusIndicator = null;
+        }
+    }
+
     // Entity Viewport Culling Bounds (Pixels)
     const viewPadding = window.perfLowerDrawDistance ? 100 : 300;
     const viewLeft = cam.scrollX - viewPadding;
@@ -15980,7 +16069,12 @@ function update() {
         let targetIntensity = 0;
         let targetCloud = 'partly_cloudy';
 
-        if (timeInCycle >= eventStartTime && timeInCycle <= eventEndTime) {
+        if (roomAgeMs < 240000) {
+            // Force clear skies weather at the beginning of the game for 4 minutes
+            targetPattern = 'none';
+            targetIntensity = 0;
+            targetCloud = 'clear';
+        } else if (timeInCycle >= eventStartTime && timeInCycle <= eventEndTime) {
             // Weather is active
             targetCloud = 'cloudy';
             const rWeather = cycleRng();
