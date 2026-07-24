@@ -3347,8 +3347,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (val && typeof creaturesGroup !== 'undefined' && creaturesGroup) {
             const children = creaturesGroup.getChildren();
             if (children.length > 20) {
-                for (let i = children.length - 1; i >= 20; i--) {
-                    children[i].destroy();
+                let toRemove = children.length - 20;
+                for (let i = children.length - 1; i >= 0 && toRemove > 0; i--) {
+                    const cData = children[i].getData('creatureData');
+                    const isShiny = cData && cData.isShiny;
+                    if (!isShiny) {
+                        children[i].destroy();
+                        toRemove--;
+                    }
                 }
             }
         }
@@ -10121,7 +10127,14 @@ window.releaseCreature = function(index, playerNum = 1) {
     const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
     const idSet = playerNum === 2 ? window.collectedCreaturesIds2 : window.collectedCreaturesIds;
 
-    if (list.length <= 1) {
+    const target = list[index];
+    if (!target) return;
+
+    const isPartyCreature = !target.stored;
+    const activeParty = list.filter(c => !c.stored);
+    const storedCreatures = list.filter(c => c.stored);
+
+    if (isPartyCreature && activeParty.length <= 1 && storedCreatures.length === 0) {
         alert("You cannot release your last creature!");
         return;
     }
@@ -13314,6 +13327,14 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     if (!clonedData.color) clonedData.color = window.getCreatureColor(clonedData);
 
+    if (clonedData.isShiny) {
+        if (window.showModernNotification) {
+            window.showModernNotification(`✨ A wild Shiny ${clonedData.name} has spawned in the world! ✨`, 6000);
+        } else {
+            console.log(`✨ A wild Shiny ${clonedData.name} has spawned in the world! ✨`);
+        }
+    }
+
     // Generate dynamic texture for species
     let isShiny = !!clonedData.isShiny;
     let speciesId = (clonedData.generation && clonedData.generation > 1) ? clonedData.name : (clonedData.baseId || clonedData.name || 'default');
@@ -13348,7 +13369,10 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         "Dark": "🌙",
         "Cosmic": "🪐"
     };
-    const symbolEmoji = emojiMap[clonedData.type] || "❓";
+    let symbolEmoji = emojiMap[clonedData.type] || "❓";
+    if (clonedData.isShiny) {
+        symbolEmoji = "⭐" + symbolEmoji;
+    }
     const symbolText = scene.add.text(x, y - 24, symbolEmoji, {
         fontSize: '12px',
         stroke: '#000000',
@@ -14998,7 +15022,21 @@ window.getStrictSafeDryLandSpawn = function(enemyObj, targetPos = null) {
 
 function respawnEnemyBase() {
     if (typeof Phaser === 'undefined') return;
-    const basePrototype = window.baseCreatures.find(c => c.id === currentEnemy.baseId) || window.baseCreatures.find(c => c.name === currentEnemy.name);
+    let basePrototype = null;
+    if (currentEnemy) {
+        const currentBaseId = currentEnemy.baseId || currentEnemy.id;
+        const currentName = currentEnemy.name;
+        const availablePool = window.baseCreatures.filter(c => {
+            const isSame = (c.id === currentBaseId) || (c.name === currentName);
+            return !isSame;
+        });
+        if (availablePool.length > 0) {
+            basePrototype = availablePool[Math.floor(Math.random() * availablePool.length)];
+        }
+    }
+    if (!basePrototype) {
+        basePrototype = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+    }
     let rx, ry, d, col, row;
     do {
         rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
@@ -15007,7 +15045,7 @@ function respawnEnemyBase() {
         row = Math.floor(ry / 100);
         d = Math.hypot(player.x - rx, player.y - ry);
     } while (d < 500 || (mapData[row] && mapData[row][col] !== 'grass'));
-    spawnCreature(game.scene.scenes[0], basePrototype || currentEnemy, rx, ry);
+    spawnCreature(game.scene.scenes[0], basePrototype, rx, ry);
 }
 
 function isPointerOverButton(p) {
@@ -16423,8 +16461,10 @@ function update() {
                     }
                 }
 
-                // Teleport creatures that are too far away to just outside the viewport of the closest player
-                if (distToPlayer > 2500) {
+                // Teleport creatures that are too far away to just outside the viewport of the closest player (ignore shinies)
+                const cDataForTeleport = creature.getData('creatureData');
+                const isShinyForTeleport = cDataForTeleport && cDataForTeleport.isShiny;
+                if (distToPlayer > 2500 && !isShinyForTeleport) {
                     const angle = Math.random() * Math.PI * 2;
                     const rDist = 1000 + Math.random() * 1000; // 1000 to 2000 px away
                     const targetX = Phaser.Math.Clamp(closestPlayer.x + Math.cos(angle) * rDist, 100, WORLD_SIZE - 100);
