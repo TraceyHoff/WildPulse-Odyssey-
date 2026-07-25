@@ -30,7 +30,7 @@ test.describe('Creature License and ExPALL updates', () => {
     expect(p2License.quantity).toBe(1);
   });
 
-  test('shop should display updated ExPALL price (250) and new Creature License (125)', async ({ page }) => {
+  test('shop should display updated ExPALL price (250) and new Creature License (175)', async ({ page }) => {
     await page.evaluate(() => {
       if (!window.gameStats) window.gameStats = { coins: 0 };
       window.gameStats.coins = 500;
@@ -45,7 +45,7 @@ test.describe('Creature License and ExPALL updates', () => {
     await expect(storeContent).toContainText('ExPALL');
     await expect(storeContent).toContainText('250');
     await expect(storeContent).toContainText('Creature License');
-    await expect(storeContent).toContainText('125');
+    await expect(storeContent).toContainText('175');
   });
 
   test('Creature License cannot be used directly like healing juice', async ({ page }) => {
