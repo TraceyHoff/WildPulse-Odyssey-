@@ -2475,11 +2475,21 @@ Math.random = function() {
 };
 
 window.notificationTimeout = null;
-window.showModernNotification = function(text, duration = 3000) {
+window.showModernNotification = function(text, duration = 3000, playerNum = null) {
     const el = document.getElementById('modernNotification');
     if (!el) return;
     el.innerText = text;
     el.style.opacity = '1';
+
+    if (window.coopActive && playerNum !== null) {
+        if (playerNum === 2) {
+            el.style.left = '75%';
+        } else {
+            el.style.left = '25%';
+        }
+    } else {
+        el.style.left = '50%';
+    }
 
     if (window.notificationTimeout) clearTimeout(window.notificationTimeout);
     window.notificationTimeout = setTimeout(() => {
@@ -8867,8 +8877,17 @@ window.promptCreatureSelection = function(playerNum, titleText, callback) {
     const overlay = document.createElement('div');
     overlay.style.position = 'fixed';
     overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100vw';
+    if (window.coopActive) {
+        overlay.style.width = '50vw';
+        if (playerNum === 2) {
+            overlay.style.left = '50vw';
+        } else {
+            overlay.style.left = '0';
+        }
+    } else {
+        overlay.style.width = '100vw';
+        overlay.style.left = '0';
+    }
     overlay.style.height = '100vh';
     overlay.style.background = 'rgba(0,0,0,0.7)';
     overlay.style.zIndex = '300000';
@@ -13792,8 +13811,12 @@ function healParty(playerCollider, hospitalCollider) {
     if (playerCollider.lastHealTime && this.time.now - playerCollider.lastHealTime < 5000) return;
     playerCollider.lastHealTime = this.time.now;
 
+    const isP2 = (playerCollider === window.player2);
+    const party = isP2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const storageKey = isP2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+
     let healedAny = false;
-    for (let c of collectedCreatures) {
+    for (let c of party) {
         if (!c.stored) {
             let maxHp = window.getEffectiveStat(c, 'health');
             if (c.currentHp === undefined || c.currentHp < maxHp || c.status) {
@@ -13805,8 +13828,13 @@ function healParty(playerCollider, hospitalCollider) {
     }
 
     if (healedAny) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-        window.showModernNotification("Your party has been fully healed!");
+        localStorage.setItem(storageKey, JSON.stringify(party));
+        if (isP2) {
+            window.showModernNotification("Your party has been fully healed!", 3000, 2);
+        } else {
+            window.showModernNotification("Your party has been fully healed!", 3000, 1);
+        }
+        if (window.renderPartyList) window.renderPartyList();
     }
 }
 

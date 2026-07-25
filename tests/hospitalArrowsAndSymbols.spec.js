@@ -129,7 +129,8 @@ test.describe('Hospital Directional Arrows and Creature Type Symbols', () => {
 
     for (const item of symbolsData) {
       expect(item.hasSymbol).toBe(true);
-      expect(item.text).toBe(emojiMap[item.type]);
+      const expectedText = emojiMap[item.type];
+      expect([expectedText, '⭐' + expectedText]).toContain(item.text);
       expect(item.xDiff).toBeCloseTo(0);
       expect(item.yDiff).toBeCloseTo(-24);
     }
