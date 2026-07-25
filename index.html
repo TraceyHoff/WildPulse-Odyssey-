@@ -8662,8 +8662,8 @@ window.collectedCreatures2 = JSON.parse(localStorage.getItem('wildpulse_collecte
 window.collectedCreaturesIds2 = new Set(window.collectedCreatures2.map(c => c.id));
 
 // Inventories and Active Buff Timers
-window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }];
-window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }];
+window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
+window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
 
 // Store Stock Initialization
 const defaultStock = {
@@ -8677,7 +8677,8 @@ const defaultStock = {
     "Jank Juice": 5,
     "Healing Juice Bottle": 5,
     "Healing Juice Jug": 5,
-    "ExPALL": 5
+    "ExPALL": 5,
+    "Creature License": 5
 };
 window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
@@ -8848,7 +8849,8 @@ window.updateStoreUI = function() {
         { name: "Jank Juice", icon: "🧃", price: 100, desc: "Greatly increases wild shiny spawn rate for 60s." },
         { name: "Healing Juice Bottle", icon: "🧪", price: 40, desc: "Heals one creature or revives with 50% HP." },
         { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." },
-        { name: "ExPALL", icon: "✨", price: 200, desc: "Allows whole party to receive battle experience for 180s." }
+        { name: "ExPALL", icon: "✨", price: 250, desc: "Allows whole party to receive battle experience for 180s." },
+        { name: "Creature License", icon: "🎫", price: 125, desc: "Boosts wild capture success rate. Consumed only on success." }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -9062,6 +9064,11 @@ window.useInventoryItem = function(playerNum, slotIndex) {
     const item = inv[slotIndex];
     if (!item) return;
 
+    if (item.name === "Creature License") {
+        window.showModernNotification("🎫 This item cannot be used directly. It automatically boosts capture rates in battles and is consumed only upon a successful catch!");
+        return;
+    }
+
     const consumeItem = () => {
         item.quantity--;
         if (item.quantity <= 0) {
@@ -9199,7 +9206,8 @@ window.updateInventoryUI = function() {
         "Jank Juice": "🧃",
         "Healing Juice Bottle": "🧪",
         "Healing Juice Jug": "🏺",
-        "ExPALL": "✨"
+        "ExPALL": "✨",
+        "Creature License": "🎫"
     };
 
     const updatePlayerSlots = (playerNum, containerId) => {
@@ -14475,6 +14483,8 @@ window.showFloatingText = function(containerId, text, color) {
 
 window.doPlayerAction = function(action, callback) {
     try {
+        if (window.currentPlayer) currentPlayer = window.currentPlayer;
+        if (window.currentEnemy) currentEnemy = window.currentEnemy;
         if (!window.inBattle) {
             if (callback) callback();
             return;
@@ -14593,6 +14603,14 @@ window.doPlayerAction = function(action, callback) {
         let hpPct = currentEnemy.currentHp / currentEnemy.maxHp;
         let base_rate = 1.0;
 
+        const inv = window.activeBattlePlayer === 2 ? window.p2Inventory : window.p1Inventory;
+        const hasLicense = inv && inv.some(item => item.name === "Creature License" && item.quantity > 0);
+
+        if (hasLicense) {
+            base_rate *= 1.5;
+            logBattle("<span style='color:#ffd700; font-weight:bold;'>🎫 Creature License: Capture success rate boosted by 50%!</span>");
+        }
+
         if (currentPlayer.ability && currentPlayer.ability.type === 'capture_boost') {
             base_rate *= currentPlayer.ability.value;
             logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
@@ -14603,6 +14621,23 @@ window.doPlayerAction = function(action, callback) {
 
         if ((Math.random() * 100) < catchChance) {
             logBattle(`<b><span style="color:#4caf50">Success! Caught </span><span style="color:#f44336">${currentEnemy.name}</span><span style="color:#4caf50">!</span></b>`);
+
+            if (hasLicense) {
+                const licenseItem = inv.find(item => item.name === "Creature License");
+                if (licenseItem) {
+                    licenseItem.quantity--;
+                    if (licenseItem.quantity <= 0) {
+                        const licenseIdx = inv.indexOf(licenseItem);
+                        if (licenseIdx > -1) {
+                            inv.splice(licenseIdx, 1);
+                        }
+                    }
+                    window.saveInventory();
+                    if (window.updateInventoryUI) window.updateInventoryUI();
+                    if (window.updateStoreUI) window.updateStoreUI();
+                }
+            }
+
             updateBattleUI();
             endBattle('caught');
             return;
@@ -14643,6 +14678,8 @@ window.doPlayerAction = function(action, callback) {
 
 window.doEnemyAction = function(callback) {
     try {
+        if (window.currentPlayer) currentPlayer = window.currentPlayer;
+        if (window.currentEnemy) currentEnemy = window.currentEnemy;
         if (!window.inBattle) {
             if (callback) callback();
             return;
@@ -16314,7 +16351,8 @@ function update() {
                     "Jank Juice": 5,
                     "Healing Juice Bottle": 5,
                     "Healing Juice Jug": 5,
-                    "ExPALL": 5
+                    "ExPALL": 5,
+                    "Creature License": 5
                 };
                 window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
                 window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
