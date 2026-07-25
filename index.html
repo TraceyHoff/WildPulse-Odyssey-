@@ -9092,7 +9092,7 @@ window.p2ActiveModal = null;
 
 window.getNavigableElements = function(container) {
     if (!container) return [];
-    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .inventory-slot');
+    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .inventory-slot, .party-card');
     return Array.from(all).filter(el => {
         // Must be visible
         if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
@@ -9271,6 +9271,24 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     }
 
     if (inModal) {
+        // Handle right stick vertical movement to scroll descriptions in the party modal
+        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : 0;
+        if (Math.abs(ry) > 0.15) {
+            const isPartyModal = container.id === 'partyModal' || container.querySelector('#partyList') || container.querySelector('#partyList_P2');
+            if (isPartyModal) {
+                const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`) || document.activeElement;
+                if (focusedEl) {
+                    const card = focusedEl.closest('.party-card');
+                    if (card) {
+                        const descText = card.querySelector('.creature-desc-text');
+                        if (descText) {
+                            descText.scrollTop += ry * 4;
+                        }
+                    }
+                }
+            }
+        }
+
         if (container.classList.contains('inventory-slots-container')) {
             const selectables = window.getNavigableElements(container);
             if (selectables.length > 0) {
@@ -10087,6 +10105,7 @@ function renderPartyForPlayer(playerNum = 1) {
         // Find original index
         const index = creaturesList.findIndex(orig => orig.id === c.id);
         const card = document.createElement('div');
+        card.setAttribute('tabindex', '0');
 
         const types = c.type ? c.type.split('-') : [];
         const isDarkText = types.includes('Light') || types.includes('Electric') || types.includes('Ice') || types.includes('Wind');
@@ -10200,11 +10219,21 @@ function renderPartyForPlayer(playerNum = 1) {
 
         card.innerHTML = `
             <div>
-                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px;">${shinyPrefix}<input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20"> <button class="save-name-btn" onclick="window.saveName(this, ${index}, ${playerNum})">Save</button> - <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span></h3>
+                <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                    <span style="display: flex; align-items: center; gap: 5px;">
+                        ${shinyPrefix}
+                        <input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20">
+                        <button class="save-name-btn" onclick="window.saveName(this, ${index}, ${playerNum})">Save</button>
+                    </span>
+                    <span style="display: flex; align-items: center; gap: 10px;">
+                        <button class="favorite-btn" onclick="window.toggleFavorite(${index}, ${playerNum})" title="${c.favorited ? 'Unfavorite' : 'Favorite'}" style="background: none; border: none; cursor: pointer; font-size: 1.2em; outline: none; padding: 0; line-height: 1; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">${c.favorited ? '❤️' : '🤍'}</button>
+                        <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span>
+                    </span>
+                </h3>
                 <p><strong>Level <span style="color:${lvlColor}">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:${lvlColor}">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span></p>
                 <div class="creature-description" style="display: flex; gap: 15px; align-items: center; margin-bottom: 10px;">
                     <div class="creature-sprite-container" style="flex-shrink: 0; width: 80px; height: 80px;"></div>
-                    <p style="color: #ccc; font-style: italic; margin: 0; flex-grow: 1;">${c.description}</p>
+                    <p class="creature-desc-text" style="color: #ccc; font-style: italic; margin: 0; flex-grow: 1; max-height: 55px; overflow-y: auto;">${c.description}</p>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 10px;">
                     ${natureHtml}
@@ -10282,6 +10311,7 @@ function renderStorageForPlayer(playerNum = 1) {
     storageBox.forEach((c) => {
         const index = listSource.findIndex(orig => orig.id === c.id);
         const card = document.createElement('div');
+        card.setAttribute('tabindex', '0');
 
         const types = c.type ? c.type.split('-') : [];
         const isDarkText = types.includes('Light') || types.includes('Electric') || types.includes('Ice') || types.includes('Wind');
@@ -10292,7 +10322,14 @@ function renderStorageForPlayer(playerNum = 1) {
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
 
-        const nameHtml = `<h4>${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''}</h4>`;
+        const heartChar = c.favorited ? '❤️' : '🤍';
+        const heartTitle = c.favorited ? 'Unfavorite' : 'Favorite';
+        const nameHtml = `
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+                <h4 style="margin: 0;">${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''}</h4>
+                <button class="favorite-btn" onclick="window.toggleFavorite(${index}, ${playerNum})" title="${heartTitle}" style="background: none; border: none; cursor: pointer; font-size: 1.2em; outline: none; padding: 0; line-height: 1; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">${heartChar}</button>
+            </div>
+        `;
 
         let abilityColor = c.ability ? c.ability.color : 'white';
         if (isDarkText && (abilityColor === 'white' || abilityColor === '#ffffff')) {
@@ -10346,6 +10383,31 @@ window.saveName = function(btn, index, playerNum = 1) {
     list[index].nickname = escapeHtml(btn.previousElementSibling.value || list[index].name);
     localStorage.setItem(key, JSON.stringify(list));
     window.renderPartyList();
+};
+
+window.toggleFavorite = function(index, playerNum = 1) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+    const c = list[index];
+    if (!c) return;
+
+    if (!c.favorited) {
+        const favoriteCount = list.filter(item => item.favorited).length;
+        if (favoriteCount >= 3) {
+            if (window.showModernNotification) {
+                window.showModernNotification("⚠️ You can only have up to 3 favorited creatures at one time!", "#ff3333");
+            } else {
+                alert("You can only have up to 3 favorited creatures at one time!");
+            }
+            return;
+        }
+    }
+
+    c.favorited = !c.favorited;
+    localStorage.setItem(key, JSON.stringify(list));
+
+    if (window.renderPartyList) window.renderPartyList();
+    if (window.renderStorageList) window.renderStorageList();
 };
 
 window.moveUp = function(index, playerNum = 1) {
@@ -15076,6 +15138,37 @@ window.endBattle = function(result) {
 
                 let leveledUp = window.gainXp(expTarget, xpGained);
                 localStorage.setItem(storageKey, JSON.stringify(activeParty));
+
+                const winnerNum = window.activeBattlePlayer === 2 ? 2 : 1;
+                const winnerList = winnerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+                const winnerKey = winnerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+
+                const halfXp = Math.floor(xpGained / 2);
+                if (halfXp > 0) {
+                    let changedList = false;
+                    winnerList.forEach(c => {
+                        if (c.favorited && String(c.id) !== String(expTarget?.id)) {
+                            let subLeveledUp = window.gainXp(c, halfXp);
+                            changedList = true;
+                            if (subLeveledUp) {
+                                if (window.showModernNotification) {
+                                    window.showModernNotification(`✨ Favorited ${c.nickname || c.name} reached Level ${c.level}! ✨`, "#ffeb3b");
+                                }
+                            }
+                        }
+                    });
+                    if (changedList) {
+                        localStorage.setItem(winnerKey, JSON.stringify(winnerList));
+                        if (winnerNum === 1) {
+                            window.collectedCreatures = winnerList;
+                            window.playerParty = winnerList;
+                        } else {
+                            window.collectedCreatures2 = winnerList;
+                        }
+                        if (window.renderPartyList) window.renderPartyList();
+                        if (window.renderStorageList) window.renderStorageList();
+                    }
+                }
 
                 if (leveledUp) {
                     let statsHtml = '';
