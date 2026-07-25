@@ -9092,7 +9092,7 @@ window.p2ActiveModal = null;
 
 window.getNavigableElements = function(container) {
     if (!container) return [];
-    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick]');
+    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .inventory-slot');
     return Array.from(all).filter(el => {
         // Must be visible
         if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
@@ -9109,6 +9109,16 @@ window.getNavigableElements = function(container) {
 };
 
 window.getActiveContainerForPlayer = function(playerNum) {
+    // Check if player is holding Left Bumper (button index 4) to focus inventory
+    const padRef = playerNum === 2 ? window.p2PadReference : window.p1PadReference;
+    if (padRef && padRef.buttons[4] && padRef.buttons[4].pressed) {
+        const containerId = playerNum === 2 ? 'p2InventorySlots' : 'p1InventorySlots';
+        const container = document.getElementById(containerId);
+        if (container && container.style.display !== 'none' && container.style.display !== '') {
+            return container;
+        }
+    }
+
     let activeId = playerNum === 2 ? window.p2ActiveModal : window.p1ActiveModal;
     if (activeId) {
         const el = document.getElementById(activeId);
@@ -9159,6 +9169,14 @@ window.getActiveContainerForPlayer = function(playerNum) {
             }
         }
     }
+
+    if (playerNum === 1) {
+        const startModal = document.getElementById('startModal');
+        if (startModal && startModal.style.display !== 'none' && startModal.style.display !== '') {
+            return startModal;
+        }
+    }
+
     return null;
 };
 
@@ -9253,6 +9271,17 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     }
 
     if (inModal) {
+        if (container.classList.contains('inventory-slots-container')) {
+            const selectables = window.getNavigableElements(container);
+            if (selectables.length > 0) {
+                const alreadyFocused = selectables.some(el => el.classList.contains(`gamepad-focused-p${playerNum}`));
+                if (!alreadyFocused) {
+                    selectables[0].classList.add(`gamepad-focused-p${playerNum}`);
+                    try { selectables[0].focus(); } catch(e) {}
+                }
+            }
+        }
+
         if (justUp || justDown || justLeft || justRight) {
             const selectables = window.getNavigableElements(container);
             if (selectables.length > 0) {
@@ -10060,7 +10089,7 @@ function renderPartyForPlayer(playerNum = 1) {
         const card = document.createElement('div');
 
         const types = c.type ? c.type.split('-') : [];
-        const isDarkText = types.includes('Light') || types.includes('Electric');
+        const isDarkText = types.includes('Light') || types.includes('Electric') || types.includes('Ice') || types.includes('Wind');
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '') + (isDarkText ? ' dark-text' : '');
 
         const color1 = window.TYPE_COLORS[types[0]] || 'rgba(30, 60, 90, 0.8)';
@@ -10253,16 +10282,27 @@ function renderStorageForPlayer(playerNum = 1) {
     storageBox.forEach((c) => {
         const index = listSource.findIndex(orig => orig.id === c.id);
         const card = document.createElement('div');
-        card.className = 'party-card' + (c.isShiny ? ' shiny' : '');
 
         const types = c.type ? c.type.split('-') : [];
+        const isDarkText = types.includes('Light') || types.includes('Electric') || types.includes('Ice') || types.includes('Wind');
+        card.className = 'party-card' + (c.isShiny ? ' shiny' : '') + (isDarkText ? ' dark-text' : '');
+
         const color1 = window.TYPE_COLORS[types[0]] || 'rgba(30, 60, 90, 0.8)';
         const color2 = types.length > 1 ? (window.TYPE_COLORS[types[1]] || color1) : color1;
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
 
         const nameHtml = `<h4>${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''}</h4>`;
-        const abilityText = c.ability ? `<span style="color:${c.ability.color}" data-tooltip="${c.ability.message}">${c.ability.name}</span>` : 'None';
+
+        let abilityColor = c.ability ? c.ability.color : 'white';
+        if (isDarkText && (abilityColor === 'white' || abilityColor === '#ffffff')) {
+            abilityColor = '#222';
+        } else if (isDarkText) {
+            if (abilityColor === '#ffeb3b' || abilityColor === 'yellow' || abilityColor === '#00ffff' || abilityColor === 'cyan') {
+                abilityColor = '#e65100';
+            }
+        }
+        const abilityText = c.ability ? `<span style="color:${abilityColor}" data-tooltip="${c.ability.message}">${c.ability.name}</span>` : 'None';
         const typeHtml = `<p>Lvl ${c.level} | Type: <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span> | Gen ${c.generation}</p><p>Ability: ${abilityText}</p>`;
 
         let actionHtml = `<div class="party-controls">`;
@@ -15381,6 +15421,8 @@ function isPointerOverButton(p) {
 }
 
 function update() {
+    window.p1PadReference = null;
+    window.p2PadReference = null;
     if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
 
@@ -16245,6 +16287,13 @@ function update() {
             }
         }
 
+        if (p1Pad) {
+            window.p1PadReference = p1Pad;
+        }
+        if (p2Pad) {
+            window.p2PadReference = p2Pad;
+        }
+
         if (p1Pad && window.processGamepadInputForPlayer) {
             window.processGamepadInputForPlayer(1, p1Pad);
         }
@@ -16265,6 +16314,14 @@ function update() {
         } else {
             p1CanMove = false;
         }
+    }
+
+    // Block movement if Left Bumper is held (Inventory focus)
+    if (window.p1PadReference && window.p1PadReference.buttons[4] && window.p1PadReference.buttons[4].pressed) {
+        p1CanMove = false;
+    }
+    if (window.p2PadReference && window.p2PadReference.buttons[4] && window.p2PadReference.buttons[4].pressed) {
+        p2CanMove = false;
     }
 
     // Block movement if modal is open for a player
