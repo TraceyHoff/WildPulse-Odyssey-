@@ -8783,6 +8783,59 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     window.showModernNotification(`🛒 Bought ${itemName}! Sent directly to your inventory.`);
 };
 
+window.sellCreature = function(playerNum) {
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
+    const idSet = playerNum === 2 ? window.collectedCreaturesIds2 : window.collectedCreaturesIds;
+    const stats = playerNum === 2 ? (window.gameStats2 || window.gameStats) : window.gameStats;
+    const statsKey = playerNum === 2 ? 'wildpulse_stats2' : 'wildpulse_stats';
+
+    const selectEl = document.getElementById(`sellCreatureSelect_P${playerNum}`);
+    if (!selectEl || selectEl.value === '') return;
+
+    const idx = parseInt(selectEl.value);
+    const target = list[idx];
+    if (!target) return;
+
+    const isPartyCreature = !target.stored;
+    const activeParty = list.filter(c => !c.stored);
+    const storedCreatures = list.filter(c => c.stored);
+
+    if (isPartyCreature && activeParty.length <= 1 && storedCreatures.length === 0) {
+        if (window.showModernNotification) {
+            window.showModernNotification("⚠️ You cannot sell your last creature!", "#ff3333");
+        } else {
+            alert("You cannot sell your last creature!");
+        }
+        return;
+    }
+
+    const price = Math.floor(50 + 10 * (target.level || 1));
+    if (confirm(`Are you sure you want to sell ${target.nickname || target.name} for 🪙 ${price} coins?`)) {
+        idSet.delete(target.id);
+        list.splice(idx, 1);
+        localStorage.setItem(key, JSON.stringify(list));
+
+        stats.coins = (stats.coins || 0) + price;
+        if (playerNum === 2) {
+            localStorage.setItem('wildpulse_stats2', JSON.stringify(stats));
+        } else {
+            window.saveStats();
+        }
+
+        if (window.showModernNotification) {
+            window.showModernNotification(`🪙 Sold ${target.nickname || target.name} for ${price} coins!`);
+        } else {
+            alert(`Sold ${target.nickname || target.name} for ${price} coins!`);
+        }
+
+        if (window.updateMenuCoins) window.updateMenuCoins();
+        if (window.updateStoreUI) window.updateStoreUI();
+        if (window.renderPartyList) window.renderPartyList();
+        if (window.renderStorageList) window.renderStorageList();
+    }
+};
+
 window.updateStoreUI = function() {
     const items = [
         { name: "Repellent", icon: "🧴", price: 50, desc: "Stops wild creature attacks for 60 seconds." },
@@ -8795,7 +8848,7 @@ window.updateStoreUI = function() {
         { name: "Jank Juice", icon: "🧃", price: 100, desc: "Greatly increases wild shiny spawn rate for 60s." },
         { name: "Healing Juice Bottle", icon: "🧪", price: 40, desc: "Heals one creature or revives with 50% HP." },
         { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." },
-        { name: "ExPALL", icon: "✨", price: 100, desc: "Allows whole party to receive battle experience for 60s." }
+        { name: "ExPALL", icon: "✨", price: 200, desc: "Allows whole party to receive battle experience for 180s." }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -8808,7 +8861,7 @@ window.updateStoreUI = function() {
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
                 🪙 Coins: <span style="font-size: 18px;">${coins}</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 180px); overflow-y: auto; padding-right: 5px;">
+            <div style="display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 280px); overflow-y: auto; padding-right: 5px;">
         `;
 
         items.forEach(item => {
@@ -8857,6 +8910,35 @@ window.updateStoreUI = function() {
         });
 
         html += `</div>`;
+
+        // Sell section
+        const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+        let selectHtml = '';
+        if (list.length === 0) {
+            selectHtml = '<option value="">No creatures to sell</option>';
+        } else {
+            list.forEach((c, idx) => {
+                let price = Math.floor(50 + 10 * (c.level || 1));
+                let nicknameOrName = c.nickname || c.name;
+                let locationText = c.stored ? 'Storage' : 'Party';
+                selectHtml += `<option value="${idx}">${nicknameOrName} (Lvl ${c.level || 1}, ${locationText}) - 🪙${price}</option>`;
+            });
+        }
+
+        html += `
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 15px; padding-top: 15px; text-align: left;">
+                <h3 style="color: #ffd700; margin-top: 0; font-size: 14px; margin-bottom: 8px;">Sell Creatures</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select id="sellCreatureSelect_P${playerNum}" style="flex: 1; padding: 6px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 12px; height: 32px;">
+                        ${selectHtml}
+                    </select>
+                    <button class="sell-btn" onclick="window.sellCreature(${playerNum})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #e91e63, #c2185b); border: 1px solid #f48fb1; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
+                        Sell
+                    </button>
+                </div>
+            </div>
+        `;
+
         container.innerHTML = html;
     };
 
@@ -9012,13 +9094,13 @@ window.useInventoryItem = function(playerNum, slotIndex) {
     }
     else if (item.name === "ExPALL") {
         if (playerNum === 2) {
-            window.p2ExPallTime = (window.p2ExPallTime || 0) + 60000;
+            window.p2ExPallTime = (window.p2ExPallTime || 0) + 180000;
         } else {
-            window.p1ExPallTime = (window.p1ExPallTime || 0) + 60000;
+            window.p1ExPallTime = (window.p1ExPallTime || 0) + 180000;
         }
         window.saveActiveBuffTimers();
         consumeItem();
-        window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 60 seconds.");
+        window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 180 seconds.");
     }
     else if (item.name === "Healing Juice Jug") {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -9311,7 +9393,20 @@ window.saveCollected = function(creature, playerNum = 1) {
             creature.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
         }
         const activeParty = list.filter(c => !c.stored);
-        creature.stored = activeParty.length >= 6;
+        const storedCount = list.filter(c => c.stored).length;
+        if (activeParty.length >= 6) {
+            if (storedCount >= 75) {
+                if (window.showModernNotification) {
+                    window.showModernNotification("⚠️ Storage is full! Maximum of 75 stored creatures allowed.", "#ff3333");
+                } else {
+                    alert("Storage is full! Maximum of 75 stored creatures allowed.");
+                }
+                return;
+            }
+            creature.stored = true;
+        } else {
+            creature.stored = false;
+        }
         creature.currentHp = window.getEffectiveStat(creature, 'health');
 
         if (stats) stats.creaturesCaught = (stats.creaturesCaught || 0) + 1;
@@ -10401,7 +10496,9 @@ function renderPartyForPlayer(playerNum = 1) {
                 else effColor = isDarkText ? '#e65100' : 'orange';
                 effHtml = ` <span style="color:${effColor}">(Eff: ${eff})</span>`;
             }
-            return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature and Mood modifications."><span style="color:${statColor};">${stat}</span>: ${Math.floor(scaled)}${effHtml}</div>`;
+            let friendBonus = (c.friendBonusStats && c.friendBonusStats[stat]) ? c.friendBonusStats[stat] : 0;
+            let friendBonusHtml = friendBonus > 0 ? ` <span style="color: #ff4081; font-weight: bold;">(+${friendBonus})</span>` : '';
+            return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature and Mood modifications."><span style="color:${statColor};">${stat}</span>: ${Math.floor(scaled)}${friendBonusHtml}${effHtml}</div>`;
         }).join('');
 
         let parentsHtml = '';
@@ -10701,9 +10798,19 @@ window.storeCreature = function(index, playerNum = 1) {
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
     const activeParty = list.filter(c => !c.stored);
+    const storedCount = list.filter(c => c.stored).length;
 
     if (activeParty.length <= 1) {
         alert("You cannot store your last active party creature!");
+        return;
+    }
+
+    if (storedCount >= 75) {
+        if (window.showModernNotification) {
+            window.showModernNotification("⚠️ Storage is full! Maximum of 75 stored creatures allowed.", "#ff3333");
+        } else {
+            alert("Storage is full! Maximum of 75 stored creatures allowed.");
+        }
         return;
     }
 
@@ -11048,7 +11155,7 @@ function populateSelect(selectElement, playerNum = 1) {
     list.forEach(c => {
         const option = document.createElement('option');
         option.value = c.id;
-        option.text = `${c.name} (Gen ${c.generation})`;
+        option.text = `${c.name} (Lvl ${c.level || 1}, Gen ${c.generation})`;
         selectElement.appendChild(option);
     });
 }
@@ -11142,6 +11249,11 @@ window.doBreed = function(playerNum = 1) {
     if (p1Index !== -1 && p2Index !== -1) {
         const p1 = list[p1Index];
         const p2 = list[p2Index];
+
+        if ((p1.level || 1) < 5 || (p2.level || 1) < 5) {
+            if (resEl) resEl.innerText = 'Both parent creatures must be at least level 5 to breed.';
+            return;
+        }
 
         // Ensure compatibility - either same type, or based on typeChart if they are somewhat compatible
         // Let's use the type modifier. If it's 0, they can't breed.
@@ -14106,7 +14218,10 @@ function collectCreature(playerCollider, creatureSprite) {
     if (playerCollider.lastBattleTime && this.time.now - playerCollider.lastBattleTime < 5000) return;
 
     // Prevent battles when hospital or trade tile is on screen
-    const cam = this.cameras.main;
+    let cam = this.cameras.main;
+    if (window.coopActive && playerCollider === window.player2 && window.camera2) {
+        cam = window.camera2;
+    }
     const viewPadding = 50; // Add slight padding
     const viewLeft = cam.scrollX - viewPadding;
     const viewRight = cam.scrollX + cam.width + viewPadding;
@@ -14466,8 +14581,11 @@ window.doPlayerAction = function(action, callback) {
             if (callback) setTimeout(callback, 300);
             return;
         }
-        if (collectedCreatures.length >= 1375) {
-            logBattle("<b>Your storage is full! You cannot catch more creatures.</b>");
+        const activeList = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+        const storedCount = activeList.filter(c => c.stored).length;
+        const activeParty = activeList.filter(c => !c.stored);
+        if (activeParty.length >= 6 && storedCount >= 75) {
+            logBattle("<b>Your storage is full! (Max 75 stored creatures)</b>");
             updateBattleUI();
             if (callback) setTimeout(callback, 300);
             return;
@@ -15253,8 +15371,7 @@ window.closeBattleModal = function() {
         }
     } else if (result === 'caught') {
         if (window.activeBattlePlayer === 2) {
-            window.collectedCreatures2.push(currentEnemy);
-            localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+            window.saveCollected(currentEnemy, 2);
         } else {
             window.saveCollected(currentEnemy);
         }
