@@ -3607,6 +3607,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
+    window.handleFullscreenToggle = handleFullscreenToggle;
     document.getElementById('fullscreenToggleBtn')?.addEventListener('click', handleFullscreenToggle);
     document.getElementById('fullscreenToggleBtn_P2')?.addEventListener('click', handleFullscreenToggle);
 
@@ -9173,10 +9174,14 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             Up: false,
             Down: false,
             Left: false,
-            Right: false
+            Right: false,
+            YPressedTime: 0,
+            YFullscreenTriggered: false
         };
     }
     const prev = window[stateKey];
+    if (prev.YPressedTime === undefined) prev.YPressedTime = 0;
+    if (prev.YFullscreenTriggered === undefined) prev.YFullscreenTriggered = false;
 
     const currY = !!(pad.buttons[3] && pad.buttons[3].pressed);
     const currX = !!(pad.buttons[2] && pad.buttons[2].pressed);
@@ -9187,12 +9192,44 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const currRight = !!(pad.buttons[15] && pad.buttons[15].pressed);
 
     const justY = currY && !prev.Y;
+    const releasedY = !currY && prev.Y;
     const justX = currX && !prev.X;
     const justA = currA && !prev.A;
     const justUp = currUp && !prev.Up;
     const justDown = currDown && !prev.Down;
     const justLeft = currLeft && !prev.Left;
     const justRight = currRight && !prev.Right;
+
+    if (justY) {
+        prev.YPressedTime = Date.now();
+        prev.YFullscreenTriggered = false;
+    }
+
+    if (currY && !prev.YFullscreenTriggered) {
+        const holdDuration = Date.now() - prev.YPressedTime;
+        if (holdDuration >= 1000) {
+            prev.YFullscreenTriggered = true;
+            if (window.handleFullscreenToggle) {
+                window.handleFullscreenToggle();
+            } else if (game && game.scale) {
+                if (game.scale.isFullscreen) {
+                    game.scale.stopFullscreen();
+                } else {
+                    game.scale.startFullscreen();
+                }
+            } else {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            }
+        }
+    }
 
     prev.Y = currY;
     prev.X = currX;
@@ -9205,10 +9242,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const container = window.getActiveContainerForPlayer(playerNum);
     const inModal = (container !== null);
 
-    if (justY) {
-        if (!inModal) {
-            if (window.openMenuModal) {
-                window.openMenuModal(playerNum);
+    if (releasedY) {
+        if (!prev.YFullscreenTriggered) {
+            if (!inModal) {
+                if (window.openMenuModal) {
+                    window.openMenuModal(playerNum);
+                }
             }
         }
     }
