@@ -1347,6 +1347,73 @@
     <button id="startDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
 </div>
 
+<!-- Cyberpunk-themed Introductory Modal -->
+<div id="introModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200005; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 20px; box-sizing: border-box; font-family: 'Courier New', monospace; color: #fff;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)); border: 2px solid #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 12px; width: 95%; max-width: 650px; padding: 30px; box-sizing: border-box; text-align: center; overflow: hidden; transform: scale(1.0); transition: all 0.3s ease;">
+        <div class="holographic-scanline" style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 6px 100%; z-index: 1; pointer-events: none; opacity: 0.4;"></div>
+        <div style="position: relative; z-index: 2;">
+            <div style="border-bottom: 2px solid #00ffcc; padding-bottom: 15px; margin-bottom: 20px;">
+                <h2 id="introModalTitle" style="margin: 0; font-size: 24px; letter-spacing: 2px; color: #00ffcc; text-shadow: 0 0 10px rgba(0, 255, 204, 0.6); text-transform: uppercase;">[ SYSTEM INITIALIZATION ]</h2>
+            </div>
+
+            <div id="introModalSlide1" style="display: block; text-align: left; line-height: 1.6; font-size: 14px;">
+                <p style="color: #00ff96; font-weight: bold; margin-top: 0; font-size: 16px; border-left: 3px solid #00ff96; padding-left: 10px; letter-spacing: 1px; text-transform: uppercase;">MISSION DATA: DISCOVERY & ASCENSION</p>
+                <p>Welcome to the cybernetic wildlands of <strong>WildPulse</strong>. Your objective is clear: explore, capture, train, and bond with creatures to conquer the world grid.</p>
+                <ul style="padding-left: 20px; color: #e0e0e0; margin-bottom: 25px;">
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🌐 Traverse & Map</strong>: Navigate a procedurally generated ecosystem affected by changing seasons and dynamic atmospheric weather patterns.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">⚔️ Tactical Combat</strong>: Defeat or weaken wild creatures to capture them and secure your team.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🧬 DNA Breeding</strong>: Force cross-species combinations (Level 5+) to inherit custom attributes, natures, and rare skin pattern overlays.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">❤️ Friend Symbiosis</strong>: Form deep relationships with active party members. Passive experience expands their friend stats dynamically.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">👑 Competitive Nodes</strong>: Challenge the local PvP, trade creatures with friends, or battle elite squads in Crown Challenges.</li>
+                </ul>
+            </div>
+
+            <div id="introModalSlide2" style="display: none; text-align: left; line-height: 1.6; font-size: 14px;">
+                <p style="color: #ff9f00; font-weight: bold; margin-top: 0; font-size: 16px; border-left: 3px solid #ff9f00; padding-left: 10px; letter-spacing: 1px; text-transform: uppercase;">INPUT MATRIX: UNIVERSAL CONTROLS</p>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                        <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">💻 KEYBOARD & MOUSE</strong>
+                        <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
+                            <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">W, A, S, D</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Arrow Keys</span></div>
+                            <div>Toggle Menu:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">ESC</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">M</span></div>
+                            <div>Quick Inventory:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">I</span></div>
+                            <div>Interact / UI:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Click</span></div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                        <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">🎮 GAMEPAD / CONTROLLER</strong>
+                        <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
+                            <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Stick</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">D-Pad</span></div>
+                            <div>Inventory Mode:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span></div>
+                            <div>Use / Confirm:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">A Button</span> (or navigate slots with D-Pad)</div>
+                            <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Y Button</span> (Tap for Menu, Hold 1s for Fullscreen)</div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                        <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">📱 TOUCH / MOBILE</strong>
+                        <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
+                            <div>Move Character:</div><div>Swipe or tap relative position to move</div>
+                            <div>Action Buttons:</div><div>Tap dedicated UI buttons and slots directly</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; gap: 15px; border-top: 1px solid rgba(0,255,204,0.3); padding-top: 20px;">
+                <button id="introPrevBtn" style="visibility: hidden; padding: 10px 20px; font-family: 'Courier New', monospace; font-size: 14px; background: #222; color: #fff; border: 1px solid #555; cursor: pointer; border-radius: 6px; transition: all 0.2s; text-transform: uppercase;">
+                    &lt; Back
+                </button>
+                <button id="introSkipBtn" style="padding: 10px 20px; font-family: 'Courier New', monospace; font-size: 14px; background: transparent; color: #ff5555; border: 1px solid #ff5555; cursor: pointer; border-radius: 6px; transition: all 0.2s; text-transform: uppercase;">
+                    Skip
+                </button>
+                <button id="introNextBtn" style="padding: 10px 20px; font-family: 'Courier New', monospace; font-size: 14px; background: linear-gradient(180deg, #00ffcc, #00aa88); color: #000; font-weight: bold; border: 1px solid #00ffcc; cursor: pointer; border-radius: 6px; transition: all 0.2s; text-transform: uppercase; box-shadow: 0 0 10px rgba(0,255,204,0.3);">
+                    Next &gt;
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="customizationModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
     <div style="position: relative; background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)); padding: 25px 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
         <button class="close-btn" id="closeCustomizationBtnTop" aria-label="Close Customization">X</button>
@@ -3330,6 +3397,7 @@ window.PATTERN_UNLOCKS = {
 };
 
 window.gameStarted = false;
+window.isNewGameSetup = false;
 window.cameraFollowsPlayer = false;
 window.playerVx = 0;
 window.playerVy = 0;
@@ -3501,7 +3569,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('startGameBtn').addEventListener('click', () => {
-        window.startGameSession();
+        const isNewGame = !localStorage.getItem('wildpulse_player_color');
+        const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
+        const forceOnboarding = typeof window !== 'undefined' && window.__test_onboarding;
+
+        if (isNewGame && (!isAutomation || forceOnboarding)) {
+            if (window.showIntroModal) {
+                window.showIntroModal();
+            } else {
+                window.startGameSession();
+            }
+        } else {
+            window.startGameSession();
+        }
     });
 
     document.addEventListener('click', () => {
@@ -3851,7 +3931,124 @@ document.addEventListener('DOMContentLoaded', () => {
             const customizationModal = document.getElementById('customizationModal');
             if (customizationModal) customizationModal.style.display = 'none';
         }
+
+        if (window.isNewGameSetup) {
+            window.isNewGameSetup = false;
+            const saveBtn = document.getElementById('saveCustomizationBtn');
+            if (saveBtn) saveBtn.innerText = 'Save';
+            const closeBtn = document.getElementById('closeCustomizationBtn');
+            if (closeBtn) {
+                closeBtn.innerText = 'Close';
+                closeBtn.style.background = 'linear-gradient(180deg, #555, #222)';
+                closeBtn.style.borderColor = '#777';
+            }
+            const closeBtnTop = document.getElementById('closeCustomizationBtnTop');
+            if (closeBtnTop) closeBtnTop.style.display = 'block';
+
+            window.startGameSession();
+        }
     };
+
+    // Intro modal variables and functions
+    let currentIntroSlide = 1;
+
+    window.showIntroModal = function() {
+        currentIntroSlide = 1;
+        const slide1 = document.getElementById('introModalSlide1');
+        const slide2 = document.getElementById('introModalSlide2');
+        if (slide1) slide1.style.display = 'block';
+        if (slide2) slide2.style.display = 'none';
+
+        const title = document.getElementById('introModalTitle');
+        if (title) title.innerText = '[ SYSTEM INITIALIZATION ]';
+
+        const prevBtn = document.getElementById('introPrevBtn');
+        if (prevBtn) prevBtn.style.visibility = 'hidden';
+
+        const nextBtn = document.getElementById('introNextBtn');
+        if (nextBtn) nextBtn.innerText = 'Next >';
+
+        const introModal = document.getElementById('introModal');
+        if (introModal) introModal.style.display = 'flex';
+    };
+
+    window.advanceIntroModal = function() {
+        if (currentIntroSlide === 1) {
+            currentIntroSlide = 2;
+            const slide1 = document.getElementById('introModalSlide1');
+            const slide2 = document.getElementById('introModalSlide2');
+            if (slide1) slide1.style.display = 'none';
+            if (slide2) slide2.style.display = 'block';
+
+            const title = document.getElementById('introModalTitle');
+            if (title) title.innerText = '[ INPUT MATRIX ]';
+
+            const prevBtn = document.getElementById('introPrevBtn');
+            if (prevBtn) prevBtn.style.visibility = 'visible';
+
+            const nextBtn = document.getElementById('introNextBtn');
+            if (nextBtn) nextBtn.innerText = 'Configure Avatar 🧬';
+        } else {
+            window.closeIntroModal(true);
+        }
+    };
+
+    window.prevIntroModal = function() {
+        if (currentIntroSlide === 2) {
+            currentIntroSlide = 1;
+            const slide1 = document.getElementById('introModalSlide1');
+            const slide2 = document.getElementById('introModalSlide2');
+            if (slide1) slide1.style.display = 'block';
+            if (slide2) slide2.style.display = 'none';
+
+            const title = document.getElementById('introModalTitle');
+            if (title) title.innerText = '[ SYSTEM INITIALIZATION ]';
+
+            const prevBtn = document.getElementById('introPrevBtn');
+            if (prevBtn) prevBtn.style.visibility = 'hidden';
+
+            const nextBtn = document.getElementById('introNextBtn');
+            if (nextBtn) nextBtn.innerText = 'Next >';
+        }
+    };
+
+    window.closeIntroModal = function(proceedToCustomize = false) {
+        const introModal = document.getElementById('introModal');
+        if (introModal) introModal.style.display = 'none';
+
+        if (proceedToCustomize) {
+            window.openCustomizationModal(1);
+
+            window.isNewGameSetup = true;
+
+            const saveBtn = document.getElementById('saveCustomizationBtn');
+            if (saveBtn) saveBtn.innerText = 'Save & Start Game';
+
+            const closeBtn = document.getElementById('closeCustomizationBtn');
+            if (closeBtn) {
+                closeBtn.innerText = 'Skip & Start';
+                closeBtn.style.background = 'linear-gradient(180deg, #ff9800, #f57c00)';
+                closeBtn.style.borderColor = '#ffb74d';
+            }
+
+            const closeBtnTop = document.getElementById('closeCustomizationBtnTop');
+            if (closeBtnTop) closeBtnTop.style.display = 'none';
+        } else {
+            window.startGameSession();
+        }
+    };
+
+    document.getElementById('introNextBtn')?.addEventListener('click', () => {
+        window.advanceIntroModal();
+    });
+
+    document.getElementById('introPrevBtn')?.addEventListener('click', () => {
+        window.prevIntroModal();
+    });
+
+    document.getElementById('introSkipBtn')?.addEventListener('click', () => {
+        window.closeIntroModal(false);
+    });
 
     // Initialize inputs from localStorage initially (P1)
     window.loadCustomPlayerInputs(1);
@@ -8784,6 +8981,44 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     window.showModernNotification(`🛒 Bought ${itemName}! Sent directly to your inventory.`);
 };
 
+window.calculateCreatureSellPrice = function(c) {
+    if (!c) return 0;
+
+    // 1. Stats calculation (effective stats)
+    let totalStats = 0;
+    const statsList = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'];
+    statsList.forEach(stat => {
+        if (window.getEffectiveStat) {
+            totalStats += window.getEffectiveStat(c, stat);
+        } else {
+            totalStats += (c.stats ? (c.stats[stat] || 50) : 50);
+        }
+    });
+
+    // 2. Nature multiplier
+    let natureMultiplier = 1.0;
+    if (c.nature) {
+        let nTier = c.nature.tier || 2;
+        if (c.nature.increase) natureMultiplier += 0.1 * nTier;
+        if (c.nature.decrease) natureMultiplier -= 0.05 * nTier;
+    }
+
+    // 3. Mood multiplier
+    let moodMultiplier = 1.0;
+    if (c.mood) {
+        let mTier = c.mood.tier || 2;
+        if (c.mood.increase) moodMultiplier += 0.1 * mTier;
+        if (c.mood.decrease) moodMultiplier -= 0.05 * mTier;
+    }
+
+    // 4. Calculate base price and apply multipliers
+    let basePrice = 50 + totalStats * 0.2;
+    let finalPrice = Math.floor(basePrice * natureMultiplier * moodMultiplier);
+
+    // Return a guaranteed positive integer
+    return Math.max(1, finalPrice);
+};
+
 window.sellCreature = function(playerNum) {
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
@@ -8811,7 +9046,7 @@ window.sellCreature = function(playerNum) {
         return;
     }
 
-    const price = Math.floor(50 + 10 * (target.level || 1));
+    const price = window.calculateCreatureSellPrice(target);
     if (confirm(`Are you sure you want to sell ${target.nickname || target.name} for 🪙 ${price} coins?`)) {
         idSet.delete(target.id);
         list.splice(idx, 1);
@@ -8850,7 +9085,7 @@ window.updateStoreUI = function() {
         { name: "Healing Juice Bottle", icon: "🧪", price: 40, desc: "Heals one creature or revives with 50% HP." },
         { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", price: 250, desc: "Allows whole party to receive battle experience for 180s." },
-        { name: "Creature License", icon: "🎫", price: 125, desc: "Boosts wild capture success rate. Consumed only on success." }
+        { name: "Creature License", icon: "🎫", price: 175, desc: "Boosts wild capture success rate. Consumed only on success." }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -8920,7 +9155,7 @@ window.updateStoreUI = function() {
             selectHtml = '<option value="">No creatures to sell</option>';
         } else {
             list.forEach((c, idx) => {
-                let price = Math.floor(50 + 10 * (c.level || 1));
+                let price = window.calculateCreatureSellPrice(c);
                 let nicknameOrName = c.nickname || c.name;
                 let locationText = c.stored ? 'Storage' : 'Party';
                 selectHtml += `<option value="${idx}">${nicknameOrName} (Lvl ${c.level || 1}, ${locationText}) - 🪙${price}</option>`;
@@ -15941,7 +16176,8 @@ function isPointerOverButton(p) {
                     target.id === 'storageModal' || target.id === 'helpModal' || target.id === 'levelUpModal' ||
                     target.id === 'tradeModal' || target.id === 'pvpModal' || target.id === 'journalModal' ||
                     target.id === 'battleSwapModal' || target.id === 'storeModal' || target.id === 'battleModal' ||
-                    target.id === 'customizationModal' || target.id === 'challengeModal' || target.id === 'socialSidebar'
+                    target.id === 'customizationModal' || target.id === 'challengeModal' || target.id === 'socialSidebar' ||
+                    target.id === 'introModal'
                 )) {
                     return true;
                 }
