@@ -9761,15 +9761,117 @@ window.getActiveContainerForPlayer = function(playerNum) {
     return null;
 };
 
+window.findInteractiveElement = function(el) {
+    if (!el) return null;
+    let curr = el;
+    while (curr && curr !== document.body) {
+        if (
+            curr.tagName === 'BUTTON' ||
+            curr.tagName === 'INPUT' ||
+            curr.tagName === 'SELECT' ||
+            curr.tagName === 'TEXTAREA' ||
+            curr.tagName === 'A' ||
+            curr.classList.contains('party-card') ||
+            curr.classList.contains('creature-slot') ||
+            curr.classList.contains('store-item-card') ||
+            curr.classList.contains('swap-item') ||
+            curr.getAttribute('tabindex') !== null ||
+            curr.style.cursor === 'pointer'
+        ) {
+            return curr;
+        }
+        curr = curr.parentElement;
+    }
+    return null;
+};
+
+window.initVirtualCursorDOM = function() {
+    if (document.getElementById('p1VirtualCursor')) return;
+
+    const style = document.createElement('style');
+    style.id = 'virtual-cursor-styles';
+    style.innerHTML = `
+        @keyframes cursorPulsate {
+            0% {
+                transform: translate(-50%, -50%) scale(1.0);
+                filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px #00ffd2);
+                color: #00ffd2;
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(1.05);
+                filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px #ff007f);
+                color: #ff007f;
+            }
+            40% {
+                transform: translate(-50%, -50%) scale(0.95);
+                filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px #ffd700);
+                color: #ffd700;
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1.05);
+                filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px #00ff66);
+                color: #00ff66;
+            }
+            80% {
+                transform: translate(-50%, -50%) scale(0.95);
+                filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px #bf55ec);
+                color: #bf55ec;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.0);
+                filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px #00ffd2);
+                color: #00ffd2;
+            }
+        }
+
+        .virtual-cursor {
+            position: fixed;
+            width: 32px;
+            height: 32px;
+            pointer-events: none;
+            z-index: 10000000;
+            display: none;
+            box-sizing: border-box;
+            animation: cursorPulsate 4s ease-in-out infinite !important;
+            transition: opacity 0.15s ease;
+        }
+    `;
+    document.head.appendChild(style);
+
+    for (let pNum of [1, 2]) {
+        const cursorDiv = document.createElement('div');
+        cursorDiv.className = 'virtual-cursor';
+        cursorDiv.id = `p${pNum}VirtualCursor`;
+        cursorDiv.innerHTML = `
+            <svg width="32" height="32" viewBox="0 0 32 32" style="position: absolute; top:0; left:0; width:100%; height:100%;">
+                <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.5" fill="none" stroke-dasharray="4 4" />
+                <circle cx="16" cy="16" r="6" stroke="currentColor" stroke-width="1" fill="none" />
+                <line x1="16" y1="2" x2="16" y2="10" stroke="currentColor" stroke-width="1.5" />
+                <line x1="16" y1="22" x2="16" y2="30" stroke="currentColor" stroke-width="1.5" />
+                <line x1="2" y1="16" x2="10" y2="16" stroke="currentColor" stroke-width="1.5" />
+                <line x1="22" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5" />
+                <circle cx="16" cy="16" r="2.5" fill="#fff" />
+            </svg>
+        `;
+        document.body.appendChild(cursorDiv);
+    }
+};
+
 window.processGamepadInputForPlayer = function(playerNum, pad) {
     if (!pad) return;
+
+    if (window.initVirtualCursorDOM) {
+        window.initVirtualCursorDOM();
+    }
 
     const stateKey = `gamepadPrevState_P${playerNum}`;
     if (!window[stateKey]) {
         window[stateKey] = {
             Y: false,
             X: false,
+            B: false,
             A: false,
+            Start: false,
             Up: false,
             Down: false,
             Left: false,
@@ -9784,7 +9886,9 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
 
     const currY = !!(pad.buttons[3] && pad.buttons[3].pressed);
     const currX = !!(pad.buttons[2] && pad.buttons[2].pressed);
+    const currB = !!(pad.buttons[1] && pad.buttons[1].pressed);
     const currA = !!(pad.buttons[0] && pad.buttons[0].pressed);
+    const currStart = !!((pad.buttons[9] && pad.buttons[9].pressed) || (pad.buttons[8] && pad.buttons[8].pressed));
     const currUp = !!(pad.buttons[12] && pad.buttons[12].pressed);
     const currDown = !!(pad.buttons[13] && pad.buttons[13].pressed);
     const currLeft = !!(pad.buttons[14] && pad.buttons[14].pressed);
@@ -9793,7 +9897,10 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justY = currY && !prev.Y;
     const releasedY = !currY && prev.Y;
     const justX = currX && !prev.X;
+    const justB = currB && !prev.B;
     const justA = currA && !prev.A;
+    const justStart = currStart && !prev.Start;
+    const releasedStart = !currStart && prev.Start;
     const justUp = currUp && !prev.Up;
     const justDown = currDown && !prev.Down;
     const justLeft = currLeft && !prev.Left;
@@ -9832,7 +9939,9 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
 
     prev.Y = currY;
     prev.X = currX;
+    prev.B = currB;
     prev.A = currA;
+    prev.Start = currStart;
     prev.Up = currUp;
     prev.Down = currDown;
     prev.Left = currLeft;
@@ -9841,12 +9950,94 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const container = window.getActiveContainerForPlayer(playerNum);
     const inModal = (container !== null);
 
-    if (releasedY) {
-        if (!prev.YFullscreenTriggered) {
-            if (!inModal) {
-                if (window.openMenuModal) {
-                    window.openMenuModal(playerNum);
-                }
+    // Handle Virtual Cursor right-stick movement
+    const rx_vc = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
+    const ry_vc = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
+
+    const deadzone_vc = 0.15;
+    if (Math.abs(rx_vc) > deadzone_vc || Math.abs(ry_vc) > deadzone_vc) {
+        // Initialize coordinates if they are undefined
+        if (window[`p${playerNum}CursorX`] === undefined) {
+            window[`p${playerNum}CursorX`] = window.coopActive ? (playerNum === 1 ? window.innerWidth / 4 : (window.innerWidth * 3) / 4) : (window.innerWidth / 2);
+            window[`p${playerNum}CursorY`] = window.innerHeight / 2;
+        }
+
+        const dx = Math.abs(rx_vc) > deadzone_vc ? rx_vc * 12 : 0;
+        const dy = Math.abs(ry_vc) > deadzone_vc ? ry_vc * 12 : 0;
+
+        window[`p${playerNum}CursorX`] += dx;
+        window[`p${playerNum}CursorY`] += dy;
+
+        // Bound cursor to player screen boundary
+        let minX = 0;
+        let maxX = window.innerWidth;
+        if (window.coopActive) {
+            if (playerNum === 1) {
+                maxX = window.innerWidth / 2;
+            } else {
+                minX = window.innerWidth / 2;
+            }
+        }
+        window[`p${playerNum}CursorX`] = Math.max(minX, Math.min(maxX, window[`p${playerNum}CursorX`]));
+        window[`p${playerNum}CursorY`] = Math.max(0, Math.min(window.innerHeight, window[`p${playerNum}CursorY`]));
+
+        // Show and position the cursor element
+        window[`p${playerNum}CursorVisible`] = true;
+        const cursorEl = document.getElementById(`p${playerNum}VirtualCursor`);
+        if (cursorEl) {
+            cursorEl.style.display = 'block';
+            cursorEl.style.left = `${window[`p${playerNum}CursorX`]}px`;
+            cursorEl.style.top = `${window[`p${playerNum}CursorY`]}px`;
+        }
+    }
+
+    // Update visual hover states based on virtual cursor position
+    if (window[`p${playerNum}CursorVisible`]) {
+        const cx = window[`p${playerNum}CursorX`];
+        const cy = window[`p${playerNum}CursorY`];
+        const targetEl = document.elementFromPoint(cx, cy);
+        const interactiveEl = window.findInteractiveElement(targetEl);
+
+        const oldInteractiveEl = window[`p${playerNum}LastInteractive`] || null;
+        if (interactiveEl !== oldInteractiveEl) {
+            // Unhighlight old element
+            if (oldInteractiveEl) {
+                oldInteractiveEl.classList.remove(`gamepad-focused-p${playerNum}`);
+                try {
+                    oldInteractiveEl.dispatchEvent(new MouseEvent('mouseout', { bubbles: true, cancelable: true }));
+                    oldInteractiveEl.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true, cancelable: true }));
+                } catch(e) {}
+            }
+            // Highlight new element
+            if (interactiveEl) {
+                // Remove other highlights inside the current container to avoid duplicates
+                const activeContainer = window.getActiveContainerForPlayer(playerNum) || document;
+                activeContainer.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
+                    el.classList.remove(`gamepad-focused-p${playerNum}`);
+                });
+
+                interactiveEl.classList.add(`gamepad-focused-p${playerNum}`);
+                try {
+                    interactiveEl.focus();
+                } catch(e) {}
+                try {
+                    interactiveEl.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, cancelable: true }));
+                    interactiveEl.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true, cancelable: true }));
+                } catch(e) {}
+            }
+            window[`p${playerNum}LastInteractive`] = interactiveEl;
+        }
+    }
+
+    if (releasedStart) {
+        if (!inModal) {
+            if (window.openMenuModal) {
+                window.openMenuModal(playerNum);
+            }
+        } else {
+            // Close modals if already open and Start/Menu is pressed again
+            if (window.closeAllModalsForPlayer) {
+                window.closeAllModalsForPlayer(playerNum);
             }
         }
     }
@@ -9914,13 +10105,18 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
 
         if (justA) {
-            const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`);
-            if (focusedEl) {
-                focusedEl.click();
+            const cursorTarget = window[`p${playerNum}LastInteractive`] || null;
+            if (cursorTarget && window[`p${playerNum}CursorVisible`]) {
+                cursorTarget.click();
+            } else {
+                const focusedEl = container ? container.querySelector(`.gamepad-focused-p${playerNum}`) : null;
+                if (focusedEl) {
+                    focusedEl.click();
+                }
             }
         }
 
-        if (justX) {
+        if (justB) {
             container.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
                 el.classList.remove(`gamepad-focused-p${playerNum}`);
             });

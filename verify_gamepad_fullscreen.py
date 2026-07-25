@@ -74,22 +74,25 @@ def run_test(page):
         };
     }""")
 
-    # 1. Verify tapping Y button (press and release under 1000ms) opens the menu modal
-    print("Simulating button Y tap...")
-    page.evaluate("() => window.pressMockButton(3)")
-    page.wait_for_timeout(200) # held for 200ms
-    page.evaluate("() => window.releaseMockButton(3)")
+    # 1. Verify tapping Start button (button 9) (press and release) opens the menu modal
+    print("Simulating button Start tap...")
+    page.evaluate("() => window.pressMockButton(9)")
+    page.wait_for_timeout(200)
+    page.evaluate("() => window.releaseMockButton(9)")
     page.wait_for_timeout(1000)
 
     # Check if menu modal is visible
     menu_visible = page.is_visible("#menuModal")
-    print(f"Is menu modal open after tap? {menu_visible}")
-    assert menu_visible, "Menu modal should be open after a tap on Y button!"
+    print(f"Is menu modal open after Start tap? {menu_visible}")
+    assert menu_visible, "Menu modal should be open after a tap on Start button!"
 
-    # Close the menu modal to reset state
-    page.click(".close-menu-btn")
-    page.wait_for_timeout(500)
-    assert not page.is_visible("#menuModal"), "Menu modal should be closed."
+    # Verify B button (button 1) closes the menu modal
+    print("Simulating button B tap to close menu...")
+    page.evaluate("() => window.pressMockButton(1)")
+    page.wait_for_timeout(200)
+    page.evaluate("() => window.releaseMockButton(1)")
+    page.wait_for_timeout(1000)
+    assert not page.is_visible("#menuModal"), "Menu modal should be closed after pressing B button!"
 
     # Reset toggle tracking flag
     page.evaluate("() => { window.fullscreenToggleCalled = false; }")
