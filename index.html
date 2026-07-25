@@ -1432,6 +1432,8 @@
     <div class="inventory-slot"></div>
 </div>
 
+<div id="coopSplitLine" style="position: fixed; top: 0; left: 50%; width: 2px; height: 100%; background: #000000; transform: translateX(-50%); z-index: 9999; display: none; pointer-events: none;"></div>
+
 <div id="p2InventorySlots" class="inventory-slots-container">
     <div id="p2ActiveBuffs" style="color: #ffeb3b; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 2px black; text-align: center; margin-bottom: 5px; white-space: pre-line;"></div>
     <div class="inventory-slot"></div>
@@ -8456,8 +8458,8 @@ window.collectedCreatures2 = JSON.parse(localStorage.getItem('wildpulse_collecte
 window.collectedCreaturesIds2 = new Set(window.collectedCreatures2.map(c => c.id));
 
 // Inventories and Active Buff Timers
-window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [];
-window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [];
+window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }];
+window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }];
 
 // Store Stock Initialization
 const defaultStock = {
@@ -8470,7 +8472,8 @@ const defaultStock = {
     "Sp. Def Booster": 5,
     "Jank Juice": 5,
     "Healing Juice Bottle": 5,
-    "Healing Juice Jug": 5
+    "Healing Juice Jug": 5,
+    "ExPALL": 5
 };
 window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
@@ -8480,6 +8483,8 @@ window.p1RepellentTime = parseFloat(localStorage.getItem('wildpulse_p1RepellentT
 window.p2RepellentTime = parseFloat(localStorage.getItem('wildpulse_p2RepellentTime')) || 0;
 window.p1JankJuiceTime = parseFloat(localStorage.getItem('wildpulse_p1JankJuiceTime')) || 0;
 window.p2JankJuiceTime = parseFloat(localStorage.getItem('wildpulse_p2JankJuiceTime')) || 0;
+window.p1ExPallTime = parseFloat(localStorage.getItem('wildpulse_p1ExPallTime')) || 0;
+window.p2ExPallTime = parseFloat(localStorage.getItem('wildpulse_p2ExPallTime')) || 0;
 
 window.saveInventory = function() {
     localStorage.setItem('wildpulse_inventory', JSON.stringify(window.p1Inventory));
@@ -8491,6 +8496,8 @@ window.saveActiveBuffTimers = function() {
     localStorage.setItem('wildpulse_p2RepellentTime', window.p2RepellentTime.toString());
     localStorage.setItem('wildpulse_p1JankJuiceTime', window.p1JankJuiceTime.toString());
     localStorage.setItem('wildpulse_p2JankJuiceTime', window.p2JankJuiceTime.toString());
+    localStorage.setItem('wildpulse_p1ExPallTime', window.p1ExPallTime.toString());
+    localStorage.setItem('wildpulse_p2ExPallTime', window.p2ExPallTime.toString());
 };
 
 // Inventory Helper and Stacking Logic
@@ -8583,7 +8590,8 @@ window.updateStoreUI = function() {
         { name: "Sp. Def Booster", icon: "🧿", price: 120, desc: "Permanently raises creature's Sp. Def by 5." },
         { name: "Jank Juice", icon: "🧃", price: 100, desc: "Greatly increases wild shiny spawn rate for 60s." },
         { name: "Healing Juice Bottle", icon: "🧪", price: 40, desc: "Heals one creature or revives with 50% HP." },
-        { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." }
+        { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." },
+        { name: "ExPALL", icon: "✨", price: 100, desc: "Allows whole party to receive battle experience for 60s." }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -8789,6 +8797,16 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         consumeItem();
         window.showModernNotification("🧃 Jank Juice active! Wild shiny spawn rates significantly increased for 60 seconds.");
     }
+    else if (item.name === "ExPALL") {
+        if (playerNum === 2) {
+            window.p2ExPallTime = (window.p2ExPallTime || 0) + 60000;
+        } else {
+            window.p1ExPallTime = (window.p1ExPallTime || 0) + 60000;
+        }
+        window.saveActiveBuffTimers();
+        consumeItem();
+        window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 60 seconds.");
+    }
     else if (item.name === "Healing Juice Jug") {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         const activeParty = party.filter(c => !c.stored);
@@ -8885,7 +8903,8 @@ window.updateInventoryUI = function() {
         "Sp. Def Booster": "🧿",
         "Jank Juice": "🧃",
         "Healing Juice Bottle": "🧪",
-        "Healing Juice Jug": "🏺"
+        "Healing Juice Jug": "🏺",
+        "ExPALL": "✨"
     };
 
     const updatePlayerSlots = (playerNum, containerId) => {
@@ -10530,6 +10549,8 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_store_stock_p1');
         localStorage.removeItem('wildpulse_store_stock_p2');
         localStorage.removeItem('wildpulse_last_replenish_day');
+        localStorage.removeItem('wildpulse_inventory');
+        localStorage.removeItem('wildpulse_inventory2');
 
         // Reset customization settings for both players
         localStorage.removeItem('wildpulse_player_name');
@@ -11391,13 +11412,13 @@ function processLogQueue() {
             log.removeChild(log.firstChild);
         }
 
-        // If queue is long (>2), or it's HTML, or it's a PvP battle, render instantly to avoid lag
+        // If queue is long (>2), or it's HTML, or it's a PvP battle, or in any battle, render instantly to avoid lag
         const isHtml = msg.includes('<');
-        if (isHtml || battleLogQueue.length > 2 || window.isPvpBattle) {
+        if (isHtml || battleLogQueue.length > 2 || window.isPvpBattle || window.inBattle) {
             div.innerHTML = DOMPurify.sanitize(msg);
             log.scrollTop = log.scrollHeight;
             // Short pause between instant messages
-            setTimeout(processNext, 30);
+            setTimeout(processNext, 10);
             return;
         }
 
@@ -14107,16 +14128,30 @@ window.doPlayerAction = function(action, callback) {
             if (callback) callback();
             return;
         }
+        if (currentPlayer.currentHp <= 0) {
+            updateBattleUI();
+            if (window.handleFaint(currentPlayer)) return;
+            if (callback) setTimeout(callback, 200);
+            else window.isActionRunning = false;
+            return;
+        }
+        if (currentEnemy.currentHp <= 0) {
+            updateBattleUI();
+            if (window.handleFaint(currentEnemy)) return;
+            if (callback) setTimeout(callback, 200);
+            else window.isActionRunning = false;
+            return;
+        }
         let canMove = processStatuses(currentPlayer);
         if (currentPlayer.currentHp <= 0) {
             updateBattleUI();
             if (window.handleFaint(currentPlayer)) return;
-            if (callback) setTimeout(callback, 1000);
+            if (callback) setTimeout(callback, 200);
             else window.isActionRunning = false;
             return;
         } else if (!canMove) {
         updateBattleUI();
-        if (callback) setTimeout(callback, 1000);
+        if (callback) setTimeout(callback, 200);
         return;
     }
 
@@ -14134,7 +14169,7 @@ window.doPlayerAction = function(action, callback) {
 
         if (Math.random() > hitChance) {
             logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">missed the attack!</span>`);
-            if (callback) setTimeout(callback, 1000);
+            if (callback) setTimeout(callback, 200);
             return;
         }
 
@@ -14171,9 +14206,9 @@ window.doPlayerAction = function(action, callback) {
 
         currentEnemy.currentHp -= damage;
         setTimeout(() => {
-            window.triggerAnimation('enemyCombatant', 'shake', 300);
+            window.triggerAnimation('enemyCombatant', 'shake', 150);
             window.showFloatingText('enemyCombatant', '-' + damage.toFixed(1), '#ff5555');
-        }, 200);
+        }, 100);
         logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
         if (currentEnemy.currentHp > 0 && enemyRecoilTriggered) {
@@ -14182,9 +14217,9 @@ window.doPlayerAction = function(action, callback) {
              let recoil = currentPlayer.maxHp * currentEnemy.ability.value;
              currentPlayer.currentHp -= recoil;
              setTimeout(() => {
-                 window.triggerAnimation('playerCombatant', 'shake', 300);
+                 window.triggerAnimation('playerCombatant', 'shake', 150);
                  window.showFloatingText('playerCombatant', '-' + recoil.toFixed(1), '#ff5555');
-             }, 200);
+             }, 100);
              logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> took <span class="damage">${recoil.toFixed(1)} recoil damage</span>!`);
         }
 
@@ -14192,13 +14227,13 @@ window.doPlayerAction = function(action, callback) {
         if (window.inChallengeBattle) {
             logBattle("<b>Challenge creatures cannot be caught!</b>");
             updateBattleUI();
-            if (callback) setTimeout(callback, 1500);
+            if (callback) setTimeout(callback, 300);
             return;
         }
         if (collectedCreatures.length >= 1375) {
             logBattle("<b>Your storage is full! You cannot catch more creatures.</b>");
             updateBattleUI();
-            if (callback) setTimeout(callback, 1500);
+            if (callback) setTimeout(callback, 300);
             return;
         }
         let hpPct = currentEnemy.currentHp / currentEnemy.maxHp;
@@ -14244,7 +14279,7 @@ window.doPlayerAction = function(action, callback) {
         if (window.handleFaint(currentPlayer)) return;
     }
 
-    if (callback) setTimeout(callback, 1000);
+    if (callback) setTimeout(callback, 200);
     } catch (err) {
         console.error("Error in doPlayerAction:", err);
         window.isActionRunning = false;
@@ -14258,17 +14293,31 @@ window.doEnemyAction = function(callback) {
             if (callback) callback();
             return;
         }
+        if (currentEnemy.currentHp <= 0) {
+            updateBattleUI();
+            if (window.handleFaint(currentEnemy)) return;
+            if (callback) setTimeout(callback, 200);
+            else window.isActionRunning = false;
+            return;
+        }
+        if (currentPlayer.currentHp <= 0) {
+            updateBattleUI();
+            if (window.handleFaint(currentPlayer)) return;
+            if (callback) setTimeout(callback, 200);
+            else window.isActionRunning = false;
+            return;
+        }
         let canMove = processStatuses(currentEnemy);
         if (!canMove) {
         updateBattleUI();
         if (currentPlayer.currentHp <= 0) {
             if (!window.handleFaint(currentPlayer)) {
-                if (callback) setTimeout(callback, 1000);
+                if (callback) setTimeout(callback, 200);
             }
         } else if (currentEnemy.currentHp <= 0) {
             window.handleFaint(currentEnemy);
         } else {
-            if (callback) setTimeout(callback, 1000);
+            if (callback) setTimeout(callback, 200);
         }
         return;
     }
@@ -14286,7 +14335,7 @@ window.doEnemyAction = function(callback) {
 
     if (Math.random() > hitChance) {
         logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">missed the attack!</span>`);
-        if (callback) setTimeout(callback, 1000);
+        if (callback) setTimeout(callback, 200);
         return;
     }
 
@@ -14323,9 +14372,9 @@ window.doEnemyAction = function(callback) {
 
     currentPlayer.currentHp -= damage;
     setTimeout(() => {
-        window.triggerAnimation('playerCombatant', 'shake', 300);
+        window.triggerAnimation('playerCombatant', 'shake', 150);
         window.showFloatingText('playerCombatant', '-' + damage.toFixed(1), '#ff5555');
-    }, 200);
+    }, 100);
     logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
     if (currentPlayer.currentHp > 0 && playerRecoilTriggered) {
@@ -14334,9 +14383,9 @@ window.doEnemyAction = function(callback) {
          let recoil = currentEnemy.maxHp * currentPlayer.ability.value;
          currentEnemy.currentHp -= recoil;
          setTimeout(() => {
-             window.triggerAnimation('enemyCombatant', 'shake', 300);
+             window.triggerAnimation('enemyCombatant', 'shake', 150);
              window.showFloatingText('enemyCombatant', '-' + recoil.toFixed(1), '#ff5555');
-         }, 200);
+         }, 100);
          logBattle(`<span style="color:#f44336">${currentEnemy.name}</span> took <span class="damage">${recoil.toFixed(1)} recoil damage</span>!`);
     }
 
@@ -14350,7 +14399,7 @@ window.doEnemyAction = function(callback) {
         if (window.handleFaint(currentEnemy)) return;
     }
 
-    if (callback) setTimeout(callback, 1000);
+    if (callback) setTimeout(callback, 200);
     } catch (err) {
         console.error("Error in doEnemyAction:", err);
         window.isActionRunning = false;
@@ -14667,21 +14716,21 @@ window.executeLocalPvpRound = function() {
                 step3();
             } else {
                 runLocalPvpAction(2, p2Action, () => {
-                    setTimeout(step3, 1000);
+                    setTimeout(step3, 200);
                 });
             }
         } else if (p2Action === 'swap') {
             runLocalPvpAction(1, p1Action, () => {
-                setTimeout(step3, 1000);
+                setTimeout(step3, 200);
             });
         } else {
             if (p1GoesFirst) {
                 runLocalPvpAction(1, p1Action, () => {
-                    setTimeout(step2, 1000);
+                    setTimeout(step2, 200);
                 });
             } else {
                 runLocalPvpAction(2, p2Action, () => {
-                    setTimeout(step2, 1000);
+                    setTimeout(step2, 200);
                 });
             }
         }
@@ -14694,11 +14743,11 @@ window.executeLocalPvpRound = function() {
         }
         if (p1GoesFirst) {
             runLocalPvpAction(2, p2Action, () => {
-                setTimeout(step3, 1000);
+                setTimeout(step3, 200);
             });
         } else {
             runLocalPvpAction(1, p1Action, () => {
-                setTimeout(step3, 1000);
+                setTimeout(step3, 200);
             });
         }
     };
@@ -15143,11 +15192,38 @@ window.endBattle = function(result) {
                 const winnerList = winnerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
                 const winnerKey = winnerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
 
+                // ExPALL item experience sharing to active party
+                const isExPallActive = winnerNum === 2 ? (window.p2ExPallTime > 0) : (window.p1ExPallTime > 0);
+                if (isExPallActive) {
+                    let expallChanged = false;
+                    winnerList.forEach(c => {
+                        if (!c.stored && String(c.id) !== String(expTarget?.id)) {
+                            let subLeveledUp = window.gainXp(c, xpGained);
+                            expallChanged = true;
+                            if (subLeveledUp) {
+                                if (window.showModernNotification) {
+                                    window.showModernNotification(`✨ ExPALL: ${c.nickname || c.name} reached Level ${c.level}! ✨`, "#ffeb3b");
+                                }
+                            }
+                        }
+                    });
+                    if (expallChanged) {
+                        localStorage.setItem(winnerKey, JSON.stringify(winnerList));
+                        if (winnerNum === 1) {
+                            window.collectedCreatures = winnerList;
+                            window.playerParty = winnerList;
+                        } else {
+                            window.collectedCreatures2 = winnerList;
+                        }
+                    }
+                }
+
                 const halfXp = Math.floor(xpGained / 2);
                 if (halfXp > 0) {
                     let changedList = false;
                     winnerList.forEach(c => {
-                        if (c.favorited && String(c.id) !== String(expTarget?.id)) {
+                        // Prevent duplicate XP if they already got full XP from ExPALL
+                        if (c.favorited && String(c.id) !== String(expTarget?.id) && !(isExPallActive && !c.stored)) {
                             let subLeveledUp = window.gainXp(c, halfXp);
                             changedList = true;
                             if (subLeveledUp) {
@@ -15157,7 +15233,7 @@ window.endBattle = function(result) {
                             }
                         }
                     });
-                    if (changedList) {
+                    if (changedList || isExPallActive) {
                         localStorage.setItem(winnerKey, JSON.stringify(winnerList));
                         if (winnerNum === 1) {
                             window.collectedCreatures = winnerList;
@@ -15226,6 +15302,9 @@ window.enableCoop = function(scene) {
 
     // Toggle body class for split screen layout styling
     document.body.classList.add('coop-active-layout');
+
+    const splitLine = document.getElementById('coopSplitLine');
+    if (splitLine) splitLine.style.display = 'block';
 
     if (window.gameStarted) {
         const p2Slots = document.getElementById('p2InventorySlots');
@@ -15347,6 +15426,9 @@ window.disableCoop = function(scene) {
 
     // Remove body class for split screen layout styling
     document.body.classList.remove('coop-active-layout');
+
+    const splitLine = document.getElementById('coopSplitLine');
+    if (splitLine) splitLine.style.display = 'none';
 
     const p2Slots = document.getElementById('p2InventorySlots');
     if (p2Slots) p2Slots.style.display = 'none';
@@ -15594,6 +15676,13 @@ function update() {
             window.showModernNotification("🧃 Player 1 Jank Juice effect has worn off.");
         }
     }
+    if (window.p1ExPallTime && window.p1ExPallTime > 0) {
+        window.p1ExPallTime = Math.max(0, window.p1ExPallTime - deltaMs);
+        if (window.p1ExPallTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("✨ Player 1 ExPALL effect has worn off.");
+        }
+    }
 
     // Decrement Player 2 Buff Timers
     if (window.p2RepellentTime && window.p2RepellentTime > 0) {
@@ -15608,6 +15697,13 @@ function update() {
         if (window.p2JankJuiceTime === 0) {
             window.saveActiveBuffTimers();
             window.showModernNotification("🧃 Player 2 Jank Juice effect has worn off.");
+        }
+    }
+    if (window.p2ExPallTime && window.p2ExPallTime > 0) {
+        window.p2ExPallTime = Math.max(0, window.p2ExPallTime - deltaMs);
+        if (window.p2ExPallTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("✨ Player 2 ExPALL effect has worn off.");
         }
     }
 
@@ -15628,6 +15724,9 @@ function update() {
         if (window.p1JankJuiceTime && window.p1JankJuiceTime > 0) {
             txts.push(`🧃 Shiny: ${Math.ceil(window.p1JankJuiceTime / 1000)}s`);
         }
+        if (window.p1ExPallTime && window.p1ExPallTime > 0) {
+            txts.push(`✨ ExPALL: ${Math.ceil(window.p1ExPallTime / 1000)}s`);
+        }
         const textVal = txts.join('\n');
         if (window._lastP1BuffsText !== textVal) {
             p1Buffs.innerText = textVal;
@@ -15643,6 +15742,9 @@ function update() {
         }
         if (window.p2JankJuiceTime && window.p2JankJuiceTime > 0) {
             txts.push(`🧃 Shiny: ${Math.ceil(window.p2JankJuiceTime / 1000)}s`);
+        }
+        if (window.p2ExPallTime && window.p2ExPallTime > 0) {
+            txts.push(`✨ ExPALL: ${Math.ceil(window.p2ExPallTime / 1000)}s`);
         }
         const textVal = txts.join('\n');
         if (window._lastP2BuffsText !== textVal) {
@@ -15851,7 +15953,8 @@ function update() {
                     "Sp. Def Booster": 5,
                     "Jank Juice": 5,
                     "Healing Juice Bottle": 5,
-                    "Healing Juice Jug": 5
+                    "Healing Juice Jug": 5,
+                    "ExPALL": 5
                 };
                 window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
                 window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
