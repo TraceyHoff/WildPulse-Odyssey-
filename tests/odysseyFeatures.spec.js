@@ -157,9 +157,9 @@ test.describe('Odyssey New Features Tests', () => {
       };
     });
 
-    // Level 5 creature sell price is Math.floor(50 + 10 * 5) = 100.
-    // 100 starting coins + 100 sell price = 200.
-    expect(coinsAfterSale.coins).toBe(200);
+    // Level 5 creature sell price is 141 based on effective stats (totalStats * 0.2 + 50).
+    // 100 starting coins + 141 sell price = 241.
+    expect(coinsAfterSale.coins).toBe(241);
     expect(coinsAfterSale.count).toBe(1);
   });
 });

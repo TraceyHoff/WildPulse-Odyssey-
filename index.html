@@ -128,6 +128,45 @@
             letter-spacing: 3px;
         }
 
+        @keyframes neonBorderPulsate {
+            0% {
+                border-color: #00ffd2 !important;
+                box-shadow: 0 0 12px #00ffd2, inset 0 0 6px rgba(0, 255, 210, 0.2) !important;
+            }
+            20% {
+                border-color: #ff007f !important;
+                box-shadow: 0 0 12px #ff007f, inset 0 0 6px rgba(255, 0, 127, 0.2) !important;
+            }
+            40% {
+                border-color: #ffd700 !important;
+                box-shadow: 0 0 12px #ffd700, inset 0 0 6px rgba(255, 215, 0, 0.2) !important;
+            }
+            60% {
+                border-color: #00ff66 !important;
+                box-shadow: 0 0 12px #00ff66, inset 0 0 6px rgba(0, 255, 102, 0.2) !important;
+            }
+            80% {
+                border-color: #bf55ec !important;
+                box-shadow: 0 0 12px #bf55ec, inset 0 0 6px rgba(191, 85, 236, 0.2) !important;
+            }
+            100% {
+                border-color: #00ffd2 !important;
+                box-shadow: 0 0 12px #00ffd2, inset 0 0 6px rgba(0, 255, 210, 0.2) !important;
+            }
+        }
+
+        button {
+            animation: neonBorderPulsate 4s ease-in-out infinite !important;
+        }
+
+        #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal, #battleSwapModal, #storeModal, #battleModal, #customizationModal, #challengeModal > div, #introModal > div {
+            animation: modalFadeIn 0.2s ease-out, neonBorderPulsate 4s ease-in-out infinite !important;
+        }
+
+        body:not(.modal-open), body:not(.modal-open) * {
+            cursor: none !important;
+        }
+
         @keyframes creatureIdleBreath {
             0% {
                 transform: translateY(0px) scale(1) rotate(0deg);
@@ -8134,23 +8173,21 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             }
             ctx.fill();
 
-            // Pupil Center (dark slit for fierce/snake or circle for gentle)
+            // Pupil Center (dark slit for fierce/snake or circle for gentle/standard)
             ctx.fillStyle = '#000000';
             ctx.beginPath();
             if (style.includes('fierce') || style.includes('narrow') || style.includes('cold') || style.includes('piercing')) {
                 ctx.ellipse(ex, ey, eRad * 0.15, eRad * 0.45, 0, 0, Math.PI * 2);
             } else {
-                ctx.arc(ex, ey, eRad * 0.25, 0, Math.PI * 2);
+                ctx.arc(ex, ey, eRad * 0.32, 0, Math.PI * 2); // Larger pupil for cute expression
             }
             ctx.fill();
 
-            // Sparkling Reflection Highlights
+            // Sparkling Reflection Highlights - Enhanced for maximum cuteness & twinkling!
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.arc(ex - eRad * 0.25, ey - eRad * 0.25, eRad * 0.2, 0, Math.PI * 2);
-            if (style.includes('watery') || style.includes('gentle') || style.includes('clear')) {
-                ctx.arc(ex + eRad * 0.25, ey + eRad * 0.15, eRad * 0.15, 0, Math.PI * 2);
-            }
+            ctx.arc(ex - eRad * 0.28, ey - eRad * 0.28, eRad * 0.28, 0, Math.PI * 2); // Primary gloss sparkle
+            ctx.arc(ex + eRad * 0.28, ey + eRad * 0.15, eRad * 0.16, 0, Math.PI * 2); // Cute secondary twinkle sparkle
             ctx.fill();
         }
 
@@ -8166,9 +8203,9 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     };
 
     let eyeY = 46;
-    let eyeRadius = 4.8;
+    let eyeRadius = 6.2; // Increased to make eyes bigger and cuter
     // Scale eyes slightly based on body size
-    if (rx < 18) eyeRadius = 3.6;
+    if (rx < 18) eyeRadius = 4.5; // Increased from 3.6
 
     if (eyesVal.includes('cyclopic')) {
         // One huge central eye
@@ -8199,6 +8236,17 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             drawSingleEye(50 + eDist, eyeY, eyeRadius, eyesVal);
         }
     }
+
+    // Draw adorable rosy blush cheeks below/around the eyes to make them super cute!
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 105, 180, 0.45)'; // Soft glowing rosy pink blush
+    let blushDist = rx * 0.44;
+    let blushY = eyeY + 3.5;
+    ctx.beginPath();
+    ctx.ellipse(50 - blushDist, blushY, 4.5, 2.8, 0, 0, Math.PI * 2);
+    ctx.ellipse(50 + blushDist, blushY, 4.5, 2.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
     ctx.restore();
 
     // 10. Draw Teeth & Mouth
@@ -8914,6 +8962,25 @@ window.canAddInventoryItem = function(playerNum, itemName) {
         return true;
     }
     return false;
+};
+
+window.updateCursorVisibility = function() {
+    const startModal = document.getElementById('startModal');
+    const startModalVisible = startModal && startModal.style.display !== 'none';
+    const introModal = document.getElementById('introModal');
+    const introModalVisible = introModal && introModal.style.display !== 'none' && introModal.style.display !== '';
+
+    const modalOpen = !window.gameStarted || startModalVisible || introModalVisible || (window.isAnyModalOpen && window.isAnyModalOpen());
+
+    if (modalOpen) {
+        if (!document.body.classList.contains('modal-open')) {
+            document.body.classList.add('modal-open');
+        }
+    } else {
+        if (document.body.classList.contains('modal-open')) {
+            document.body.classList.remove('modal-open');
+        }
+    }
 };
 
 window.addInventoryItem = function(playerNum, itemName) {
@@ -9951,8 +10018,8 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const inModal = (container !== null);
 
     // Handle Virtual Cursor right-stick movement
-    const rx_vc = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
-    const ry_vc = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
+    const rx_vc = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
+    const ry_vc = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
 
     const deadzone_vc = 0.15;
     if (Math.abs(rx_vc) > deadzone_vc || Math.abs(ry_vc) > deadzone_vc) {
@@ -10249,6 +10316,9 @@ window.updateModalVisibility = function() {
             }
         }
     });
+    if (window.updateCursorVisibility) {
+        window.updateCursorVisibility();
+    }
 };
 
 window.closeAllModalsForPlayer = function(playerNum, exceptId) {
@@ -16418,6 +16488,7 @@ function isPointerOverButton(p) {
 }
 
 function update() {
+    if (window.updateCursorVisibility) window.updateCursorVisibility();
     window.p1PadReference = null;
     window.p2PadReference = null;
     if (window.WildPulseMusic) window.WildPulseMusic.update();
