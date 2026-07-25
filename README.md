@@ -217,3 +217,10 @@ WildPulse Odyssey Creature Collecting Game
 - **Progression-Based Unlocks**:
     - **Crown Challenge Milestones**: Programmed body shape options to unlock dynamically via the Crown Challenge tiered gauntlet, rewarding high-level achievements.
     - **Locked Dropdowns**: Default "Square" is available from Tier 1, while advanced shapes are locked behind higher tiers (e.g. Triangle at Tier 3, Star at Tier 15, Pentagon at Tier 23), displaying as locked and disabled in the customization dropdown until earned.
+
+### New Features (v27)
+- **Friend Level System**:
+    - **Passive Experience Accumulation**: Creatures in the player's active party slowly gain Friend experience over time (at a rate of 1 XP per second) while exploring the world. Friend Level and normal Level progress entirely independently.
+    - **Dynamic Experience Degradation**: Stored creatures slowly lose Friend experience (at a rate of 1 XP per second). If a creature is left in storage too long and its Friend experience drops below 0, its Friend Level degrades (e.g., from Level 2 back down to Level 1), capping at Level 1, 0 XP.
+    - **Reversible Stat Scaling**: When a creature's Friend Level increases, two random stats in its `friendBonusStats` increase by +2 (or all stats by +2 on level multiples of 10), matching the standard level-up progression. If their Friend Level degrades, their `friendBonusStats` are symmetrically and reversibly reduced.
+    - **UI Representation**: Active party cards and storage box details seamlessly render each creature's current Friend Level and Friend XP next to their standard level statistics.
