@@ -223,6 +223,21 @@
             max-width: 250px;
         }
 
+        .type-badge {
+            background: rgba(10, 20, 30, 0.85) !important;
+            color: #00ffcc !important;
+            border: 1px solid rgba(0, 255, 204, 0.4) !important;
+            border-radius: 6px !important;
+            padding: 2px 8px !important;
+            font-size: 11px !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            display: inline-block !important;
+            box-shadow: 0 0 5px rgba(0, 255, 204, 0.2) !important;
+            font-family: 'Courier New', Courier, monospace !important;
+        }
+
         /* Modals */
         #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal, #battleSwapModal {
             width: 100vw !important;
@@ -689,6 +704,41 @@
                 font-size: 18px !important;
                 padding: 12px 30px !important;
             }
+            #introSkipBtn {
+                position: absolute !important;
+                top: 12px !important;
+                right: 145px !important;
+                margin: 0 !important;
+                padding: 5px 10px !important;
+                font-size: 11px !important;
+                height: 30px !important;
+                line-height: 18px !important;
+                z-index: 200010 !important;
+            }
+            #introNextBtn {
+                position: absolute !important;
+                top: 12px !important;
+                right: 45px !important;
+                margin: 0 !important;
+                padding: 5px 10px !important;
+                font-size: 11px !important;
+                height: 30px !important;
+                line-height: 18px !important;
+                z-index: 200010 !important;
+                white-space: nowrap !important;
+                max-width: 95px !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            #introModalTitle {
+                font-size: 14px !important;
+                text-align: left !important;
+                padding-right: 250px !important;
+            }
+            #introBottomControls {
+                padding-top: 10px !important;
+                justify-content: flex-start !important;
+            }
         }
         .battle-area { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 8px;}
         .combatant { width: 48%; border: 1px solid #87CEEB; border-radius: 12px; padding: 10px; background: rgba(0,0,0,0.5); position: relative; box-shadow: inset 0 0 10px rgba(255,255,255,0.1); }
@@ -1005,8 +1055,13 @@
         }
 
         /* Cyberpunk futuristic nested modal containers style overrides */
-        .party-card, .store-item-card, .store-grid > div, #tradeModal > div > div {
+        .party-card {
+            background: rgba(10, 25, 45, 0.7);
+        }
+        .store-item-card, .store-grid > div, #tradeModal > div > div {
             background: rgba(10, 25, 45, 0.7) !important;
+        }
+        .party-card, .store-item-card, .store-grid > div, #tradeModal > div > div {
             border: 1px solid rgba(0, 255, 210, 0.3) !important;
             box-shadow: 0 0 15px rgba(0, 255, 210, 0.1), inset 0 0 10px rgba(0, 255, 210, 0.05) !important;
             border-radius: 6px !important;
@@ -1118,16 +1173,17 @@
         .party-card.dark-text p em,
         .party-card.dark-text h4,
         .party-card.dark-text div,
-        .party-card.dark-text span:not([style*="color"]) {
+        .party-card.dark-text span,
+        .party-card.dark-text small,
+        .party-card.dark-text strong,
+        .party-card.dark-text em,
+        .party-card.dark-text .creature-description p,
+        .party-card.dark-text .creature-desc-text {
             color: #111111 !important;
             text-shadow: none !important;
         }
-        .party-card.dark-text .creature-description p {
-            color: #222222 !important;
-            text-shadow: none !important;
-        }
         .party-card.dark-text h3 {
-            border-bottom-color: #444444 !important;
+            border-bottom: 2px solid rgba(17, 17, 17, 0.2) !important;
         }
         .party-card input.creature-name {
             background: rgba(0, 0, 0, 0.4);
@@ -1152,6 +1208,30 @@
             background: rgba(255, 255, 255, 0.4) !important;
             border: 1px solid #111111 !important;
             color: #111111 !important;
+        }
+
+        /* Non-light creature cards (Dark background) */
+        .party-card:not(.dark-text) {
+            color: #ffffff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+        }
+        .party-card:not(.dark-text) h3,
+        .party-card:not(.dark-text) p,
+        .party-card:not(.dark-text) p strong,
+        .party-card:not(.dark-text) p em,
+        .party-card:not(.dark-text) h4,
+        .party-card:not(.dark-text) div,
+        .party-card:not(.dark-text) span,
+        .party-card:not(.dark-text) small,
+        .party-card:not(.dark-text) strong,
+        .party-card:not(.dark-text) em,
+        .party-card:not(.dark-text) .creature-description p,
+        .party-card:not(.dark-text) .creature-desc-text {
+            color: #ffffff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+        }
+        .party-card:not(.dark-text) h3 {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
         }
         .party-card.dark-text button.save-name-btn {
             background: linear-gradient(180deg, #ffffff, #cccccc) !important;
@@ -1479,7 +1559,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; gap: 15px; border-top: 1px solid rgba(0,255,204,0.3); padding-top: 20px;">
+            <div id="introBottomControls" style="display: flex; justify-content: space-between; gap: 15px; border-top: 1px solid rgba(0,255,204,0.3); padding-top: 20px;">
                 <button id="introPrevBtn" style="visibility: hidden; padding: 10px 20px; font-family: 'Courier New', monospace; font-size: 14px; background: #222; color: #fff; border: 1px solid #555; cursor: pointer; border-radius: 6px; transition: all 0.2s; text-transform: uppercase;">
                     &lt; Back
                 </button>
@@ -8953,7 +9033,7 @@ window.updateFriendExperience = function(dt) {
 
         const isStored = !!c.stored;
         if (!isStored) {
-            const xpGained = (dt / 1000) / 30; // 1 experience every 30 seconds
+            const xpGained = window.__test_friend_rate ? (dt / 1000) : ((dt / 1000) / 30); // 1 experience every 30 seconds
             c.friendXp += xpGained;
             if (c.friendXp >= 100) {
                 c.friendXp -= 100;
@@ -8971,7 +9051,7 @@ window.updateFriendExperience = function(dt) {
                 }
             }
         } else {
-            const xpLost = (dt / 1000) / 180; // 1 experience every 3 minutes (180 seconds)
+            const xpLost = window.__test_friend_rate ? (dt / 1000) : ((dt / 1000) / 180); // 1 experience every 3 minutes (180 seconds)
             c.friendXp -= xpLost;
             if (c.friendXp < 0) {
                 if (c.friendLevel > 1) {
@@ -9204,6 +9284,26 @@ window.getTypeTooltip = function(typeString) {
     }
 
     return tooltip || typeString;
+};
+
+window.getRelativeLuminance = function(colorStr) {
+    if (!colorStr) return 0;
+    const match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!match) return 0;
+    const r = parseInt(match[1]) / 255;
+    const g = parseInt(match[2]) / 255;
+    const b = parseInt(match[3]) / 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+window.getIsDarkTextForTypes = function(types) {
+    if (!types || types.length === 0) return false;
+    const color1 = window.TYPE_COLORS[types[0]] || 'rgba(30, 60, 90, 0.8)';
+    const color2 = types.length > 1 ? (window.TYPE_COLORS[types[1]] || color1) : color1;
+    const lum1 = window.getRelativeLuminance(color1);
+    const lum2 = window.getRelativeLuminance(color2);
+    const avgLum = (lum1 + lum2) / 2;
+    return avgLum > 0.6 || types.includes('Light') || types.includes('Electric') || types.includes('Ice') || types.includes('Wind');
 };
 
 window.calculateDamage = function(attacker, defender, power = 40) {
@@ -11370,7 +11470,7 @@ function renderPartyForPlayer(playerNum = 1) {
         card.setAttribute('tabindex', '0');
 
         const types = c.type ? c.type.split('-') : [];
-        const isDarkText = types.includes('Light') || types.includes('Electric') || types.includes('Ice') || types.includes('Wind');
+        const isDarkText = window.getIsDarkTextForTypes(types);
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '') + (isDarkText ? ' dark-text' : '');
 
         const color1 = window.TYPE_COLORS[types[0]] || 'rgba(30, 60, 90, 0.8)';
@@ -11495,6 +11595,8 @@ function renderPartyForPlayer(playerNum = 1) {
 
         let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
         const lvlColor = isDarkText ? '#0d47a1' : '#2196F3';
+        const friendLvlColor = isDarkText ? '#c2185b' : '#ff4081';
+        const friendXpColor = isDarkText ? '#880e4f' : '#ff80ab';
 
         card.innerHTML = `
             <div>
@@ -11506,13 +11608,13 @@ function renderPartyForPlayer(playerNum = 1) {
                     </span>
                     <span style="display: flex; align-items: center; gap: 10px;">
                         <button class="favorite-btn" onclick="window.toggleFavorite(${index}, ${playerNum})" title="${c.favorited ? 'Unfavorite' : 'Favorite'}" style="background: none; border: none; cursor: pointer; font-size: 1.2em; outline: none; padding: 0; line-height: 1; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">${c.favorited ? '❤️' : '🤍'}</button>
-                        <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span>
+                        <span class="type-badge" data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span>
                     </span>
                 </h3>
-                <p><strong>Level <span style="color:${lvlColor}">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:${lvlColor}">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span> | <span style="color:#ff4081; font-weight: bold;">Friend Lvl ${c.friendLevel || 1}</span> <span style="font-size: 0.9em; color: #ff80ab;">(XP: ${Math.floor(c.friendXp || 0)}/100)</span></p>
+                <p><strong>Level <span style="color:${lvlColor}">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:${lvlColor}">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span> | <span style="color:${friendLvlColor}; font-weight: bold;">Friend Lvl ${c.friendLevel || 1}</span> <span style="font-size: 0.9em; color: ${friendXpColor};">(XP: ${Math.floor(c.friendXp || 0)}/100)</span></p>
                 <div class="creature-description" style="display: flex; gap: 15px; align-items: center; margin-bottom: 10px;">
                     <div class="creature-sprite-container" style="flex-shrink: 0; width: 80px; height: 80px;"></div>
-                    <p class="creature-desc-text" style="color: #ccc; font-style: italic; margin: 0; flex-grow: 1; max-height: 55px; overflow-y: auto;">${c.description}</p>
+                    <p class="creature-desc-text" style="font-style: italic; margin: 0; flex-grow: 1; max-height: 55px; overflow-y: auto;">${c.description}</p>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 10px;">
                     ${natureHtml}
@@ -11597,7 +11699,7 @@ function renderStorageForPlayer(playerNum = 1) {
         card.setAttribute('tabindex', '0');
 
         const types = c.type ? c.type.split('-') : [];
-        const isDarkText = types.includes('Light') || types.includes('Electric') || types.includes('Ice') || types.includes('Wind');
+        const isDarkText = window.getIsDarkTextForTypes(types);
         card.className = 'party-card' + (c.isShiny ? ' shiny' : '') + (isDarkText ? ' dark-text' : '');
 
         const color1 = window.TYPE_COLORS[types[0]] || 'rgba(30, 60, 90, 0.8)';
@@ -11636,7 +11738,9 @@ function renderStorageForPlayer(playerNum = 1) {
         } else if (c.ability) {
             abilityText = `<span style="color:${abilityColor}" data-tooltip="${c.ability.message}">${c.ability.name}</span>`;
         }
-        const typeHtml = `<p>Lvl ${c.level} | Type: <span data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span> | Gen ${c.generation}</p><p><span style="color:#ff4081; font-weight: bold;">Friend Lvl ${c.friendLevel || 1}</span> <span style="font-size: 0.9em; color: #ff80ab;">(XP: ${Math.floor(c.friendXp || 0)}/100)</span> | Abilities: ${abilityText}</p>`;
+        const friendLvlColor = isDarkText ? '#c2185b' : '#ff4081';
+        const friendXpColor = isDarkText ? '#880e4f' : '#ff80ab';
+        const typeHtml = `<p>Lvl ${c.level} | Type: <span class="type-badge" data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span> | Gen ${c.generation}</p><p><span style="color:${friendLvlColor}; font-weight: bold;">Friend Lvl ${c.friendLevel || 1}</span> <span style="font-size: 0.9em; color: ${friendXpColor};">(XP: ${Math.floor(c.friendXp || 0)}/100)</span> | Abilities: ${abilityText}</p>`;
 
         let actionHtml = `<div class="party-controls">`;
         actionHtml += `<button class="retrieve-btn" onclick="window.retrieveCreature(${index}, ${playerNum})" style="background-color: #4CAF50; color: white;">Retrieve</button>`;
