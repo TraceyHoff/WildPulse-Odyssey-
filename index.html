@@ -1374,6 +1374,46 @@
         border-radius: 4px;
     }
 
+    /* Custom color range sliders styling */
+    input[type="range"].custom-color-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 10px;
+        border-radius: 5px;
+        outline: none;
+        border: 1px solid rgba(255,255,255,0.2);
+        margin: 4px 0;
+    }
+    input[type="range"].custom-color-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #00ffcc;
+        box-shadow: 0 0 8px #00ffcc;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+    input[type="range"].custom-color-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+    }
+    input[type="range"].custom-color-slider::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #00ffcc;
+        box-shadow: 0 0 8px #00ffcc;
+        cursor: pointer;
+        transition: transform 0.1s;
+    }
+    input[type="range"].custom-color-slider::-moz-range-thumb:hover {
+        transform: scale(1.2);
+    }
+
 </style>
 
 </head>
@@ -1389,6 +1429,7 @@
 <!-- Cyberpunk-themed Introductory Modal -->
 <div id="introModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200005; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 20px; box-sizing: border-box; font-family: 'Courier New', monospace; color: #fff;">
     <div style="position: relative; background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)); border: 2px solid #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 12px; width: 95%; max-width: 650px; padding: 30px; box-sizing: border-box; text-align: center; overflow: hidden; transform: scale(1.0); transition: all 0.3s ease;">
+        <button class="close-btn" id="closeIntroBtnTop" aria-label="Close Intro" style="position: absolute !important; top: 15px !important; right: 15px !important; z-index: 200006;">X</button>
         <div class="holographic-scanline" style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 6px 100%; z-index: 1; pointer-events: none; opacity: 0.4;"></div>
         <div style="position: relative; z-index: 2;">
             <div style="border-bottom: 2px solid #00ffcc; padding-bottom: 15px; margin-bottom: 20px;">
@@ -1467,11 +1508,61 @@
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Character Color:</label>
-            <input type="color" id="playerColorInput" value="#FFFFFF" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #222; cursor: pointer;">
+            <div class="custom-color-picker-wrapper" style="position: relative; width: 100%;">
+                <div class="custom-color-display" id="playerColorInput_display" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #FFF; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; text-shadow: 0 0 4px #000; color: #FFF; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                    #FFFFFF
+                </div>
+                <div class="custom-color-sliders" id="playerColorInput_sliders" style="display: none; background: rgba(10,20,30,0.98); border: 1px solid #00ffcc; border-radius: 8px; padding: 12px; margin-top: 8px; box-shadow: 0 4px 15px rgba(0,255,204,0.3); flex-direction: column; gap: 8px; position: absolute; z-index: 200003; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Hue:</span><span id="playerColorInput_h_val">0°</span>
+                        </div>
+                        <input type="range" class="custom-color-slider hue-slider" id="playerColorInput_h" min="0" max="360" value="0" style="width: 100%; background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Saturation:</span><span id="playerColorInput_s_val">100%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider sat-slider" id="playerColorInput_s" min="0" max="100" value="100" style="width: 100%; background: linear-gradient(to right, #808080, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Lightness:</span><span id="playerColorInput_l_val">50%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider light-slider" id="playerColorInput_l" min="0" max="100" value="50" style="width: 100%; background: linear-gradient(to right, #000, red, #fff); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                </div>
+                <input type="hidden" id="playerColorInput" value="#FFFFFF">
+            </div>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Aura Color:</label>
-            <input type="color" id="playerAuraColorInput" value="#00FFFF" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #222; cursor: pointer;">
+            <div class="custom-color-picker-wrapper" style="position: relative; width: 100%;">
+                <div class="custom-color-display" id="playerAuraColorInput_display" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #00FFFF; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; text-shadow: 0 0 4px #000; color: #FFF; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                    #00FFFF
+                </div>
+                <div class="custom-color-sliders" id="playerAuraColorInput_sliders" style="display: none; background: rgba(10,20,30,0.98); border: 1px solid #00ffcc; border-radius: 8px; padding: 12px; margin-top: 8px; box-shadow: 0 4px 15px rgba(0,255,204,0.3); flex-direction: column; gap: 8px; position: absolute; z-index: 200003; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Hue:</span><span id="playerAuraColorInput_h_val">180°</span>
+                        </div>
+                        <input type="range" class="custom-color-slider hue-slider" id="playerAuraColorInput_h" min="0" max="360" value="180" style="width: 100%; background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Saturation:</span><span id="playerAuraColorInput_s_val">100%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider sat-slider" id="playerAuraColorInput_s" min="0" max="100" value="100" style="width: 100%; background: linear-gradient(to right, #808080, cyan); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Lightness:</span><span id="playerAuraColorInput_l_val">50%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider light-slider" id="playerAuraColorInput_l" min="0" max="100" value="50" style="width: 100%; background: linear-gradient(to right, #000, cyan, #fff); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                </div>
+                <input type="hidden" id="playerAuraColorInput" value="#00FFFF">
+            </div>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Body Shape:</label>
@@ -1511,7 +1602,32 @@
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Pattern Color:</label>
-            <input type="color" id="playerPatternColorInput" value="#FF0000" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #222; cursor: pointer;">
+            <div class="custom-color-picker-wrapper" style="position: relative; width: 100%;">
+                <div class="custom-color-display" id="playerPatternColorInput_display" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #FF0000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; text-shadow: 0 0 4px #000; color: #FFF; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                    #FF0000
+                </div>
+                <div class="custom-color-sliders" id="playerPatternColorInput_sliders" style="display: none; background: rgba(10,20,30,0.98); border: 1px solid #00ffcc; border-radius: 8px; padding: 12px; margin-top: 8px; box-shadow: 0 4px 15px rgba(0,255,204,0.3); flex-direction: column; gap: 8px; position: absolute; z-index: 200003; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Hue:</span><span id="playerPatternColorInput_h_val">0°</span>
+                        </div>
+                        <input type="range" class="custom-color-slider hue-slider" id="playerPatternColorInput_h" min="0" max="360" value="0" style="width: 100%; background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Saturation:</span><span id="playerPatternColorInput_s_val">100%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider sat-slider" id="playerPatternColorInput_s" min="0" max="100" value="100" style="width: 100%; background: linear-gradient(to right, #808080, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Lightness:</span><span id="playerPatternColorInput_l_val">50%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider light-slider" id="playerPatternColorInput_l" min="0" max="100" value="50" style="width: 100%; background: linear-gradient(to right, #000, red, #fff); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                </div>
+                <input type="hidden" id="playerPatternColorInput" value="#FF0000">
+            </div>
         </div>
         <!-- Character Preview Container -->
         <div style="margin-bottom: 20px; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center;">
@@ -3817,6 +3933,146 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.activeCustomPlayer = 1;
 
+    function hslToHex(h, s, l) {
+        l /= 100;
+        const a = s * Math.min(l, 1 - l) / 100;
+        const f = n => {
+            const k = (n + h / 30) % 12;
+            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            return Math.round(255 * color).toString(16).padStart(2, '0');
+        };
+        return `#${f(0)}${f(8)}${f(4)}`;
+    }
+
+    function hexToHsl(hex) {
+        let r = parseInt(hex.slice(1, 3), 16) / 255;
+        let g = parseInt(hex.slice(3, 5), 16) / 255;
+        let b = parseInt(hex.slice(5, 7), 16) / 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+        if (max === min) {
+            h = s = 0; // achromatic
+        } else {
+            let d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
+    window.initCustomColorPicker = function(id) {
+        const display = document.getElementById(id + '_display');
+        const slidersContainer = document.getElementById(id + '_sliders');
+        const hSlider = document.getElementById(id + '_h');
+        const sSlider = document.getElementById(id + '_s');
+        const lSlider = document.getElementById(id + '_l');
+        const hVal = document.getElementById(id + '_h_val');
+        const sVal = document.getElementById(id + '_s_val');
+        const lVal = document.getElementById(id + '_l_val');
+        const hiddenInput = document.getElementById(id);
+
+        if (!display || !slidersContainer || !hSlider || !sSlider || !lSlider || !hiddenInput) return;
+
+        // Toggle slider container on clicking display box
+        display.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = slidersContainer.style.display === 'flex';
+            const allSliders = document.querySelectorAll('.custom-color-sliders');
+            allSliders.forEach(el => {
+                el.style.display = 'none';
+                const wrap = el.closest('.custom-color-picker-wrapper');
+                if (wrap) wrap.style.zIndex = 'auto';
+            });
+            slidersContainer.style.display = isOpen ? 'none' : 'flex';
+            const wrapper = display.closest('.custom-color-picker-wrapper');
+            if (wrapper) {
+                wrapper.style.zIndex = isOpen ? 'auto' : '10000';
+            }
+        });
+
+        // Close sliders when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!slidersContainer.contains(e.target) && e.target !== display) {
+                slidersContainer.style.display = 'none';
+                const wrapper = display.closest('.custom-color-picker-wrapper');
+                if (wrapper) {
+                    wrapper.style.zIndex = 'auto';
+                }
+            }
+        });
+
+        const updateFromSliders = () => {
+            const h = parseInt(hSlider.value);
+            const s = parseInt(sSlider.value);
+            const l = parseInt(lSlider.value);
+
+            if (hVal) hVal.innerText = h + '°';
+            if (sVal) sVal.innerText = s + '%';
+            if (lVal) lVal.innerText = l + '%';
+
+            const hex = hslToHex(h, s, l).toUpperCase();
+            hiddenInput.value = hex;
+
+            display.style.backgroundColor = hex;
+            display.innerText = hex;
+            display.style.color = l > 60 ? '#000' : '#FFF';
+
+            sSlider.style.background = `linear-gradient(to right, ${hslToHex(h, 0, l)}, ${hslToHex(h, 100, l)})`;
+            lSlider.style.background = `linear-gradient(to right, #000, ${hslToHex(h, s, 50)}, #fff)`;
+
+            hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+            hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+
+        [hSlider, sSlider, lSlider].forEach(slider => {
+            slider.addEventListener('input', updateFromSliders);
+            slider.addEventListener('change', updateFromSliders);
+        });
+    };
+
+    window.syncCustomColorPickers = function() {
+        ['playerColorInput', 'playerAuraColorInput', 'playerPatternColorInput'].forEach(id => {
+            const hiddenInput = document.getElementById(id);
+            const hSlider = document.getElementById(id + '_h');
+            const sSlider = document.getElementById(id + '_s');
+            const lSlider = document.getElementById(id + '_l');
+            const display = document.getElementById(id + '_display');
+            const hVal = document.getElementById(id + '_h_val');
+            const sVal = document.getElementById(id + '_s_val');
+            const lVal = document.getElementById(id + '_l_val');
+
+            if (!hiddenInput || !hSlider || !sSlider || !lSlider || !display) return;
+
+            const hex = hiddenInput.value || '#FFFFFF';
+            const { h, s, l } = hexToHsl(hex);
+
+            hSlider.value = h;
+            sSlider.value = s;
+            lSlider.value = l;
+
+            if (hVal) hVal.innerText = h + '°';
+            if (sVal) sVal.innerText = s + '%';
+            if (lVal) lVal.innerText = l + '%';
+
+            display.style.backgroundColor = hex;
+            display.innerText = hex;
+            display.style.color = l > 60 ? '#000' : '#FFF';
+
+            sSlider.style.background = `linear-gradient(to right, ${hslToHex(h, 0, l)}, ${hslToHex(h, 100, l)})`;
+            lSlider.style.background = `linear-gradient(to right, #000, ${hslToHex(h, s, 50)}, #fff)`;
+        });
+    };
+
+    // Initialize custom color pickers
+    ['playerColorInput', 'playerAuraColorInput', 'playerPatternColorInput'].forEach(id => {
+        window.initCustomColorPicker(id);
+    });
+
     // Helper to load settings for selected player
     window.loadCustomPlayerInputs = function(playerNum) {
         if (playerNum === 2) {
@@ -3859,6 +4115,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     shapeSelect.value = 'Square';
                 }
             }
+        }
+        if (window.syncCustomColorPickers) {
+            window.syncCustomColorPickers();
         }
     };
 
@@ -4086,6 +4345,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('introSkipBtn')?.addEventListener('click', () => {
+        window.closeIntroModal(false);
+    });
+
+    document.getElementById('closeIntroBtnTop')?.addEventListener('click', () => {
         window.closeIntroModal(false);
     });
 
@@ -8980,6 +9243,13 @@ window.updateCursorVisibility = function() {
         if (document.body.classList.contains('modal-open')) {
             document.body.classList.remove('modal-open');
         }
+        for (let pNum of [1, 2]) {
+            window[`p${pNum}CursorVisible`] = false;
+            const cursorEl = document.getElementById(`p${pNum}VirtualCursor`);
+            if (cursorEl) {
+                cursorEl.style.display = 'none';
+            }
+        }
     }
 };
 
@@ -9617,6 +9887,7 @@ localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.col
 if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
     const gen1Creatures = window.baseCreatures.filter(c => !c.generation || c.generation === 1);
     if (gen1Creatures.length > 0) {
+        // Explicitly choose completely randomly across all 50 G1 species for player 1's starter
         let randomIndex = Math.floor(Math.random() * gen1Creatures.length);
         let starter = JSON.parse(JSON.stringify(gen1Creatures[randomIndex]));
 
@@ -9648,6 +9919,7 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
         collectedCreaturesIds.add(starter.id);
         collectedCreatures.push(starter);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+        console.log("[Starter Selection] Randomized Player 1 starter selected completely independently of seed: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
     }
 }
 
@@ -9655,6 +9927,7 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
 if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
     const gen1Creatures = window.baseCreatures.filter(c => !c.generation || c.generation === 1);
     if (gen1Creatures.length > 0) {
+        // Explicitly choose completely randomly across all 50 G1 species for player 2's starter
         let randomIndex = Math.floor(Math.random() * gen1Creatures.length);
         let starter = JSON.parse(JSON.stringify(gen1Creatures[randomIndex]));
 
@@ -9686,6 +9959,7 @@ if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.ba
         window.collectedCreaturesIds2.add(starter.id);
         window.collectedCreatures2.push(starter);
         localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+        console.log("[Starter Selection] Randomized Player 2 starter selected completely independently of seed: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
     }
 }
 
@@ -10022,15 +10296,15 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const ry_vc = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
 
     const deadzone_vc = 0.15;
-    if (Math.abs(rx_vc) > deadzone_vc || Math.abs(ry_vc) > deadzone_vc) {
+    if (inModal && (Math.abs(rx_vc) > deadzone_vc || Math.abs(ry_vc) > deadzone_vc)) {
         // Initialize coordinates if they are undefined
         if (window[`p${playerNum}CursorX`] === undefined) {
             window[`p${playerNum}CursorX`] = window.coopActive ? (playerNum === 1 ? window.innerWidth / 4 : (window.innerWidth * 3) / 4) : (window.innerWidth / 2);
             window[`p${playerNum}CursorY`] = window.innerHeight / 2;
         }
 
-        const dx = Math.abs(rx_vc) > deadzone_vc ? rx_vc * 12 : 0;
-        const dy = Math.abs(ry_vc) > deadzone_vc ? ry_vc * 12 : 0;
+        const dx = Math.abs(rx_vc) > deadzone_vc ? rx_vc * 24 : 0;
+        const dy = Math.abs(ry_vc) > deadzone_vc ? ry_vc * 24 : 0;
 
         window[`p${playerNum}CursorX`] += dx;
         window[`p${playerNum}CursorY`] += dy;
@@ -10055,6 +10329,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             cursorEl.style.display = 'block';
             cursorEl.style.left = `${window[`p${playerNum}CursorX`]}px`;
             cursorEl.style.top = `${window[`p${playerNum}CursorY`]}px`;
+        }
+    } else if (!inModal) {
+        window[`p${playerNum}CursorVisible`] = false;
+        const cursorEl = document.getElementById(`p${playerNum}VirtualCursor`);
+        if (cursorEl) {
+            cursorEl.style.display = 'none';
         }
     }
 
