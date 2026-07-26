@@ -52,6 +52,7 @@ test.describe('Friend System', () => {
 
     const result = await page.evaluate(() => {
       try {
+        window.__test_friend_rate = true;
         window.gameStarted = true;
         window.coopActive = false;
 
