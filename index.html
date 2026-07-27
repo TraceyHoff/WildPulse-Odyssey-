@@ -10310,7 +10310,12 @@ window.getActiveContainerForPlayer = function(playerNum) {
                         return el;
                     }
                 } else if (id === 'battleSwapModal') {
-                    if (window.activeBattlePlayer === playerNum || window.isLocalPvp) {
+                    if (window.isLocalPvp) {
+                        const isP1TurnToSwap = window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1);
+                        const isP2TurnToSwap = window.localPvpForceSwap === 2 || (window.localPvpForceSwap === null && window.localPvpTurn === 2);
+                        if (playerNum === 1 && isP1TurnToSwap) return el;
+                        if (playerNum === 2 && isP2TurnToSwap) return el;
+                    } else if (window.activeBattlePlayer === playerNum) {
                         return el;
                     }
                 } else {
@@ -10688,6 +10693,24 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
 
         if (justA) {
+            if (window.isLocalPvp) {
+                const isP1TurnToSwap = window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1);
+                const isP2TurnToSwap = window.localPvpForceSwap === 2 || (window.localPvpForceSwap === null && window.localPvpTurn === 2);
+                const isSwapOpen = document.getElementById('battleSwapModal') && document.getElementById('battleSwapModal').style.display !== 'none' && document.getElementById('battleSwapModal').style.display !== '';
+
+                let isAllowed = false;
+                if (isSwapOpen) {
+                    if (playerNum === 1 && isP1TurnToSwap) isAllowed = true;
+                    if (playerNum === 2 && isP2TurnToSwap) isAllowed = true;
+                } else {
+                    if (playerNum === 1 && window.localPvpTurn === 1) isAllowed = true;
+                    if (playerNum === 2 && window.localPvpTurn === 2) isAllowed = true;
+                }
+                if (!isAllowed) {
+                    return;
+                }
+            }
+
             const cursorTarget = window[`p${playerNum}LastInteractive`] || null;
             if (cursorTarget && window[`p${playerNum}CursorVisible`]) {
                 cursorTarget.click();
