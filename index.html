@@ -11965,6 +11965,7 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_last_replenish_day');
         localStorage.removeItem('wildpulse_inventory');
         localStorage.removeItem('wildpulse_inventory2');
+        localStorage.removeItem('wildpulse_npc_trainer_data');
 
         // Reset customization settings for both players
         localStorage.removeItem('wildpulse_player_name');
@@ -13950,6 +13951,61 @@ function generateMiscTextures(scene) {
         }
     };
 
+    // NPC Trainer Save/Load Helpers and Deterministic Names
+    window.getNpcTrainerData = function(trainerId) {
+        let allData = {};
+        try {
+            allData = JSON.parse(localStorage.getItem('wildpulse_npc_trainer_data')) || {};
+        } catch (e) {
+            console.error("Error reading NPC trainer data:", e);
+        }
+        if (!allData[trainerId]) {
+            allData[trainerId] = {
+                name: "",
+                weekBattles: {},
+                lastBattleTimeMs: 0
+            };
+        }
+        return allData[trainerId];
+    };
+
+    window.saveNpcTrainerData = function(trainerId, data) {
+        let allData = {};
+        try {
+            allData = JSON.parse(localStorage.getItem('wildpulse_npc_trainer_data')) || {};
+        } catch (e) {
+            console.error("Error reading NPC trainer data:", e);
+        }
+        allData[trainerId] = data;
+        localStorage.setItem('wildpulse_npc_trainer_data', JSON.stringify(allData));
+    };
+
+    window.getNpcTrainerName = function(trainerId) {
+        const cached = window.getNpcTrainerData(trainerId);
+        if (cached && cached.name) {
+            return cached.name;
+        }
+
+        const names = [
+            "Neo", "Trinity", "Morpheus", "V", "Jackie", "Johnny", "Rogue", "Alt",
+            "Panam", "Judy", "Kerry", "River", "Major", "Batou", "Tachikoma", "Case",
+            "Molly", "Hiro", "Y.T.", "Armitage", "Wintermute", "Gibson", "Smasher", "Deus"
+        ];
+
+        const seedStr = trainerId + "_" + (window.roomSeed || 987654321);
+        let hash = 0;
+        for (let i = 0; i < seedStr.length; i++) {
+            hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const index = Math.abs(hash) % names.length;
+        const name = names[index];
+
+        const data = cached || {};
+        data.name = name;
+        window.saveNpcTrainerData(trainerId, data);
+        return name;
+    };
+
     const savedPattern = localStorage.getItem('wildpulse_player_pattern') || 'None';
     const savedPatternColor = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
     const savedShape = localStorage.getItem('wildpulse_player_shape') || 'Square';
@@ -14147,6 +14203,63 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             pSprite.isPvpTile = true;
             sprites.push(pSprite);
         }
+    } else if (mapData[r][c] && mapData[r][c].startsWith('npc_trainer')) {
+        let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
+        grass.setDepth(-1);
+        sprites.push(grass);
+
+        const trainerId = mapData[r][c];
+        const trainerName = window.getNpcTrainerName(trainerId);
+
+        const textureKey = `npc_tex_${trainerId}`;
+        if (!scene.textures.exists(textureKey)) {
+            let baseColor = '#00FFCC';
+            let pattern = 'Circuit';
+            let patternColor = '#FF007F';
+            let shape = 'Hexagon';
+
+            if (trainerId === 'npc_trainer_2') {
+                baseColor = '#FF007F';
+                pattern = 'Stripes';
+                patternColor = '#FFFF00';
+                shape = 'Triangle';
+            } else if (trainerId === 'npc_trainer_3') {
+                baseColor = '#FFFF00';
+                pattern = 'Galaxy';
+                patternColor = '#00FFFF';
+                shape = 'Crescent';
+            } else if (trainerId === 'npc_trainer_4') {
+                baseColor = '#D500F9';
+                pattern = 'Lightning';
+                patternColor = '#00FF66';
+                shape = 'Star';
+            }
+
+            window.generatePlayerTexture(scene, textureKey, baseColor, pattern, patternColor, shape);
+        }
+
+        let trainer = scene.add.sprite(posX, posY, textureKey);
+        trainer.setDepth(10);
+        sprites.push(trainer);
+
+        if (window.npcTrainersGroup) {
+            let tSprite = window.npcTrainersGroup.create(posX, posY, textureKey);
+            tSprite.setVisible(false);
+            tSprite.setData('trainerId', trainerId);
+            tSprite.setData('trainerName', trainerName);
+            sprites.push(tSprite);
+        }
+
+        let nameText = scene.add.text(posX, posY - 30, trainerName, {
+            fontSize: '12px',
+            stroke: '#000000',
+            strokeThickness: 3,
+            fill: '#00ffff',
+            fontFamily: 'Courier New',
+            fontWeight: 'bold'
+        }).setOrigin(0.5);
+        nameText.setDepth(11);
+        sprites.push(nameText);
     } else {
         // Add drop shadow
 
@@ -14333,6 +14446,8 @@ function destroyTile(key) {
                     tradeGroup.remove(sprite, true, true);
                 } else if (sprite.isPvpTile && pvpGroup) {
                     pvpGroup.remove(sprite, true, true);
+                } else if (sprite.getData && sprite.getData('trainerId') && window.npcTrainersGroup) {
+                    window.npcTrainersGroup.remove(sprite, true, true);
                 } else {
                     if (sprite.destroy) sprite.destroy();
                 }
@@ -14356,6 +14471,7 @@ function create() {
     challengeGroup = this.physics.add.staticGroup();
     tradeGroup = this.physics.add.staticGroup();
     pvpGroup = this.physics.add.staticGroup();
+    window.npcTrainersGroup = this.physics.add.staticGroup();
 
     // Procedural generation
 
@@ -14438,6 +14554,12 @@ function create() {
     mapData[101][101] = 'store';
     // PvP tile directly right of trade
     mapData[100][101] = 'pvp';
+
+    // Force NPC Trainer tiles symmetrically around hospital town
+    mapData[98][98] = 'npc_trainer_1';
+    mapData[102][102] = 'npc_trainer_2';
+    mapData[98][102] = 'npc_trainer_3';
+    mapData[102][98] = 'npc_trainer_4';
 
     // Calculate water depth distances using 2-pass Manhattan algorithm
     window.waterDist = [];
@@ -14872,6 +14994,7 @@ function create() {
     this.physics.add.overlap(player, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, this);
     this.physics.add.overlap(player, tradeGroup, (pCol) => { if (window.openTradeModal) window.openTradeModal(pCol); }, null, this);
     this.physics.add.overlap(player, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, this);
+    this.physics.add.overlap(player, window.npcTrainersGroup, handleNpcTrainerOverlap, null, this);
 
     window.addEventListener('resize', () => {
         if (!game || !game.scale) return;
@@ -15042,6 +15165,188 @@ function healParty(playerCollider, hospitalCollider) {
         if (window.renderPartyList) window.renderPartyList();
     }
 }
+
+function handleNpcTrainerOverlap(playerCollider, npcSprite) {
+    if (window.inBattle) return;
+
+    if (playerCollider.lastTrainerTalkTime && game && game.scene.scenes[0].time.now - playerCollider.lastTrainerTalkTime < 4000) return;
+    if (game && game.scene.scenes[0]) {
+        playerCollider.lastTrainerTalkTime = game.scene.scenes[0].time.now;
+    }
+
+    const isP2 = (window.coopActive && playerCollider === window.player2);
+    const playerNum = isP2 ? 2 : 1;
+
+    const trainerId = npcSprite.getData('trainerId') || 'npc_trainer_1';
+    const trainerName = npcSprite.getData('trainerName') || 'Trainer';
+
+    const trainerData = window.getNpcTrainerData(trainerId);
+
+    // Cooldown check (6 in-game hours = 300,000 ms)
+    if (trainerData.lastBattleTimeMs > 0 && window.totalElapsedMs - trainerData.lastBattleTimeMs < 300000) {
+        const remainingMs = 300000 - (window.totalElapsedMs - trainerData.lastBattleTimeMs);
+        const remainingHours = remainingMs / 50000;
+        const h = Math.floor(remainingHours);
+        const m = Math.floor((remainingHours % 1) * 60);
+
+        window.showModernNotification(`Trainer ${trainerName} is resting! Ready in ${h}h ${m}m of in-game time.`, 4000, playerNum);
+        bouncePlayerSlightly(playerCollider);
+        return;
+    }
+
+    // Weekly limit check (3 battles per in-game week)
+    const currentWeek = Math.floor(window.wildpulse_inGameDays / 7);
+    if (trainerData.weekBattles && (trainerData.weekBattles[currentWeek] || 0) >= 3) {
+        window.showModernNotification(`Trainer ${trainerName} has reached their limit of 3 battles this week!`, 4000, playerNum);
+        bouncePlayerSlightly(playerCollider);
+        return;
+    }
+
+    // Ask player to confirm battle
+    if (confirm(`Trainer ${trainerName} challenges you to a battle! Do you accept?`)) {
+        if (window.startNpcBattle) {
+            window.startNpcBattle(playerCollider, trainerId, trainerName);
+        }
+    } else {
+        bouncePlayerSlightly(playerCollider);
+    }
+}
+
+function bouncePlayerSlightly(playerCollider) {
+    if (!playerCollider) return;
+    playerCollider.x += (Math.random() < 0.5 ? 25 : -25);
+    playerCollider.y += (Math.random() < 0.5 ? 25 : -25);
+    if (playerCollider.body) {
+        playerCollider.body.reset(playerCollider.x, playerCollider.y);
+    }
+}
+
+window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
+    if (window.inBattle) return;
+
+    const isP2 = (window.coopActive && playerCollider === window.player2);
+    window.activeBattlePlayer = isP2 ? 2 : 1;
+    const playerParty = isP2 ? window.collectedCreatures2 : window.collectedCreatures;
+
+    const activeParty = playerParty.filter(c => !c.stored);
+    if (activeParty.length === 0) {
+        window.showModernNotification("You have no creatures in your party!");
+        return;
+    }
+
+    const healthyCreatures = activeParty.filter(c => c.currentHp > 0);
+    if (healthyCreatures.length === 0) {
+        window.showModernNotification("You have no healthy creatures to battle with! Find a hospital.");
+        return;
+    }
+
+    // Stop player movement
+    playerCollider.body.setVelocity(0);
+    playerCollider.body.moves = false;
+
+    window.inBattle = true;
+    window.isNpcBattle = true;
+    window.activeNpcTrainerId = trainerId;
+    window.npcEnemyIndex = 0;
+    window.npcEnemyParty = [];
+
+    // Generate matching enemy party
+    const rng = Math.random;
+    activeParty.forEach((playerCreature, idx) => {
+        // Choose a random base creature
+        const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+        let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
+
+        // Same level
+        enemyCreature.level = playerCreature.level || 1;
+        enemyCreature.xp = 0;
+
+        // Assign IVs, stats, nature, mood, ability, and a cool randomized creature name
+        if (enemyCreature.stats) {
+            for (let stat in enemyCreature.stats) {
+                enemyCreature.stats[stat] += Math.floor(rng() * 32); // IV
+            }
+        }
+        enemyCreature.nature = window.getRandomNature(false, rng);
+        enemyCreature.mood = window.getRandomMood(false, rng);
+        window.assignAbility(enemyCreature, rng);
+        enemyCreature.id = `npc_enemy_${trainerId}_${idx}_${Date.now()}`;
+        enemyCreature.color = window.getCreatureColor(enemyCreature);
+
+        // Standard elements name prefix/suffix randomization
+        const typePrefixes = {
+            "Fire": ["Ember", "Flare", "Ash", "Pyre", "Cinder", "Flame", "Ignis", "Scorchi", "Magma", "Lava", "Inferno", "Sear", "Char", "Blaze", "Smolder"],
+            "Water": ["Tide", "Aqua", "Ripple", "Surf", "Brine", "Splash", "Hydro", "Wave", "Ocean", "River", "Torrent", "Abyss", "Reef", "Fjord", "Glacier"],
+            "Nature": ["Moss", "Leaf", "Thorn", "Briar", "Petal", "Flora", "Bloom", "Vine", "Bark", "Root", "Sylvan", "Timber", "Grove", "Bramble", "Thicket"],
+            "Electric": ["Spark", "Volt", "Jolt", "Static", "Blitz", "Zap", "Wire", "Ohm", "Charge", "Amp", "Thunder", "Storm", "Galvan", "Circuit", "Pulse"],
+            "Ice": ["Frost", "Snow", "Chill", "Glace", "Rime", "Ice", "Polar", "Blizz", "Hail", "Winter", "Tundra", "Shiver", "Crystal", "Glacier", "Arctic"],
+            "Earth": ["Dune", "Rock", "Terra", "Mud", "Dust", "Stone", "Crag", "Soil", "Clay", "Quake", "Boulder", "Gravel", "Mountain", "Canyon", "Bedrock"],
+            "Wind": ["Gale", "Zephyr", "Breeze", "Gust", "Aero", "Wind", "Draft", "Squall", "Hover", "Flit", "Cyclone", "Tempest", "Aether", "Stratus", "Nimbus"],
+            "Light": ["Dawn", "Lux", "Glow", "Beam", "Ray", "Sun", "Shine", "Bright", "Solar", "Halo", "Radiant", "Lumen", "Aura", "Prism", "Glare"],
+            "Dark": ["Dusk", "Umbra", "Shade", "Gloom", "Void", "Night", "Shadow", "Murk", "Grim", "Obsid", "Phantom", "Abyss", "Stygian", "Onyx", "Nether"],
+            "Cosmic": ["Nova", "Star", "Astro", "Cosmo", "Nebula", "Space", "Luna", "Celest", "Orbit", "Meteor", "Galaxy", "Comet", "Quasar", "Pulsar", "Zenith"]
+        };
+        const suffixes = [
+            "hound", "bear", "fox", "hawk", "weaver", "stalker", "strider", "glider", "horn", "shell",
+            "fin", "paw", "scale", "claw", "tail", "wing", "fang", "snout", "mane", "hoof",
+            "beak", "crest", "tuft", "whisker", "spine", "pelt", "fleece", "hide", "gill", "web",
+            "wyrm", "drake", "beast", "fiend", "sprite", "wisp", "golem", "titan", "colossus", "lurker",
+            "runner", "dasher", "soarer", "diver", "crawler", "leaper", "bounder", "watcher", "seeker", "hunter"
+        ];
+        const pList = typePrefixes[enemyCreature.type] || typePrefixes["Nature"];
+        enemyCreature.name = pList[Math.floor(rng() * pList.length)] + suffixes[Math.floor(rng() * suffixes.length)];
+
+        // Generate dynamic texture if it doesn't exist
+        const isShiny = !!enemyCreature.isShiny;
+        const speciesId = enemyCreature.name;
+        const sanitizedId = String(speciesId).replace(/[^a-zA-Z0-9_]/g, '_');
+        const textureKey = `creature_tex_${sanitizedId}_${isShiny ? 'shiny' : 'normal'}`;
+
+        if (game && game.scene.scenes[0]) {
+            const scene = game.scene.scenes[0];
+            if (!scene.textures.exists(textureKey)) {
+                const dCanvas = document.createElement('canvas');
+                dCanvas.width = 64;
+                dCanvas.height = 64;
+                window.renderCreatureCanvas(dCanvas, enemyCreature, 64, false);
+                scene.textures.addCanvas(textureKey, dCanvas);
+            }
+        }
+
+        window.npcEnemyParty.push(enemyCreature);
+    });
+
+    // Initialize first enemy creature
+    currentEnemy = window.npcEnemyParty[0];
+    window.currentEnemy = currentEnemy;
+    currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
+    currentEnemy.currentHp = currentEnemy.maxHp;
+    currentEnemy.isDefending = false;
+    currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    // Initialize first healthy player creature
+    let firstHealthy = healthyCreatures[0];
+    currentPlayer = JSON.parse(JSON.stringify(firstHealthy));
+    currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
+    currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
+    currentPlayer.isDefending = false;
+    currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+    window.currentPlayer = currentPlayer;
+
+    document.getElementById('battleModal').style.display = 'block';
+    document.getElementById('battleControls').style.display = 'grid';
+    document.getElementById('battleCloseBtn').style.display = 'none';
+    document.getElementById('battleLog').innerHTML = '';
+    window.battleLogQueue = [];
+    isTyping = false;
+
+    logBattle(`<span style="color:#00ffff; font-size: 1.2em;">--- BATTLE WITH ${trainerName} ---</span>`);
+    logBattle(`Trainer ${trainerName} challenges you with ${window.npcEnemyParty.length} creatures!`);
+    logBattle(`Trainer sends out <span style="color:#f44336">${currentEnemy.name}</span> (Lvl ${currentEnemy.level})!`);
+    logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
+
+    window.updateBattleUI();
+};
 
 function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     const maxSpawns = window.perfLowerSpawns ? 20 : 50;
@@ -15500,8 +15805,38 @@ function processStatuses(creature) {
 
 window.handleFaint = function(target) {
     if (target === currentEnemy) {
-        endBattle('win');
-        return true;
+        if (window.isNpcBattle) {
+            if (window.npcEnemyIndex < window.npcEnemyParty.length - 1) {
+                window.npcEnemyIndex++;
+                currentEnemy = window.npcEnemyParty[window.npcEnemyIndex];
+                window.currentEnemy = currentEnemy;
+                currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
+                currentEnemy.currentHp = currentEnemy.maxHp;
+                currentEnemy.isDefending = false;
+                currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+                logBattle(`Trainer's creature fainted!`);
+                logBattle(`Trainer sends out <span style="color:#f44336">${currentEnemy.name}</span> (Lvl ${currentEnemy.level})!`);
+                updateBattleUI();
+                return false; // Battle continues
+            } else {
+                // All fainted
+                if (window.activeNpcTrainerId) {
+                    const trainerId = window.activeNpcTrainerId;
+                    const trainerData = window.getNpcTrainerData(trainerId);
+                    const currentWeek = Math.floor(window.wildpulse_inGameDays / 7);
+                    if (!trainerData.weekBattles) trainerData.weekBattles = {};
+                    trainerData.weekBattles[currentWeek] = (trainerData.weekBattles[currentWeek] || 0) + 1;
+                    trainerData.lastBattleTimeMs = window.totalElapsedMs;
+                    window.saveNpcTrainerData(trainerId, trainerData);
+                }
+                endBattle('win');
+                return true;
+            }
+        } else {
+            endBattle('win');
+            return true;
+        }
     } else {
         const activeParty = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         // Sync fainted creature's HP
@@ -16522,8 +16857,13 @@ window.closeBattleModal = function() {
     }
 
     const wasInChallenge = window.inChallengeBattle;
+    const wasInNpcBattle = window.isNpcBattle;
     window.inBattle = false;
     window.inChallengeBattle = false; // Reset challenge flag
+    window.isNpcBattle = false;
+    window.activeNpcTrainerId = null;
+    window.npcEnemyParty = null;
+    window.npcEnemyIndex = 0;
 
     if (window.coopActive && window.activeBattlePlayer === 2) {
         if (window.player2 && window.player2.body) window.player2.body.moves = true;
@@ -16542,6 +16882,8 @@ window.closeBattleModal = function() {
                     window.startChallengeBattle();
                 }
             }, 500);
+        } else if (wasInNpcBattle) {
+            // No creature sprite or base respawning for NPC trainer battles
         } else {
             if (currentEnemySprite) {
                 currentEnemySprite.destroy();
@@ -16646,7 +16988,43 @@ window.endBattle = function(result) {
             window.p1PvpClosedWhileOverlapping = true;
             window.p2PvpClosedWhileOverlapping = true;
         } else {
-            if (window.isPvpBattle) {
+            if (window.isNpcBattle) {
+                if (result === 'win') {
+                    if (window.activeBattlePlayer === 2) {
+                        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
+                        window.gameStats2.battlesWon = (window.gameStats2.battlesWon || 0) + 1;
+                        if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+                        window.gameStats2.coins += 80;
+                        localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                        window.saveStats();
+                        window.showModernNotification(`🪙 ${window.getP2Name()} won 80 coins!`);
+                    } else {
+                        window.gameStats.battlesWon++;
+                        if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                        window.gameStats.coins += 80;
+                        window.saveStats();
+                        window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins!`);
+                    }
+                    if (window.updateMenuCoins) window.updateMenuCoins();
+                } else if (result === 'loss') {
+                    if (window.activeBattlePlayer === 2) {
+                        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
+                        window.gameStats2.battlesLost = (window.gameStats2.battlesLost || 0) + 1;
+                        if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+                        window.gameStats2.coins += 2;
+                        localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                        window.saveStats();
+                        window.showModernNotification(`🪙 ${window.getP2Name()} received 2 coins on loss.`);
+                    } else {
+                        window.gameStats.battlesLost++;
+                        if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                        window.gameStats.coins += 2;
+                        window.saveStats();
+                        window.showModernNotification(`🪙 ${window.getP1Name()} received 2 coins on loss.`);
+                    }
+                    if (window.updateMenuCoins) window.updateMenuCoins();
+                }
+            } else if (window.isPvpBattle) {
                 if (result === 'win') {
                     window.gameStats.pvpBattlesWon++;
                     if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
@@ -16928,6 +17306,7 @@ window.enableCoop = function(scene) {
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, tradeGroup, (pCol) => { if (window.openTradeModal) window.openTradeModal(pCol); }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.npcTrainersGroup, handleNpcTrainerOverlap, null, scene));
 
     // 2. Set up split screen cameras
     const halfWidth = window.innerWidth / 2;
