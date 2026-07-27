@@ -80,7 +80,7 @@ def run_npc_tests(page):
     coins = page.evaluate("window.gameStats.coins")
     wins = page.evaluate("window.gameStats.battlesWon")
     print(f"Coins: {coins}, Battles Won: {wins}")
-    assert coins == 80, "Defeating Trainer should award 80 coins"
+    assert coins == 100, "Defeating Trainer should award 100 coins"
 
     # Verify cooldown (elapsed time is currently 0, cooldown is 300,000 ms)
     # Check trigger handles cooldown properly

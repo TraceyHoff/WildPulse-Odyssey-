@@ -14006,6 +14006,59 @@ function generateMiscTextures(scene) {
         return name;
     };
 
+    window.getNpcTrainerStartPos = function(trainerId) {
+        const coords = {
+            'npc_trainer_1': { r: 40, c: 40 },
+            'npc_trainer_2': { r: 160, c: 160 },
+            'npc_trainer_3': { r: 40, c: 160 },
+            'npc_trainer_4': { r: 160, c: 40 },
+            'npc_trainer_5': { r: 100, c: 40 },
+            'npc_trainer_6': { r: 100, c: 160 },
+            'npc_trainer_7': { r: 40, c: 100 },
+            'npc_trainer_8': { r: 160, c: 100 }
+        };
+        const c = coords[trainerId];
+        if (c) {
+            return { x: c.c * 100 + 50, y: c.r * 100 + 50, r: c.r, c: c.c };
+        }
+        return null;
+    };
+
+    window.shouldNpcIgnorePlayer = function(playerNum, playerObj, scene) {
+        if (!playerObj || !scene) return true;
+
+        // 1. Is player in view of the hospital?
+        let cam = scene.cameras.main;
+        if (window.coopActive && playerNum === 2 && window.camera2) {
+            cam = window.camera2;
+        }
+        if (cam) {
+            const viewPadding = 50; // Add slight padding
+            const viewLeft = cam.scrollX - viewPadding;
+            const viewRight = cam.scrollX + cam.width + viewPadding;
+            const viewTop = cam.scrollY - viewPadding;
+            const viewBottom = cam.scrollY + cam.height + viewPadding;
+
+            const hospitalX = 10050;
+            const hospitalY = 10050;
+            const hospitalInView = (hospitalX >= viewLeft && hospitalX <= viewRight && hospitalY >= viewTop && hospitalY <= viewBottom);
+            if (hospitalInView) {
+                return true;
+            }
+        }
+
+        // 2. Does the player have no healthy creatures in their party?
+        const party = (playerNum === 2) ? window.collectedCreatures2 : window.collectedCreatures;
+        if (!party || party.length === 0) return true;
+        const activeParty = party.filter(c => !c.stored);
+        const healthy = activeParty.filter(c => c.currentHp > 0);
+        if (healthy.length === 0) {
+            return true;
+        }
+
+        return false;
+    };
+
     const savedPattern = localStorage.getItem('wildpulse_player_pattern') || 'None';
     const savedPatternColor = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
     const savedShape = localStorage.getItem('wildpulse_player_shape') || 'Square';
@@ -14233,24 +14286,44 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 pattern = 'Lightning';
                 patternColor = '#00FF66';
                 shape = 'Star';
+            } else if (trainerId === 'npc_trainer_5') {
+                baseColor = '#FF9100';
+                pattern = 'Waves';
+                patternColor = '#3D5AFE';
+                shape = 'Diamond';
+            } else if (trainerId === 'npc_trainer_6') {
+                baseColor = '#2979FF';
+                pattern = 'Dots';
+                patternColor = '#FF1744';
+                shape = 'Circle';
+            } else if (trainerId === 'npc_trainer_7') {
+                baseColor = '#00E676';
+                pattern = 'Grid';
+                patternColor = '#D500F9';
+                shape = 'Shield';
+            } else if (trainerId === 'npc_trainer_8') {
+                baseColor = '#FFEA00';
+                pattern = 'Chevrons';
+                patternColor = '#00E5FF';
+                shape = 'Cross';
             }
 
             window.generatePlayerTexture(scene, textureKey, baseColor, pattern, patternColor, shape);
         }
 
-        let trainer = scene.add.sprite(posX, posY, textureKey);
-        trainer.setDepth(10);
-        sprites.push(trainer);
+        const startPos = window.getNpcTrainerStartPos(trainerId);
+        let currentX = startPos ? startPos.x : posX;
+        let currentY = startPos ? startPos.y : posY;
 
-        if (window.npcTrainersGroup) {
-            let tSprite = window.npcTrainersGroup.create(posX, posY, textureKey);
-            tSprite.setVisible(false);
-            tSprite.setData('trainerId', trainerId);
-            tSprite.setData('trainerName', trainerName);
-            sprites.push(tSprite);
+        if (window.npcTrainersState && window.npcTrainersState[trainerId]) {
+            currentX = window.npcTrainersState[trainerId].x;
+            currentY = window.npcTrainersState[trainerId].y;
+        } else {
+            if (!window.npcTrainersState) window.npcTrainersState = {};
+            window.npcTrainersState[trainerId] = { x: currentX, y: currentY };
         }
 
-        let nameText = scene.add.text(posX, posY - 30, trainerName, {
+        let nameText = scene.add.text(currentX, currentY - 30, trainerName, {
             fontSize: '12px',
             stroke: '#000000',
             strokeThickness: 3,
@@ -14260,6 +14333,20 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         }).setOrigin(0.5);
         nameText.setDepth(11);
         sprites.push(nameText);
+
+        if (window.npcTrainersGroup) {
+            let tSprite = window.npcTrainersGroup.create(currentX, currentY, textureKey);
+            tSprite.setDepth(10);
+            tSprite.setVisible(true);
+            tSprite.setData('trainerId', trainerId);
+            tSprite.setData('trainerName', trainerName);
+            tSprite.setData('nameText', nameText);
+            if (tSprite.body) {
+                tSprite.body.setImmovable(true);
+                tSprite.body.setAllowGravity(false);
+            }
+            sprites.push(tSprite);
+        }
     } else {
         // Add drop shadow
 
@@ -14471,7 +14558,7 @@ function create() {
     challengeGroup = this.physics.add.staticGroup();
     tradeGroup = this.physics.add.staticGroup();
     pvpGroup = this.physics.add.staticGroup();
-    window.npcTrainersGroup = this.physics.add.staticGroup();
+    window.npcTrainersGroup = this.physics.add.group();
 
     // Procedural generation
 
@@ -14555,11 +14642,15 @@ function create() {
     // PvP tile directly right of trade
     mapData[100][101] = 'pvp';
 
-    // Force NPC Trainer tiles symmetrically around hospital town
-    mapData[98][98] = 'npc_trainer_1';
-    mapData[102][102] = 'npc_trainer_2';
-    mapData[98][102] = 'npc_trainer_3';
-    mapData[102][98] = 'npc_trainer_4';
+    // Force NPC Trainer tiles spread evenly across the map
+    mapData[40][40] = 'npc_trainer_1';
+    mapData[160][160] = 'npc_trainer_2';
+    mapData[40][160] = 'npc_trainer_3';
+    mapData[160][40] = 'npc_trainer_4';
+    mapData[100][40] = 'npc_trainer_5';
+    mapData[100][160] = 'npc_trainer_6';
+    mapData[40][100] = 'npc_trainer_7';
+    mapData[160][100] = 'npc_trainer_8';
 
     // Calculate water depth distances using 2-pass Manhattan algorithm
     window.waterDist = [];
@@ -15169,13 +15260,18 @@ function healParty(playerCollider, hospitalCollider) {
 function handleNpcTrainerOverlap(playerCollider, npcSprite) {
     if (window.inBattle) return;
 
+    const isP2 = (window.coopActive && playerCollider === window.player2);
+    const playerNum = isP2 ? 2 : 1;
+
+    // If NPC should ignore the player, return immediately without any interaction
+    if (window.shouldNpcIgnorePlayer && window.shouldNpcIgnorePlayer(playerNum, playerCollider, game && game.scene && game.scene.scenes[0])) {
+        return;
+    }
+
     if (playerCollider.lastTrainerTalkTime && game && game.scene.scenes[0].time.now - playerCollider.lastTrainerTalkTime < 4000) return;
     if (game && game.scene.scenes[0]) {
         playerCollider.lastTrainerTalkTime = game.scene.scenes[0].time.now;
     }
-
-    const isP2 = (window.coopActive && playerCollider === window.player2);
-    const playerNum = isP2 ? 2 : 1;
 
     const trainerId = npcSprite.getData('trainerId') || 'npc_trainer_1';
     const trainerName = npcSprite.getData('trainerName') || 'Trainer';
@@ -16994,16 +17090,16 @@ window.endBattle = function(result) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesWon = (window.gameStats2.battlesWon || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        window.gameStats2.coins += 80;
+                        window.gameStats2.coins += 100;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} won 80 coins!`);
+                        window.showModernNotification(`🪙 ${window.getP2Name()} won 100 coins!`);
                     } else {
                         window.gameStats.battlesWon++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        window.gameStats.coins += 80;
+                        window.gameStats.coins += 100;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins!`);
+                        window.showModernNotification(`🪙 ${window.getP1Name()} won 100 coins!`);
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 } else if (result === 'loss') {
@@ -18920,6 +19016,126 @@ function update() {
     const viewTop = cam.scrollY - viewPadding;
     const viewBottom = cam.scrollY + cam.height + viewPadding;
 
+    // NPC Trainers wandering, chasing & ignoring logic
+    if (window.npcTrainersGroup && window.npcTrainersGroup.getLength() > 0) {
+        window.npcTrainersGroup.getChildren().forEach(tSprite => {
+            const trainerId = tSprite.getData('trainerId');
+            if (!trainerId) return;
+
+            const startPos = window.getNpcTrainerStartPos(trainerId);
+            if (!startPos) return;
+
+            const isVisible = window.isInsideAnyActiveCamera(tSprite.x, tSprite.y, this, viewPadding);
+            tSprite.setVisible(isVisible);
+
+            // Find closest player who is NOT ignored
+            let targetPlayer = null;
+            let minDist = Infinity;
+            let targetPlayerNum = 1;
+
+            if (player) {
+                const p1Ignored = window.shouldNpcIgnorePlayer(1, player, this);
+                if (!p1Ignored) {
+                    const dist1 = Math.hypot(player.x - tSprite.x, player.y - tSprite.y);
+                    if (dist1 < minDist) {
+                        minDist = dist1;
+                        targetPlayer = player;
+                        targetPlayerNum = 1;
+                    }
+                }
+            }
+
+            if (window.coopActive && window.player2) {
+                const p2Ignored = window.shouldNpcIgnorePlayer(2, window.player2, this);
+                if (!p2Ignored) {
+                    const dist2 = Math.hypot(window.player2.x - tSprite.x, window.player2.y - tSprite.y);
+                    if (dist2 < minDist) {
+                        minDist = dist2;
+                        targetPlayer = window.player2;
+                        targetPlayerNum = 2;
+                    }
+                }
+            }
+
+            let moved = false;
+            let nextX = tSprite.x;
+            let nextY = tSprite.y;
+
+            // If a player is detected within 400px, chase them!
+            if (targetPlayer && minDist < 400 && !window.inBattle) {
+                // Chase player
+                let angle = Math.atan2(targetPlayer.y - tSprite.y, targetPlayer.x - tSprite.x);
+                let speed = 1.5; // steady movement speed
+                nextX = tSprite.x + Math.cos(angle) * speed;
+                nextY = tSprite.y + Math.sin(angle) * speed;
+                moved = true;
+
+                // Reset random wander targets so they don't snap back when player leaves
+                tSprite.setData('targetX', nextX);
+                tSprite.setData('targetY', nextY);
+            } else if (!window.inBattle) {
+                // Random wander logic (within 5 tiles = 500px of starting position)
+                if (Math.random() < 0.01) { // 1% chance per frame to choose new target
+                    let rx = (Math.random() - 0.5) * 200;
+                    let ry = (Math.random() - 0.5) * 200;
+                    let tx = tSprite.x + rx;
+                    let ty = tSprite.y + ry;
+
+                    // Clamp to 500px from starting position
+                    tx = Phaser.Math.Clamp(tx, startPos.x - 500, startPos.x + 500);
+                    ty = Phaser.Math.Clamp(ty, startPos.y - 500, startPos.y + 500);
+
+                    const col = Math.floor(tx / 100);
+                    const row = Math.floor(ty / 100);
+                    if (mapData[row] && mapData[row][col] === 'grass') {
+                        tSprite.setData('targetX', tx);
+                        tSprite.setData('targetY', ty);
+                    }
+                }
+
+                let tx = tSprite.getData('targetX');
+                let ty = tSprite.getData('targetY');
+                if (tx === undefined || ty === undefined) {
+                    tx = tSprite.x;
+                    ty = tSprite.y;
+                    tSprite.setData('targetX', tx);
+                    tSprite.setData('targetY', ty);
+                }
+
+                if (Math.hypot(tx - tSprite.x, ty - tSprite.y) > 2) {
+                    let angle = Math.atan2(ty - tSprite.y, tx - tSprite.x);
+                    let speed = 0.8; // slightly slower wander speed
+                    nextX = tSprite.x + Math.cos(angle) * speed;
+                    nextY = tSprite.y + Math.sin(angle) * speed;
+                    moved = true;
+                }
+            }
+
+            if (moved) {
+                // Clamp to startPos range of 500px (5 tiles)
+                let clampedX = Phaser.Math.Clamp(nextX, startPos.x - 500, startPos.x + 500);
+                let clampedY = Phaser.Math.Clamp(nextY, startPos.y - 500, startPos.y + 500);
+
+                const col = Math.floor(clampedX / 100);
+                const row = Math.floor(clampedY / 100);
+                if (mapData[row] && mapData[row][col] === 'grass') {
+                    tSprite.x = clampedX;
+                    tSprite.y = clampedY;
+                }
+            }
+
+            // Save position to state
+            if (!window.npcTrainersState) window.npcTrainersState = {};
+            window.npcTrainersState[trainerId] = { x: tSprite.x, y: tSprite.y };
+
+            // Update overhead name text
+            const nameText = tSprite.getData('nameText');
+            if (nameText) {
+                nameText.setPosition(tSprite.x, tSprite.y - 30);
+                nameText.setVisible(isVisible);
+            }
+        });
+    }
 
     // Creature wandering logic & culling
     creaturesGroup.getChildren().forEach(creature => {
