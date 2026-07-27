@@ -706,7 +706,7 @@
             }
             #introSkipBtn {
                 position: absolute !important;
-                top: 12px !important;
+                top: 5px !important;
                 right: 145px !important;
                 margin: 0 !important;
                 padding: 5px 10px !important;
@@ -717,7 +717,7 @@
             }
             #introNextBtn {
                 position: absolute !important;
-                top: 12px !important;
+                top: 5px !important;
                 right: 45px !important;
                 margin: 0 !important;
                 padding: 5px 10px !important;
@@ -1559,7 +1559,7 @@
                 </div>
             </div>
 
-            <div id="introBottomControls" style="display: flex; justify-content: space-between; gap: 15px; border-top: 1px solid rgba(0,255,204,0.3); padding-top: 20px;">
+            <div id="introBottomControls" style="display: flex; justify-content: space-between; gap: 15px; border-top: 1px solid rgba(0,255,204,0.3); padding-top: 10px;">
                 <button id="introPrevBtn" style="visibility: hidden; padding: 10px 20px; font-family: 'Courier New', monospace; font-size: 14px; background: #222; color: #fff; border: 1px solid #555; cursor: pointer; border-radius: 6px; transition: all 0.2s; text-transform: uppercase;">
                     &lt; Back
                 </button>
@@ -12889,7 +12889,7 @@ window.updateBattleUI = function() {
     if (battleCloseBtn) battleCloseBtn.style.display = isCombatActive ? 'none' : 'flex';
 
     const catchBtn = document.getElementById('battleCatchBtn');
-    if (catchBtn) catchBtn.style.display = (isCombatActive && !window.inChallengeBattle) ? 'block' : 'none';
+    if (catchBtn) catchBtn.style.display = (isCombatActive && !window.inChallengeBattle && !window.isNpcBattle) ? 'block' : 'none';
 
     const pvpCloseBtns = document.querySelectorAll('.close-pvp-btn');
     pvpCloseBtns.forEach(btn => btn.style.display = isCombatActive ? 'none' : 'flex');
@@ -14024,6 +14024,12 @@ function generateMiscTextures(scene) {
         return null;
     };
 
+    window.isWithinSightOfHospital = function(x, y) {
+        const hospitalX = 10050;
+        const hospitalY = 10050;
+        return Math.hypot(x - hospitalX, y - hospitalY) < 1500; // 15 tiles = 1500px
+    };
+
     window.shouldNpcIgnorePlayer = function(playerNum, playerObj, scene) {
         if (!playerObj || !scene) return true;
 
@@ -14321,6 +14327,10 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         } else {
             if (!window.npcTrainersState) window.npcTrainersState = {};
             window.npcTrainersState[trainerId] = { x: currentX, y: currentY };
+        }
+
+        if (window.isWithinSightOfHospital && window.isWithinSightOfHospital(currentX, currentY)) {
+            return sprites;
         }
 
         let nameText = scene.add.text(currentX, currentY - 30, trainerName, {
@@ -19085,11 +19095,15 @@ function update() {
                     tx = Phaser.Math.Clamp(tx, startPos.x - 500, startPos.x + 500);
                     ty = Phaser.Math.Clamp(ty, startPos.y - 500, startPos.y + 500);
 
-                    const col = Math.floor(tx / 100);
-                    const row = Math.floor(ty / 100);
-                    if (mapData[row] && mapData[row][col] === 'grass') {
-                        tSprite.setData('targetX', tx);
-                        tSprite.setData('targetY', ty);
+                    if (window.isWithinSightOfHospital && window.isWithinSightOfHospital(tx, ty)) {
+                        // Do not pick targets within sight of the hospital
+                    } else {
+                        const col = Math.floor(tx / 100);
+                        const row = Math.floor(ty / 100);
+                        if (mapData[row] && mapData[row][col] === 'grass') {
+                            tSprite.setData('targetX', tx);
+                            tSprite.setData('targetY', ty);
+                        }
                     }
                 }
 
@@ -19116,11 +19130,16 @@ function update() {
                 let clampedX = Phaser.Math.Clamp(nextX, startPos.x - 500, startPos.x + 500);
                 let clampedY = Phaser.Math.Clamp(nextY, startPos.y - 500, startPos.y + 500);
 
-                const col = Math.floor(clampedX / 100);
-                const row = Math.floor(clampedY / 100);
-                if (mapData[row] && mapData[row][col] === 'grass') {
-                    tSprite.x = clampedX;
-                    tSprite.y = clampedY;
+                // Prevent wandering/chasing within sight of the hospital
+                if (window.isWithinSightOfHospital && window.isWithinSightOfHospital(clampedX, clampedY)) {
+                    // Do not move into hospital sight area
+                } else {
+                    const col = Math.floor(clampedX / 100);
+                    const row = Math.floor(clampedY / 100);
+                    if (mapData[row] && mapData[row][col] === 'grass') {
+                        tSprite.x = clampedX;
+                        tSprite.y = clampedY;
+                    }
                 }
             }
 
