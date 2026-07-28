@@ -13963,6 +13963,20 @@ function generateMiscTextures(scene) {
             allData[trainerId] = {
                 name: "",
                 weekBattles: {},
+                lastBattleTimeMs: 0,
+                p1: { weekBattles: {}, lastBattleTimeMs: 0 },
+                p2: { weekBattles: {}, lastBattleTimeMs: 0 }
+            };
+        }
+        if (!allData[trainerId].p1) {
+            allData[trainerId].p1 = {
+                weekBattles: allData[trainerId].weekBattles || {},
+                lastBattleTimeMs: allData[trainerId].lastBattleTimeMs || 0
+            };
+        }
+        if (!allData[trainerId].p2) {
+            allData[trainerId].p2 = {
+                weekBattles: {},
                 lastBattleTimeMs: 0
             };
         }
@@ -15287,10 +15301,12 @@ function handleNpcTrainerOverlap(playerCollider, npcSprite) {
     const trainerName = npcSprite.getData('trainerName') || 'Trainer';
 
     const trainerData = window.getNpcTrainerData(trainerId);
+    const pKey = playerNum === 2 ? 'p2' : 'p1';
+    const playerTrainerData = trainerData[pKey];
 
     // Cooldown check (6 in-game hours = 300,000 ms)
-    if (trainerData.lastBattleTimeMs > 0 && window.totalElapsedMs - trainerData.lastBattleTimeMs < 300000) {
-        const remainingMs = 300000 - (window.totalElapsedMs - trainerData.lastBattleTimeMs);
+    if (playerTrainerData.lastBattleTimeMs > 0 && window.totalElapsedMs - playerTrainerData.lastBattleTimeMs < 300000) {
+        const remainingMs = 300000 - (window.totalElapsedMs - playerTrainerData.lastBattleTimeMs);
         const remainingHours = remainingMs / 50000;
         const h = Math.floor(remainingHours);
         const m = Math.floor((remainingHours % 1) * 60);
@@ -15302,7 +15318,7 @@ function handleNpcTrainerOverlap(playerCollider, npcSprite) {
 
     // Weekly limit check (3 battles per in-game week)
     const currentWeek = Math.floor(window.wildpulse_inGameDays / 7);
-    if (trainerData.weekBattles && (trainerData.weekBattles[currentWeek] || 0) >= 3) {
+    if (playerTrainerData.weekBattles && (playerTrainerData.weekBattles[currentWeek] || 0) >= 3) {
         window.showModernNotification(`Trainer ${trainerName} has reached their limit of 3 battles this week!`, 4000, playerNum);
         bouncePlayerSlightly(playerCollider);
         return;
@@ -15931,9 +15947,26 @@ window.handleFaint = function(target) {
                     const trainerId = window.activeNpcTrainerId;
                     const trainerData = window.getNpcTrainerData(trainerId);
                     const currentWeek = Math.floor(window.wildpulse_inGameDays / 7);
-                    if (!trainerData.weekBattles) trainerData.weekBattles = {};
-                    trainerData.weekBattles[currentWeek] = (trainerData.weekBattles[currentWeek] || 0) + 1;
-                    trainerData.lastBattleTimeMs = window.totalElapsedMs;
+
+                    const activePlayerNum = window.activeBattlePlayer === 2 ? 2 : 1;
+                    const pKey = activePlayerNum === 2 ? 'p2' : 'p1';
+
+                    if (!trainerData[pKey]) {
+                        trainerData[pKey] = { weekBattles: {}, lastBattleTimeMs: 0 };
+                    }
+                    if (!trainerData[pKey].weekBattles) {
+                        trainerData[pKey].weekBattles = {};
+                    }
+                    trainerData[pKey].weekBattles[currentWeek] = (trainerData[pKey].weekBattles[currentWeek] || 0) + 1;
+                    trainerData[pKey].lastBattleTimeMs = window.totalElapsedMs;
+
+                    // Sync top-level keys with p1 for legacy compatibility
+                    if (activePlayerNum === 1) {
+                        if (!trainerData.weekBattles) trainerData.weekBattles = {};
+                        trainerData.weekBattles[currentWeek] = trainerData.p1.weekBattles[currentWeek];
+                        trainerData.lastBattleTimeMs = trainerData.p1.lastBattleTimeMs;
+                    }
+
                     window.saveNpcTrainerData(trainerId, trainerData);
                 }
                 endBattle('win');
