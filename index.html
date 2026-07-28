@@ -556,22 +556,30 @@
 
         /* Battle Modal styling and positioning under co-op */
         body.coop-active-layout #battleModal {
-            padding: 40px 10px 15px 10px !important;
-            background-color: transparent !important;
-        }
-        body.coop-active-layout #battleModal.p1-battle-active {
+            position: fixed !important;
+            top: 0 !important;
             left: 0 !important;
             right: auto !important;
             width: 50vw !important;
+            height: 100vh !important;
             max-width: none !important;
+            max-height: none !important;
             border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+            padding: 40px 10px 15px 10px !important;
+            background-color: transparent !important;
         }
-        body.coop-active-layout #battleModal.p2-battle-active {
+        body.coop-active-layout #battleModal_p2 {
+            position: fixed !important;
+            top: 0 !important;
             left: 50vw !important;
             right: auto !important;
             width: 50vw !important;
+            height: 100vh !important;
             max-width: none !important;
+            max-height: none !important;
             border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+            padding: 40px 10px 15px 10px !important;
+            background-color: transparent !important;
         }
         body.coop-active-layout #battleModal.pvp-battle-active {
             left: 0 !important;
@@ -579,9 +587,43 @@
             width: 100vw !important;
             max-width: none !important;
         }
-        body.coop-active-layout #battleModal > *:not(.close-btn) {
+        body.coop-active-layout #battleModal > *:not(.close-btn),
+        body.coop-active-layout #battleModal_p2 > *:not(.close-btn) {
             max-width: none !important;
             width: 100% !important;
+        }
+
+        /* Battle Swap Modal positioning under co-op */
+        body.coop-active-layout #battleSwapModal {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 50vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            max-height: none !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+            z-index: 550 !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+        body.coop-active-layout #battleSwapModal_p2 {
+            position: fixed !important;
+            top: 0 !important;
+            left: 50vw !important;
+            width: 50vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            max-height: none !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+            z-index: 550 !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            padding-top: 50px !important;
+            background: linear-gradient(135deg, rgba(10, 20, 35, 0.98), rgba(20, 40, 60, 0.95)) !important;
+            backdrop-filter: blur(15px);
+            border: 2px solid #00ffd2 !important;
+            color: #fff;
         }
         body.coop-active-layout .battle-controls {
             grid-template-columns: 1fr 1fr !important;
@@ -653,7 +695,7 @@
         }
 
 
-        #battleModal, #storeModal {
+        #battleModal, #battleModal_p2, #storeModal {
             display: none;
             position: fixed !important;
             top: 0 !important;
@@ -675,7 +717,7 @@
             overflow-y: auto !important;
         }
 
-        #battleModal > *:not(.close-btn) {
+        #battleModal > *:not(.close-btn), #battleModal_p2 > *:not(.close-btn) {
             max-width: 700px;
             width: 100%;
             margin-left: auto !important;
@@ -1805,10 +1847,47 @@
     </div>
 </div>
 
+<div id="battleModal_p2" style="display:none;">
+    <button id="battleCloseBtn_p2" class="close-btn" style="display:none;" aria-label="Close Battle">X</button>
+    <div class="battle-area">
+        <div class="combatant" id="playerCombatant_p2">
+            <h3 id="pName_p2">Player Creature</h3>
+            <p>Level: <span id="pLevel_p2"></span> <span id="pStatus_p2" style="font-weight:bold; color:#ff9800;"></span></p>
+            <p>Type: <span id="pType_p2"></span></p>
+            <p>Ability: <span id="pAbility_p2"></span></p>
+            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="pSprite_p2"></div>
+            <p>HP: <span id="pHPText_p2"></span></p>
+            <div class="hp-bar-container"><div class="hp-bar" id="pHPBar_p2"></div></div>
+        </div>
+        <div class="combatant" id="enemyCombatant_p2">
+            <h3 id="eName_p2">Enemy Creature</h3>
+            <p>Level: <span id="eLevel_p2"></span> <span id="eStatus_p2" style="font-weight:bold; color:#ff9800;"></span></p>
+            <p>Type: <span id="eType_p2"></span></p>
+            <p>Ability: <span id="eAbility_p2"></span></p>
+            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="eSprite_p2"></div>
+            <p>HP: <span id="eHPText_p2"></span></p>
+            <div class="hp-bar-container"><div class="hp-bar" id="eHPBar_p2"></div></div>
+        </div>
+    </div>
+    <div class="battle-log" id="battleLog_p2">Wild creature appeared!</div>
+    <div class="battle-controls" id="battleControls_p2">
+        <button class="btn-attack">Attack</button>
+        <button class="btn-swap">Swap</button>
+        <button id="battleCatchBtn_p2" class="btn-catch">Catch</button>
+        <button class="btn-run">Run</button>
+    </div>
+</div>
+
 <div id="battleSwapModal" style="display:none;">
     <button class="close-btn" id="closeSwapBtn" aria-label="Close Swap">X</button>
     <h2 style="font-size: 32px; margin-bottom: 30px; text-shadow: 0 0 10px rgba(0,255,150,0.5);">Swap Creature</h2>
     <div id="swapPartyList"></div>
+</div>
+
+<div id="battleSwapModal_p2" style="display:none;">
+    <button class="close-btn" id="closeSwapBtn_p2" aria-label="Close Swap">X</button>
+    <h2 style="font-size: 32px; margin-bottom: 30px; text-shadow: 0 0 10px rgba(0,255,150,0.5);">Swap Creature</h2>
+    <div id="swapPartyList_p2"></div>
 </div>
 
 <div id="challengeModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 700; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
@@ -3064,14 +3143,104 @@ let popupTimer;
 let bgGrass;
 var collectedCreatures = [];
 var collectedCreaturesIds = new Set();
-window.inBattle = false;
-let currentEnemy = null;
-var currentPlayer = null;
-let currentEnemySprite = null;
+
+// Set up independent battle states for Player 1 and Player 2
+window.battleStates = {
+    1: {
+        inBattle: false,
+        currentPlayer: null,
+        currentEnemy: null,
+        currentEnemySprite: null,
+        battleLogQueue: [],
+        isTyping: false,
+        isActionRunning: false,
+        pendingBattleResult: null,
+        swappedThisTurn: false,
+        isNpcBattle: false,
+        activeNpcTrainerId: null,
+        npcEnemyIndex: 0,
+        npcEnemyParty: null,
+        inChallengeBattle: false,
+        playerParty: null
+    },
+    2: {
+        inBattle: false,
+        currentPlayer: null,
+        currentEnemy: null,
+        currentEnemySprite: null,
+        battleLogQueue: [],
+        isTyping: false,
+        isActionRunning: false,
+        pendingBattleResult: null,
+        swappedThisTurn: false,
+        isNpcBattle: false,
+        activeNpcTrainerId: null,
+        npcEnemyIndex: 0,
+        npcEnemyParty: null,
+        inChallengeBattle: false,
+        playerParty: null
+    }
+};
+
+const battleKeys = [
+    'inBattle', 'currentPlayer', 'currentEnemy', 'currentEnemySprite',
+    'battleLogQueue', 'isTyping', 'isActionRunning', 'pendingBattleResult',
+    'swappedThisTurn', 'isNpcBattle', 'activeNpcTrainerId', 'npcEnemyIndex',
+    'npcEnemyParty', 'inChallengeBattle', 'playerParty'
+];
+
+battleKeys.forEach(key => {
+    Object.defineProperty(window, key, {
+        get: function() {
+            const playerNum = (window.activeBattlePlayer === 2 && window.coopActive) ? 2 : 1;
+            return window.battleStates[playerNum][key];
+        },
+        set: function(val) {
+            const playerNum = (window.activeBattlePlayer === 2 && window.coopActive) ? 2 : 1;
+            window.battleStates[playerNum][key] = val;
+        },
+        configurable: true
+    });
+});
+
+// Wrap window.setTimeout to preserve activeBattlePlayer across asynchronous boundaries under co-op
+const originalSetTimeout = window.setTimeout;
+window.setTimeout = function(callback, delay, ...args) {
+    if (window.coopActive && typeof callback === 'function') {
+        const capturedPlayer = window.activeBattlePlayer;
+        const wrappedCallback = function(...cbArgs) {
+            const originalActive = window.activeBattlePlayer;
+            window.activeBattlePlayer = capturedPlayer;
+            try {
+                return callback.apply(this, cbArgs);
+            } finally {
+                window.activeBattlePlayer = originalActive;
+            }
+        };
+        return originalSetTimeout.call(window, wrappedCallback, delay, ...args);
+    }
+    return originalSetTimeout.call(window, callback, delay, ...args);
+};
+
+// Overwrite document.getElementById to append _p2 suffix to element IDs in battleModal and battleSwapModal when activeBattlePlayer === 2 and co-op is active
+const originalGetElementById = document.getElementById;
+document.getElementById = function(id) {
+    if (window.coopActive) {
+        const battleIds = [
+            'battleModal', 'battleCloseBtn', 'pName', 'pLevel', 'pStatus', 'pType', 'pAbility', 'pSprite', 'pHPText', 'pHPBar',
+            'eName', 'eLevel', 'eStatus', 'eType', 'eAbility', 'eSprite', 'eHPText', 'eHPBar', 'battleLog', 'battleControls',
+            'battleCatchBtn', 'battleSwapModal', 'closeSwapBtn', 'swapPartyList'
+        ];
+        if (battleIds.includes(id)) {
+            const suffix = (window.activeBattlePlayer === 2) ? '_p2' : '';
+            return originalGetElementById.call(document, id + suffix);
+        }
+    }
+    return originalGetElementById.call(document, id);
+};
+
 window.remotePlayers = [];
 let remotePlayers = window.remotePlayers; // userId -> Phaser sprite
-window.isActionRunning = false;
-var isActionRunning = window.isActionRunning;
 let dayNightTime = 12.0;
 let dayNightOverlay;
 let sunSprite;
@@ -3079,8 +3248,6 @@ let moonSprite;
 window.timeText = undefined;
 let timeText;
 let lastDayNightUpdate = 0;
-window.battleLogQueue = [];
-let isTyping = false;
 window.WildPulseMusic = {
     initialized: false,
     muted: false,
@@ -3866,14 +4033,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    document.querySelector('.btn-attack')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('attack'); });
-    document.querySelector('.btn-swap')?.addEventListener('click', () => { if (window.openBattleSwapModal) window.openBattleSwapModal(); });
-    document.getElementById('battleCatchBtn')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('catch'); });
-    document.querySelector('.btn-run')?.addEventListener('click', () => { if (window.handlePlayerTurn) window.handlePlayerTurn('run'); });
+    // Player 1 Battle Click Listeners
+    document.querySelector('#battleModal .btn-attack')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 1;
+        if (window.handlePlayerTurn) window.handlePlayerTurn('attack');
+    });
+    document.querySelector('#battleModal .btn-swap')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 1;
+        if (window.openBattleSwapModal) window.openBattleSwapModal();
+    });
+    document.getElementById('battleCatchBtn')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 1;
+        if (window.handlePlayerTurn) window.handlePlayerTurn('catch');
+    });
+    document.querySelector('#battleModal .btn-run')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 1;
+        if (window.handlePlayerTurn) window.handlePlayerTurn('run');
+    });
+    document.getElementById('closeSwapBtn')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 1;
+        if (window.closeBattleSwapModal) window.closeBattleSwapModal();
+    });
+
+    // Player 2 Battle Click Listeners
+    document.querySelector('#battleModal_p2 .btn-attack')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 2;
+        if (window.handlePlayerTurn) window.handlePlayerTurn('attack');
+    });
+    document.querySelector('#battleModal_p2 .btn-swap')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 2;
+        if (window.openBattleSwapModal) window.openBattleSwapModal();
+    });
+    document.getElementById('battleCatchBtn_p2')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 2;
+        if (window.handlePlayerTurn) window.handlePlayerTurn('catch');
+    });
+    document.querySelector('#battleModal_p2 .btn-run')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 2;
+        if (window.handlePlayerTurn) window.handlePlayerTurn('run');
+    });
+    document.getElementById('closeSwapBtn_p2')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 2;
+        if (window.closeBattleSwapModal) window.closeBattleSwapModal();
+    });
 
     document.getElementById('menuBtn')?.addEventListener('click', () => { if (window.openMenuModal) window.openMenuModal(1); });
     document.getElementById('menuBtn_P2')?.addEventListener('click', () => { if (window.openMenuModal) window.openMenuModal(2); });
-    document.getElementById('closeSwapBtn')?.addEventListener('click', () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); });
 
     document.getElementById('menuPartyBtn')?.addEventListener('click', () => { if (window.openPartyModal) window.openPartyModal(1); });
     document.getElementById('menuStorageBtn')?.addEventListener('click', () => { if (window.openStorageModal) window.openStorageModal(1); });
@@ -10637,77 +10842,93 @@ window.getNavigableElements = function(container) {
 };
 
 window.getActiveContainerForPlayer = function(playerNum) {
-    // Check if player is holding Left Bumper (button index 4) to focus inventory
-    const padRef = playerNum === 2 ? window.p2PadReference : window.p1PadReference;
-    if (padRef && padRef.buttons[4] && padRef.buttons[4].pressed) {
-        const containerId = playerNum === 2 ? 'p2InventorySlots' : 'p1InventorySlots';
-        const container = document.getElementById(containerId);
-        if (container && container.style.display !== 'none' && container.style.display !== '') {
-            return container;
-        }
-    }
+    const originalActive = window.activeBattlePlayer;
+    window.activeBattlePlayer = playerNum;
 
-    let activeId = playerNum === 2 ? window.p2ActiveModal : window.p1ActiveModal;
-    if (activeId) {
-        const el = document.getElementById(activeId);
-        if (el && el.style.display !== 'none' && el.style.display !== '') {
-            if (window.coopActive) {
-                const colClass = (playerNum === 2) ? '.p2-col' : '.p1-col';
-                const colEl = el.querySelector(colClass);
-                if (colEl) return colEl;
+    try {
+        // Check if player is holding Left Bumper (button index 4) to focus inventory
+        const padRef = playerNum === 2 ? window.p2PadReference : window.p1PadReference;
+        if (padRef && padRef.buttons[4] && padRef.buttons[4].pressed) {
+            const containerId = playerNum === 2 ? 'p2InventorySlots' : 'p1InventorySlots';
+            const container = document.getElementById(containerId);
+            if (container && container.style.display !== 'none' && container.style.display !== '') {
+                return container;
             }
-            return el;
         }
-    }
 
-    const modals = [
-        'menuModal', 'partyModal', 'storageModal', 'helpModal',
-        'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
-        'battleModal', 'battleSwapModal', 'challengeModal',
-        'journalModal', 'storeModal', 'customizationModal'
-    ];
-
-    for (let id of modals) {
-        const el = document.getElementById(id);
-        if (el && el.style.display !== 'none' && el.style.display !== '') {
-            if (window.coopActive) {
-                if (id === 'battleModal') {
-                    if (window.isLocalPvp) {
-                        if (window.localPvpTurn === playerNum) {
-                            return el;
-                        }
-                    } else if (window.activeBattlePlayer === playerNum) {
-                        return el;
-                    }
-                } else if (id === 'battleSwapModal') {
-                    if (window.isLocalPvp) {
-                        const isP1TurnToSwap = window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1);
-                        const isP2TurnToSwap = window.localPvpForceSwap === 2 || (window.localPvpForceSwap === null && window.localPvpTurn === 2);
-                        if (playerNum === 1 && isP1TurnToSwap) return el;
-                        if (playerNum === 2 && isP2TurnToSwap) return el;
-                    } else if (window.activeBattlePlayer === playerNum) {
-                        return el;
-                    }
-                } else {
+        let activeId = playerNum === 2 ? window.p2ActiveModal : window.p1ActiveModal;
+        if (activeId) {
+            const el = document.getElementById(activeId);
+            if (el && el.style.display !== 'none' && el.style.display !== '') {
+                if (window.coopActive) {
                     const colClass = (playerNum === 2) ? '.p2-col' : '.p1-col';
                     const colEl = el.querySelector(colClass);
-                    if (colEl && colEl.style.display !== 'none') {
-                        return colEl;
-                    }
+                    if (colEl) return colEl;
                 }
-            } else {
-                if (playerNum === 1) {
-                    return el;
+                return el;
+            }
+        }
+
+        const modals = [
+            'menuModal', 'partyModal', 'storageModal', 'helpModal',
+            'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
+            'battleModal', 'battleSwapModal', 'challengeModal',
+            'journalModal', 'storeModal', 'customizationModal'
+        ];
+
+        if (window.coopActive && playerNum === 2) {
+            const bIdx = modals.indexOf('battleModal');
+            if (bIdx !== -1) modals[bIdx] = 'battleModal_p2';
+            const bsIdx = modals.indexOf('battleSwapModal');
+            if (bsIdx !== -1) modals[bsIdx] = 'battleSwapModal_p2';
+        }
+
+        for (let id of modals) {
+            const el = document.getElementById(id);
+            if (el && el.style.display !== 'none' && el.style.display !== '') {
+                if (window.coopActive) {
+                    if (id === 'battleModal' || id === 'battleModal_p2') {
+                        const pNum = (id === 'battleModal_p2') ? 2 : 1;
+                        if (window.isLocalPvp) {
+                            if (window.localPvpTurn === pNum) {
+                                return el;
+                            }
+                        } else if (window.battleStates[pNum].inBattle) {
+                            return el;
+                        }
+                    } else if (id === 'battleSwapModal' || id === 'battleSwapModal_p2') {
+                        const pNum = (id === 'battleSwapModal_p2') ? 2 : 1;
+                        if (window.isLocalPvp) {
+                            const isP1TurnToSwap = window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1);
+                            const isP2TurnToSwap = window.localPvpForceSwap === 2 || (window.localPvpForceSwap === null && window.localPvpTurn === 2);
+                            if (pNum === 1 && isP1TurnToSwap) return el;
+                            if (pNum === 2 && isP2TurnToSwap) return el;
+                        } else if (window.battleStates[pNum].inBattle) {
+                            return el;
+                        }
+                    } else {
+                        const colClass = (playerNum === 2) ? '.p2-col' : '.p1-col';
+                        const colEl = el.querySelector(colClass);
+                        if (colEl && colEl.style.display !== 'none') {
+                            return colEl;
+                        }
+                    }
+                } else {
+                    if (playerNum === 1) {
+                        return el;
+                    }
                 }
             }
         }
-    }
 
-    if (playerNum === 1) {
-        const startModal = document.getElementById('startModal');
-        if (startModal && startModal.style.display !== 'none' && startModal.style.display !== '') {
-            return startModal;
+        if (playerNum === 1) {
+            const startModal = document.getElementById('startModal');
+            if (startModal && startModal.style.display !== 'none' && startModal.style.display !== '') {
+                return startModal;
+            }
         }
+    } finally {
+        window.activeBattlePlayer = originalActive;
     }
 
     return null;
@@ -11117,6 +11338,9 @@ window.isAnyModalOpen = function() {
         'battleModal', 'battleSwapModal', 'challengeModal',
         'journalModal', 'storeModal', 'customizationModal'
     ];
+    if (window.coopActive) {
+        modals.push('battleModal_p2', 'battleSwapModal_p2');
+    }
     for (let id of modals) {
         let el = document.getElementById(id);
         if (el && el.style.display !== 'none' && el.style.display !== '') {
@@ -13181,22 +13405,52 @@ window.startGame = function() {
 
 
 function processLogQueue() {
-    // If already typing, let the current loop handle it.
-    if (isTyping) return;
+    // Capture the active battle player at the start of the function!
+    const playerNum = (window.activeBattlePlayer === 2 && window.coopActive) ? 2 : 1;
 
-    const log = document.getElementById('battleLog');
-    if (!log || battleLogQueue.length === 0) return;
+    // If already typing for this player, let the current loop handle it.
+    if (window.battleStates[playerNum].isTyping) return;
 
-    isTyping = true;
+    // Temporarily set activeBattlePlayer to playerNum whenever we access the DOM or states
+    function withActivePlayer(fn) {
+        const originalActive = window.activeBattlePlayer;
+        window.activeBattlePlayer = playerNum;
+        try {
+            return fn();
+        } finally {
+            window.activeBattlePlayer = originalActive;
+        }
+    }
+
+    let log;
+    withActivePlayer(() => {
+        log = document.getElementById('battleLog');
+        window.battleStates[playerNum].isTyping = true;
+    });
+
+    let initialQueueLength = 0;
+    withActivePlayer(() => {
+        initialQueueLength = window.battleStates[playerNum].battleLogQueue.length;
+    });
+
+    if (!log || initialQueueLength === 0) {
+        withActivePlayer(() => { window.battleStates[playerNum].isTyping = false; });
+        return;
+    }
 
     // Internal recursive function to process the next message
     function processNext() {
-        if (battleLogQueue.length === 0) {
-            isTyping = false;
+        let queueLength = 0;
+        withActivePlayer(() => { queueLength = window.battleStates[playerNum].battleLogQueue.length; });
+
+        if (queueLength === 0) {
+            withActivePlayer(() => { window.battleStates[playerNum].isTyping = false; });
             return;
         }
 
-        const msg = battleLogQueue.shift();
+        let msg;
+        withActivePlayer(() => { msg = window.battleStates[playerNum].battleLogQueue.shift(); });
+
         const div = document.createElement('div');
         log.appendChild(div);
 
@@ -13205,12 +13459,13 @@ function processLogQueue() {
             log.removeChild(log.firstChild);
         }
 
-        // If queue is long (>2), or it's HTML, or it's a PvP battle, or in any battle, render instantly to avoid lag
         const isHtml = msg.includes('<');
-        if (isHtml || battleLogQueue.length > 2 || window.isPvpBattle || window.inBattle) {
+        let inBattleVal = false;
+        withActivePlayer(() => { inBattleVal = window.battleStates[playerNum].inBattle; });
+
+        if (isHtml || queueLength > 2 || window.isPvpBattle || inBattleVal) {
             div.innerHTML = DOMPurify.sanitize(msg);
             log.scrollTop = log.scrollHeight;
-            // Short pause between instant messages
             setTimeout(processNext, 10);
             return;
         }
@@ -13222,9 +13477,8 @@ function processLogQueue() {
                 div.innerHTML += msg.charAt(i);
                 i++;
                 log.scrollTop = log.scrollHeight;
-                setTimeout(typeChar, 10); // Faster typewriter speed (10ms)
+                setTimeout(typeChar, 10);
             } else {
-                // Pause slightly before next message
                 setTimeout(processNext, 200);
             }
         }
@@ -13235,7 +13489,8 @@ function processLogQueue() {
 }
 
 function logBattle(msg) {
-    battleLogQueue.push(msg);
+    const playerNum = (window.activeBattlePlayer === 2 && window.coopActive) ? 2 : 1;
+    window.battleStates[playerNum].battleLogQueue.push(msg);
     processLogQueue();
 }
 
@@ -15700,10 +15955,9 @@ function healParty(playerCollider, hospitalCollider) {
 }
 
 function handleNpcTrainerOverlap(playerCollider, npcSprite) {
-    if (window.inBattle) return;
-
     const isP2 = (window.coopActive && playerCollider === window.player2);
     const playerNum = isP2 ? 2 : 1;
+    if (window.battleStates[playerNum].inBattle) return;
 
     // If NPC should ignore the player, return immediately without any interaction
     if (window.shouldNpcIgnorePlayer && window.shouldNpcIgnorePlayer(playerNum, playerCollider, game && game.scene && game.scene.scenes[0])) {
@@ -15762,10 +16016,11 @@ function bouncePlayerSlightly(playerCollider) {
 }
 
 window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
-    if (window.inBattle) return;
-
     const isP2 = (window.coopActive && playerCollider === window.player2);
-    window.activeBattlePlayer = isP2 ? 2 : 1;
+    const playerNum = isP2 ? 2 : 1;
+    if (window.battleStates[playerNum].inBattle) return;
+
+    window.activeBattlePlayer = playerNum;
     const playerParty = isP2 ? window.collectedCreatures2 : window.collectedCreatures;
 
     const activeParty = playerParty.filter(c => !c.stored);
@@ -16147,8 +16402,9 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
 }
 
 function collectCreature(playerCollider, creatureSprite) {
-    if (window.inBattle) return;
     const isP2Player = (window.coopActive && playerCollider === window.player2);
+    const pNum = isP2Player ? 2 : 1;
+    if (window.battleStates[pNum].inBattle) return;
     if (isP2Player && window.p2RepellentTime && window.p2RepellentTime > 0) return;
     if (!isP2Player && window.p1RepellentTime && window.p1RepellentTime > 0) return;
 
@@ -19523,7 +19779,7 @@ function update() {
             let nextY = tSprite.y;
 
             // If a player is detected within 400px, chase them!
-            if (targetPlayer && minDist < 400 && !window.inBattle) {
+            if (targetPlayer && minDist < 400 && !window.battleStates[targetPlayerNum].inBattle) {
                 // Chase player
                 let angle = Math.atan2(targetPlayer.y - tSprite.y, targetPlayer.x - tSprite.x);
                 let speed = 1.5; // steady movement speed
@@ -19534,7 +19790,7 @@ function update() {
                 // Reset random wander targets so they don't snap back when player leaves
                 tSprite.setData('targetX', nextX);
                 tSprite.setData('targetY', nextY);
-            } else if (!window.inBattle) {
+            } else {
                 // Random wander logic (within 5 tiles = 500px of starting position)
                 if (Math.random() < 0.01) { // 1% chance per frame to choose new target
                     let rx = (Math.random() - 0.5) * 200;
