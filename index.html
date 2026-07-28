@@ -275,16 +275,21 @@
         }
 
         /* Redesign scrollbars inside modals to look futuristic/holographic */
-        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar {
+        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar, #introModal > div::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
-        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track {
+        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track, #introModal > div::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
         }
-        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb {
+        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb, #introModal > div::-webkit-scrollbar-thumb {
             background: rgba(0, 255, 210, 0.4);
             border-radius: 3px;
+        }
+
+        #introModal > div {
+            max-height: 90vh !important;
+            overflow-y: auto !important;
         }
 
         /* General text elements high-tech adjustments */
@@ -706,7 +711,7 @@
             }
             #introSkipBtn {
                 position: absolute !important;
-                top: 5px !important;
+                top: 15px !important;
                 right: 145px !important;
                 margin: 0 !important;
                 padding: 5px 10px !important;
@@ -717,7 +722,7 @@
             }
             #introNextBtn {
                 position: absolute !important;
-                top: 5px !important;
+                top: 15px !important;
                 right: 45px !important;
                 margin: 0 !important;
                 padding: 5px 10px !important;
@@ -732,8 +737,11 @@
             }
             #introModalTitle {
                 font-size: 14px !important;
-                text-align: left !important;
-                padding-right: 250px !important;
+                text-align: center !important;
+                padding-right: 0 !important;
+            }
+            #introModal > div {
+                padding: 65px 15px 20px 15px !important;
             }
             #introBottomControls {
                 padding-top: 10px !important;
@@ -14603,13 +14611,13 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         grass.setDepth(-1.1);
         sprites.push(grass);
 
-        let store = scene.add.sprite(posX + 50, posY + 50, 'store_tile');
+        let store = scene.add.sprite(posX, posY, 'store_tile');
         store.setDepth(-1);
         sprites.push(store);
 
         // Add to store physics group
         if (storeGroup) {
-            let sSprite = storeGroup.create(posX + 50, posY + 50, 'store_tile');
+            let sSprite = storeGroup.create(posX, posY, 'store_tile');
             sSprite.setVisible(false);
             sSprite.isStoreTile = true;
             sprites.push(sSprite);
@@ -14619,12 +14627,12 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         grass.setDepth(-1.1);
         sprites.push(grass);
 
-        let challenge = scene.add.sprite(posX - 50, posY, 'challenge_tile');
+        let challenge = scene.add.sprite(posX, posY, 'challenge_tile');
         challenge.setDepth(-1);
         sprites.push(challenge);
 
         if (challengeGroup) {
-            let cSprite = challengeGroup.create(posX - 50, posY, 'challenge_tile');
+            let cSprite = challengeGroup.create(posX, posY, 'challenge_tile');
             cSprite.setVisible(false);
             cSprite.isChallengeTile = true;
             sprites.push(cSprite);
@@ -14634,12 +14642,12 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         grass.setDepth(-1.1);
         sprites.push(grass);
 
-        let trade = scene.add.sprite(posX, posY + 50, 'trade_tile');
+        let trade = scene.add.sprite(posX, posY, 'trade_tile');
         trade.setDepth(-1);
         sprites.push(trade);
 
         if (tradeGroup) {
-            let tSprite = tradeGroup.create(posX, posY + 50, 'trade_tile');
+            let tSprite = tradeGroup.create(posX, posY, 'trade_tile');
             tSprite.setVisible(false);
             tSprite.isTradeTile = true;
             sprites.push(tSprite);
@@ -14649,12 +14657,12 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         grass.setDepth(-1.1);
         sprites.push(grass);
 
-        let pvp = scene.add.sprite(posX + 50, posY, 'pvp_tile');
+        let pvp = scene.add.sprite(posX, posY, 'pvp_tile');
         pvp.setDepth(-1);
         sprites.push(pvp);
 
         if (pvpGroup) {
-            let pSprite = pvpGroup.create(posX + 50, posY, 'pvp_tile');
+            let pSprite = pvpGroup.create(posX, posY, 'pvp_tile');
             pSprite.setVisible(false);
             pSprite.isPvpTile = true;
             sprites.push(pSprite);
@@ -15061,13 +15069,13 @@ function create() {
 
     // Force hospital to be at 100, 100
     mapData[100][100] = 'hospital';
-    mapData[100][99] = 'challenge';
+    mapData[100][97] = 'challenge';
     // Trade tile directly south
-    mapData[101][100] = 'trade';
+    mapData[103][100] = 'trade';
     // Store tile next to trade
-    mapData[101][101] = 'store';
+    mapData[103][103] = 'store';
     // PvP tile directly right of trade
-    mapData[100][101] = 'pvp';
+    mapData[100][103] = 'pvp';
 
     // Force NPC Trainer tiles spread evenly across the map
     mapData[40][40] = 'npc_trainer_1';
@@ -16159,13 +16167,13 @@ function collectCreature(playerCollider, creatureSprite) {
     const hospitalY = 100 * 100 + 50;
     const hospitalOnScreen = (hospitalX >= viewLeft && hospitalX <= viewRight && hospitalY >= viewTop && hospitalY <= viewBottom);
 
-    // Trade Tile (101, 100) -> Center pixel coords: (100 * 100 + 50, 101 * 100 + 50)
+    // Trade Tile (103, 100) -> Center pixel coords: (100 * 100 + 50, 103 * 100 + 50)
     const tradeX = 100 * 100 + 50;
-    const tradeY = 101 * 100 + 50;
+    const tradeY = 103 * 100 + 50;
     const tradeOnScreen = (tradeX >= viewLeft && tradeX <= viewRight && tradeY >= viewTop && tradeY <= viewBottom);
 
-    // PvP Tile (100, 101) -> Center pixel coords: (101 * 100 + 50, 100 * 100 + 50)
-    const pvpX = 101 * 100 + 50;
+    // PvP Tile (100, 103) -> Center pixel coords: (103 * 100 + 50, 100 * 100 + 50)
+    const pvpX = 103 * 100 + 50;
     const pvpY = 100 * 100 + 50;
     const pvpOnScreen = (pvpX >= viewLeft && pvpX <= viewRight && pvpY >= viewTop && pvpY <= viewBottom);
 
