@@ -7230,11 +7230,29 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const type1 = types[0];
     const typeColor1 = window.TYPE_COLORS[type1] || 'rgba(169, 169, 169, 0.85)';
 
+    // Check if color can be successfully parsed by HTML5 Canvas (with O(1) cache for performance)
+    const isValidColor = (str) => {
+        if (!str) return false;
+        const cleanStr = str.replace(/\s+/g, '');
+        if (!window.colorValidationCache) {
+            window.colorValidationCache = {};
+        }
+        if (window.colorValidationCache[cleanStr] !== undefined) {
+            return window.colorValidationCache[cleanStr];
+        }
+        const s = new Option().style;
+        s.color = cleanStr;
+        const valid = s.color !== '';
+        window.colorValidationCache[cleanStr] = valid;
+        return valid;
+    };
+
     // Fantasy color mapping helper
     const mapFantasyColor = (colStr, defaultCol = '#ffffff') => {
-        if (!colStr) return defaultCol;
-        if (colStr.startsWith('#') || colStr.startsWith('rgb')) return colStr;
-        const lower = colStr.toLowerCase();
+        if (!colStr) return defaultCol.replace(/\s+/g, '');
+        const cleanCol = colStr.replace(/\s+/g, '');
+        if (cleanCol.startsWith('#') || cleanCol.startsWith('rgb')) return cleanCol;
+        const lower = cleanCol.toLowerCase();
         const mapping = {
             ruby: '#e0115f',
             crimson: '#dc143c',
@@ -7269,20 +7287,37 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             bloom: '#ff85a2',
             cinder: '#4b3621'
         };
+        let result = cleanCol;
         for (let key in mapping) {
-            if (lower.includes(key)) return mapping[key];
+            if (lower.includes(key)) {
+                result = mapping[key];
+                break;
+            }
         }
-        return colStr;
+        return result;
     };
 
     // Parse base body color
     let baseColorHex = '#' + (creature.color || 0xffffff).toString(16).padStart(6, '0');
+    if (!isValidColor(baseColorHex)) baseColorHex = '#ffffff';
+
     let bodyColor = mapFantasyColor(creature.skinFurColor, baseColorHex);
+    if (!isValidColor(bodyColor)) bodyColor = baseColorHex;
+
     let eyesCol = mapFantasyColor(creature.eyesColor, typeColor1);
+    if (!isValidColor(eyesCol)) eyesCol = typeColor1;
+
     let wingsCol = mapFantasyColor(creature.wingsColor, typeColor1);
+    if (!isValidColor(wingsCol)) wingsCol = typeColor1;
+
     let tailCol = mapFantasyColor(creature.tailColor, bodyColor);
+    if (!isValidColor(tailCol)) tailCol = bodyColor;
+
     let clawHornCol = mapFantasyColor(creature.clawHornColor, '#f5f5f5');
+    if (!isValidColor(clawHornCol)) clawHornCol = '#f5f5f5';
+
     let featCol = mapFantasyColor(creature.uniqueFeatureColor, typeColor1);
+    if (!isValidColor(featCol)) featCol = typeColor1;
 
     const bSize = (creature.bodySize || '').toLowerCase();
     const bType = (creature.bodyType || '').toLowerCase();
