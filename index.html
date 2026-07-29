@@ -8271,9 +8271,21 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const hasTail = tailVal !== 'none' && tailVal !== '';
     if (hasTail) {
         ctx.save();
-        ctx.translate(50, 70);
-        ctx.rotate(tailSway);
-        ctx.translate(-50, -70);
+
+        // Offset tail slightly to the side (left/right back) based on hash to make it look like
+        // it comes out of the back of the creature, and flip horizontally if on the left side
+        // so it doesn't cross through the body.
+        const tailSide = (hash % 2 === 0) ? -1 : 1;
+        const tailRootX = 50 + tailSide * (rx * 0.4);
+        const tailRootY = 50 + (ry * 0.3);
+
+        ctx.translate(tailRootX, tailRootY);
+        if (tailSide === -1) {
+            ctx.scale(-1, 1);
+        }
+        ctx.rotate(tailSway * tailSide);
+        ctx.translate(-50, -65); // Align original drawings starting at (50, 65) to the root
+
         ctx.fillStyle = tailCol;
         ctx.strokeStyle = tailCol;
         ctx.lineWidth = 6;
@@ -19042,22 +19054,75 @@ function isPointerOverButton(p) {
 }
 
 function update() {
-    // Real-time world creature animations
+    // Real-time world creature animations (optimized to eliminate lag and GC pressure)
     const activeScene = this || (window.game && window.game.scene && window.game.scene.scenes[0]);
     if (activeScene && activeScene.textures) {
-        const keys = activeScene.textures.getTextureKeys();
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            if (key.startsWith('creature_tex_')) {
-                const tex = activeScene.textures.get(key);
-                if (tex) {
-                    const canvas = tex.getSourceImage();
-                    if (canvas && canvas.creatureDataReference) {
-                        window.renderCreatureCanvas(canvas, canvas.creatureDataReference, 64, false);
-                        tex.refresh();
+        if (!activeScene._lastCreatureAnimUpdate) {
+            activeScene._lastCreatureAnimUpdate = 0;
+        }
+        const now = Date.now();
+        if (now - activeScene._lastCreatureAnimUpdate >= 33) { // Limit updates to max ~30 FPS
+            activeScene._lastCreatureAnimUpdate = now;
+
+            const visibleTextureKeys = new Set();
+
+            // Helper to check if sprite is within either player's viewport
+            const isSpriteVisible = (sprite) => {
+                if (!sprite || !sprite.active || !sprite.visible || typeof sprite.getBounds !== 'function') return false;
+                try {
+                    const bounds = sprite.getBounds();
+                    if (!bounds) return false;
+
+                    if (activeScene.cameras.main) {
+                        const camBounds = activeScene.cameras.main.worldView;
+                        if (camBounds && Phaser.Geom.Intersects.RectangleToRectangle(camBounds, bounds)) {
+                            return true;
+                        }
+                    }
+                    if (window.camera2 && window.camera2.visible) {
+                        const camBounds = window.camera2.worldView;
+                        if (camBounds && Phaser.Geom.Intersects.RectangleToRectangle(camBounds, bounds)) {
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    // Safe fallback
+                }
+                return false;
+            };
+
+            // 1. Check follow pets (always check if active and visible)
+            if (window.p1PetSprite && isSpriteVisible(window.p1PetSprite)) {
+                visibleTextureKeys.add(window.p1PetSprite.texture.key);
+            }
+            if (window.p2PetSprite && isSpriteVisible(window.p2PetSprite)) {
+                visibleTextureKeys.add(window.p2PetSprite.texture.key);
+            }
+
+            // 2. Check wild creatures group
+            if (window.creaturesGroup) {
+                const children = window.creaturesGroup.getChildren();
+                for (let i = 0; i < children.length; i++) {
+                    const sprite = children[i];
+                    if (isSpriteVisible(sprite)) {
+                        visibleTextureKeys.add(sprite.texture.key);
                     }
                 }
             }
+
+            // 3. Render and refresh only the visible textures
+            visibleTextureKeys.forEach(key => {
+                if (key && key.startsWith('creature_tex_')) {
+                    const tex = activeScene.textures.get(key);
+                    if (tex) {
+                        const canvas = tex.getSourceImage();
+                        if (canvas && canvas.creatureDataReference) {
+                            window.renderCreatureCanvas(canvas, canvas.creatureDataReference, 64, false);
+                            tex.refresh();
+                        }
+                    }
+                }
+            });
         }
     }
 
