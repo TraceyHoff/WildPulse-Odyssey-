@@ -13,11 +13,18 @@ def run_test(page):
         page.click("#startGameBtn")
         page.wait_for_timeout(2000)
 
-    # If intro modal is shown, close it
-    if page.is_visible("#closeIntroBtnTop"):
-        print("Closing intro modal...")
-        page.click("#closeIntroBtnTop")
+    # If intro modal is shown, close it by progressing through slides
+    if page.is_visible("#introModal") and page.locator("#introModal").is_visible():
+        print("Progressing through intro slides...")
+        page.click("#introNextBtn")
         page.wait_for_timeout(1000)
+        page.click("#introNextBtn")
+        page.wait_for_timeout(1000)
+        if page.is_visible("#closeCustomizationBtn"):
+            page.click("#closeCustomizationBtn")
+        elif page.is_visible("#saveCustomizationBtn"):
+            page.click("#saveCustomizationBtn")
+        page.wait_for_timeout(1500)
 
     # Let's check that window.abilities has been expanded
     print("Checking window.abilities keys and lengths...")
