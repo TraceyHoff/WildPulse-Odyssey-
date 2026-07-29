@@ -81,11 +81,11 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
 
     await page.waitForSelector('#menuBtn', { state: 'visible' });
 
-    // 1. Move player to the store tile coordinates (10150, 10150)
+    // 1. Move player to the store tile coordinates (10350, 10350)
     await page.evaluate(() => {
       if (window.player) {
-        window.player.x = 10150;
-        window.player.y = 10150;
+        window.player.x = 10350;
+        window.player.y = 10350;
       }
     });
 
@@ -143,11 +143,11 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     });
     expect(hasResetFlag).toBe(true);
 
-    // 3. Move player back onto the store tile (10150, 10150)
+    // 3. Move player back onto the store tile (10350, 10350)
     await page.evaluate(() => {
       if (window.player) {
-        window.player.x = 10150;
-        window.player.y = 10150;
+        window.player.x = 10350;
+        window.player.y = 10350;
       }
     });
 
@@ -171,11 +171,11 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     const isCoopActive = await page.evaluate(() => window.coopActive);
     expect(isCoopActive).toBe(true);
 
-    // 2. Move Player 1 to trade tile (10050, 10150)
+    // 2. Move Player 1 to trade tile (10050, 10350)
     await page.evaluate(() => {
       if (window.player) {
         window.player.x = 10050;
-        window.player.y = 10150;
+        window.player.y = 10350;
       }
     });
 
@@ -237,10 +237,10 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     await page.waitForSelector('#menuModal', { state: 'visible' });
     await page.click('#coopToggleBtn');
 
-    // 2. Move Player 1 to pvp tile (10150, 10050)
+    // 2. Move Player 1 to pvp tile (10350, 10050)
     await page.evaluate(() => {
       if (window.player) {
-        window.player.x = 10150;
+        window.player.x = 10350;
         window.player.y = 10050;
       }
     });

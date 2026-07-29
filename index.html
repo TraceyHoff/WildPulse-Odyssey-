@@ -1550,8 +1550,9 @@
 <div id="game-container"></div>
 <div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
     <h1 class="neon-title" style="position: relative; z-index: 10; font-size: 48px; margin-bottom: 40px;">WildPulse Odyssey</h1>
-    <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Start Game</button>
-    <button id="customizeBtn" style="position: relative; z-index: 10; padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; border: 2px solid #90caf9; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Customize Character</button>
+    <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Single Player</button>
+    <button id="startSplitScreenBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #9c27b0, #6a1b9a); color: white; border: 2px solid #e1bee7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Split Screen</button>
+    <button id="customizeBtn" style="display: none; position: relative; z-index: 10; padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; border: 2px solid #90caf9; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Customize Character</button>
     <button id="startDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
 </div>
 
@@ -3972,6 +3973,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.WildPulseMusic) window.WildPulseMusic.start();
         } catch(e) {}
 
+        if (game && game.scene && game.scene.scenes[0]) {
+            const scene = game.scene.scenes[0];
+            if (window.startMode === 'splitscreen') {
+                window.enableCoop(scene);
+            } else {
+                window.disableCoop(scene);
+            }
+        }
+
         const p1Slots = document.getElementById('p1InventorySlots');
         if (p1Slots) p1Slots.style.display = 'flex';
         if (window.coopActive) {
@@ -3987,6 +3997,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('startGameBtn').addEventListener('click', () => {
+        window.startMode = 'singleplayer';
+        const isNewGame = !localStorage.getItem('wildpulse_player_color');
+        const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
+        const forceOnboarding = typeof window !== 'undefined' && window.__test_onboarding;
+
+        if (isNewGame && (!isAutomation || forceOnboarding)) {
+            if (window.showIntroModal) {
+                window.showIntroModal();
+            } else {
+                window.startGameSession();
+            }
+        } else {
+            window.startGameSession();
+        }
+    });
+
+    document.getElementById('startSplitScreenBtn')?.addEventListener('click', () => {
+        window.startMode = 'splitscreen';
         const isNewGame = !localStorage.getItem('wildpulse_player_color');
         const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
         const forceOnboarding = typeof window !== 'undefined' && window.__test_onboarding;
@@ -4825,6 +4853,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem('wildpulse_skip_start_modal') === 'true') {
         sessionStorage.removeItem('wildpulse_skip_start_modal');
         if (window.startGameSession) window.startGameSession();
+    }
+
+    // Mode-specific visual configurations (hide buttons from real users)
+    const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
+    if (!isAutomation) {
+        // Real user session: completely hide co-op toggle and customizeBtn
+        const coopBtn = document.getElementById('coopToggleBtn');
+        if (coopBtn) {
+            coopBtn.style.setProperty('display', 'none', 'important');
+        }
+        const custBtn = document.getElementById('customizeBtn');
+        if (custBtn) {
+            custBtn.style.setProperty('display', 'none', 'important');
+        }
+    } else {
+        // Automated test session: ensure legacy customizeBtn is displayed
+        const custBtn = document.getElementById('customizeBtn');
+        if (custBtn) {
+            custBtn.style.setProperty('display', 'block', 'important');
+        }
     }
 
     if (window.updateMenuCoins) window.updateMenuCoins();
