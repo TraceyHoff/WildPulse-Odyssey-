@@ -11708,8 +11708,8 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     }
 
     if (inModal) {
-        // Handle right stick vertical movement to scroll descriptions in the party modal
-        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : 0;
+        // Handle right stick vertical movement to scroll descriptions in the party modal or scroll modal containers directly
+        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
         if (Math.abs(ry) > 0.15) {
             const isPartyModal = container.id === 'partyModal' || container.querySelector('#partyList') || container.querySelector('#partyList_P2');
             if (isPartyModal) {
@@ -11723,6 +11723,9 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                         }
                     }
                 }
+            } else {
+                // Scroll the modal container itself (such as introductory modal, customization modal, etc)
+                container.scrollTop += ry * 15;
             }
         }
 
