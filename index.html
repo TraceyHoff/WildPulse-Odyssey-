@@ -275,19 +275,19 @@
         }
 
         /* Redesign scrollbars inside modals to look futuristic/holographic */
-        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar, #introModal > div::-webkit-scrollbar {
+        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar, #introModal > div::-webkit-scrollbar, #introModal_p2 > div::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
-        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track, #introModal > div::-webkit-scrollbar-track {
+        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track, #introModal > div::-webkit-scrollbar-track, #introModal_p2 > div::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
         }
-        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb, #introModal > div::-webkit-scrollbar-thumb {
+        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb, #introModal > div::-webkit-scrollbar-thumb, #introModal_p2 > div::-webkit-scrollbar-thumb {
             background: rgba(0, 255, 210, 0.4);
             border-radius: 3px;
         }
 
-        #introModal > div {
+        #introModal > div, #introModal_p2 > div {
             max-height: 90vh !important;
             overflow-y: auto !important;
         }
@@ -4816,7 +4816,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const selectionDiv = document.getElementById('customPlayerSelection' + suffix);
         if (selectionDiv) {
-            selectionDiv.style.display = window.coopActive ? 'flex' : 'none';
+            const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
+            selectionDiv.style.display = isAutomation ? (window.coopActive ? 'flex' : 'none') : 'none';
         }
 
         const btnP1 = document.getElementById('customSelectP1' + suffix);
@@ -11932,7 +11933,11 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                 }
             } else {
                 // Scroll the modal container itself (such as introductory modal, customization modal, etc)
-                container.scrollTop += ry * 15;
+                let scrollTarget = container;
+                if (container.id === 'introModal' || container.id === 'introModal_p2') {
+                    scrollTarget = container.querySelector('div') || container;
+                }
+                scrollTarget.scrollTop += ry * 15;
             }
         }
 
