@@ -514,35 +514,96 @@
             display: block !important;
         }
 
-        /* Customization Modal Specific Overrides under Co-op */
-        body.coop-active-layout #customizationModal {
-            background: transparent !important;
-            pointer-events: none !important;
-        }
-        body.coop-active-layout #customizationModal > div {
+        /* Intro Modal Specific Overrides under Co-op */
+        body.coop-active-layout #introModal,
+        body.coop-active-layout #introModal_p2 {
             position: fixed !important;
             top: 0 !important;
             height: 100vh !important;
             width: 50vw !important;
             max-width: none !important;
-            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
-            backdrop-filter: blur(25px);
-            padding: 40px 20px !important;
+            background: rgba(0, 0, 0, 0.85) !important;
+            padding: 20px 10px !important;
             box-sizing: border-box !important;
             overflow-y: auto !important;
-            pointer-events: auto !important;
-            margin: 0 !important;
-            border-radius: 0 !important;
+            z-index: 200005 !important;
+            display: none;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
-        body.coop-active-layout #customizationModal.p1-customization-active > div {
+        body.coop-active-layout #introModal {
             left: 0 !important;
             right: auto !important;
             border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
         }
-        body.coop-active-layout #customizationModal.p2-customization-active > div {
+        body.coop-active-layout #introModal_p2 {
             left: 50vw !important;
             right: auto !important;
             border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #introModal > div,
+        body.coop-active-layout #introModal_p2 > div {
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            margin: auto !important;
+            width: 95% !important;
+            max-width: 450px !important;
+            background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)) !important;
+            border-radius: 12px !important;
+            border: 2px solid #00ffcc !important;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15) !important;
+            padding: 20px 15px 15px 15px !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
+        }
+
+        /* Customization Modal Specific Overrides under Co-op */
+        body.coop-active-layout #customizationModal,
+        body.coop-active-layout #customizationModal_p2 {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            max-width: none !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+            padding: 40px 10px !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+            z-index: 200001 !important;
+            display: none;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+        }
+        body.coop-active-layout #customizationModal {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #customizationModal_p2 {
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #customizationModal > div,
+        body.coop-active-layout #customizationModal_p2 > div {
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            margin: auto !important;
+            width: 95% !important;
+            max-width: 400px !important;
+            background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)) !important;
+            border-radius: 15px !important;
+            border: 1px solid rgba(255,255,255,0.2) !important;
+            box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2) !important;
+            padding: 25px 20px !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
         }
 
         /* Challenge Modal Specific Overrides under Co-op */
@@ -1618,6 +1679,68 @@
     </div>
 </div>
 
+<!-- Player 2 Cyberpunk-themed Introductory Modal -->
+<div id="introModal_p2" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200005; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 20px; box-sizing: border-box; font-family: 'Courier New', monospace; color: #fff;">
+    <div id="introModalInner_p2" style="position: relative; background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)); border: 2px solid #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 12px; width: 95%; max-width: 650px; padding: 30px 30px 20px 30px; box-sizing: border-box; text-align: center; overflow: hidden; transform: scale(1.0); transition: all 0.3s ease;">
+        <div class="holographic-scanline" style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 6px 100%; z-index: 1; pointer-events: none; opacity: 0.4;"></div>
+        <div id="introModalContentWrapper_p2" style="position: relative; z-index: 2;">
+            <div style="border-bottom: 2px solid #00ffcc; padding-bottom: 15px; margin-bottom: 20px;">
+                <h2 id="introModalTitle_p2" style="margin: 0; font-size: 24px; letter-spacing: 2px; color: #00ffcc; text-shadow: 0 0 10px rgba(0, 255, 204, 0.6); text-transform: uppercase;">[ SYSTEM INITIALIZATION ]</h2>
+            </div>
+
+            <div id="introModalSlide1_p2" style="display: block; text-align: left; line-height: 1.6; font-size: 14px;">
+                <p style="color: #00ff96; font-weight: bold; margin-top: 0; font-size: 16px; border-left: 3px solid #00ff96; padding-left: 10px; letter-spacing: 1px; text-transform: uppercase;">MISSION DATA: DISCOVERY & ASCENSION</p>
+                <p>Welcome to the cybernetic wildlands of <strong>WildPulse</strong>. Your objective is clear: explore, capture, train, and bond with creatures to conquer the world grid.</p>
+                <ul style="padding-left: 20px; color: #e0e0e0; margin-bottom: 25px;">
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🌐 Traverse & Map</strong>: Navigate a procedurally generated ecosystem affected by changing seasons and dynamic atmospheric weather patterns.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">⚔️ Tactical Combat</strong>: Defeat or weaken wild creatures to capture them and secure your team.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🧬 DNA Breeding</strong>: Force cross-species combinations (Level 5+) to inherit custom attributes, natures, and rare skin pattern overlays.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">❤️ Friend Symbiosis</strong>: Form deep relationships with active party members. Passive experience expands their friend stats dynamically.</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">👑 Competitive Nodes</strong>: Challenge the local PvP, trade creatures with friends, or battle elite squads in Crown Challenges.</li>
+                </ul>
+            </div>
+
+            <div id="introModalSlide2_p2" style="display: none; text-align: left; line-height: 1.6; font-size: 14px;">
+                <p style="color: #ff9f00; font-weight: bold; margin-top: 0; font-size: 16px; border-left: 3px solid #ff9f00; padding-left: 10px; letter-spacing: 1px; text-transform: uppercase;">INPUT MATRIX: UNIVERSAL CONTROLS</p>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                        <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">💻 KEYBOARD & MOUSE</strong>
+                        <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
+                            <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">W, A, S, D</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Arrow Keys</span></div>
+                            <div>Toggle Menu:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">ESC</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">M</span></div>
+                            <div>Quick Inventory:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">I</span></div>
+                            <div>Interact / UI:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Click</span></div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                        <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">🎮 GAMEPAD / CONTROLLER</strong>
+                        <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
+                            <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Stick</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">D-Pad</span></div>
+                            <div>Inventory Mode:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span></div>
+                            <div>Use / Confirm:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">A Button</span> (or navigate slots with D-Pad)</div>
+                            <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Y Button</span> (Tap for Menu, Hold 1s for Fullscreen)</div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                        <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">📱 TOUCH / MOBILE</strong>
+                        <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
+                            <div>Move Character:</div><div>Swipe or tap relative position to move</div>
+                            <div>Action Buttons:</div><div>Tap dedicated UI buttons and slots directly</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="introBottomControls_p2" style="display: flex; justify-content: space-between; gap: 15px; border-top: 1px solid rgba(0,255,204,0.3); padding-top: 10px;">
+                <button id="introPrevBtn_p2" style="visibility: hidden; padding: 10px 20px; font-family: 'Courier New', monospace; font-size: 14px; background: #222; color: #fff; border: 1px solid #555; cursor: pointer; border-radius: 6px; transition: all 0.2s; text-transform: uppercase;">
+                    &lt; Back
+                </button>
+                <button id="introNextBtn_p2">Next ></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="customizationModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
     <div style="position: relative; background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)); padding: 25px 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
         <button class="close-btn" id="closeCustomizationBtnTop" aria-label="Close Customization">X</button>
@@ -1762,6 +1885,154 @@
         </div>
         <button id="saveCustomizationBtn" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 1px solid #a5d6a7; cursor: pointer; border-radius: 8px; margin-right: 10px;">Save</button>
         <button id="closeCustomizationBtn" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #555, #222); color: white; border: 1px solid #777; cursor: pointer; border-radius: 8px;">Close</button>
+    </div>
+</div>
+
+<!-- Player 2 Character Customization Modal -->
+<div id="customizationModal_p2" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)); padding: 25px 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
+        <button class="close-btn" id="closeCustomizationBtnTop_p2" aria-label="Close Customization">X</button>
+        <h2 style="margin-top: 0;">Customize Character</h2>
+        <div id="customPlayerSelection_p2" style="margin-bottom: 20px; display: none; justify-content: center; gap: 15px;">
+            <button id="customSelectP1_p2" style="flex: 1; padding: 10px; font-size: 16px; background: linear-gradient(180deg, #42a5f5, #1565c0); border: 2px solid #90caf9; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;">Player 1</button>
+            <button id="customSelectP2_p2" style="flex: 1; padding: 10px; font-size: 16px; background: linear-gradient(180deg, #555, #222); border: 2px solid #777; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;">Player 2</button>
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Character Name:</label>
+            <input type="text" id="playerNameInput_p2" maxlength="15" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box;">
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Character Color:</label>
+            <div class="custom-color-picker-wrapper" style="position: relative; width: 100%;">
+                <div class="custom-color-display" id="playerColorInput_p2_display" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #FFA500; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; text-shadow: 0 0 4px #000; color: #FFF; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                    #FFA500
+                </div>
+                <div class="custom-color-sliders" id="playerColorInput_p2_sliders" style="display: none; background: rgba(10,20,30,0.98); border: 1px solid #00ffcc; border-radius: 8px; padding: 12px; margin-top: 8px; box-shadow: 0 4px 15px rgba(0,255,204,0.3); flex-direction: column; gap: 8px; position: absolute; z-index: 200003; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Hue:</span><span id="playerColorInput_p2_h_val">38°</span>
+                        </div>
+                        <input type="range" class="custom-color-slider hue-slider" id="playerColorInput_p2_h" min="0" max="360" value="38" style="width: 100%; background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Saturation:</span><span id="playerColorInput_p2_s_val">100%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider sat-slider" id="playerColorInput_p2_s" min="0" max="100" value="100" style="width: 100%; background: linear-gradient(to right, #808080, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Lightness:</span><span id="playerColorInput_p2_l_val">50%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider light-slider" id="playerColorInput_p2_l" min="0" max="100" value="50" style="width: 100%; background: linear-gradient(to right, #000, red, #fff); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                </div>
+                <input type="hidden" id="playerColorInput_p2" value="#FFA500">
+            </div>
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Aura Color:</label>
+            <div class="custom-color-picker-wrapper" style="position: relative; width: 100%;">
+                <div class="custom-color-display" id="playerAuraColorInput_p2_display" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #FF0000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; text-shadow: 0 0 4px #000; color: #FFF; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                    #FF0000
+                </div>
+                <div class="custom-color-sliders" id="playerAuraColorInput_p2_sliders" style="display: none; background: rgba(10,20,30,0.98); border: 1px solid #00ffcc; border-radius: 8px; padding: 12px; margin-top: 8px; box-shadow: 0 4px 15px rgba(0,255,204,0.3); flex-direction: column; gap: 8px; position: absolute; z-index: 200003; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Hue:</span><span id="playerAuraColorInput_p2_h_val">0°</span>
+                        </div>
+                        <input type="range" class="custom-color-slider hue-slider" id="playerAuraColorInput_p2_h" min="0" max="360" value="0" style="width: 100%; background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Saturation:</span><span id="playerAuraColorInput_p2_s_val">100%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider sat-slider" id="playerAuraColorInput_p2_s" min="0" max="100" value="100" style="width: 100%; background: linear-gradient(to right, #808080, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Lightness:</span><span id="playerAuraColorInput_p2_l_val">50%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider light-slider" id="playerAuraColorInput_p2_l" min="0" max="100" value="50" style="width: 100%; background: linear-gradient(to right, #000, red, #fff); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                </div>
+                <input type="hidden" id="playerAuraColorInput_p2" value="#FF0000">
+            </div>
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Body Shape:</label>
+            <select id="playerShapeSelect_p2" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer;">
+                <option value="Square">Square</option>
+            </select>
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Skin Pattern:</label>
+            <select id="playerPatternSelect_p2" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer;">
+                <option value="None">None</option>
+                <option value="Dots">Dots</option>
+                <option value="Stripes">Stripes</option>
+                <option value="Checkerboard">Checkerboard</option>
+                <option value="Camo">Camo</option>
+                <option value="Stars">Stars</option>
+                <option value="Hearts">Hearts</option>
+                <option value="Waves">Waves</option>
+                <option value="Bricks">Bricks</option>
+                <option value="Honeycomb">Honeycomb</option>
+                <option value="Leopard">Leopard</option>
+                <option value="Zebra">Zebra</option>
+                <option value="Tiger">Tiger</option>
+                <option value="Circuit">Circuit</option>
+                <option value="Scales">Scales</option>
+                <option value="Flame">Flame</option>
+                <option value="Galaxy">Galaxy</option>
+                <option value="Lightning">Lightning</option>
+                <option value="Spirit">Spirit</option>
+                <option value="Crystal">Crystal</option>
+                <option value="Dragon">Dragon</option>
+                <option value="Panda">Panda</option>
+                <option value="Skull">Skull</option>
+                <option value="Cross">Cross</option>
+                <option value="Moon">Moon</option>
+            </select>
+        </div>
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px;">Pattern Color:</label>
+            <div class="custom-color-picker-wrapper" style="position: relative; width: 100%;">
+                <div class="custom-color-display" id="playerPatternColorInput_p2_display" style="width: 100%; height: 40px; border: 1px solid #555; border-radius: 5px; background: #FF0000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; text-shadow: 0 0 4px #000; color: #FFF; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                    #FF0000
+                </div>
+                <div class="custom-color-sliders" id="playerPatternColorInput_p2_sliders" style="display: none; background: rgba(10,20,30,0.98); border: 1px solid #00ffcc; border-radius: 8px; padding: 12px; margin-top: 8px; box-shadow: 0 4px 15px rgba(0,255,204,0.3); flex-direction: column; gap: 8px; position: absolute; z-index: 200003; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Hue:</span><span id="playerPatternColorInput_p2_h_val">0°</span>
+                        </div>
+                        <input type="range" class="custom-color-slider hue-slider" id="playerPatternColorInput_p2_h" min="0" max="360" value="0" style="width: 100%; background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Saturation:</span><span id="playerPatternColorInput_p2_s_val">100%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider sat-slider" id="playerPatternColorInput_p2_s" min="0" max="100" value="100" style="width: 100%; background: linear-gradient(to right, #808080, red); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 3px; color: #00ffcc;">
+                            <span>Lightness:</span><span id="playerPatternColorInput_p2_l_val">50%</span>
+                        </div>
+                        <input type="range" class="custom-color-slider light-slider" id="playerPatternColorInput_p2_l" min="0" max="100" value="50" style="width: 100%; background: linear-gradient(to right, #000, red, #fff); height: 10px; border-radius: 5px; appearance: none; outline: none; cursor: pointer;">
+                    </div>
+                </div>
+                <input type="hidden" id="playerPatternColorInput_p2" value="#FF0000">
+            </div>
+        </div>
+        <!-- Character Preview Container -->
+        <div style="margin-bottom: 20px; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center;">
+            <label style="margin-bottom: 10px; font-weight: bold; color: #00ff96;">Live Preview</label>
+            <div id="previewContainer_p2" style="position: relative; width: 120px; height: 120px; background: #111; border-radius: 8px; border: 2px solid #333; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                <canvas id="characterPreviewCanvas_p2" width="120" height="120"></canvas>
+            </div>
+        </div>
+        <button id="saveCustomizationBtn_p2" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 1px solid #a5d6a7; cursor: pointer; border-radius: 8px; margin-right: 10px;">Save</button>
+        <button id="closeCustomizationBtn_p2" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #555, #222); color: white; border: 1px solid #777; cursor: pointer; border-radius: 8px;">Close</button>
     </div>
 </div>
 
@@ -2139,8 +2410,9 @@ window.drawPlayerShapePath = function(ctx, shape, x, y, size) {
 };
 
 // Populate the Shape select box based on Crown Challenge Tier unlocks
-window.updateShapeSelect = function() {
-    const shapeSelect = document.getElementById('playerShapeSelect');
+window.updateShapeSelect = function(playerNum) {
+    const suffix = (playerNum === 2) ? '_p2' : '';
+    const shapeSelect = document.getElementById('playerShapeSelect' + suffix);
     if (!shapeSelect) return;
 
     const currentValue = shapeSelect.value;
@@ -2744,18 +3016,25 @@ window.generateChallengeTile = function(scene) {
     scene.textures.addCanvas('challenge_tile', canvas);
 };
 
-window.updateCharacterPreview = function() {
-    const canvas = document.getElementById('characterPreviewCanvas');
+window.updateCharacterPreview = function(playerNum = 1, forceP1 = false) {
+    const suffix = (playerNum === 2 && !forceP1) ? '_p2' : '';
+    const canvas = document.getElementById('characterPreviewCanvas' + suffix);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const width = canvas.width;
     const height = canvas.height;
 
-    const name = document.getElementById('playerNameInput').value || (window.activeCustomPlayer === 2 ? 'P2' : 'P1');
-    const color = document.getElementById('playerColorInput').value;
-    const auraColor = document.getElementById('playerAuraColorInput').value;
-    const pattern = document.getElementById('playerPatternSelect').value;
-    const patternColor = document.getElementById('playerPatternColorInput').value;
+    const nameInput = document.getElementById('playerNameInput' + suffix);
+    const colorInput = document.getElementById('playerColorInput' + suffix);
+    const auraColorInput = document.getElementById('playerAuraColorInput' + suffix);
+    const patternSelect = document.getElementById('playerPatternSelect' + suffix);
+    const patternColorInput = document.getElementById('playerPatternColorInput' + suffix);
+
+    const name = (nameInput ? nameInput.value : '') || (playerNum === 2 ? 'P2' : 'P1');
+    const color = colorInput ? colorInput.value : '#FFFFFF';
+    const auraColor = auraColorInput ? auraColorInput.value : '#00FFFF';
+    const pattern = patternSelect ? patternSelect.value : 'None';
+    const patternColor = patternColorInput ? patternColorInput.value : '#FF0000';
 
     ctx.clearRect(0, 0, width, height);
 
@@ -2779,7 +3058,7 @@ window.updateCharacterPreview = function() {
     const charX = centerX - charSize / 2;
     const charY = centerY - charSize / 2;
 
-    const shapeSelect = document.getElementById('playerShapeSelect');
+    const shapeSelect = document.getElementById('playerShapeSelect' + suffix);
     const shape = shapeSelect ? shapeSelect.value : 'Square';
 
     ctx.save();
@@ -4001,10 +4280,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const isNewGame = !localStorage.getItem('wildpulse_player_color');
         const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
         const forceOnboarding = typeof window !== 'undefined' && window.__test_onboarding;
+        console.log("[DEBUG Onboarding] isNewGame:", isNewGame, "isAutomation:", isAutomation, "forceOnboarding:", forceOnboarding, "color:", localStorage.getItem('wildpulse_player_color'));
 
         if (isNewGame && (!isAutomation || forceOnboarding)) {
+            const startModal = document.getElementById('startModal');
+            if (startModal) startModal.style.display = 'none';
+
+            window.p1SetupComplete = false;
+            window.p2SetupComplete = true;
+
             if (window.showIntroModal) {
-                window.showIntroModal();
+                window.showIntroModal(1);
             } else {
                 window.startGameSession();
             }
@@ -4020,8 +4306,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const forceOnboarding = typeof window !== 'undefined' && window.__test_onboarding;
 
         if (isNewGame && (!isAutomation || forceOnboarding)) {
+            // Enable co-op splitscreen visual layout early for onboarding
+            window.coopActive = true;
+            document.body.classList.add('coop-active-layout');
+            const splitLine = document.getElementById('coopSplitLine');
+            if (splitLine) splitLine.style.display = 'block';
+
+            if (game && game.scene && game.scene.scenes[0]) {
+                const scene = game.scene.scenes[0];
+                window.enableCoop(scene);
+            }
+
+            const startModal = document.getElementById('startModal');
+            if (startModal) startModal.style.display = 'none';
+
+            window.p1SetupComplete = false;
+            window.p2SetupComplete = false;
+
             if (window.showIntroModal) {
-                window.showIntroModal();
+                window.showIntroModal(1);
+                window.showIntroModal(2);
             } else {
                 window.startGameSession();
             }
@@ -4364,8 +4668,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    window.syncCustomColorPickers = function() {
-        ['playerColorInput', 'playerAuraColorInput', 'playerPatternColorInput'].forEach(id => {
+    window.syncCustomColorPickers = function(playerNum = 1) {
+        const suffix = (playerNum === 2) ? '_p2' : '';
+        ['playerColorInput', 'playerAuraColorInput', 'playerPatternColorInput'].forEach(baseId => {
+            const id = baseId + suffix;
             const hiddenInput = document.getElementById(id);
             const hSlider = document.getElementById(id + '_h');
             const sSlider = document.getElementById(id + '_s');
@@ -4377,7 +4683,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!hiddenInput || !hSlider || !sSlider || !lSlider || !display) return;
 
-            const hex = hiddenInput.value || '#FFFFFF';
+            const hex = hiddenInput.value || (baseId === 'playerColorInput' ? '#FFFFFF' : (baseId === 'playerAuraColorInput' ? '#00FFFF' : '#FF0000'));
             const { h, s, l } = hexToHsl(hex);
 
             hSlider.value = h;
@@ -4397,25 +4703,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Initialize custom color pickers
-    ['playerColorInput', 'playerAuraColorInput', 'playerPatternColorInput'].forEach(id => {
+    // Initialize custom color pickers for both players
+    ['playerColorInput', 'playerAuraColorInput', 'playerPatternColorInput', 'playerColorInput_p2', 'playerAuraColorInput_p2', 'playerPatternColorInput_p2'].forEach(id => {
         window.initCustomColorPicker(id);
     });
 
     // Helper to load settings for selected player
     window.loadCustomPlayerInputs = function(playerNum) {
+        const suffix = (playerNum === 2) ? '_p2' : '';
+        const nameInput = document.getElementById('playerNameInput' + suffix);
+        const colorInput = document.getElementById('playerColorInput' + suffix);
+        const auraInput = document.getElementById('playerAuraColorInput' + suffix);
+        const patternSelect = document.getElementById('playerPatternSelect' + suffix);
+        const patternColorInput = document.getElementById('playerPatternColorInput' + suffix);
+        const shapeSelect = document.getElementById('playerShapeSelect' + suffix);
+
         if (playerNum === 2) {
-            playerNameInput.value = localStorage.getItem('wildpulse_player2_name') || 'P2';
-            playerColorInput.value = localStorage.getItem('wildpulse_player2_color') || '#FFA500';
-            playerAuraColorInput.value = localStorage.getItem('wildpulse_player2_aura_color') || '#FF0000';
-            playerPatternSelect.value = localStorage.getItem('wildpulse_player2_pattern') || 'Stripes';
-            playerPatternColorInput.value = localStorage.getItem('wildpulse_player2_pattern_color') || '#FF0000';
+            if (nameInput) nameInput.value = localStorage.getItem('wildpulse_player2_name') || 'P2';
+            if (colorInput) colorInput.value = localStorage.getItem('wildpulse_player2_color') || '#FFA500';
+            if (auraInput) auraInput.value = localStorage.getItem('wildpulse_player2_aura_color') || '#FF0000';
+            if (patternSelect) patternSelect.value = localStorage.getItem('wildpulse_player2_pattern') || 'Stripes';
+            if (patternColorInput) patternColorInput.value = localStorage.getItem('wildpulse_player2_pattern_color') || '#FF0000';
 
             if (window.updateShapeSelect) {
-                window.updateShapeSelect();
+                window.updateShapeSelect(2);
             }
             const savedShape = localStorage.getItem('wildpulse_player2_shape') || 'Square';
-            const shapeSelect = document.getElementById('playerShapeSelect');
             if (shapeSelect) {
                 const selectedOpt = Array.from(shapeSelect.options).find(o => o.value === savedShape);
                 if (selectedOpt && !selectedOpt.disabled) {
@@ -4425,17 +4738,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
-            playerNameInput.value = localStorage.getItem('wildpulse_player_name') || '';
-            playerColorInput.value = localStorage.getItem('wildpulse_player_color') || '#FFFFFF';
-            playerAuraColorInput.value = localStorage.getItem('wildpulse_player_aura_color') || '#00FFFF';
-            playerPatternSelect.value = localStorage.getItem('wildpulse_player_pattern') || 'None';
-            playerPatternColorInput.value = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
+            if (nameInput) nameInput.value = localStorage.getItem('wildpulse_player_name') || '';
+            if (colorInput) colorInput.value = localStorage.getItem('wildpulse_player_color') || '#FFFFFF';
+            if (auraInput) auraInput.value = localStorage.getItem('wildpulse_player_aura_color') || '#00FFFF';
+            if (patternSelect) patternSelect.value = localStorage.getItem('wildpulse_player_pattern') || 'None';
+            if (patternColorInput) patternColorInput.value = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
 
             if (window.updateShapeSelect) {
-                window.updateShapeSelect();
+                window.updateShapeSelect(1);
             }
             const savedShape = localStorage.getItem('wildpulse_player_shape') || 'Square';
-            const shapeSelect = document.getElementById('playerShapeSelect');
             if (shapeSelect) {
                 const selectedOpt = Array.from(shapeSelect.options).find(o => o.value === savedShape);
                 if (selectedOpt && !selectedOpt.disabled) {
@@ -4446,12 +4758,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         if (window.syncCustomColorPickers) {
-            window.syncCustomColorPickers();
+            window.syncCustomColorPickers(playerNum);
         }
     };
 
     // Helper function to open character customization modal
     window.openCustomizationModal = function(playerNum = 1) {
+        const suffix = (playerNum === 2) ? '_p2' : '';
         if (playerNum === 1 && !localStorage.getItem('wildpulse_player_color')) {
             if (window.randomizePlayerCustomization) {
                 window.randomizePlayerCustomization(1);
@@ -4501,13 +4814,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.activeCustomPlayer = playerNum;
 
-        const selectionDiv = document.getElementById('customPlayerSelection');
+        const selectionDiv = document.getElementById('customPlayerSelection' + suffix);
         if (selectionDiv) {
             selectionDiv.style.display = window.coopActive ? 'flex' : 'none';
         }
 
-        const btnP1 = document.getElementById('customSelectP1');
-        const btnP2 = document.getElementById('customSelectP2');
+        const btnP1 = document.getElementById('customSelectP1' + suffix);
+        const btnP2 = document.getElementById('customSelectP2' + suffix);
         if (btnP1 && btnP2) {
             if (playerNum === 2) {
                 btnP2.style.background = 'linear-gradient(180deg, #42a5f5, #1565c0)';
@@ -4526,158 +4839,242 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Refresh pattern options based on unlocks
         if (window.PATTERN_UNLOCKS && window.gameStats) {
-            const select = document.getElementById('playerPatternSelect');
-            const currentValue = select.value;
-            select.innerHTML = '';
+            const select = document.getElementById('playerPatternSelect' + suffix);
+            if (select) {
+                const currentValue = select.value;
+                select.innerHTML = '';
 
-            Object.entries(window.PATTERN_UNLOCKS).forEach(([pattern, data]) => {
-                const isUnlocked = data.check(window.gameStats);
-                const option = document.createElement('option');
-                option.value = pattern;
-                option.text = isUnlocked ? pattern : `${pattern} (Locked: ${data.condition})`;
-                option.disabled = !isUnlocked;
-                if (pattern === currentValue) option.selected = true;
-                select.appendChild(option);
-            });
+                Object.entries(window.PATTERN_UNLOCKS).forEach(([pattern, data]) => {
+                    const isUnlocked = data.check(window.gameStats);
+                    const option = document.createElement('option');
+                    option.value = pattern;
+                    option.text = isUnlocked ? pattern : `${pattern} (Locked: ${data.condition})`;
+                    option.disabled = !isUnlocked;
+                    if (pattern === currentValue) option.selected = true;
+                    select.appendChild(option);
+                });
+            }
         }
 
         if (window.coopActive) {
             window.updateModalVisibility();
         } else {
-            customizationModal.style.display = 'flex';
+            const modal = document.getElementById('customizationModal');
+            if (modal) modal.style.display = 'flex';
         }
-        window.updateCharacterPreview();
+        window.updateCharacterPreview(playerNum);
     };
 
     window.closeCustomizationModal = function(playerNum = 1) {
-        if (window.coopActive) {
-            window.p1ActiveModal = null;
-            window.p2ActiveModal = null;
-            window.updateModalVisibility();
+        if (playerNum === 2) {
+            const modal = document.getElementById('customizationModal_p2');
+            if (modal) modal.style.display = 'none';
+            if (window.coopActive) {
+                window.p2ActiveModal = null;
+                window.updateModalVisibility();
+            }
+            window.p2SetupComplete = true;
         } else {
-            const customizationModal = document.getElementById('customizationModal');
-            if (customizationModal) customizationModal.style.display = 'none';
+            const modal = document.getElementById('customizationModal');
+            if (modal) modal.style.display = 'none';
+            if (window.coopActive) {
+                window.p1ActiveModal = null;
+                window.updateModalVisibility();
+            }
+            window.p1SetupComplete = true;
         }
 
         if (window.isNewGameSetup) {
-            window.isNewGameSetup = false;
-            const saveBtn = document.getElementById('saveCustomizationBtn');
-            if (saveBtn) saveBtn.innerText = 'Save';
-            const closeBtn = document.getElementById('closeCustomizationBtn');
-            if (closeBtn) {
-                closeBtn.innerText = 'Close';
-                closeBtn.style.background = 'linear-gradient(180deg, #555, #222)';
-                closeBtn.style.borderColor = '#777';
+            // Check if BOTH are done (or single player is done)
+            let allDone = false;
+            if (window.startMode === 'splitscreen') {
+                if (window.p1SetupComplete && window.p2SetupComplete) {
+                    allDone = true;
+                }
+            } else {
+                allDone = true;
             }
-            const closeBtnTop = document.getElementById('closeCustomizationBtnTop');
-            if (closeBtnTop) closeBtnTop.style.display = 'block';
 
-            window.startGameSession();
+            if (allDone) {
+                window.isNewGameSetup = false;
+                const saveBtn = document.getElementById('saveCustomizationBtn');
+                if (saveBtn) saveBtn.innerText = 'Save';
+                const closeBtn = document.getElementById('closeCustomizationBtn');
+                if (closeBtn) {
+                    closeBtn.innerText = 'Close';
+                    closeBtn.style.background = 'linear-gradient(180deg, #555, #222)';
+                    closeBtn.style.borderColor = '#777';
+                }
+                const closeBtnTop = document.getElementById('closeCustomizationBtnTop');
+                if (closeBtnTop) closeBtnTop.style.display = 'block';
+
+                const saveBtn_p2 = document.getElementById('saveCustomizationBtn_p2');
+                if (saveBtn_p2) saveBtn_p2.innerText = 'Save';
+                const closeBtn_p2 = document.getElementById('closeCustomizationBtn_p2');
+                if (closeBtn_p2) {
+                    closeBtn_p2.innerText = 'Close';
+                    closeBtn_p2.style.background = 'linear-gradient(180deg, #555, #222)';
+                    closeBtn_p2.style.borderColor = '#777';
+                }
+                const closeBtnTop_p2 = document.getElementById('closeCustomizationBtnTop_p2');
+                if (closeBtnTop_p2) closeBtnTop_p2.style.display = 'block';
+
+                window.startGameSession();
+            }
         }
     };
 
     // Intro modal variables and functions
-    let currentIntroSlide = 1;
+    let currentIntroSlideP1 = 1;
+    let currentIntroSlideP2 = 1;
 
-    window.showIntroModal = function() {
-        currentIntroSlide = 1;
-        const slide1 = document.getElementById('introModalSlide1');
-        const slide2 = document.getElementById('introModalSlide2');
+    window.showIntroModal = function(playerNum = 1) {
+        const isP2 = (playerNum === 2);
+        const suffix = isP2 ? '_p2' : '';
+        if (isP2) {
+            currentIntroSlideP2 = 1;
+        } else {
+            currentIntroSlideP1 = 1;
+        }
+
+        const slide1 = document.getElementById('introModalSlide1' + suffix);
+        const slide2 = document.getElementById('introModalSlide2' + suffix);
         if (slide1) slide1.style.display = 'block';
         if (slide2) slide2.style.display = 'none';
 
-        const title = document.getElementById('introModalTitle');
+        const title = document.getElementById('introModalTitle' + suffix);
         if (title) title.innerText = '[ SYSTEM INITIALIZATION ]';
 
-        const prevBtn = document.getElementById('introPrevBtn');
+        const prevBtn = document.getElementById('introPrevBtn' + suffix);
         if (prevBtn) prevBtn.style.visibility = 'hidden';
 
-        const nextBtn = document.getElementById('introNextBtn');
+        const nextBtn = document.getElementById('introNextBtn' + suffix);
         if (nextBtn) nextBtn.innerText = 'Next >';
 
-        const introModal = document.getElementById('introModal');
+        const introModal = document.getElementById('introModal' + suffix);
         if (introModal) introModal.style.display = 'flex';
     };
 
-    window.advanceIntroModal = function() {
-        if (currentIntroSlide === 1) {
-            currentIntroSlide = 2;
-            const slide1 = document.getElementById('introModalSlide1');
-            const slide2 = document.getElementById('introModalSlide2');
+    window.advanceIntroModal = function(playerNum = 1) {
+        const isP2 = (playerNum === 2);
+        const suffix = isP2 ? '_p2' : '';
+        const currentSlide = isP2 ? currentIntroSlideP2 : currentIntroSlideP1;
+
+        if (currentSlide === 1) {
+            if (isP2) {
+                currentIntroSlideP2 = 2;
+            } else {
+                currentIntroSlideP1 = 2;
+            }
+            const slide1 = document.getElementById('introModalSlide1' + suffix);
+            const slide2 = document.getElementById('introModalSlide2' + suffix);
             if (slide1) slide1.style.display = 'none';
             if (slide2) slide2.style.display = 'block';
 
-            const title = document.getElementById('introModalTitle');
+            const title = document.getElementById('introModalTitle' + suffix);
             if (title) title.innerText = '[ INPUT MATRIX ]';
 
-            const prevBtn = document.getElementById('introPrevBtn');
+            const prevBtn = document.getElementById('introPrevBtn' + suffix);
             if (prevBtn) prevBtn.style.visibility = 'visible';
 
-            const nextBtn = document.getElementById('introNextBtn');
+            const nextBtn = document.getElementById('introNextBtn' + suffix);
             if (nextBtn) nextBtn.innerText = 'Configure Avatar 🧬';
         } else {
-            window.closeIntroModal(true);
+            window.closeIntroModal(playerNum, true);
         }
     };
 
-    window.prevIntroModal = function() {
-        if (currentIntroSlide === 2) {
-            currentIntroSlide = 1;
-            const slide1 = document.getElementById('introModalSlide1');
-            const slide2 = document.getElementById('introModalSlide2');
+    window.prevIntroModal = function(playerNum = 1) {
+        const isP2 = (playerNum === 2);
+        const suffix = isP2 ? '_p2' : '';
+        const currentSlide = isP2 ? currentIntroSlideP2 : currentIntroSlideP1;
+
+        if (currentSlide === 2) {
+            if (isP2) {
+                currentIntroSlideP2 = 1;
+            } else {
+                currentIntroSlideP1 = 1;
+            }
+            const slide1 = document.getElementById('introModalSlide1' + suffix);
+            const slide2 = document.getElementById('introModalSlide2' + suffix);
             if (slide1) slide1.style.display = 'block';
             if (slide2) slide2.style.display = 'none';
 
-            const title = document.getElementById('introModalTitle');
+            const title = document.getElementById('introModalTitle' + suffix);
             if (title) title.innerText = '[ SYSTEM INITIALIZATION ]';
 
-            const prevBtn = document.getElementById('introPrevBtn');
+            const prevBtn = document.getElementById('introPrevBtn' + suffix);
             if (prevBtn) prevBtn.style.visibility = 'hidden';
 
-            const nextBtn = document.getElementById('introNextBtn');
+            const nextBtn = document.getElementById('introNextBtn' + suffix);
             if (nextBtn) nextBtn.innerText = 'Next >';
         }
     };
 
-    window.closeIntroModal = function(proceedToCustomize = false) {
-        const introModal = document.getElementById('introModal');
+    window.closeIntroModal = function(playerNum = 1, proceedToCustomize = false) {
+        const suffix = (playerNum === 2) ? '_p2' : '';
+        const introModal = document.getElementById('introModal' + suffix);
         if (introModal) introModal.style.display = 'none';
 
         if (proceedToCustomize) {
-            window.openCustomizationModal(1);
+            window.openCustomizationModal(playerNum);
 
             window.isNewGameSetup = true;
 
-            const saveBtn = document.getElementById('saveCustomizationBtn');
+            const saveBtn = document.getElementById('saveCustomizationBtn' + suffix);
             if (saveBtn) saveBtn.innerText = 'Save & Start Game';
 
-            const closeBtn = document.getElementById('closeCustomizationBtn');
+            const closeBtn = document.getElementById('closeCustomizationBtn' + suffix);
             if (closeBtn) {
                 closeBtn.innerText = 'Skip & Start';
                 closeBtn.style.background = 'linear-gradient(180deg, #ff9800, #f57c00)';
                 closeBtn.style.borderColor = '#ffb74d';
             }
 
-            const closeBtnTop = document.getElementById('closeCustomizationBtnTop');
+            const closeBtnTop = document.getElementById('closeCustomizationBtnTop' + suffix);
             if (closeBtnTop) closeBtnTop.style.display = 'none';
         } else {
-            window.startGameSession();
+            if (playerNum === 2) {
+                window.p2SetupComplete = true;
+            } else {
+                window.p1SetupComplete = true;
+            }
+            let allDone = false;
+            if (window.startMode === 'splitscreen') {
+                if (window.p1SetupComplete && window.p2SetupComplete) {
+                    allDone = true;
+                }
+            } else {
+                allDone = true;
+            }
+            if (allDone) {
+                window.startGameSession();
+            }
         }
     };
 
     document.getElementById('introNextBtn')?.addEventListener('click', () => {
-        window.advanceIntroModal();
+        window.advanceIntroModal(1);
     });
 
     document.getElementById('introPrevBtn')?.addEventListener('click', () => {
-        window.prevIntroModal();
+        window.prevIntroModal(1);
     });
 
-    // Initialize inputs from localStorage initially (P1)
+    document.getElementById('introNextBtn_p2')?.addEventListener('click', () => {
+        window.advanceIntroModal(2);
+    });
+
+    document.getElementById('introPrevBtn_p2')?.addEventListener('click', () => {
+        window.prevIntroModal(2);
+    });
+
+    // Initialize inputs from localStorage initially (P1 & P2)
     window.loadCustomPlayerInputs(1);
+    window.loadCustomPlayerInputs(2);
 
     document.getElementById('customizeBtn')?.addEventListener('click', () => {
-        window.openCustomizationModal();
+        window.openCustomizationModal(1);
     });
 
     document.getElementById('menuCustomizeBtn')?.addEventListener('click', () => {
@@ -4719,7 +5116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        window.updateCharacterPreview();
+        window.updateCharacterPreview(1);
     });
 
     document.getElementById('customSelectP2')?.addEventListener('click', () => {
@@ -4752,98 +5149,137 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        window.updateCharacterPreview();
+        window.updateCharacterPreview(1);
     });
 
-    // Character preview live updates
-    const playerShapeSelect = document.getElementById('playerShapeSelect');
-    [playerNameInput, playerColorInput, playerAuraColorInput, playerShapeSelect, playerPatternSelect, playerPatternColorInput].forEach(el => {
+    // Character preview live updates (Player 1)
+    [
+        document.getElementById('playerNameInput'),
+        document.getElementById('playerColorInput'),
+        document.getElementById('playerAuraColorInput'),
+        document.getElementById('playerShapeSelect'),
+        document.getElementById('playerPatternSelect'),
+        document.getElementById('playerPatternColorInput')
+    ].forEach(el => {
         el?.addEventListener('input', () => {
-            window.updateCharacterPreview();
+            window.updateCharacterPreview(1);
         });
         el?.addEventListener('change', () => {
-            window.updateCharacterPreview();
+            window.updateCharacterPreview(1);
+        });
+    });
+
+    // Character preview live updates (Player 2)
+    [
+        document.getElementById('playerNameInput_p2'),
+        document.getElementById('playerColorInput_p2'),
+        document.getElementById('playerAuraColorInput_p2'),
+        document.getElementById('playerShapeSelect_p2'),
+        document.getElementById('playerPatternSelect_p2'),
+        document.getElementById('playerPatternColorInput_p2')
+    ].forEach(el => {
+        el?.addEventListener('input', () => {
+            window.updateCharacterPreview(2);
+        });
+        el?.addEventListener('change', () => {
+            window.updateCharacterPreview(2);
         });
     });
 
     document.getElementById('saveCustomizationBtn')?.addEventListener('click', () => {
-        const name = playerNameInput.value.trim();
-        const color = playerColorInput.value;
-        const auraColor = playerAuraColorInput.value;
-        const pattern = playerPatternSelect.value;
-        const patternColor = playerPatternColorInput.value;
-        const shape = playerShapeSelect ? playerShapeSelect.value : 'Square';
+        const name = document.getElementById('playerNameInput').value.trim();
+        const color = document.getElementById('playerColorInput').value;
+        const auraColor = document.getElementById('playerAuraColorInput').value;
+        const pattern = document.getElementById('playerPatternSelect').value;
+        const patternColor = document.getElementById('playerPatternColorInput').value;
+        const shape = document.getElementById('playerShapeSelect') ? document.getElementById('playerShapeSelect').value : 'Square';
 
-        if (window.activeCustomPlayer === 2) {
-            localStorage.setItem('wildpulse_player2_name', name);
-            localStorage.setItem('wildpulse_player2_color', color);
-            localStorage.setItem('wildpulse_player2_aura_color', auraColor);
-            localStorage.setItem('wildpulse_player2_pattern', pattern);
-            localStorage.setItem('wildpulse_player2_pattern_color', patternColor);
-            localStorage.setItem('wildpulse_player2_shape', shape);
+        localStorage.setItem('wildpulse_player_name', name);
+        localStorage.setItem('wildpulse_player_color', color);
+        localStorage.setItem('wildpulse_player_aura_color', auraColor);
+        localStorage.setItem('wildpulse_player_pattern', pattern);
+        localStorage.setItem('wildpulse_player_pattern_color', patternColor);
+        localStorage.setItem('wildpulse_player_shape', shape);
 
-            if (window.p2Label) window.p2Label.setText(name || "P2");
-            if (typeof window.player2 !== 'undefined' && window.player2) {
-                const customColorInt = parseInt(color.replace('#', '0x'));
-                window.player2.originalColor = customColorInt;
+        window.cachedPlayerName = name;
+        window.cachedPlayerColor = color;
+        window.cachedPlayerAuraColor = auraColor;
 
-                // Bake pattern into texture and set tint to white
-                if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
-                    window.generatePlayerTexture(game.scene.scenes[0], 'player2_tex', color, pattern, patternColor, shape);
-                    window.player2.setTexture('player2_tex');
-                    window.player2.setTint(0xffffff);
-                } else {
-                    window.player2.setTint(customColorInt);
-                }
+        // Update local visuals immediately
+        if (window.localPlayerLabel) window.localPlayerLabel.setText(name || "P" + (window.playerIndexCount || 1));
+        if (typeof player !== 'undefined' && player) {
+            const customColorInt = parseInt(color.replace('#', '0x'));
+            player.originalColor = customColorInt;
 
-                if (window.player2.aura) {
-                    const auraColorInt = parseInt(auraColor.replace('#', '0x'));
-                    window.player2.aura.setTint(auraColorInt);
-                }
+            // Bake pattern into texture and set tint to white
+            if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
+                window.generatePlayerTexture(game.scene.scenes[0], 'player_tex', color, pattern, patternColor, shape);
+                player.setTexture('player_tex');
+                player.setTint(0xffffff);
+            } else {
+                player.setTint(customColorInt);
             }
-        } else {
-            localStorage.setItem('wildpulse_player_name', name);
-            localStorage.setItem('wildpulse_player_color', color);
-            localStorage.setItem('wildpulse_player_aura_color', auraColor);
-            localStorage.setItem('wildpulse_player_pattern', pattern);
-            localStorage.setItem('wildpulse_player_pattern_color', patternColor);
-            localStorage.setItem('wildpulse_player_shape', shape);
 
-            window.cachedPlayerName = name;
-            window.cachedPlayerColor = color;
-            window.cachedPlayerAuraColor = auraColor;
-
-            // Update local visuals immediately
-            if (window.localPlayerLabel) window.localPlayerLabel.setText(name || "P" + (window.playerIndexCount || 1));
-            if (typeof player !== 'undefined' && player) {
-                const customColorInt = parseInt(color.replace('#', '0x'));
-                player.originalColor = customColorInt;
-
-                // Bake pattern into texture and set tint to white
-                if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
-                    window.generatePlayerTexture(game.scene.scenes[0], 'player_tex', color, pattern, patternColor, shape);
-                    player.setTexture('player_tex');
-                    player.setTint(0xffffff);
-                } else {
-                    player.setTint(customColorInt);
-                }
-
-                if (player.aura) {
-                    const auraColorInt = parseInt(auraColor.replace('#', '0x'));
-                    player.aura.setTint(auraColorInt);
-                }
+            if (player.aura) {
+                const auraColorInt = parseInt(auraColor.replace('#', '0x'));
+                player.aura.setTint(auraColorInt);
             }
         }
 
-        window.showModernNotification("Character updated!");
-        window.closeCustomizationModal(window.activeCustomPlayer);
+        window.showModernNotification("Character 1 updated!");
+        window.closeCustomizationModal(1);
+    });
+
+    document.getElementById('saveCustomizationBtn_p2')?.addEventListener('click', () => {
+        const name = document.getElementById('playerNameInput_p2').value.trim();
+        const color = document.getElementById('playerColorInput_p2').value;
+        const auraColor = document.getElementById('playerAuraColorInput_p2').value;
+        const pattern = document.getElementById('playerPatternSelect_p2').value;
+        const patternColor = document.getElementById('playerPatternColorInput_p2').value;
+        const shape = document.getElementById('playerShapeSelect_p2') ? document.getElementById('playerShapeSelect_p2').value : 'Square';
+
+        localStorage.setItem('wildpulse_player2_name', name);
+        localStorage.setItem('wildpulse_player2_color', color);
+        localStorage.setItem('wildpulse_player2_aura_color', auraColor);
+        localStorage.setItem('wildpulse_player2_pattern', pattern);
+        localStorage.setItem('wildpulse_player2_pattern_color', patternColor);
+        localStorage.setItem('wildpulse_player2_shape', shape);
+
+        if (window.p2Label) window.p2Label.setText(name || "P2");
+        if (typeof window.player2 !== 'undefined' && window.player2) {
+            const customColorInt = parseInt(color.replace('#', '0x'));
+            window.player2.originalColor = customColorInt;
+
+            // Bake pattern into texture and set tint to white
+            if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
+                window.generatePlayerTexture(game.scene.scenes[0], 'player2_tex', color, pattern, patternColor, shape);
+                window.player2.setTexture('player2_tex');
+                window.player2.setTint(0xffffff);
+            } else {
+                window.player2.setTint(customColorInt);
+            }
+
+            if (window.player2.aura) {
+                const auraColorInt = parseInt(auraColor.replace('#', '0x'));
+                window.player2.aura.setTint(auraColorInt);
+            }
+        }
+
+        window.showModernNotification("Character 2 updated!");
+        window.closeCustomizationModal(2);
     });
 
     document.getElementById('closeCustomizationBtn')?.addEventListener('click', () => {
-        window.closeCustomizationModal(window.activeCustomPlayer);
+        window.closeCustomizationModal(1);
     });
     document.getElementById('closeCustomizationBtnTop')?.addEventListener('click', () => {
-        window.closeCustomizationModal(window.activeCustomPlayer);
+        window.closeCustomizationModal(1);
+    });
+    document.getElementById('closeCustomizationBtn_p2')?.addEventListener('click', () => {
+        window.closeCustomizationModal(2);
+    });
+    document.getElementById('closeCustomizationBtnTop_p2')?.addEventListener('click', () => {
+        window.closeCustomizationModal(2);
     });
 
     // Proactively start the game world so it's visible on the start screen
@@ -10872,6 +11308,26 @@ window.getNavigableElements = function(container) {
 };
 
 window.getActiveContainerForPlayer = function(playerNum) {
+    if (playerNum === 2) {
+        const introP2 = document.getElementById('introModal_p2');
+        if (introP2 && introP2.style.display !== 'none' && introP2.style.display !== '') {
+            return introP2;
+        }
+        const customP2 = document.getElementById('customizationModal_p2');
+        if (customP2 && customP2.style.display !== 'none' && customP2.style.display !== '') {
+            return customP2;
+        }
+    } else {
+        const introP1 = document.getElementById('introModal');
+        if (introP1 && introP1.style.display !== 'none' && introP1.style.display !== '') {
+            return introP1;
+        }
+        const customP1 = document.getElementById('customizationModal');
+        if (customP1 && customP1.style.display !== 'none' && customP1.style.display !== '') {
+            return customP1;
+        }
+    }
+
     const originalActive = window.activeBattlePlayer;
     window.activeBattlePlayer = playerNum;
 
@@ -11165,8 +11621,8 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             window[`p${playerNum}CursorY`] = window.innerHeight / 2;
         }
 
-        const dx = Math.abs(rx_vc) > deadzone_vc ? rx_vc * 24 : 0;
-        const dy = Math.abs(ry_vc) > deadzone_vc ? ry_vc * 24 : 0;
+        const dx = Math.abs(rx_vc) > deadzone_vc ? rx_vc * 12 : 0;
+        const dy = Math.abs(ry_vc) > deadzone_vc ? ry_vc * 12 : 0;
 
         window[`p${playerNum}CursorX`] += dx;
         window[`p${playerNum}CursorY`] += dy;
@@ -11366,7 +11822,7 @@ window.isAnyModalOpen = function() {
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal',
-        'journalModal', 'storeModal', 'customizationModal'
+        'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2'
     ];
     if (window.coopActive) {
         modals.push('battleModal_p2', 'battleSwapModal_p2');
@@ -11385,7 +11841,7 @@ window.updateModalVisibility = function() {
         // Reset classes and styles in case co-op was just disabled
         const modalIds = [
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
-            'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal',
+            'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
             'challengeModal', 'battleModal'
         ];
         modalIds.forEach(id => {
@@ -11407,7 +11863,7 @@ window.updateModalVisibility = function() {
 
     const modalIds = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
-        'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal',
+        'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
         'challengeModal'
     ];
 
@@ -11415,15 +11871,24 @@ window.updateModalVisibility = function() {
         const modalEl = document.getElementById(id);
         if (!modalEl) return;
 
-        const p1Open = (window.p1ActiveModal === id);
-        const p2Open = (window.p2ActiveModal === id);
+        let p1Open = (window.p1ActiveModal === id);
+        let p2Open = (window.p2ActiveModal === id);
+        if (id === 'customizationModal') {
+            p1Open = (window.p1ActiveModal === 'customizationModal');
+            p2Open = false;
+        } else if (id === 'customizationModal_p2') {
+            p1Open = false;
+            p2Open = (window.p2ActiveModal === 'customizationModal');
+        }
 
         if (p1Open || p2Open) {
-            modalEl.style.display = 'block';
-            modalEl.style.background = 'transparent';
-            modalEl.style.pointerEvents = 'none';
-            modalEl.style.boxShadow = 'none';
-            modalEl.style.backdropFilter = 'none';
+            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2') ? 'flex' : 'block';
+            if (id !== 'customizationModal' && id !== 'customizationModal_p2') {
+                modalEl.style.background = 'transparent';
+                modalEl.style.pointerEvents = 'none';
+                modalEl.style.boxShadow = 'none';
+                modalEl.style.backdropFilter = 'none';
+            }
 
             const p1Col = modalEl.querySelector('.p1-col');
             const p2Col = modalEl.querySelector('.p2-col');
@@ -11447,16 +11912,6 @@ window.updateModalVisibility = function() {
                 }
             }
 
-            if (id === 'customizationModal') {
-                if (p1Open) {
-                    modalEl.classList.add('p1-customization-active');
-                    modalEl.classList.remove('p2-customization-active');
-                } else if (p2Open) {
-                    modalEl.classList.add('p2-customization-active');
-                    modalEl.classList.remove('p1-customization-active');
-                }
-            }
-
             if (id === 'challengeModal') {
                 if (p1Open) {
                     modalEl.classList.add('p1-challenge-active');
@@ -11470,9 +11925,6 @@ window.updateModalVisibility = function() {
             modalEl.style.display = 'none';
             if (id === 'helpModal') {
                 modalEl.classList.remove('p1-help-active', 'p2-help-active');
-            }
-            if (id === 'customizationModal') {
-                modalEl.classList.remove('p1-customization-active', 'p2-customization-active');
             }
             if (id === 'challengeModal') {
                 modalEl.classList.remove('p1-challenge-active', 'p2-challenge-active');
@@ -11528,6 +11980,8 @@ window.closeAllModals = function(exceptId) {
     if (exceptId !== 'customizationModal') {
         let el = document.getElementById('customizationModal');
         if (el) el.style.display = 'none';
+        let elP2 = document.getElementById('customizationModal_p2');
+        if (elP2) elP2.style.display = 'none';
     }
     for (let m of modals) {
         if (m.id === exceptId) continue;
