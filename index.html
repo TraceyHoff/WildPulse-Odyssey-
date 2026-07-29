@@ -7215,6 +7215,16 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     // Virtual coordinate scaling: all drawing code runs inside a virtual 100x100 space!
     ctx.scale(size / 100, size / 100);
 
+    // Dynamic animation variables derived from Date.now()
+    const t = Date.now();
+    const bodyBobY = Math.sin(t * 0.003) * 1.0;
+    const breathScaleX = 1.0 + Math.sin(t * 0.0025) * 0.015;
+    const breathScaleY = 1.0 + Math.cos(t * 0.0025) * 0.015;
+    const wingFlap = Math.sin(t * 0.008) * 0.15;
+    const tailSway = Math.sin(t * 0.004) * 0.12;
+    const blinkCycle = t % 4000;
+    const isBlinking = blinkCycle > 3850; // blink for 150ms every 4s
+
     const types = creature.type ? creature.type.split('-') : ['Normal'];
     const type1 = types[0];
     const typeColor1 = window.TYPE_COLORS[type1] || 'rgba(169, 169, 169, 0.85)';
@@ -7347,6 +7357,9 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.strokeStyle = '#4a148c';
             ctx.lineWidth = 1.5;
             ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(t * 0.0005);
+            ctx.translate(-50, -50);
             ctx.globalAlpha = 0.6;
             ctx.beginPath();
             for (let i = 0; i < 16; i++) {
@@ -7360,6 +7373,10 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             // Draw a swirling wind funnel behind/around the base of the creature
             ctx.strokeStyle = 'rgba(200, 220, 240, 0.55)';
             ctx.lineWidth = 2.5;
+            ctx.save();
+            ctx.translate(50, 65);
+            ctx.scale(1.0 + Math.sin(t * 0.015) * 0.12, 1.0);
+            ctx.translate(-50, -65);
             ctx.beginPath();
             for (let i = 0; i < 5; i++) {
                 let y = 50 + i * 6;
@@ -7368,27 +7385,41 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.ellipse(50, y, w, 4, 0, 0, Math.PI * 2);
                 ctx.stroke();
             }
+            ctx.restore();
         } else if (uFeat.includes('updraft currents') || uFeat.includes('updraft')) {
             // Draw rising vertical wind draft lines with arrow heads
             ctx.strokeStyle = 'rgba(0, 229, 255, 0.5)';
             ctx.lineWidth = 2;
-            ctx.beginPath();
-            for (let i = 0; i < 4; i++) {
-                let x = 30 + i * 13;
-                let yStart = 80;
-                let yEnd = 30 + (i % 2) * 10;
-                ctx.moveTo(x, yStart);
-                ctx.lineTo(x, yEnd);
-                ctx.lineTo(x - 3, yEnd + 5);
-                ctx.moveTo(x, yEnd);
-                ctx.lineTo(x + 3, yEnd + 5);
-            }
-            ctx.stroke();
+            ctx.save();
+            let yOffset = (t * 0.03) % 40;
+            ctx.translate(0, -yOffset);
+            const drawUpdrafts = () => {
+                ctx.beginPath();
+                for (let i = 0; i < 4; i++) {
+                    let x = 30 + i * 13;
+                    let yStart = 80;
+                    let yEnd = 30 + (i % 2) * 10;
+                    ctx.moveTo(x, yStart);
+                    ctx.lineTo(x, yEnd);
+                    ctx.lineTo(x - 3, yEnd + 5);
+                    ctx.moveTo(x, yEnd);
+                    ctx.lineTo(x + 3, yEnd + 5);
+                }
+                ctx.stroke();
+            };
+            drawUpdrafts();
+            ctx.translate(0, 40);
+            drawUpdrafts();
+            ctx.restore();
         } else if (uFeat.includes('freezing touch') || uFeat.includes('freezing')) {
             // Draw frosted ice crystal stars and chunks surrounding the creature
             ctx.fillStyle = 'rgba(129, 212, 250, 0.6)';
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 1;
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(t * 0.001);
+            ctx.translate(-50, -50);
             for (let i = 0; i < 6; i++) {
                 let angle = (i * Math.PI * 2) / 6;
                 let ix = 50 + Math.cos(angle) * 36;
@@ -7397,8 +7428,11 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.arc(ix, iy, 4, 0, Math.PI * 2);
                 ctx.fill(); ctx.stroke();
             }
+            ctx.restore();
         } else if (uFeat.includes('glowing markings') || uFeat.includes('markings')) {
             // Draw glowing neon outline circles on the creature's back/sides
+            ctx.save();
+            ctx.globalAlpha = 0.4 + Math.sin(t * 0.005) * 0.35;
             ctx.strokeStyle = featCol;
             ctx.lineWidth = 3;
             ctx.shadowColor = featCol;
@@ -7408,27 +7442,43 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.arc(68, 50, 8, 0, Math.PI * 2);
             ctx.stroke();
             ctx.shadowBlur = 0;
+            ctx.restore();
         } else if (uFeat.includes('sandstone plates') || uFeat.includes('sandstone') || uFeat.includes('plates')) {
             // Draw layered sandstone armor plates on the left and right sides
             ctx.fillStyle = '#b18904';
             ctx.strokeStyle = '#5d4037';
             ctx.lineWidth = 1.5;
+            let slide = Math.sin(t * 0.0025) * 2;
             for (let i = 0; i < 3; i++) {
+                ctx.save();
+                ctx.translate(-slide, 0);
                 ctx.fillRect(15, 35 + i * 12, 8, 8);
                 ctx.strokeRect(15, 35 + i * 12, 8, 8);
+                ctx.restore();
+
+                ctx.save();
+                ctx.translate(slide, 0);
                 ctx.fillRect(77, 35 + i * 12, 8, 8);
                 ctx.strokeRect(77, 35 + i * 12, 8, 8);
+                ctx.restore();
             }
         } else if (uFeat.includes('ash clouds') || uFeat.includes('ash')) {
             // Draw dark ash clouds at the bottom
+            ctx.save();
+            ctx.translate(0, Math.sin(t * 0.003) * 2);
             ctx.fillStyle = 'rgba(100, 100, 100, 0.6)';
             ctx.beginPath();
             ctx.arc(30, 78, 12, 0, Math.PI * 2);
             ctx.arc(50, 80, 15, 0, Math.PI * 2);
             ctx.arc(70, 78, 12, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
         } else if (uFeat.includes('floating rocks') || uFeat.includes('floating')) {
             // Draw small grey floating rocky blocks orbiting the creature
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(t * 0.0008);
+            ctx.translate(-50, -50);
             ctx.fillStyle = '#78909c';
             ctx.strokeStyle = '#37474f';
             ctx.lineWidth = 1.5;
@@ -7439,14 +7489,22 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.fillRect(rx1 - 4, ry1 - 4, 8, 8);
                 ctx.strokeRect(rx1 - 4, ry1 - 4, 8, 8);
             }
+            ctx.restore();
         } else if (uFeat.includes('shadow cloak') || uFeat.includes('shadow')) {
             // Draw a dark wispy shroud behind the body
+            ctx.save();
+            ctx.globalAlpha = 0.45 + Math.sin(t * 0.005) * 0.2;
             ctx.fillStyle = 'rgba(26, 10, 42, 0.55)';
             ctx.beginPath();
             ctx.ellipse(50, 48, rx * 1.4, ry * 1.4, 0, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
         } else if (uFeat.includes('thorny vines') || uFeat.includes('thorny')) {
             // Draw thorny green lines with prickles on the sides
+            ctx.save();
+            ctx.translate(50, 60);
+            ctx.rotate(Math.sin(t * 0.002) * 0.06);
+            ctx.translate(-50, -60);
             ctx.strokeStyle = '#1b5e20';
             ctx.lineWidth = 2.5;
             ctx.beginPath();
@@ -7461,8 +7519,14 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.moveTo(20, 42); ctx.lineTo(13, 40); ctx.lineTo(21, 46);
             ctx.moveTo(80, 42); ctx.lineTo(87, 40); ctx.lineTo(79, 46);
             ctx.fill();
+            ctx.restore();
         } else if (uFeat.includes('blooming flora') || uFeat.includes('blooming')) {
             // Draw blooming pink flower buds around the base
+            ctx.save();
+            ctx.translate(50, 75);
+            let bloomScale = 1.0 + Math.sin(t * 0.003) * 0.08;
+            ctx.scale(bloomScale, bloomScale);
+            ctx.translate(-50, -75);
             ctx.fillStyle = '#ff4081';
             ctx.strokeStyle = '#ad1457';
             ctx.lineWidth = 1;
@@ -7481,8 +7545,11 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             };
             drawFlowerAt(22, 75);
             drawFlowerAt(78, 75);
+            ctx.restore();
         } else if (uFeat.includes('dust clouds') || uFeat.includes('dust')) {
             // Draw sand dust clouds floating around
+            ctx.save();
+            ctx.translate(Math.sin(t * 0.002) * 3, 0);
             ctx.fillStyle = 'rgba(215, 204, 180, 0.5)';
             ctx.beginPath();
             ctx.arc(25, 72, 8, 0, Math.PI * 2);
@@ -7490,8 +7557,11 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.arc(62, 76, 11, 0, Math.PI * 2);
             ctx.arc(75, 72, 8, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
         } else if (uFeat.includes('feathery trails') || uFeat.includes('feathery') || uFeat.includes('trails')) {
             // Draw elegant white feathers and dots behind
+            ctx.save();
+            ctx.translate(0, Math.sin(t * 0.003) * 2);
             ctx.fillStyle = '#ffffff';
             ctx.strokeStyle = '#b0bec5';
             ctx.lineWidth = 1;
@@ -7502,8 +7572,15 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.ellipse(px, py, 3, 7, Math.PI / 4, 0, Math.PI * 2);
                 ctx.fill(); ctx.stroke();
             }
+            ctx.restore();
         } else if (uFeat.includes('glacier shield') || uFeat.includes('glacier')) {
             // Draw a protective translucent blue icy barrier/shield
+            ctx.save();
+            ctx.translate(50, 50);
+            let shldScl = 1.0 + Math.sin(t * 0.004) * 0.04;
+            ctx.scale(shldScl, shldScl);
+            ctx.translate(-50, -50);
+            ctx.globalAlpha = 0.35 + Math.sin(t * 0.004) * 0.15;
             ctx.fillStyle = 'rgba(0, 229, 255, 0.25)';
             ctx.strokeStyle = '#00b0ff';
             ctx.lineWidth = 2.5;
@@ -7516,23 +7593,35 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.lineTo(35, 75);
             ctx.closePath();
             ctx.fill(); ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('void strike') || uFeat.includes('void')) {
             // Draw sharp purple void slashes behind body
+            ctx.save();
+            ctx.globalAlpha = 0.4 + Math.sin(t * 0.02) * 0.25;
             ctx.strokeStyle = '#6a1b9a';
             ctx.lineWidth = 4;
             ctx.beginPath();
             ctx.moveTo(15, 20); ctx.lineTo(85, 80);
             ctx.moveTo(85, 20); ctx.lineTo(15, 80);
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('scorching scales') || uFeat.includes('scorching')) {
             // Draw red/orange fiery contour lines
+            ctx.save();
+            ctx.globalAlpha = 0.6 + Math.sin(t * 0.01) * 0.25;
             ctx.strokeStyle = '#ff3d00';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(50, 50, rx + 4, 0, Math.PI * 2);
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('blinding flash') || uFeat.includes('blinding')) {
             // Draw bright white starburst radiating from center
+            ctx.save();
+            ctx.translate(50, 50);
+            let flshScl = 0.95 + Math.sin(t * 0.015) * 0.15;
+            ctx.scale(flshScl, flshScl);
+            ctx.translate(-50, -50);
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2.5;
             ctx.save();
@@ -7546,16 +7635,27 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             }
             ctx.stroke();
             ctx.restore();
+            ctx.restore();
         } else if (uFeat.includes('shock wave') || uFeat.includes('shock')) {
             // Draw concentric pulsating neon electric rings
+            ctx.save();
             ctx.strokeStyle = '#00e5ff';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(50, 50, rx + 5, 0, Math.PI * 2);
-            ctx.arc(50, 50, rx + 12, 0, Math.PI * 2);
+            let r1 = 10 + (t * 0.02) % 35;
+            let r2 = 10 + ((t + 400) * 0.02) % 35;
+            let r3 = 10 + ((t + 800) * 0.02) % 35;
+            ctx.arc(50, 50, r1, 0, Math.PI * 2);
+            ctx.arc(50, 50, r2, 0, Math.PI * 2);
+            ctx.arc(50, 50, r3, 0, Math.PI * 2);
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('hurricane eye') || uFeat.includes('hurricane')) {
             // Draw swirling dark storm vortex behind creature
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(-t * 0.001);
+            ctx.translate(-50, -50);
             ctx.strokeStyle = '#01579b';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -7564,8 +7664,13 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.lineTo(50 + Math.cos(theta) * r, 50 + Math.sin(theta) * r);
             }
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('solar flare') || uFeat.includes('sunburst') || uFeat.includes('solar') || uFeat.includes('sun')) {
             // Solar flares radiating outwards
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(t * 0.0004);
+            ctx.translate(-50, -50);
             ctx.strokeStyle = featCol;
             ctx.lineWidth = 3;
             ctx.shadowColor = featCol;
@@ -7580,8 +7685,13 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             }
             ctx.stroke();
             ctx.shadowBlur = 0;
+            ctx.restore();
         } else if (uFeat.includes('black hole') || uFeat.includes('void vortex') || uFeat.includes('vortex') || uFeat.includes('gravitational')) {
             // Swirling gravitational neon rings
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(t * 0.0006);
+            ctx.translate(-50, -50);
             ctx.strokeStyle = featCol;
             ctx.lineWidth = 2.5;
             ctx.shadowColor = featCol;
@@ -7592,8 +7702,13 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.stroke();
             }
             ctx.shadowBlur = 0;
+            ctx.restore();
         } else if (uFeat.includes('snowstorm') || uFeat.includes('blizzard') || uFeat.includes('ice crystals') || uFeat.includes('flakes')) {
             // Floating delicate ice shards and frosty points
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(-t * 0.0008);
+            ctx.translate(-50, -50);
             ctx.fillStyle = featCol;
             ctx.strokeStyle = '#fff';
             ctx.lineWidth = 1;
@@ -7610,6 +7725,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.closePath();
                 ctx.fill(); ctx.stroke();
             }
+            ctx.restore();
         } else if (uFeat.includes('musical notes') || uFeat.includes('melody') || uFeat.includes('sonic waves') || uFeat.includes('music')) {
             // Floating musical notes and expanding rings
             ctx.fillStyle = featCol;
@@ -7621,11 +7737,15 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.stroke();
             // Draw two eighth notes (beam notes) manually
             const drawNote = (nx, ny) => {
+                let nyShift = Math.sin(t * 0.004 + nx) * 4;
+                ctx.save();
+                ctx.translate(0, nyShift);
                 ctx.beginPath();
                 ctx.arc(nx, ny, 4, 0, Math.PI*2); // note head
                 ctx.fill();
                 ctx.fillRect(nx + 2, ny - 12, 2, 12); // stem
                 ctx.fillRect(nx + 2, ny - 12, 6, 3); // flag
+                ctx.restore();
             };
             drawNote(22, 30);
             drawNote(78, 35);
@@ -7636,7 +7756,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.lineWidth = 1;
             for (let i = 0; i < 5; i++) {
                 let px = 25 + i * 12;
-                let py = 20 + Math.sin(i) * 10;
+                let py = 20 + Math.sin(i + t * 0.003) * 10;
                 ctx.save();
                 ctx.translate(px, py);
                 ctx.rotate(i * 0.5);
@@ -7647,30 +7767,34 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             }
         } else if (uFeat.includes('halo') || uFeat.includes('glow') || uFeat.includes('flash')) {
             // Draw a shiny halo ring behind the head
+            ctx.save();
             ctx.strokeStyle = featCol;
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 4 + Math.sin(t * 0.006) * 1.0;
             ctx.shadowColor = featCol;
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 10 + Math.sin(t * 0.005) * 5;
             ctx.beginPath();
-            ctx.arc(50, 42, 34, 0, Math.PI * 2);
+            ctx.arc(50, 42, 34 + Math.sin(t * 0.004) * 1.5, 0, Math.PI * 2);
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('trail') || uFeat.includes('breath') || uFeat.includes('flare') || uFeat.includes('droplets')) {
             // Flowing particles or flames behind/underneath
             ctx.fillStyle = featCol;
             ctx.globalAlpha = 0.6;
             for (let i = 0; i < 6; i++) {
-                let px = 30 + Math.sin(i) * 20;
-                let py = 65 + i * 4;
+                let px = 30 + Math.sin(i + t * 0.003) * 20;
+                let py = 65 + i * 4 + Math.sin(t * 0.004 + i) * 3;
                 ctx.beginPath();
                 ctx.arc(px, py, 3 + (i % 3), 0, Math.PI * 2);
                 ctx.fill();
-                let px2 = 70 - Math.sin(i) * 20;
+                let px2 = 70 - Math.sin(i + t * 0.003) * 20;
                 ctx.beginPath();
                 ctx.arc(px2, py, 3 + (i % 3), 0, Math.PI * 2);
                 ctx.fill();
             }
         } else if (uFeat.includes('cloud') || uFeat.includes('dust') || uFeat.includes('smoke')) {
             // Draw small puffy clouds behind/around the base
+            ctx.save();
+            ctx.translate(Math.sin(t * 0.002) * 1.5, Math.cos(t * 0.002) * 1);
             ctx.fillStyle = featCol;
             ctx.globalAlpha = 0.5;
             ctx.beginPath();
@@ -7678,8 +7802,13 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.arc(50, 78, 14, 0, Math.PI * 2);
             ctx.arc(65, 75, 12, 0, Math.PI * 2);
             ctx.fill();
+            ctx.restore();
         } else if (uFeat.includes('shield') || uFeat.includes('orbs') || uFeat.includes('barrage')) {
             // Crystalline/shining defensive nodes floating around
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(t * 0.0012);
+            ctx.translate(-50, -50);
             ctx.fillStyle = featCol;
             for (let i = 0; i < 3; i++) {
                 let angle = (i * Math.PI * 2) / 3;
@@ -7689,8 +7818,13 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.arc(ox, oy, 5, 0, Math.PI * 2);
                 ctx.fill();
             }
+            ctx.restore();
         } else if (uFeat.includes('tendrils') || uFeat.includes('flora') || uFeat.includes('vines') || uFeat.includes('crown')) {
             // Leafy/plant tendrils crawling from top/sides
+            ctx.save();
+            ctx.translate(50, 45);
+            ctx.rotate(Math.sin(t * 0.002) * 0.05);
+            ctx.translate(-50, -45);
             ctx.fillStyle = '#4caf50';
             ctx.strokeStyle = '#2e7d32';
             ctx.lineWidth = 2;
@@ -7707,24 +7841,37 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.ellipse(15, 30, 4, 8, Math.PI/4, 0, Math.PI*2);
             ctx.ellipse(85, 30, 4, 8, -Math.PI/4, 0, Math.PI*2);
             ctx.fill();
+            ctx.restore();
         } else if (uFeat.includes('sparks') || uFeat.includes('shock') || uFeat.includes('lightning')) {
             // Electric spikes or arcs
+            ctx.save();
+            ctx.globalAlpha = 0.4 + (Math.sin(t * 0.02) > 0 ? 0.6 : -0.2);
             ctx.strokeStyle = '#ffd700';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(25, 25); ctx.lineTo(15, 40); ctx.lineTo(25, 45); ctx.lineTo(10, 60);
             ctx.moveTo(75, 25); ctx.lineTo(85, 40); ctx.lineTo(75, 45); ctx.lineTo(90, 60);
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('spiral') || uFeat.includes('nebula') || uFeat.includes('cosmic')) {
             // Starry/spiral galaxy disk representation
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(t * 0.0003);
+            ctx.translate(-50, -50);
             ctx.strokeStyle = featCol;
             ctx.lineWidth = 2.5;
             ctx.globalAlpha = 0.7;
             ctx.beginPath();
             ctx.ellipse(50, 50, 44, 18, Math.PI/12, 0, Math.PI*1.8);
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('angelic') || uFeat.includes('wings') || uFeat.includes('butterfly')) {
             // Draw large glowing wings outline in the background
+            ctx.save();
+            ctx.translate(50, 45);
+            ctx.scale(1.0 + Math.sin(t * 0.006) * 0.12, 1.0);
+            ctx.translate(-50, -45);
             ctx.strokeStyle = featCol;
             ctx.lineWidth = 3;
             ctx.shadowColor = featCol;
@@ -7740,8 +7887,11 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.quadraticCurveTo(85, 55, 65, 50);
             ctx.stroke();
             ctx.shadowBlur = 0;
+            ctx.restore();
         } else if (uFeat.includes('aurora') || uFeat.includes('ribbon') || uFeat.includes('wave')) {
             // Neon glowing wavy lines in the background
+            ctx.save();
+            ctx.translate(Math.sin(t * 0.002) * 4, 0);
             ctx.strokeStyle = featCol;
             ctx.lineWidth = 4;
             ctx.globalAlpha = 0.55;
@@ -7751,8 +7901,14 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.moveTo(10, 50);
             ctx.bezierCurveTo(30, 30, 70, 70, 90, 50);
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('crystal growths') || uFeat.includes('geode') || uFeat.includes('shards') || uFeat.includes('growths') || uFeat.includes('coral')) {
             // Sharp geode spikes growing from sides
+            ctx.save();
+            ctx.translate(50, 50);
+            let cScl = 1.0 + Math.sin(t * 0.002) * 0.04;
+            ctx.scale(cScl, cScl);
+            ctx.translate(-50, -50);
             ctx.fillStyle = featCol;
             ctx.strokeStyle = '#222222';
             ctx.lineWidth = 1.5;
@@ -7766,15 +7922,23 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.moveTo(75, 40); ctx.lineTo(90, 35); ctx.lineTo(80, 50); ctx.closePath(); ctx.fill(); ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(78, 55); ctx.lineTo(92, 60); ctx.lineTo(82, 65); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('rings') || uFeat.includes('saturn') || uFeat.includes('orbital')) {
             // Planetary orbiting ring
+            ctx.save();
+            ctx.translate(50, 50);
+            ctx.rotate(t * 0.0004);
+            ctx.translate(-50, -50);
             ctx.strokeStyle = featCol;
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.ellipse(50, 50, 48, 12, Math.PI / 6, 0, Math.PI * 2);
             ctx.stroke();
+            ctx.restore();
         } else if (uFeat.includes('volcano') || uFeat.includes('geyser') || uFeat.includes('smoke-stacks') || uFeat.includes('chimneys')) {
             // Steam columns rising from the back
+            ctx.save();
+            ctx.translate(0, -((t * 0.01) % 8));
             ctx.fillStyle = 'rgba(200, 200, 200, 0.4)';
             ctx.beginPath();
             // Stack 1
@@ -7784,6 +7948,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.arc(62, 25, 8, 0, Math.PI*2);
             ctx.arc(65, 15, 10, 0, Math.PI*2);
             ctx.fill();
+            ctx.restore();
         }
         ctx.restore();
     }
@@ -7792,6 +7957,10 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const wingsVal = (creature.wings || '').toLowerCase();
     const hasWings = wingsVal !== 'none' && wingsVal !== '';
     if (hasWings) {
+        ctx.save();
+        ctx.translate(50, 50);
+        ctx.scale(1 + wingFlap, 1 - wingFlap * 0.5);
+        ctx.translate(-50, -50);
         ctx.fillStyle = wingsCol;
         ctx.strokeStyle = wingsCol;
         ctx.lineWidth = 1;
@@ -8093,6 +8262,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.ellipse(70, 45, 12, 22, Math.PI / 6, 0, Math.PI * 2);
             ctx.fill();
         }
+        ctx.restore();
     }
 
     // 4. Draw Tail (Behind Body)
@@ -8100,6 +8270,9 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const hasTail = tailVal !== 'none' && tailVal !== '';
     if (hasTail) {
         ctx.save();
+        ctx.translate(50, 70);
+        ctx.rotate(tailSway);
+        ctx.translate(-50, -70);
         ctx.fillStyle = tailCol;
         ctx.strokeStyle = tailCol;
         ctx.lineWidth = 6;
@@ -8361,6 +8534,13 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
 
     // 5. Draw Limbs (Bottom Layer)
     const limbsVal = (creature.limbs || '').toLowerCase();
+    ctx.save();
+    let limbScaleX = 1.0 + Math.sin(t * 0.0025 + Math.PI/2) * 0.012;
+    let limbScaleY = 1.0 + Math.cos(t * 0.0025 + Math.PI/2) * 0.012;
+    let limbBobY = Math.sin(t * 0.003 + Math.PI/2) * 0.4;
+    ctx.translate(50, 72);
+    ctx.scale(limbScaleX, limbScaleY);
+    ctx.translate(-50, -72 + limbBobY);
     ctx.fillStyle = bodyColor;
     ctx.strokeStyle = bodyColor;
     ctx.lineWidth = 4;
@@ -8589,8 +8769,15 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         ctx.ellipse(62, 72, 5, 8, 0, 0, Math.PI * 2);
         ctx.fill();
     }
+    ctx.restore();
 
     // 6. Draw Main Body Shape & Size
+    ctx.save();
+    // Apply breathing and bobbing to the main body and all components attached to it
+    ctx.translate(50, 50);
+    ctx.scale(breathScaleX, breathScaleY);
+    ctx.translate(-50, -50 + bodyBobY);
+
     // Body drawing helper
     const drawBodyPath = () => {
         ctx.beginPath();
@@ -9443,6 +9630,13 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const eyesVal = (creature.eyes || '').toLowerCase();
     ctx.save();
 
+    let eyeY = 46;
+    if (isBlinking) {
+        ctx.translate(50, eyeY);
+        ctx.scale(1, 0.1);
+        ctx.translate(-50, -eyeY);
+    }
+
     const drawSingleEye = (ex, ey, eRad, style) => {
         if (style.includes('calm')) {
             // Draw serene sleeping closed eye curve
@@ -9671,7 +9865,6 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         }
     };
 
-    let eyeY = 46;
     let eyeRadius = 6.2; // Increased to make eyes bigger and cuter
     // Scale eyes slightly based on body size
     if (rx < 18) eyeRadius = 4.5; // Increased from 3.6
@@ -9724,7 +9917,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     ctx.strokeStyle = '#222222';
     ctx.lineWidth = 1.5;
 
-    let mouthY = 57;
+    let mouthY = 57 + Math.sin(t * 0.0035) * 0.4;
 
     if (teethVal !== 'none' && teethVal !== '') {
         ctx.beginPath();
@@ -9834,6 +10027,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         ctx.arc(50, mouthY - 1, 4, 0, Math.PI, false);
         ctx.stroke();
     }
+    ctx.restore();
 
     // 11. Shiny Sparkles (Golden stars)
     if (creature.isShiny) {
@@ -9898,6 +10092,19 @@ window.showFullSizeImage = function(creature) {
 
     window.renderCreatureCanvas(canvas, creature, 400, true);
     modal.style.display = 'flex';
+
+    if (window._fullSizeAnimFrame) {
+        cancelAnimationFrame(window._fullSizeAnimFrame);
+    }
+    const animate = () => {
+        if (modal.style.display === 'flex') {
+            window.renderCreatureCanvas(canvas, creature, 400, true);
+            window._fullSizeAnimFrame = requestAnimationFrame(animate);
+        } else {
+            window._fullSizeAnimFrame = null;
+        }
+    };
+    window._fullSizeAnimFrame = requestAnimationFrame(animate);
 };
 
 // Bind full size modal close triggers immediately since script runs post-DOM-body
@@ -16590,8 +16797,15 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
                 const dCanvas = document.createElement('canvas');
                 dCanvas.width = 64;
                 dCanvas.height = 64;
+                dCanvas.creatureDataReference = enemyCreature;
                 window.renderCreatureCanvas(dCanvas, enemyCreature, 64, false);
                 scene.textures.addCanvas(textureKey, dCanvas);
+            } else {
+                const tex = scene.textures.get(textureKey);
+                if (tex) {
+                    const cvs = tex.getSourceImage();
+                    if (cvs) cvs.creatureDataReference = enemyCreature;
+                }
             }
         }
 
@@ -16766,8 +16980,15 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         const dCanvas = document.createElement('canvas');
         dCanvas.width = 64;
         dCanvas.height = 64;
+        dCanvas.creatureDataReference = clonedData;
         window.renderCreatureCanvas(dCanvas, clonedData, 64, false); // false = no background/aura for world sprite!
         scene.textures.addCanvas(textureKey, dCanvas);
+    } else {
+        const tex = scene.textures.get(textureKey);
+        if (tex) {
+            const cvs = tex.getSourceImage();
+            if (cvs) cvs.creatureDataReference = clonedData;
+        }
     }
 
     const sprite = scene.add.sprite(x, y, textureKey);
@@ -16837,8 +17058,15 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         const dCanvas = document.createElement('canvas');
         dCanvas.width = 64;
         dCanvas.height = 64;
+        dCanvas.creatureDataReference = followCreature;
         window.renderCreatureCanvas(dCanvas, followCreature, 64, false);
         scene.textures.addCanvas(textureKey, dCanvas);
+    } else {
+        const tex = scene.textures.get(textureKey);
+        if (tex) {
+            const cvs = tex.getSourceImage();
+            if (cvs) cvs.creatureDataReference = followCreature;
+        }
     }
 
     let pet = window['p' + playerNum + 'PetSprite'];
@@ -18809,6 +19037,25 @@ function isPointerOverButton(p) {
 }
 
 function update() {
+    // Real-time world creature animations
+    const activeScene = this || (window.game && window.game.scene && window.game.scene.scenes[0]);
+    if (activeScene && activeScene.textures) {
+        const keys = activeScene.textures.getTextureKeys();
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            if (key.startsWith('creature_tex_')) {
+                const tex = activeScene.textures.get(key);
+                if (tex) {
+                    const canvas = tex.getSourceImage();
+                    if (canvas && canvas.creatureDataReference) {
+                        window.renderCreatureCanvas(canvas, canvas.creatureDataReference, 64, false);
+                        tex.refresh();
+                    }
+                }
+            }
+        }
+    }
+
     if (window.updateCursorVisibility) window.updateCursorVisibility();
     window.p1PadReference = null;
     window.p2PadReference = null;
