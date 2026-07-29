@@ -68,8 +68,13 @@ def run_cuj(page):
     page.click("#startGameBtn")
     page.wait_for_timeout(1000)
 
-    # Skip intro onboarding slides to start game session
-    page.click("#introSkipBtn")
+    # Click Next > (slide 1) and Configure Avatar (slide 2) to start game session
+    page.click("#introNextBtn")
+    page.wait_for_timeout(1000)
+    page.click("#introNextBtn")
+    page.wait_for_timeout(1000)
+    # Inside customization modal, click close/skip button
+    page.click("#closeCustomizationBtn")
     page.wait_for_timeout(2000)
 
     # Now the game has started and no modal is open (active gameplay)

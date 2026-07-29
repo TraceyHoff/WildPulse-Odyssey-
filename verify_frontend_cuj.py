@@ -9,10 +9,17 @@ def run_cuj(page):
     page.click("#startGameBtn")
     page.wait_for_timeout(2000)
 
-    if page.is_visible("#closeIntroBtnTop"):
-        print("Closing intro modal...")
-        page.click("#closeIntroBtnTop")
+    if page.is_visible("#introModal") and page.locator("#introModal").is_visible():
+        print("Progressing through intro slides...")
+        page.click("#introNextBtn")
         page.wait_for_timeout(1000)
+        page.click("#introNextBtn")
+        page.wait_for_timeout(1000)
+        if page.is_visible("#closeCustomizationBtn"):
+            page.click("#closeCustomizationBtn")
+        elif page.is_visible("#saveCustomizationBtn"):
+            page.click("#saveCustomizationBtn")
+        page.wait_for_timeout(1500)
 
     print("Opening party modal...")
     page.evaluate("if (window.renderPartyList) { window.renderPartyList(); }")
