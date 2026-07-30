@@ -1733,7 +1733,7 @@
             <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px;">
                 <canvas id="fullSizeImageCanvas_p2" width="400" height="400" style="display: block; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); border: 2px solid rgba(0, 255, 204, 0.2); background: rgba(0, 0, 0, 0.5); width: 100%; max-width: 350px; aspect-ratio: 1;"></canvas>
             </div>
-            <p id="fullSizeImageDesc_p2" style="color: #ccc; font-style: italic; margin: 10px 0 0 0; max-height: 100px; overflow-y: auto; font-size: 13px; line-height: 1.4;"></p>
+            <div id="fullSizeImageDesc_p2" style="color: #ccc; margin: 10px 0 0 0; max-height: 280px !important; overflow-y: auto !important; font-size: 13px; line-height: 1.4; text-align: left;"></div>
         </div>
     </div>
 </div>
@@ -2325,7 +2325,7 @@
             <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px;">
                 <canvas id="fullSizeImageCanvas" width="400" height="400" style="display: block; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); border: 2px solid rgba(0, 255, 204, 0.2); background: rgba(0, 0, 0, 0.5); width: 100%; max-width: 350px; aspect-ratio: 1;"></canvas>
             </div>
-            <p id="fullSizeImageDesc" style="color: #ccc; font-style: italic; margin: 10px 0 0 0; max-height: 100px; overflow-y: auto; font-size: 13px; line-height: 1.4;"></p>
+            <div id="fullSizeImageDesc" style="color: #ccc; margin: 10px 0 0 0; max-height: 280px !important; overflow-y: auto !important; font-size: 13px; line-height: 1.4; text-align: left;"></div>
         </div>
     </div>
 </div>
@@ -10342,7 +10342,50 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
 
     let prefix = creature.isShiny ? '⭐ ' : '';
     title.innerText = prefix + (creature.nickname || creature.name);
-    desc.innerText = creature.description || '';
+
+    let descHtml = `<p style="margin: 0 0 10px 0; font-style: italic; color: #ccc;">${creature.description || ''}</p>`;
+
+    // Nature
+    let natureText = '<span style="color: #aaa; font-style: italic;">None</span>';
+    if (creature.nature) {
+        let nTier = creature.nature.tier || 1;
+        let inc = creature.nature.increase ? ` (+${nTier * 5}% ${creature.nature.increase.toUpperCase()})` : '';
+        let dec = creature.nature.decrease ? ` (-${nTier * 5}% ${creature.nature.decrease.toUpperCase()})` : '';
+        natureText = `<span style="color: #ffd700; font-weight: bold;">${creature.nature.name} (Tier ${nTier})</span>${inc}${dec}`;
+    }
+    descHtml += `<p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Nature:</span> ${natureText}</p>`;
+
+    // Temperament
+    let tempText = '<span style="color: #aaa; font-style: italic;">None</span>';
+    let tempDesc = "";
+    const temp = creature.temperament || { name: "Gentle", description: "Incredibly soft-hearted and kind to all living things." };
+    if (temp) {
+        tempText = `<span style="color: #ff4081; font-weight: bold;">${temp.name}</span>`;
+        tempDesc = `<span style="font-size: 11px; color: #aaa; font-style: italic;"> — ${temp.description}</span>`;
+    }
+    descHtml += `<p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Temperament:</span> ${tempText}${tempDesc}</p>`;
+
+    // Mutation
+    let mutHtml = `<p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Mutation:</span> <span style="color: #888; font-style: italic;">None</span></p>`;
+    if (creature.mutation) {
+        let statsJson = "";
+        try {
+            statsJson = Object.entries(creature.mutation.stats).map(([k, v]) => `${k.toUpperCase()}: ${v >= 1 ? '+' : ''}${Math.round((v - 1) * 100)}%`).join(', ');
+        } catch(e) {
+            statsJson = JSON.stringify(creature.mutation.stats);
+        }
+        mutHtml = `
+            <div style="margin-top: 10px; padding: 10px; border: 2px solid #e040fb; border-radius: 8px; background: rgba(224, 64, 251, 0.05); text-align: left; box-shadow: 0 0 10px rgba(224, 64, 251, 0.15);">
+                <div style="color: #e040fb; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">🧬 MUTANT: ${creature.mutation.name}</div>
+                <p style="margin: 5px 0 0 0; font-size: 11px; color: #ddd; line-height: 1.4;">${creature.mutation.description}</p>
+                <p style="margin: 4px 0 0 0; font-size: 11px; color: #ffd700;"><span style="font-weight: bold; color: #00ffcc;">Stats:</span> ${statsJson}</p>
+                <p style="margin: 4px 0 0 0; font-size: 11px; color: #ffeb3b;"><span style="font-weight: bold; color: #00ffcc;">Passive:</span> ${creature.mutation.passiveDesc || ''}</p>
+            </div>
+        `;
+    }
+    descHtml += mutHtml;
+
+    desc.innerHTML = descHtml;
 
     window.renderCreatureCanvas(canvas, creature, 400, true);
     modal.style.display = 'flex';
@@ -10414,6 +10457,170 @@ window.baseCreatures.forEach(c => {
     window.assignAbility(c);
 });
 
+window.mutations = [
+    {
+        id: "bioluminescent_core",
+        name: "Bio-Luminescent Core",
+        description: "The creature harbors a pulsating light reactor deep inside its chest, illuminating even the darkest paths.",
+        stats: { specialAttack: 1.15, speed: 1.10 },
+        ability: { name: "Supernova Pulse", chance: 0.25, type: "direct_damage", value: 0.35, message: "released a blinding Supernova Pulse, decimating the enemy!", color: "#ffaa00" },
+        passiveId: "bright_flare",
+        passiveDesc: "Bright Flare — Increases the chance of finding shiny wild creatures by 10% when in the active party."
+    },
+    {
+        id: "crystalline_carapace",
+        name: "Crystalline Carapace",
+        description: "Prismatic diamond-like armor forms over the creature's back, reflecting light and buffering incoming blows.",
+        stats: { defense: 1.20, speed: 0.95 },
+        ability: { name: "Diamond Prism", chance: 0.25, type: "raise_stat", value: 0.25, message: "activated Diamond Prism, boosting physical defense!", color: "#00e5ff" },
+        passiveId: "gem_finder",
+        passiveDesc: "Gem Finder — Boosts battle gold rewards by 20% when in the active party."
+    },
+    {
+        id: "overclocked_synapses",
+        name: "Overclocked Synapses",
+        description: "The creature's brain pulses with lightning-fast neurotransmitters, operating far beyond standard limits.",
+        stats: { speed: 1.20, specialAttack: 1.10, defense: 0.90 },
+        ability: { name: "Hyper Overcharge", chance: 0.25, type: "speed", value: 1.6, message: "triggered Hyper Overcharge, heavily boosting battle speed!", color: "#ffeb3b" },
+        passiveId: "hyper_drive",
+        passiveDesc: "Hyper Drive — Doubles passive Friend XP passive gain rate for the entire active party."
+    },
+    {
+        id: "void_infusion",
+        name: "Void Infusion",
+        description: "Dark, swirling cosmic energy is woven directly into the creature's muscle fibers.",
+        stats: { attack: 1.15, specialAttack: 1.15 },
+        ability: { name: "Oblivion Strike", chance: 0.25, type: "direct_damage", value: 0.40, message: "unleashed Oblivion Strike, striking with pure dark weight!", color: "#7e57c2" },
+        passiveId: "void_mirror",
+        passiveDesc: "Void Mirror — Increases all experience gained from battles by 25% for the entire party."
+    },
+    {
+        id: "giga_heart",
+        name: "Giga Heart",
+        description: "An incredibly robust cardiovascular system grants this creature near-limitless stamina and vitality.",
+        stats: { health: 1.25, defense: 1.05 },
+        ability: { name: "Giga Rejuvenation", chance: 0.25, type: "heal", value: 0.30, message: "channeled Giga Rejuvenation, heavily restoring HP!", color: "#4caf50" },
+        passiveId: "vitality_field",
+        passiveDesc: "Vitality Field — Restores 15% of max HP for all active party members after winning a battle."
+    },
+    {
+        id: "double_helix",
+        name: "Double Helix",
+        description: "Perfect genetic symmetry unlocks latent hybrid potential across every single physical trait.",
+        stats: { health: 1.10, attack: 1.10, defense: 1.10, speed: 1.10, specialAttack: 1.10, specialDefense: 1.10 },
+        ability: { name: "Genetic Fusion", chance: 0.25, type: "raise_stat", value: 0.30, message: "used Genetic Fusion, boosting combat potency!", color: "#e040fb" },
+        passiveId: "hybrid_vigor",
+        passiveDesc: "Hybrid Vigor — This creature gains 50% more battle XP and never degrades in Friend XP when stored."
+    },
+    {
+        id: "photonic_wings",
+        name: "Photonic Wings",
+        description: "Membranous wings constructed of woven light particles allow for effortless soaring.",
+        stats: { speed: 1.15, specialDefense: 1.10 },
+        ability: { name: "Solar Ray", chance: 0.25, type: "direct_damage", value: 0.30, message: "fired a scorching Solar Ray!", color: "#ffd700" },
+        passiveId: "solar_wind",
+        passiveDesc: "Solar Wind — Increases player map movement speed by 20% when in the active party."
+    },
+    {
+        id: "stellar_crown",
+        name: "Stellar Crown",
+        description: "A ring of floating celestial stars orbits the creature's head like an ancient halo of authority.",
+        stats: { specialAttack: 1.15, specialDefense: 1.15 },
+        ability: { name: "Cosmic Nova", chance: 0.25, type: "direct_damage", value: 0.30, message: "summoned a Cosmic Nova on the opponent!", color: "#00e5ff" },
+        passiveId: "cosmic_blessing",
+        passiveDesc: "Cosmic Blessing — Increases the capture success rate multiplier by an extra 1.25x."
+    },
+    {
+        id: "nanite_infusion",
+        name: "Nanite Infusion",
+        description: "Microscopic repair nanobots swim through the creature's bloodstream, patching injuries in real time.",
+        stats: { defense: 1.15, specialDefense: 1.15 },
+        ability: { name: "Nanite Shield", chance: 0.25, type: "raise_stat", value: 0.25, message: "activated Nanite Shield, strengthening its defenses!", color: "#90a4ae" },
+        passiveId: "self_repair",
+        passiveDesc: "Self-Repair — Passive 10% max HP recovery at the start of its turn in battle."
+    },
+    {
+        id: "tectonic_plates",
+        name: "Tectonic Plates",
+        description: "Heavy volcanic stone overlays form over the creature's limbs, anchoring it securely to the ground.",
+        stats: { defense: 1.25, health: 1.10, speed: 0.90 },
+        ability: { name: "Earthquake Slam", chance: 0.25, type: "direct_damage", value: 0.30, message: "used Earthquake Slam, shattering the ground!", color: "#8d6e63" },
+        passiveId: "earthquake_guard",
+        passiveDesc: "Earthquake Guard — Passive 15% reduction to all incoming damage in battle."
+    },
+    {
+        id: "siphon_claws",
+        name: "Siphon Claws",
+        description: "Lethally sharp claws that glow with a dark crimson luster, eager to drain vitality.",
+        stats: { attack: 1.15, speed: 1.10 },
+        ability: { name: "Siphon Slash", chance: 0.25, type: "direct_damage", value: 0.25, message: "used Siphon Slash, draining life force!", color: "#ec407a" },
+        passiveId: "leech_feed",
+        passiveDesc: "Leech Feed — Restores HP equal to 20% of all damage dealt by this creature in battle."
+    },
+    {
+        id: "pyroclastic_flow",
+        name: "Pyroclastic Flow",
+        description: "Liquid hot magma oozes through cracks in the creature's skin, radiating volcanic heat.",
+        stats: { attack: 1.20, specialAttack: 1.10, specialDefense: 0.90 },
+        ability: { name: "Magma Burst", chance: 0.25, type: "direct_damage", value: 0.35, message: "unleashed a searing Magma Burst!", color: "#ff5722" },
+        passiveId: "infernal_presence",
+        passiveDesc: "Infernal Presence — Automatically inflicts Burn and 5% max HP damage on wild attackers at start of battle."
+    },
+    {
+        id: "magnetic_pulse",
+        name: "Magnetic Pulse",
+        description: "An intense electromagnetic field envelopes the creature, attracting stray metal and coins.",
+        stats: { defense: 1.15, speed: 1.10 },
+        ability: { name: "Magnetic Shield", chance: 0.25, type: "raise_stat", value: 0.20, message: "activated Magnetic Shield, polarizing its aura!", color: "#03a9f4" },
+        passiveId: "metal_sweep",
+        passiveDesc: "Metal Sweep — Passively finds 1-5 gold coins every 10 seconds while walking on the map."
+    },
+    {
+        id: "telepathic_bond",
+        name: "Telepathic Bond",
+        description: "The creature has open psionic channels, enabling telepathic links with other stored companions.",
+        stats: { specialAttack: 1.15, specialDefense: 1.10 },
+        ability: { name: "Psychic Nova", chance: 0.25, type: "direct_damage", value: 0.30, message: "unleashed a mind-shattering Psychic Nova!", color: "#e91e63" },
+        passiveId: "shared_mind",
+        passiveDesc: "Shared Mind — Stored creatures passively gain +0.1 Friend XP instead of degrading."
+    },
+    {
+        id: "sponge_skin",
+        name: "Sponge Skin",
+        description: "A specialized porous skin structure allows the creature to effortlessly absorb liquids.",
+        stats: { health: 1.20, specialDefense: 1.15, attack: 0.90 },
+        ability: { name: "Sponge Shield", chance: 0.25, type: "heal", value: 0.25, message: "activated Sponge Shield, drawing in surrounding humidity!", color: "#00bcd4" },
+        passiveId: "aqua_absorb",
+        passiveDesc: "Aqua Absorb — Restores 15% HP when hit by Water-type attacks in battle instead of taking damage."
+    },
+    {
+        id: "lucky_paw",
+        name: "Lucky Paw",
+        description: "Intricate golden markings adorn the creature's paws, bringing continuous good fortune.",
+        stats: { speed: 1.10, attack: 1.10 },
+        ability: { name: "Lucky Strike", chance: 0.25, type: "direct_damage", value: 0.30, message: "landed a highly fortuitous Lucky Strike!", color: "#ffd700" },
+        passiveId: "golden_fortune",
+        passiveDesc: "Golden Fortune — Passive 15% discount on store purchases and 20% bonus when selling creatures."
+    },
+    {
+        id: "aetheric_drift",
+        name: "Aetheric Drift",
+        description: "The creature floats slightly above the ground, riding invisible currents of pure high-frequency aether.",
+        stats: { speed: 1.15, specialAttack: 1.10 },
+        ability: { name: "Aether Vortex", chance: 0.25, type: "direct_damage", value: 0.30, message: "opened an Aether Vortex underneath the foe!", color: "#b2dfdb" },
+        passiveId: "zephyr_drift",
+        passiveDesc: "Zephyr Drift — Cuts the remaining cooldown of NPC trainer battles by 50%."
+    },
+    {
+        id: "chrono_warp",
+        name: "Chrono Warp",
+        description: "Time seems to subtly warp and slow down in a short radius surrounding this creature.",
+        stats: { speed: 1.25, specialDefense: 1.05 },
+        ability: { name: "Temporal Rewind", chance: 0.25, type: "heal", value: 0.30, message: "used Temporal Rewind, shifting its body back in time!", color: "#e040fb" },
+        passiveId: "time_slip",
+        passiveDesc: "Time Slip — Consumable active buffs (Repellent, Jank Juice, ExPALL) deplete at 50% speed (double duration)."
+    }
+];
 
 window.moods = [
     { name: "Joyful", increase: "health", decrease: null },
@@ -10466,6 +10673,30 @@ window.getRandomNature = function(isStarter = false, rngFn = Math.random) {
                                            // 60% chance for Tier 1
     }
     return { ...baseNature, tier: tier };
+};
+
+window.temperaments = [
+    { name: "Aggressive", description: "Highly aggressive, quick to anger, but possesses a fierce fighting spirit." },
+    { name: "Calm", description: "Imperturbably calm and composed under pressure." },
+    { name: "Playful", description: "Full of boundless energy, always looking for a game to play." },
+    { name: "Shy", description: "Timid and easily startled, preferring quiet places." },
+    { name: "Proud", description: "Holds its head high with a majestic, unyielding pride." },
+    { name: "Curious", description: "Intrigued by everything, constantly exploring and examining its surroundings." },
+    { name: "Mischievous", description: "Loves playing harmless tricks on its trainer and companions." },
+    { name: "Loyal", description: "Intensely devoted, always standing protectively by its master." },
+    { name: "Skittish", description: "Nervous and alert, ready to flee at the slightest sound." },
+    { name: "Brave", description: "Utterly fearless, charging headfirst into any challenge." },
+    { name: "Lazy", description: "Prefers napping and relaxing over heavy physical activities." },
+    { name: "Feisty", description: "Small but fierce, always ready to stand its ground." },
+    { name: "Gentle", description: "Incredibly soft-hearted and kind to all living things." },
+    { name: "Stoic", description: "Rarely shows emotion, enduring hardships without complaint." },
+    { name: "Xenophobic", description: "Wary of strangers and other species, but fiercely protective of its pack." },
+    { name: "Melancholy", description: "Prone to quiet contemplation and a slightly somber mood." }
+];
+
+window.getRandomTemperament = function(rngFn = Math.random) {
+    if (!window.temperaments || window.temperaments.length === 0) return undefined;
+    return window.temperaments[Math.floor(rngFn() * window.temperaments.length)];
 };
 
 window.increaseFriendLevel = function(creature) {
@@ -10539,6 +10770,9 @@ window.updateFriendExperience = function(dt) {
 
     // Player 1
     const p1List = window.collectedCreatures || [];
+    const p1HasHyperDrive = p1List.some(cre => !cre.stored && cre.mutation && cre.mutation.id === 'overclocked_synapses');
+    const p1HasTelepathicBond = p1List.some(cre => !cre.stored && cre.mutation && cre.mutation.id === 'telepathic_bond');
+
     p1List.forEach(c => {
         if (!c.friendLevel) c.friendLevel = 1;
         if (c.friendXp === undefined) c.friendXp = 0;
@@ -10548,7 +10782,11 @@ window.updateFriendExperience = function(dt) {
 
         const isStored = !!c.stored;
         if (!isStored) {
-            const xpGained = window.__test_friend_rate ? (dt / 1000) : ((dt / 1000) / 30); // 1 experience every 30 seconds
+            let mult = 1.0;
+            if (p1HasHyperDrive) mult *= 2.0;
+            if (c.mutation && c.mutation.id === 'double_helix') mult *= 2.0; // Double Helix specific boost
+
+            const xpGained = (window.__test_friend_rate ? (dt / 1000) : ((dt / 1000) / 30)) * mult;
             c.friendXp += xpGained;
             if (c.friendXp >= 100) {
                 c.friendXp -= 100;
@@ -10566,25 +10804,50 @@ window.updateFriendExperience = function(dt) {
                 }
             }
         } else {
-            const xpLost = window.__test_friend_rate ? (dt / 1000) : ((dt / 1000) / 180); // 1 experience every 3 minutes (180 seconds)
-            c.friendXp -= xpLost;
-            if (c.friendXp < 0) {
-                if (c.friendLevel > 1) {
+            // Check if telepathic bond is active
+            if (p1HasTelepathicBond) {
+                // Passive Friend XP gain instead of loss!
+                const xpGained = (dt / 1000) * 0.1; // gains passively
+                c.friendXp += xpGained;
+                if (c.friendXp >= 100) {
+                    c.friendXp -= 100;
                     const oldMaxHp = window.getEffectiveStat(c, 'health');
-                    window.decreaseFriendLevel(c);
+                    window.increaseFriendLevel(c);
                     const newMaxHp = window.getEffectiveStat(c, 'health');
                     if (c.currentHp !== undefined) {
                         c.currentHp += (newMaxHp - oldMaxHp);
                         if (c.currentHp < 0) c.currentHp = 0;
                         if (c.currentHp > newMaxHp) c.currentHp = newMaxHp;
                     }
-                    c.friendXp += 100;
                     changedP1 = true;
                     if (window.showModernNotification) {
-                        window.showModernNotification(`💔 ${c.nickname || c.name}'s Friend Level decreased to ${c.friendLevel} due to being stored... 💔`, "#e91e63");
+                        window.showModernNotification(`✨ Stored ${c.nickname || c.name}'s Friend Level increased to ${c.friendLevel} via Shared Mind! ✨`, "#ffeb3b");
                     }
-                } else {
-                    c.friendXp = 0;
+                }
+            } else if (c.mutation && c.mutation.id === 'double_helix') {
+                // Double Helix never degrades in Friend XP when stored
+                // No loss, no gain
+            } else {
+                const xpLost = window.__test_friend_rate ? (dt / 1000) : ((dt / 1000) / 180); // 1 experience every 3 minutes (180 seconds)
+                c.friendXp -= xpLost;
+                if (c.friendXp < 0) {
+                    if (c.friendLevel > 1) {
+                        const oldMaxHp = window.getEffectiveStat(c, 'health');
+                        window.decreaseFriendLevel(c);
+                        const newMaxHp = window.getEffectiveStat(c, 'health');
+                        if (c.currentHp !== undefined) {
+                            c.currentHp += (newMaxHp - oldMaxHp);
+                            if (c.currentHp < 0) c.currentHp = 0;
+                            if (c.currentHp > newMaxHp) c.currentHp = newMaxHp;
+                        }
+                        c.friendXp += 100;
+                        changedP1 = true;
+                        if (window.showModernNotification) {
+                            window.showModernNotification(`💔 ${c.nickname || c.name}'s Friend Level decreased to ${c.friendLevel} due to being stored... 💔`, "#e91e63");
+                        }
+                    } else {
+                        c.friendXp = 0;
+                    }
                 }
             }
         }
@@ -10593,6 +10856,9 @@ window.updateFriendExperience = function(dt) {
     // Player 2
     if (window.coopActive) {
         const p2List = window.collectedCreatures2 || [];
+        const p2HasHyperDrive = p2List.some(cre => !cre.stored && cre.mutation && cre.mutation.id === 'overclocked_synapses');
+        const p2HasTelepathicBond = p2List.some(cre => !cre.stored && cre.mutation && cre.mutation.id === 'telepathic_bond');
+
         p2List.forEach(c => {
             if (!c.friendLevel) c.friendLevel = 1;
             if (c.friendXp === undefined) c.friendXp = 0;
@@ -10602,7 +10868,11 @@ window.updateFriendExperience = function(dt) {
 
             const isStored = !!c.stored;
             if (!isStored) {
-                const xpGained = (dt / 1000) / 30; // 1 experience every 30 seconds
+                let mult = 1.0;
+                if (p2HasHyperDrive) mult *= 2.0;
+                if (c.mutation && c.mutation.id === 'double_helix') mult *= 2.0;
+
+                const xpGained = ((dt / 1000) / 30) * mult;
                 c.friendXp += xpGained;
                 if (c.friendXp >= 100) {
                     c.friendXp -= 100;
@@ -10620,25 +10890,47 @@ window.updateFriendExperience = function(dt) {
                     }
                 }
             } else {
-                const xpLost = (dt / 1000) / 180; // 1 experience every 3 minutes (180 seconds)
-                c.friendXp -= xpLost;
-                if (c.friendXp < 0) {
-                    if (c.friendLevel > 1) {
+                if (p2HasTelepathicBond) {
+                    const xpGained = (dt / 1000) * 0.1;
+                    c.friendXp += xpGained;
+                    if (c.friendXp >= 100) {
+                        c.friendXp -= 100;
                         const oldMaxHp = window.getEffectiveStat(c, 'health');
-                        window.decreaseFriendLevel(c);
+                        window.increaseFriendLevel(c);
                         const newMaxHp = window.getEffectiveStat(c, 'health');
                         if (c.currentHp !== undefined) {
                             c.currentHp += (newMaxHp - oldMaxHp);
                             if (c.currentHp < 0) c.currentHp = 0;
                             if (c.currentHp > newMaxHp) c.currentHp = newMaxHp;
                         }
-                        c.friendXp += 100;
                         changedP2 = true;
                         if (window.showModernNotification) {
-                            window.showModernNotification(`💔 (P2) ${c.nickname || c.name}'s Friend Level decreased to ${c.friendLevel} due to being stored... 💔`, "#e91e63");
+                            window.showModernNotification(`✨ (P2) Stored ${c.nickname || c.name}'s Friend Level increased to ${c.friendLevel} via Shared Mind! ✨`, "#ff9800");
                         }
-                    } else {
-                        c.friendXp = 0;
+                    }
+                } else if (c.mutation && c.mutation.id === 'double_helix') {
+                    // No loss, no gain
+                } else {
+                    const xpLost = (dt / 1000) / 180; // 1 experience every 3 minutes (180 seconds)
+                    c.friendXp -= xpLost;
+                    if (c.friendXp < 0) {
+                        if (c.friendLevel > 1) {
+                            const oldMaxHp = window.getEffectiveStat(c, 'health');
+                            window.decreaseFriendLevel(c);
+                            const newMaxHp = window.getEffectiveStat(c, 'health');
+                            if (c.currentHp !== undefined) {
+                                c.currentHp += (newMaxHp - oldMaxHp);
+                                if (c.currentHp < 0) c.currentHp = 0;
+                                if (c.currentHp > newMaxHp) c.currentHp = newMaxHp;
+                            }
+                            c.friendXp += 100;
+                            changedP2 = true;
+                            if (window.showModernNotification) {
+                                window.showModernNotification(`💔 (P2) ${c.nickname || c.name}'s Friend Level decreased to ${c.friendLevel} due to being stored... 💔`, "#e91e63");
+                            }
+                        } else {
+                            c.friendXp = 0;
+                        }
                     }
                 }
             }
@@ -10699,7 +10991,38 @@ window.getEffectiveStat = function(creature, statName) {
         if (creature.mood.decrease === statName) scaledBase *= reducer;
     }
 
+    if (creature.mutation && creature.mutation.stats && creature.mutation.stats[statName] !== undefined) {
+        scaledBase *= creature.mutation.stats[statName];
+    }
+
     return scaledBase;
+};
+
+window.getPassiveGoldMultiplier = function(playerNum) {
+    const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    if (party) {
+        const active = party.filter(c => !c.stored);
+        if (active.some(c => c.mutation && c.mutation.id === 'crystalline_carapace')) {
+            return 1.20;
+        }
+    }
+    return 1.0;
+};
+
+window.getCreatureXpMultiplier = function(creature, playerNum) {
+    let mult = 1.0;
+    const pNum = playerNum || (window.activeBattlePlayer === 2 ? 2 : 1);
+    const party = pNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    if (party) {
+        const activeParty = party.filter(c => !c.stored);
+        if (activeParty.some(p => p.mutation && p.mutation.id === 'void_infusion')) {
+            mult *= 1.25;
+        }
+    }
+    if (creature && creature.mutation && creature.mutation.id === 'double_helix') {
+        mult *= 1.50;
+    }
+    return mult;
 };
 
 window.getScaledBaseStat = function(creature, statName) {
@@ -10840,6 +11163,11 @@ window.calculateDamage = function(attacker, defender, power = 40) {
 
     let damage = Math.max(physDamage, specDamage);
 
+    // Passive: Earthquake Guard
+    if (defender.mutation && defender.mutation.id === 'tectonic_plates') {
+        damage *= 0.85;
+    }
+
     // Prevent super effective attacks from one-hit killing
     if (typeMod > 1) {
         const defMaxHp = window.getEffectiveStat(defender, 'health');
@@ -10858,7 +11186,11 @@ window.getXpRequirement = function(level) {
 };
 
 window.gainXp = function(creature, amount) {
-    creature.xp = (creature.xp || 0) + amount;
+    let finalAmount = amount;
+    if (window.getCreatureXpMultiplier) {
+        finalAmount = Math.floor(amount * window.getCreatureXpMultiplier(creature));
+    }
+    creature.xp = (creature.xp || 0) + finalAmount;
     let leveledUp = false;
     while (creature.xp >= window.getXpRequirement(creature.level || 1)) {
         creature.xp -= window.getXpRequirement(creature.level || 1);
@@ -11035,7 +11367,14 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     }
 
     const coins = stats.coins !== undefined ? stats.coins : 0;
-    if (coins < price) {
+    let finalPrice = price;
+    const activePartyForLucky = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const hasLuckyPaw = activePartyForLucky && activePartyForLucky.filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'lucky_paw');
+    if (hasLuckyPaw) {
+        finalPrice = Math.floor(price * 0.85);
+    }
+
+    if (coins < finalPrice) {
         window.showModernNotification("🪙 Not enough coins!");
         return;
     }
@@ -11053,7 +11392,7 @@ window.buyStoreItem = function(playerNum, itemName, price) {
         localStorage.setItem('wildpulse_store_stock_p1', JSON.stringify(window.p1StoreStock));
     }
 
-    stats.coins = coins - price;
+    stats.coins = coins - finalPrice;
     if (playerNum === 2) {
         localStorage.setItem('wildpulse_stats2', JSON.stringify(stats));
     } else {
@@ -11201,7 +11540,15 @@ window.updateStoreUI = function() {
             const available = spaceInExisting + (freeSlots * 10);
 
             const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 5) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 5);
-            const canAfford = coins >= item.price;
+
+            let displayedPrice = item.price;
+            const activePartyForLuckyUI = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            const hasLuckyPawUI = activePartyForLuckyUI && activePartyForLuckyUI.filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'lucky_paw');
+            if (hasLuckyPawUI) {
+                displayedPrice = Math.floor(item.price * 0.85);
+            }
+
+            const canAfford = coins >= displayedPrice;
             const hasSpace = available > 0;
             const hasStock = stock > 0;
             const canBuy = canAfford && hasSpace && hasStock;
@@ -11225,7 +11572,7 @@ window.updateStoreUI = function() {
                         <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available} | Stock: ${stock}</div>
                     </div>
                     <div style="text-align: right; min-width: 80px;">
-                        <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">🪙 ${item.price}</div>
+                        <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">🪙 ${displayedPrice}</div>
                         <button class="buy-item-btn" onclick="window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}">
                             ${btnText}
                         </button>
@@ -12848,6 +13195,7 @@ window.startChallengeBattle = function() {
     }
     currentEnemy.nature = window.getRandomNature(false, rng);
     currentEnemy.mood = window.getRandomMood(false, rng);
+    currentEnemy.temperament = window.getRandomTemperament(rng);
     window.assignAbility(currentEnemy, rng);
     currentEnemy.id = "challenge_" + Date.now();
     currentEnemy.color = window.getCreatureColor(currentEnemy);
@@ -13788,6 +14136,23 @@ window.breed = function(parent1, parent2) {
         }
     }
 
+    let childMutation = null;
+    const mutationChance = 0.35; // 35% chance to inherit or acquire a mutation from parents or new
+    let parentMutations = [];
+    if (parent1.mutation) parentMutations.push(parent1.mutation);
+    if (parent2.mutation) parentMutations.push(parent2.mutation);
+
+    if (Math.random() < mutationChance) {
+        if (parentMutations.length > 0 && Math.random() < 0.5) {
+            // Inherit parent mutation
+            childMutation = JSON.parse(JSON.stringify(parentMutations[Math.floor(Math.random() * parentMutations.length)]));
+        } else {
+            // New random mutation
+            const randomMut = window.mutations[Math.floor(Math.random() * window.mutations.length)];
+            childMutation = JSON.parse(JSON.stringify(randomMut));
+        }
+    }
+
     // Create baby and assign ability before returning
     const child = {
         id: childId,
@@ -13801,13 +14166,13 @@ window.breed = function(parent1, parent2) {
         color: childColor,
         level: 1,
         xp: 0,
-        level: 1,
-        xp: 0,
         friendLevel: 1,
         friendXp: 0,
         friendBonusStats: { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 },
         nature: window.getRandomNature(),
         mood: window.getRandomMood(),
+        temperament: window.getRandomTemperament(),
+        mutation: childMutation,
         isShiny: childShiny,
         parents: {
             name1: parent1.name,
@@ -13818,6 +14183,9 @@ window.breed = function(parent1, parent2) {
     };
 
     window.assignAbility(child);
+    if (child.mutation && child.mutation.ability) {
+        child.ability = JSON.parse(JSON.stringify(child.mutation.ability));
+    }
     return child;
 };
 
@@ -13941,10 +14309,16 @@ window.doBreed = function(playerNum = 1) {
         // Add the child
         window.saveCollected(child, playerNum);
 
-        if (resEl) resEl.innerText = `Successfully bred ${child.name} (Gen ${child.generation})! The parents remain in your party.`;
-
         const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
-        window.showModernNotification(`✨ ${playerName} successfully bred ${child.name} (Gen ${child.generation})! ✨`, 5000);
+        let successMsg = `Successfully bred ${child.name} (Gen ${child.generation})! The parents remain in your party.`;
+        let notificationMsg = `✨ ${playerName} successfully bred ${child.name} (Gen ${child.generation})! ✨`;
+        if (child.mutation) {
+            successMsg = `Successfully bred ${child.name} (Gen ${child.generation}) with the [${child.mutation.name}] mutation! The parents remain in your party.`;
+            notificationMsg = `✨ ${playerName} successfully bred Mutant ${child.name} (Gen ${child.generation}) with [${child.mutation.name}]! ✨`;
+        }
+
+        if (resEl) resEl.innerText = successMsg;
+        window.showModernNotification(notificationMsg, 5000);
 
         // Re-populate to show new child
         populateSelect(document.getElementById('parent1Select' + pPrefix), playerNum);
@@ -14489,7 +14863,35 @@ function logBattle(msg) {
     processLogQueue();
 }
 
+window.initializeBattleMutations = function() {
+    if (!window.inBattle || !window.currentPlayer || !window.currentEnemy) return;
+
+    const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
+    const activeParty = pNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    if (!activeParty) return;
+
+    const isPyroclasticActive = activeParty.filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'pyroclastic_flow');
+    if (isPyroclasticActive && !window.isLocalPvp) {
+        let dmg = Math.floor(window.currentEnemy.maxHp * 0.05);
+        window.currentEnemy.currentHp = Math.max(1, window.currentEnemy.currentHp - dmg);
+        window.currentEnemy.status = 'Burn';
+        setTimeout(() => {
+            window.logBattle("<span style='color:#ff5722; font-weight:bold;'>🔥 Infernal Presence: Burned the enemy on contact, dealing " + dmg + " damage!</span>");
+            if (window.updateBattleUI) window.updateBattleUI();
+        }, 600);
+    }
+};
+
 window.updateBattleUI = function() {
+    if (window.inBattle && !window.battleMutationsProcessed) {
+        window.battleMutationsProcessed = true;
+        if (window.initializeBattleMutations) {
+            window.initializeBattleMutations();
+        }
+    } else if (!window.inBattle) {
+        window.battleMutationsProcessed = false;
+    }
+
     const battleModal = document.getElementById('battleModal');
     if (battleModal && window.coopActive) {
         battleModal.classList.remove('p1-battle-active', 'p2-battle-active', 'pvp-battle-active');
@@ -16971,9 +17373,14 @@ function handleNpcTrainerOverlap(playerCollider, npcSprite) {
     const pKey = playerNum === 2 ? 'p2' : 'p1';
     const playerTrainerData = trainerData[pKey];
 
-    // Cooldown check (6 in-game hours = 300,000 ms)
-    if (playerTrainerData.lastBattleTimeMs > 0 && window.totalElapsedMs - playerTrainerData.lastBattleTimeMs < 300000) {
-        const remainingMs = 300000 - (window.totalElapsedMs - playerTrainerData.lastBattleTimeMs);
+    // Cooldown check (6 in-game hours = 300,000 ms, reduced to 3 in-game hours = 150,000 ms if Aetheric Drift is active)
+    let cdMs = 300000;
+    const activePartyForCd = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    if (activePartyForCd && activePartyForCd.filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'aetheric_drift')) {
+        cdMs = 150000;
+    }
+    if (playerTrainerData.lastBattleTimeMs > 0 && window.totalElapsedMs - playerTrainerData.lastBattleTimeMs < cdMs) {
+        const remainingMs = cdMs - (window.totalElapsedMs - playerTrainerData.lastBattleTimeMs);
         const remainingHours = remainingMs / 50000;
         const h = Math.floor(remainingHours);
         const m = Math.floor((remainingHours % 1) * 60);
@@ -17059,6 +17466,7 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
         }
         enemyCreature.nature = window.getRandomNature(false, rng);
         enemyCreature.mood = window.getRandomMood(false, rng);
+        enemyCreature.temperament = window.getRandomTemperament(rng);
         window.assignAbility(enemyCreature, rng);
         enemyCreature.id = `npc_enemy_${trainerId}_${idx}_${Date.now()}`;
         enemyCreature.color = window.getCreatureColor(enemyCreature);
@@ -17190,6 +17598,13 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     if ((window.p1JankJuiceTime && window.p1JankJuiceTime > 0) || (window.p2JankJuiceTime && window.p2JankJuiceTime > 0)) {
         shinyChance = 0.15;
     }
+
+    // Passive: Bright Flare (+10% flat shiny chance if Bioluminescent Core mutant is in active party)
+    let p1HasCore = (window.collectedCreatures || []).filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'bioluminescent_core');
+    let p2HasCore = (window.collectedCreatures2 || []).filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'bioluminescent_core');
+    if (p1HasCore || p2HasCore) {
+        shinyChance += 0.10;
+    }
     let hasShinyOnMap = false;
     if (typeof creaturesGroup !== 'undefined' && creaturesGroup) {
         creaturesGroup.getChildren().forEach(sprite => {
@@ -17244,6 +17659,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     // Assign nature, mood, and ability deterministically
     clonedData.nature = window.getRandomNature(false, sRng);
     clonedData.mood = window.getRandomMood(false, sRng);
+    clonedData.temperament = window.getRandomTemperament(sRng);
 
     // Assign Ability Deterministically
     window.assignAbility(clonedData, sRng);
@@ -17554,6 +17970,16 @@ function applyStatusEffect(target, status) {
 }
 
 function processStatuses(creature) {
+    if (creature.mutation && creature.mutation.id === 'nanite_infusion') {
+        let maxVal = window.getEffectiveStat(creature, 'health');
+        if (creature.currentHp < maxVal) {
+            let healAmt = Math.floor(maxVal * 0.10);
+            creature.currentHp = Math.min(maxVal, (creature.currentHp || maxVal) + healAmt);
+            window.showFloatingText(creature === currentPlayer ? 'playerCombatant' : 'enemyCombatant', '+' + healAmt, '#4caf50');
+            logBattle(`<span class="heal" style="color: #90a4ae; font-weight: bold;">⚡ Self-Repair: ${creature.nickname || creature.name} restored ${healAmt} HP!</span>`);
+        }
+    }
+
     if (!creature.status) return true;
     let color = creature === currentPlayer ? "#2196F3" : "#f44336";
 
@@ -17836,12 +18262,33 @@ window.doPlayerAction = function(action, callback) {
             logBattle("<span class=\"critical\">Critical Hit!</span>");
         }
 
-        currentEnemy.currentHp -= damage;
-        setTimeout(() => {
-            window.triggerAnimation('enemyCombatant', 'shake', 150);
-            window.showFloatingText('enemyCombatant', '-' + damage.toFixed(1), '#ff5555');
-        }, 100);
+        const isWaterAttacker = currentPlayer.type && currentPlayer.type.split('-')[0] === 'Water';
+        if (currentEnemy.mutation && currentEnemy.mutation.id === 'sponge_skin' && isWaterAttacker) {
+            let maxVal = window.getEffectiveStat(currentEnemy, 'health');
+            let healAmt = Math.floor(maxVal * 0.15);
+            currentEnemy.currentHp = Math.min(maxVal, (currentEnemy.currentHp || maxVal) + healAmt);
+            damage = 0; // No damage taken!
+            setTimeout(() => {
+                window.triggerAnimation('enemyCombatant', 'shake', 150);
+                window.showFloatingText('enemyCombatant', '+' + healAmt, '#4caf50');
+            }, 100);
+            logBattle(`<span class="heal" style="color:#00bcd4; font-weight:bold;">💧 Aqua Absorb: ${currentEnemy.name} absorbed the Water attack and restored ${healAmt} HP!</span>`);
+        } else {
+            currentEnemy.currentHp -= damage;
+            setTimeout(() => {
+                window.triggerAnimation('enemyCombatant', 'shake', 150);
+                window.showFloatingText('enemyCombatant', '-' + damage.toFixed(1), '#ff5555');
+            }, 100);
+        }
         logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
+
+        if (damage > 0 && currentPlayer.mutation && currentPlayer.mutation.id === 'siphon_claws') {
+            let healAmt = Math.floor(damage * 0.20);
+            let maxVal = window.getEffectiveStat(currentPlayer, 'health');
+            currentPlayer.currentHp = Math.min(maxVal, (currentPlayer.currentHp || maxVal) + healAmt);
+            window.showFloatingText('playerCombatant', '+' + healAmt, '#ec407a');
+            logBattle(`<span class="heal" style="color: #ec407a; font-weight: bold;">🩸 Leech Feed: ${currentPlayer.nickname || currentPlayer.name} siphoned ${healAmt} HP!</span>`);
+        }
 
         if (currentEnemy.currentHp > 0 && enemyRecoilTriggered) {
              if (currentEnemy.battleStats) currentEnemy.battleStats.abilityUses++;
@@ -17880,6 +18327,12 @@ window.doPlayerAction = function(action, callback) {
         if (hasLicense) {
             base_rate *= 1.5;
             logBattle("<span style='color:#ffd700; font-weight:bold;'>🎫 Creature License: Capture success rate boosted by 50%!</span>");
+        }
+
+        const activeListForCatch = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+        if (activeListForCatch && activeListForCatch.filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'stellar_crown')) {
+            base_rate *= 1.25;
+            logBattle("<span style='color:#00ffcc; font-weight:bold;'>👑 Cosmic Blessing: Capture success rate boosted by 25%!</span>");
         }
 
         if (currentPlayer.ability && currentPlayer.ability.type === 'capture_boost') {
@@ -18059,12 +18512,33 @@ window.doEnemyAction = function(callback) {
         logBattle("<span class=\"critical\">Critical Hit by enemy!</span>");
     }
 
-    currentPlayer.currentHp -= damage;
-    setTimeout(() => {
-        window.triggerAnimation('playerCombatant', 'shake', 150);
-        window.showFloatingText('playerCombatant', '-' + damage.toFixed(1), '#ff5555');
-    }, 100);
+    const isWaterAttacker = currentEnemy.type && currentEnemy.type.split('-')[0] === 'Water';
+    if (currentPlayer.mutation && currentPlayer.mutation.id === 'sponge_skin' && isWaterAttacker) {
+        let maxVal = window.getEffectiveStat(currentPlayer, 'health');
+        let healAmt = Math.floor(maxVal * 0.15);
+        currentPlayer.currentHp = Math.min(maxVal, (currentPlayer.currentHp || maxVal) + healAmt);
+        damage = 0; // No damage taken!
+        setTimeout(() => {
+            window.triggerAnimation('playerCombatant', 'shake', 150);
+            window.showFloatingText('playerCombatant', '+' + healAmt, '#4caf50');
+        }, 100);
+        logBattle(`<span class="heal" style="color:#00bcd4; font-weight:bold;">💧 Aqua Absorb: ${currentPlayer.nickname || currentPlayer.name} absorbed the Water attack and restored ${healAmt} HP!</span>`);
+    } else {
+        currentPlayer.currentHp -= damage;
+        setTimeout(() => {
+            window.triggerAnimation('playerCombatant', 'shake', 150);
+            window.showFloatingText('playerCombatant', '-' + damage.toFixed(1), '#ff5555');
+        }, 100);
+    }
     logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
+
+    if (damage > 0 && currentEnemy.mutation && currentEnemy.mutation.id === 'siphon_claws') {
+        let healAmt = Math.floor(damage * 0.20);
+        let maxVal = window.getEffectiveStat(currentEnemy, 'health');
+        currentEnemy.currentHp = Math.min(maxVal, (currentEnemy.currentHp || maxVal) + healAmt);
+        window.showFloatingText('enemyCombatant', '+' + healAmt, '#ec407a');
+        logBattle(`<span class="heal" style="color: #ec407a; font-weight: bold;">🩸 Leech Feed: ${currentEnemy.name} siphoned ${healAmt} HP!</span>`);
+    }
 
     if (currentPlayer.currentHp > 0 && playerRecoilTriggered) {
          if (currentPlayer.battleStats) currentPlayer.battleStats.abilityUses++;
@@ -18790,23 +19264,27 @@ window.endBattle = function(result) {
             if (result === 'win') {
                 window.logBattle(`${window.getP1Name()} wins!`);
                 if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                window.gameStats.coins += 80;
+                let c1 = Math.floor(80 * window.getPassiveGoldMultiplier(1));
+                window.gameStats.coins += c1;
                 if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                 if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                window.gameStats2.coins += 2;
+                let c2 = Math.floor(2 * window.getPassiveGoldMultiplier(2));
+                window.gameStats2.coins += c2;
                 localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                 window.saveStats();
-                window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins! ${window.getP2Name()} received 2 coins!`);
+                window.showModernNotification(`🪙 ${window.getP1Name()} won ${c1} coins! ${window.getP2Name()} received ${c2} coins!`);
             } else if (result === 'loss') {
                 window.logBattle(`${window.getP2Name()} wins!`);
                 if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                 if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                window.gameStats2.coins += 80;
+                let c2 = Math.floor(80 * window.getPassiveGoldMultiplier(2));
+                window.gameStats2.coins += c2;
                 localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                 if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                window.gameStats.coins += 2;
+                let c1 = Math.floor(2 * window.getPassiveGoldMultiplier(1));
+                window.gameStats.coins += c1;
                 window.saveStats();
-                window.showModernNotification(`🪙 ${window.getP2Name()} won 80 coins! ${window.getP1Name()} received 2 coins!`);
+                window.showModernNotification(`🪙 ${window.getP2Name()} won ${c2} coins! ${window.getP1Name()} received ${c1} coins!`);
             }
             if (window.updateMenuCoins) window.updateMenuCoins();
 
@@ -18823,16 +19301,18 @@ window.endBattle = function(result) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesWon = (window.gameStats2.battlesWon || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        window.gameStats2.coins += 100;
+                        let rawRew = Math.floor(100 * window.getPassiveGoldMultiplier(2));
+                        window.gameStats2.coins += rawRew;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} won 100 coins!`);
+                        window.showModernNotification(`🪙 ${window.getP2Name()} won ${rawRew} coins!`);
                     } else {
                         window.gameStats.battlesWon++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        window.gameStats.coins += 100;
+                        let rawRew = Math.floor(100 * window.getPassiveGoldMultiplier(1));
+                        window.gameStats.coins += rawRew;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} won 100 coins!`);
+                        window.showModernNotification(`🪙 ${window.getP1Name()} won ${rawRew} coins!`);
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 } else if (result === 'loss') {
@@ -18840,16 +19320,18 @@ window.endBattle = function(result) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesLost = (window.gameStats2.battlesLost || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        window.gameStats2.coins += 2;
+                        let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(2));
+                        window.gameStats2.coins += rawRew;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} received 2 coins on loss.`);
+                        window.showModernNotification(`🪙 ${window.getP2Name()} received ${rawRew} coins on loss.`);
                     } else {
                         window.gameStats.battlesLost++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        window.gameStats.coins += 2;
+                        let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(1));
+                        window.gameStats.coins += rawRew;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} received 2 coins on loss.`);
+                        window.showModernNotification(`🪙 ${window.getP1Name()} received ${rawRew} coins on loss.`);
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 }
@@ -18857,15 +19339,17 @@ window.endBattle = function(result) {
                 if (result === 'win') {
                     window.gameStats.pvpBattlesWon++;
                     if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                    window.gameStats.coins += 80;
+                    let rawRew = Math.floor(80 * window.getPassiveGoldMultiplier(1));
+                    window.gameStats.coins += rawRew;
                     window.saveStats();
-                    window.showModernNotification(`🪙 ${window.getP1Name()} won 80 coins!`);
+                    window.showModernNotification(`🪙 ${window.getP1Name()} won ${rawRew} coins!`);
                 } else if (result === 'loss') {
                     window.gameStats.pvpBattlesLost++;
                     if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                    window.gameStats.coins += 2;
+                    let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(1));
+                    window.gameStats.coins += rawRew;
                     window.saveStats();
-                    window.showModernNotification(`🪙 Received 2 coins on loss!`);
+                    window.showModernNotification(`🪙 Received ${rawRew} coins on loss!`);
                 }
                 if (window.updateMenuCoins) window.updateMenuCoins();
                 window.isPvpBattle = false;
@@ -18873,12 +19357,13 @@ window.endBattle = function(result) {
             } else {
                 if (result === 'win') {
                     const wildLevel = currentEnemy ? (currentEnemy.level || 1) : 1;
-                    const coinReward = Math.min(260, 20 + 2 * wildLevel);
+                    const baseReward = Math.min(260, 20 + 2 * wildLevel);
 
                     if (window.activeBattlePlayer === 2) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesWon = (window.gameStats2.battlesWon || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+                        let coinReward = Math.floor(baseReward * window.getPassiveGoldMultiplier(2));
                         window.gameStats2.coins += coinReward;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
@@ -18886,6 +19371,7 @@ window.endBattle = function(result) {
                     } else {
                         window.gameStats.battlesWon++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                        let coinReward = Math.floor(baseReward * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += coinReward;
                         window.saveStats();
                         window.showModernNotification(`🪙 ${window.getP1Name()} earned ${coinReward} coins!`);
@@ -18896,16 +19382,18 @@ window.endBattle = function(result) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesLost = (window.gameStats2.battlesLost || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        window.gameStats2.coins += 2;
+                        let coinReward = Math.floor(2 * window.getPassiveGoldMultiplier(2));
+                        window.gameStats2.coins += coinReward;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} received 2 coins on loss.`);
+                        window.showModernNotification(`🪙 ${window.getP2Name()} received ${coinReward} coins on loss.`);
                     } else {
                         window.gameStats.battlesLost++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        window.gameStats.coins += 2;
+                        let coinReward = Math.floor(2 * window.getPassiveGoldMultiplier(1));
+                        window.gameStats.coins += coinReward;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} received 2 coins on loss.`);
+                        window.showModernNotification(`🪙 ${window.getP1Name()} received ${coinReward} coins on loss.`);
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 }
@@ -18913,6 +19401,19 @@ window.endBattle = function(result) {
         }
 
         if (result === 'win' && !window.isPvpBattle && !window.isLocalPvp) {
+            // Passive: Vitality Field (Giga Heart mutant in party heals all active living members by 15% HP)
+            const isGigaHeartActive = activeParty.filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'giga_heart');
+            if (isGigaHeartActive) {
+                activeParty.forEach(c => {
+                    if (!c.stored && c.currentHp > 0) {
+                        let maxVal = window.getEffectiveStat(c, 'health');
+                        let healAmt = Math.floor(maxVal * 0.15);
+                        c.currentHp = Math.min(maxVal, (c.currentHp || maxVal) + healAmt);
+                    }
+                });
+                logBattle("<span class='heal' style='color:#4caf50; font-weight:bold;'>🌱 Vitality Field: Restored 15% HP for all active living party members!</span>");
+            }
+
             let xpMultiplier = window.inChallengeBattle ? (1 + window.challengeTier * 0.1) : 1.0;
             let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
@@ -19476,23 +19977,37 @@ function update() {
 
     let deltaMs = this.game.loop.delta || 16;
 
+    let p1Delta = deltaMs;
+    const p1PartyForChrono = (window.collectedCreatures || []).filter(c => !c.stored);
+    if (p1PartyForChrono.some(c => c.mutation && c.mutation.id === 'chrono_warp')) {
+        p1Delta = deltaMs * 0.5;
+    }
+
+    let p2Delta = deltaMs;
+    if (window.coopActive) {
+        const p2PartyForChrono = (window.collectedCreatures2 || []).filter(c => !c.stored);
+        if (p2PartyForChrono.some(c => c.mutation && c.mutation.id === 'chrono_warp')) {
+            p2Delta = deltaMs * 0.5;
+        }
+    }
+
     // Decrement Player 1 Buff Timers
     if (window.p1RepellentTime && window.p1RepellentTime > 0) {
-        window.p1RepellentTime = Math.max(0, window.p1RepellentTime - deltaMs);
+        window.p1RepellentTime = Math.max(0, window.p1RepellentTime - p1Delta);
         if (window.p1RepellentTime === 0) {
             window.saveActiveBuffTimers();
             window.showModernNotification("🧴 Player 1 Repellent effect has worn off.");
         }
     }
     if (window.p1JankJuiceTime && window.p1JankJuiceTime > 0) {
-        window.p1JankJuiceTime = Math.max(0, window.p1JankJuiceTime - deltaMs);
+        window.p1JankJuiceTime = Math.max(0, window.p1JankJuiceTime - p1Delta);
         if (window.p1JankJuiceTime === 0) {
             window.saveActiveBuffTimers();
             window.showModernNotification("🧃 Player 1 Jank Juice effect has worn off.");
         }
     }
     if (window.p1ExPallTime && window.p1ExPallTime > 0) {
-        window.p1ExPallTime = Math.max(0, window.p1ExPallTime - deltaMs);
+        window.p1ExPallTime = Math.max(0, window.p1ExPallTime - p1Delta);
         if (window.p1ExPallTime === 0) {
             window.saveActiveBuffTimers();
             window.showModernNotification("✨ Player 1 ExPALL effect has worn off.");
@@ -19501,21 +20016,21 @@ function update() {
 
     // Decrement Player 2 Buff Timers
     if (window.p2RepellentTime && window.p2RepellentTime > 0) {
-        window.p2RepellentTime = Math.max(0, window.p2RepellentTime - deltaMs);
+        window.p2RepellentTime = Math.max(0, window.p2RepellentTime - p2Delta);
         if (window.p2RepellentTime === 0) {
             window.saveActiveBuffTimers();
             window.showModernNotification("🧴 Player 2 Repellent effect has worn off.");
         }
     }
     if (window.p2JankJuiceTime && window.p2JankJuiceTime > 0) {
-        window.p2JankJuiceTime = Math.max(0, window.p2JankJuiceTime - deltaMs);
+        window.p2JankJuiceTime = Math.max(0, window.p2JankJuiceTime - p2Delta);
         if (window.p2JankJuiceTime === 0) {
             window.saveActiveBuffTimers();
             window.showModernNotification("🧃 Player 2 Jank Juice effect has worn off.");
         }
     }
     if (window.p2ExPallTime && window.p2ExPallTime > 0) {
-        window.p2ExPallTime = Math.max(0, window.p2ExPallTime - deltaMs);
+        window.p2ExPallTime = Math.max(0, window.p2ExPallTime - p2Delta);
         if (window.p2ExPallTime === 0) {
             window.saveActiveBuffTimers();
             window.showModernNotification("✨ Player 2 ExPALL effect has worn off.");
@@ -19601,7 +20116,9 @@ function update() {
         });
     }
 
-    const speed = 200;
+    let p1HasPhotonicWings = (window.collectedCreatures || []).filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'photonic_wings');
+    const speed = p1HasPhotonicWings ? 240 : 200;
+
     if (typeof Phaser === 'undefined') return;
 
     let storeOverlap = false;
@@ -20552,6 +21069,26 @@ function update() {
     if (movedX || movedY) {
         window.gameStats.distanceTraveled += speed * (1/60); // approx distance based on frame rate
         if (Math.random() < 0.05) window.saveStats(); // Save periodically while moving
+
+        // Passive: Metal Sweep (magnetic_pulse) gold find
+        if (!window.inBattle) {
+            const p1Party = (window.collectedCreatures || []).filter(c => !c.stored);
+            if (p1Party.some(c => c.mutation && c.mutation.id === 'magnetic_pulse')) {
+                if (!window.p1WalkGoldTimer) window.p1WalkGoldTimer = 0;
+                window.p1WalkGoldTimer += deltaMs;
+                if (window.p1WalkGoldTimer >= 10000) { // 10 seconds
+                    window.p1WalkGoldTimer = 0;
+                    let foundGold = Math.floor(Math.random() * 5) + 1; // 1-5 gold
+                    if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+                    window.gameStats.coins += foundGold;
+                    window.saveStats();
+                    if (window.updateMenuCoins) window.updateMenuCoins();
+                    window.showModernNotification(`🧲 Metal Sweep: Your Magnetic Pulse mutant found 🪙 ${foundGold} gold coins on the ground!`);
+                }
+            }
+        }
+    } else {
+        window.p1WalkGoldTimer = 0;
     }
 
     // Player 2 Movement & Physics
@@ -20566,7 +21103,9 @@ function update() {
         let p2InWater = (mapData[p2Row] && mapData[p2Row][p2Col] === 'obs');
         let p2OnIce = window.currentSeason === 'Winter' && p2InWater;
         let p2IsSwimming = p2InWater && window.currentSeason !== 'Winter';
-        let p2Speed = p2IsSwimming ? speed * 0.5 : speed;
+        let p2HasPhotonicWings = (window.collectedCreatures2 || []).filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'photonic_wings');
+        let speedForP2 = p2HasPhotonicWings ? 240 : 200;
+        let p2Speed = p2IsSwimming ? speedForP2 * 0.5 : speedForP2;
 
         if (window.gameStarted && p2CanMove) {
             // Keyboard Controls (WASD)
@@ -20674,10 +21213,31 @@ function update() {
                     window.p2Vx = p2TargetVx;
                     window.p2Vy = p2TargetVy;
                     if (window.player2.body) window.player2.body.setVelocity(p2TargetVx, p2TargetVy);
+
+                    // Passive: Metal Sweep (magnetic_pulse) gold find for Player 2
+                    if (!window.inBattle) {
+                        const p2Party = (window.collectedCreatures2 || []).filter(c => !c.stored);
+                        if (p2Party.some(c => c.mutation && c.mutation.id === 'magnetic_pulse')) {
+                            if (!window.p2WalkGoldTimer) window.p2WalkGoldTimer = 0;
+                            window.p2WalkGoldTimer += deltaMs;
+                            if (window.p2WalkGoldTimer >= 10000) { // 10 seconds
+                                window.p2WalkGoldTimer = 0;
+                                let foundGold = Math.floor(Math.random() * 5) + 1; // 1-5 gold
+                                if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
+                                if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+                                window.gameStats2.coins += foundGold;
+                                localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+                                window.saveStats();
+                                if (window.updateMenuCoins) window.updateMenuCoins();
+                                window.showModernNotification(`🧲 Metal Sweep: Player 2's Magnetic Pulse mutant found 🪙 ${foundGold} gold coins on the ground!`);
+                            }
+                        }
+                    }
                 } else {
                     window.p2Vx = 0;
                     window.p2Vy = 0;
                     if (window.player2.body) window.player2.body.setVelocity(0, 0);
+                    window.p2WalkGoldTimer = 0;
                 }
             }
         } else {
