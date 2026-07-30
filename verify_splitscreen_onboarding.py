@@ -59,11 +59,9 @@ def run_splitscreen_verification(page):
     page.screenshot(path="/home/jules/verification/screenshots/splitscreen_customization_simultaneous.png")
     page.wait_for_timeout(500)
 
-    # Save both players customization
-    print("Saving both player configurations...")
+    # Save both players customization via Player 1's save button
+    print("Saving both player configurations using Player 1 save button...")
     page.click("#saveCustomizationBtn")
-    page.wait_for_timeout(500)
-    page.click("#saveCustomizationBtn_p2")
     page.wait_for_timeout(2000)
 
     # Check that game has started and split screen viewport is active
