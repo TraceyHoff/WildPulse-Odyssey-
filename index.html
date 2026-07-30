@@ -4365,14 +4365,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isNewGame && (!isAutomation || forceOnboarding)) {
             // Enable co-op splitscreen visual layout early for onboarding
-            window.coopActive = true;
-            document.body.classList.add('coop-active-layout');
-            const splitLine = document.getElementById('coopSplitLine');
-            if (splitLine) splitLine.style.display = 'block';
-
+            window.coopActive = false;
             if (game && game.scene && game.scene.scenes[0]) {
                 const scene = game.scene.scenes[0];
                 window.enableCoop(scene);
+            } else {
+                window.coopActive = true;
+                document.body.classList.add('coop-active-layout');
+                const splitLine = document.getElementById('coopSplitLine');
+                if (splitLine) splitLine.style.display = 'block';
             }
 
             const startModal = document.getElementById('startModal');
@@ -4922,6 +4923,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (modal) modal.style.display = 'flex';
         }
         window.updateCharacterPreview(playerNum);
+
+        if (playerNum === 2) {
+            const saveBtn_p2 = document.getElementById('saveCustomizationBtn_p2');
+            const closeBtn_p2 = document.getElementById('closeCustomizationBtn_p2');
+            const closeBtnTop_p2 = document.getElementById('closeCustomizationBtnTop_p2');
+            if (window.isNewGameSetup) {
+                if (saveBtn_p2) saveBtn_p2.style.display = 'none';
+                if (closeBtn_p2) closeBtn_p2.style.display = 'none';
+                if (closeBtnTop_p2) closeBtnTop_p2.style.display = 'none';
+            } else {
+                if (saveBtn_p2) saveBtn_p2.style.display = 'inline-block';
+                if (closeBtn_p2) closeBtn_p2.style.display = 'inline-block';
+                if (closeBtnTop_p2) closeBtnTop_p2.style.display = 'block';
+            }
+        }
     };
 
     window.closeCustomizationModal = function(playerNum = 1) {
@@ -5081,13 +5097,21 @@ document.addEventListener('DOMContentLoaded', () => {
             window.isNewGameSetup = true;
 
             const saveBtn = document.getElementById('saveCustomizationBtn' + suffix);
-            if (saveBtn) saveBtn.innerText = 'Save & Start Game';
+            if (saveBtn) {
+                saveBtn.innerText = 'Save & Start Game';
+                if (playerNum === 2) {
+                    saveBtn.style.display = 'none';
+                }
+            }
 
             const closeBtn = document.getElementById('closeCustomizationBtn' + suffix);
             if (closeBtn) {
                 closeBtn.innerText = 'Skip & Start';
                 closeBtn.style.background = 'linear-gradient(180deg, #ff9800, #f57c00)';
                 closeBtn.style.borderColor = '#ffb74d';
+                if (playerNum === 2) {
+                    closeBtn.style.display = 'none';
+                }
             }
 
             const closeBtnTop = document.getElementById('closeCustomizationBtnTop' + suffix);
@@ -5246,6 +5270,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('saveCustomizationBtn')?.addEventListener('click', () => {
+        // If in splitscreen new game setup, read and save Player 2 first from the side-by-side modal inputs
+        if (window.startMode === 'splitscreen' && window.isNewGameSetup) {
+            const name_p2 = document.getElementById('playerNameInput_p2').value.trim();
+            const color_p2 = document.getElementById('playerColorInput_p2').value;
+            const auraColor_p2 = document.getElementById('playerAuraColorInput_p2').value;
+            const pattern_p2 = document.getElementById('playerPatternSelect_p2').value;
+            const patternColor_p2 = document.getElementById('playerPatternColorInput_p2').value;
+            const shape_p2 = document.getElementById('playerShapeSelect_p2') ? document.getElementById('playerShapeSelect_p2').value : 'Square';
+
+            localStorage.setItem('wildpulse_player2_name', name_p2);
+            localStorage.setItem('wildpulse_player2_color', color_p2);
+            localStorage.setItem('wildpulse_player2_aura_color', auraColor_p2);
+            localStorage.setItem('wildpulse_player2_pattern', pattern_p2);
+            localStorage.setItem('wildpulse_player2_pattern_color', patternColor_p2);
+            localStorage.setItem('wildpulse_player2_shape', shape_p2);
+
+            if (window.p2Label) window.p2Label.setText(name_p2 || "P2");
+            if (typeof window.player2 !== 'undefined' && window.player2) {
+                const customColorInt = parseInt(color_p2.replace('#', '0x'));
+                window.player2.originalColor = customColorInt;
+
+                if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
+                    window.generatePlayerTexture(game.scene.scenes[0], 'player2_tex', color_p2, pattern_p2, patternColor_p2, shape_p2);
+                    window.player2.setTexture('player2_tex');
+                    window.player2.setTint(0xffffff);
+                } else {
+                    window.player2.setTint(customColorInt);
+                }
+
+                if (window.player2.aura) {
+                    const auraColorInt = parseInt(auraColor_p2.replace('#', '0x'));
+                    window.player2.aura.setTint(auraColorInt);
+                }
+            }
+            window.showModernNotification("Character 2 updated!");
+            window.closeCustomizationModal(2);
+        }
+
         const name = document.getElementById('playerNameInput').value.trim();
         const color = document.getElementById('playerColorInput').value;
         const auraColor = document.getElementById('playerAuraColorInput').value;
@@ -5253,39 +5315,68 @@ document.addEventListener('DOMContentLoaded', () => {
         const patternColor = document.getElementById('playerPatternColorInput').value;
         const shape = document.getElementById('playerShapeSelect') ? document.getElementById('playerShapeSelect').value : 'Square';
 
-        localStorage.setItem('wildpulse_player_name', name);
-        localStorage.setItem('wildpulse_player_color', color);
-        localStorage.setItem('wildpulse_player_aura_color', auraColor);
-        localStorage.setItem('wildpulse_player_pattern', pattern);
-        localStorage.setItem('wildpulse_player_pattern_color', patternColor);
-        localStorage.setItem('wildpulse_player_shape', shape);
+        const targetPlayer = (window.activeCustomPlayer === 2 && !window.isNewGameSetup) ? 2 : 1;
 
-        window.cachedPlayerName = name;
-        window.cachedPlayerColor = color;
-        window.cachedPlayerAuraColor = auraColor;
+        if (targetPlayer === 2) {
+            localStorage.setItem('wildpulse_player2_name', name);
+            localStorage.setItem('wildpulse_player2_color', color);
+            localStorage.setItem('wildpulse_player2_aura_color', auraColor);
+            localStorage.setItem('wildpulse_player2_pattern', pattern);
+            localStorage.setItem('wildpulse_player2_pattern_color', patternColor);
+            localStorage.setItem('wildpulse_player2_shape', shape);
 
-        // Update local visuals immediately
-        if (window.localPlayerLabel) window.localPlayerLabel.setText(name || "P" + (window.playerIndexCount || 1));
-        if (typeof player !== 'undefined' && player) {
-            const customColorInt = parseInt(color.replace('#', '0x'));
-            player.originalColor = customColorInt;
+            if (window.p2Label) window.p2Label.setText(name || "P2");
+            if (typeof window.player2 !== 'undefined' && window.player2) {
+                const customColorInt = parseInt(color.replace('#', '0x'));
+                window.player2.originalColor = customColorInt;
 
-            // Bake pattern into texture and set tint to white
-            if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
-                window.generatePlayerTexture(game.scene.scenes[0], 'player_tex', color, pattern, patternColor, shape);
-                player.setTexture('player_tex');
-                player.setTint(0xffffff);
-            } else {
-                player.setTint(customColorInt);
+                if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
+                    window.generatePlayerTexture(game.scene.scenes[0], 'player2_tex', color, pattern, patternColor, shape);
+                    window.player2.setTexture('player2_tex');
+                    window.player2.setTint(0xffffff);
+                } else {
+                    window.player2.setTint(customColorInt);
+                }
+
+                if (window.player2.aura) {
+                    const auraColorInt = parseInt(auraColor.replace('#', '0x'));
+                    window.player2.aura.setTint(auraColorInt);
+                }
             }
+            window.showModernNotification("Character 2 updated!");
+        } else {
+            localStorage.setItem('wildpulse_player_name', name);
+            localStorage.setItem('wildpulse_player_color', color);
+            localStorage.setItem('wildpulse_player_aura_color', auraColor);
+            localStorage.setItem('wildpulse_player_pattern', pattern);
+            localStorage.setItem('wildpulse_player_pattern_color', patternColor);
+            localStorage.setItem('wildpulse_player_shape', shape);
 
-            if (player.aura) {
-                const auraColorInt = parseInt(auraColor.replace('#', '0x'));
-                player.aura.setTint(auraColorInt);
+            window.cachedPlayerName = name;
+            window.cachedPlayerColor = color;
+            window.cachedPlayerAuraColor = auraColor;
+
+            if (window.localPlayerLabel) window.localPlayerLabel.setText(name || "P" + (window.playerIndexCount || 1));
+            if (typeof player !== 'undefined' && player) {
+                const customColorInt = parseInt(color.replace('#', '0x'));
+                player.originalColor = customColorInt;
+
+                if (window.generatePlayerTexture && game && game.scene.scenes[0]) {
+                    window.generatePlayerTexture(game.scene.scenes[0], 'player_tex', color, pattern, patternColor, shape);
+                    player.setTexture('player_tex');
+                    player.setTint(0xffffff);
+                } else {
+                    player.setTint(customColorInt);
+                }
+
+                if (player.aura) {
+                    const auraColorInt = parseInt(auraColor.replace('#', '0x'));
+                    player.aura.setTint(auraColorInt);
+                }
             }
+            window.showModernNotification("Character 1 updated!");
         }
 
-        window.showModernNotification("Character 1 updated!");
         window.closeCustomizationModal(1);
     });
 
@@ -5329,6 +5420,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('closeCustomizationBtn')?.addEventListener('click', () => {
+        if (window.startMode === 'splitscreen' && window.isNewGameSetup) {
+            window.closeCustomizationModal(2);
+        }
         window.closeCustomizationModal(1);
     });
     document.getElementById('closeCustomizationBtnTop')?.addEventListener('click', () => {
