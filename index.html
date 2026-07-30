@@ -560,6 +560,49 @@
             text-align: center !important;
         }
 
+        /* Full Size Image Modal Specific Overrides under Co-op */
+        body.coop-active-layout #fullSizeImageModal,
+        body.coop-active-layout #fullSizeImageModal_p2 {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            max-width: none !important;
+            background: rgba(0, 0, 0, 0.85) !important;
+            padding: 20px 10px !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            z-index: 200020 !important;
+            display: none;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        body.coop-active-layout #fullSizeImageModal {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #fullSizeImageModal_p2 {
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #fullSizeImageModal > div,
+        body.coop-active-layout #fullSizeImageModal_p2 > div {
+            position: relative !important;
+            top: auto !important;
+            left: auto !important;
+            right: auto !important;
+            margin: auto !important;
+            width: 95% !important;
+            max-width: 400px !important;
+            padding: 20px !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
+            overflow: hidden !important;
+        }
+
         /* Customization Modal Specific Overrides under Co-op */
         body.coop-active-layout #customizationModal,
         body.coop-active-layout #customizationModal_p2 {
@@ -1675,6 +1718,21 @@
                 </button>
                 <button id="introNextBtn">Next ></button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Full-Sized Creature Preview Modal - Player 2 -->
+<div id="fullSizeImageModal_p2" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200020; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 20px; box-sizing: border-box; font-family: 'Courier New', monospace; color: #fff;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)); border: 2px solid #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 12px; width: 95%; max-width: 500px; padding: 20px; box-sizing: border-box; text-align: center; overflow: hidden;">
+        <button id="closeFullSizeImageBtn_p2" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #00ffcc; font-size: 24px; font-weight: bold; cursor: pointer; text-shadow: 0 0 10px rgba(0, 255, 204, 0.6); transition: transform 0.1s; z-index: 100 !important;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">X</button>
+        <div class="holographic-scanline" style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 6px 100%; z-index: 1; pointer-events: none; opacity: 0.4;"></div>
+        <div style="position: relative; z-index: 2;">
+            <h3 id="fullSizeImageTitle_p2" style="margin: 0 0 15px 0; font-size: 22px; letter-spacing: 2px; color: #00ffcc; text-shadow: 0 0 10px rgba(0, 255, 204, 0.6); text-transform: uppercase;">Creature Preview</h3>
+            <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px;">
+                <canvas id="fullSizeImageCanvas_p2" width="400" height="400" style="display: block; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); border: 2px solid rgba(0, 255, 204, 0.2); background: rgba(0, 0, 0, 0.5); width: 100%; max-width: 350px; aspect-ratio: 1;"></canvas>
+            </div>
+            <p id="fullSizeImageDesc_p2" style="color: #ccc; font-style: italic; margin: 10px 0 0 0; max-height: 100px; overflow-y: auto; font-size: 13px; line-height: 1.4;"></p>
         </div>
     </div>
 </div>
@@ -10127,11 +10185,18 @@ window.drawCreatureSprite = function(elementId, creature) {
     el.appendChild(canvas);
 };
 
-window.showFullSizeImage = function(creature) {
-    const modal = document.getElementById('fullSizeImageModal');
-    const title = document.getElementById('fullSizeImageTitle');
-    const canvas = document.getElementById('fullSizeImageCanvas');
-    const desc = document.getElementById('fullSizeImageDesc');
+window.showFullSizeImage = function(creature, playerNum = 1) {
+    const suffix = (window.coopActive && playerNum === 2) ? '_p2' : '';
+    const modalId = 'fullSizeImageModal' + suffix;
+    const titleId = 'fullSizeImageTitle' + suffix;
+    const canvasId = 'fullSizeImageCanvas' + suffix;
+    const descId = 'fullSizeImageDesc' + suffix;
+    const animFrameKey = '_fullSizeAnimFrame' + suffix;
+
+    const modal = document.getElementById(modalId);
+    const title = document.getElementById(titleId);
+    const canvas = document.getElementById(canvasId);
+    const desc = document.getElementById(descId);
     if (!modal || !canvas) return;
 
     let prefix = creature.isShiny ? '⭐ ' : '';
@@ -10141,18 +10206,18 @@ window.showFullSizeImage = function(creature) {
     window.renderCreatureCanvas(canvas, creature, 400, true);
     modal.style.display = 'flex';
 
-    if (window._fullSizeAnimFrame) {
-        cancelAnimationFrame(window._fullSizeAnimFrame);
+    if (window[animFrameKey]) {
+        cancelAnimationFrame(window[animFrameKey]);
     }
     const animate = () => {
         if (modal.style.display === 'flex') {
             window.renderCreatureCanvas(canvas, creature, 400, true);
-            window._fullSizeAnimFrame = requestAnimationFrame(animate);
+            window[animFrameKey] = requestAnimationFrame(animate);
         } else {
-            window._fullSizeAnimFrame = null;
+            window[animFrameKey] = null;
         }
     };
-    window._fullSizeAnimFrame = requestAnimationFrame(animate);
+    window[animFrameKey] = requestAnimationFrame(animate);
 };
 
 // Bind full size modal close triggers immediately since script runs post-DOM-body
@@ -10166,6 +10231,19 @@ setTimeout(() => {
         modal.onclick = (e) => {
             if (e.target === modal) {
                 modal.style.display = 'none';
+            }
+        };
+    }
+
+    const modalP2 = document.getElementById('fullSizeImageModal_p2');
+    const closeBtnP2 = document.getElementById('closeFullSizeImageBtn_p2');
+    if (closeBtnP2 && modalP2) {
+        closeBtnP2.onclick = () => {
+            modalP2.style.display = 'none';
+        };
+        modalP2.onclick = (e) => {
+            if (e.target === modalP2) {
+                modalP2.style.display = 'none';
             }
         };
     }
@@ -11564,6 +11642,10 @@ window.getNavigableElements = function(container) {
 
 window.getActiveContainerForPlayer = function(playerNum) {
     if (playerNum === 2) {
+        const fullSizeP2 = document.getElementById('fullSizeImageModal_p2');
+        if (fullSizeP2 && fullSizeP2.style.display !== 'none' && fullSizeP2.style.display !== '') {
+            return fullSizeP2;
+        }
         const introP2 = document.getElementById('introModal_p2');
         if (introP2 && introP2.style.display !== 'none' && introP2.style.display !== '') {
             return introP2;
@@ -11573,6 +11655,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
             return customP2;
         }
     } else {
+        const fullSizeP1 = document.getElementById('fullSizeImageModal');
+        if (fullSizeP1 && fullSizeP1.style.display !== 'none' && fullSizeP1.style.display !== '') {
+            return fullSizeP1;
+        }
         const introP1 = document.getElementById('introModal');
         if (introP1 && introP1.style.display !== 'none' && introP1.style.display !== '') {
             return introP1;
@@ -12084,7 +12170,8 @@ window.isAnyModalOpen = function() {
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal',
-        'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2'
+        'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
+        'fullSizeImageModal', 'fullSizeImageModal_p2'
     ];
     if (window.coopActive) {
         modals.push('battleModal_p2', 'battleSwapModal_p2');
@@ -12199,6 +12286,10 @@ window.updateModalVisibility = function() {
 };
 
 window.closeAllModalsForPlayer = function(playerNum, exceptId) {
+    const fullSizeModalId = (window.coopActive && playerNum === 2) ? 'fullSizeImageModal_p2' : 'fullSizeImageModal';
+    const fullSizeModal = document.getElementById(fullSizeModalId);
+    if (fullSizeModal) fullSizeModal.style.display = 'none';
+
     if (!window.coopActive) {
         window.closeAllModals(exceptId);
         return;
@@ -12226,6 +12317,11 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
 };
 
 window.closeAllModals = function(exceptId) {
+    const fullSizeP1 = document.getElementById('fullSizeImageModal');
+    if (fullSizeP1) fullSizeP1.style.display = 'none';
+    const fullSizeP2 = document.getElementById('fullSizeImageModal_p2');
+    if (fullSizeP2) fullSizeP2.style.display = 'none';
+
     const modals = [
         { id: 'menuModal', close: () => { if (window.closeMenuModal) window.closeMenuModal(); } },
         { id: 'partyModal', close: () => { if (window.closePartyModal) window.closePartyModal(); } },
@@ -12761,6 +12857,10 @@ window.openStorageModal = function(playerNum = 1) {
 };
 
 window.closeStorageModal = function(playerNum = 1) {
+    const fullSizeModalId = (window.coopActive && playerNum === 2) ? 'fullSizeImageModal_p2' : 'fullSizeImageModal';
+    const fullSizeModal = document.getElementById(fullSizeModalId);
+    if (fullSizeModal) fullSizeModal.style.display = 'none';
+
     if (window.coopActive) {
         if (playerNum === 2) window.p2ActiveModal = null;
         else window.p1ActiveModal = null;
@@ -12778,6 +12878,10 @@ window.closeStorageModal = function(playerNum = 1) {
 };
 
 window.closePartyModal = function(playerNum = 1) {
+    const fullSizeModalId = (window.coopActive && playerNum === 2) ? 'fullSizeImageModal_p2' : 'fullSizeImageModal';
+    const fullSizeModal = document.getElementById(fullSizeModalId);
+    if (fullSizeModal) fullSizeModal.style.display = 'none';
+
     if (window.coopActive) {
         if (playerNum === 2) window.p2ActiveModal = null;
         else window.p1ActiveModal = null;
@@ -13011,7 +13115,7 @@ function renderPartyForPlayer(playerNum = 1) {
             canv.style.border = '1px solid rgba(255,255,255,0.1)';
             canv.style.cursor = 'pointer';
             canv.onclick = () => {
-                window.showFullSizeImage(c);
+                window.showFullSizeImage(c, playerNum);
             };
             window.renderCreatureCanvas(canv, c, 80, true);
             spriteContainer.appendChild(canv);
@@ -13130,6 +13234,10 @@ function renderStorageForPlayer(playerNum = 1) {
             canv.style.borderRadius = '6px';
             canv.style.boxShadow = '0 0 8px rgba(0,0,0,0.5)';
             canv.style.border = '1px solid rgba(255,255,255,0.1)';
+            canv.style.cursor = 'pointer';
+            canv.onclick = () => {
+                window.showFullSizeImage(c, playerNum);
+            };
             window.renderCreatureCanvas(canv, c, 64, true);
             spriteContainer.appendChild(canv);
         }
