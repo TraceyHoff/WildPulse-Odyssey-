@@ -275,19 +275,19 @@
         }
 
         /* Redesign scrollbars inside modals to look futuristic/holographic */
-        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar, #introModal > div::-webkit-scrollbar, #introModal_p2 > div::-webkit-scrollbar {
+        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar, #introModal > div::-webkit-scrollbar, #introModal_p2 > div::-webkit-scrollbar, #fullSizeImageModal > div::-webkit-scrollbar, #fullSizeImageModal_p2 > div::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
-        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track, #introModal > div::-webkit-scrollbar-track, #introModal_p2 > div::-webkit-scrollbar-track {
+        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track, #introModal > div::-webkit-scrollbar-track, #introModal_p2 > div::-webkit-scrollbar-track, #fullSizeImageModal > div::-webkit-scrollbar-track, #fullSizeImageModal_p2 > div::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
         }
-        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb, #introModal > div::-webkit-scrollbar-thumb, #introModal_p2 > div::-webkit-scrollbar-thumb {
+        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb, #introModal > div::-webkit-scrollbar-thumb, #introModal_p2 > div::-webkit-scrollbar-thumb, #fullSizeImageModal > div::-webkit-scrollbar-thumb, #fullSizeImageModal_p2 > div::-webkit-scrollbar-thumb {
             background: rgba(0, 255, 210, 0.4);
             border-radius: 3px;
         }
 
-        #introModal > div, #introModal_p2 > div {
+        #introModal > div, #introModal_p2 > div, #fullSizeImageModal > div, #fullSizeImageModal_p2 > div {
             max-height: 90vh !important;
             overflow-y: auto !important;
         }
@@ -600,7 +600,8 @@
             padding: 20px !important;
             box-sizing: border-box !important;
             text-align: center !important;
-            overflow: hidden !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
         }
 
         /* Customization Modal Specific Overrides under Co-op */
@@ -1724,7 +1725,7 @@
 
 <!-- Full-Sized Creature Preview Modal - Player 2 -->
 <div id="fullSizeImageModal_p2" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200020; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 20px; box-sizing: border-box; font-family: 'Courier New', monospace; color: #fff;">
-    <div style="position: relative; background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)); border: 2px solid #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 12px; width: 95%; max-width: 500px; padding: 20px; box-sizing: border-box; text-align: center; overflow: hidden;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)); border: 2px solid #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 12px; width: 95%; max-width: 500px; padding: 20px; box-sizing: border-box; text-align: center; overflow-y: auto;">
         <button id="closeFullSizeImageBtn_p2" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #00ffcc; font-size: 24px; font-weight: bold; cursor: pointer; text-shadow: 0 0 10px rgba(0, 255, 204, 0.6); transition: transform 0.1s; z-index: 100 !important;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">X</button>
         <div class="holographic-scanline" style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 6px 100%; z-index: 1; pointer-events: none; opacity: 0.4;"></div>
         <div style="position: relative; z-index: 2;">
@@ -2316,7 +2317,7 @@
 
 <!-- Full-Sized Creature Preview Modal -->
 <div id="fullSizeImageModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200020; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 20px; box-sizing: border-box; font-family: 'Courier New', monospace; color: #fff;">
-    <div style="position: relative; background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)); border: 2px solid #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 12px; width: 95%; max-width: 500px; padding: 20px; box-sizing: border-box; text-align: center; overflow: hidden;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(15, 20, 30, 0.98), rgba(5, 10, 15, 0.98)); border: 2px solid #00ffcc; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0, 255, 204, 0.15); border-radius: 12px; width: 95%; max-width: 500px; padding: 20px; box-sizing: border-box; text-align: center; overflow-y: auto;">
         <button id="closeFullSizeImageBtn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #00ffcc; font-size: 24px; font-weight: bold; cursor: pointer; text-shadow: 0 0 10px rgba(0, 255, 204, 0.6); transition: transform 0.1s; z-index: 100 !important;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">X</button>
         <div class="holographic-scanline" style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 4px, 6px 100%; z-index: 1; pointer-events: none; opacity: 0.4;"></div>
         <div style="position: relative; z-index: 2;">
@@ -5465,6 +5466,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (window.updateMenuCoins) window.updateMenuCoins();
+
+    // Simultaneous multi-touch scroll handler for side-by-side split screen modals on mobile/touch screens
+    const activeScrollTouches = {}; // touchId -> { element, lastY }
+
+    document.addEventListener('touchstart', (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            const target = touch.target;
+            const modal = target.closest('#introModal, #introModal_p2, #fullSizeImageModal, #fullSizeImageModal_p2, #customizationModal, #customizationModal_p2');
+            if (modal) {
+                // Find inner div container which holds the scrollable content
+                const scrollableEl = modal.querySelector('div') || modal;
+                activeScrollTouches[touch.identifier] = {
+                    element: scrollableEl,
+                    lastY: touch.clientY
+                };
+            }
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        let shouldPreventDefault = false;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            const activeTouch = activeScrollTouches[touch.identifier];
+            if (activeTouch) {
+                const deltaY = activeTouch.lastY - touch.clientY;
+                activeTouch.element.scrollTop += deltaY;
+                activeTouch.lastY = touch.clientY;
+                shouldPreventDefault = true;
+            }
+        }
+        if (shouldPreventDefault) {
+            e.preventDefault(); // Stop native browser scroll gesture locks / chaining
+        }
+    }, { passive: false });
+
+    const clearTouch = (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            delete activeScrollTouches[touch.identifier];
+        }
+    };
+
+    document.addEventListener('touchend', clearTouch, { passive: true });
+    document.addEventListener('touchcancel', clearTouch, { passive: true });
 });
 
 document.addEventListener('click', function(e) {
@@ -12161,7 +12208,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             } else {
                 // Scroll the modal container itself (such as introductory modal, customization modal, etc)
                 let scrollTarget = container;
-                if (container.id === 'introModal' || container.id === 'introModal_p2') {
+                if (container.id === 'introModal' || container.id === 'introModal_p2' || container.id === 'fullSizeImageModal' || container.id === 'fullSizeImageModal_p2') {
                     scrollTarget = container.querySelector('div') || container;
                 }
                 scrollTarget.scrollTop += ry * 15;
