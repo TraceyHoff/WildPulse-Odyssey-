@@ -1712,6 +1712,186 @@
         transform: scale(1.2);
     }
 
+    /* Virtual Keyboard Cyberpunk Theme */
+    .virtual-keyboard-modal {
+        background: rgba(10, 10, 15, 0.98);
+        border: 2px solid #00ffff;
+        border-radius: 10px;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.5), inset 0 0 15px rgba(0, 255, 255, 0.2);
+        padding: 15px;
+        width: 550px;
+        max-width: 95vw;
+        font-family: 'Courier New', Courier, monospace;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        animation: neonBorderPulsate 4s ease-in-out infinite !important;
+        position: fixed;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    body.coop-active-layout #virtualKeyboardModal_p1 {
+        left: 25% !important;
+        transform: translateX(-50%) !important;
+        width: 45vw !important;
+        max-width: 95% !important;
+        border-color: #00ffcc !important;
+        box-shadow: 0 0 25px rgba(0, 255, 204, 0.5), inset 0 0 15px rgba(0, 255, 204, 0.2) !important;
+    }
+    body.coop-active-layout #virtualKeyboardModal_p2 {
+        position: fixed !important;
+        bottom: 25px !important;
+        left: 75% !important;
+        transform: translateX(-50%) !important;
+        width: 45vw !important;
+        max-width: 95% !important;
+        border-color: #ff00ff !important;
+        box-shadow: 0 0 25px rgba(255, 0, 255, 0.5), inset 0 0 15px rgba(255, 0, 255, 0.2) !important;
+    }
+
+    .keyboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px dashed rgba(0, 255, 255, 0.3);
+        padding-bottom: 5px;
+        font-size: 0.9em;
+        letter-spacing: 2px;
+    }
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-header {
+        border-bottom: 1px dashed rgba(255, 0, 255, 0.3) !important;
+    }
+
+    .keyboard-title {
+        font-weight: bold;
+        color: #00ffff;
+        text-shadow: 0 0 5px #00ffff;
+    }
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-title {
+        color: #ff00ff !important;
+        text-shadow: 0 0 5px #ff00ff !important;
+    }
+
+    .keyboard-close {
+        cursor: pointer;
+        color: #ff3333;
+        font-weight: bold;
+        font-size: 1.1em;
+        transition: transform 0.1s;
+    }
+    .keyboard-close:hover {
+        transform: scale(1.2);
+        text-shadow: 0 0 5px #ff3333;
+    }
+
+    .keyboard-preview-row {
+        width: 100%;
+    }
+
+    .keyboard-preview-input {
+        width: 100%;
+        padding: 10px;
+        background: #050508;
+        border: 1px solid #00ffff;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 1.2em;
+        text-align: center;
+        box-sizing: border-box;
+        outline: none;
+        text-shadow: 0 0 5px #fff;
+    }
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-preview-input {
+        border-color: #ff00ff !important;
+    }
+
+    .keyboard-keys-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .keyboard-row {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        width: 100%;
+    }
+
+    .keyboard-key {
+        flex: 1;
+        min-width: 25px;
+        height: 38px;
+        background: rgba(15, 15, 25, 0.85);
+        border: 1px solid rgba(0, 255, 255, 0.4);
+        border-radius: 4px;
+        color: #00ffff;
+        font-weight: bold;
+        font-size: 1em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.1s ease;
+        user-select: none;
+        box-shadow: 0 0 3px rgba(0, 255, 255, 0.2);
+    }
+    .keyboard-key:hover, .keyboard-key:focus, .keyboard-key.gamepad-focused-p1 {
+        background: #00ffff;
+        color: #000;
+        box-shadow: 0 0 10px #00ffff;
+        border-color: #fff;
+        outline: none;
+    }
+
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-key {
+        color: #ff00ff !important;
+        border-color: rgba(255, 0, 255, 0.4) !important;
+        box-shadow: 0 0 3px rgba(255, 0, 255, 0.2) !important;
+    }
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-key:hover,
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-key:focus,
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-key.gamepad-focused-p2 {
+        background: #ff00ff !important;
+        color: #000 !important;
+        box-shadow: 0 0 10px #ff00ff !important;
+        border-color: #fff !important;
+    }
+
+    .keyboard-key.key-wide {
+        flex: 2;
+    }
+    .keyboard-key.key-space {
+        flex: 4;
+    }
+    .keyboard-key.key-enter {
+        flex: 2.5;
+        background: rgba(0, 255, 128, 0.15);
+        border-color: #00ff80;
+        color: #00ff80;
+    }
+    .keyboard-key.key-enter:hover, .keyboard-key.key-enter:focus, .keyboard-key.key-enter.gamepad-focused-p1 {
+        background: #00ff80;
+        color: #000;
+        box-shadow: 0 0 10px #00ff80;
+    }
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-key.key-enter {
+        background: rgba(0, 255, 128, 0.15) !important;
+        border-color: #00ff80 !important;
+        color: #00ff80 !important;
+    }
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-key.key-enter:hover,
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-key.key-enter:focus,
+    body.coop-active-layout #virtualKeyboardModal_p2 .keyboard-key.key-enter.gamepad-focused-p2 {
+        background: #00ff80 !important;
+        color: #000 !important;
+        box-shadow: 0 0 10px #00ff80 !important;
+    }
+
 </style>
 
 </head>
@@ -2206,6 +2386,29 @@
         <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ff4d4d" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
     </svg>
     <div style="font-size: 9px; color: white; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Hospital</div>
+</div>
+
+<!-- Virtual Cyberpunk Keyboards -->
+<div id="virtualKeyboardModal_p1" class="virtual-keyboard-modal" style="display:none; position:fixed; z-index:400000; box-sizing:border-box;">
+    <div class="keyboard-header">
+        <span class="keyboard-title">P1 CYBER-INPUT</span>
+        <span class="keyboard-close" onclick="window.closeVirtualKeyboard(1)">X</span>
+    </div>
+    <div class="keyboard-preview-row">
+        <input type="text" class="keyboard-preview-input" id="keyboardPreview_p1" readonly>
+    </div>
+    <div class="keyboard-keys-grid"></div>
+</div>
+
+<div id="virtualKeyboardModal_p2" class="virtual-keyboard-modal" style="display:none; position:fixed; z-index:400000; box-sizing:border-box;">
+    <div class="keyboard-header">
+        <span class="keyboard-title">P2 CYBER-INPUT</span>
+        <span class="keyboard-close" onclick="window.closeVirtualKeyboard(2)">X</span>
+    </div>
+    <div class="keyboard-preview-row">
+        <input type="text" class="keyboard-preview-input" id="keyboardPreview_p2" readonly>
+    </div>
+    <div class="keyboard-keys-grid"></div>
 </div>
 
 <div id="tooltip"></div>
@@ -5871,6 +6074,47 @@ document.addEventListener('DOMContentLoaded', () => {
             lastTouchTime = currentTime;
         }
     }, { passive: true });
+});
+
+// Listen to input focusin or click to open the virtual keyboard
+document.addEventListener('focusin', function(e) {
+    if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'text') {
+        if (e.target.classList.contains('keyboard-preview-input')) {
+            return;
+        }
+        let playerNum = 1;
+        if (e.target.id.includes('_p2') || e.target.closest('#partyList_P2') || e.target.closest('#customizationModal_p2')) {
+            playerNum = 2;
+        }
+        window.openVirtualKeyboard(playerNum, e.target);
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'text') {
+        if (e.target.classList.contains('keyboard-preview-input')) {
+            return;
+        }
+        let playerNum = 1;
+        if (e.target.id.includes('_p2') || e.target.closest('#partyList_P2') || e.target.closest('#customizationModal_p2')) {
+            playerNum = 2;
+        }
+        window.openVirtualKeyboard(playerNum, e.target);
+    }
+});
+
+// Mirror PC keyboard typing to the preview bar in real-time
+document.addEventListener('input', function(e) {
+    if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'text') {
+        let playerNum = 1;
+        if (e.target.id.includes('_p2') || e.target.closest('#partyList_P2') || e.target.closest('#customizationModal_p2')) {
+            playerNum = 2;
+        }
+        const previewInput = document.getElementById(`keyboardPreview_p${playerNum}`);
+        if (previewInput && window[`activeKeyboardInput_p${playerNum}`] === e.target) {
+            previewInput.value = e.target.value;
+        }
+    }
 });
 
 document.addEventListener('click', function(e) {
@@ -12996,6 +13240,10 @@ window.getNavigableElements = function(container) {
 
 window.getActiveContainerForPlayer = function(playerNum) {
     if (playerNum === 2) {
+        const kbP2 = document.getElementById('virtualKeyboardModal_p2');
+        if (kbP2 && kbP2.style.display !== 'none' && kbP2.style.display !== '') {
+            return kbP2;
+        }
         const fullSizeP2 = document.getElementById('fullSizeImageModal_p2');
         if (fullSizeP2 && fullSizeP2.style.display !== 'none' && fullSizeP2.style.display !== '') {
             return fullSizeP2;
@@ -13013,6 +13261,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
             return customP2;
         }
     } else {
+        const kbP1 = document.getElementById('virtualKeyboardModal_p1');
+        if (kbP1 && kbP1.style.display !== 'none' && kbP1.style.display !== '') {
+            return kbP1;
+        }
         const fullSizeP1 = document.getElementById('fullSizeImageModal');
         if (fullSizeP1 && fullSizeP1.style.display !== 'none' && fullSizeP1.style.display !== '') {
             return fullSizeP1;
@@ -13070,7 +13322,7 @@ window.getActiveContainerForPlayer = function(playerNum) {
             'battleModal', 'battleSwapModal', 'challengeModal',
             'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal', 'inventoryWheelModal',
             'creatureSelectModal_p1', 'creatureSelectModal_p2',
-            'respawnChoiceModal_p1', 'respawnChoiceModal_p2'
+            'respawnChoiceModal_p1', 'respawnChoiceModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2'
         ];
 
         if (window.coopActive && playerNum === 2) {
@@ -13806,7 +14058,7 @@ window.isAnyModalOpen = function() {
         'battleModal', 'battleSwapModal', 'challengeModal',
         'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
         'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal', 'inventoryWheelModal',
-        'creatureSelectModal_p1', 'creatureSelectModal_p2'
+        'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2'
     ];
     if (window.coopActive) {
         modals.push('battleModal_p2', 'battleSwapModal_p2');
@@ -13925,6 +14177,11 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
     const fullSizeModal = document.getElementById(fullSizeModalId);
     if (fullSizeModal) fullSizeModal.style.display = 'none';
 
+    const activeKeyboardId = 'virtualKeyboardModal_p' + playerNum;
+    if (activeKeyboardId !== exceptId) {
+        window.closeVirtualKeyboard(playerNum);
+    }
+
     if (!window.coopActive) {
         window.closeAllModals(exceptId);
         return;
@@ -13953,6 +14210,12 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
 };
 
 window.closeAllModals = function(exceptId) {
+    if (exceptId !== 'virtualKeyboardModal_p1') {
+        window.closeVirtualKeyboard(1);
+    }
+    if (exceptId !== 'virtualKeyboardModal_p2') {
+        window.closeVirtualKeyboard(2);
+    }
     const fullSizeP1 = document.getElementById('fullSizeImageModal');
     if (fullSizeP1) fullSizeP1.style.display = 'none';
     const fullSizeP2 = document.getElementById('fullSizeImageModal_p2');
@@ -14965,6 +15228,185 @@ function renderStorageForPlayer(playerNum = 1) {
     fragment.appendChild(storageGrid);
     list.appendChild(fragment);
 }
+
+// ==================== VIRTUAL KEYBOARD ENGINE ====================
+window.keyboardLayoutLower = [
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+    ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+    ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+    ["Shift", "z", "x", "c", "v", "b", "n", "m", "Back"],
+    ["Clear", "Space", "Done"]
+];
+
+window.keyboardLayoutUpper = [
+    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+    ["Shift", "Z", "X", "C", "V", "B", "N", "M", "Back"],
+    ["Clear", "Space", "Done"]
+];
+
+window.keyboardShift_p1 = true;
+window.keyboardShift_p2 = true;
+window.activeKeyboardInput_p1 = null;
+window.activeKeyboardInput_p2 = null;
+
+window.renderVirtualKeyboardKeys = function(playerNum) {
+    const kbId = `virtualKeyboardModal_p${playerNum}`;
+    const kbEl = document.getElementById(kbId);
+    if (!kbEl) return;
+
+    const keysGrid = kbEl.querySelector('.keyboard-keys-grid');
+    if (!keysGrid) return;
+
+    keysGrid.innerHTML = '';
+
+    const isShift = window[`keyboardShift_p${playerNum}`];
+    const layout = isShift ? window.keyboardLayoutUpper : window.keyboardLayoutLower;
+
+    layout.forEach(row => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'keyboard-row';
+
+        row.forEach(key => {
+            const keyBtn = document.createElement('button');
+            keyBtn.className = 'keyboard-key';
+            keyBtn.textContent = key;
+
+            if (key === 'Shift' || key === 'Back' || key === 'Clear') {
+                keyBtn.classList.add('key-wide');
+            } else if (key === 'Space') {
+                keyBtn.classList.add('key-space');
+            } else if (key === 'Done') {
+                keyBtn.classList.add('key-enter');
+            }
+
+            keyBtn.type = 'button';
+
+            keyBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.handleVirtualKeyboardKeyPress(playerNum, key);
+            };
+
+            rowEl.appendChild(keyBtn);
+        });
+
+        keysGrid.appendChild(rowEl);
+    });
+};
+
+window.handleVirtualKeyboardKeyPress = function(playerNum, key) {
+    const targetInput = window[`activeKeyboardInput_p${playerNum}`];
+    const previewInput = document.getElementById(`keyboardPreview_p${playerNum}`);
+    if (!previewInput) return;
+
+    let val = previewInput.value;
+
+    if (key === 'Shift') {
+        window[`keyboardShift_p${playerNum}`] = !window[`keyboardShift_p${playerNum}`];
+        window.renderVirtualKeyboardKeys(playerNum);
+        return;
+    } else if (key === 'Back') {
+        val = val.slice(0, -1);
+    } else if (key === 'Clear') {
+        val = '';
+    } else if (key === 'Space') {
+        val += ' ';
+    } else if (key === 'Done') {
+        window.closeVirtualKeyboard(playerNum);
+        return;
+    } else {
+        val += key;
+    }
+
+    // Enforce maxLength of target if specified
+    if (targetInput && targetInput.maxLength > 0) {
+        val = val.slice(0, targetInput.maxLength);
+    }
+
+    previewInput.value = val;
+
+    if (targetInput) {
+        targetInput.value = val;
+        // Fire change and input events to update previews
+        targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+        targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+};
+
+window.closeVirtualKeyboard = function(playerNum) {
+    const kbId = `virtualKeyboardModal_p${playerNum}`;
+    const kbEl = document.getElementById(kbId);
+    if (kbEl) {
+        kbEl.style.display = 'none';
+    }
+
+    const targetInput = window[`activeKeyboardInput_p${playerNum}`];
+    if (targetInput) {
+        // Automatically click save button if creature name edit
+        if (targetInput.classList.contains('creature-name')) {
+            const saveBtn = targetInput.parentElement.querySelector('.save-name-btn');
+            if (saveBtn) {
+                saveBtn.click();
+            }
+        }
+        targetInput.blur();
+    }
+
+    window[`activeKeyboardInput_p${playerNum}`] = null;
+    if (playerNum === 2) {
+        window.p2ActiveModal = null;
+    } else {
+        window.p1ActiveModal = null;
+    }
+};
+
+window.openVirtualKeyboard = function(playerNum, targetInput) {
+    // If co-op is not active and playerNum is 2, ignore
+    if (playerNum === 2 && !window.coopActive) {
+        return;
+    }
+
+    if (playerNum === 2) {
+        window.p2ActiveModal = 'virtualKeyboardModal_p2';
+    } else {
+        window.p1ActiveModal = 'virtualKeyboardModal_p1';
+    }
+
+    window[`activeKeyboardInput_p${playerNum}`] = targetInput;
+
+    const kbId = `virtualKeyboardModal_p${playerNum}`;
+    const kbEl = document.getElementById(kbId);
+    if (kbEl) {
+        kbEl.style.display = 'flex';
+
+        // Initialize preview input
+        const previewInput = document.getElementById(`keyboardPreview_p${playerNum}`);
+        if (previewInput) {
+            previewInput.value = targetInput.value || '';
+        }
+
+        // Ensure shift state starts as uppercase
+        window[`keyboardShift_p${playerNum}`] = true;
+
+        // Render keys
+        window.renderVirtualKeyboardKeys(playerNum);
+
+        // Highlight first key for gamepad navigation
+        setTimeout(() => {
+            const keys = kbEl.querySelectorAll('.keyboard-key');
+            if (keys.length > 0) {
+                // Remove existing focus
+                kbEl.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
+                    el.classList.remove(`gamepad-focused-p${playerNum}`);
+                });
+                keys[0].classList.add(`gamepad-focused-p${playerNum}`);
+                try { keys[0].focus(); } catch(e) {}
+            }
+        }, 50);
+    }
+};
 
 window.saveName = function(btn, index, playerNum = 1) {
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
