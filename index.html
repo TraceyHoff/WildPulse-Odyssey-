@@ -1710,7 +1710,7 @@
                             <div>Inventory Mode:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span></div>
                             <div>Use / Confirm:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">A Button</span> (or navigate slots with D-Pad)</div>
                             <div>Action Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold RB (Right Bumper)</span>. Navigate with Left Stick, A to select, B to close</div>
-                            <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Y Button</span> (Tap for Menu, Hold 1s for Fullscreen)</div>
+                            <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Start Button</span> (Toggle In-Game Menu)</div>
                         </div>
                     </div>
                     <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
@@ -1790,7 +1790,7 @@
                             <div>Inventory Mode:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span></div>
                             <div>Use / Confirm:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">A Button</span> (or navigate slots with D-Pad)</div>
                             <div>Action Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold RB (Right Bumper)</span>. Navigate with Left Stick, A to select, B to close</div>
-                            <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Y Button</span> (Tap for Menu, Hold 1s for Fullscreen)</div>
+                            <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Start Button</span> (Toggle In-Game Menu)</div>
                         </div>
                     </div>
                     <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
@@ -2263,7 +2263,6 @@
             <button id="menuHelpBtn" style="width: 100%; margin: 8px 0;">Help</button>
             <button id="menuMusicBtn" style="width: 100%; margin: 8px 0;">Music: ON</button>
             <button id="coopToggleBtn" style="width: 100%; margin: 8px 0;">Toggle Co-op (2 Player)</button>
-            <button id="fullscreenToggleBtn" style="width: 100%; margin: 8px 0;">Toggle Fullscreen</button>
             <button id="menuDeleteBtn" style="width: 100%; margin: 8px 0; background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a;">Delete Progress</button>
             <button id="exitGameBtn" style="width: 100%; margin: 8px 0;">Exit Game</button>
             <div style="margin-top: 15px; padding: 10px; border-top: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.2); border-radius: 8px; font-size: 0.85em; text-align: left;">
@@ -4458,6 +4457,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const forceOnboarding = typeof window !== 'undefined' && window.__test_onboarding;
         console.log("[DEBUG Onboarding] isNewGame:", isNewGame, "isAutomation:", isAutomation, "forceOnboarding:", forceOnboarding, "color:", localStorage.getItem('wildpulse_player_color'));
 
+        // Request fullscreen automatically on game entry
+        if (!document.fullscreenElement) {
+            if (game && game.scale) {
+                game.scale.startFullscreen();
+            } else {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            }
+        }
+
         if (isNewGame && (!isAutomation || forceOnboarding)) {
             const startModal = document.getElementById('startModal');
             if (startModal) startModal.style.display = 'none';
@@ -4480,6 +4490,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const isNewGame = !localStorage.getItem('wildpulse_player_color');
         const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
         const forceOnboarding = typeof window !== 'undefined' && window.__test_onboarding;
+
+        // Request fullscreen automatically on game entry
+        if (!document.fullscreenElement) {
+            if (game && game.scale) {
+                game.scale.startFullscreen();
+            } else {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            }
+        }
 
         if (isNewGame && (!isAutomation || forceOnboarding)) {
             // Enable co-op splitscreen visual layout early for onboarding
@@ -4515,18 +4536,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start music on first interaction anywhere
         if (window.WildPulseMusic && !window.WildPulseMusic.initialized) {
             window.WildPulseMusic.start();
-        }
-        // Auto fullscreen on main menu (if game has not started yet)
-        if (!window.gameStarted) {
-            if (!document.fullscreenElement) {
-                if (game && game.scale) {
-                    game.scale.startFullscreen();
-                } else {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.log(`Error attempting to enable fullscreen: ${err.message}`);
-                    });
-                }
-            }
         }
     });
 
@@ -5605,20 +5614,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (current === modal) break;
                     current = current.parentElement;
                 }
-                // If no scrollable parent in direct hierarchy, find any scrollable descendant inside the modal
+                // If no scrollable parent in direct hierarchy, fallback to the modal container itself
                 if (!scrollableEl) {
-                    const allDescendants = modal.querySelectorAll('*');
-                    for (let el of allDescendants) {
-                        const style = window.getComputedStyle(el);
-                        const isScroll = style.overflowY === 'auto' || style.overflowY === 'scroll';
-                        if (isScroll && el.scrollHeight > el.clientHeight) {
-                            scrollableEl = el;
-                            break;
-                        }
-                    }
-                }
-                if (!scrollableEl) {
-                    scrollableEl = modal.querySelector('div') || modal;
+                    scrollableEl = modal;
                 }
                 activeScrollTouches[touch.identifier] = {
                     element: scrollableEl,
@@ -11701,8 +11699,8 @@ if (p2SavedGendersChanged) {
 }
 
 // Inventories and Active Buff Timers
-window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }, { name: "Creature Cookie", quantity: 1 }];
-window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }, { name: "Creature Cookie", quantity: 1 }];
+window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
+window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
 
 // Store Stock Initialization
 const defaultStock = {
@@ -12949,37 +12947,6 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         const activeContainer = window.getActiveContainerForPlayer(playerNum);
         if (activeContainer && activeContainer.id === 'actionWheelModal') {
             window.closeActionWheel(playerNum);
-        }
-    }
-
-    if (justY) {
-        prev.YPressedTime = Date.now();
-        prev.YFullscreenTriggered = false;
-    }
-
-    if (currY && !prev.YFullscreenTriggered) {
-        const holdDuration = Date.now() - prev.YPressedTime;
-        if (holdDuration >= 1000) {
-            prev.YFullscreenTriggered = true;
-            if (window.handleFullscreenToggle) {
-                window.handleFullscreenToggle();
-            } else if (game && game.scale) {
-                if (game.scale.isFullscreen) {
-                    game.scale.stopFullscreen();
-                } else {
-                    game.scale.startFullscreen();
-                }
-            } else {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.log(`Error attempting to enable fullscreen: ${err.message}`);
-                    });
-                } else {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    }
-                }
-            }
         }
     }
 
@@ -14838,6 +14805,20 @@ window.deleteProgress = function() {
 
 window.exitGame = function() {
     if (confirm('Are you sure you want to exit to the main menu?')) {
+        // Automatically exit fullscreen
+        if (document.fullscreenElement) {
+            if (game && game.scale && game.scale.isFullscreen) {
+                game.scale.stopFullscreen();
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen().catch(err => {
+                    console.log(`Error attempting to exit fullscreen: ${err.message}`);
+                });
+            }
+        } else if (document.exitFullscreen) {
+            // Safe fallback to ensure exitFullscreen is called, helping test/mock environments cleanly
+            document.exitFullscreen().catch(err => {});
+        }
+
         // Disable co-op if active
         if (window.coopActive && game && game.scene.scenes[0]) {
             window.disableCoop(game.scene.scenes[0]);

@@ -9,7 +9,7 @@ def run_test(page):
     page.goto("http://localhost:3000")
     page.wait_for_timeout(1000)
 
-    # Inject the gamepad mock script on page load
+    # Inject the gamepad mock script on page load and instrument fullscreen functions
     page.evaluate("""() => {
         window.mockGamepad = {
             id: "Standard Gamepad",
@@ -39,26 +39,43 @@ def run_test(page):
         event.gamepad = window.mockGamepad;
         window.dispatchEvent(event);
 
-        // Instrument the handleFullscreenToggle
+        // Instrument requestFullscreen
+        window.fullscreenCalledOnStart = false;
+        if (typeof Element !== 'undefined' && Element.prototype) {
+            const origRequest = Element.prototype.requestFullscreen;
+            Element.prototype.requestFullscreen = function(...args) {
+                window.fullscreenCalledOnStart = true;
+                return Promise.resolve(); // Resolves directly in headless browser
+            };
+        }
+
+        // Instrument exitFullscreen
+        window.exitFullscreenCalled = false;
+        if (typeof document !== 'undefined') {
+            document.exitFullscreen = function() {
+                window.exitFullscreenCalled = true;
+                return Promise.resolve();
+            };
+        }
+
+        // Instrument handleFullscreenToggle (legacy check)
         window.fullscreenToggleCalled = false;
-        const originalToggle = window.handleFullscreenToggle;
         window.handleFullscreenToggle = () => {
             window.fullscreenToggleCalled = true;
-            if (originalToggle) {
-                try {
-                    originalToggle();
-                } catch (e) {
-                    // Ignore fullscreen permission errors in headless env
-                }
-            }
         };
     }""")
 
     page.wait_for_timeout(500)
 
-    # Click start game button on the main menu
+    # Click start game button on the main menu and verify it triggers automatic fullscreen!
+    print("Clicking start game button...")
     page.click("#startGameBtn")
     page.wait_for_timeout(1000)
+
+    # Assert that entering the game automatically requested fullscreen
+    fullscreen_on_start = page.evaluate("() => window.fullscreenCalledOnStart")
+    print(f"Was fullscreen automatically called on entering the game? {fullscreen_on_start}")
+    assert fullscreen_on_start, "Entering the game must automatically put the game in fullscreen mode!"
 
     # Add console logger in processGamepadInputForPlayer
     page.evaluate("""() => {
@@ -68,7 +85,7 @@ def run_test(page):
             const prev = window[stateKey];
             const currY = !!(pad.buttons[3] && pad.buttons[3].pressed);
             if (currY) {
-                console.log("processGamepadInputForPlayer called: currY=true, prev.Y=" + (prev ? prev.Y : 'undefined') + ", elapsed=" + (prev ? (Date.now() - prev.YPressedTime) : 'N/A'));
+                console.log("processGamepadInputForPlayer called: currY=true, prev.Y=" + (prev ? prev.Y : 'undefined'));
             }
             orig(playerNum, pad);
         };
@@ -95,31 +112,45 @@ def run_test(page):
     assert not page.is_visible("#menuModal"), "Menu modal should be closed after pressing B button!"
 
     # Reset toggle tracking flag
-    page.evaluate("() => { window.fullscreenToggleCalled = false; }")
+    page.evaluate("() => { window.fullscreenToggleCalled = false; window.fullscreenCalledOnStart = false; }")
 
-    # 2. Verify holding Y button down for >= 1000ms triggers fullscreen and does NOT open menu modal on release
+    # 2. Verify holding Y button down for >= 1000ms does NOT trigger fullscreen
     print("Simulating holding Y button down for 2.5 seconds...")
     page.evaluate("() => window.pressMockButton(3)")
 
     # Wait for 2.5 seconds while button remains pressed
     page.wait_for_timeout(2500)
 
-    # Check if fullscreen toggle was called during hold
-    fullscreen_called = page.evaluate("() => window.fullscreenToggleCalled")
-    print(f"Was fullscreen toggle called during hold? {fullscreen_called}")
-    assert fullscreen_called, "Fullscreen toggle should have been called after holding for >= 1000ms!"
+    # Check that fullscreen toggle was NOT called during hold (since option is removed)
+    fullscreen_called = page.evaluate("() => window.fullscreenToggleCalled || window.fullscreenCalledOnStart")
+    print(f"Was fullscreen requested during Y hold? {fullscreen_called}")
+    assert not fullscreen_called, "Holding Y button should NOT request fullscreen after removing the option!"
 
     # Release the Y button now
     print("Releasing Y button after hold...")
     page.evaluate("() => window.releaseMockButton(3)")
     page.wait_for_timeout(1000)
 
-    # Check if menu modal is open (it should NOT be)
-    menu_visible_after_hold = page.is_visible("#menuModal")
-    print(f"Is menu modal open after release? {menu_visible_after_hold}")
-    assert not menu_visible_after_hold, "Menu modal should NOT be open after releasing a held Y button!"
+    # 3. Verify that exiting back to main menu automatically triggers exitFullscreen
+    print("Opening menu to trigger exit...")
+    page.evaluate("() => window.pressMockButton(9)")
+    page.wait_for_timeout(200)
+    page.evaluate("() => window.releaseMockButton(9)")
+    page.wait_for_timeout(1000)
 
-    print("All gamepad hold-for-fullscreen assertions passed successfully!")
+    # Intercept confirmation dialog
+    page.on("dialog", lambda dialog: dialog.accept())
+
+    print("Clicking Exit Game button...")
+    page.click("#exitGameBtn")
+    page.wait_for_timeout(1000)
+
+    # Assert that exiting the game automatically exited fullscreen
+    exit_called = page.evaluate("() => window.exitFullscreenCalled")
+    print(f"Was exitFullscreen called automatically on exit game? {exit_called}")
+    assert exit_called, "Exiting the game must automatically exit fullscreen mode!"
+
+    print("All gamepad and automatic fullscreen assertions passed successfully!")
 
 if __name__ == "__main__":
     with sync_playwright() as p:
