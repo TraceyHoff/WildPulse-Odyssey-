@@ -3343,32 +3343,53 @@ function escapeHtml(unsafe) {
     <button class="close-storage-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #555, #222); border-color: #777;">Close</button>
 </div>
 
-<div id="helpModal" style="display:none; position:absolute; z-index:400; color:white; overflow-y:auto; font-size:16px;">
+<div id="helpModal" style="display:none; position:absolute; z-index:400; color:white; overflow-y:auto; font-size:16px; max-height: 85vh; padding: 25px; box-sizing: border-box; background: rgba(5, 10, 20, 0.95); border: 2px solid #00ffcc; border-radius: 12px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);">
     <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
-    <div class="coop-columns">
-        <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
-        <!-- Info Column -->
-        <div class="coop-column">
-            <h2 style="margin-top: 0; color: #4caf50;">How to Play</h2>
-            <p>• Roam grass to encounter creatures. Move with ARROWS or WASD.</p>
-            <p>• Menu: View Party, Breed creatures, or Delete Progress.</p>
-            <h3>Stats</h3>
-            <p>HP: Health | Atk: Physical dmg | Def: Physical resist<br>Spe: Speed | SpA: Special dmg | SpD: Special resist</p>
-            <h3>Breeding & Shinies</h3>
-            <p>Offspring blend parents' stats and natures. There is a 0.1% chance to find a Shiny creature (+20% stats). Shinies have a 25% chance to pass down their rarity to offspring.</p>
+    <div class="coop-columns" style="display: flex; gap: 20px;">
+        <button class="close-btn close-help-btn" aria-label="Close Help" style="display:none;">X</button>
+        <!-- Column 1 -->
+        <div class="coop-column" style="flex: 1; text-align: left; max-height: 70vh; overflow-y: auto; padding-right: 5px;">
+            <h2 style="margin-top: 0; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px;">🎮 Gameplay & Controls</h2>
+            <p>• <strong>Movement:</strong> Move character with ARROWS / WASD (PC) or Left Stick / D-Pad (Gamepad) or touch drag (Mobile).</p>
+            <p>• <strong>Action Wheel:</strong> Press <strong>Q</strong> key (PC), hold <strong>Right Bumper</strong> (Gamepad), or <strong>Double-Tap</strong> screen (Mobile) to toggle options: <em>👋 Pet</em>, <em>👥 Party</em>, <em>❓ Help</em>, or <em>❌ Close</em>.</p>
+            <p>• <strong>Virtual Cursor:</strong> Inside modals, use the Right Stick to navigate and press <strong>A</strong> (index 0) to click, or <strong>B</strong> (index 1) to close.</p>
+
+            <h3 style="color: #ffd700; margin-top: 15px;">📊 Stats & Friend Levels</h3>
+            <p>• <strong>Stats:</strong> HP (Health), Atk (Physical dmg), Def (Defense), Spe (Speed), SpA (Special dmg), SpD (Special defense).</p>
+            <p>• <strong>Friend System:</strong> Active party creatures passively gain +1 Friend XP and +1 Happiness every 30 seconds. Leveling up adds +2 to two random stats (all stats on multiples of 10). Stored creatures passively degrade by -1 XP and -1 Happiness every 180 seconds.</p>
+
+            <h3 style="color: #ffd700; margin-top: 15px;">🧬 DNA Breeding & Eggs</h3>
+            <p>• <strong>Breeding:</strong> Select one Male and one Female parent of level 5+ at the Breeding Center. Offspring inherit blended stats and natures.</p>
+            <p>• <strong>Eggs:</strong> Egg details/stats/mutations are masked as '???'. Hatch Eggs in-place by walking 1000 steps with them in your active party (stored eggs won't accumulate steps).</p>
+            <p>• <strong>Pedometer 👣:</strong> Buy this from the shop for 100 coins! Using it grants a 60s buff that doubles egg hatching progress while moving.</p>
+            <p>• <strong>Shinies:</strong> There is a 0.1% chance to find a Shiny (+20% stats), with a 25% chance of passing rarity to bred offspring.</p>
         </div>
-        <!-- Type Matchups & Natures Column -->
-        <div class="coop-column">
-            <h2 style="margin-top: 0; color: #ff9800;">Type Chart & Natures</h2>
+        <!-- Column 2 -->
+        <div class="coop-column" style="flex: 1; text-align: left; max-height: 70vh; overflow-y: auto; padding-right: 5px;">
+            <h2 style="margin-top: 0; color: #ff4081; text-transform: uppercase; letter-spacing: 1px;">📈 Advanced Features</h2>
+
+            <h3 style="color: #ffd700; margin-top: 10px;">💖 Happiness & Cooldowns</h3>
+            <p>• Clamped between 0-100. Restored via visual Petting (+5 Happiness) or feeding Creature Cookies (+15 Happiness), both subject to a strict 5-minute cooldown per player.</p>
+
+            <h3 style="color: #ffd700; margin-top: 15px;">🧬 Mutations & Temperaments</h3>
+            <p>• Bred creatures can inherit one of 18 unique mutations (with unique passive effects, stat multipliers, or gold finding passives like Metal Sweep) and 16 distinct temperaments. These details are only visible in the <strong>Full-Sized Preview Modal</strong> (click a creature's canvas card).</p>
+
+            <h3 style="color: #ffd700; margin-top: 15px;">⚔️ NPC Trainers</h3>
+            <p>• 12 unique wandering trainers (Neo, Trinity, Hiro, River...) spawn on the map and chase you. Win battles for 100 coins (limit: 3 wins per week, with a 6-hour cooldown).</p>
+
+            <h3 style="color: #ffd700; margin-top: 15px;">🎒 Shop & Usable Items</h3>
+            <p>• Items stack up to 10 inside 3 inventory slots. Buy boosters, healing items, <strong>Creature Licenses</strong> (passive 1.5x catch success, consumed on success), or <strong>ExPALL</strong> (shares battle victory XP with the whole party for 180 seconds).</p>
+
+            <h3 style="color: #00ffcc; margin-top: 15px;">Type Chart & Natures</h3>
             <h3>Type Matchups</h3>
-            <div id="typeChartContainer" style="max-height: 150px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+            <div id="typeChartContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #00ffcc; padding: 5px; margin-bottom: 10px; background: rgba(0,0,0,0.6); font-size: 13px;"></div>
             <h3>Natures</h3>
-            <div id="naturesListContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+            <div id="naturesListContainer" style="max-height: 100px; overflow-y: auto; border: 1px solid #00ffcc; padding: 5px; margin-bottom: 10px; background: rgba(0,0,0,0.6); font-size: 13px;"></div>
             <h3>Moods</h3>
-            <div id="moodsListContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #555; padding: 5px; margin-bottom: 10px; background: #222;"></div>
+            <div id="moodsListContainer" style="max-height: 100px; overflow-y: auto; border: 1px solid #00ffcc; padding: 5px; margin-bottom: 10px; background: rgba(0,0,0,0.6); font-size: 13px;"></div>
         </div>
     </div>
-    <button class="close-help-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #555, #222); border-color: #777;">Close</button>
+    <button class="close-help-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #00ffcc, #004d40); border: 1px solid #00ffcc; color: white; border-radius: 6px; font-weight: bold; text-transform: uppercase;">Close Guide</button>
 </div>
 
 <div id="levelUpModal">
@@ -3500,7 +3521,7 @@ function escapeHtml(unsafe) {
                 <!-- Symmetrical options around center -->
                 <button class="action-wheel-option" data-option="pet" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3);" onclick="window.useActionWheelOption(1, 'pet')">👋 Pet</button>
                 <button class="action-wheel-option" data-option="party" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3);" onclick="window.useActionWheelOption(1, 'party')">👥 Party</button>
-                <button class="action-wheel-option" data-option="inventory" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3);" onclick="window.useActionWheelOption(1, 'inventory')">🎒 Shop</button>
+                <button class="action-wheel-option" data-option="help" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3);" onclick="window.useActionWheelOption(1, 'help')">❓ Help</button>
                 <button class="action-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useActionWheelOption(1, 'close')">❌ Close</button>
             </div>
         </div>
@@ -3516,7 +3537,7 @@ function escapeHtml(unsafe) {
                 <!-- Symmetrical options around center -->
                 <button class="action-wheel-option" data-option="pet" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3);" onclick="window.useActionWheelOption(2, 'pet')">👋 Pet</button>
                 <button class="action-wheel-option" data-option="party" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3);" onclick="window.useActionWheelOption(2, 'party')">👥 Party</button>
-                <button class="action-wheel-option" data-option="inventory" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3);" onclick="window.useActionWheelOption(2, 'inventory')">🎒 Shop</button>
+                <button class="action-wheel-option" data-option="help" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3);" onclick="window.useActionWheelOption(2, 'help')">❓ Help</button>
                 <button class="action-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useActionWheelOption(2, 'close')">❌ Close</button>
             </div>
         </div>
@@ -10591,6 +10612,17 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
             <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Nature:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
             <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Temperament:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
             <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Mutation:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
+            <div style="border-top: 1px solid #555; padding-top: 10px; margin-top: 10px;">
+                <h4 style="margin: 0 0 5px 0; color: #00ffcc;">Base Stats</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 13px; color:#aaa; font-style:italic;">
+                    <div>health: ???</div>
+                    <div>attack: ???</div>
+                    <div>defense: ???</div>
+                    <div>speed: ???</div>
+                    <div>specialAttack: ???</div>
+                    <div>specialDefense: ???</div>
+                </div>
+            </div>
         `;
         desc.innerHTML = eggDescHtml;
 
@@ -10669,6 +10701,60 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
         `;
     }
     descHtml += mutHtml;
+
+    const statColors = {
+        health: '#4caf50',
+        attack: '#ff9800',
+        defense: '#9c27b0',
+        speed: '#ffeb3b',
+        specialAttack: '#00bcd4',
+        specialDefense: '#e91e63'
+    };
+
+    const statsList = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'];
+    const statsHtml = statsList.map(stat => {
+        let base = creature.stats[stat] || 50;
+        let eff = window.getEffectiveStat(creature, stat).toFixed(1);
+        let scaled = window.getScaledBaseStat(creature, stat).toFixed(1);
+        let statColor = statColors[stat] || 'white';
+
+        let affected = false;
+        let netFactor = 1.0;
+        if (creature.nature) {
+            let nTier = creature.nature.tier || 2;
+            if (creature.nature.increase === stat) { affected = true; netFactor *= (1 + nTier * 0.05); }
+            if (creature.nature.decrease === stat) { affected = true; netFactor *= (1 - nTier * 0.05); }
+        }
+        if (creature.mood) {
+            let mTier = creature.mood.tier || 2;
+            if (creature.mood.increase === stat) { affected = true; netFactor *= (1 + mTier * 0.05); }
+            if (creature.mood.decrease === stat) { affected = true; netFactor *= (1 - mTier * 0.05); }
+        }
+
+        let statValueColor = '#fff';
+        if (affected) {
+            if (netFactor > 1.0001) {
+                statValueColor = '#00ff00'; // green for buff
+            } else if (netFactor < 0.9999) {
+                statValueColor = '#ff3333'; // red for debuff
+            }
+        }
+
+        let effHtml = affected ? ` <span style="color:${statValueColor};">(Eff: ${eff})</span>` : '';
+        let friendBonus = (creature.friendBonusStats && creature.friendBonusStats[stat]) ? creature.friendBonusStats[stat] : 0;
+        let friendBonusHtml = friendBonus > 0 ? ` <span style="color: #ff4081; font-weight: bold;">(+${friendBonus})</span>` : '';
+
+        return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature and Mood modifications."><span style="color:${statColor};">${stat}</span>: <span style="color:${statValueColor}; font-weight:bold;">${Math.floor(scaled)}</span>${friendBonusHtml}${effHtml}</div>`;
+    }).join('');
+
+    descHtml += `
+        <div style="border-top: 1px solid #555; padding-top: 10px; margin-top: 10px;">
+            <h4 style="margin: 0 0 5px 0; color: #00ffcc;">Base Stats</h4>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 13px;">
+                ${statsHtml}
+            </div>
+        </div>
+    `;
 
     desc.innerHTML = descHtml;
 
@@ -11632,7 +11718,8 @@ const defaultStock = {
     "Healing Juice Jug": 5,
     "ExPALL": 5,
     "Creature License": 5,
-    "Creature Cookie": 5
+    "Creature Cookie": 5,
+    "Pedometer": 5
 };
 window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
@@ -11644,6 +11731,8 @@ window.p1JankJuiceTime = parseFloat(localStorage.getItem('wildpulse_p1JankJuiceT
 window.p2JankJuiceTime = parseFloat(localStorage.getItem('wildpulse_p2JankJuiceTime')) || 0;
 window.p1ExPallTime = parseFloat(localStorage.getItem('wildpulse_p1ExPallTime')) || 0;
 window.p2ExPallTime = parseFloat(localStorage.getItem('wildpulse_p2ExPallTime')) || 0;
+window.p1PedometerTime = parseFloat(localStorage.getItem('wildpulse_p1PedometerTime')) || 0;
+window.p2PedometerTime = parseFloat(localStorage.getItem('wildpulse_p2PedometerTime')) || 0;
 
 window.saveInventory = function() {
     localStorage.setItem('wildpulse_inventory', JSON.stringify(window.p1Inventory));
@@ -11657,6 +11746,8 @@ window.saveActiveBuffTimers = function() {
     localStorage.setItem('wildpulse_p2JankJuiceTime', window.p2JankJuiceTime.toString());
     localStorage.setItem('wildpulse_p1ExPallTime', window.p1ExPallTime.toString());
     localStorage.setItem('wildpulse_p2ExPallTime', window.p2ExPallTime.toString());
+    localStorage.setItem('wildpulse_p1PedometerTime', window.p1PedometerTime.toString());
+    localStorage.setItem('wildpulse_p2PedometerTime', window.p2PedometerTime.toString());
 };
 
 // Inventory Helper and Stacking Logic
@@ -11876,7 +11967,8 @@ window.updateStoreUI = function() {
         { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", price: 250, desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", price: 175, desc: "Boosts wild capture success rate. Consumed only on success." },
-        { name: "Creature Cookie", icon: "🍪", price: 30, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" }
+        { name: "Creature Cookie", icon: "🍪", price: 30, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
+        { name: "Pedometer", icon: "👣", price: 100, desc: "Gains double egg hatching progress when moving for 60 seconds." }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -12144,6 +12236,16 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         consumeItem();
         window.showModernNotification("🧴 Repellent active! Wild encounters prevented for 60 seconds.", 3000, playerNum);
     }
+    else if (item.name === "Pedometer") {
+        if (playerNum === 2) {
+            window.p2PedometerTime = (window.p2PedometerTime || 0) + 60000;
+        } else {
+            window.p1PedometerTime = (window.p1PedometerTime || 0) + 60000;
+        }
+        window.saveActiveBuffTimers();
+        consumeItem();
+        window.showModernNotification("👣 Pedometer active! Egg hatching progress is doubled for 60 seconds.", 3000, playerNum);
+    }
     else if (item.name === "Jank Juice") {
         if (playerNum === 2) {
             window.p2JankJuiceTime = (window.p2JankJuiceTime || 0) + 60000;
@@ -12295,7 +12397,8 @@ window.updateInventoryUI = function() {
         "Healing Juice Jug": "🏺",
         "ExPALL": "✨",
         "Creature License": "🎫",
-        "Creature Cookie": "🍪"
+        "Creature Cookie": "🍪",
+        "Pedometer": "👣"
     };
 
     const updatePlayerSlots = (playerNum, containerId) => {
@@ -12900,7 +13003,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         } else if (currDown) {
             option = "close";
         } else if (currLeft) {
-            option = "inventory";
+            option = "help";
         } else if (currRight) {
             option = "party";
         }
@@ -12919,7 +13022,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             } else if (deg >= 45 && deg < 135) {
                 option = "close";
             } else if (deg >= 135 && deg < 225) {
-                option = "inventory";
+                option = "help";
             } else if (deg >= 225 && deg < 315) {
                 option = "pet";
             }
@@ -14035,17 +14138,6 @@ function renderPartyForPlayer(playerNum = 1) {
                         <p>Ability: <span style="color:#aaa; font-style:italic;">???</span></p>
                     </div>
                     ${parentsHtml}
-                    <div style="border-top: 1px solid #555; padding-top: 10px; margin-top: 10px;">
-                        <h4 style="margin: 0 0 5px 0;">Base Stats</h4>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em; color:#aaa; font-style:italic;">
-                            <div>health: ???</div>
-                            <div>attack: ???</div>
-                            <div>defense: ???</div>
-                            <div>speed: ???</div>
-                            <div>specialAttack: ???</div>
-                            <div>specialDefense: ???</div>
-                        </div>
-                    </div>
                 </div>
                 <div class="party-controls">
                     <button class="move-up-btn" onclick="window.moveUp(${index}, ${playerNum})" aria-label="Move Up">▲</button>
@@ -14074,53 +14166,6 @@ function renderPartyForPlayer(playerNum = 1) {
             fragment.appendChild(card);
             return;
         }
-
-        const statColors = isDarkText ? {
-            health: '#1b5e20',
-            attack: '#b71c1c',
-            defense: '#4a148c',
-            speed: '#e65100',
-            specialAttack: '#006064',
-            specialDefense: '#880e4f'
-        } : {
-            health: '#4caf50',
-            attack: '#ff9800',
-            defense: '#9c27b0',
-            speed: '#ffeb3b',
-            specialAttack: '#00bcd4',
-            specialDefense: '#e91e63'
-        };
-
-        const statsHtml = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].map(stat => {
-            let base = c.stats[stat] || 50;
-            let eff = window.getEffectiveStat(c, stat).toFixed(1);
-            let scaled = window.getScaledBaseStat(c, stat).toFixed(1);
-            let statColor = statColors[stat] || 'white';
-
-            let effHtml = '';
-            let affected = false;
-            let netFactor = 1.0;
-            if (c.nature) {
-                let nTier = c.nature.tier || 2;
-                if (c.nature.increase === stat) { affected = true; netFactor *= (1 + nTier * 0.05); }
-                if (c.nature.decrease === stat) { affected = true; netFactor *= (1 - nTier * 0.05); }
-            }
-            if (c.mood) {
-                let mTier = c.mood.tier || 2;
-                if (c.mood.increase === stat) { affected = true; netFactor *= (1 + mTier * 0.05); }
-                if (c.mood.decrease === stat) { affected = true; netFactor *= (1 - mTier * 0.05); }
-            }
-            if (affected) {
-                let effColor = isDarkText ? '#222' : 'white';
-                if (netFactor > 1.0001) effColor = isDarkText ? '#1b5e20' : 'lime';
-                else if (netFactor < 0.9999) effColor = isDarkText ? '#b71c1c' : '#ff4d4d';
-                else effColor = isDarkText ? '#e65100' : 'orange';
-                effHtml = ` <span style="color:${effColor}">(Eff: ${eff})</span>`;
-            }
-            let friendBonus = (c.friendBonusStats && c.friendBonusStats[stat]) ? c.friendBonusStats[stat] : 0;
-            let friendBonusHtml = friendBonus > 0 ? ` <span style="color: #ff4081; font-weight: bold;">(+${friendBonus})</span>` : '';
-            return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature and Mood modifications."><span style="color:${statColor};">${stat}</span>: ${Math.floor(scaled)}${friendBonusHtml}${effHtml}</div>`;
-        }).join('');
 
         let parentsHtml = '';
         if (c.parents) {
@@ -14233,12 +14278,6 @@ function renderPartyForPlayer(playerNum = 1) {
                     ${abilityHtml}
                 </div>
                 ${parentsHtml}
-                <div style="border-top: 1px solid #555; padding-top: 10px; margin-top: 10px;">
-                    <h4 style="margin: 0 0 5px 0;">Base Stats</h4>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em;">
-                        ${statsHtml}
-                    </div>
-                </div>
             </div>
             <div class="party-controls">
                 <button class="move-up-btn" onclick="window.moveUp(${index}, ${playerNum})" aria-label="Move Up">▲</button>
@@ -14651,7 +14690,7 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
         const opt = el.getAttribute('data-option');
         el.style.borderColor = opt === 'pet' ? '#ff007f' :
                               opt === 'party' ? '#00ffcc' :
-                              opt === 'inventory' ? '#ffd700' : '#ffffff';
+                              opt === 'help' ? '#ffd700' : '#ffffff';
         el.style.boxShadow = '';
     });
 
@@ -14676,7 +14715,7 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
             if (optionName === 'pet') rotation = 0;
             else if (optionName === 'party') rotation = 90;
             else if (optionName === 'close') rotation = 180;
-            else if (optionName === 'inventory') rotation = 270;
+            else if (optionName === 'help') rotation = 270;
 
             pointer.style.transform = `rotate(${rotation}deg)`;
             pointer.style.opacity = '1';
@@ -14741,9 +14780,9 @@ window.useActionWheelOption = function(playerNum, optionName) {
         if (window.openPartyModal) {
             window.openPartyModal(playerNum);
         }
-    } else if (optionName === 'inventory') {
-        if (window.openStoreModal) {
-            window.openStoreModal(playerNum);
+    } else if (optionName === 'help') {
+        if (window.openHelpModal) {
+            window.openHelpModal(playerNum);
         }
     }
 };
@@ -14775,6 +14814,8 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_p2_last_cookie_time');
         localStorage.removeItem('wildpulse_p1_last_pet_time');
         localStorage.removeItem('wildpulse_p2_last_pet_time');
+        localStorage.removeItem('wildpulse_p1PedometerTime');
+        localStorage.removeItem('wildpulse_p2PedometerTime');
 
         // Reset customization settings for both players
         localStorage.removeItem('wildpulse_player_name');
@@ -21216,6 +21257,13 @@ function update() {
             window.showModernNotification("✨ Player 1 ExPALL effect has worn off.");
         }
     }
+    if (window.p1PedometerTime && window.p1PedometerTime > 0) {
+        window.p1PedometerTime = Math.max(0, window.p1PedometerTime - p1Delta);
+        if (window.p1PedometerTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("👣 Player 1 Pedometer effect has worn off.");
+        }
+    }
 
     // Decrement Player 2 Buff Timers
     if (window.p2RepellentTime && window.p2RepellentTime > 0) {
@@ -21239,6 +21287,13 @@ function update() {
             window.showModernNotification("✨ Player 2 ExPALL effect has worn off.");
         }
     }
+    if (window.p2PedometerTime && window.p2PedometerTime > 0) {
+        window.p2PedometerTime = Math.max(0, window.p2PedometerTime - p2Delta);
+        if (window.p2PedometerTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("👣 Player 2 Pedometer effect has worn off.");
+        }
+    }
 
     // Periodically save timers to keep them synced on disk (e.g. every 3 seconds)
     if (!window.lastTimerSaveTime) window.lastTimerSaveTime = 0;
@@ -21260,6 +21315,9 @@ function update() {
         if (window.p1ExPallTime && window.p1ExPallTime > 0) {
             txts.push(`✨ ExPALL: ${Math.ceil(window.p1ExPallTime / 1000)}s`);
         }
+        if (window.p1PedometerTime && window.p1PedometerTime > 0) {
+            txts.push(`👣 Pedometer: ${Math.ceil(window.p1PedometerTime / 1000)}s`);
+        }
         const textVal = txts.join('\n');
         if (window._lastP1BuffsText !== textVal) {
             p1Buffs.innerText = textVal;
@@ -21278,6 +21336,9 @@ function update() {
         }
         if (window.p2ExPallTime && window.p2ExPallTime > 0) {
             txts.push(`✨ ExPALL: ${Math.ceil(window.p2ExPallTime / 1000)}s`);
+        }
+        if (window.p2PedometerTime && window.p2PedometerTime > 0) {
+            txts.push(`👣 Pedometer: ${Math.ceil(window.p2PedometerTime / 1000)}s`);
         }
         const textVal = txts.join('\n');
         if (window._lastP2BuffsText !== textVal) {
@@ -21498,7 +21559,8 @@ function update() {
                     "Healing Juice Jug": 5,
                     "ExPALL": 5,
                     "Creature License": 5,
-                    "Creature Cookie": 5
+                    "Creature Cookie": 5,
+                    "Pedometer": 5
                 };
                 window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
                 window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
@@ -22289,7 +22351,8 @@ function update() {
         p1Party.forEach(c => {
             if (c.isEgg && !c.stored && !c.isHatching) {
                 if (!c.eggProgress) c.eggProgress = 0;
-                const stepsMoved = distStep / 1.5;
+                const multiplier = (window.p1PedometerTime && window.p1PedometerTime > 0) ? 2.0 : 1.0;
+                const stepsMoved = (distStep / 1.5) * multiplier;
                 c.eggProgress += stepsMoved;
                 if (c.eggProgress >= (c.eggHatchSteps || 1000)) {
                     c.isHatching = true;
@@ -22525,7 +22588,8 @@ function update() {
             p2Party.forEach(c => {
                 if (c.isEgg && !c.stored && !c.isHatching) {
                     if (!c.eggProgress) c.eggProgress = 0;
-                    const stepsMoved = p2DistStep / 1.5;
+                    const multiplier = (window.p2PedometerTime && window.p2PedometerTime > 0) ? 2.0 : 1.0;
+                    const stepsMoved = (p2DistStep / 1.5) * multiplier;
                     c.eggProgress += stepsMoved;
                     if (c.eggProgress >= (c.eggHatchSteps || 1000)) {
                         c.isHatching = true;
