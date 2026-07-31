@@ -2331,6 +2331,7 @@
 </div>
 
 <div id="modernNotification" class="notification-popup"></div>
+<div id="modernNotification_p2" class="notification-popup"></div>
 
 <script>
 // ==================== SESSION INITIALIZATION ====================
@@ -3210,14 +3211,54 @@ Math.random = function() {
     return window.originalRandom();
 };
 
-window.notificationTimeout = null;
+window.notificationTimeoutP1 = null;
+window.notificationTimeoutP2 = null;
 window.showModernNotification = function(text, duration = 3000, playerNum = null) {
-    const el = document.getElementById('modernNotification');
+    let colorOverride = null;
+    if (typeof duration === 'string' && duration.startsWith('#')) {
+        colorOverride = duration;
+        duration = 3000;
+    }
+
+    if (playerNum === null) {
+        if (window.coopActive) {
+            const lowerText = text.toLowerCase();
+            const p2Name = window.getP2Name ? window.getP2Name().toLowerCase() : 'player 2';
+            const p1Name = window.getP1Name ? window.getP1Name().toLowerCase() : 'player 1';
+            if (lowerText.includes('(p2)') || lowerText.includes('player 2') || lowerText.includes(p2Name)) {
+                playerNum = 2;
+            } else if (lowerText.includes('(p1)') || lowerText.includes('player 1') || lowerText.includes(p1Name)) {
+                playerNum = 1;
+            } else {
+                if (window.activeBattlePlayer) {
+                    playerNum = window.activeBattlePlayer;
+                } else if (window.activeCustomPlayer) {
+                    playerNum = window.activeCustomPlayer;
+                } else {
+                    playerNum = 1;
+                }
+            }
+        } else {
+            playerNum = 1;
+        }
+    }
+
+    const elId = playerNum === 2 ? 'modernNotification_p2' : 'modernNotification';
+    const el = document.getElementById(elId);
     if (!el) return;
+
     el.innerText = text;
     el.style.opacity = '1';
 
-    if (window.coopActive && playerNum !== null) {
+    if (colorOverride) {
+        el.style.borderColor = colorOverride;
+        el.style.boxShadow = `0 10px 40px ${colorOverride}40, inset 0 0 20px ${colorOverride}20`;
+    } else {
+        el.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        el.style.boxShadow = '0 10px 40px rgba(0, 255, 150, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1)';
+    }
+
+    if (window.coopActive) {
         if (playerNum === 2) {
             el.style.left = '75%';
         } else {
@@ -3225,10 +3266,13 @@ window.showModernNotification = function(text, duration = 3000, playerNum = null
         }
     } else {
         el.style.left = '50%';
+        const elP2 = document.getElementById('modernNotification_p2');
+        if (elP2) elP2.style.opacity = '0';
     }
 
-    if (window.notificationTimeout) clearTimeout(window.notificationTimeout);
-    window.notificationTimeout = setTimeout(() => {
+    const timeoutKey = playerNum === 2 ? 'notificationTimeoutP2' : 'notificationTimeoutP1';
+    if (window[timeoutKey]) clearTimeout(window[timeoutKey]);
+    window[timeoutKey] = setTimeout(() => {
         el.style.opacity = '0';
     }, duration);
 };
@@ -5473,10 +5517,24 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             const target = touch.target;
-            const modal = target.closest('#introModal, #introModal_p2, #fullSizeImageModal, #fullSizeImageModal_p2, #customizationModal, #customizationModal_p2');
+            const modal = target.closest('[id*="Modal"], [id*="modal"], [class*="modal"], .modal, .coop-column');
             if (modal) {
-                // Find inner div container which holds the scrollable content
-                const scrollableEl = modal.querySelector('div') || modal;
+                // Find the closest scrollable parent of target up to the modal container, or fallback
+                let scrollableEl = null;
+                let current = target;
+                while (current && current !== document.body) {
+                    const style = window.getComputedStyle(current);
+                    const isScrollable = style.overflowY === 'auto' || style.overflowY === 'scroll';
+                    if (isScrollable && current.scrollHeight > current.clientHeight) {
+                        scrollableEl = current;
+                        break;
+                    }
+                    if (current === modal) break;
+                    current = current.parentElement;
+                }
+                if (!scrollableEl) {
+                    scrollableEl = modal.querySelector('div') || modal;
+                }
                 activeScrollTouches[touch.identifier] = {
                     element: scrollableEl,
                     lastY: touch.clientY
@@ -11502,7 +11560,7 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     const currentStock = stock[itemName] !== undefined ? stock[itemName] : 5;
 
     if (currentStock <= 0) {
-        window.showModernNotification("❌ Item is out of stock!");
+        window.showModernNotification("❌ Item is out of stock!", 3000, playerNum);
         return;
     }
 
@@ -11515,12 +11573,12 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     }
 
     if (coins < finalPrice) {
-        window.showModernNotification("🪙 Not enough coins!");
+        window.showModernNotification("🪙 Not enough coins!", 3000, playerNum);
         return;
     }
 
     if (!window.canAddInventoryItem(playerNum, itemName)) {
-        window.showModernNotification("🎒 Inventory full! No space for this item.");
+        window.showModernNotification("🎒 Inventory full! No space for this item.", 3000, playerNum);
         return;
     }
 
@@ -11545,7 +11603,7 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     if (window.updateStoreUI) window.updateStoreUI();
     if (window.updateInventoryUI) window.updateInventoryUI();
 
-    window.showModernNotification(`🛒 Bought ${itemName}! Sent directly to your inventory.`);
+    window.showModernNotification(`🛒 Bought ${itemName}! Sent directly to your inventory.`, 3000, playerNum);
 };
 
 window.calculateCreatureSellPrice = function(c) {
@@ -11606,7 +11664,7 @@ window.sellCreature = function(playerNum) {
 
     if (isPartyCreature && activeParty.length <= 1 && storedCreatures.length === 0) {
         if (window.showModernNotification) {
-            window.showModernNotification("⚠️ You cannot sell your last creature!", "#ff3333");
+            window.showModernNotification("⚠️ You cannot sell your last creature!", "#ff3333", playerNum);
         } else {
             alert("You cannot sell your last creature!");
         }
@@ -11627,7 +11685,7 @@ window.sellCreature = function(playerNum) {
         }
 
         if (window.showModernNotification) {
-            window.showModernNotification(`🪙 Sold ${target.nickname || target.name} for ${price} coins!`);
+            window.showModernNotification(`🪙 Sold ${target.nickname || target.name} for ${price} coins!`, 3000, playerNum);
         } else {
             alert(`Sold ${target.nickname || target.name} for ${price} coins!`);
         }
@@ -11877,7 +11935,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
     if (!item) return;
 
     if (item.name === "Creature License") {
-        window.showModernNotification("🎫 This item cannot be used directly. It automatically boosts capture rates in battles and is consumed only upon a successful catch!");
+        window.showModernNotification("🎫 This item cannot be used directly. It automatically boosts capture rates in battles and is consumed only upon a successful catch!", 3000, playerNum);
         return;
     }
 
@@ -11899,7 +11957,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         }
         window.saveActiveBuffTimers();
         consumeItem();
-        window.showModernNotification("🧴 Repellent active! Wild encounters prevented for 60 seconds.");
+        window.showModernNotification("🧴 Repellent active! Wild encounters prevented for 60 seconds.", 3000, playerNum);
     }
     else if (item.name === "Jank Juice") {
         if (playerNum === 2) {
@@ -11909,7 +11967,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         }
         window.saveActiveBuffTimers();
         consumeItem();
-        window.showModernNotification("🧃 Jank Juice active! Wild shiny spawn rates significantly increased for 60 seconds.");
+        window.showModernNotification("🧃 Jank Juice active! Wild shiny spawn rates significantly increased for 60 seconds.", 3000, playerNum);
     }
     else if (item.name === "ExPALL") {
         if (playerNum === 2) {
@@ -11919,14 +11977,14 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         }
         window.saveActiveBuffTimers();
         consumeItem();
-        window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 180 seconds.");
+        window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 180 seconds.", 3000, playerNum);
     }
     else if (item.name === "Healing Juice Jug") {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         const activeParty = party.filter(c => !c.stored);
 
         if (activeParty.length === 0) {
-            window.showModernNotification("❌ You have no creatures to heal.");
+            window.showModernNotification("❌ You have no creatures to heal.", 3000, playerNum);
             return;
         }
 
@@ -11940,7 +11998,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
 
         consumeItem();
         if (window.renderPartyList) window.renderPartyList();
-        window.showModernNotification("🏺 Fully healed and revived all active party creatures!");
+        window.showModernNotification("🏺 Fully healed and revived all active party creatures!", 3000, playerNum);
     }
     else if (item.name === "Healing Juice Bottle") {
         window.promptCreatureSelection(playerNum, "Choose Creature to Heal", (creature) => {
@@ -11959,7 +12017,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
 
             consumeItem();
             if (window.renderPartyList) window.renderPartyList();
-            window.showModernNotification(`🧪 ${creature.nickname || creature.name} has been ${wasFainted ? 'revived with 50% HP' : 'fully healed'}!`);
+            window.showModernNotification(`🧪 ${creature.nickname || creature.name} has been ${wasFainted ? 'revived with 50% HP' : 'fully healed'}!`, 3000, playerNum);
         });
     }
     else if (item.name.endsWith("Booster")) {
@@ -12000,7 +12058,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
 
             consumeItem();
             if (window.renderPartyList) window.renderPartyList();
-            window.showModernNotification(`✨ Permanently boosted ${creature.nickname || creature.name}'s ${statName.toUpperCase()} stat!`);
+            window.showModernNotification(`✨ Permanently boosted ${creature.nickname || creature.name}'s ${statName.toUpperCase()} stat!`, 3000, playerNum);
         });
     }
 };
@@ -12697,9 +12755,10 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                     }
                 }
             } else {
-                // Scroll the modal container itself (such as introductory modal, customization modal, etc)
+                // Scroll the modal container itself or its inner div (for any modal such as introductory modal, customization modal, etc)
                 let scrollTarget = container;
-                if (container.id === 'introModal' || container.id === 'introModal_p2' || container.id === 'fullSizeImageModal' || container.id === 'fullSizeImageModal_p2') {
+                const containerStyle = window.getComputedStyle(container);
+                if (containerStyle.overflowY !== 'auto' && containerStyle.overflowY !== 'scroll') {
                     scrollTarget = container.querySelector('div') || container;
                 }
                 scrollTarget.scrollTop += ry * 15;
@@ -14035,7 +14094,7 @@ window.toggleFavorite = function(index, playerNum = 1) {
         const favoriteCount = list.filter(item => item.favorited).length;
         if (favoriteCount >= 3) {
             if (window.showModernNotification) {
-                window.showModernNotification("⚠️ You can only have up to 3 favorited creatures at one time!", "#ff3333");
+                window.showModernNotification("⚠️ You can only have up to 3 favorited creatures at one time!", "#ff3333", playerNum);
             } else {
                 alert("You can only have up to 3 favorited creatures at one time!");
             }
@@ -14904,7 +14963,7 @@ window.doBreed = function(playerNum = 1) {
         }
 
         if (resEl) resEl.innerText = successMsg;
-        window.showModernNotification(notificationMsg, 6000);
+        window.showModernNotification(notificationMsg, 6000, playerNum);
 
         // Re-populate to show new choices
         populateSelect(document.getElementById('parent1Select' + pPrefix), playerNum);
