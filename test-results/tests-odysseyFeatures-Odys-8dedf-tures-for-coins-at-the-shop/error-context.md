@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/odysseyFeatures.spec.js >> Odyssey New Features Tests >> allows selling creatures for coins at the shop
+- Location: tests/odysseyFeatures.spec.js:115:3
 
 # Error details
 

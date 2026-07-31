@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/partyColorsAndSize.spec.js >> Party Modal Text Color & Creature World Scaling Tests >> should scale wild creatures to the same size as the player character (48x48)
+- Location: tests/partyColorsAndSize.spec.js:97:3
 
 # Error details
 

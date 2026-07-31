@@ -1081,6 +1081,7 @@
             right: auto;
         }
         .inventory-slot {
+            display: none !important;
             width: 48px;
             height: 48px;
             background: rgba(10, 30, 20, 0.75);
@@ -1091,6 +1092,14 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
+        }
+        .inventory-wheel-option:hover {
+            background: #1e293b !important;
+            transform: scale(1.1);
+        }
+        .inventory-wheel-option.gamepad-focused {
+            background: #1e293b !important;
+            transform: scale(1.1);
         }
         .inventory-slot::before {
             content: '';
@@ -3633,6 +3642,44 @@ function escapeHtml(unsafe) {
     </div>
 </div>
 
+<!-- Inventory Wheel Modal -->
+<div id="inventoryWheelModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:200030; align-items:center; justify-content:center; box-sizing:border-box;">
+    <!-- Symmetrical Column layout inside modal container for split screen support -->
+    <div class="coop-columns" style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; pointer-events: none;">
+        <!-- Player 1 Column -->
+        <div class="coop-column p1-col" style="flex: 1; display: flex; align-items: center; justify-content: center; height: 100%; pointer-events: auto;">
+            <div class="inventory-wheel-container" style="position: relative; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(5, 8, 16, 0.98) 100%); border: 3px solid #00ffcc; box-shadow: 0 0 30px rgba(0, 255, 204, 0.6), inset 0 0 20px rgba(0, 255, 204, 0.2); display: flex; justify-content: center; align-items: center;">
+                <div class="inventory-wheel-center" style="position: relative; width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #00ffcc; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,255,204,0.5); box-shadow: 0 0 15px rgba(0,255,204,0.3);">
+                    <span>Bag</span>
+                    <span style="font-size: 9px; color: #00ffcc; margin-top: 2px;">Wheel</span>
+                    <div class="inventory-wheel-pointer" style="position: absolute; top: -20px; left: calc(50% - 10px); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid #00ffcc; filter: drop-shadow(0 0 8px #00ffcc); transform-origin: 10px 70px; transform: rotate(0deg); opacity: 0; transition: transform 0.15s ease, opacity 0.15s ease; pointer-events: none; z-index: 10;"></div>
+                </div>
+                <!-- Symmetrical options around center -->
+                <button class="inventory-wheel-option" data-option="slot1" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot1')">Empty</button>
+                <button class="inventory-wheel-option" data-option="slot2" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot2')">Empty</button>
+                <button class="inventory-wheel-option" data-option="slot3" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot3')">Empty</button>
+                <button class="inventory-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useInventoryWheelOption(1, 'close')">❌ Close</button>
+            </div>
+        </div>
+
+        <!-- Player 2 Column -->
+        <div class="coop-column p2-col" style="flex: 1; display: none; align-items: center; justify-content: center; height: 100%; pointer-events: auto;">
+            <div class="inventory-wheel-container" style="position: relative; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(5, 8, 16, 0.98) 100%); border: 3px solid #ff00ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), inset 0 0 20px rgba(255, 0, 255, 0.2); display: flex; justify-content: center; align-items: center;">
+                <div class="inventory-wheel-center" style="position: relative; width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #ff00ff; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,0,255,0.5); box-shadow: 0 0 15px rgba(255,0,255,0.3);">
+                    <span>Bag</span>
+                    <span style="font-size: 9px; color: #ff00ff; margin-top: 2px;">Wheel</span>
+                    <div class="inventory-wheel-pointer" style="position: absolute; top: -20px; left: calc(50% - 10px); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid #ff00ff; filter: drop-shadow(0 0 8px #ff00ff); transform-origin: 10px 70px; transform: rotate(0deg); opacity: 0; transition: transform 0.15s ease, opacity 0.15s ease; pointer-events: none; z-index: 10;"></div>
+                </div>
+                <!-- Symmetrical options around center -->
+                <button class="inventory-wheel-option" data-option="slot1" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot1')">Empty</button>
+                <button class="inventory-wheel-option" data-option="slot2" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot2')">Empty</button>
+                <button class="inventory-wheel-option" data-option="slot3" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot3')">Empty</button>
+                <button class="inventory-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useInventoryWheelOption(2, 'close')">❌ Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Respawn Choice Modals -->
 <div id="respawnChoiceModal_p1" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200050; align-items:center; justify-content:center; box-sizing:border-box;">
     <div class="modal-box neon-box" style="width: 320px; background: rgba(11,17,32,0.95); border: 2px solid #ff007f; border-radius: 16px; padding: 25px; text-align: center; color: white; font-family: 'Courier New', monospace; pointer-events: auto;">
@@ -5773,6 +5820,28 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
             if (window.inBattle) return;
             window.toggleActionWheel(1);
+        }
+    });
+
+    // Keyboard I key hold to open Inventory Wheel on PC
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'i' || e.key === 'I') {
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+            if (window.inBattle) return;
+            const container = window.getActiveContainerForPlayer(1);
+            if (!container || container.id !== 'inventoryWheelModal') {
+                window.openInventoryWheel(1);
+            }
+        }
+    });
+
+    // Keyboard I key release to close Inventory Wheel on PC
+    window.addEventListener('keyup', (e) => {
+        if (e.key === 'i' || e.key === 'I') {
+            const container = window.getActiveContainerForPlayer(1);
+            if (container && container.id === 'inventoryWheelModal') {
+                window.closeInventoryWheel(1);
+            }
         }
     });
 
@@ -12235,6 +12304,19 @@ window.updateStoreUI = function() {
 
         const coins = playerNum === 2 ? (window.gameStats2?.coins || 0) : (window.gameStats?.coins || 0);
 
+        const pLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
+        const activeItems = [...items];
+        if (pLvl >= 10) {
+            activeItems.push(
+                { name: "Mini Hospital", icon: "🏥", price: 650, desc: "A functional smaller version of the Hospital. Place near your home." },
+                { name: "Mini Store", icon: "🏪", price: 650, desc: "A functional smaller version of the Store. Place near your home." },
+                { name: "Mini Trade", icon: "🔄", price: 650, desc: "A functional smaller version of the Trade center. Place near your home." },
+                { name: "Mini PvP", icon: "⚔️", price: 650, desc: "A functional smaller version of the PvP arena. Place near your home." },
+                { name: "Mini Breeding Center", icon: "🥚", price: 650, desc: "A functional smaller version of the Breeding Center. Place near your home." },
+                { name: "Mini Challenge", icon: "👑", price: 650, desc: "A functional smaller version of the Challenge area. Place near your home." }
+            );
+        }
+
         let html = `
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
                 🪙 Coins: <span style="font-size: 18px;">${coins}</span>
@@ -12242,7 +12324,7 @@ window.updateStoreUI = function() {
             <div style="display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 280px); overflow-y: auto; padding-right: 5px;">
         `;
 
-        items.forEach(item => {
+        activeItems.forEach(item => {
             const inv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
             let spaceInExisting = 0;
             inv.forEach(invItem => {
@@ -12986,7 +13068,7 @@ window.getActiveContainerForPlayer = function(playerNum) {
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
             'battleModal', 'battleSwapModal', 'challengeModal',
-            'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal',
+            'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal', 'inventoryWheelModal',
             'creatureSelectModal_p1', 'creatureSelectModal_p2',
             'respawnChoiceModal_p1', 'respawnChoiceModal_p2'
         ];
@@ -13165,6 +13247,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             Left: false,
             Right: false,
             RB: false,
+            LB: false,
             YPressedTime: 0,
             YFullscreenTriggered: false
         };
@@ -13172,6 +13255,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const prev = window[stateKey];
     if (prev.YPressedTime === undefined) prev.YPressedTime = 0;
     if (prev.YFullscreenTriggered === undefined) prev.YFullscreenTriggered = false;
+    if (prev.LB === undefined) prev.LB = false;
 
     const currY = !!(pad.buttons[3] && pad.buttons[3].pressed);
     const currX = !!(pad.buttons[2] && pad.buttons[2].pressed);
@@ -13183,6 +13267,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const currLeft = !!(pad.buttons[14] && pad.buttons[14].pressed);
     const currRight = !!(pad.buttons[15] && pad.buttons[15].pressed);
     const currRB = !!(pad.buttons[5] && pad.buttons[5].pressed);
+    const currLB = !!(pad.buttons[4] && pad.buttons[4].pressed);
 
     const justY = currY && !prev.Y;
     const releasedY = !currY && prev.Y;
@@ -13195,6 +13280,41 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justDown = currDown && !prev.Down;
     const justLeft = currLeft && !prev.Left;
     const justRight = currRight && !prev.Right;
+
+    // Special handling for Mini Tile Placement Mode
+    if (window[`p${playerNum}MiniTilePlacementMode`]) {
+        const rx = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
+        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
+        const speed = 12;
+        if (Math.abs(rx) > 0.15) window[`p${playerNum}MiniTilePreviewX`] += rx * speed;
+        if (Math.abs(ry) > 0.15) window[`p${playerNum}MiniTilePreviewY`] += ry * speed;
+
+        const previewSpriteId = `p${playerNum}MiniTilePreviewSprite`;
+        if (window[previewSpriteId]) {
+            window[previewSpriteId].setPosition(window[`p${playerNum}MiniTilePreviewX`], window[`p${playerNum}MiniTilePreviewY`]);
+        }
+
+        if (justA) {
+            window.tryPlaceMiniTile(playerNum, window[`p${playerNum}MiniTilePreviewX`], window[`p${playerNum}MiniTilePreviewY`]);
+        }
+
+        if (justB) {
+            window.cancelMiniTilePlacement(playerNum);
+        }
+
+        prev.Y = currY;
+        prev.X = currX;
+        prev.B = currB;
+        prev.A = currA;
+        prev.Start = currStart;
+        prev.Up = currUp;
+        prev.Down = currDown;
+        prev.Left = currLeft;
+        prev.Right = currRight;
+        prev.LB = currLB;
+        prev.RB = currRB;
+        return;
+    }
 
     // Special handling for Home Placement Mode
     if (window[`p${playerNum}HomePlacementMode`]) {
@@ -13246,6 +13366,21 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         const activeContainer = window.getActiveContainerForPlayer(playerNum);
         if (activeContainer && activeContainer.id === 'actionWheelModal') {
             window.closeActionWheel(playerNum);
+        }
+    }
+
+    // Left Bumper hold and release inventory wheel toggle
+    const prevLB = !!(prev.LB);
+    prev.LB = currLB;
+
+    if (currLB && !prevLB) {
+        if (!window.inBattle && !window.isAnyModalOpen()) {
+            window.openInventoryWheel(playerNum);
+        }
+    } else if (!currLB && prevLB) {
+        const activeContainer = window.getActiveContainerForPlayer(playerNum);
+        if (activeContainer && activeContainer.id === 'inventoryWheelModal') {
+            window.closeInventoryWheel(playerNum);
         }
     }
 
@@ -13314,6 +13449,67 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         // B button closes the action wheel
         if (justB) {
             window.closeActionWheel(playerNum);
+        }
+
+        prev.Y = currY;
+        prev.X = currX;
+        prev.B = currB;
+        prev.A = currA;
+        prev.Start = currStart;
+        prev.Up = currUp;
+        prev.Down = currDown;
+        prev.Left = currLeft;
+        prev.Right = currRight;
+        return;
+    }
+
+    if (container && container.id === 'inventoryWheelModal') {
+        let option = null;
+        if (currLeft) {
+            option = "slot1";
+        } else if (currUp) {
+            option = "slot2";
+        } else if (currRight) {
+            option = "slot3";
+        } else if (currDown) {
+            option = "close";
+        }
+
+        // Left stick axes (takes priority if mag > 0.4)
+        const rx_ls = (pad.axes && typeof pad.axes[0] === 'number') ? pad.axes[0] : 0;
+        const ry_ls = (pad.axes && typeof pad.axes[1] === 'number') ? pad.axes[1] : 0;
+        const mag = Math.hypot(rx_ls, ry_ls);
+        if (mag > 0.4) {
+            let angle = Math.atan2(ry_ls, rx_ls); // radians
+            let deg = angle * 180 / Math.PI;
+            if (deg < 0) deg += 360;
+
+            if (deg >= 315 || deg < 45) {
+                option = "slot3";
+            } else if (deg >= 45 && deg < 135) {
+                option = "close";
+            } else if (deg >= 135 && deg < 225) {
+                option = "slot1";
+            } else {
+                option = "slot2";
+            }
+        }
+
+        if (option !== null) {
+            window.highlightInventoryWheelOption(playerNum, option);
+        }
+
+        // Handle A press in inventory wheel
+        if (justA) {
+            const activeOpt = (playerNum === 2) ? window.p2ActiveInventoryWheelOption : window.p1ActiveInventoryWheelOption;
+            if (activeOpt) {
+                window.useInventoryWheelOption(playerNum, activeOpt);
+            }
+        }
+
+        // B button closes the inventory wheel
+        if (justB) {
+            window.closeInventoryWheel(playerNum);
         }
 
         prev.Y = currY;
@@ -13609,7 +13805,7 @@ window.isAnyModalOpen = function() {
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal',
         'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
-        'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal',
+        'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal', 'inventoryWheelModal',
         'creatureSelectModal_p1', 'creatureSelectModal_p2'
     ];
     if (window.coopActive) {
@@ -13630,7 +13826,7 @@ window.updateModalVisibility = function() {
         const modalIds = [
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
-            'challengeModal', 'battleModal', 'actionWheelModal'
+            'challengeModal', 'battleModal', 'actionWheelModal', 'inventoryWheelModal'
         ];
         modalIds.forEach(id => {
             const modalEl = document.getElementById(id);
@@ -13652,7 +13848,7 @@ window.updateModalVisibility = function() {
     const modalIds = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
-        'challengeModal', 'actionWheelModal'
+        'challengeModal', 'actionWheelModal', 'inventoryWheelModal'
     ];
 
     modalIds.forEach(id => {
@@ -13670,7 +13866,7 @@ window.updateModalVisibility = function() {
         }
 
         if (p1Open || p2Open) {
-            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2' || id === 'actionWheelModal') ? 'flex' : 'block';
+            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2' || id === 'actionWheelModal' || id === 'inventoryWheelModal') ? 'flex' : 'block';
             if (id !== 'customizationModal' && id !== 'customizationModal_p2') {
                 modalEl.style.background = 'transparent';
                 modalEl.style.pointerEvents = 'none';
@@ -13743,7 +13939,8 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
         { id: 'journalModal', close: (p) => { if (window.closeJournalModal) window.closeJournalModal(p); } },
         { id: 'storeModal', close: (p) => { if (window.closeStoreModal) window.closeStoreModal(p); } },
         { id: 'challengeModal', close: (p) => { if (window.closeChallengeModal) window.closeChallengeModal(p); } },
-        { id: 'customizationModal', close: (p) => { if (window.closeCustomizationModal) window.closeCustomizationModal(p); } }
+        { id: 'customizationModal', close: (p) => { if (window.closeCustomizationModal) window.closeCustomizationModal(p); } },
+        { id: 'inventoryWheelModal', close: (p) => { if (window.closeInventoryWheel) window.closeInventoryWheel(p); } }
     ];
 
     modals.forEach(m => {
@@ -13772,7 +13969,8 @@ window.closeAllModals = function(exceptId) {
         { id: 'challengeModal', close: () => { if (window.closeChallengeModal) window.closeChallengeModal(); } },
         { id: 'battleSwapModal', close: () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); } },
         { id: 'tradeModal', close: () => { if (window.closeTradeModal) window.closeTradeModal(); } },
-        { id: 'pvpModal', close: () => { if (window.closePvpModal) window.closePvpModal(); } }
+        { id: 'pvpModal', close: () => { if (window.closePvpModal) window.closePvpModal(); } },
+        { id: 'inventoryWheelModal', close: () => { if (window.closeInventoryWheel) window.closeInventoryWheel(); } }
     ];
     if (exceptId !== 'customizationModal') {
         let el = document.getElementById('customizationModal');
@@ -15075,6 +15273,162 @@ window.useActionWheelOption = function(playerNum, optionName) {
     }
 };
 
+window.openInventoryWheel = function(playerNum) {
+    if (window.inBattle) return;
+    if (window.isAnyModalOpen && window.isAnyModalOpen() && window.p1ActiveModal !== 'inventoryWheelModal' && window.p2ActiveModal !== 'inventoryWheelModal') return;
+
+    if (window.coopActive) {
+        window.closeAllModalsForPlayer(playerNum, 'inventoryWheelModal');
+        if (playerNum === 2) window.p2ActiveModal = 'inventoryWheelModal';
+        else window.p1ActiveModal = 'inventoryWheelModal';
+        window.updateModalVisibility();
+    } else {
+        window.closeAllModals('inventoryWheelModal');
+        document.getElementById('inventoryWheelModal').style.display = 'flex';
+        window.p1ActiveModal = 'inventoryWheelModal';
+    }
+
+    if (window.updateInventoryWheelUI) {
+        window.updateInventoryWheelUI(playerNum);
+    }
+
+    // Default highlight
+    window.highlightInventoryWheelOption(playerNum, null);
+};
+
+window.closeInventoryWheel = function(playerNum) {
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        const modal = document.getElementById('inventoryWheelModal');
+        if (modal) modal.style.display = 'none';
+        window.p1ActiveModal = null;
+    }
+    window.highlightInventoryWheelOption(playerNum, null);
+};
+
+window.highlightInventoryWheelOption = function(playerNum, optionName) {
+    const colClass = playerNum === 2 ? '.p2-col' : '.p1-col';
+    const container = document.querySelector(`#inventoryWheelModal ${colClass}`);
+    if (!container) return;
+
+    container.querySelectorAll('.inventory-wheel-option').forEach(el => {
+        el.classList.remove('gamepad-focused');
+        const opt = el.getAttribute('data-option');
+        el.style.borderColor = opt === 'slot1' ? '#ff007f' :
+                              opt === 'slot2' ? '#00ffcc' :
+                              opt === 'slot3' ? '#ffd700' : '#ffffff';
+        el.style.boxShadow = '';
+    });
+
+    if (playerNum === 2) {
+        window.p2ActiveInventoryWheelOption = optionName;
+    } else {
+        window.p1ActiveInventoryWheelOption = optionName;
+    }
+
+    const pointer = container.querySelector('.inventory-wheel-pointer');
+
+    if (optionName) {
+        const optionEl = container.querySelector(`.inventory-wheel-option[data-option="${optionName}"]`);
+        if (optionEl) {
+            optionEl.classList.add('gamepad-focused');
+            optionEl.style.borderColor = '#ffd700';
+            optionEl.style.boxShadow = '0 0 15px rgba(255,215,0,0.8)';
+        }
+
+        if (pointer) {
+            let rotation = 0;
+            if (optionName === 'slot1') rotation = 270;
+            else if (optionName === 'slot2') rotation = 0;
+            else if (optionName === 'slot3') rotation = 90;
+            else if (optionName === 'close') rotation = 180;
+
+            pointer.style.transform = `rotate(${rotation}deg)`;
+            pointer.style.opacity = '1';
+        }
+    } else {
+        if (pointer) {
+            pointer.style.opacity = '0';
+        }
+    }
+};
+
+window.updateInventoryWheelUI = function(playerNum) {
+    const colClass = playerNum === 2 ? '.p2-col' : '.p1-col';
+    const container = document.querySelector(`#inventoryWheelModal ${colClass}`);
+    if (!container) return;
+
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const itemIcons = {
+        "Mini Hospital": "🏥",
+        "Mini Store": "🏪",
+        "Mini Trade": "🔄",
+        "Mini PvP": "⚔️",
+        "Mini Breeding Center": "🥚",
+        "Mini Challenge": "👑",
+        "Repellent": "🧴",
+        "HP Booster": "💚",
+        "Attack Booster": "⚔️",
+        "Defense Booster": "🛡️",
+        "Speed Booster": "⚡",
+        "Sp. Atk Booster": "🔮",
+        "Sp. Def Booster": "🧿",
+        "Jank Juice": "🧃",
+        "Healing Juice Bottle": "🧪",
+        "Healing Juice Jug": "🏺",
+        "ExPALL": "✨",
+        "Creature License": "🎫",
+        "Creature Cookie": "🍪",
+        "Pedometer": "👣"
+    };
+
+    const slots = ["slot1", "slot2", "slot3"];
+    slots.forEach((slotName, idx) => {
+        const btn = container.querySelector(`.inventory-wheel-option[data-option="${slotName}"]`);
+        if (!btn) return;
+
+        const item = inv[idx];
+        if (item) {
+            const icon = itemIcons[item.name] || "📦";
+            let displayName = item.name;
+            if (displayName.length > 12) {
+                displayName = displayName.substring(0, 10) + "..";
+            }
+            btn.innerHTML = `<span style="font-size:16px; line-height:1;">${icon}</span><span style="font-size:8px; line-height:1.2; margin-top:2px; font-weight:normal; text-align:center;">${displayName} (${item.quantity})</span>`;
+            btn.style.opacity = '1';
+        } else {
+            btn.innerHTML = `<span style="color:#666;">Empty</span>`;
+            btn.style.opacity = '0.5';
+        }
+    });
+};
+
+window.useInventoryWheelOption = function(playerNum, optionName) {
+    if (optionName === 'close') {
+        window.closeInventoryWheel(playerNum);
+        return;
+    }
+
+    const slotMap = { 'slot1': 0, 'slot2': 1, 'slot3': 2 };
+    const idx = slotMap[optionName];
+    if (idx !== undefined) {
+        const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+        const item = inv[idx];
+        if (item) {
+            window.closeInventoryWheel(playerNum);
+
+            if (item.name.startsWith("Mini ")) {
+                window.startMiniTilePlacement(playerNum, item.name, idx);
+            } else {
+                window.useInventoryItem(playerNum, idx);
+            }
+        }
+    }
+};
+
 window.deleteProgress = function() {
     if (confirm('Are you sure? This will erase all save data.')) {
         localStorage.removeItem(STORAGE_KEY);
@@ -15112,8 +15466,13 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_p1_home_y');
         localStorage.removeItem('wildpulse_p2_home_x');
         localStorage.removeItem('wildpulse_p2_home_y');
+        localStorage.removeItem('wildpulse_p1_mini_tiles');
+        localStorage.removeItem('wildpulse_p2_mini_tiles');
         if (window.spawnPlayerHomes) {
             window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
+        }
+        if (window.spawnMiniTiles) {
+            window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
         }
 
         // Reset customization settings for both players
@@ -18288,6 +18647,42 @@ window.spawnPlayerHomes = function(scene) {
     }
 };
 
+window.spawnMiniTiles = function(scene) {
+    if (!scene) return;
+    if (window.miniTilesGroup) {
+        window.miniTilesGroup.clear(true, true);
+    } else {
+        window.miniTilesGroup = scene.physics.add.staticGroup();
+    }
+
+    for (let pNum of [1, 2]) {
+        const miniTilesKey = `wildpulse_p${pNum}_mini_tiles`;
+        const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+        miniTiles.forEach(tile => {
+            let textureKey = '';
+            if (tile.type === 'hospital') textureKey = 'hospital_tile';
+            else if (tile.type === 'store') textureKey = 'store_tile';
+            else if (tile.type === 'trade') textureKey = 'trade_tile';
+            else if (tile.type === 'pvp') textureKey = 'pvp_tile';
+            else if (tile.type === 'breed') textureKey = 'breed_tile';
+            else if (tile.type === 'challenge') textureKey = 'challenge_tile';
+
+            if (textureKey) {
+                let mSprite = window.miniTilesGroup.create(tile.x, tile.y, textureKey);
+                mSprite.setDepth(9);
+                mSprite.setScale(0.6); // Smaller version
+                mSprite.isMiniTile = true;
+                mSprite.miniTileType = tile.type;
+                mSprite.playerNum = pNum;
+                if (mSprite.body) {
+                    mSprite.body.setSize(60, 60);
+                    mSprite.body.updateFromGameObject();
+                }
+            }
+        });
+    }
+};
+
 window.respawnPlayer = function(playerNum, choice) {
     const modalId = `respawnChoiceModal_p${playerNum}`;
     const modalEl = document.getElementById(modalId);
@@ -18437,6 +18832,174 @@ window.exitHomePlacementMode = function(playerNum) {
 window.cancelHomePlacement = function(playerNum) {
     window.exitHomePlacementMode(playerNum);
     window.showModernNotification("🏠 Home placement canceled.", 3000, playerNum);
+};
+
+window.isValidMiniTileLocation = function(row, col, playerNum) {
+    if (!mapData || !mapData[row] || col < 0 || col >= mapData[0].length) return false;
+
+    // Check if tile is not grass (e.g. water, hospital, pvp, breed, challenge, trade, store, npc_trainer)
+    const tileType = mapData[row][col];
+    if (tileType !== 'grass') return false;
+
+    // Check if there is a tree on this grass tile
+    let hash = (row * 31 + col * 17) % 100;
+    const isAboveHospital = (row === 99 && col === 100);
+    if (hash < 12 && !isAboveHospital) return false;
+
+    // Check other homes/structures
+    for (let pNum of [1, 2]) {
+        // check home
+        const hx = localStorage.getItem(`wildpulse_p${pNum}_home_x`);
+        const hy = localStorage.getItem(`wildpulse_p${pNum}_home_y`);
+        if (hx && hy) {
+            let hRow = Math.floor(parseFloat(hy) / 100);
+            let hCol = Math.floor(parseFloat(hx) / 100);
+            if (hRow === row && hCol === col) return false;
+        }
+        // check existing mini tiles for this player
+        const miniTilesKey = `wildpulse_p${pNum}_mini_tiles`;
+        const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+        for (let tile of miniTiles) {
+            let tRow = Math.floor(tile.y / 100);
+            let tCol = Math.floor(tile.x / 100);
+            if (tRow === row && tCol === col) return false;
+        }
+    }
+    return true;
+};
+
+window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
+    // Check if player has placed a Home first
+    const hx = localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
+    const hy = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
+    if (!hx || !hy) {
+        window.showModernNotification("❌ You must place a Home first before placing mini tiles close to it!", 4000, playerNum);
+        return;
+    }
+
+    window[`p${playerNum}MiniTilePlacementMode`] = itemName;
+    window[`p${playerNum}MiniTileSlotIndex`] = slotIndex;
+
+    const playerSprite = playerNum === 2 ? window.player2 : window.player;
+    if (!playerSprite) return;
+
+    window[`p${playerNum}MiniTilePreviewX`] = playerSprite.x;
+    window[`p${playerNum}MiniTilePreviewY`] = playerSprite.y;
+
+    const scene = game.scene.scenes[0];
+    const previewSpriteId = `p${playerNum}MiniTilePreviewSprite`;
+
+    // Map Mini item names to their respective tile textures
+    const textureMap = {
+        "Mini Hospital": "hospital_tile",
+        "Mini Store": "store_tile",
+        "Mini Trade": "trade_tile",
+        "Mini PvP": "pvp_tile",
+        "Mini Breeding Center": "breed_tile",
+        "Mini Challenge": "challenge_tile"
+    };
+    const textureKey = textureMap[itemName] || 'home_tile';
+
+    if (!window[previewSpriteId]) {
+        window[previewSpriteId] = scene.add.sprite(window[`p${playerNum}MiniTilePreviewX`], window[`p${playerNum}MiniTilePreviewY`], textureKey);
+        window[previewSpriteId].setAlpha(0.6);
+        window[previewSpriteId].setScale(0.6);
+        window[previewSpriteId].setDepth(100);
+    } else {
+        window[previewSpriteId].setTexture(textureKey);
+        window[previewSpriteId].setPosition(window[`p${playerNum}MiniTilePreviewX`], window[`p${playerNum}MiniTilePreviewY`]);
+        window[previewSpriteId].setVisible(true);
+    }
+
+    // Camera ignore setup for split-screen co-op
+    if (window.coopActive) {
+        if (playerNum === 1 && window.camera2 && window.p1MiniTilePreviewSprite) {
+            window.camera2.ignore(window.p1MiniTilePreviewSprite);
+        } else if (playerNum === 2 && scene.cameras.main && window.p2MiniTilePreviewSprite) {
+            scene.cameras.main.ignore(window.p2MiniTilePreviewSprite);
+        }
+    }
+
+    window.showModernNotification(`🛠️ Mini Tile Placement: Move preview, press A (or click) to place close to your Home. Press B (or ESC) to cancel.`, 6000, playerNum);
+};
+
+window.tryPlaceMiniTile = function(playerNum, x, y) {
+    const itemName = window[`p${playerNum}MiniTilePlacementMode`];
+    const slotIndex = window[`p${playerNum}MiniTileSlotIndex`];
+    if (!itemName) return;
+
+    let col = Math.floor(x / 100);
+    let row = Math.floor(y / 100);
+    let snappedX = col * 100 + 50;
+    let snappedY = row * 100 + 50;
+
+    // 1. Check distance to placed home (must be within 15 tiles = 1500px)
+    const hx = parseFloat(localStorage.getItem(`wildpulse_p${playerNum}_home_x`));
+    const hy = parseFloat(localStorage.getItem(`wildpulse_p${playerNum}_home_y`));
+    const distance = Math.hypot(snappedX - hx, snappedY - hy);
+    if (distance > 1500) {
+        window.showModernNotification("❌ Too far from your Home! Mini tiles must be placed within 15 tiles (1500px) of your Home.", 3000, playerNum);
+        return;
+    }
+
+    // 2. Validate location
+    if (!window.isValidMiniTileLocation(row, col, playerNum)) {
+        window.showModernNotification("❌ Invalid location! Cannot place on water, trees, buildings, or other structures.", 3000, playerNum);
+        return;
+    }
+
+    // 3. Add to the player's saved mini-tiles
+    const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
+    const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+
+    // Map item name to mini tile type
+    const typeMap = {
+        "Mini Hospital": "hospital",
+        "Mini Store": "store",
+        "Mini Trade": "trade",
+        "Mini PvP": "pvp",
+        "Mini Breeding Center": "breed",
+        "Mini Challenge": "challenge"
+    };
+    const tileType = typeMap[itemName];
+
+    miniTiles.push({ type: tileType, x: snappedX, y: snappedY });
+    localStorage.setItem(miniTilesKey, JSON.stringify(miniTiles));
+
+    // Consume the item from inventory!
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const item = inv[slotIndex];
+    if (item) {
+        item.quantity--;
+        if (item.quantity <= 0) {
+            inv.splice(slotIndex, 1);
+        }
+        window.saveInventory();
+        if (window.updateInventoryUI) window.updateInventoryUI();
+        if (window.updateStoreUI) window.updateStoreUI();
+    }
+
+    // Respawn mini tiles
+    const scene = game.scene.scenes[0];
+    if (window.spawnMiniTiles) window.spawnMiniTiles(scene);
+
+    // Exit placement mode
+    window.exitMiniTilePlacementMode(playerNum);
+    window.showModernNotification(`✅ Placed ${itemName} successfully!`, 4000, playerNum);
+};
+
+window.exitMiniTilePlacementMode = function(playerNum) {
+    window[`p${playerNum}MiniTilePlacementMode`] = null;
+    window[`p${playerNum}MiniTileSlotIndex`] = null;
+    const sprite = window[`p${playerNum}MiniTilePreviewSprite`];
+    if (sprite) {
+        sprite.setVisible(false);
+    }
+};
+
+window.cancelMiniTilePlacement = function(playerNum) {
+    window.exitMiniTilePlacementMode(playerNum);
+    window.showModernNotification("🛠️ Mini tile placement canceled.", 3000, playerNum);
 };
 
 function create() {
@@ -18984,6 +19547,9 @@ function create() {
     // Spawn player homes
     window.spawnPlayerHomes(this);
 
+    // Spawn player mini-tiles
+    window.spawnMiniTiles(this);
+
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
@@ -18993,6 +19559,23 @@ function create() {
     this.physics.add.overlap(player, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, this);
     this.physics.add.overlap(player, window.breedGroup, (pCol) => { if (window.openBreedingModal) window.openBreedingModal(pCol); }, null, this);
     this.physics.add.overlap(player, window.npcTrainersGroup, handleNpcTrainerOverlap, null, this);
+
+    // Overlaps for functional mini-tiles
+    this.physics.add.overlap(player, window.miniTilesGroup, (pCol, tileSprite) => {
+        if (tileSprite.miniTileType === 'hospital') {
+            healParty(pCol);
+        } else if (tileSprite.miniTileType === 'store') {
+            openStoreModal(pCol);
+        } else if (tileSprite.miniTileType === 'challenge') {
+            if (window.openChallengeModal) window.openChallengeModal(pCol);
+        } else if (tileSprite.miniTileType === 'trade') {
+            if (window.openTradeModal) window.openTradeModal(pCol);
+        } else if (tileSprite.miniTileType === 'pvp') {
+            if (window.openPvpModal) window.openPvpModal(pCol);
+        } else if (tileSprite.miniTileType === 'breed') {
+            if (window.openBreedingModal) window.openBreedingModal(pCol);
+        }
+    }, null, this);
 
     window.addEventListener('resize', () => {
         if (!game || !game.scale) return;
@@ -21502,6 +22085,23 @@ window.enableCoop = function(scene) {
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.breedGroup, (pCol) => { if (window.openBreedingModal) window.openBreedingModal(pCol); }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.npcTrainersGroup, handleNpcTrainerOverlap, null, scene));
+
+    // Overlaps for functional mini-tiles for Player 2
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.miniTilesGroup, (pCol, tileSprite) => {
+        if (tileSprite.miniTileType === 'hospital') {
+            healParty(pCol);
+        } else if (tileSprite.miniTileType === 'store') {
+            openStoreModal(pCol);
+        } else if (tileSprite.miniTileType === 'challenge') {
+            if (window.openChallengeModal) window.openChallengeModal(pCol);
+        } else if (tileSprite.miniTileType === 'trade') {
+            if (window.openTradeModal) window.openTradeModal(pCol);
+        } else if (tileSprite.miniTileType === 'pvp') {
+            if (window.openPvpModal) window.openPvpModal(pCol);
+        } else if (tileSprite.miniTileType === 'breed') {
+            if (window.openBreedingModal) window.openBreedingModal(pCol);
+        }
+    }, null, scene));
 
     // 2. Set up split screen cameras
     const halfWidth = window.innerWidth / 2;

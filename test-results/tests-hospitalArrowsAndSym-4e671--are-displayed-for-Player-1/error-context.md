@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/hospitalArrowsAndSymbols.spec.js >> Hospital Directional Arrows and Creature Type Symbols >> hospital arrows exist and are displayed for Player 1
+- Location: tests/hospitalArrowsAndSymbols.spec.js:13:3
 
 # Error details
 

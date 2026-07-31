@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/odysseyFeatures.spec.js >> Odyssey New Features Tests >> friend level stat bonus displayed in pink next to base stats
+- Location: tests/odysseyFeatures.spec.js:8:3
 
 # Error details
 

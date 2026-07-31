@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/expallAndDivider.spec.js >> ExPALL and Split-Screen Divider >> ExPALL item is registered and active
+- Location: tests/expallAndDivider.spec.js:20:3
 
 # Error details
 

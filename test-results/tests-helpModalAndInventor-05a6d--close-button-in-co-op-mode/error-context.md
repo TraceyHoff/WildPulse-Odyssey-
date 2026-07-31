@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/helpModalAndInventorySlots.spec.js >> Help Modal Close and Inventory Slots UI Tests >> should correctly close Player 2 help modal via the close button in co-op mode
+- Location: tests/helpModalAndInventorySlots.spec.js:68:3
 
 # Error details
 

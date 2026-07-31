@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/calculateDamage.spec.js >> window.calculateDamage >> calculates basic special damage correctly
+- Location: tests/calculateDamage.spec.js:38:3
 
 # Error details
 

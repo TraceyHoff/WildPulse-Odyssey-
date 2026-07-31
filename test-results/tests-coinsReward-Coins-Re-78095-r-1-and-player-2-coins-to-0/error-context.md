@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/coinsReward.spec.js >> Coins Reward System >> should default player 1 and player 2 coins to 0
+- Location: tests/coinsReward.spec.js:10:3
 
 # Error details
 

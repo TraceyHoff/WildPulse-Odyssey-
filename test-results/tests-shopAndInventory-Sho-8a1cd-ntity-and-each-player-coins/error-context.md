@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/shopAndInventory.spec.js >> Shop and Inventory Systems >> should display dynamic available to buy quantity and each player coins
+- Location: tests/shopAndInventory.spec.js:142:3
 
 # Error details
 

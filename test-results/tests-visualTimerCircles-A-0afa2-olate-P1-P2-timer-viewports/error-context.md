@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/visualTimerCircles.spec.js >> Active Visual Timer Circles >> should support split screen co-op symmetrically and isolate P1/P2 timer viewports
+- Location: tests/visualTimerCircles.spec.js:62:3
 
 # Error details
 

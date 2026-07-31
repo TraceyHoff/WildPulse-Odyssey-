@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/odysseyFeatures.spec.js >> Odyssey New Features Tests >> breeding center strictly enforces level 5 requirement
+- Location: tests/odysseyFeatures.spec.js:32:3
 
 # Error details
 

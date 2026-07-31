@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/splitScreenIndicatorsAndWeather.spec.js >> Split-Screen Indicators and Weather Delay >> should force clear skies weather for the first 4 minutes of game age
+- Location: tests/splitScreenIndicatorsAndWeather.spec.js:123:3
 
 # Error details
 

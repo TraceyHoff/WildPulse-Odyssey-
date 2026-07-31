@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/coopFeatures.spec.js >> Co-op Split Screen and Player 2 Features >> should assert that when combat ends with a loss, showModernNotification is called instead of alert
+- Location: tests/coopFeatures.spec.js:337:3
 
 # Error details
 
