@@ -1902,7 +1902,6 @@
     <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Single Player</button>
     <button id="startSplitScreenBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #9c27b0, #6a1b9a); color: white; border: 2px solid #e1bee7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Split Screen</button>
     <button id="customizeBtn" style="display: none; position: relative; z-index: 10; padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; border: 2px solid #90caf9; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Customize Character</button>
-    <button id="startDeleteBtn" style="position: relative; z-index: 10; padding: 10px 20px; font-size: 16px; background: linear-gradient(180deg, #ef5350, #c62828); color: white; border: 2px solid #ef9a9a; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">Delete Progress</button>
 </div>
 
 <!-- Cyberpunk-themed Introductory Modal -->
@@ -4989,7 +4988,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const playerNum = (window.p2ActiveModal === 'challengeModal') ? 2 : 1;
         if (window.closeChallengeModal) window.closeChallengeModal(playerNum);
     });
-    document.getElementById('startDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('menuDeleteBtn_P2')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
     document.getElementById('exitGameBtn')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
@@ -11070,8 +11068,13 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
     }
 
     let prefix = creature.isShiny ? '⭐ ' : '';
-    let genderSymbol = creature.gender === 'Female' ? ' ♀' : ' ♂';
-    title.innerText = prefix + (creature.nickname || creature.name) + genderSymbol;
+    let genderSymbolSpan = '';
+    if (creature.gender === 'Female') {
+        genderSymbolSpan = ` <span style="color: #ff3366; font-weight: bold;">♀</span>`;
+    } else {
+        genderSymbolSpan = ` <span style="color: #00e5ff; font-weight: bold;">♂</span>`;
+    }
+    title.innerHTML = prefix + (creature.nickname || creature.name) + genderSymbolSpan;
 
     let descHtml = `<p style="margin: 0 0 10px 0; font-style: italic; color: #ccc;">${creature.description || ''}</p>`;
 
@@ -14974,9 +14977,9 @@ function renderPartyForPlayer(playerNum = 1) {
 
         let genderHtml = '';
         if (c.gender === 'Female') {
-            genderHtml = `<span style="color: #ff4081; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Female">♀</span>`;
+            genderHtml = `<span style="color: #ff3366; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Female">♀</span>`;
         } else {
-            genderHtml = `<span style="color: #2196F3; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Male">♂</span>`;
+            genderHtml = `<span style="color: #00e5ff; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Male">♂</span>`;
         }
 
         const happiness = c.happiness !== undefined ? c.happiness : 50;
@@ -15144,9 +15147,9 @@ function renderStorageForPlayer(playerNum = 1) {
             c.gender = Math.random() < 0.5 ? 'Male' : 'Female';
         }
         if (c.gender === 'Female') {
-            genderHtml = `<span style="color: #ff4081; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Female">♀</span>`;
+            genderHtml = `<span style="color: #ff3366; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Female">♀</span>`;
         } else {
-            genderHtml = `<span style="color: #2196F3; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Male">♂</span>`;
+            genderHtml = `<span style="color: #00e5ff; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Male">♂</span>`;
         }
 
         const nameHtml = `
@@ -15872,67 +15875,130 @@ window.useInventoryWheelOption = function(playerNum, optionName) {
 };
 
 window.deleteProgress = function() {
-    if (confirm('Are you sure? This will erase all save data.')) {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('wildpulse_collected_creatures2');
-        localStorage.removeItem('wildpulse_player_level');
-        localStorage.removeItem('wildpulse_player_xp');
-        localStorage.removeItem('wildpulse_player2_level');
-        localStorage.removeItem('wildpulse_player2_xp');
-        localStorage.removeItem('wildpulse_player_x');
-        localStorage.removeItem('wildpulse_player_y');
-        localStorage.removeItem('wildpulse_player2_x');
-        localStorage.removeItem('wildpulse_player2_y');
-        localStorage.removeItem('wildpulse_inGameDays');
-        localStorage.removeItem('wildpulse_currentSeason');
-        localStorage.removeItem('wildpulse_world_seed');
-        localStorage.removeItem('wildpulse_total_elapsed_ms');
-        localStorage.removeItem('wildpulse_challenge_tier');
-        localStorage.removeItem('wildpulse_unlocked_patterns_cache');
-        localStorage.removeItem('wildpulse_stats');
-        localStorage.removeItem('wildpulse_stats2');
-        localStorage.removeItem('wildpulse_coop_active');
-        localStorage.removeItem('wildpulse_store_stock_p1');
-        localStorage.removeItem('wildpulse_store_stock_p2');
-        localStorage.removeItem('wildpulse_last_replenish_day');
-        localStorage.removeItem('wildpulse_inventory');
-        localStorage.removeItem('wildpulse_inventory2');
-        localStorage.removeItem('wildpulse_npc_trainer_data');
-        localStorage.removeItem('wildpulse_p1_last_cookie_time');
-        localStorage.removeItem('wildpulse_p2_last_cookie_time');
-        localStorage.removeItem('wildpulse_p1_last_pet_time');
-        localStorage.removeItem('wildpulse_p2_last_pet_time');
-        localStorage.removeItem('wildpulse_p1PedometerTime');
-        localStorage.removeItem('wildpulse_p2PedometerTime');
-        localStorage.removeItem('wildpulse_p1_home_x');
-        localStorage.removeItem('wildpulse_p1_home_y');
-        localStorage.removeItem('wildpulse_p2_home_x');
-        localStorage.removeItem('wildpulse_p2_home_y');
-        localStorage.removeItem('wildpulse_p1_mini_tiles');
-        localStorage.removeItem('wildpulse_p2_mini_tiles');
-        if (window.spawnPlayerHomes) {
-            window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
+    if (window.coopActive) {
+        if (confirm('Are you sure? This will erase all split-screen save data for both players.')) {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('wildpulse_collected_creatures2');
+            localStorage.removeItem('wildpulse_player_level');
+            localStorage.removeItem('wildpulse_player_xp');
+            localStorage.removeItem('wildpulse_player2_level');
+            localStorage.removeItem('wildpulse_player2_xp');
+            localStorage.removeItem('wildpulse_player_x');
+            localStorage.removeItem('wildpulse_player_y');
+            localStorage.removeItem('wildpulse_player2_x');
+            localStorage.removeItem('wildpulse_player2_y');
+            localStorage.removeItem('wildpulse_inGameDays');
+            localStorage.removeItem('wildpulse_currentSeason');
+            localStorage.removeItem('wildpulse_world_seed');
+            localStorage.removeItem('wildpulse_total_elapsed_ms');
+            localStorage.removeItem('wildpulse_challenge_tier');
+            localStorage.removeItem('wildpulse_unlocked_patterns_cache');
+            localStorage.removeItem('wildpulse_stats');
+            localStorage.removeItem('wildpulse_stats2');
+            localStorage.removeItem('wildpulse_coop_active');
+            localStorage.removeItem('wildpulse_store_stock_p1');
+            localStorage.removeItem('wildpulse_store_stock_p2');
+            localStorage.removeItem('wildpulse_last_replenish_day');
+            localStorage.removeItem('wildpulse_inventory');
+            localStorage.removeItem('wildpulse_inventory2');
+            localStorage.removeItem('wildpulse_npc_trainer_data');
+            localStorage.removeItem('wildpulse_p1_last_cookie_time');
+            localStorage.removeItem('wildpulse_p2_last_cookie_time');
+            localStorage.removeItem('wildpulse_p1_last_pet_time');
+            localStorage.removeItem('wildpulse_p2_last_pet_time');
+            localStorage.removeItem('wildpulse_p1PedometerTime');
+            localStorage.removeItem('wildpulse_p2PedometerTime');
+            localStorage.removeItem('wildpulse_p1_home_x');
+            localStorage.removeItem('wildpulse_p1_home_y');
+            localStorage.removeItem('wildpulse_p2_home_x');
+            localStorage.removeItem('wildpulse_p2_home_y');
+            localStorage.removeItem('wildpulse_p1_mini_tiles');
+            localStorage.removeItem('wildpulse_p2_mini_tiles');
+
+            if (window.spawnPlayerHomes) {
+                window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
+            }
+            if (window.spawnMiniTiles) {
+                window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
+            }
+
+            // Reset customization settings for both players
+            localStorage.removeItem('wildpulse_player_name');
+            localStorage.removeItem('wildpulse_player_color');
+            localStorage.removeItem('wildpulse_player_aura_color');
+            localStorage.removeItem('wildpulse_player_pattern');
+            localStorage.removeItem('wildpulse_player_pattern_color');
+            localStorage.removeItem('wildpulse_player_shape');
+
+            localStorage.removeItem('wildpulse_player2_name');
+            localStorage.removeItem('wildpulse_player2_color');
+            localStorage.removeItem('wildpulse_player2_aura_color');
+            localStorage.removeItem('wildpulse_player2_pattern');
+            localStorage.removeItem('wildpulse_player2_pattern_color');
+            localStorage.removeItem('wildpulse_player2_shape');
+
+            location.reload();
         }
-        if (window.spawnMiniTiles) {
-            window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
+    } else {
+        if (confirm('Are you sure? This will erase your singleplayer save data.')) {
+            // Delete ONLY Player 1/Singleplayer progress keys
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('wildpulse_player_level');
+            localStorage.removeItem('wildpulse_player_xp');
+            localStorage.removeItem('wildpulse_player_x');
+            localStorage.removeItem('wildpulse_player_y');
+            localStorage.removeItem('wildpulse_stats');
+            localStorage.removeItem('wildpulse_store_stock_p1');
+            localStorage.removeItem('wildpulse_inventory');
+            localStorage.removeItem('wildpulse_p1_last_cookie_time');
+            localStorage.removeItem('wildpulse_p1_last_pet_time');
+            localStorage.removeItem('wildpulse_p1PedometerTime');
+            localStorage.removeItem('wildpulse_p1_home_x');
+            localStorage.removeItem('wildpulse_p1_home_y');
+            localStorage.removeItem('wildpulse_p1_mini_tiles');
+
+            // Reset customization settings for player 1
+            localStorage.removeItem('wildpulse_player_name');
+            localStorage.removeItem('wildpulse_player_color');
+            localStorage.removeItem('wildpulse_player_aura_color');
+            localStorage.removeItem('wildpulse_player_pattern');
+            localStorage.removeItem('wildpulse_player_pattern_color');
+            localStorage.removeItem('wildpulse_player_shape');
+
+            // Reset shared/global keys as well
+            localStorage.removeItem('wildpulse_inGameDays');
+            localStorage.removeItem('wildpulse_currentSeason');
+            localStorage.removeItem('wildpulse_world_seed');
+            localStorage.removeItem('wildpulse_total_elapsed_ms');
+            localStorage.removeItem('wildpulse_challenge_tier');
+            localStorage.removeItem('wildpulse_unlocked_patterns_cache');
+            localStorage.removeItem('wildpulse_last_replenish_day');
+            localStorage.removeItem('wildpulse_coop_active');
+
+            // Reset P1 NPC trainer data inside the JSON structure
+            try {
+                let allData = JSON.parse(localStorage.getItem('wildpulse_npc_trainer_data')) || {};
+                for (let trainerId in allData) {
+                    if (allData[trainerId]) {
+                        delete allData[trainerId].weekBattles;
+                        delete allData[trainerId].lastBattleTimeMs;
+                        allData[trainerId].p1 = { weekBattles: {}, lastBattleTimeMs: 0 };
+                    }
+                }
+                localStorage.setItem('wildpulse_npc_trainer_data', JSON.stringify(allData));
+            } catch (e) {
+                console.error("Error resetting P1 NPC trainer data:", e);
+            }
+
+            if (window.spawnPlayerHomes) {
+                window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
+            }
+            if (window.spawnMiniTiles) {
+                window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
+            }
+
+            location.reload();
         }
-
-        // Reset customization settings for both players
-        localStorage.removeItem('wildpulse_player_name');
-        localStorage.removeItem('wildpulse_player_color');
-        localStorage.removeItem('wildpulse_player_aura_color');
-        localStorage.removeItem('wildpulse_player_pattern');
-        localStorage.removeItem('wildpulse_player_pattern_color');
-        localStorage.removeItem('wildpulse_player_shape');
-
-        localStorage.removeItem('wildpulse_player2_name');
-        localStorage.removeItem('wildpulse_player2_color');
-        localStorage.removeItem('wildpulse_player2_aura_color');
-        localStorage.removeItem('wildpulse_player2_pattern');
-        localStorage.removeItem('wildpulse_player2_pattern_color');
-        localStorage.removeItem('wildpulse_player2_shape');
-
-        location.reload();
     }
 };
 
