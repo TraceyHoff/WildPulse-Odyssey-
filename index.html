@@ -612,6 +612,33 @@
             overflow-y: auto !important;
         }
 
+        /* Respawn Choice Modal Specific Overrides under Co-op */
+        body.coop-active-layout #respawnChoiceModal_p1,
+        body.coop-active-layout #respawnChoiceModal_p2 {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            max-width: none !important;
+            background: rgba(0, 0, 0, 0.85) !important;
+            padding: 20px 10px !important;
+            box-sizing: border-box !important;
+            z-index: 200050 !important;
+            display: none;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        body.coop-active-layout #respawnChoiceModal_p1 {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #respawnChoiceModal_p2 {
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
         /* Customization Modal Specific Overrides under Co-op */
         body.coop-active-layout #customizationModal,
         body.coop-active-layout #customizationModal_p2 {
@@ -3583,6 +3610,7 @@ function escapeHtml(unsafe) {
                 <button class="action-wheel-option" data-option="party" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3);" onclick="window.useActionWheelOption(1, 'party')">👥 Party</button>
                 <button class="action-wheel-option" data-option="help" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3);" onclick="window.useActionWheelOption(1, 'help')">❓ Help</button>
                 <button class="action-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useActionWheelOption(1, 'close')">❌ Close</button>
+                <button class="action-wheel-option" id="actionWheelHome_p1" data-option="home" style="display: none; position: absolute; top: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #bf55ec; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(191,85,236,0.3);" onclick="window.useActionWheelOption(1, 'home')">🏠 Home</button>
             </div>
         </div>
 
@@ -3599,7 +3627,31 @@ function escapeHtml(unsafe) {
                 <button class="action-wheel-option" data-option="party" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3);" onclick="window.useActionWheelOption(2, 'party')">👥 Party</button>
                 <button class="action-wheel-option" data-option="help" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3);" onclick="window.useActionWheelOption(2, 'help')">❓ Help</button>
                 <button class="action-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useActionWheelOption(2, 'close')">❌ Close</button>
+                <button class="action-wheel-option" id="actionWheelHome_p2" data-option="home" style="display: none; position: absolute; top: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #bf55ec; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(191,85,236,0.3);" onclick="window.useActionWheelOption(2, 'home')">🏠 Home</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Respawn Choice Modals -->
+<div id="respawnChoiceModal_p1" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200050; align-items:center; justify-content:center; box-sizing:border-box;">
+    <div class="modal-box neon-box" style="width: 320px; background: rgba(11,17,32,0.95); border: 2px solid #ff007f; border-radius: 16px; padding: 25px; text-align: center; color: white; font-family: 'Courier New', monospace; pointer-events: auto;">
+        <h3 style="color: #ff007f; margin-top: 0; font-size: 20px; text-shadow: 0 0 10px rgba(255,0,127,0.5); letter-spacing: 2px;">PARTY DEFEATED!</h3>
+        <p style="font-size: 14px; margin: 20px 0; color: #bbb;">Select where you would like to respawn:</p>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <button class="respawn-btn btn" id="respawnP1HospitalBtn" style="padding: 12px; font-size: 15px; font-weight: bold; background: rgba(0, 255, 204, 0.15); border: 2px solid #00ffcc; border-radius: 12px; color: #00ffcc; cursor: pointer; transition: all 0.2s;" onclick="window.respawnPlayer(1, 'hospital')">🏥 HOSPITAL</button>
+            <button class="respawn-btn btn" id="respawnP1HomeBtn" style="padding: 12px; font-size: 15px; font-weight: bold; background: rgba(191, 85, 236, 0.15); border: 2px solid #bf55ec; border-radius: 12px; color: #bf55ec; cursor: pointer; transition: all 0.2s;" onclick="window.respawnPlayer(1, 'home')">🏠 MY HOME</button>
+        </div>
+    </div>
+</div>
+
+<div id="respawnChoiceModal_p2" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200050; align-items:center; justify-content:center; box-sizing:border-box;">
+    <div class="modal-box neon-box" style="width: 320px; background: rgba(11,17,32,0.95); border: 2px solid #ff00ff; border-radius: 16px; padding: 25px; text-align: center; color: white; font-family: 'Courier New', monospace; pointer-events: auto;">
+        <h3 style="color: #ff00ff; margin-top: 0; font-size: 20px; text-shadow: 0 0 10px rgba(255,0,255,0.5); letter-spacing: 2px;">PARTY DEFEATED!</h3>
+        <p style="font-size: 14px; margin: 20px 0; color: #bbb;">Select where you would like to respawn:</p>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <button class="respawn-btn btn" id="respawnP2HospitalBtn" style="padding: 12px; font-size: 15px; font-weight: bold; background: rgba(0, 255, 204, 0.15); border: 2px solid #00ffcc; border-radius: 12px; color: #00ffcc; cursor: pointer; transition: all 0.2s;" onclick="window.respawnPlayer(2, 'hospital')">🏥 HOSPITAL</button>
+            <button class="respawn-btn btn" id="respawnP2HomeBtn" style="padding: 12px; font-size: 15px; font-weight: bold; background: rgba(191, 85, 236, 0.15); border: 2px solid #bf55ec; border-radius: 12px; color: #bf55ec; cursor: pointer; transition: all 0.2s;" onclick="window.respawnPlayer(2, 'home')">🏠 MY HOME</button>
         </div>
     </div>
 </div>
@@ -12935,7 +12987,8 @@ window.getActiveContainerForPlayer = function(playerNum) {
             'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
             'battleModal', 'battleSwapModal', 'challengeModal',
             'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal',
-            'creatureSelectModal_p1', 'creatureSelectModal_p2'
+            'creatureSelectModal_p1', 'creatureSelectModal_p2',
+            'respawnChoiceModal_p1', 'respawnChoiceModal_p2'
         ];
 
         if (window.coopActive && playerNum === 2) {
@@ -13143,6 +13196,44 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justLeft = currLeft && !prev.Left;
     const justRight = currRight && !prev.Right;
 
+    // Special handling for Home Placement Mode
+    if (window[`p${playerNum}HomePlacementMode`]) {
+        // Move home preview with right stick or axes
+        const rx = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
+        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
+        const speed = 12;
+        if (Math.abs(rx) > 0.15) window[`p${playerNum}HomePreviewX`] += rx * speed;
+        if (Math.abs(ry) > 0.15) window[`p${playerNum}HomePreviewY`] += ry * speed;
+
+        // Keep preview sprite updated
+        const previewSpriteId = `p${playerNum}HomePreviewSprite`;
+        if (window[previewSpriteId]) {
+            window[previewSpriteId].setPosition(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`]);
+        }
+
+        // A button places home
+        if (justA) {
+            window.tryPlaceHome(playerNum, window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`]);
+        }
+
+        // B button cancels home placement
+        if (justB) {
+            window.cancelHomePlacement(playerNum);
+        }
+
+        // Save prev state so next frame checks are accurate
+        prev.Y = currY;
+        prev.X = currX;
+        prev.B = currB;
+        prev.A = currA;
+        prev.Start = currStart;
+        prev.Up = currUp;
+        prev.Down = currDown;
+        prev.Left = currLeft;
+        prev.Right = currRight;
+        return;
+    }
+
     // Right Bumper hold and release action wheel toggle
     const prevRB = !!(prev.RB);
     prev.RB = currRB;
@@ -13173,7 +13264,10 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
 
     if (container && container.id === 'actionWheelModal') {
         let option = null;
-        if (currUp) {
+        const playerLvl = playerNum === 2 ? window.p2Level : window.p1Level;
+        if (playerLvl >= 10 && currUp && currRight) {
+            option = "home";
+        } else if (currUp) {
             option = "pet";
         } else if (currDown) {
             option = "close";
@@ -13192,13 +13286,15 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             let deg = angle * 180 / Math.PI;
             if (deg < 0) deg += 360;
 
-            if (deg >= 315 || deg < 45) {
+            if (playerLvl >= 10 && deg >= 290 && deg < 340) {
+                option = "home";
+            } else if (deg >= 315 || deg < 45) {
                 option = "party";
             } else if (deg >= 45 && deg < 135) {
                 option = "close";
             } else if (deg >= 135 && deg < 225) {
                 option = "help";
-            } else if (deg >= 225 && deg < 315) {
+            } else {
                 option = "pet";
             }
         }
@@ -14839,6 +14935,17 @@ window.openActionWheel = function(playerNum) {
         window.p1ActiveModal = 'actionWheelModal';
     }
 
+    // Toggle Home button visibility dynamically based on level
+    const pLvl = playerNum === 2 ? window.p2Level : window.p1Level;
+    const homeBtn = document.getElementById(`actionWheelHome_p${playerNum}`);
+    if (homeBtn) {
+        if (pLvl >= 10) {
+            homeBtn.style.display = 'block';
+        } else {
+            homeBtn.style.display = 'none';
+        }
+    }
+
     // Default highlights
     window.highlightActionWheelOption(playerNum, 'pet');
 };
@@ -14865,7 +14972,8 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
         const opt = el.getAttribute('data-option');
         el.style.borderColor = opt === 'pet' ? '#ff007f' :
                               opt === 'party' ? '#00ffcc' :
-                              opt === 'help' ? '#ffd700' : '#ffffff';
+                              opt === 'help' ? '#ffd700' :
+                              opt === 'home' ? '#bf55ec' : '#ffffff';
         el.style.boxShadow = '';
     });
 
@@ -14891,6 +14999,7 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
             else if (optionName === 'party') rotation = 90;
             else if (optionName === 'close') rotation = 180;
             else if (optionName === 'help') rotation = 270;
+            else if (optionName === 'home') rotation = 45;
 
             pointer.style.transform = `rotate(${rotation}deg)`;
             pointer.style.opacity = '1';
@@ -14959,6 +15068,10 @@ window.useActionWheelOption = function(playerNum, optionName) {
         if (window.openHelpModal) {
             window.openHelpModal(playerNum);
         }
+    } else if (optionName === 'home') {
+        if (window.startHomePlacement) {
+            window.startHomePlacement(playerNum);
+        }
     }
 };
 
@@ -14995,6 +15108,13 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_p2_last_pet_time');
         localStorage.removeItem('wildpulse_p1PedometerTime');
         localStorage.removeItem('wildpulse_p2PedometerTime');
+        localStorage.removeItem('wildpulse_p1_home_x');
+        localStorage.removeItem('wildpulse_p1_home_y');
+        localStorage.removeItem('wildpulse_p2_home_x');
+        localStorage.removeItem('wildpulse_p2_home_y');
+        if (window.spawnPlayerHomes) {
+            window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
+        }
 
         // Reset customization settings for both players
         localStorage.removeItem('wildpulse_player_name');
@@ -17214,6 +17334,44 @@ function generateTileTextures(scene) {
     storeCtx.fillText('$', 50, 50);
     scene.textures.addCanvas('store_tile', storeCanvas);
 
+    // Pre-generate Home Tile texture
+    const homeCanvas = document.createElement('canvas');
+    homeCanvas.width = 100;
+    homeCanvas.height = 100;
+    const homeCtx = homeCanvas.getContext('2d');
+
+    // A nice glowing purple/blue gradient for the house tile base
+    const homeGrad = homeCtx.createRadialGradient(50, 50, 10, 50, 50, 50);
+    homeGrad.addColorStop(0, '#bf55ec'); // Purple
+    homeGrad.addColorStop(1, '#0b1120'); // Dark background
+    homeCtx.fillStyle = homeGrad;
+    homeCtx.fillRect(0, 0, 100, 100);
+
+    // Glowing neon green border
+    homeCtx.strokeStyle = '#00ffcc';
+    homeCtx.lineWidth = 4;
+    homeCtx.strokeRect(2, 2, 96, 96);
+
+    // Draw a cyberpunk style house/home shape
+    homeCtx.fillStyle = '#00ffcc';
+    homeCtx.beginPath();
+    // Roof
+    homeCtx.moveTo(50, 20);
+    homeCtx.lineTo(80, 50);
+    homeCtx.lineTo(20, 50);
+    homeCtx.closePath();
+    homeCtx.fill();
+
+    // Body of the house
+    homeCtx.fillStyle = '#bf55ec';
+    homeCtx.fillRect(25, 50, 50, 35);
+
+    // Door
+    homeCtx.fillStyle = '#00ffcc';
+    homeCtx.fillRect(42, 60, 16, 25);
+
+    scene.textures.addCanvas('home_tile', homeCanvas);
+
     // Pre-generate Trade Tile texture
     const tradeCanvas = document.createElement('canvas');
     tradeCanvas.width = 100;
@@ -18097,6 +18255,190 @@ function destroyTile(key) {
     }
 }
 
+window.spawnPlayerHomes = function(scene) {
+    if (!scene) return;
+    if (window.homesGroup) {
+        window.homesGroup.clear(true, true);
+    } else {
+        window.homesGroup = scene.physics.add.staticGroup();
+    }
+
+    const p1HX = localStorage.getItem('wildpulse_p1_home_x');
+    const p1HY = localStorage.getItem('wildpulse_p1_home_y');
+    if (p1HX && p1HY) {
+        let hx = parseFloat(p1HX);
+        let hy = parseFloat(p1HY);
+        let hSprite = window.homesGroup.create(hx, hy, 'home_tile');
+        hSprite.setDepth(9);
+        hSprite.isHomeTile = true;
+        hSprite.playerNum = 1;
+        if (hSprite.body) hSprite.body.updateFromGameObject();
+    }
+
+    const p2HX = localStorage.getItem('wildpulse_p2_home_x');
+    const p2HY = localStorage.getItem('wildpulse_p2_home_y');
+    if (p2HX && p2HY) {
+        let hx = parseFloat(p2HX);
+        let hy = parseFloat(p2HY);
+        let hSprite = window.homesGroup.create(hx, hy, 'home_tile');
+        hSprite.setDepth(9);
+        hSprite.isHomeTile = true;
+        hSprite.playerNum = 2;
+        if (hSprite.body) hSprite.body.updateFromGameObject();
+    }
+};
+
+window.respawnPlayer = function(playerNum, choice) {
+    const modalId = `respawnChoiceModal_p${playerNum}`;
+    const modalEl = document.getElementById(modalId);
+    if (modalEl) modalEl.style.display = 'none';
+
+    if (playerNum === 2) {
+        window.p2ActiveModal = null;
+    } else {
+        window.p1ActiveModal = null;
+    }
+
+    let spawnX = 10050;
+    let spawnY = 10050;
+    let targetPos = null;
+
+    if (choice === 'home') {
+        const hx = localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
+        const hy = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
+        if (hx && hy) {
+            spawnX = parseFloat(hx);
+            spawnY = parseFloat(hy);
+            targetPos = { x: spawnX, y: spawnY };
+        }
+    }
+
+    if (!targetPos) {
+        targetPos = window.getStrictSafeDryLandSpawn(null, { x: 10050, y: 10050 });
+    }
+
+    if (playerNum === 2 && window.player2) {
+        window.player2.x = targetPos.x;
+        window.player2.y = targetPos.y;
+    } else if (player) {
+        player.x = targetPos.x;
+        player.y = targetPos.y;
+    }
+
+    // Fully heal party on respawn choice!
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
+    const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    party.forEach(c => {
+        if (!c.stored) {
+            c.currentHp = window.getEffectiveStat(c, 'health');
+        }
+    });
+    localStorage.setItem(key, JSON.stringify(party));
+    if (window.renderPartyList) window.renderPartyList();
+
+    window.showModernNotification(`Respawned at ${choice === 'home' ? 'Home' : 'Hospital'}! Your party has been fully healed.`, 4000, playerNum);
+};
+
+window.isValidHomeLocation = function(row, col) {
+    if (!mapData || !mapData[row] || col < 0 || col >= mapData[0].length) return false;
+
+    // Check if tile is not grass (e.g. water, hospital, pvp, breed, challenge, trade, store, npc_trainer)
+    const tileType = mapData[row][col];
+    if (tileType !== 'grass') return false;
+
+    // Check if there is a tree on this grass tile
+    let hash = (row * 31 + col * 17) % 100;
+    const isAboveHospital = (row === 99 && col === 100);
+    if (hash < 12 && !isAboveHospital) return false;
+
+    // Check other player's home
+    for (let pNum of [1, 2]) {
+        const hx = localStorage.getItem(`wildpulse_p${pNum}_home_x`);
+        const hy = localStorage.getItem(`wildpulse_p${pNum}_home_y`);
+        if (hx && hy) {
+            let hRow = Math.floor(parseFloat(hy) / 100);
+            let hCol = Math.floor(parseFloat(hx) / 100);
+            if (hRow === row && hCol === col) return false;
+        }
+    }
+
+    return true;
+};
+
+window.startHomePlacement = function(playerNum) {
+    const pLvl = playerNum === 2 ? window.p2Level : window.p1Level;
+    if (pLvl < 10) {
+        window.showModernNotification("❌ You must be at least Level 10 to place a Home!", 3000, playerNum);
+        return;
+    }
+
+    window[`p${playerNum}HomePlacementMode`] = true;
+    const playerSprite = playerNum === 2 ? window.player2 : window.player;
+    if (!playerSprite) return;
+
+    window[`p${playerNum}HomePreviewX`] = playerSprite.x;
+    window[`p${playerNum}HomePreviewY`] = playerSprite.y;
+
+    const scene = game.scene.scenes[0];
+    const previewSpriteId = `p${playerNum}HomePreviewSprite`;
+    if (!window[previewSpriteId]) {
+        window[previewSpriteId] = scene.add.sprite(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`], 'home_tile');
+        window[previewSpriteId].setAlpha(0.6);
+        window[previewSpriteId].setDepth(100);
+    } else {
+        window[previewSpriteId].setPosition(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`]);
+        window[previewSpriteId].setVisible(true);
+    }
+
+    // Setup camera ignore for split screen
+    if (window.coopActive) {
+        if (playerNum === 1 && window.camera2 && window.p1HomePreviewSprite) {
+            window.camera2.ignore(window.p1HomePreviewSprite);
+        } else if (playerNum === 2 && scene.cameras.main && window.p2HomePreviewSprite) {
+            scene.cameras.main.ignore(window.p2HomePreviewSprite);
+        }
+    }
+
+    window.showModernNotification("🏠 Home Placement Mode: Move preview with Right Stick (or mouse on PC), press A (or click) to place. Press B (or ESC) to cancel.", 6000, playerNum);
+};
+
+window.tryPlaceHome = function(playerNum, x, y) {
+    let col = Math.floor(x / 100);
+    let row = Math.floor(y / 100);
+    let snappedX = col * 100 + 50;
+    let snappedY = row * 100 + 50;
+
+    if (!window.isValidHomeLocation(row, col)) {
+        window.showModernNotification("❌ Invalid location! Cannot place home on water, trees, buildings, or other homes.", 3000, playerNum);
+        return;
+    }
+
+    // Save home location
+    localStorage.setItem(`wildpulse_p${playerNum}_home_x`, snappedX.toString());
+    localStorage.setItem(`wildpulse_p${playerNum}_home_y`, snappedY.toString());
+
+    // Respawn homes
+    const scene = game.scene.scenes[0];
+    if (window.spawnPlayerHomes) window.spawnPlayerHomes(scene);
+
+    // Exit placement mode
+    window.exitHomePlacementMode(playerNum);
+    window.showModernNotification("🏠 Home placed successfully! It will now act as a spawn point.", 4000, playerNum);
+};
+
+window.exitHomePlacementMode = function(playerNum) {
+    window[`p${playerNum}HomePlacementMode`] = false;
+    const sprite = window[`p${playerNum}HomePreviewSprite`];
+    if (sprite) {
+        sprite.setVisible(false);
+    }
+};
+
+window.cancelHomePlacement = function(playerNum) {
+    window.exitHomePlacementMode(playerNum);
+    window.showModernNotification("🏠 Home placement canceled.", 3000, playerNum);
+};
+
 function create() {
     // Generate map terrain
     const TILE_SIZE = 100;
@@ -18112,6 +18454,7 @@ function create() {
     tradeGroup = this.physics.add.staticGroup();
     pvpGroup = this.physics.add.staticGroup();
     window.breedGroup = this.physics.add.staticGroup();
+    window.homesGroup = this.physics.add.staticGroup();
     window.npcTrainersGroup = this.physics.add.group();
 
     // Procedural generation
@@ -18638,6 +18981,9 @@ function create() {
         }
     }
 
+    // Spawn player homes
+    window.spawnPlayerHomes(this);
+
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
@@ -18679,6 +19025,15 @@ function create() {
         if (window.sharedEmitZone && window.sharedEmitZone.source) {
             window.sharedEmitZone.source.width = window.innerWidth + 600;
             window.sharedEmitZone.source.height = window.innerHeight + 600;
+        }
+    });
+
+    // PC pointer listener for Home Placement
+    this.input.on('pointerdown', (pointer) => {
+        if (window.p1HomePlacementMode) {
+            let p1WorldX = this.cameras.main.scrollX + pointer.x;
+            let p1WorldY = this.cameras.main.scrollY + pointer.y;
+            window.tryPlaceHome(1, p1WorldX, p1WorldY);
         }
     });
 
@@ -20684,14 +21039,30 @@ window.closeBattleModal = function() {
             player.x += 100;
         }
     } else if (result === 'loss') {
-        window.showModernNotification('All your creatures fainted! Follow the arrow to the hospital to heal them.', 6000);
-        let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10050, y: 10050 });
-        if (window.activeBattlePlayer === 2 && window.player2) {
-            window.player2.x = safePos.x;
-            window.player2.y = safePos.y;
-        } else if (player) {
-            player.x = safePos.x;
-            player.y = safePos.y;
+        const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
+        const hasHome = !!localStorage.getItem(`wildpulse_p${pNum}_home_x`);
+
+        if (hasHome) {
+            const modalId = `respawnChoiceModal_p${pNum}`;
+            const modalEl = document.getElementById(modalId);
+            if (modalEl) {
+                modalEl.style.display = 'flex';
+                if (pNum === 2) {
+                    window.p2ActiveModal = modalId;
+                } else {
+                    window.p1ActiveModal = modalId;
+                }
+            }
+        } else {
+            window.showModernNotification('All your creatures fainted! Follow the arrow to the hospital to heal them.', 6000);
+            let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10050, y: 10050 });
+            if (window.activeBattlePlayer === 2 && window.player2) {
+                window.player2.x = safePos.x;
+                window.player2.y = safePos.y;
+            } else if (player) {
+                player.x = safePos.x;
+                player.y = safePos.y;
+            }
         }
     }
 
@@ -21335,6 +21706,28 @@ function isPointerOverButton(p) {
 function update() {
     // Real-time world creature animations (optimized to eliminate lag and GC pressure)
     const activeScene = this || (window.game && window.game.scene && window.game.scene.scenes[0]);
+
+    // Update PC controls for Home Placement Mode
+    if (activeScene && activeScene.input && window.p1HomePlacementMode) {
+        const pointer = activeScene.input.activePointer;
+        // Let preview follow mouse world position
+        let p1WorldX = activeScene.cameras.main.scrollX + pointer.x;
+        let p1WorldY = activeScene.cameras.main.scrollY + pointer.y;
+        window.p1HomePreviewX = p1WorldX;
+        window.p1HomePreviewY = p1WorldY;
+
+        if (window.p1HomePreviewSprite) {
+            window.p1HomePreviewSprite.setPosition(window.p1HomePreviewX, window.p1HomePreviewY);
+        }
+
+        // Check for cancel keys
+        const escKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+        const cKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+        if (Phaser.Input.Keyboard.JustDown(escKey) || Phaser.Input.Keyboard.JustDown(cKey)) {
+            window.cancelHomePlacement(1);
+        }
+    }
+
     if (activeScene && activeScene.textures) {
         if (!activeScene._lastCreatureAnimUpdate) {
             activeScene._lastCreatureAnimUpdate = 0;
@@ -22401,11 +22794,11 @@ function update() {
         }
     }
 
-    // Block movement if hatching is active
-    if (window.p1HatchingActive) {
+    // Block movement if hatching or home placement is active
+    if (window.p1HatchingActive || window.p1HomePlacementMode) {
         p1CanMove = false;
     }
-    if (window.p2HatchingActive) {
+    if (window.p2HatchingActive || window.p2HomePlacementMode) {
         p2CanMove = false;
     }
 
