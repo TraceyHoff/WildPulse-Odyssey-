@@ -1704,7 +1704,7 @@
                 <ul style="padding-left: 20px; color: #e0e0e0; margin-bottom: 25px;">
                     <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🌐 Traverse & Map</strong>: Navigate a procedurally generated ecosystem affected by changing seasons and dynamic atmospheric weather patterns.</li>
                     <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">⚔️ Tactical Combat</strong>: Defeat or weaken wild creatures to capture them and secure your team.</li>
-                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🧬 DNA Breeding & Eggs</strong>: Breed Level 5+ Male and Female parents to generate a Mysterious Egg! Keep the egg in your active party and walk 1,000 steps (1,500px) to hatch it (stored eggs won't progress). Hatching reveals the newborn's hidden stats, nature, temperament, and mutations!</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🧬 DNA Breeding & Eggs</strong>: Once you reach Character Level 7, breed creatures of any level to generate a Mysterious Egg! Keep the egg in your active party and walk 1,000 steps (1,500px) to hatch it (stored eggs won't progress). Hatching reveals the newborn's hidden stats, nature, temperament, and mutations!</li>
                     <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">❤️ Friend Symbiosis</strong>: Form deep relationships with active party members. Passive experience expands their friend stats dynamically.</li>
                     <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">👑 Competitive Nodes</strong>: Challenge the local PvP, trade creatures with friends, or battle elite squads in Crown Challenges.</li>
                 </ul>
@@ -1784,7 +1784,7 @@
                 <ul style="padding-left: 20px; color: #e0e0e0; margin-bottom: 25px;">
                     <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🌐 Traverse & Map</strong>: Navigate a procedurally generated ecosystem affected by changing seasons and dynamic atmospheric weather patterns.</li>
                     <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">⚔️ Tactical Combat</strong>: Defeat or weaken wild creatures to capture them and secure your team.</li>
-                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🧬 DNA Breeding & Eggs</strong>: Breed Level 5+ Male and Female parents to generate a Mysterious Egg! Keep the egg in your active party and walk 1,000 steps (1,500px) to hatch it (stored eggs won't progress). Hatching reveals the newborn's hidden stats, nature, temperament, and mutations!</li>
+                    <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">🧬 DNA Breeding & Eggs</strong>: Once you reach Character Level 7, breed creatures of any level to generate a Mysterious Egg! Keep the egg in your active party and walk 1,000 steps (1,500px) to hatch it (stored eggs won't progress). Hatching reveals the newborn's hidden stats, nature, temperament, and mutations!</li>
                     <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">❤️ Friend Symbiosis</strong>: Form deep relationships with active party members. Passive experience expands their friend stats dynamically.</li>
                     <li style="margin-bottom: 12px;"><strong style="color: #00ffcc;">👑 Competitive Nodes</strong>: Challenge the local PvP, trade creatures with friends, or battle elite squads in Crown Challenges.</li>
                 </ul>
@@ -2281,7 +2281,7 @@
             <h2 style="color: #4caf50; text-align: center; margin-top: 0;">Player 1 Menu</h2>
             <button id="menuPartyBtn" style="width: 100%; margin: 8px 0;">Party</button>
             <button id="menuStorageBtn" style="width: 100%; margin: 8px 0;">Storage Box</button>
-            <button id="breedBtn" style="width: 100%; margin: 8px 0;">Breeding Center</button>
+            <button id="breedBtn" style="width: 100%; margin: 8px 0; display: none;">Breeding Center</button>
             <button id="menuJournalBtn" style="width: 100%; margin: 8px 0;">Creature Journal</button>
             <button id="menuCustomizeBtn" style="width: 100%; margin: 8px 0;">Customize Character</button>
             <button id="menuHelpBtn" style="width: 100%; margin: 8px 0;">Help</button>
@@ -2311,7 +2311,7 @@
             <h2 style="color: #ff9800; text-align: center; margin-top: 0;">Player 2 Menu</h2>
             <button id="menuPartyBtn_P2" style="width: 100%; margin: 8px 0;">Party</button>
             <button id="menuStorageBtn_P2" style="width: 100%; margin: 8px 0;">Storage Box</button>
-            <button id="breedBtn_P2" style="width: 100%; margin: 8px 0;">Breeding Center</button>
+            <button id="breedBtn_P2" style="width: 100%; margin: 8px 0; display: none;">Breeding Center</button>
             <button id="menuJournalBtn_P2" style="width: 100%; margin: 8px 0;">Creature Journal</button>
             <button id="menuCustomizeBtn_P2" style="width: 100%; margin: 8px 0;">Customize Character</button>
             <button id="menuHelpBtn_P2" style="width: 100%; margin: 8px 0;">Help</button>
@@ -3072,6 +3072,43 @@ window.generateWeatherIcons = function(scene) {
     });
 };
 
+window.generateBreedTile = function(scene) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const ctx = canvas.getContext('2d');
+
+    // Pink to violet radial gradient
+    const grad = ctx.createRadialGradient(50, 50, 10, 50, 50, 50);
+    grad.addColorStop(0, '#ff1493'); // Neon deep pink
+    grad.addColorStop(1, '#4b0082'); // Indigo
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 100, 100);
+
+    // Border
+    ctx.strokeStyle = '#ff69b4';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(2, 2, 96, 96);
+
+    // Draw an Egg shape in the center (White/light pink)
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    // Simple egg shape: top narrower, bottom wider
+    ctx.moveTo(50, 25);
+    ctx.bezierCurveTo(35, 25, 30, 75, 50, 75);
+    ctx.bezierCurveTo(70, 75, 65, 25, 50, 25);
+    ctx.fill();
+
+    // Speckles/spots on the egg
+    ctx.fillStyle = '#ff1493';
+    ctx.beginPath(); ctx.arc(44, 45, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(56, 55, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(48, 62, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(52, 38, 2, 0, Math.PI*2); ctx.fill();
+
+    scene.textures.addCanvas('breed_tile', canvas);
+};
+
 window.generateChallengeTile = function(scene) {
     const canvas = document.createElement('canvas');
     canvas.width = 100;
@@ -3382,7 +3419,7 @@ function escapeHtml(unsafe) {
             <p>• <strong>Friend System:</strong> Active party creatures passively gain +1 Friend XP and +1 Happiness every 30 seconds. Leveling up adds +2 to two random stats (all stats on multiples of 10). Stored creatures passively degrade by -1 XP and -1 Happiness every 180 seconds.</p>
 
             <h3 style="color: #ffd700; margin-top: 15px;">🧬 DNA Breeding & Eggs</h3>
-            <p>• <strong>Breeding:</strong> Select one Male and one Female parent of level 5+ at the Breeding Center. Offspring inherit blended stats and natures.</p>
+            <p>• <strong>Breeding:</strong> Once you reach Character Level 7, you can breed creatures of any level! Requires selecting one Male and one Female parent at the Breeding Center. Offspring inherit blended stats and natures.</p>
             <p>• <strong>Eggs:</strong> Egg details/stats/mutations are masked as '???'. Hatch Eggs in-place by walking 1000 steps with them in your active party (stored eggs won't accumulate steps).</p>
             <p>• <strong>Pedometer 👣:</strong> Buy this from the shop for 100 coins! Using it grants a 60s buff that doubles egg hatching progress while moving.</p>
             <p>• <strong>Shinies:</strong> There is a 0.1% chance to find a Shiny (+20% stats), with a 25% chance of passing rarity to bred offspring.</p>
@@ -5436,7 +5473,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('wildpulse_player2_pattern_color', patternColor_p2);
             localStorage.setItem('wildpulse_player2_shape', shape_p2);
 
-            if (window.p2Label) window.p2Label.setText(name_p2 || "P2");
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
             if (typeof window.player2 !== 'undefined' && window.player2) {
                 const customColorInt = parseInt(color_p2.replace('#', '0x'));
                 window.player2.originalColor = customColorInt;
@@ -5475,7 +5512,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('wildpulse_player2_pattern_color', patternColor);
             localStorage.setItem('wildpulse_player2_shape', shape);
 
-            if (window.p2Label) window.p2Label.setText(name || "P2");
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
             if (typeof window.player2 !== 'undefined' && window.player2) {
                 const customColorInt = parseInt(color.replace('#', '0x'));
                 window.player2.originalColor = customColorInt;
@@ -5506,7 +5543,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.cachedPlayerColor = color;
             window.cachedPlayerAuraColor = auraColor;
 
-            if (window.localPlayerLabel) window.localPlayerLabel.setText(name || "P" + (window.playerIndexCount || 1));
+            window.cachedPlayerName = name;
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
             if (typeof player !== 'undefined' && player) {
                 const customColorInt = parseInt(color.replace('#', '0x'));
                 player.originalColor = customColorInt;
@@ -5545,7 +5583,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('wildpulse_player2_pattern_color', patternColor);
         localStorage.setItem('wildpulse_player2_shape', shape);
 
-        if (window.p2Label) window.p2Label.setText(name || "P2");
+        if (window.updatePlayerLabels) window.updatePlayerLabels();
         if (typeof window.player2 !== 'undefined' && window.player2) {
             const customColorInt = parseInt(color.replace('#', '0x'));
             window.player2.originalColor = customColorInt;
@@ -11688,6 +11726,70 @@ window.baseCreatures.forEach(c => {
 
 // ==================== PERSISTENCE ====================
 const STORAGE_KEY = 'wildpulse_collected_creatures';
+
+// Initialize Player Levels and Experience
+window.p1Level = parseInt(localStorage.getItem('wildpulse_player_level')) || 1;
+window.p1Xp = parseInt(localStorage.getItem('wildpulse_player_xp')) || 0;
+
+window.p2Level = parseInt(localStorage.getItem('wildpulse_player2_level')) || 1;
+window.p2Xp = parseInt(localStorage.getItem('wildpulse_player2_xp')) || 0;
+
+window.savePlayerLevels = function() {
+    localStorage.setItem('wildpulse_player_level', window.p1Level);
+    localStorage.setItem('wildpulse_player_xp', window.p1Xp);
+    localStorage.setItem('wildpulse_player2_level', window.p2Level);
+    localStorage.setItem('wildpulse_player2_xp', window.p2Xp);
+};
+
+window.updatePlayerLabels = function() {
+    if (window.localPlayerLabel) {
+        const p1Name = window.cachedPlayerName || localStorage.getItem('wildpulse_player_name') || 'Player 1';
+        const p1Lvl = window.p1Level || 1;
+        window.localPlayerLabel.setText(`[Lv. ${p1Lvl}] ${p1Name}`);
+    }
+    if (window.p2Label) {
+        const p2Name = localStorage.getItem('wildpulse_player2_name') || 'Player 2';
+        const p2Lvl = window.p2Level || 1;
+        window.p2Label.setText(`[Lv. ${p2Lvl}] ${p2Name}`);
+    }
+};
+
+window.gainPlayerXp = function(playerNum, amount) {
+    if (playerNum === 2) {
+        window.p2Xp = (window.p2Xp || 0) + amount;
+        let leveledUp = false;
+        while (window.p2Xp >= window.getXpRequirement(window.p2Level || 1)) {
+            window.p2Xp -= window.getXpRequirement(window.p2Level || 1);
+            window.p2Level = (window.p2Level || 1) + 1;
+            leveledUp = true;
+        }
+        window.savePlayerLevels();
+        if (leveledUp) {
+            if (window.showModernNotification) {
+                window.showModernNotification(`🎉 Player 2 leveled up to Level ${window.p2Level}! 🎉`, "#ffeb3b");
+            }
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
+        }
+        return leveledUp;
+    } else {
+        window.p1Xp = (window.p1Xp || 0) + amount;
+        let leveledUp = false;
+        while (window.p1Xp >= window.getXpRequirement(window.p1Level || 1)) {
+            window.p1Xp -= window.getXpRequirement(window.p1Level || 1);
+            window.p1Level = (window.p1Level || 1) + 1;
+            leveledUp = true;
+        }
+        window.savePlayerLevels();
+        if (leveledUp) {
+            if (window.showModernNotification) {
+                window.showModernNotification(`🎉 Player 1 leveled up to Level ${window.p1Level}! 🎉`, "#ffeb3b");
+            }
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
+        }
+        return leveledUp;
+    }
+};
+
 collectedCreatures = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 collectedCreaturesIds = new Set(collectedCreatures.map(c => c.id));
 
@@ -14864,6 +14966,10 @@ window.deleteProgress = function() {
     if (confirm('Are you sure? This will erase all save data.')) {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem('wildpulse_collected_creatures2');
+        localStorage.removeItem('wildpulse_player_level');
+        localStorage.removeItem('wildpulse_player_xp');
+        localStorage.removeItem('wildpulse_player2_level');
+        localStorage.removeItem('wildpulse_player2_xp');
         localStorage.removeItem('wildpulse_player_x');
         localStorage.removeItem('wildpulse_player_y');
         localStorage.removeItem('wildpulse_player2_x');
@@ -15476,7 +15582,29 @@ function populateSelect(selectElement, playerNum = 1) {
     });
 }
 
-window.openBreedingModal = function(playerNum = 1) {
+window.openBreedingModal = function(playerCollider) {
+    if (window.inBattle) return;
+
+    let playerNum = 1;
+    if (window.coopActive && playerCollider === window.player2) {
+        playerNum = 2;
+    } else if (typeof playerCollider === 'number') {
+        playerNum = playerCollider;
+    }
+
+    if (playerNum === 2) {
+        if (window.p2BreedingClosedWhileOverlapping) return;
+    } else {
+        if (window.p1BreedingClosedWhileOverlapping) return;
+    }
+
+    if (window.coopActive) {
+        const activeModal = (playerNum === 2) ? window.p2ActiveModal : window.p1ActiveModal;
+        if (activeModal !== null) return;
+    } else {
+        if (window.isAnyModalOpen && window.isAnyModalOpen()) return;
+    }
+
     if (window.coopActive) {
         window.closeMenuModal(playerNum);
         window.closeAllModalsForPlayer(playerNum, 'breedingModal');
@@ -15499,17 +15627,24 @@ window.openBreedingModal = function(playerNum = 1) {
         // Player 1 SELECTS
         populateSelect(document.getElementById('parent1Select'), 1);
         populateSelect(document.getElementById('parent2Select'), 1);
-        document.getElementById('breedResult').innerText = '';
+        const resEl = document.getElementById('breedResult');
+        if (resEl) resEl.innerText = '';
     }
 };
 
 window.closeBreedingModal = function(playerNum = 1) {
     if (window.coopActive) {
-        if (playerNum === 2) window.p2ActiveModal = null;
-        else window.p1ActiveModal = null;
+        if (playerNum === 2) {
+            window.p2ActiveModal = null;
+            window.p2BreedingClosedWhileOverlapping = true;
+        } else {
+            window.p1ActiveModal = null;
+            window.p1BreedingClosedWhileOverlapping = true;
+        }
         window.updateModalVisibility();
     } else {
         let _m_breedingModal = document.getElementById('breedingModal');
+        window.p1BreedingClosedWhileOverlapping = true;
         if (_m_breedingModal) {
             _m_breedingModal.children[0].classList.add('modal-fade-out');
             setTimeout(() => {
@@ -15566,8 +15701,9 @@ window.doBreed = function(playerNum = 1) {
         const p1 = list[p1Index];
         const p2 = list[p2Index];
 
-        if ((p1.level || 1) < 5 || (p2.level || 1) < 5) {
-            if (resEl) resEl.innerText = 'Both parent creatures must be at least level 5 to breed.';
+        const playerLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
+        if (playerLvl < 7) {
+            if (resEl) resEl.innerText = 'Player must be at least Level 7 to breed creatures.';
             return;
         }
 
@@ -15645,6 +15781,8 @@ window.p1StoreClosedWhileOverlapping = false;
 window.p2StoreClosedWhileOverlapping = false;
 window.p1ChallengeClosedWhileOverlapping = false;
 window.p2ChallengeClosedWhileOverlapping = false;
+window.p1BreedingClosedWhileOverlapping = false;
+window.p2BreedingClosedWhileOverlapping = false;
 
 let pendingPvpOffer = null;
 
@@ -16050,7 +16188,7 @@ window.rejectPvpOffer = function() {
 
 
 // ==================== PHASER GAME ====================
-const WORLD_SIZE = 20000;
+const WORLD_SIZE = 60000;
 
 const config = {
     type: Phaser.AUTO,
@@ -17448,6 +17586,7 @@ function generateMiscTextures(scene) {
 function preload() {
     window.generateWeatherIcons(this);
     window.generateChallengeTile(this);
+    window.generateBreedTile(this);
     generateCelestialReflections(this);
     setupDynamicGrass(this);
     generateWaterTextures(this);
@@ -17630,6 +17769,21 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             pSprite.setVisible(false);
             pSprite.isPvpTile = true;
             sprites.push(pSprite);
+        }
+    } else if (mapData[r][c] === 'breed') {
+        let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
+        grass.setDepth(-1.1);
+        sprites.push(grass);
+
+        let breed = scene.add.sprite(posX, posY, 'breed_tile');
+        breed.setDepth(-1);
+        sprites.push(breed);
+
+        if (window.breedGroup) {
+            let bSprite = window.breedGroup.create(posX, posY, 'breed_tile');
+            bSprite.setVisible(false);
+            bSprite.isBreedTile = true;
+            sprites.push(bSprite);
         }
     } else if (mapData[r][c] && mapData[r][c].startsWith('npc_trainer')) {
         let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
@@ -17957,6 +18111,7 @@ function create() {
     challengeGroup = this.physics.add.staticGroup();
     tradeGroup = this.physics.add.staticGroup();
     pvpGroup = this.physics.add.staticGroup();
+    window.breedGroup = this.physics.add.staticGroup();
     window.npcTrainersGroup = this.physics.add.group();
 
     // Procedural generation
@@ -18040,6 +18195,8 @@ function create() {
     mapData[103][103] = 'store';
     // PvP tile directly right of trade
     mapData[100][103] = 'pvp';
+    // Breeding center tile
+    mapData[97][100] = 'breed';
 
     // Force NPC Trainer tiles spread evenly across the map
     mapData[40][40] = 'npc_trainer_1';
@@ -18200,7 +18357,7 @@ function create() {
     player.body.setCollideWorldBounds(true);
 
     // Character Name Marker
-    window.localPlayerLabel = this.add.text(startX, startY - 30, customName, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
+    window.localPlayerLabel = this.add.text(startX, startY - 30, `[Lv. ${window.p1Level || 1}] ${customName}`, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
     window.localPlayerLabel.setDepth(10);
 
     this.physics.add.collider(player, window.treesGroup);
@@ -18488,6 +18645,7 @@ function create() {
     this.physics.add.overlap(player, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, this);
     this.physics.add.overlap(player, tradeGroup, (pCol) => { if (window.openTradeModal) window.openTradeModal(pCol); }, null, this);
     this.physics.add.overlap(player, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, this);
+    this.physics.add.overlap(player, window.breedGroup, (pCol) => { if (window.openBreedingModal) window.openBreedingModal(pCol); }, null, this);
     this.physics.add.overlap(player, window.npcTrainersGroup, handleNpcTrainerOverlap, null, this);
 
     window.addEventListener('resize', () => {
@@ -20749,6 +20907,10 @@ window.endBattle = function(result) {
             let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
+            // Award Player XP
+            const winnerNum = window.activeBattlePlayer === 2 ? 2 : 1;
+            if (window.gainPlayerXp) window.gainPlayerXp(winnerNum, xpGained);
+
             // Add XP to the battling creature (currentPlayer) inside the activeParty!
             let expTarget = activeParty.find(c => String(c.id) === String(currentPlayer?.id)) || activeParty[0];
             if (expTarget) {
@@ -20955,7 +21117,7 @@ window.enableCoop = function(scene) {
     window.player2.body.setCollideWorldBounds(true);
 
     // Character Name Marker for P2
-    window.p2Label = scene.add.text(p2X, p2Y - 30, p2Name, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
+    window.p2Label = scene.add.text(p2X, p2Y - 30, `[Lv. ${window.p2Level || 1}] ${p2Name}`, { fontSize: '14px', fill: '#FFF', stroke: '#000', strokeThickness: 2 }).setOrigin(0.5);
     window.p2Label.setDepth(10);
 
     // Physics colliders and overlaps for Player 2
@@ -20967,6 +21129,7 @@ window.enableCoop = function(scene) {
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, tradeGroup, (pCol) => { if (window.openTradeModal) window.openTradeModal(pCol); }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.breedGroup, (pCol) => { if (window.openBreedingModal) window.openBreedingModal(pCol); }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.npcTrainersGroup, handleNpcTrainerOverlap, null, scene));
 
     // 2. Set up split screen cameras
@@ -21591,6 +21754,30 @@ function update() {
 
     if (!pvpOverlap && (!window.coopActive || !p2PvpOverlap)) {
         window.pvpModalClosedFlag = false;
+    }
+
+    let breedOverlap = false;
+    if (typeof window.breedGroup !== 'undefined' && window.breedGroup) {
+        window.breedGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
+                breedOverlap = true;
+            }
+        });
+    }
+    if (!breedOverlap) {
+        window.p1BreedingClosedWhileOverlapping = false;
+    }
+
+    let p2BreedOverlap = false;
+    if (window.coopActive && window.player2 && typeof window.breedGroup !== 'undefined' && window.breedGroup) {
+        window.breedGroup.getChildren().forEach(tile => {
+            if (Phaser.Math.Distance.Between(window.player2.x, window.player2.y, tile.x, tile.y) < 100) {
+                p2BreedOverlap = true;
+            }
+        });
+    }
+    if (!p2BreedOverlap) {
+        window.p2BreedingClosedWhileOverlapping = false;
     }
 
 
