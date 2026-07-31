@@ -10538,6 +10538,18 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
     }
     descHtml += `<p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Temperament:</span> ${tempText}${tempDesc}</p>`;
 
+    // Happiness
+    const happinessVal = creature.happiness !== undefined ? creature.happiness : 50;
+    descHtml += `
+        <div style="margin: 10px 0; font-size: 13px; display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00ffcc; font-weight: bold;">Happiness:</span>
+            <div style="flex-grow: 1; height: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; overflow: hidden; max-width: 150px;">
+                <div style="height: 100%; width: ${happinessVal}%; background: linear-gradient(90deg, #ffeb3b, #ffd54f); box-shadow: 0 0 8px rgba(255, 235, 59, 0.5);"></div>
+            </div>
+            <span style="color: #ff80ab; font-weight: bold;">${Math.round(happinessVal)}/100</span>
+        </div>
+    `;
+
     // Mutation
     let mutHtml = `<p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Mutation:</span> <span style="color: #888; font-style: italic;">None</span></p>`;
     if (creature.mutation) {
@@ -10935,6 +10947,24 @@ window.decreaseFriendLevel = function(creature) {
     }
 };
 
+window.adjustHappiness = function(creature, amount, playerNum = 1) {
+    if (!creature || creature.isEgg) return;
+    if (creature.happiness === undefined) {
+        creature.happiness = 50;
+    }
+    creature.happiness = Math.max(0, Math.min(100, creature.happiness + amount));
+
+    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+    const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : (typeof STORAGE_KEY !== 'undefined' ? STORAGE_KEY : 'wildpulse_collected_creatures');
+    if (list) {
+        const found = list.find(c => String(c.id) === String(creature.id));
+        if (found) {
+            found.happiness = creature.happiness;
+            localStorage.setItem(key, JSON.stringify(list));
+        }
+    }
+};
+
 window.updateFriendExperience = function(dt) {
     if (!window.gameStarted) return;
 
@@ -10950,12 +10980,21 @@ window.updateFriendExperience = function(dt) {
         if (c.isEgg) return;
         if (!c.friendLevel) c.friendLevel = 1;
         if (c.friendXp === undefined) c.friendXp = 0;
+        if (c.happiness === undefined) c.happiness = 50;
         if (!c.friendBonusStats) {
             c.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
         }
 
         const isStored = !!c.stored;
         if (!isStored) {
+            // Passive happiness increase when in party
+            const happinessGained = (dt / 1000) / 30;
+            const oldHappiness = c.happiness;
+            c.happiness = Math.min(100, c.happiness + happinessGained);
+            if (Math.round(oldHappiness) !== Math.round(c.happiness)) {
+                changedP1 = true;
+            }
+
             let mult = 1.0;
             if (p1HasHyperDrive) mult *= 2.0;
             if (c.mutation && c.mutation.id === 'double_helix') mult *= 2.0; // Double Helix specific boost
@@ -10978,6 +11017,14 @@ window.updateFriendExperience = function(dt) {
                 }
             }
         } else {
+            // Passive happiness decrease when stored
+            const happinessLost = (dt / 1000) / 180;
+            const oldHappiness = c.happiness;
+            c.happiness = Math.max(0, c.happiness - happinessLost);
+            if (Math.round(oldHappiness) !== Math.round(c.happiness)) {
+                changedP1 = true;
+            }
+
             // Check if telepathic bond is active
             if (p1HasTelepathicBond) {
                 // Passive Friend XP gain instead of loss!
@@ -11037,12 +11084,21 @@ window.updateFriendExperience = function(dt) {
             if (c.isEgg) return;
             if (!c.friendLevel) c.friendLevel = 1;
             if (c.friendXp === undefined) c.friendXp = 0;
+            if (c.happiness === undefined) c.happiness = 50;
             if (!c.friendBonusStats) {
                 c.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
             }
 
             const isStored = !!c.stored;
             if (!isStored) {
+                // Passive happiness increase when in party
+                const happinessGained = (dt / 1000) / 30;
+                const oldHappiness = c.happiness;
+                c.happiness = Math.min(100, c.happiness + happinessGained);
+                if (Math.round(oldHappiness) !== Math.round(c.happiness)) {
+                    changedP2 = true;
+                }
+
                 let mult = 1.0;
                 if (p2HasHyperDrive) mult *= 2.0;
                 if (c.mutation && c.mutation.id === 'double_helix') mult *= 2.0;
@@ -11065,6 +11121,14 @@ window.updateFriendExperience = function(dt) {
                     }
                 }
             } else {
+                // Passive happiness decrease when stored
+                const happinessLost = (dt / 1000) / 180;
+                const oldHappiness = c.happiness;
+                c.happiness = Math.max(0, c.happiness - happinessLost);
+                if (Math.round(oldHappiness) !== Math.round(c.happiness)) {
+                    changedP2 = true;
+                }
+
                 if (p2HasTelepathicBond) {
                     const xpGained = (dt / 1000) * 0.1;
                     c.friendXp += xpGained;
@@ -11991,6 +12055,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         activeParty.forEach(creature => {
             const maxHp = window.getEffectiveStat(creature, 'health');
             creature.currentHp = maxHp;
+            window.adjustHappiness(creature, 10, playerNum);
         });
 
         const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -12010,6 +12075,8 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             } else {
                 creature.currentHp = maxHp;
             }
+
+            window.adjustHappiness(creature, 15, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -12051,6 +12118,8 @@ window.useInventoryItem = function(playerNum, slotIndex) {
                 statName = "specialDefense";
                 creature.bonusStats.specialDefense += boostAmount;
             }
+
+            window.adjustHappiness(creature, 15, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -12212,6 +12281,7 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
         starter.friendLevel = 1;
         starter.friendXp = 0;
         starter.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
+        starter.happiness = 50;
         starter.gender = Math.random() < 0.5 ? 'Male' : 'Female';
         starter.id = Date.now().toString() + "_starter";
 
@@ -12253,6 +12323,7 @@ if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.ba
         starter.friendLevel = 1;
         starter.friendXp = 0;
         starter.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
+        starter.happiness = 50;
         starter.gender = Math.random() < 0.5 ? 'Male' : 'Female';
         starter.id = Date.now().toString() + "_starter_p2";
 
@@ -12273,6 +12344,7 @@ window.saveCollected = function(creature, playerNum = 1) {
     if (!idSet.has(creature.id)) {
         if (!creature.friendLevel) creature.friendLevel = 1;
         if (creature.friendXp === undefined) creature.friendXp = 0;
+        if (creature.happiness === undefined) creature.happiness = 50;
         if (!creature.friendBonusStats) {
             creature.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
         }
@@ -13834,6 +13906,8 @@ function renderPartyForPlayer(playerNum = 1) {
             genderHtml = `<span style="color: #2196F3; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Male">♂</span>`;
         }
 
+        const happiness = c.happiness !== undefined ? c.happiness : 50;
+
         card.innerHTML = `
             <div>
                 <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
@@ -13849,6 +13923,13 @@ function renderPartyForPlayer(playerNum = 1) {
                     </span>
                 </h3>
                 <p><strong>Level <span style="color:${lvlColor}">${c.level || 1}</span></strong> (Gen ${c.generation}) | <span style="color:${lvlColor}">XP: ${Math.floor(c.xp || 0)} / ${window.getXpRequirement(c.level || 1)}</span> | <span style="color:${friendLvlColor}; font-weight: bold;">Friend Lvl ${c.friendLevel || 1}</span> <span style="font-size: 0.9em; color: ${friendXpColor};">(XP: ${Math.floor(c.friendXp || 0)}/100)</span></p>
+                <div style="margin-top: -5px; margin-bottom: 10px; font-size: 0.9em; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-weight: bold; color: ${friendLvlColor};">Happiness:</span>
+                    <div style="flex-grow: 1; height: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; overflow: hidden; max-width: 120px;">
+                        <div style="height: 100%; width: ${happiness}%; background: linear-gradient(90deg, #ffeb3b, #ffd54f); box-shadow: 0 0 8px rgba(255, 235, 59, 0.5);"></div>
+                    </div>
+                    <span style="color: ${friendXpColor}; font-weight: bold;">${Math.round(happiness)}/100</span>
+                </div>
                 <div class="creature-description" style="display: flex; gap: 15px; align-items: center; margin-bottom: 10px;">
                     <div class="creature-sprite-container" style="flex-shrink: 0; width: 80px; height: 80px;"></div>
                     <p class="creature-desc-text" style="font-style: italic; margin: 0; flex-grow: 1; max-height: 55px; overflow-y: auto;">${c.description}</p>
@@ -14035,7 +14116,15 @@ function renderStorageForPlayer(playerNum = 1) {
         }
         const friendLvlColor = isDarkText ? '#c2185b' : '#ff4081';
         const friendXpColor = isDarkText ? '#880e4f' : '#ff80ab';
-        const typeHtml = `<p>Lvl ${c.level} | Type: <span class="type-badge" data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span> | Gen ${c.generation}</p><p><span style="color:${friendLvlColor}; font-weight: bold;">Friend Lvl ${c.friendLevel || 1}</span> <span style="font-size: 0.9em; color: ${friendXpColor};">(XP: ${Math.floor(c.friendXp || 0)}/100)</span> | Abilities: ${abilityText}</p>`;
+        const happiness = c.happiness !== undefined ? c.happiness : 50;
+        const typeHtml = `<p>Lvl ${c.level} | Type: <span class="type-badge" data-tooltip="${window.getTypeTooltip(c.type)}">${c.type}</span> | Gen ${c.generation}</p><p><span style="color:${friendLvlColor}; font-weight: bold;">Friend Lvl ${c.friendLevel || 1}</span> <span style="font-size: 0.9em; color: ${friendXpColor};">(XP: ${Math.floor(c.friendXp || 0)}/100)</span> | Abilities: ${abilityText}</p>
+        <div style="margin-top: 5px; margin-bottom: 5px; font-size: 0.9em; display: flex; align-items: center; gap: 8px;">
+            <span style="font-weight: bold; color: ${friendLvlColor};">Happiness:</span>
+            <div style="flex-grow: 1; height: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; overflow: hidden; max-width: 120px;">
+                <div style="height: 100%; width: ${happiness}%; background: linear-gradient(90deg, #ffeb3b, #ffd54f); box-shadow: 0 0 8px rgba(255, 235, 59, 0.5);"></div>
+            </div>
+            <span style="color: ${friendXpColor}; font-weight: bold;">${Math.round(happiness)}/100</span>
+        </div>`;
 
         let actionHtml = `<div class="party-controls">`;
         actionHtml += `<button class="retrieve-btn" onclick="window.retrieveCreature(${index}, ${playerNum})" style="background-color: #4CAF50; color: white;">Retrieve</button>`;
@@ -14508,6 +14597,7 @@ window.breed = function(parent1, parent2) {
         friendLevel: 1,
         friendXp: 0,
         friendBonusStats: { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 },
+        happiness: 50,
         nature: window.getRandomNature(),
         mood: window.getRandomMood(),
         temperament: window.getRandomTemperament(),
@@ -18746,6 +18836,8 @@ window.handleFaint = function(target) {
         if (orig) {
             orig.currentHp = 0;
             orig.status = null;
+            // Decrease happiness on faint
+            window.adjustHappiness(orig, -15, window.activeBattlePlayer === 2 ? 2 : 1);
         }
 
         let next = activeParty.find(c => !c.stored && c.currentHp > 0 && String(c.id) !== String(currentPlayer?.id));
@@ -19613,6 +19705,7 @@ function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
         if (orig) {
             orig.currentHp = 0;
             orig.status = null;
+            window.adjustHappiness(orig, -15, 1);
             localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
         }
 
@@ -19632,6 +19725,7 @@ function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
         if (orig) {
             orig.currentHp = 0;
             orig.status = null;
+            window.adjustHappiness(orig, -15, 2);
             localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
         }
 
@@ -19910,6 +20004,10 @@ window.endBattle = function(result) {
             }
 
             if (result === 'win') {
+                // Player 1 wins (+5 happiness), Player 2 loses (-5 happiness)
+                window.collectedCreatures.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 5, 1));
+                window.collectedCreatures2.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, -5, 2));
+
                 window.logBattle(`${window.getP1Name()} wins!`);
                 if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
                 let c1 = Math.floor(80 * window.getPassiveGoldMultiplier(1));
@@ -19922,6 +20020,10 @@ window.endBattle = function(result) {
                 window.saveStats();
                 window.showModernNotification(`🪙 ${window.getP1Name()} won ${c1} coins! ${window.getP2Name()} received ${c2} coins!`);
             } else if (result === 'loss') {
+                // Player 2 wins (+5 happiness), Player 1 loses (-5 happiness)
+                window.collectedCreatures2.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 5, 2));
+                window.collectedCreatures.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, -5, 1));
+
                 window.logBattle(`${window.getP2Name()} wins!`);
                 if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                 if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
@@ -19943,6 +20045,15 @@ window.endBattle = function(result) {
             window.p1PvpClosedWhileOverlapping = true;
             window.p2PvpClosedWhileOverlapping = true;
         } else {
+            // Normal battle, NPC, challenge, online PvP
+            const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
+            const targetParty = pNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            if (result === 'win' || result === 'caught') {
+                targetParty.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 5, pNum));
+            } else if (result === 'loss') {
+                targetParty.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, -5, pNum));
+            }
+
             if (window.isNpcBattle) {
                 if (result === 'win') {
                     if (window.activeBattlePlayer === 2) {
