@@ -10426,10 +10426,10 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
 
     if (creature.isEgg) {
         title.innerText = "Mysterious Egg";
-        let progressPct = Math.min(100, Math.floor((creature.eggProgress || 0) / (creature.eggHatchSteps || 1500) * 100));
+        let progressPct = Math.min(100, Math.floor((creature.eggProgress || 0) / (creature.eggHatchSteps || 1000) * 100));
         let eggDescHtml = `
             <p style="margin: 0 0 10px 0; font-style: italic; color: #ccc;">${creature.description || ''}</p>
-            <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Hatch Progress:</span> ${Math.floor(creature.eggProgress || 0)} / ${(creature.eggHatchSteps || 1500)} px (${progressPct}%)</p>
+            <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Hatch Progress:</span> ${Math.floor(creature.eggProgress || 0)} / ${(creature.eggHatchSteps || 1000)} steps (${progressPct}%)</p>
             <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Nature:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
             <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Temperament:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
             <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Mutation:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
@@ -12798,6 +12798,9 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
 };
 
 window.isAnyModalOpen = function() {
+    if (window.p1HatchingActive || window.p2HatchingActive) {
+        return true;
+    }
     const modals = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
@@ -13579,7 +13582,7 @@ function renderPartyForPlayer(playerNum = 1) {
         card.style.backgroundColor = 'transparent';
 
         if (c.isEgg) {
-            const progressPct = Math.min(100, Math.floor((c.eggProgress || 0) / (c.eggHatchSteps || 1500) * 100));
+            const progressPct = Math.min(100, Math.floor((c.eggProgress || 0) / (c.eggHatchSteps || 1000) * 100));
             let parentsHtml = '';
             if (c.parents) {
                 parentsHtml = `<p><em>Parents: ${c.parents.name1} (${c.parents.type1}) & ${c.parents.name2} (${c.parents.type2})</em></p>`;
@@ -13594,7 +13597,7 @@ function renderPartyForPlayer(playerNum = 1) {
                             <span class="type-badge" style="background: #e040fb;" data-tooltip="Egg">Egg</span>
                         </span>
                     </h3>
-                    <p><strong>Hatch Progress: <span style="color:${isDarkText ? '#c2185b' : '#ff4081'}">${Math.floor(c.eggProgress || 0)}</span> / ${(c.eggHatchSteps || 1500)} px</strong> (${progressPct}%)</p>
+                    <p><strong>Hatch Progress: <span style="color:${isDarkText ? '#c2185b' : '#ff4081'}">${Math.floor(c.eggProgress || 0)}</span> / ${(c.eggHatchSteps || 1000)} steps</strong> (${progressPct}%)</p>
                     <div class="creature-description" style="display: flex; gap: 15px; align-items: center; margin-bottom: 10px;">
                         <div class="creature-sprite-container" style="flex-shrink: 0; width: 80px; height: 80px;"></div>
                         <p class="creature-desc-text" style="font-style: italic; margin: 0; flex-grow: 1; max-height: 55px; overflow-y: auto;">${c.description}</p>
@@ -13883,7 +13886,7 @@ function renderStorageForPlayer(playerNum = 1) {
         card.style.backgroundColor = 'transparent';
 
         if (c.isEgg) {
-            const progressPct = Math.min(100, Math.floor((c.eggProgress || 0) / (c.eggHatchSteps || 1500) * 100));
+            const progressPct = Math.min(100, Math.floor((c.eggProgress || 0) / (c.eggHatchSteps || 1000) * 100));
             const nameHtml = `
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
                     <h4 style="margin: 0;">Mysterious Egg</h4>
@@ -13891,7 +13894,7 @@ function renderStorageForPlayer(playerNum = 1) {
             `;
             const typeHtml = `
                 <p style="margin: 3px 0;">Type: <span class="type-badge" style="background: #e040fb;" data-tooltip="Egg">Egg</span></p>
-                <p style="margin: 3px 0;">Hatch Progress: <span style="color:${isDarkText ? '#c2185b' : '#ff4081'}">${Math.floor(c.eggProgress || 0)}</span> / ${(c.eggHatchSteps || 1500)} px (${progressPct}%)</p>
+                <p style="margin: 3px 0;">Hatch Progress: <span style="color:${isDarkText ? '#c2185b' : '#ff4081'}">${Math.floor(c.eggProgress || 0)}</span> / ${(c.eggHatchSteps || 1000)} steps (${progressPct}%)</p>
             `;
             let actionHtml = `<div class="party-controls">`;
             actionHtml += `<button class="retrieve-btn" onclick="window.retrieveCreature(${index}, ${playerNum})" style="background-color: #4CAF50; color: white;">Retrieve</button>`;
@@ -14471,37 +14474,268 @@ window.hatchEgg = function(egg, playerNum = 1) {
     const child = egg.childData;
     if (!child) return;
 
-    // Remove egg properties
-    delete egg.isEgg;
-    delete egg.eggProgress;
-    delete egg.eggHatchSteps;
-    delete egg.childData;
-    delete egg.parentTypes;
-
-    // Mutate egg in-place to the child data
-    Object.assign(egg, child);
-
-    // Make sure gender is defined
-    if (!egg.gender) {
-        egg.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+    // Inject styles if needed
+    if (!document.getElementById('hatchingOverlayStyles')) {
+        const style = document.createElement('style');
+        style.id = 'hatchingOverlayStyles';
+        style.innerHTML = `
+            @keyframes eggTremble {
+                0% { transform: scale(1) translate(0, 0) rotate(0deg); }
+                10% { transform: scale(1.02) translate(-3px, -2px) rotate(-2deg); }
+                20% { transform: scale(0.98) translate(-4px, 0px) rotate(2deg); }
+                30% { transform: scale(1.01) translate(0px, 3px) rotate(0deg); }
+                40% { transform: scale(0.99) translate(2px, -2px) rotate(2deg); }
+                50% { transform: scale(1.02) translate(-2px, 3px) rotate(-2deg); }
+                60% { transform: scale(0.98) translate(-4px, 2px) rotate(0deg); }
+                70% { transform: scale(1.01) translate(3px, 2px) rotate(-3deg); }
+                80% { transform: scale(0.97) translate(-2px, -2px) rotate(5deg); }
+                90% { transform: scale(1.03) translate(3px, 3px) rotate(-3deg); }
+                100% { transform: scale(1) translate(2px, -3px) rotate(-2deg); }
+            }
+            .egg-tremble-active {
+                animation: eggTremble 0.12s infinite;
+            }
+            .egg-tremble-violent {
+                animation: eggTremble 0.06s infinite;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
-    // Set HP to full on hatch
-    egg.maxHp = window.getEffectiveStat(egg, 'health');
-    egg.currentHp = egg.maxHp;
+    // Determine viewport placement
+    const isCoop = document.body.classList.contains('coop-active-layout');
 
-    const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
-    const notificationMsg = `✨ Oh? Your egg is hatching! Ssssshh... Boom! ${playerName}'s Mysterious Egg hatched into ${egg.name} (Gen ${egg.generation})! ✨`;
-    window.showModernNotification(notificationMsg, 7000);
+    const overlay = document.createElement('div');
+    overlay.id = `hatchingOverlay_p${playerNum}`;
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.height = '100%';
+    overlay.style.zIndex = '100000';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.background = 'rgba(10, 15, 25, 0.95)';
+    overlay.style.color = '#fff';
+    overlay.style.fontFamily = '"Courier New", Courier, monospace';
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.overflowY = 'auto';
+    overlay.style.padding = '20px';
+    overlay.style.boxSizing = 'border-box';
 
+    if (isCoop) {
+        overlay.style.width = '50vw';
+        if (playerNum === 2) {
+            overlay.style.left = '50vw';
+            overlay.style.borderLeft = '2px solid #ff007f';
+        } else {
+            overlay.style.left = '0';
+            overlay.style.borderRight = '2px solid #00ffcc';
+        }
+    } else {
+        overlay.style.width = '100vw';
+        overlay.style.left = '0';
+    }
+
+    // Block movement for this player
+    if (playerNum === 2) {
+        window.p2HatchingActive = true;
+    } else {
+        window.p1HatchingActive = true;
+    }
+
+    overlay.innerHTML = `
+        <h2 id="hatchTitle_p${playerNum}" style="font-size: 28px; color: #00ffcc; text-shadow: 0 0 10px #00ffcc; margin: 0 0 10px 0; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 2px;">Oh?</h2>
+        <p id="hatchSub_p${playerNum}" style="font-size: 15px; color: #aaa; margin: 0 0 20px 0; min-height: 20px; text-align: center; font-style: italic;">Your Mysterious Egg is trembling...</p>
+        <div id="eggContainer_p${playerNum}" style="position: relative; width: 220px; height: 220px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <canvas id="hatchCanvas_p${playerNum}" width="220" height="220" style="display: block; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.8); background: #050a12; border: 2px solid rgba(255,255,255,0.1);"></canvas>
+            <div id="hatchFlash_p${playerNum}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; opacity: 0; pointer-events: none; transition: opacity 0.1s ease-out; border-radius: 50%;"></div>
+        </div>
+        <div id="hatchStats_p${playerNum}" style="display: none; margin-top: 10px; font-size: 14px; text-align: left; background: rgba(255,255,255,0.06); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); width: 100%; max-width: 280px; box-shadow: inset 0 0 15px rgba(0,0,0,0.6);"></div>
+        <div id="hatchBtnContainer_p${playerNum}" style="display: none; margin-top: 20px; width: 100%; text-align: center;"></div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const canvas = document.getElementById(`hatchCanvas_p${playerNum}`);
+    const flash = document.getElementById(`hatchFlash_p${playerNum}`);
+    const subtitle = document.getElementById(`hatchSub_p${playerNum}`);
+    const title = document.getElementById(`hatchTitle_p${playerNum}`);
+    const statsContainer = document.getElementById(`hatchStats_p${playerNum}`);
+    const btnContainer = document.getElementById(`hatchBtnContainer_p${playerNum}`);
+    const eggContainer = document.getElementById(`eggContainer_p${playerNum}`);
+
+    // Render egg
+    window.renderCreatureCanvas(canvas, egg, 220, true);
+
+    // Timeline Steps
+    // Stage 1: Slight Tremble
+    canvas.classList.add('egg-tremble-active');
     if (window.WildPulseMusic && window.WildPulseMusic.synth) {
-        try {
-            window.WildPulseMusic.synth.triggerAttackRelease("C5", "8n", "+0.0");
-            window.WildPulseMusic.synth.triggerAttackRelease("E5", "8n", "+0.15");
-            window.WildPulseMusic.synth.triggerAttackRelease("G5", "8n", "+0.30");
-            window.WildPulseMusic.synth.triggerAttackRelease("C6", "4n", "+0.45");
-        } catch(e) {}
+        try { window.WildPulseMusic.synth.triggerAttackRelease("C3", "16n"); } catch(e){}
     }
+
+    // Pause 1
+    setTimeout(() => {
+        canvas.classList.remove('egg-tremble-active');
+        subtitle.innerText = "It's shaking quite a bit...";
+    }, 1200);
+
+    // Stage 2: Stronger Tremble
+    setTimeout(() => {
+        canvas.classList.add('egg-tremble-active');
+        if (window.WildPulseMusic && window.WildPulseMusic.synth) {
+            try { window.WildPulseMusic.synth.triggerAttackRelease("E3", "16n"); } catch(e){}
+        }
+    }, 2200);
+
+    // Pause 2
+    setTimeout(() => {
+        canvas.classList.remove('egg-tremble-active');
+        subtitle.innerText = "Look! The shell is starting to crack!";
+    }, 3400);
+
+    // Stage 3: Violent Tremble
+    setTimeout(() => {
+        canvas.classList.add('egg-tremble-violent');
+        let count = 0;
+        let interval = setInterval(() => {
+            if (count++ > 8) clearInterval(interval);
+            if (window.WildPulseMusic && window.WildPulseMusic.synth) {
+                try { window.WildPulseMusic.synth.triggerAttackRelease((150 + count * 40) + "Hz", "32n"); } catch(e){}
+            }
+        }, 120);
+    }, 4200);
+
+    // HATCH EVENT!
+    setTimeout(() => {
+        canvas.classList.remove('egg-tremble-violent');
+
+        // Flash
+        flash.style.opacity = '1';
+
+        // Synth sound
+        if (window.WildPulseMusic && window.WildPulseMusic.synth) {
+            try {
+                window.WildPulseMusic.synth.triggerAttackRelease("C4", "8n", "+0.0");
+                window.WildPulseMusic.synth.triggerAttackRelease("E4", "8n", "+0.12");
+                window.WildPulseMusic.synth.triggerAttackRelease("G4", "8n", "+0.24");
+                window.WildPulseMusic.synth.triggerAttackRelease("C5", "4n", "+0.36");
+            } catch(e) {}
+        }
+
+        // Apply mutation
+        delete egg.isEgg;
+        delete egg.isHatching;
+        delete egg.eggProgress;
+        delete egg.eggHatchSteps;
+        delete egg.childData;
+        delete egg.parentTypes;
+        Object.assign(egg, child);
+
+        if (!egg.gender) {
+            egg.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+        }
+        egg.maxHp = window.getEffectiveStat(egg, 'health');
+        egg.currentHp = egg.maxHp;
+
+        // Render hatched creature
+        window.renderCreatureCanvas(canvas, egg, 220, true);
+
+        // Particle Burst Effect
+        const colors = ['#00ffcc', '#ff007f', '#ffeb3b', '#00e5ff', '#ab47bc', '#4caf50'];
+        for (let i = 0; i < 35; i++) {
+            const p = document.createElement('div');
+            p.style.position = 'absolute';
+            p.style.top = '50%';
+            p.style.left = '50%';
+            p.style.width = '6px';
+            p.style.height = '6px';
+            p.style.borderRadius = '50%';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.boxShadow = `0 0 6px ${p.style.background}`;
+            p.style.transform = 'translate(-50%, -50%)';
+            p.style.zIndex = '10';
+            eggContainer.appendChild(p);
+
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 3 + Math.random() * 8;
+            const vx = Math.cos(angle) * velocity;
+            const vy = Math.sin(angle) * velocity;
+            let x = 0;
+            let y = 0;
+            let opacity = 1;
+
+            const anim = () => {
+                x += vx;
+                y += vy;
+                opacity -= 0.025;
+                p.style.left = `calc(50% + ${x}px)`;
+                p.style.top = `calc(50% + ${y}px)`;
+                p.style.opacity = opacity;
+                if (opacity > 0) {
+                     requestAnimationFrame(anim);
+                } else {
+                     p.remove();
+                }
+            };
+            requestAnimationFrame(anim);
+        }
+
+        // Fade out flash
+        setTimeout(() => {
+            flash.style.transition = 'opacity 0.6s ease-out';
+            flash.style.opacity = '0';
+        }, 100);
+
+        // Details Display
+        title.innerText = "Hatched!";
+        title.style.color = '#ffeb3b';
+        title.style.textShadow = '0 0 15px #ffeb3b';
+        subtitle.innerText = `Boom! Your Mysterious Egg hatched into ${egg.name}!`;
+
+        statsContainer.innerHTML = `
+            <p style="margin: 4px 0;"><span style="color: #ffeb3b; font-weight: bold; text-transform: uppercase;">Species:</span> ${egg.name}</p>
+            <p style="margin: 4px 0;"><span style="color: #00ffcc; font-weight: bold; text-transform: uppercase;">Type:</span> ${egg.type}</p>
+            <p style="margin: 4px 0;"><span style="color: #00ffcc; font-weight: bold; text-transform: uppercase;">Gender:</span> ${egg.gender}</p>
+            <p style="margin: 4px 0;"><span style="color: #e040fb; font-weight: bold; text-transform: uppercase;">Mutation:</span> ${egg.mutation ? egg.mutation.name : 'None'}</p>
+            <p style="margin: 4px 0;"><span style="color: #e040fb; font-weight: bold; text-transform: uppercase;">Temperament:</span> ${egg.temperament ? egg.temperament : 'Normal'}</p>
+        `;
+        statsContainer.style.display = 'block';
+
+        btnContainer.innerHTML = `
+            <button class="hatch-dismiss-btn" style="padding: 10px 24px; font-size: 15px; font-family: inherit; background: linear-gradient(180deg, #ff007f, #b30059); border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 15px rgba(255,0,127,0.4); transition: transform 0.1s;">Wonderful!</button>
+        `;
+        btnContainer.style.display = 'block';
+
+        const dismissBtn = btnContainer.querySelector('.hatch-dismiss-btn');
+        dismissBtn.addEventListener('click', () => {
+            if (window.WildPulseMusic && window.WildPulseMusic.synth) {
+                try { window.WildPulseMusic.synth.triggerAttackRelease("G4", "16n"); } catch(e){}
+            }
+
+            // Remove hatching blocks
+            if (playerNum === 2) {
+                window.p2HatchingActive = false;
+            } else {
+                window.p1HatchingActive = false;
+            }
+
+            overlay.remove();
+
+            // Save immediately
+            const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
+            localStorage.setItem(key, JSON.stringify(playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures));
+
+            if (window.renderPartyList) window.renderPartyList();
+            if (window.renderStorageList) window.renderStorageList();
+
+            const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
+            const notificationMsg = `✨ ${playerName}'s Mysterious Egg successfully hatched into ${egg.name} (Gen ${egg.generation})! ✨`;
+            window.showModernNotification(notificationMsg, 7000);
+        });
+
+    }, 5400);
 };
 
 function populateSelect(selectElement, playerNum = 1) {
@@ -14641,7 +14875,7 @@ window.doBreed = function(playerNum = 1) {
             name: "Mysterious Egg",
             isEgg: true,
             eggProgress: 0,
-            eggHatchSteps: 1500,
+            eggHatchSteps: 1000,
             parentTypes: [p1.type, p2.type],
             childData: child,
             description: `A mysterious, warm egg. Keep walking with it in your active party to hatch it! Bred from ${p1.name} & ${p2.name}.`,
@@ -14662,10 +14896,10 @@ window.doBreed = function(playerNum = 1) {
         window.saveCollected(egg, playerNum);
 
         const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
-        let successMsg = `Successfully bred ${p1.name} and ${p2.name}! They formed a Mysterious Egg in your party. Walk 1500px to hatch it!`;
+        let successMsg = `Successfully bred ${p1.name} and ${p2.name}! They formed a Mysterious Egg in your party. Walk 1000 character steps to hatch it!`;
         let notificationMsg = `✨ ${playerName} successfully bred ${p1.name} & ${p2.name} to lay a Mysterious Egg! ✨`;
         if (child.mutation) {
-            successMsg = `Successfully bred ${p1.name} and ${p2.name}! They formed a Mutant Mysterious Egg ([${child.mutation.name}] mutation) in your party! Walk 1500px to hatch it!`;
+            successMsg = `Successfully bred ${p1.name} and ${p2.name}! They formed a Mutant Mysterious Egg ([${child.mutation.name}] mutation) in your party! Walk 1000 character steps to hatch it!`;
             notificationMsg = `✨ ${playerName} successfully bred Mutant Mysterious Egg with [${child.mutation.name}]! ✨`;
         }
 
@@ -21207,6 +21441,14 @@ function update() {
         }
     }
 
+    // Block movement if hatching is active
+    if (window.p1HatchingActive) {
+        p1CanMove = false;
+    }
+    if (window.p2HatchingActive) {
+        p2CanMove = false;
+    }
+
     // Block movement if Left Bumper is held (Inventory focus)
     if (window.p1PadReference && window.p1PadReference.buttons[4] && window.p1PadReference.buttons[4].pressed) {
         p1CanMove = false;
@@ -21430,10 +21672,12 @@ function update() {
         const p1Party = (window.collectedCreatures || []);
         let p1EggChanged = false;
         p1Party.forEach(c => {
-            if (c.isEgg && !c.stored) {
+            if (c.isEgg && !c.stored && !c.isHatching) {
                 if (!c.eggProgress) c.eggProgress = 0;
-                c.eggProgress += distStep;
-                if (c.eggProgress >= (c.eggHatchSteps || 1500)) {
+                const stepsMoved = distStep / 1.5;
+                c.eggProgress += stepsMoved;
+                if (c.eggProgress >= (c.eggHatchSteps || 1000)) {
+                    c.isHatching = true;
                     window.hatchEgg(c, 1);
                     p1EggChanged = true;
                 }
@@ -21664,10 +21908,12 @@ function update() {
             const p2Party = (window.collectedCreatures2 || []);
             let p2EggChanged = false;
             p2Party.forEach(c => {
-                if (c.isEgg && !c.stored) {
+                if (c.isEgg && !c.stored && !c.isHatching) {
                     if (!c.eggProgress) c.eggProgress = 0;
-                    c.eggProgress += p2DistStep;
-                    if (c.eggProgress >= (c.eggHatchSteps || 1500)) {
+                    const stepsMoved = p2DistStep / 1.5;
+                    c.eggProgress += stepsMoved;
+                    if (c.eggProgress >= (c.eggHatchSteps || 1000)) {
+                        c.isHatching = true;
                         window.hatchEgg(c, 2);
                         p2EggChanged = true;
                     }
