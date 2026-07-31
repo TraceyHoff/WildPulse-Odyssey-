@@ -4592,7 +4592,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.closeJournalModal) window.closeJournalModal(playerNum);
     }));
 
-    document.getElementById('doBreedBtn')?.addEventListener('click', () => { if (window.doBreed) window.doBreed(); });
     document.querySelectorAll('.close-breeding-btn').forEach(btn => btn.addEventListener('click', () => {
         const playerNum = btn.closest('.p2-col') ? 2 : 1;
         if (window.closeBreedingModal) window.closeBreedingModal(playerNum);
@@ -7414,6 +7413,91 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
 
     // Virtual coordinate scaling: all drawing code runs inside a virtual 100x100 space!
     ctx.scale(size / 100, size / 100);
+
+    if (creature && creature.isEgg) {
+        if (drawBackground) {
+            const bgGrad = ctx.createRadialGradient(50, 50, 5, 50, 50, 50);
+            bgGrad.addColorStop(0, 'rgba(30, 40, 55, 0.9)');
+            bgGrad.addColorStop(1, 'rgba(10, 15, 25, 0.95)');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 100, 100);
+
+            const auraColor = window.TYPE_COLORS[creature.parentTypes ? creature.parentTypes[0] : 'Normal'] || 'rgba(169, 169, 169, 0.85)';
+            const auraGrad = ctx.createRadialGradient(50, 50, 10, 50, 50, 45);
+            auraGrad.addColorStop(0, auraColor.replace('0.85', '0.4').replace('0.8', '0.4').replace('1)', '0.4)'));
+            auraGrad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = auraGrad;
+            ctx.beginPath();
+            ctx.arc(50, 50, 45, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw upright egg shape using bezier curves
+        ctx.beginPath();
+        ctx.moveTo(50, 22);
+        ctx.bezierCurveTo(65, 22, 73, 36, 73, 52);
+        ctx.bezierCurveTo(73, 68, 63, 78, 50, 78);
+        ctx.bezierCurveTo(37, 78, 27, 68, 27, 52);
+        ctx.bezierCurveTo(27, 36, 35, 22, 50, 22);
+        ctx.closePath();
+
+        // Fill with linear gradient of both parent types
+        const type1 = creature.parentTypes ? creature.parentTypes[0] : 'Normal';
+        const type2 = creature.parentTypes ? creature.parentTypes[1] : (creature.parentTypes ? creature.parentTypes[0] : 'Normal');
+        const color1 = window.TYPE_COLORS[type1] || 'rgba(169, 169, 169, 0.85)';
+        const color2 = window.TYPE_COLORS[type2] || color1;
+
+        const eggGrad = ctx.createLinearGradient(50, 22, 50, 78);
+        eggGrad.addColorStop(0, color1);
+        eggGrad.addColorStop(1, color2);
+        ctx.fillStyle = eggGrad;
+        ctx.strokeStyle = '#111111';
+        ctx.lineWidth = 2.5;
+        ctx.fill();
+        ctx.stroke();
+
+        // Spots detailing with alpha blending
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(50, 22);
+        ctx.bezierCurveTo(65, 22, 73, 36, 73, 52);
+        ctx.bezierCurveTo(73, 68, 63, 78, 50, 78);
+        ctx.bezierCurveTo(37, 78, 27, 68, 27, 52);
+        ctx.bezierCurveTo(27, 36, 35, 22, 50, 22);
+        ctx.closePath();
+        ctx.clip();
+
+        // Light/glow spots
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.beginPath();
+        ctx.arc(42, 38, 4.5, 0, Math.PI * 2);
+        ctx.arc(58, 48, 5.5, 0, Math.PI * 2);
+        ctx.arc(45, 62, 6.5, 0, Math.PI * 2);
+        ctx.arc(55, 28, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Dark contrasting spots
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        ctx.beginPath();
+        ctx.arc(56, 36, 3.5, 0, Math.PI * 2);
+        ctx.arc(36, 52, 5.0, 0, Math.PI * 2);
+        ctx.arc(62, 60, 4.0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 3D Gloss / Shine Overlay
+        const glossGrad = ctx.createLinearGradient(40, 24, 60, 46);
+        glossGrad.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+        glossGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = glossGrad;
+        ctx.beginPath();
+        ctx.ellipse(44, 34, 8, 14, -Math.PI / 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore(); // for clipping
+
+        ctx.restore(); // for virtual scale / clearing context
+        return;
+    }
 
     // Dynamic animation variables derived from Date.now()
     const t = Date.now();
@@ -10340,8 +10424,39 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
     const desc = document.getElementById(descId);
     if (!modal || !canvas) return;
 
+    if (creature.isEgg) {
+        title.innerText = "Mysterious Egg";
+        let progressPct = Math.min(100, Math.floor((creature.eggProgress || 0) / (creature.eggHatchSteps || 1500) * 100));
+        let eggDescHtml = `
+            <p style="margin: 0 0 10px 0; font-style: italic; color: #ccc;">${creature.description || ''}</p>
+            <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Hatch Progress:</span> ${Math.floor(creature.eggProgress || 0)} / ${(creature.eggHatchSteps || 1500)} px (${progressPct}%)</p>
+            <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Nature:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
+            <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Temperament:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
+            <p style="margin: 5px 0; font-size: 13px;"><span style="color: #00ffcc; font-weight: bold;">Mutation:</span> <span style="color:#aaa; font-style:italic;">???</span></p>
+        `;
+        desc.innerHTML = eggDescHtml;
+
+        window.renderCreatureCanvas(canvas, creature, 400, true);
+        modal.style.display = 'flex';
+
+        if (window[animFrameKey]) {
+            cancelAnimationFrame(window[animFrameKey]);
+        }
+        const animate = () => {
+            if (modal.style.display === 'flex') {
+                window.renderCreatureCanvas(canvas, creature, 400, true);
+                window[animFrameKey] = requestAnimationFrame(animate);
+            } else {
+                window[animFrameKey] = null;
+            }
+        };
+        window[animFrameKey] = requestAnimationFrame(animate);
+        return;
+    }
+
     let prefix = creature.isShiny ? '⭐ ' : '';
-    title.innerText = prefix + (creature.nickname || creature.name);
+    let genderSymbol = creature.gender === 'Female' ? ' ♀' : ' ♂';
+    title.innerText = prefix + (creature.nickname || creature.name) + genderSymbol;
 
     let descHtml = `<p style="margin: 0 0 10px 0; font-style: italic; color: #ccc;">${creature.description || ''}</p>`;
 
@@ -10774,6 +10889,7 @@ window.updateFriendExperience = function(dt) {
     const p1HasTelepathicBond = p1List.some(cre => !cre.stored && cre.mutation && cre.mutation.id === 'telepathic_bond');
 
     p1List.forEach(c => {
+        if (c.isEgg) return;
         if (!c.friendLevel) c.friendLevel = 1;
         if (c.friendXp === undefined) c.friendXp = 0;
         if (!c.friendBonusStats) {
@@ -10860,6 +10976,7 @@ window.updateFriendExperience = function(dt) {
         const p2HasTelepathicBond = p2List.some(cre => !cre.stored && cre.mutation && cre.mutation.id === 'telepathic_bond');
 
         p2List.forEach(c => {
+            if (c.isEgg) return;
             if (!c.friendLevel) c.friendLevel = 1;
             if (c.friendXp === undefined) c.friendXp = 0;
             if (!c.friendBonusStats) {
@@ -11252,6 +11369,29 @@ window.collectedCreaturesIds = collectedCreaturesIds;
 window.collectedCreatures2 = JSON.parse(localStorage.getItem('wildpulse_collected_creatures2')) || [];
 window.collectedCreaturesIds2 = new Set(window.collectedCreatures2.map(c => c.id));
 
+// Ensure all loaded creatures have a gender
+let p1SavedGendersChanged = false;
+collectedCreatures.forEach(c => {
+    if (!c.gender) {
+        c.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+        p1SavedGendersChanged = true;
+    }
+});
+if (p1SavedGendersChanged) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
+}
+
+let p2SavedGendersChanged = false;
+window.collectedCreatures2.forEach(c => {
+    if (!c.gender) {
+        c.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+        p2SavedGendersChanged = true;
+    }
+});
+if (p2SavedGendersChanged) {
+    localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+}
+
 // Inventories and Active Buff Timers
 window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
 window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
@@ -11586,10 +11726,12 @@ window.updateStoreUI = function() {
         // Sell section
         const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         let selectHtml = '';
-        if (list.length === 0) {
+        const nonEggList = list.filter(c => !c.isEgg);
+        if (nonEggList.length === 0) {
             selectHtml = '<option value="">No creatures to sell</option>';
         } else {
             list.forEach((c, idx) => {
+                if (c.isEgg) return; // Skip eggs!
                 let price = window.calculateCreatureSellPrice(c);
                 let nicknameOrName = c.nickname || c.name;
                 let locationText = c.stored ? 'Storage' : 'Party';
@@ -11621,7 +11763,7 @@ window.updateStoreUI = function() {
 // Creature Selection Popup Modal
 window.promptCreatureSelection = function(playerNum, titleText, callback) {
     const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
-    const activeParty = party.filter(c => !c.stored);
+    const activeParty = party.filter(c => !c.stored && !c.isEgg);
 
     if (activeParty.length === 0) {
         window.showModernNotification("❌ You have no creatures in your party!");
@@ -12012,6 +12154,7 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
         starter.friendLevel = 1;
         starter.friendXp = 0;
         starter.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
+        starter.gender = Math.random() < 0.5 ? 'Male' : 'Female';
         starter.id = Date.now().toString() + "_starter";
 
         collectedCreaturesIds.add(starter.id);
@@ -12052,6 +12195,7 @@ if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.ba
         starter.friendLevel = 1;
         starter.friendXp = 0;
         starter.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
+        starter.gender = Math.random() < 0.5 ? 'Male' : 'Female';
         starter.id = Date.now().toString() + "_starter_p2";
 
         window.collectedCreaturesIds2.add(starter.id);
@@ -13205,7 +13349,7 @@ window.startChallengeBattle = function() {
     currentEnemy.isDefending = false;
     currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
 
-    let firstHealthy = collectedCreatures.find(c => !c.stored && c.currentHp > 0);
+    let firstHealthy = collectedCreatures.find(c => !c.stored && !c.isEgg && c.currentHp > 0);
     window.currentPlayer = JSON.parse(JSON.stringify(firstHealthy));
     currentPlayer = window.currentPlayer;
     currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
@@ -13434,6 +13578,73 @@ function renderPartyForPlayer(playerNum = 1) {
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
 
+        if (c.isEgg) {
+            const progressPct = Math.min(100, Math.floor((c.eggProgress || 0) / (c.eggHatchSteps || 1500) * 100));
+            let parentsHtml = '';
+            if (c.parents) {
+                parentsHtml = `<p><em>Parents: ${c.parents.name1} (${c.parents.type1}) & ${c.parents.name2} (${c.parents.type2})</em></p>`;
+            }
+            card.innerHTML = `
+                <div>
+                    <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                        <span style="display: flex; align-items: center; gap: 5px;">
+                            <strong>Mysterious Egg</strong>
+                        </span>
+                        <span style="display: flex; align-items: center; gap: 10px;">
+                            <span class="type-badge" style="background: #e040fb;" data-tooltip="Egg">Egg</span>
+                        </span>
+                    </h3>
+                    <p><strong>Hatch Progress: <span style="color:${isDarkText ? '#c2185b' : '#ff4081'}">${Math.floor(c.eggProgress || 0)}</span> / ${(c.eggHatchSteps || 1500)} px</strong> (${progressPct}%)</p>
+                    <div class="creature-description" style="display: flex; gap: 15px; align-items: center; margin-bottom: 10px;">
+                        <div class="creature-sprite-container" style="flex-shrink: 0; width: 80px; height: 80px;"></div>
+                        <p class="creature-desc-text" style="font-style: italic; margin: 0; flex-grow: 1; max-height: 55px; overflow-y: auto;">${c.description}</p>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 10px;">
+                        <p>Nature: <span style="color:#aaa; font-style:italic;">???</span></p>
+                        <p>Mood: <span style="color:#aaa; font-style:italic;">???</span></p>
+                        <p>Ability: <span style="color:#aaa; font-style:italic;">???</span></p>
+                    </div>
+                    ${parentsHtml}
+                    <div style="border-top: 1px solid #555; padding-top: 10px; margin-top: 10px;">
+                        <h4 style="margin: 0 0 5px 0;">Base Stats</h4>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em; color:#aaa; font-style:italic;">
+                            <div>health: ???</div>
+                            <div>attack: ???</div>
+                            <div>defense: ???</div>
+                            <div>speed: ???</div>
+                            <div>specialAttack: ???</div>
+                            <div>specialDefense: ???</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="party-controls">
+                    <button class="move-up-btn" onclick="window.moveUp(${index}, ${playerNum})" aria-label="Move Up">▲</button>
+                    <button class="move-down-btn" onclick="window.moveDown(${index}, ${playerNum})" aria-label="Move Down">▼</button>
+                    <button class="store-btn" onclick="window.storeCreature(${index}, ${playerNum})" style="background-color: #2196F3; color: white;">Store</button>
+                    <button class="release-btn" onclick="window.releaseCreature(${index}, ${playerNum})" style="background-color: #f44336; color: white;">Release</button>
+                </div>
+            `;
+
+            const spriteContainer = card.querySelector('.creature-sprite-container');
+            if (spriteContainer) {
+                const canv = document.createElement('canvas');
+                canv.width = 80;
+                canv.height = 80;
+                canv.style.display = 'block';
+                canv.style.borderRadius = '8px';
+                canv.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+                canv.style.border = '1px solid rgba(255,255,255,0.1)';
+                canv.style.cursor = 'pointer';
+                canv.onclick = () => {
+                    window.showFullSizeImage(c, playerNum);
+                };
+                window.renderCreatureCanvas(canv, c, 80, true);
+                spriteContainer.appendChild(canv);
+            }
+            fragment.appendChild(card);
+            return;
+        }
+
         const statColors = isDarkText ? {
             health: '#1b5e20',
             attack: '#b71c1c',
@@ -13554,6 +13765,13 @@ function renderPartyForPlayer(playerNum = 1) {
         const friendLvlColor = isDarkText ? '#c2185b' : '#ff4081';
         const friendXpColor = isDarkText ? '#880e4f' : '#ff80ab';
 
+        let genderHtml = '';
+        if (c.gender === 'Female') {
+            genderHtml = `<span style="color: #ff4081; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Female">♀</span>`;
+        } else {
+            genderHtml = `<span style="color: #2196F3; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Male">♂</span>`;
+        }
+
         card.innerHTML = `
             <div>
                 <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
@@ -13561,6 +13779,7 @@ function renderPartyForPlayer(playerNum = 1) {
                         ${shinyPrefix}
                         <input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20">
                         <button class="save-name-btn" onclick="window.saveName(this, ${index}, ${playerNum})">Save</button>
+                        ${genderHtml}
                     </span>
                     <span style="display: flex; align-items: center; gap: 10px;">
                         <button class="favorite-btn" onclick="window.toggleFavorite(${index}, ${playerNum})" title="${c.favorited ? 'Unfavorite' : 'Favorite'}" style="background: none; border: none; cursor: pointer; font-size: 1.2em; outline: none; padding: 0; line-height: 1; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">${c.favorited ? '❤️' : '🤍'}</button>
@@ -13663,11 +13882,69 @@ function renderStorageForPlayer(playerNum = 1) {
         card.style.backgroundImage = `linear-gradient(90deg, ${color1}, ${color2})`;
         card.style.backgroundColor = 'transparent';
 
+        if (c.isEgg) {
+            const progressPct = Math.min(100, Math.floor((c.eggProgress || 0) / (c.eggHatchSteps || 1500) * 100));
+            const nameHtml = `
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+                    <h4 style="margin: 0;">Mysterious Egg</h4>
+                </div>
+            `;
+            const typeHtml = `
+                <p style="margin: 3px 0;">Type: <span class="type-badge" style="background: #e040fb;" data-tooltip="Egg">Egg</span></p>
+                <p style="margin: 3px 0;">Hatch Progress: <span style="color:${isDarkText ? '#c2185b' : '#ff4081'}">${Math.floor(c.eggProgress || 0)}</span> / ${(c.eggHatchSteps || 1500)} px (${progressPct}%)</p>
+            `;
+            let actionHtml = `<div class="party-controls">`;
+            actionHtml += `<button class="retrieve-btn" onclick="window.retrieveCreature(${index}, ${playerNum})" style="background-color: #4CAF50; color: white;">Retrieve</button>`;
+            actionHtml += `<button class="release-btn" onclick="window.releaseCreature(${index}, ${playerNum})" style="background-color: #f44336; color: white;">Release</button>`;
+            actionHtml += `</div>`;
+
+            card.innerHTML = `
+                <div style="display: flex; gap: 15px; align-items: center; width: 100%; margin-bottom: 10px;">
+                    <div class="creature-sprite-container" style="flex-shrink: 0; width: 64px; height: 64px;"></div>
+                    <div style="flex-grow: 1; text-align: left;">
+                        ${nameHtml}
+                        ${typeHtml}
+                    </div>
+                </div>
+                ${actionHtml}
+            `;
+
+            const spriteContainer = card.querySelector('.creature-sprite-container');
+            if (spriteContainer) {
+                const canv = document.createElement('canvas');
+                canv.width = 64;
+                canv.height = 64;
+                canv.style.display = 'block';
+                canv.style.borderRadius = '6px';
+                canv.style.boxShadow = '0 0 8px rgba(0,0,0,0.5)';
+                canv.style.border = '1px solid rgba(255,255,255,0.1)';
+                canv.style.cursor = 'pointer';
+                canv.onclick = () => {
+                    window.showFullSizeImage(c, playerNum);
+                };
+                window.renderCreatureCanvas(canv, c, 64, true);
+                spriteContainer.appendChild(canv);
+            }
+            storageGrid.appendChild(card);
+            return;
+        }
+
         const heartChar = c.favorited ? '❤️' : '🤍';
         const heartTitle = c.favorited ? 'Unfavorite' : 'Favorite';
+
+        let genderHtml = '';
+        if (!c.gender) {
+            c.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+        }
+        if (c.gender === 'Female') {
+            genderHtml = `<span style="color: #ff4081; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Female">♀</span>`;
+        } else {
+            genderHtml = `<span style="color: #2196F3; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Male">♂</span>`;
+        }
+
         const nameHtml = `
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
-                <h4 style="margin: 0;">${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''}</h4>
+                <h4 style="margin: 0; display: flex; align-items: center; gap: 3px;">${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''} ${genderHtml}</h4>
                 <button class="favorite-btn" onclick="window.toggleFavorite(${index}, ${playerNum})" title="${heartTitle}" style="background: none; border: none; cursor: pointer; font-size: 1.2em; outline: none; padding: 0; line-height: 1; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">${heartChar}</button>
             </div>
         `;
@@ -14189,14 +14466,57 @@ window.breed = function(parent1, parent2) {
     return child;
 };
 
+window.hatchEgg = function(egg, playerNum = 1) {
+    if (!egg || !egg.isEgg) return;
+    const child = egg.childData;
+    if (!child) return;
+
+    // Remove egg properties
+    delete egg.isEgg;
+    delete egg.eggProgress;
+    delete egg.eggHatchSteps;
+    delete egg.childData;
+    delete egg.parentTypes;
+
+    // Mutate egg in-place to the child data
+    Object.assign(egg, child);
+
+    // Make sure gender is defined
+    if (!egg.gender) {
+        egg.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+    }
+
+    // Set HP to full on hatch
+    egg.maxHp = window.getEffectiveStat(egg, 'health');
+    egg.currentHp = egg.maxHp;
+
+    const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
+    const notificationMsg = `✨ Oh? Your egg is hatching! Ssssshh... Boom! ${playerName}'s Mysterious Egg hatched into ${egg.name} (Gen ${egg.generation})! ✨`;
+    window.showModernNotification(notificationMsg, 7000);
+
+    if (window.WildPulseMusic && window.WildPulseMusic.synth) {
+        try {
+            window.WildPulseMusic.synth.triggerAttackRelease("C5", "8n", "+0.0");
+            window.WildPulseMusic.synth.triggerAttackRelease("E5", "8n", "+0.15");
+            window.WildPulseMusic.synth.triggerAttackRelease("G5", "8n", "+0.30");
+            window.WildPulseMusic.synth.triggerAttackRelease("C6", "4n", "+0.45");
+        } catch(e) {}
+    }
+};
+
 function populateSelect(selectElement, playerNum = 1) {
     if (!selectElement) return;
     selectElement.innerHTML = '';
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     list.forEach(c => {
+        if (c.isEgg) return; // Skip eggs in parent selectors
+        if (!c.gender) {
+            c.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+        }
         const option = document.createElement('option');
         option.value = c.id;
-        option.text = `${c.name} (Lvl ${c.level || 1}, Gen ${c.generation})`;
+        const genderSymbol = c.gender === 'Female' ? '♀' : '♂';
+        option.text = `${c.name} (${genderSymbol}, Lvl ${c.level || 1}, Gen ${c.generation})`;
         selectElement.appendChild(option);
     });
 }
@@ -14296,6 +14616,14 @@ window.doBreed = function(playerNum = 1) {
             return;
         }
 
+        // Validate Genders: Breeding requires one Male and one Female!
+        if (!p1.gender) p1.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+        if (!p2.gender) p2.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+        if (p1.gender === p2.gender) {
+            if (resEl) resEl.innerText = 'Breeding requires one Male and one Female parent.';
+            return;
+        }
+
         // Ensure compatibility - either same type, or based on typeChart if they are somewhat compatible
         // Let's use the type modifier. If it's 0, they can't breed.
         const compatibility = window.getTypeModifier(p1.type, p2.type);
@@ -14306,23 +14634,49 @@ window.doBreed = function(playerNum = 1) {
 
         const child = window.breed(p1, p2);
 
-        // Add the child
-        window.saveCollected(child, playerNum);
+        // Form an egg
+        const eggId = "egg_" + child.id;
+        const egg = {
+            id: eggId,
+            name: "Mysterious Egg",
+            isEgg: true,
+            eggProgress: 0,
+            eggHatchSteps: 1500,
+            parentTypes: [p1.type, p2.type],
+            childData: child,
+            description: `A mysterious, warm egg. Keep walking with it in your active party to hatch it! Bred from ${p1.name} & ${p2.name}.`,
+            level: 1,
+            xp: 0,
+            type: "Normal",
+            features: [],
+            stats: { health: 10, attack: 10, defense: 10, speed: 10, specialAttack: 10, specialDefense: 10 },
+            parents: {
+                name1: p1.name,
+                type1: p1.type,
+                name2: p2.name,
+                type2: p2.type
+            }
+        };
+
+        // Add the egg
+        window.saveCollected(egg, playerNum);
 
         const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
-        let successMsg = `Successfully bred ${child.name} (Gen ${child.generation})! The parents remain in your party.`;
-        let notificationMsg = `✨ ${playerName} successfully bred ${child.name} (Gen ${child.generation})! ✨`;
+        let successMsg = `Successfully bred ${p1.name} and ${p2.name}! They formed a Mysterious Egg in your party. Walk 1500px to hatch it!`;
+        let notificationMsg = `✨ ${playerName} successfully bred ${p1.name} & ${p2.name} to lay a Mysterious Egg! ✨`;
         if (child.mutation) {
-            successMsg = `Successfully bred ${child.name} (Gen ${child.generation}) with the [${child.mutation.name}] mutation! The parents remain in your party.`;
-            notificationMsg = `✨ ${playerName} successfully bred Mutant ${child.name} (Gen ${child.generation}) with [${child.mutation.name}]! ✨`;
+            successMsg = `Successfully bred ${p1.name} and ${p2.name}! They formed a Mutant Mysterious Egg ([${child.mutation.name}] mutation) in your party! Walk 1500px to hatch it!`;
+            notificationMsg = `✨ ${playerName} successfully bred Mutant Mysterious Egg with [${child.mutation.name}]! ✨`;
         }
 
         if (resEl) resEl.innerText = successMsg;
-        window.showModernNotification(notificationMsg, 5000);
+        window.showModernNotification(notificationMsg, 6000);
 
-        // Re-populate to show new child
+        // Re-populate to show new choices
         populateSelect(document.getElementById('parent1Select' + pPrefix), playerNum);
         populateSelect(document.getElementById('parent2Select' + pPrefix), playerNum);
+        if (window.renderPartyList) window.renderPartyList();
+        if (window.renderStorageList) window.renderStorageList();
     }
 };
 
@@ -14560,7 +14914,7 @@ window.openPvpModal = function(playerCollider) {
     window.localPvpTurn = 1; // Player 1 chooses first
     window.localPvpActions = {};
 
-    let firstHealthyP1 = window.collectedCreatures.find(c => !c.stored && (c.currentHp === undefined || c.currentHp > 0));
+    let firstHealthyP1 = window.collectedCreatures.find(c => !c.stored && !c.isEgg && (c.currentHp === undefined || c.currentHp > 0));
     window.currentPlayer = JSON.parse(JSON.stringify(firstHealthyP1));
     window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
     window.currentPlayer.currentHp = window.currentPlayer.currentHp !== undefined ? window.currentPlayer.currentHp : window.currentPlayer.maxHp;
@@ -14568,7 +14922,7 @@ window.openPvpModal = function(playerCollider) {
     window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
     currentPlayer = window.currentPlayer;
 
-    let firstHealthyP2 = window.collectedCreatures2.find(c => !c.stored && (c.currentHp === undefined || c.currentHp > 0));
+    let firstHealthyP2 = window.collectedCreatures2.find(c => !c.stored && !c.isEgg && (c.currentHp === undefined || c.currentHp > 0));
     window.currentEnemy = JSON.parse(JSON.stringify(firstHealthyP2));
     window.currentEnemy.maxHp = window.getEffectiveStat(window.currentEnemy, 'health');
     window.currentEnemy.currentHp = window.currentEnemy.currentHp !== undefined ? window.currentEnemy.currentHp : window.currentEnemy.maxHp;
@@ -17425,7 +17779,7 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
     window.activeBattlePlayer = playerNum;
     const playerParty = isP2 ? window.collectedCreatures2 : window.collectedCreatures;
 
-    const activeParty = playerParty.filter(c => !c.stored);
+    const activeParty = playerParty.filter(c => !c.stored && !c.isEgg);
     if (activeParty.length === 0) {
         window.showModernNotification("You have no creatures in your party!");
         return;
@@ -17909,7 +18263,7 @@ function collectCreature(playerCollider, creatureSprite) {
 
 
 
-    if (!activeParty.some(c => !c.stored && c.currentHp > 0)) {
+    if (!activeParty.some(c => !c.stored && !c.isEgg && c.currentHp > 0)) {
         // No healthy creatures
         window.inBattle = false;
         playerCollider.body.moves = true;
@@ -17919,7 +18273,7 @@ function collectCreature(playerCollider, creatureSprite) {
         return;
     }
 
-    let firstHealthy = activeParty.find(c => !c.stored && c.currentHp > 0);
+    let firstHealthy = activeParty.find(c => !c.stored && !c.isEgg && c.currentHp > 0);
     currentPlayer = JSON.parse(JSON.stringify(firstHealthy));
     currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
     // Use saved HP
@@ -18579,9 +18933,10 @@ window.openBattleSwapModal = function() {
     // ALSO filter out the currently active creature to prevent redundant swaps.
     let availableCreatures = window.playerParty.filter(c => {
         const isNotStored = !c.stored;
+        const isNotEgg = !c.isEgg;
         const hasHp = c.currentHp > 0;
         const isNotActive = String(c.id) !== String(window.currentPlayer?.id);
-        return isNotStored && hasHp && isNotActive;
+        return isNotStored && isNotEgg && hasHp && isNotActive;
     });
 
     if (availableCreatures.length === 0) {
@@ -19438,7 +19793,7 @@ window.endBattle = function(result) {
                 if (isExPallActive) {
                     let expallChanged = false;
                     winnerList.forEach(c => {
-                        if (!c.stored && String(c.id) !== String(expTarget?.id)) {
+                        if (!c.stored && !c.isEgg && String(c.id) !== String(expTarget?.id)) {
                             let subLeveledUp = window.gainXp(c, xpGained);
                             expallChanged = true;
                             if (subLeveledUp) {
@@ -19464,7 +19819,7 @@ window.endBattle = function(result) {
                     let changedList = false;
                     winnerList.forEach(c => {
                         // Prevent duplicate XP if they already got full XP from ExPALL
-                        if (c.favorited && String(c.id) !== String(expTarget?.id) && !(isExPallActive && !c.stored)) {
+                        if (c.favorited && !c.isEgg && String(c.id) !== String(expTarget?.id) && !(isExPallActive && !c.stored)) {
                             let subLeveledUp = window.gainXp(c, halfXp);
                             changedList = true;
                             if (subLeveledUp) {
@@ -21067,8 +21422,27 @@ function update() {
 
     // Track distance
     if (movedX || movedY) {
-        window.gameStats.distanceTraveled += speed * (1/60); // approx distance based on frame rate
+        let distStep = speed * (1/60);
+        window.gameStats.distanceTraveled += distStep; // approx distance based on frame rate
         if (Math.random() < 0.05) window.saveStats(); // Save periodically while moving
+
+        // Egg Hatching for Player 1
+        const p1Party = (window.collectedCreatures || []);
+        let p1EggChanged = false;
+        p1Party.forEach(c => {
+            if (c.isEgg && !c.stored) {
+                if (!c.eggProgress) c.eggProgress = 0;
+                c.eggProgress += distStep;
+                if (c.eggProgress >= (c.eggHatchSteps || 1500)) {
+                    window.hatchEgg(c, 1);
+                    p1EggChanged = true;
+                }
+            }
+        });
+        if (p1EggChanged) {
+            localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
+            if (window.renderPartyList) window.renderPartyList();
+        }
 
         // Passive: Metal Sweep (magnetic_pulse) gold find
         if (!window.inBattle) {
@@ -21282,6 +21656,27 @@ function update() {
             window.p2Label.x = window.player2.x;
             window.p2Label.y = window.player2.y - 30;
             window.p2Label.setDepth(10 + window.player2.y / 10000);
+        }
+
+        // Egg Hatching for Player 2
+        if (p2MovedX || p2MovedY) {
+            let p2DistStep = p2Speed * (1/60);
+            const p2Party = (window.collectedCreatures2 || []);
+            let p2EggChanged = false;
+            p2Party.forEach(c => {
+                if (c.isEgg && !c.stored) {
+                    if (!c.eggProgress) c.eggProgress = 0;
+                    c.eggProgress += p2DistStep;
+                    if (c.eggProgress >= (c.eggHatchSteps || 1500)) {
+                        window.hatchEgg(c, 2);
+                        p2EggChanged = true;
+                    }
+                }
+            });
+            if (p2EggChanged) {
+                localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+                if (window.renderPartyList) window.renderPartyList();
+            }
         }
     }
 
