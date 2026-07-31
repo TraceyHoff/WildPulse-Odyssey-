@@ -3492,9 +3492,10 @@ function escapeHtml(unsafe) {
         <!-- Player 1 Column -->
         <div class="coop-column p1-col" style="flex: 1; display: flex; align-items: center; justify-content: center; height: 100%; pointer-events: auto;">
             <div class="action-wheel-container" style="position: relative; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(5, 8, 16, 0.98) 100%); border: 3px solid #00ffcc; box-shadow: 0 0 30px rgba(0, 255, 204, 0.6), inset 0 0 20px rgba(0, 255, 204, 0.2); display: flex; justify-content: center; align-items: center;">
-                <div class="action-wheel-center" style="width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #00ffcc; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 15px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,255,204,0.5); box-shadow: 0 0 15px rgba(0,255,204,0.3);">
+                <div class="action-wheel-center" style="position: relative; width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #00ffcc; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 15px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,255,204,0.5); box-shadow: 0 0 15px rgba(0,255,204,0.3);">
                     <span>Action</span>
                     <span style="font-size: 10px; color: #00ffcc; margin-top: 2px;">Wheel</span>
+                    <div class="action-wheel-pointer" style="position: absolute; top: -20px; left: calc(50% - 10px); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid #00ffcc; filter: drop-shadow(0 0 8px #00ffcc); transform-origin: 10px 70px; transform: rotate(0deg); opacity: 0; transition: transform 0.15s ease, opacity 0.15s ease; pointer-events: none; z-index: 10;"></div>
                 </div>
                 <!-- Symmetrical options around center -->
                 <button class="action-wheel-option" data-option="pet" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3);" onclick="window.useActionWheelOption(1, 'pet')">👋 Pet</button>
@@ -3507,9 +3508,10 @@ function escapeHtml(unsafe) {
         <!-- Player 2 Column -->
         <div class="coop-column p2-col" style="flex: 1; display: none; align-items: center; justify-content: center; height: 100%; pointer-events: auto;">
             <div class="action-wheel-container" style="position: relative; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(5, 8, 16, 0.98) 100%); border: 3px solid #ff00ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), inset 0 0 20px rgba(255, 0, 255, 0.2); display: flex; justify-content: center; align-items: center;">
-                <div class="action-wheel-center" style="width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #ff00ff; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 15px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,0,255,0.5); box-shadow: 0 0 15px rgba(255,0,255,0.3);">
+                <div class="action-wheel-center" style="position: relative; width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #ff00ff; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 15px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,0,255,0.5); box-shadow: 0 0 15px rgba(255,0,255,0.3);">
                     <span>Action</span>
                     <span style="font-size: 10px; color: #ff00ff; margin-top: 2px;">Wheel</span>
+                    <div class="action-wheel-pointer" style="position: absolute; top: -20px; left: calc(50% - 10px); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid #ff00ff; filter: drop-shadow(0 0 8px #ff00ff); transform-origin: 10px 70px; transform: rotate(0deg); opacity: 0; transition: transform 0.15s ease, opacity 0.15s ease; pointer-events: none; z-index: 10;"></div>
                 </div>
                 <!-- Symmetrical options around center -->
                 <button class="action-wheel-option" data-option="pet" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3);" onclick="window.useActionWheelOption(2, 'pet')">👋 Pet</button>
@@ -11992,7 +11994,11 @@ window.promptCreatureSelection = function(playerNum, titleText, callback) {
         return;
     }
 
+    const prevActiveModal = playerNum === 2 ? window.p2ActiveModal : window.p1ActiveModal;
+    const modalId = playerNum === 2 ? 'creatureSelectModal_p2' : 'creatureSelectModal_p1';
+
     const overlay = document.createElement('div');
+    overlay.id = modalId;
     overlay.style.position = 'fixed';
     overlay.style.top = '0';
     if (window.coopActive) {
@@ -12012,6 +12018,15 @@ window.promptCreatureSelection = function(playerNum, titleText, callback) {
     overlay.style.display = 'flex';
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
+
+    if (playerNum === 2) {
+        window.p2ActiveModal = modalId;
+    } else {
+        window.p1ActiveModal = modalId;
+    }
+    if (window.updateModalVisibility) {
+        window.updateModalVisibility();
+    }
 
     const dialog = document.createElement('div');
     dialog.style.background = 'linear-gradient(135deg, #112a1a, #071510)';
@@ -12066,6 +12081,9 @@ window.promptCreatureSelection = function(playerNum, titleText, callback) {
 
         btn.onclick = () => {
             document.body.removeChild(overlay);
+            if (playerNum === 2) window.p2ActiveModal = prevActiveModal;
+            else window.p1ActiveModal = prevActiveModal;
+            if (window.updateModalVisibility) window.updateModalVisibility();
             callback(creature);
         };
 
@@ -12085,6 +12103,9 @@ window.promptCreatureSelection = function(playerNum, titleText, callback) {
     cancelBtn.style.fontWeight = 'bold';
     cancelBtn.onclick = () => {
         document.body.removeChild(overlay);
+        if (playerNum === 2) window.p2ActiveModal = prevActiveModal;
+        else window.p1ActiveModal = prevActiveModal;
+        if (window.updateModalVisibility) window.updateModalVisibility();
     };
     dialog.appendChild(cancelBtn);
 
@@ -12536,6 +12557,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
         if (fullSizeP2 && fullSizeP2.style.display !== 'none' && fullSizeP2.style.display !== '') {
             return fullSizeP2;
         }
+        const selectP2 = document.getElementById('creatureSelectModal_p2');
+        if (selectP2 && selectP2.style.display !== 'none' && selectP2.style.display !== '') {
+            return selectP2;
+        }
         const introP2 = document.getElementById('introModal_p2');
         if (introP2 && introP2.style.display !== 'none' && introP2.style.display !== '') {
             return introP2;
@@ -12548,6 +12573,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
         const fullSizeP1 = document.getElementById('fullSizeImageModal');
         if (fullSizeP1 && fullSizeP1.style.display !== 'none' && fullSizeP1.style.display !== '') {
             return fullSizeP1;
+        }
+        const selectP1 = document.getElementById('creatureSelectModal_p1');
+        if (selectP1 && selectP1.style.display !== 'none' && selectP1.style.display !== '') {
+            return selectP1;
         }
         const introP1 = document.getElementById('introModal');
         if (introP1 && introP1.style.display !== 'none' && introP1.style.display !== '') {
@@ -12564,6 +12593,12 @@ window.getActiveContainerForPlayer = function(playerNum) {
 
     try {
         // Check if player is holding Left Bumper (button index 4) to focus inventory
+        const selectModalId = playerNum === 2 ? 'creatureSelectModal_p2' : 'creatureSelectModal_p1';
+        const selectEl = document.getElementById(selectModalId);
+        if (selectEl && selectEl.style.display !== 'none' && selectEl.style.display !== '') {
+            return selectEl;
+        }
+
         const padRef = playerNum === 2 ? window.p2PadReference : window.p1PadReference;
         if (padRef && padRef.buttons[4] && padRef.buttons[4].pressed) {
             const containerId = playerNum === 2 ? 'p2InventorySlots' : 'p1InventorySlots';
@@ -12590,7 +12625,8 @@ window.getActiveContainerForPlayer = function(playerNum) {
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
             'battleModal', 'battleSwapModal', 'challengeModal',
-            'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal'
+            'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal',
+            'creatureSelectModal_p1', 'creatureSelectModal_p2'
         ];
 
         if (window.coopActive && playerNum === 2) {
@@ -12858,7 +12894,18 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const inModal = (container !== null);
 
     if (container && container.id === 'actionWheelModal') {
-        // Left stick axes
+        let option = null;
+        if (currUp) {
+            option = "pet";
+        } else if (currDown) {
+            option = "close";
+        } else if (currLeft) {
+            option = "inventory";
+        } else if (currRight) {
+            option = "party";
+        }
+
+        // Left stick axes (takes priority if mag > 0.4)
         const rx_ls = (pad.axes && typeof pad.axes[0] === 'number') ? pad.axes[0] : 0;
         const ry_ls = (pad.axes && typeof pad.axes[1] === 'number') ? pad.axes[1] : 0;
         const mag = Math.hypot(rx_ls, ry_ls);
@@ -12867,7 +12914,6 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             let deg = angle * 180 / Math.PI;
             if (deg < 0) deg += 360;
 
-            let option = null;
             if (deg >= 315 || deg < 45) {
                 option = "party";
             } else if (deg >= 45 && deg < 135) {
@@ -12877,6 +12923,9 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             } else if (deg >= 225 && deg < 315) {
                 option = "pet";
             }
+        }
+
+        if (option !== null) {
             window.highlightActionWheelOption(playerNum, option);
         }
 
@@ -13004,9 +13053,46 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     }
 
     if (inModal) {
+        // Resolve scrollTarget dynamically based on virtual cursor, focused element, or main container
+        let scrollTarget = null;
+        if (window[`p${playerNum}CursorVisible`]) {
+            const cx = window[`p${playerNum}CursorX`];
+            const cy = window[`p${playerNum}CursorY`];
+            let el = document.elementFromPoint(cx, cy);
+            while (el && el !== document.body) {
+                const style = window.getComputedStyle(el);
+                if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && el.scrollHeight > el.clientHeight) {
+                    scrollTarget = el;
+                    break;
+                }
+                el = el.parentElement;
+            }
+        }
+        if (!scrollTarget) {
+            const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`) || document.activeElement;
+            if (focusedEl && container.contains(focusedEl)) {
+                let el = focusedEl.parentElement;
+                while (el && el !== container) {
+                    const style = window.getComputedStyle(el);
+                    if ((style.overflowY === 'auto' || style.overflowY === 'scroll') && el.scrollHeight > el.clientHeight) {
+                        scrollTarget = el;
+                        break;
+                    }
+                    el = el.parentElement;
+                }
+            }
+        }
+        if (!scrollTarget && container) {
+            scrollTarget = container;
+            const containerStyle = window.getComputedStyle(container);
+            if (containerStyle.overflowY !== 'auto' && containerStyle.overflowY !== 'scroll') {
+                scrollTarget = container.querySelector('div') || container;
+            }
+        }
+
         // Handle right stick vertical movement to scroll descriptions in the party modal or scroll modal containers directly
         const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
-        if (Math.abs(ry) > 0.15) {
+        if (Math.abs(ry) > 0.15 && scrollTarget) {
             const isPartyModal = container.id === 'partyModal' || container.querySelector('#partyList') || container.querySelector('#partyList_P2');
             if (isPartyModal) {
                 const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`) || document.activeElement;
@@ -13016,16 +13102,16 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                         const descText = card.querySelector('.creature-desc-text');
                         if (descText) {
                             descText.scrollTop += ry * 4;
+                        } else {
+                            scrollTarget.scrollTop += ry * 15;
                         }
+                    } else {
+                        scrollTarget.scrollTop += ry * 15;
                     }
+                } else {
+                    scrollTarget.scrollTop += ry * 15;
                 }
             } else {
-                // Scroll the modal container itself or its inner div (for any modal such as introductory modal, customization modal, etc)
-                let scrollTarget = container;
-                const containerStyle = window.getComputedStyle(container);
-                if (containerStyle.overflowY !== 'auto' && containerStyle.overflowY !== 'scroll') {
-                    scrollTarget = container.querySelector('div') || container;
-                }
                 scrollTarget.scrollTop += ry * 15;
             }
         }
@@ -13042,6 +13128,14 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
 
         if (justUp || justDown || justLeft || justRight) {
+            // Scroll the resolved scroll target up and down when Up/Down dpad is pressed
+            if (scrollTarget) {
+                if (justUp) {
+                    scrollTarget.scrollTop -= 30;
+                } else if (justDown) {
+                    scrollTarget.scrollTop += 30;
+                }
+            }
             const selectables = window.getNavigableElements(container);
             if (selectables.length > 0) {
                 let focusIndex = selectables.findIndex(el => el.classList.contains(`gamepad-focused-p${playerNum}`) || el === document.activeElement);
@@ -13107,12 +13201,23 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             container.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
                 el.classList.remove(`gamepad-focused-p${playerNum}`);
             });
-            if (window.closeAllModalsForPlayer) {
-                window.closeAllModalsForPlayer(playerNum);
+            if (container.id === 'creatureSelectModal_p1' || container.id === 'creatureSelectModal_p2') {
+                const cancelBtn = container.querySelector('button[style*="background: rgb(229, 57, 53)"]') || container.querySelector('button:last-child');
+                if (cancelBtn) {
+                    cancelBtn.click();
+                } else {
+                    if (container.parentNode) container.parentNode.removeChild(container);
+                    if (playerNum === 2) window.p2ActiveModal = null;
+                    else window.p1ActiveModal = null;
+                }
+            } else {
+                if (window.closeAllModalsForPlayer) {
+                    window.closeAllModalsForPlayer(playerNum);
+                }
+                if (window.closeBattleSwapModal) window.closeBattleSwapModal();
+                if (window.closeTradeModal) window.closeTradeModal();
+                if (window.closePvpModal) window.closePvpModal();
             }
-            if (window.closeBattleSwapModal) window.closeBattleSwapModal();
-            if (window.closeTradeModal) window.closeTradeModal();
-            if (window.closePvpModal) window.closePvpModal();
         }
     } else {
         document.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
@@ -13130,7 +13235,8 @@ window.isAnyModalOpen = function() {
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal',
         'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
-        'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal'
+        'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal',
+        'creatureSelectModal_p1', 'creatureSelectModal_p2'
     ];
     if (window.coopActive) {
         modals.push('battleModal_p2', 'battleSwapModal_p2');
@@ -14555,12 +14661,29 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
         window.p1ActiveWheelOption = optionName;
     }
 
+    const pointer = container.querySelector('.action-wheel-pointer');
+
     if (optionName) {
         const optionEl = container.querySelector(`.action-wheel-option[data-option="${optionName}"]`);
         if (optionEl) {
             optionEl.classList.add('gamepad-focused');
             optionEl.style.borderColor = '#ffd700';
             optionEl.style.boxShadow = '0 0 15px rgba(255,215,0,0.8)';
+        }
+
+        if (pointer) {
+            let rotation = 0;
+            if (optionName === 'pet') rotation = 0;
+            else if (optionName === 'party') rotation = 90;
+            else if (optionName === 'close') rotation = 180;
+            else if (optionName === 'inventory') rotation = 270;
+
+            pointer.style.transform = `rotate(${rotation}deg)`;
+            pointer.style.opacity = '1';
+        }
+    } else {
+        if (pointer) {
+            pointer.style.opacity = '0';
         }
     }
 };
