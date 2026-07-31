@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/coinsReward.spec.js >> Coins Reward System >> should award coins on wild creature win and scale/cap correctly
+- Location: tests/coinsReward.spec.js:34:3
 
 # Error details
 

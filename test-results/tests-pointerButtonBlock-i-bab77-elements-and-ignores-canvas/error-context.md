@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/pointerButtonBlock.spec.js >> isPointerOverButton >> correctly identifies buttons and interactive elements, and ignores canvas
+- Location: tests/pointerButtonBlock.spec.js:11:3
 
 # Error details
 

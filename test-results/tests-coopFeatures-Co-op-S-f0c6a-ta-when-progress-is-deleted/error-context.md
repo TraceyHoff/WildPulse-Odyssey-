@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/coopFeatures.spec.js >> Co-op Split Screen and Player 2 Features >> should clear both player 1 and player 2 data when progress is deleted
+- Location: tests/coopFeatures.spec.js:414:3
 
 # Error details
 

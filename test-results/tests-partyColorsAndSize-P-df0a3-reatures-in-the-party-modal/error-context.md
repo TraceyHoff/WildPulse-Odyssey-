@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/partyColorsAndSize.spec.js >> Party Modal Text Color & Creature World Scaling Tests >> should apply dark-text class and dark styles to Light and Electric creatures in the party modal
+- Location: tests/partyColorsAndSize.spec.js:11:3
 
 # Error details
 

@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/getEffectiveStat.spec.js >> window.getEffectiveStat >> handles creature with missing nature
+- Location: tests/getEffectiveStat.spec.js:4:3
 
 # Error details
 

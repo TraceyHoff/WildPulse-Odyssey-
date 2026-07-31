@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/coinsReward.spec.js >> Coins Reward System >> should award 80 coins to Player 1 on online PvP battle win
+- Location: tests/coinsReward.spec.js:100:3
 
 # Error details
 

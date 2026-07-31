@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/getEffectiveStat.spec.js >> window.getEffectiveStat >> scales stats correctly at higher levels (15% per level)
+- Location: tests/getEffectiveStat.spec.js:34:3
 
 # Error details
 

@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/customizationShapes.spec.js >> Character Body Shapes Customization & Locking >> should unlock shapes when challenge tier increases
+- Location: tests/customizationShapes.spec.js:50:3
 
 # Error details
 

@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/splitScreenHospitalAndSelection.spec.js >> Split-Screen Hospital Heal Notification and Creature Selection Overlay >> creature selection overlay should cover only that players side in co-op
+- Location: tests/splitScreenHospitalAndSelection.spec.js:118:3
 
 # Error details
 

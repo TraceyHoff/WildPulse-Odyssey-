@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/creatureLicenseAndExPall.spec.js >> Creature License and ExPALL updates >> shop should display updated ExPALL price (250) and new Creature License (175)
+- Location: tests/creatureLicenseAndExPall.spec.js:33:3
 
 # Error details
 

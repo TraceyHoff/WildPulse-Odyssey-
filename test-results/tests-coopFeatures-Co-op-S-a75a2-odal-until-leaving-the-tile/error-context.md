@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/coopFeatures.spec.js >> Co-op Split Screen and Player 2 Features >> should prevent opening multiple modals simultaneously and prevent re-opening closed modal until leaving the tile
+- Location: tests/coopFeatures.spec.js:76:3
 
 # Error details
 

@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/newFeatures.spec.js >> New Features Tests >> shiny creature notifications, culling protection, and element symbol star
+- Location: tests/newFeatures.spec.js:88:3
 
 # Error details
 

@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/customization.spec.js >> In-game Character Customization >> should open customization from in-game menu and customize character
+- Location: tests/customization.spec.js:11:3
 
 # Error details
 

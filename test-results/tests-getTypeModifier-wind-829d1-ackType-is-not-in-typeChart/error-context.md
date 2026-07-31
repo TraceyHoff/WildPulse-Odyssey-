@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/getTypeModifier.spec.js >> window.getTypeModifier >> returns 1 when attackType is not in typeChart
+- Location: tests/getTypeModifier.spec.js:4:3
 
 # Error details
 

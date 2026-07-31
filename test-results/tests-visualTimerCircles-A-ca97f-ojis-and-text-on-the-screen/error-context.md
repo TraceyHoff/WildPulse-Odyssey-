@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/visualTimerCircles.spec.js >> Active Visual Timer Circles >> should display active timer circles with correct emojis and text on the screen
+- Location: tests/visualTimerCircles.spec.js:10:3
 
 # Error details
 

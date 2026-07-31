@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/petAndShopStock.spec.js >> Companion and Shop Stock Replenishment Systems >> shop should track stock and replenish every 5 days
+- Location: tests/petAndShopStock.spec.js:75:3
 
 # Error details
 

@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/creatureLicenseAndExPall.spec.js >> Creature License and ExPALL updates >> Creature License cannot be used directly like healing juice
+- Location: tests/creatureLicenseAndExPall.spec.js:51:3
 
 # Error details
 

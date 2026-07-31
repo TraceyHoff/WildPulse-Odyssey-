@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/onboardingAndSellPrice.spec.js >> Introductory Onboarding and Dynamic Sell Price Tests >> should calculate dynamic creature selling price based on stats, nature, and mood
+- Location: tests/onboardingAndSellPrice.spec.js:65:3
 
 # Error details
 

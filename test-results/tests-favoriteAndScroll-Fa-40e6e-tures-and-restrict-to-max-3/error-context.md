@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: tests/breedingAndMenuColors.spec.js >> Breeding Notification and Colorful Player 2 Menu Buttons >> should trigger modern screen-top notification upon successful breeding session
-- Location: tests/breedingAndMenuColors.spec.js:54:3
+- Name: tests/favoriteAndScroll.spec.js >> Favorite and Gamepad Scrolling Systems >> should allow toggling favorite on creatures and restrict to max 3
+- Location: tests/favoriteAndScroll.spec.js:21:3
 
 # Error details
 
