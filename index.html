@@ -225,7 +225,7 @@
             font-size: 12px;
             pointer-events: none;
             display: none;
-            z-index: 10000;
+            z-index: 300000 !important;
             border: 1px solid #444;
             box-shadow: 0 2px 4px rgba(0,0,0,0.5);
             max-width: 250px;
@@ -4078,6 +4078,12 @@ window.WildPulseMusic = {
             this.reverb.wet.value = 0.45;
             this.delay = new Tone.FeedbackDelay("8n", 0.4).connect(this.reverb);
 
+            // Chorus for a lush stereo soundscape
+            this.chorus = new Tone.Chorus(1.5, 2.5, 0.35).connect(this.musicBus).start();
+
+            // Filter for the Lead Synth to tame harsh frequencies
+            this.leadFilter = new Tone.Filter(800, "lowpass").connect(this.chorus);
+
             // Filter for the Pad Synth (glorious space pad sweeps)
             this.padFilter = new Tone.Filter(1000, "lowpass").connect(this.reverb);
 
@@ -4098,27 +4104,27 @@ window.WildPulseMusic = {
             }).connect(this.musicBus);
 
             this.synths.bass = new Tone.MonoSynth({
-                oscillator: { type: "square" },
-                filter: { Q: 1.5, type: "lowpass", frequency: 180 },
-                envelope: { attack: 0.01, decay: 0.15, sustain: 0.5, release: 0.2 },
-                filterEnvelope: { attack: 0.01, decay: 0.1, baseFrequency: 80, octaves: 2.2 }
+                oscillator: { type: "triangle" },
+                filter: { Q: 1.0, type: "lowpass", frequency: 150 },
+                envelope: { attack: 0.02, decay: 0.2, sustain: 0.6, release: 0.3 },
+                filterEnvelope: { attack: 0.02, decay: 0.15, baseFrequency: 60, octaves: 1.5 }
             }).connect(this.musicBus);
 
             this.synths.lead = new Tone.PolySynth(Tone.Synth, {
-                oscillator: { type: "sawtooth" },
-                envelope: { attack: 0.02, decay: 0.15, sustain: 0.5, release: 0.3 }
-            }).connect(this.delay).connect(this.musicBus);
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.6, release: 0.4 }
+            }).connect(this.delay).connect(this.leadFilter);
 
             this.synths.pad = new Tone.PolySynth(Tone.Synth, {
-                oscillator: { type: "triangle" },
-                envelope: { attack: 1.5, decay: 1, sustain: 0.8, release: 2 }
+                oscillator: { type: "sine" },
+                envelope: { attack: 2.0, decay: 1.5, sustain: 0.8, release: 3.0 }
             }).connect(this.padFilter);
 
             this.synths.pulser = new Tone.MonoSynth({
-                oscillator: { type: "sawtooth" },
-                filter: { Q: 1.2, type: "lowpass", frequency: 600 },
-                envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 },
-                filterEnvelope: { attack: 0.01, decay: 0.08, baseFrequency: 250, octaves: 3 }
+                oscillator: { type: "triangle" },
+                filter: { Q: 1.0, type: "lowpass", frequency: 400 },
+                envelope: { attack: 0.01, decay: 0.12, sustain: 0, release: 0.15 },
+                filterEnvelope: { attack: 0.02, decay: 0.1, baseFrequency: 180, octaves: 2 }
             }).connect(this.delay).connect(this.musicBus);
 
             // Atmospheric noises (directly to reverb or destination for depth)
@@ -4142,14 +4148,14 @@ window.WildPulseMusic = {
             }).connect(new Tone.Filter(80, "lowpass").connect(this.reverb));
             this.synths.thunder.volume.value = -5;
 
-            // Set volumes
-            this.synths.kick.volume.value = -6;
-            this.synths.snare.volume.value = -12;
-            this.synths.hihat.volume.value = -16;
-            this.synths.bass.volume.value = -8;
-            this.synths.lead.volume.value = -10;
-            this.synths.pad.volume.value = -12;
-            this.synths.pulser.volume.value = -14;
+            // Balanced volumes for a more beautiful, easy on the ears modern experience
+            this.synths.kick.volume.value = -10;
+            this.synths.snare.volume.value = -16;
+            this.synths.hihat.volume.value = -22;
+            this.synths.bass.volume.value = -12;
+            this.synths.lead.volume.value = -14;
+            this.synths.pad.volume.value = -14;
+            this.synths.pulser.volume.value = -18;
 
             this.setupLoops();
             Tone.Transport.bpm.value = this.bpm;
@@ -4166,41 +4172,41 @@ window.WildPulseMusic = {
             const season = window.currentSeason || 'Summer';
             let progressions = {
                 'MENU': [
-                    ["C3", "E3", "G3", "B3"], ["F2", "A2", "C3", "E3"], ["G2", "B2", "D3", "F3"], ["E2", "G2", "B2", "D3"]
+                    ["C3", "E3", "G3", "B3", "D4"], ["F2", "A2", "C3", "E3", "G3"], ["G2", "B2", "D3", "F3", "A3"], ["E2", "G2", "B2", "D3", "F#3"]
                 ],
                 'EXPLORING': {
                     'Spring': [
-                        ["C3", "E3", "G3", "B3"], ["G3", "B3", "D4", "G4"], ["A3", "C4", "E4", "G4"], ["F3", "A3", "C4", "F4"]
+                        ["C3", "E3", "G3", "B3", "D4"], ["G3", "B3", "D4", "F#4", "A4"], ["A3", "C4", "E4", "G4", "B4"], ["F3", "A3", "C4", "E4", "G4"]
                     ],
                     'Summer': [
-                        ["D3", "F#3", "A3", "D4"], ["A3", "C#4", "E4", "A4"], ["B3", "D4", "F#4", "B4"], ["G3", "B3", "D4", "G4"]
+                        ["D3", "F#3", "A3", "C#4", "E4"], ["A3", "C#4", "E4", "G#4", "B4"], ["B3", "D4", "F#4", "A4", "C#5"], ["G3", "B3", "D4", "F#4", "A4"]
                     ],
                     'Fall': [
-                        ["E3", "G3", "B3", "E4"], ["C3", "E3", "G3", "C4"], ["G3", "B3", "D4", "G4"], ["D3", "F#3", "A3", "D4"]
+                        ["E3", "G3", "B3", "D4", "F#4"], ["C3", "E3", "G3", "B3", "D4"], ["G3", "B3", "D4", "F3", "A4"], ["D3", "F#3", "A3", "C3", "E4"]
                     ],
                     'Winter': [
-                        ["A2", "C3", "E3", "A3"], ["F2", "A2", "C3", "F3"], ["C3", "E3", "G3", "C4"], ["G2", "B2", "D3", "G3"]
+                        ["A2", "C3", "E3", "G3", "B3"], ["F2", "A2", "C3", "E3", "G3"], ["C3", "E3", "G3", "B3", "D4"], ["G2", "B2", "D3", "F3", "A3"]
                     ]
                 },
                 'BATTLE': {
                     'Spring': [
-                        ["A2", "C3", "E3"], ["F2", "A2", "C3"], ["D2", "F2", "A2"], ["E2", "G#2", "B2", "D3"]
+                        ["A2", "C3", "E3", "G3"], ["F2", "A2", "C3", "E3"], ["D2", "F2", "A2", "C3"], ["E2", "G#2", "B2", "D3"]
                     ],
                     'Summer': [
-                        ["D2", "F2", "A2"], ["G2", "B2", "D3"], ["C2", "E2", "G2"], ["A2", "C#3", "E3"]
+                        ["D2", "F2", "A2", "C3"], ["G2", "B2", "D3", "F3"], ["C2", "E2", "G2", "B2"], ["A2", "C#3", "E3", "G3"]
                     ],
                     'Fall': [
-                        ["E2", "G2", "B2"], ["C2", "E2", "G2"], ["A1", "C3", "E3"], ["B1", "D#3", "F#3"]
+                        ["E2", "G2", "B2", "D3"], ["C2", "E2", "G2", "B2"], ["A1", "C3", "E3", "G3"], ["B1", "D#3", "F#3", "A3"]
                     ],
                     'Winter': [
-                        ["C2", "Eb2", "G2"], ["Ab1", "C2", "Eb2"], ["F1", "Ab1", "C2"], ["G1", "B2", "D3"]
+                        ["C2", "Eb2", "G2", "Bb2"], ["Ab1", "C2", "Eb2", "G2"], ["F1", "Ab1", "C2", "Eb2"], ["G1", "B2", "D3", "F3"]
                     ]
                 },
                 'PVP': [
-                    ["A2", "C3", "E3"], ["F2", "A2", "C3"], ["G2", "B2", "D3"], ["E2", "G#2", "B2"]
+                    ["A2", "C3", "E3", "G3"], ["F2", "A2", "C3", "E3"], ["G2", "B2", "D3", "F3"], ["E2", "G#2", "B2", "D3"]
                 ],
                 'TRADE': [
-                    ["C3", "E3", "G3", "B3", "D4"], ["F3", "A3", "C4", "E4", "G4"], ["D3", "F3", "A3", "C4", "E4"], ["G3", "B3", "D4", "F4", "A4"]
+                    ["C3", "E3", "G3", "B3", "D4", "F#4"], ["F3", "A3", "C4", "E4", "G4", "B4"], ["D3", "F3", "A3", "C4", "E4", "G4"], ["G3", "B3", "D4", "F4", "A4", "C#5"]
                 ]
             };
 
@@ -4457,18 +4463,23 @@ window.WildPulseMusic = {
         if (this.state !== newState) {
             this.state = newState;
             if (this.state === 'MENU') {
-                this.synths.lead.set({ oscillator: { type: "triangle" } });
+                this.synths.lead.set({ oscillator: { type: "sine" } });
+                if (this.leadFilter) this.leadFilter.frequency.rampTo(500, 1.5);
             }
             else if (this.state === 'BATTLE') {
-                this.synths.lead.set({ oscillator: { type: "sawtooth" } });
+                this.synths.lead.set({ oscillator: { type: "triangle" } });
+                if (this.leadFilter) this.leadFilter.frequency.rampTo(900, 1.5);
             }
             else if (this.state === 'PVP') {
-                this.synths.lead.set({ oscillator: { type: "square" } });
+                this.synths.lead.set({ oscillator: { type: "triangle" } });
+                if (this.leadFilter) this.leadFilter.frequency.rampTo(1000, 1.5);
             }
             else if (this.state === 'TRADE') {
                 this.synths.lead.set({ oscillator: { type: "sine" } });
+                if (this.leadFilter) this.leadFilter.frequency.rampTo(600, 1.5);
             } else {
                 this.synths.lead.set({ oscillator: { type: "triangle" } });
+                if (this.leadFilter) this.leadFilter.frequency.rampTo(750, 1.5);
             }
             console.log(`[Music] State changed to ${this.state}`);
         }
