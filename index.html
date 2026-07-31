@@ -8,6 +8,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
+        .action-wheel-option:hover {
+            background: #1e293b !important;
+            transform: scale(1.1);
+        }
+        .action-wheel-option.gamepad-focused {
+            background: #1e293b !important;
+            transform: scale(1.1);
+        }
         .gamepad-focused-p1 {
             outline: 3px solid #00ffff !important;
             box-shadow: 0 0 15px #00ffff, inset 0 0 5px #00ffff !important;
@@ -3471,6 +3479,42 @@ function escapeHtml(unsafe) {
     <button class="close-store-btn" style="margin-top: 20px; padding: 10px; width: 100%; background: linear-gradient(180deg, #555, #222); border-radius: 12px; border: 1px solid #777; color: white; cursor: pointer;">Close</button>
 </div>
 
+<!-- Action Wheel Modal -->
+<div id="actionWheelModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:200020; align-items:center; justify-content:center; box-sizing:border-box;">
+    <!-- Symmetrical Column layout inside modal container for split screen support -->
+    <div class="coop-columns" style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; pointer-events: none;">
+        <!-- Player 1 Column -->
+        <div class="coop-column p1-col" style="flex: 1; display: flex; align-items: center; justify-content: center; height: 100%; pointer-events: auto;">
+            <div class="action-wheel-container" style="position: relative; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(5, 8, 16, 0.98) 100%); border: 3px solid #00ffcc; box-shadow: 0 0 30px rgba(0, 255, 204, 0.6), inset 0 0 20px rgba(0, 255, 204, 0.2); display: flex; justify-content: center; align-items: center;">
+                <div class="action-wheel-center" style="width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #00ffcc; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 15px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,255,204,0.5); box-shadow: 0 0 15px rgba(0,255,204,0.3);">
+                    <span>Action</span>
+                    <span style="font-size: 10px; color: #00ffcc; margin-top: 2px;">Wheel</span>
+                </div>
+                <!-- Symmetrical options around center -->
+                <button class="action-wheel-option" data-option="pet" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3);" onclick="window.useActionWheelOption(1, 'pet')">👋 Pet</button>
+                <button class="action-wheel-option" data-option="party" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3);" onclick="window.useActionWheelOption(1, 'party')">👥 Party</button>
+                <button class="action-wheel-option" data-option="inventory" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3);" onclick="window.useActionWheelOption(1, 'inventory')">🎒 Shop</button>
+                <button class="action-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useActionWheelOption(1, 'close')">❌ Close</button>
+            </div>
+        </div>
+
+        <!-- Player 2 Column -->
+        <div class="coop-column p2-col" style="flex: 1; display: none; align-items: center; justify-content: center; height: 100%; pointer-events: auto;">
+            <div class="action-wheel-container" style="position: relative; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(5, 8, 16, 0.98) 100%); border: 3px solid #ff00ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), inset 0 0 20px rgba(255, 0, 255, 0.2); display: flex; justify-content: center; align-items: center;">
+                <div class="action-wheel-center" style="width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #ff00ff; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 15px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,0,255,0.5); box-shadow: 0 0 15px rgba(255,0,255,0.3);">
+                    <span>Action</span>
+                    <span style="font-size: 10px; color: #ff00ff; margin-top: 2px;">Wheel</span>
+                </div>
+                <!-- Symmetrical options around center -->
+                <button class="action-wheel-option" data-option="pet" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3);" onclick="window.useActionWheelOption(2, 'pet')">👋 Pet</button>
+                <button class="action-wheel-option" data-option="party" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3);" onclick="window.useActionWheelOption(2, 'party')">👥 Party</button>
+                <button class="action-wheel-option" data-option="inventory" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3);" onclick="window.useActionWheelOption(2, 'inventory')">🎒 Shop</button>
+                <button class="action-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useActionWheelOption(2, 'close')">❌ Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="tradeModal" style="display:none; position:fixed; color:white; z-index:910; text-align:center;">
     <button class="close-btn close-trade-btn" aria-label="Close Trade">X</button>
     <h2>Local Split-Screen Trade</h2>
@@ -5569,6 +5613,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('touchend', clearTouch, { passive: true });
     document.addEventListener('touchcancel', clearTouch, { passive: true });
+
+    // Keyboard Q key to toggle action wheel on PC
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'q' || e.key === 'Q') {
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+            if (window.inBattle) return;
+            window.toggleActionWheel(1);
+        }
+    });
+
+    // Mobile double touch / double tap to toggle action wheel
+    let lastTouchTime = 0;
+    document.addEventListener('touchstart', (e) => {
+        // 1. Concurrent 2-finger touch
+        if (e.touches && e.touches.length === 2) {
+            const x1 = e.touches[0].clientX;
+            const x2 = e.touches[1].clientX;
+            const centerX = (x1 + x2) / 2;
+            const playerNum = (window.coopActive && centerX > window.innerWidth / 2) ? 2 : 1;
+            if (!window.inBattle) {
+                window.toggleActionWheel(playerNum);
+            }
+        }
+        // 2. Double tap with single touch within 300ms
+        if (e.touches && e.touches.length === 1) {
+            const currentTime = Date.now();
+            if (currentTime - lastTouchTime < 300) {
+                const touchX = e.touches[0].clientX;
+                const playerNum = (window.coopActive && touchX > window.innerWidth / 2) ? 2 : 1;
+                if (!window.inBattle) {
+                    window.toggleActionWheel(playerNum);
+                }
+            }
+            lastTouchTime = currentTime;
+        }
+    }, { passive: true });
 });
 
 document.addEventListener('click', function(e) {
@@ -11515,8 +11595,8 @@ if (p2SavedGendersChanged) {
 }
 
 // Inventories and Active Buff Timers
-window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
-window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
+window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }, { name: "Creature Cookie", quantity: 1 }];
+window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }, { name: "Creature Cookie", quantity: 1 }];
 
 // Store Stock Initialization
 const defaultStock = {
@@ -11531,7 +11611,8 @@ const defaultStock = {
     "Healing Juice Bottle": 5,
     "Healing Juice Jug": 5,
     "ExPALL": 5,
-    "Creature License": 5
+    "Creature License": 5,
+    "Creature Cookie": 5
 };
 window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
@@ -11774,7 +11855,8 @@ window.updateStoreUI = function() {
         { name: "Healing Juice Bottle", icon: "🧪", price: 40, desc: "Heals one creature or revives with 50% HP." },
         { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", price: 250, desc: "Allows whole party to receive battle experience for 180s." },
-        { name: "Creature License", icon: "🎫", price: 175, desc: "Boosts wild capture success rate. Consumed only on success." }
+        { name: "Creature License", icon: "🎫", price: 175, desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Creature Cookie", icon: "🍪", price: 30, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -12130,6 +12212,33 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`✨ Permanently boosted ${creature.nickname || creature.name}'s ${statName.toUpperCase()} stat!`, 3000, playerNum);
         });
     }
+    else if (item.name === "Creature Cookie") {
+        const lastCookieKey = playerNum === 2 ? 'wildpulse_p2_last_cookie_time' : 'wildpulse_p1_last_cookie_time';
+        const lastCookieTime = parseInt(localStorage.getItem(lastCookieKey)) || 0;
+        const now = Date.now();
+        const diff = now - lastCookieTime;
+        if (diff < 300000) {
+            const remainingSec = Math.ceil((300000 - diff) / 1000);
+            const min = Math.floor(remainingSec / 60);
+            const sec = remainingSec % 60;
+            window.showModernNotification(`❌ Cookie is on cooldown! Wait ${min}m ${sec}s.`, 3000, playerNum);
+            return;
+        }
+
+        window.promptCreatureSelection(playerNum, "Choose Creature to Feed", (creature) => {
+            window.adjustHappiness(creature, 15, playerNum);
+
+            const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
+            localStorage.setItem(storageKey, JSON.stringify(party));
+
+            localStorage.setItem(lastCookieKey, Date.now().toString());
+
+            consumeItem();
+            if (window.renderPartyList) window.renderPartyList();
+            window.showModernNotification(`🍪 Fed ${creature.nickname || creature.name} a Creature Cookie! Happiness increased.`, 3000, playerNum);
+        });
+    }
 };
 
 // Render Inventory UI
@@ -12146,7 +12255,8 @@ window.updateInventoryUI = function() {
         "Healing Juice Bottle": "🧪",
         "Healing Juice Jug": "🏺",
         "ExPALL": "✨",
-        "Creature License": "🎫"
+        "Creature License": "🎫",
+        "Creature Cookie": "🍪"
     };
 
     const updatePlayerSlots = (playerNum, containerId) => {
@@ -12462,7 +12572,7 @@ window.getActiveContainerForPlayer = function(playerNum) {
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
             'battleModal', 'battleSwapModal', 'challengeModal',
-            'journalModal', 'storeModal', 'customizationModal'
+            'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal'
         ];
 
         if (window.coopActive && playerNum === 2) {
@@ -12638,6 +12748,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             Down: false,
             Left: false,
             Right: false,
+            RB: false,
             YPressedTime: 0,
             YFullscreenTriggered: false
         };
@@ -12655,6 +12766,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const currDown = !!(pad.buttons[13] && pad.buttons[13].pressed);
     const currLeft = !!(pad.buttons[14] && pad.buttons[14].pressed);
     const currRight = !!(pad.buttons[15] && pad.buttons[15].pressed);
+    const currRB = !!(pad.buttons[5] && pad.buttons[5].pressed);
 
     const justY = currY && !prev.Y;
     const releasedY = !currY && prev.Y;
@@ -12667,6 +12779,21 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justDown = currDown && !prev.Down;
     const justLeft = currLeft && !prev.Left;
     const justRight = currRight && !prev.Right;
+
+    // Right Bumper hold and release action wheel toggle
+    const prevRB = !!(prev.RB);
+    prev.RB = currRB;
+
+    if (currRB && !prevRB) {
+        if (!window.inBattle && !window.isAnyModalOpen()) {
+            window.openActionWheel(playerNum);
+        }
+    } else if (!currRB && prevRB) {
+        const activeContainer = window.getActiveContainerForPlayer(playerNum);
+        if (activeContainer && activeContainer.id === 'actionWheelModal') {
+            window.closeActionWheel(playerNum);
+        }
+    }
 
     if (justY) {
         prev.YPressedTime = Date.now();
@@ -12711,6 +12838,54 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
 
     const container = window.getActiveContainerForPlayer(playerNum);
     const inModal = (container !== null);
+
+    if (container && container.id === 'actionWheelModal') {
+        // Left stick axes
+        const rx_ls = (pad.axes && typeof pad.axes[0] === 'number') ? pad.axes[0] : 0;
+        const ry_ls = (pad.axes && typeof pad.axes[1] === 'number') ? pad.axes[1] : 0;
+        const mag = Math.hypot(rx_ls, ry_ls);
+        if (mag > 0.4) {
+            let angle = Math.atan2(ry_ls, rx_ls); // radians
+            let deg = angle * 180 / Math.PI;
+            if (deg < 0) deg += 360;
+
+            let option = null;
+            if (deg >= 315 || deg < 45) {
+                option = "party";
+            } else if (deg >= 45 && deg < 135) {
+                option = "close";
+            } else if (deg >= 135 && deg < 225) {
+                option = "inventory";
+            } else if (deg >= 225 && deg < 315) {
+                option = "pet";
+            }
+            window.highlightActionWheelOption(playerNum, option);
+        }
+
+        // Handle A press in action wheel
+        if (justA) {
+            const activeOpt = (playerNum === 2) ? window.p2ActiveWheelOption : window.p1ActiveWheelOption;
+            if (activeOpt) {
+                window.useActionWheelOption(playerNum, activeOpt);
+            }
+        }
+
+        // B button closes the action wheel
+        if (justB) {
+            window.closeActionWheel(playerNum);
+        }
+
+        prev.Y = currY;
+        prev.X = currX;
+        prev.B = currB;
+        prev.A = currA;
+        prev.Start = currStart;
+        prev.Up = currUp;
+        prev.Down = currDown;
+        prev.Left = currLeft;
+        prev.Right = currRight;
+        return;
+    }
 
     // Handle Virtual Cursor right-stick movement
     const rx_vc = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
@@ -12937,7 +13112,7 @@ window.isAnyModalOpen = function() {
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal',
         'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
-        'fullSizeImageModal', 'fullSizeImageModal_p2'
+        'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal'
     ];
     if (window.coopActive) {
         modals.push('battleModal_p2', 'battleSwapModal_p2');
@@ -12957,7 +13132,7 @@ window.updateModalVisibility = function() {
         const modalIds = [
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
-            'challengeModal', 'battleModal'
+            'challengeModal', 'battleModal', 'actionWheelModal'
         ];
         modalIds.forEach(id => {
             const modalEl = document.getElementById(id);
@@ -12979,7 +13154,7 @@ window.updateModalVisibility = function() {
     const modalIds = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
-        'challengeModal'
+        'challengeModal', 'actionWheelModal'
     ];
 
     modalIds.forEach(id => {
@@ -12997,7 +13172,7 @@ window.updateModalVisibility = function() {
         }
 
         if (p1Open || p2Open) {
-            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2') ? 'flex' : 'block';
+            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2' || id === 'actionWheelModal') ? 'flex' : 'block';
             if (id !== 'customizationModal' && id !== 'customizationModal_p2') {
                 modalEl.style.background = 'transparent';
                 modalEl.style.pointerEvents = 'none';
@@ -14308,6 +14483,122 @@ window.releaseCreature = function(index, playerNum = 1) {
     }
 };
 
+window.toggleActionWheel = function(playerNum) {
+    const isWheelOpen = (window.getActiveContainerForPlayer(playerNum)?.id === 'actionWheelModal');
+    if (isWheelOpen) {
+        window.closeActionWheel(playerNum);
+    } else {
+        window.openActionWheel(playerNum);
+    }
+};
+
+window.openActionWheel = function(playerNum) {
+    if (window.inBattle) return;
+    if (window.isAnyModalOpen && window.isAnyModalOpen() && window.p1ActiveModal !== 'actionWheelModal' && window.p2ActiveModal !== 'actionWheelModal') return;
+
+    if (window.coopActive) {
+        window.closeAllModalsForPlayer(playerNum, 'actionWheelModal');
+        if (playerNum === 2) window.p2ActiveModal = 'actionWheelModal';
+        else window.p1ActiveModal = 'actionWheelModal';
+        window.updateModalVisibility();
+    } else {
+        window.closeAllModals('actionWheelModal');
+        document.getElementById('actionWheelModal').style.display = 'flex';
+        window.p1ActiveModal = 'actionWheelModal';
+    }
+
+    // Default highlights
+    window.highlightActionWheelOption(playerNum, 'pet');
+};
+
+window.closeActionWheel = function(playerNum) {
+    if (window.coopActive) {
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+        window.updateModalVisibility();
+    } else {
+        document.getElementById('actionWheelModal').style.display = 'none';
+        window.p1ActiveModal = null;
+    }
+    window.highlightActionWheelOption(playerNum, null);
+};
+
+window.highlightActionWheelOption = function(playerNum, optionName) {
+    const colClass = playerNum === 2 ? '.p2-col' : '.p1-col';
+    const container = document.querySelector(`#actionWheelModal ${colClass}`);
+    if (!container) return;
+
+    container.querySelectorAll('.action-wheel-option').forEach(el => {
+        el.classList.remove('gamepad-focused');
+        const opt = el.getAttribute('data-option');
+        el.style.borderColor = opt === 'pet' ? '#ff007f' :
+                              opt === 'party' ? '#00ffcc' :
+                              opt === 'inventory' ? '#ffd700' : '#ffffff';
+        el.style.boxShadow = '';
+    });
+
+    if (playerNum === 2) {
+        window.p2ActiveWheelOption = optionName;
+    } else {
+        window.p1ActiveWheelOption = optionName;
+    }
+
+    if (optionName) {
+        const optionEl = container.querySelector(`.action-wheel-option[data-option="${optionName}"]`);
+        if (optionEl) {
+            optionEl.classList.add('gamepad-focused');
+            optionEl.style.borderColor = '#ffd700';
+            optionEl.style.boxShadow = '0 0 15px rgba(255,215,0,0.8)';
+        }
+    }
+};
+
+window.useActionWheelOption = function(playerNum, optionName) {
+    window.closeActionWheel(playerNum);
+
+    if (optionName === 'pet') {
+        const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+        const activeParty = party.filter(c => !c.stored && !c.isEgg);
+        if (activeParty.length === 0) {
+            window.showModernNotification("❌ No creatures in your party to pet!", 3000, playerNum);
+            return;
+        }
+        const target = activeParty[0];
+        window.adjustHappiness(target, 5, playerNum);
+        window.showModernNotification(`👋 You petted ${target.nickname || target.name}! Happiness increased! 💖`, 3000, playerNum);
+
+        try {
+            if (game && game.scene.scenes[0]) {
+                const scene = game.scene.scenes[0];
+                const playerSprite = playerNum === 2 ? window.player2 : window.player;
+                if (playerSprite) {
+                    const heart = scene.add.text(playerSprite.x, playerSprite.y - 40, "❤️", { fontSize: '20px' });
+                    heart.setDepth(10000);
+                    scene.tweens.add({
+                        targets: heart,
+                        y: playerSprite.y - 100,
+                        alpha: 0,
+                        duration: 1000,
+                        onComplete: () => {
+                            heart.destroy();
+                        }
+                    });
+                }
+            }
+        } catch(e) {
+            console.error("Error drawing heart tween:", e);
+        }
+    } else if (optionName === 'party') {
+        if (window.openPartyModal) {
+            window.openPartyModal(playerNum);
+        }
+    } else if (optionName === 'inventory') {
+        if (window.openStoreModal) {
+            window.openStoreModal(playerNum);
+        }
+    }
+};
+
 window.deleteProgress = function() {
     if (confirm('Are you sure? This will erase all save data.')) {
         localStorage.removeItem(STORAGE_KEY);
@@ -14331,6 +14622,8 @@ window.deleteProgress = function() {
         localStorage.removeItem('wildpulse_inventory');
         localStorage.removeItem('wildpulse_inventory2');
         localStorage.removeItem('wildpulse_npc_trainer_data');
+        localStorage.removeItem('wildpulse_p1_last_cookie_time');
+        localStorage.removeItem('wildpulse_p2_last_cookie_time');
 
         // Reset customization settings for both players
         localStorage.removeItem('wildpulse_player_name');
@@ -21053,7 +21346,8 @@ function update() {
                     "Healing Juice Bottle": 5,
                     "Healing Juice Jug": 5,
                     "ExPALL": 5,
-                    "Creature License": 5
+                    "Creature License": 5,
+                    "Creature Cookie": 5
                 };
                 window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
                 window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
