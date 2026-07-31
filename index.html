@@ -1033,6 +1033,26 @@
         #p2InventorySlots {
             right: 20px;
         }
+        /* Active Circular Timer Containers CSS */
+        .player-timers-container {
+            position: fixed;
+            top: 20px;
+            display: none; /* Managed by window.gameStarted and active timers */
+            flex-direction: row;
+            gap: 10px;
+            z-index: 450;
+            pointer-events: none;
+        }
+        #p1Timers {
+            left: 20px;
+        }
+        #p2Timers {
+            right: 20px;
+        }
+        body.coop-active-layout #p2Timers {
+            left: calc(50vw + 20px);
+            right: auto;
+        }
         .inventory-slot {
             width: 48px;
             height: 48px;
@@ -2130,6 +2150,10 @@
     <div class="inventory-slot"></div>
     <div class="inventory-slot"></div>
 </div>
+
+<!-- Player Active Timers Overlays -->
+<div id="p1Timers" class="player-timers-container"></div>
+<div id="p2Timers" class="player-timers-container"></div>
 
 <!-- Hospital Directional Arrows Overlay -->
 <div id="p1HospitalArrow" style="position: fixed; top: 20px; left: 50%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
@@ -11748,6 +11772,88 @@ window.saveActiveBuffTimers = function() {
     localStorage.setItem('wildpulse_p2PedometerTime', window.p2PedometerTime.toString());
 };
 
+window.updateVisualTimerCircles = function() {
+    if (!window.gameStarted) {
+        const p1TimersEl = document.getElementById('p1Timers');
+        const p2TimersEl = document.getElementById('p2Timers');
+        if (p1TimersEl) p1TimersEl.style.display = 'none';
+        if (p2TimersEl) p2TimersEl.style.display = 'none';
+        return;
+    }
+
+    // Determine visibility for Player 1 and Player 2 timers
+    const p1SlotsEl = document.getElementById('p1InventorySlots');
+    const p1Visible = p1SlotsEl && p1SlotsEl.style.display !== 'none';
+
+    const p2SlotsEl = document.getElementById('p2InventorySlots');
+    const p2Visible = p2SlotsEl && p2SlotsEl.style.display !== 'none' && window.coopActive;
+
+    updatePlayerTimers(1, p1Visible);
+    updatePlayerTimers(2, p2Visible);
+};
+
+function updatePlayerTimers(playerNum, isVisible) {
+    const container = document.getElementById(`p${playerNum}Timers`);
+    if (!container) return;
+
+    if (!isVisible) {
+        container.style.display = 'none';
+        return;
+    }
+
+    const buffs = [];
+
+    const repelTime = playerNum === 2 ? window.p2RepellentTime : window.p1RepellentTime;
+    const jankTime = playerNum === 2 ? window.p2JankJuiceTime : window.p1JankJuiceTime;
+    const expallTime = playerNum === 2 ? window.p2ExPallTime : window.p1ExPallTime;
+    const pedometerTime = playerNum === 2 ? window.p2PedometerTime : window.p1PedometerTime;
+
+    if (repelTime && repelTime > 0) {
+        buffs.push({ key: 'Repellent', emoji: '🧴', time: repelTime, baseline: 60000 });
+    }
+    if (jankTime && jankTime > 0) {
+        buffs.push({ key: 'Jank Juice', emoji: '🧃', time: jankTime, baseline: 60000 });
+    }
+    if (expallTime && expallTime > 0) {
+        buffs.push({ key: 'ExPALL', emoji: '✨', time: expallTime, baseline: 180000 });
+    }
+    if (pedometerTime && pedometerTime > 0) {
+        buffs.push({ key: 'Pedometer', emoji: '👣', time: pedometerTime, baseline: 60000 });
+    }
+
+    if (buffs.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'flex';
+
+    let html = '';
+    const radius = 20;
+    const circumference = 2 * Math.PI * radius; // ~125.66
+
+    buffs.forEach(buff => {
+        const remainingSec = Math.ceil(buff.time / 1000);
+        const fraction = Math.min(1.0, buff.time / buff.baseline);
+        const offset = circumference * (1.0 - fraction);
+
+        html += `
+            <div class="timer-circle-wrapper" data-item="${buff.key}" style="position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: rgba(10, 20, 15, 0.85); border-radius: 50%; box-shadow: 0 0 8px rgba(0,255,100,0.2), inset 0 0 6px rgba(0,0,0,0.8); border: 2px solid rgba(0, 255, 102, 0.2); pointer-events: auto;" title="${buff.key}: ${remainingSec}s">
+                <svg width="48" height="48" style="position: absolute; top: -2px; left: -2px; transform: rotate(-90deg);">
+                    <circle cx="24" cy="24" r="20" fill="transparent" stroke="rgba(255, 255, 255, 0.1)" stroke-width="3.5"></circle>
+                    <circle class="timer-circle-stroke" cx="24" cy="24" r="20" fill="transparent" stroke="#00ff66" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" style="transition: stroke-dashoffset 0.1s linear; filter: drop-shadow(0 0 2px #00ff66);"></circle>
+                </svg>
+                <span class="timer-circle-emoji" style="font-size: 18px; z-index: 2; position: relative; filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.8));">${buff.emoji}</span>
+                <div class="timer-circle-text" style="position: absolute; bottom: 3px; font-size: 8px; color: #00ff66; font-weight: bold; text-shadow: 1px 1px 2px #000; font-family: 'Courier New', monospace; z-index: 3;">${remainingSec}s</div>
+            </div>
+        `;
+    });
+
+    if (container.innerHTML !== html) {
+        container.innerHTML = html;
+    }
+}
+
 // Inventory Helper and Stacking Logic
 window.canAddInventoryItem = function(playerNum, itemName) {
     const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
@@ -21326,6 +21432,15 @@ function update() {
             p2Buffs.innerText = textVal;
             window._lastP2BuffsText = textVal;
         }
+    }
+
+    // Throttle update of active visual timer circles to 100ms intervals
+    if (!window.lastTimerVisualUpdate) window.lastTimerVisualUpdate = 0;
+    if (now - window.lastTimerVisualUpdate > 100) {
+        if (window.updateVisualTimerCircles) {
+            window.updateVisualTimerCircles();
+        }
+        window.lastTimerVisualUpdate = now;
     }
 
     if (window.waterLeaves) {
