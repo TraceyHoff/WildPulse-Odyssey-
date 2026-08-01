@@ -1919,6 +1919,398 @@
         box-shadow: 0 0 10px #00ff80 !important;
     }
 
+    /* ========================================== */
+    /* RETRO POKÉMON-STYLE BATTLE MODALS OVERRIDES */
+    /* ========================================== */
+    #battleModal, #battleModal_p2 {
+        display: none;
+        grid-template-rows: 1fr auto !important;
+        grid-template-columns: 1.3fr 1fr !important;
+        grid-template-areas:
+            "area area"
+            "log controls" !important;
+        gap: 15px !important;
+        font-family: 'Courier New', monospace !important;
+        color: #fff !important;
+        background: linear-gradient(180deg, #020914 0%, #08162e 100%) !important;
+        background-image: linear-gradient(rgba(0, 255, 210, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 210, 0.05) 1px, transparent 1px) !important;
+        background-size: 20px 20px !important;
+        border: 3px solid #00ffd2 !important;
+        box-shadow: 0 0 35px rgba(0, 255, 210, 0.25), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-sizing: border-box !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+        z-index: 500 !important;
+        transform: none !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+    }
+
+    #battleModal > *:not(.close-btn), #battleModal_p2 > *:not(.close-btn) {
+        max-width: none !important;
+        width: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    body.coop-active-layout #battleModal {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        width: 50vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        padding: 20px !important;
+        background-color: transparent !important;
+    }
+    body.coop-active-layout #battleModal_p2 {
+        position: fixed !important;
+        top: 0 !important;
+        left: 50vw !important;
+        right: auto !important;
+        width: 50vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        padding: 20px !important;
+        background-color: transparent !important;
+    }
+    body.coop-active-layout #battleModal.pvp-battle-active {
+        left: 0 !important;
+        right: 0 !important;
+        width: 100vw !important;
+        max-width: none !important;
+    }
+
+    .battle-area {
+        grid-area: area !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        gap: 15px !important;
+        margin-bottom: 10px !important;
+    }
+
+    #playerCombatant, #playerCombatant_p2 {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 95% !important;
+        margin-top: auto !important;
+        padding: 10px !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    #enemyCombatant, #enemyCombatant_p2 {
+        display: flex !important;
+        flex-direction: row-reverse !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 95% !important;
+        margin-bottom: auto !important;
+        padding: 10px !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Platform Pedestals */
+    .sprite-pedestal-container {
+        position: relative !important;
+        width: 130px !important;
+        height: 130px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    .sprite-pedestal {
+        position: absolute !important;
+        bottom: 10px !important;
+        width: 110px !important;
+        height: 35px !important;
+        background: radial-gradient(ellipse at center, rgba(0, 255, 210, 0.4) 0%, rgba(0, 255, 210, 0.1) 60%, transparent 100%) !important;
+        border: 2px solid rgba(0, 255, 210, 0.5) !important;
+        border-radius: 50% !important;
+        box-shadow: 0 0 15px rgba(0, 255, 210, 0.6) !important;
+        animation: pedestalPulse 3s ease-in-out infinite !important;
+        transform: perspective(200px) rotateX(45deg) !important;
+    }
+
+    @keyframes pedestalPulse {
+        0%, 100% { transform: perspective(200px) rotateX(45deg) scale(1); opacity: 0.8; }
+        50% { transform: perspective(200px) rotateX(45deg) scale(1.15); opacity: 1; filter: brightness(1.2); }
+    }
+
+    .combatant-sprite {
+        z-index: 2 !important;
+        animation: spriteFloat 4s ease-in-out infinite !important;
+    }
+
+    @keyframes spriteFloat {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+    }
+
+    /* Floating Info Card styling */
+    .combatant-info-card {
+        background: rgba(11, 19, 36, 0.9) !important;
+        border: 3px double #00ffcc !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        width: 280px !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 255, 204, 0.1) !important;
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+    }
+
+    .combatant-info-card.enemy-info {
+        border-color: #ff3366 !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(255, 51, 102, 0.1) !important;
+    }
+
+    .combatant-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-bottom: 2px dashed rgba(255, 255, 255, 0.15) !important;
+        padding-bottom: 4px !important;
+    }
+
+    .combatant-header h3 {
+        margin: 0 !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
+        color: #00ffcc !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        text-shadow: 0 0 5px rgba(0, 255, 204, 0.5) !important;
+    }
+
+    .combatant-info-card.enemy-info .combatant-header h3 {
+        color: #ff3366 !important;
+        text-shadow: 0 0 5px rgba(255, 51, 102, 0.5) !important;
+    }
+
+    .combatant-level {
+        font-size: 13px !important;
+        font-weight: bold !important;
+        color: #ffcc00 !important;
+    }
+
+    .combatant-details {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 2px !important;
+        font-size: 10px !important;
+        color: #88a0c0 !important;
+        text-transform: uppercase !important;
+    }
+
+    .hp-section {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin-top: 4px !important;
+    }
+
+    .hp-label {
+        font-size: 11px !important;
+        font-weight: bold !important;
+        color: #ff3366 !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .hp-bar-container {
+        flex-grow: 1 !important;
+        height: 12px !important;
+        background: #222 !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 4px !important;
+        overflow: hidden !important;
+        margin-top: 0 !important;
+    }
+
+    .hp-bar {
+        height: 100% !important;
+        transition: width 0.4s ease-out !important;
+    }
+
+    .hp-text-num {
+        font-size: 11px !important;
+        align-self: flex-end !important;
+        font-weight: bold !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .retro-font {
+        font-family: 'Courier New', Courier, monospace !important;
+    }
+
+    .battle-log {
+        grid-area: log !important;
+        height: 110px !important;
+        margin-bottom: 0 !important;
+        border: 2px solid #00ffcc !important;
+        background: rgba(4, 9, 21, 0.95) !important;
+        color: #00ffcc !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+        text-shadow: 0 0 5px rgba(0, 255, 204, 0.5) !important;
+        box-shadow: inset 0 0 10px rgba(0,255,204,0.2) !important;
+        border-radius: 6px !important;
+        padding: 8px !important;
+        overflow-y: auto !important;
+        box-sizing: border-box !important;
+    }
+
+    .battle-controls {
+        grid-area: controls !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        grid-template-rows: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+
+    .battle-controls button {
+        font-size: 14px !important;
+        padding: 10px !important;
+        cursor: pointer !important;
+        border: 2px solid #00ffcc !important;
+        background: rgba(11, 22, 44, 0.9) !important;
+        color: #00ffcc !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        font-weight: bold !important;
+        border-radius: 6px !important;
+        text-transform: uppercase !important;
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.2) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .battle-controls button:hover {
+        transform: translateY(-2px) !important;
+        filter: brightness(1.2) !important;
+        box-shadow: 0 0 15px rgba(0,255,254,0.6) !important;
+        border-color: #00fffe !important;
+    }
+
+    .btn-attack {
+        border-color: #ff3366 !important;
+        color: #ff3366 !important;
+        background: rgba(255, 51, 102, 0.1) !important;
+        box-shadow: 0 0 10px rgba(255, 51, 102, 0.2) !important;
+    }
+    .btn-attack:hover {
+        box-shadow: 0 0 15px rgba(255, 51, 102, 0.6) !important;
+        border-color: #ff3366 !important;
+    }
+
+    .btn-swap {
+        border-color: #ffa726 !important;
+        color: #ffa726 !important;
+        background: rgba(255, 167, 38, 0.1) !important;
+        box-shadow: 0 0 10px rgba(255, 167, 38, 0.2) !important;
+    }
+    .btn-swap:hover {
+        box-shadow: 0 0 15px rgba(255, 167, 38, 0.6) !important;
+        border-color: #ffa726 !important;
+    }
+
+    .btn-catch {
+        border-color: #4caf50 !important;
+        color: #4caf50 !important;
+        background: rgba(76, 175, 80, 0.1) !important;
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.2) !important;
+    }
+    .btn-catch:hover {
+        box-shadow: 0 0 15px rgba(76, 175, 80, 0.6) !important;
+        border-color: #4caf50 !important;
+    }
+
+    .btn-run {
+        border-color: #9e9e9e !important;
+        color: #9e9e9e !important;
+        background: rgba(158, 158, 158, 0.1) !important;
+        box-shadow: 0 0 10px rgba(158, 158, 158, 0.2) !important;
+    }
+    .btn-run:hover {
+        box-shadow: 0 0 15px rgba(158, 158, 158, 0.6) !important;
+        border-color: #9e9e9e !important;
+    }
+
+    /* Split-screen co-op or small viewports override */
+    @media (max-width: 800px), body.coop-active-layout #battleModal, body.coop-active-layout #battleModal_p2 {
+        #battleModal, #battleModal_p2 {
+            grid-template-rows: 1fr auto auto !important;
+            grid-template-columns: 1fr !important;
+            grid-template-areas:
+                "area"
+                "log"
+                "controls" !important;
+            gap: 10px !important;
+            padding: 12px !important;
+        }
+
+        .battle-area {
+            gap: 8px !important;
+            flex-direction: column !important;
+        }
+
+        #playerCombatant, #playerCombatant_p2, #enemyCombatant, #enemyCombatant_p2 {
+            width: 100% !important;
+            padding: 5px !important;
+        }
+
+        .combatant-info-card {
+            width: 175px !important;
+            padding: 8px !important;
+            gap: 3px !important;
+        }
+
+        .sprite-pedestal-container {
+            width: 90px !important;
+            height: 90px !important;
+        }
+
+        .sprite-pedestal {
+            width: 80px !important;
+            height: 25px !important;
+        }
+
+        .battle-log {
+            height: 80px !important;
+            font-size: 11px !important;
+        }
+
+        .battle-controls {
+            gap: 5px !important;
+        }
+
+        .battle-controls button {
+            font-size: 11px !important;
+            padding: 8px !important;
+        }
+    }
+
 </style>
 
 </head>
@@ -2444,22 +2836,46 @@
     <button id="battleCloseBtn" class="close-btn" style="display:none;" aria-label="Close Battle">X</button>
     <div class="battle-area">
         <div class="combatant" id="playerCombatant">
-            <h3 id="pName">Player Creature</h3>
-            <p>Level: <span id="pLevel"></span> <span id="pStatus" style="font-weight:bold; color:#ff9800;"></span></p>
-            <p>Type: <span id="pType"></span></p>
-            <p>Ability: <span id="pAbility"></span></p>
-            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="pSprite"></div>
-            <p>HP: <span id="pHPText"></span></p>
-            <div class="hp-bar-container"><div class="hp-bar" id="pHPBar"></div></div>
+            <div class="combatant-info-card player-info">
+                <div class="combatant-header">
+                    <h3 id="pName" class="retro-font">Player Creature</h3>
+                    <span class="combatant-level retro-font">Lv.<span id="pLevel"></span><span id="pStatus" class="retro-font" style="font-weight:bold; color:#ff9800; margin-left: 5px;"></span></span>
+                </div>
+                <div class="combatant-details retro-font">
+                    <div class="detail-item">TYPE: <span id="pType"></span></div>
+                    <div class="detail-item">ABILITY: <span id="pAbility"></span></div>
+                </div>
+                <div class="hp-section">
+                    <div class="hp-label retro-font">HP</div>
+                    <div class="hp-bar-container"><div class="hp-bar" id="pHPBar"></div></div>
+                </div>
+                <div id="pHPText" class="hp-text-num retro-font"></div>
+            </div>
+            <div class="sprite-pedestal-container">
+                <div class="sprite-pedestal"></div>
+                <div id="pSprite" class="combatant-sprite"></div>
+            </div>
         </div>
         <div class="combatant" id="enemyCombatant">
-            <h3 id="eName">Enemy Creature</h3>
-            <p>Level: <span id="eLevel"></span> <span id="eStatus" style="font-weight:bold; color:#ff9800;"></span></p>
-            <p>Type: <span id="eType"></span></p>
-            <p>Ability: <span id="eAbility"></span></p>
-            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="eSprite"></div>
-            <p>HP: <span id="eHPText"></span></p>
-            <div class="hp-bar-container"><div class="hp-bar" id="eHPBar"></div></div>
+            <div class="combatant-info-card enemy-info">
+                <div class="combatant-header">
+                    <h3 id="eName" class="retro-font">Enemy Creature</h3>
+                    <span class="combatant-level retro-font">Lv.<span id="eLevel"></span><span id="eStatus" class="retro-font" style="font-weight:bold; color:#ff9800; margin-left: 5px;"></span></span>
+                </div>
+                <div class="combatant-details retro-font">
+                    <div class="detail-item">TYPE: <span id="eType"></span></div>
+                    <div class="detail-item">ABILITY: <span id="eAbility"></span></div>
+                </div>
+                <div class="hp-section">
+                    <div class="hp-label retro-font">HP</div>
+                    <div class="hp-bar-container"><div class="hp-bar" id="eHPBar"></div></div>
+                </div>
+                <div id="eHPText" class="hp-text-num retro-font"></div>
+            </div>
+            <div class="sprite-pedestal-container">
+                <div class="sprite-pedestal"></div>
+                <div id="eSprite" class="combatant-sprite"></div>
+            </div>
         </div>
     </div>
     <div class="battle-log" id="battleLog">Wild creature appeared!</div>
@@ -2475,22 +2891,46 @@
     <button id="battleCloseBtn_p2" class="close-btn" style="display:none;" aria-label="Close Battle">X</button>
     <div class="battle-area">
         <div class="combatant" id="playerCombatant_p2">
-            <h3 id="pName_p2">Player Creature</h3>
-            <p>Level: <span id="pLevel_p2"></span> <span id="pStatus_p2" style="font-weight:bold; color:#ff9800;"></span></p>
-            <p>Type: <span id="pType_p2"></span></p>
-            <p>Ability: <span id="pAbility_p2"></span></p>
-            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="pSprite_p2"></div>
-            <p>HP: <span id="pHPText_p2"></span></p>
-            <div class="hp-bar-container"><div class="hp-bar" id="pHPBar_p2"></div></div>
+            <div class="combatant-info-card player-info">
+                <div class="combatant-header">
+                    <h3 id="pName_p2" class="retro-font">Player Creature</h3>
+                    <span class="combatant-level retro-font">Lv.<span id="pLevel_p2"></span><span id="pStatus_p2" class="retro-font" style="font-weight:bold; color:#ff9800; margin-left: 5px;"></span></span>
+                </div>
+                <div class="combatant-details retro-font">
+                    <div class="detail-item">TYPE: <span id="pType_p2"></span></div>
+                    <div class="detail-item">ABILITY: <span id="pAbility_p2"></span></div>
+                </div>
+                <div class="hp-section">
+                    <div class="hp-label retro-font">HP</div>
+                    <div class="hp-bar-container"><div class="hp-bar" id="pHPBar_p2"></div></div>
+                </div>
+                <div id="pHPText_p2" class="hp-text-num retro-font"></div>
+            </div>
+            <div class="sprite-pedestal-container">
+                <div class="sprite-pedestal"></div>
+                <div id="pSprite_p2" class="combatant-sprite"></div>
+            </div>
         </div>
         <div class="combatant" id="enemyCombatant_p2">
-            <h3 id="eName_p2">Enemy Creature</h3>
-            <p>Level: <span id="eLevel_p2"></span> <span id="eStatus_p2" style="font-weight:bold; color:#ff9800;"></span></p>
-            <p>Type: <span id="eType_p2"></span></p>
-            <p>Ability: <span id="eAbility_p2"></span></p>
-            <div style="width: 100px; height: 100px; background: #fff; margin: 10px auto;" id="eSprite_p2"></div>
-            <p>HP: <span id="eHPText_p2"></span></p>
-            <div class="hp-bar-container"><div class="hp-bar" id="eHPBar_p2"></div></div>
+            <div class="combatant-info-card enemy-info">
+                <div class="combatant-header">
+                    <h3 id="eName_p2" class="retro-font">Enemy Creature</h3>
+                    <span class="combatant-level retro-font">Lv.<span id="eLevel_p2"></span><span id="eStatus_p2" class="retro-font" style="font-weight:bold; color:#ff9800; margin-left: 5px;"></span></span>
+                </div>
+                <div class="combatant-details retro-font">
+                    <div class="detail-item">TYPE: <span id="eType_p2"></span></div>
+                    <div class="detail-item">ABILITY: <span id="eAbility_p2"></span></div>
+                </div>
+                <div class="hp-section">
+                    <div class="hp-label retro-font">HP</div>
+                    <div class="hp-bar-container"><div class="hp-bar" id="eHPBar_p2"></div></div>
+                </div>
+                <div id="eHPText_p2" class="hp-text-num retro-font"></div>
+            </div>
+            <div class="sprite-pedestal-container">
+                <div class="sprite-pedestal"></div>
+                <div id="eSprite_p2" class="combatant-sprite"></div>
+            </div>
         </div>
     </div>
     <div class="battle-log" id="battleLog_p2">Wild creature appeared!</div>
@@ -5129,8 +5569,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(1); });
     document.getElementById('menuDeleteBtn_P2')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(2); });
-    document.getElementById('exitGameBtn')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
-    document.getElementById('exitGameBtn_P2')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
+    document.getElementById('exitGameBtn')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(1); });
+    document.getElementById('exitGameBtn_P2')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(2); });
 
     const handleCoopToggle = () => {
         if (game && game.scene.scenes[0]) {
@@ -6221,12 +6661,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 });
 
+window.isConsoleOrMobile = function() {
+    // Mobile user agent check
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // Touch screen capability check (standard mobile)
+    const isTouch = (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
+    // Gamepad controller connection check (standard console)
+    const isGamepad = (navigator.getGamepads && Array.from(navigator.getGamepads()).some(gp => gp !== null));
+    // Console user agent check
+    const isConsoleUA = /Switch|PlayStation|Xbox|Nintendo/i.test(navigator.userAgent);
+
+    return isMobileUA || isTouch || isGamepad || isConsoleUA;
+};
+
 // Listen to input focusin or click to open the virtual keyboard
 document.addEventListener('focusin', function(e) {
     if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'text') {
         if (e.target.classList.contains('keyboard-preview-input')) {
             return;
         }
+
+        // Force the custom built keyboard on consoles and mobile devices
+        if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+            e.target.setAttribute('inputmode', 'none');
+            e.target.readOnly = true;
+        } else {
+            // Desktop standard keyboard experience: do not force readOnly so user can type natively
+            e.target.removeAttribute('inputmode');
+            e.target.readOnly = false;
+        }
+
         let playerNum = 1;
         if (e.target.id.includes('_p2') || e.target.closest('#partyList_P2') || e.target.closest('#customizationModal_p2')) {
             playerNum = 2;
@@ -6240,6 +6704,17 @@ document.addEventListener('click', function(e) {
         if (e.target.classList.contains('keyboard-preview-input')) {
             return;
         }
+
+        // Force the custom built keyboard on consoles and mobile devices
+        if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+            e.target.setAttribute('inputmode', 'none');
+            e.target.readOnly = true;
+        } else {
+            // Desktop standard keyboard experience: do not force readOnly so user can type natively
+            e.target.removeAttribute('inputmode');
+            e.target.readOnly = false;
+        }
+
         let playerNum = 1;
         if (e.target.id.includes('_p2') || e.target.closest('#partyList_P2') || e.target.closest('#customizationModal_p2')) {
             playerNum = 2;
@@ -11177,9 +11652,18 @@ window.drawCreatureSprite = function(elementId, creature) {
     canvas.width = 100;
     canvas.height = 100;
     canvas.style.display = 'block';
-    canvas.style.borderRadius = '12px';
-    canvas.style.boxShadow = '0 0 15px rgba(0,0,0,0.5)';
-    canvas.style.border = '2px solid rgba(255,255,255,0.2)';
+
+    // If it's a battle sprite, make it look seamless and float beautifully on the pedestal
+    if (elementId === 'pSprite' || elementId === 'eSprite' || elementId === 'pSprite_p2' || elementId === 'eSprite_p2') {
+        canvas.style.borderRadius = '0';
+        canvas.style.boxShadow = 'none';
+        canvas.style.border = 'none';
+        canvas.style.transform = 'scale(1.2)'; // slightly larger for awesome battle visibility
+    } else {
+        canvas.style.borderRadius = '12px';
+        canvas.style.boxShadow = '0 0 15px rgba(0,0,0,0.5)';
+        canvas.style.border = '2px solid rgba(255,255,255,0.2)';
+    }
 
     window.renderCreatureCanvas(canvas, creature, 100, true);
 
@@ -16212,8 +16696,15 @@ window.deleteProgress = function(playerNum = 1) {
     }
 };
 
-window.exitGame = function() {
-    if (confirm('Are you sure you want to exit to the main menu?')) {
+window.exitGame = function(playerNum) {
+    playerNum = playerNum || 1;
+
+    // Close the menu modal first so that the confirmation is clearly visible and not obscured or confusing
+    if (window.closeMenuModal) {
+        window.closeMenuModal(playerNum);
+    }
+
+    window.showConfirm(playerNum, 'EXIT GAME', 'Are you sure you want to exit to the main menu?', () => {
         // Automatically exit fullscreen
         if (document.fullscreenElement) {
             if (game && game.scale && game.scale.isFullscreen) {
@@ -16288,7 +16779,12 @@ window.exitGame = function() {
             window.p2PetSprite.destroy();
             window.p2PetSprite = null;
         }
-    }
+    }, () => {
+        // If they click Cancel/No, reopen their main menu modal beautifully
+        if (window.openMenuModal) {
+            window.openMenuModal(playerNum);
+        }
+    });
 };
 
 window.renderStatsTab = function() {
