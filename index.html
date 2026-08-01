@@ -639,6 +639,33 @@
             border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
         }
 
+        /* Custom Confirm Modal Specific Overrides under Co-op */
+        body.coop-active-layout #customConfirmModal_p1,
+        body.coop-active-layout #customConfirmModal_p2 {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            max-width: none !important;
+            background: rgba(0, 0, 0, 0.85) !important;
+            padding: 20px 10px !important;
+            box-sizing: border-box !important;
+            z-index: 200060 !important;
+            display: none;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        body.coop-active-layout #customConfirmModal_p1 {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #customConfirmModal_p2 {
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
         /* Customization Modal Specific Overrides under Co-op */
         body.coop-active-layout #customizationModal,
         body.coop-active-layout #customizationModal_p2 {
@@ -3905,6 +3932,29 @@ function escapeHtml(unsafe) {
     </div>
 </div>
 
+<!-- Custom Confirmation Modals -->
+<div id="customConfirmModal_p1" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200060; align-items:center; justify-content:center; box-sizing:border-box;">
+    <div class="modal-box neon-box" style="width: 340px; background: rgba(11,17,32,0.95); border: 2px solid #00ffcc; border-radius: 16px; padding: 25px; text-align: center; color: white; font-family: 'Courier New', monospace; pointer-events: auto;">
+        <h3 id="customConfirmTitle_p1" style="color: #00ffcc; margin-top: 0; font-size: 20px; text-shadow: 0 0 10px rgba(0,255,204,0.5); letter-spacing: 2px; text-transform: uppercase;">CONFIRMATION</h3>
+        <p id="customConfirmMessage_p1" style="font-size: 14px; margin: 20px 0; color: #bbb; line-height: 1.5;"></p>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button class="btn" id="customConfirmYesBtn_p1" style="flex: 1; padding: 12px; font-size: 15px; font-weight: bold; background: rgba(0, 255, 204, 0.15); border: 2px solid #00ffcc; border-radius: 12px; color: #00ffcc; cursor: pointer; transition: all 0.2s;">YES</button>
+            <button class="btn" id="customConfirmNoBtn_p1" style="flex: 1; padding: 12px; font-size: 15px; font-weight: bold; background: rgba(255, 51, 102, 0.15); border: 2px solid #ff3366; border-radius: 12px; color: #ff3366; cursor: pointer; transition: all 0.2s;">CANCEL</button>
+        </div>
+    </div>
+</div>
+
+<div id="customConfirmModal_p2" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200060; align-items:center; justify-content:center; box-sizing:border-box;">
+    <div class="modal-box neon-box" style="width: 340px; background: rgba(11,17,32,0.95); border: 2px solid #ff9800; border-radius: 16px; padding: 25px; text-align: center; color: white; font-family: 'Courier New', monospace; pointer-events: auto;">
+        <h3 id="customConfirmTitle_p2" style="color: #ff9800; margin-top: 0; font-size: 20px; text-shadow: 0 0 10px rgba(255,152,0,0.5); letter-spacing: 2px; text-transform: uppercase;">CONFIRMATION</h3>
+        <p id="customConfirmMessage_p2" style="font-size: 14px; margin: 20px 0; color: #bbb; line-height: 1.5;"></p>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button class="btn" id="customConfirmYesBtn_p2" style="flex: 1; padding: 12px; font-size: 15px; font-weight: bold; background: rgba(255, 152, 0, 0.15); border: 2px solid #ff9800; border-radius: 12px; color: #ff9800; cursor: pointer; transition: all 0.2s;">YES</button>
+            <button class="btn" id="customConfirmNoBtn_p2" style="flex: 1; padding: 12px; font-size: 15px; font-weight: bold; background: rgba(255, 51, 102, 0.15); border: 2px solid #ff3366; border-radius: 12px; color: #ff3366; cursor: pointer; transition: all 0.2s;">CANCEL</button>
+        </div>
+    </div>
+</div>
+
 <div id="tradeModal" style="display:none; position:fixed; color:white; z-index:910; text-align:center;">
     <button class="close-btn close-trade-btn" aria-label="Close Trade">X</button>
     <h2>Local Split-Screen Trade</h2>
@@ -4999,8 +5049,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const playerNum = (window.p2ActiveModal === 'challengeModal') ? 2 : 1;
         if (window.closeChallengeModal) window.closeChallengeModal(playerNum);
     });
-    document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
-    document.getElementById('menuDeleteBtn_P2')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(); });
+    document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(1); });
+    document.getElementById('menuDeleteBtn_P2')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(2); });
     document.getElementById('exitGameBtn')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
     document.getElementById('exitGameBtn_P2')?.addEventListener('click', () => { if (window.exitGame) window.exitGame(); });
 
@@ -13254,6 +13304,10 @@ window.getNavigableElements = function(container) {
 
 window.getActiveContainerForPlayer = function(playerNum) {
     if (playerNum === 2) {
+        const confirmP2 = document.getElementById('customConfirmModal_p2');
+        if (confirmP2 && confirmP2.style.display !== 'none' && confirmP2.style.display !== '') {
+            return confirmP2;
+        }
         const kbP2 = document.getElementById('virtualKeyboardModal_p2');
         if (kbP2 && kbP2.style.display !== 'none' && kbP2.style.display !== '') {
             return kbP2;
@@ -13275,6 +13329,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
             return customP2;
         }
     } else {
+        const confirmP1 = document.getElementById('customConfirmModal_p1');
+        if (confirmP1 && confirmP1.style.display !== 'none' && confirmP1.style.display !== '') {
+            return confirmP1;
+        }
         const kbP1 = document.getElementById('virtualKeyboardModal_p1');
         if (kbP1 && kbP1.style.display !== 'none' && kbP1.style.display !== '') {
             return kbP1;
@@ -13336,7 +13394,8 @@ window.getActiveContainerForPlayer = function(playerNum) {
             'battleModal', 'battleSwapModal', 'challengeModal',
             'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal', 'inventoryWheelModal',
             'creatureSelectModal_p1', 'creatureSelectModal_p2',
-            'respawnChoiceModal_p1', 'respawnChoiceModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2'
+            'respawnChoiceModal_p1', 'respawnChoiceModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
+            'customConfirmModal_p1', 'customConfirmModal_p2'
         ];
 
         if (window.coopActive && playerNum === 2) {
@@ -14037,7 +14096,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             container.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
                 el.classList.remove(`gamepad-focused-p${playerNum}`);
             });
-            if (container.id === 'creatureSelectModal_p1' || container.id === 'creatureSelectModal_p2') {
+            if (container.id === 'customConfirmModal_p1' || container.id === 'customConfirmModal_p2') {
+                const noBtn = container.querySelector('#customConfirmNoBtn_p1') || container.querySelector('#customConfirmNoBtn_p2');
+                if (noBtn) {
+                    noBtn.click();
+                }
+            } else if (container.id === 'creatureSelectModal_p1' || container.id === 'creatureSelectModal_p2') {
                 const cancelBtn = container.querySelector('button[style*="background: rgb(229, 57, 53)"]') || container.querySelector('button:last-child');
                 if (cancelBtn) {
                     cancelBtn.click();
@@ -14062,6 +14126,56 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     }
 };
 
+window.showConfirm = function(playerNum, title, message, onConfirm, onCancel = null) {
+    const modalId = `customConfirmModal_p${playerNum}`;
+    const titleId = `customConfirmTitle_p${playerNum}`;
+    const msgId = `customConfirmMessage_p${playerNum}`;
+    const yesBtnId = `customConfirmYesBtn_p${playerNum}`;
+    const noBtnId = `customConfirmNoBtn_p${playerNum}`;
+
+    const modalEl = document.getElementById(modalId);
+    const titleEl = document.getElementById(titleId);
+    const msgEl = document.getElementById(msgId);
+    const yesBtn = document.getElementById(yesBtnId);
+    const noBtn = document.getElementById(noBtnId);
+
+    if (!modalEl) return;
+
+    if (titleEl) titleEl.innerText = title;
+    if (msgEl) msgEl.innerText = message;
+
+    // Clean up focus states for other elements
+    document.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
+        el.classList.remove(`gamepad-focused-p${playerNum}`);
+    });
+
+    const hideModal = () => {
+        modalEl.style.display = 'none';
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+    };
+
+    yesBtn.onclick = () => {
+        hideModal();
+        if (onConfirm) onConfirm();
+    };
+
+    noBtn.onclick = () => {
+        hideModal();
+        if (onCancel) onCancel();
+    };
+
+    modalEl.style.display = 'flex';
+    if (playerNum === 2) window.p2ActiveModal = modalId;
+    else window.p1ActiveModal = modalId;
+
+    // Automatically focus the YES button for gamepad navigation
+    setTimeout(() => {
+        yesBtn.classList.add(`gamepad-focused-p${playerNum}`);
+        try { yesBtn.focus(); } catch (e) {}
+    }, 50);
+};
+
 window.isAnyModalOpen = function() {
     if (window.p1HatchingActive || window.p2HatchingActive) {
         return true;
@@ -14072,7 +14186,8 @@ window.isAnyModalOpen = function() {
         'battleModal', 'battleSwapModal', 'challengeModal',
         'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
         'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal', 'inventoryWheelModal',
-        'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2'
+        'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
+        'customConfirmModal_p1', 'customConfirmModal_p2'
     ];
     if (window.coopActive) {
         modals.push('battleModal_p2', 'battleSwapModal_p2');
@@ -14187,6 +14302,13 @@ window.updateModalVisibility = function() {
 };
 
 window.closeAllModalsForPlayer = function(playerNum, exceptId) {
+    const confirmModalEl = document.getElementById(`customConfirmModal_p${playerNum}`);
+    if (confirmModalEl && confirmModalEl.style.display !== 'none') {
+        confirmModalEl.style.display = 'none';
+        if (playerNum === 2) window.p2ActiveModal = null;
+        else window.p1ActiveModal = null;
+    }
+
     const fullSizeModalId = (window.coopActive && playerNum === 2) ? 'fullSizeImageModal_p2' : 'fullSizeImageModal';
     const fullSizeModal = document.getElementById(fullSizeModalId);
     if (fullSizeModal) fullSizeModal.style.display = 'none';
@@ -14224,6 +14346,11 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
 };
 
 window.closeAllModals = function(exceptId) {
+    const confirmP1 = document.getElementById('customConfirmModal_p1');
+    if (confirmP1) confirmP1.style.display = 'none';
+    const confirmP2 = document.getElementById('customConfirmModal_p2');
+    if (confirmP2) confirmP2.style.display = 'none';
+
     if (exceptId !== 'virtualKeyboardModal_p1') {
         window.closeVirtualKeyboard(1);
     }
@@ -15885,9 +16012,9 @@ window.useInventoryWheelOption = function(playerNum, optionName) {
     }
 };
 
-window.deleteProgress = function() {
+window.deleteProgress = function(playerNum = 1) {
     if (window.coopActive) {
-        if (confirm('Are you sure? This will erase all split-screen save data for both players.')) {
+        window.showConfirm(playerNum, 'ERASE ALL DATA?', 'Are you sure? This will erase all split-screen save data for both players.', () => {
             localStorage.removeItem(STORAGE_KEY);
             localStorage.removeItem('wildpulse_collected_creatures2');
             localStorage.removeItem('wildpulse_player_level');
@@ -15949,9 +16076,9 @@ window.deleteProgress = function() {
             localStorage.removeItem('wildpulse_player2_shape');
 
             location.reload();
-        }
+        });
     } else {
-        if (confirm('Are you sure? This will erase your singleplayer save data.')) {
+        window.showConfirm(playerNum, 'ERASE DATA?', 'Are you sure? This will erase your singleplayer save data.', () => {
             // Delete ONLY Player 1/Singleplayer progress keys
             localStorage.removeItem(STORAGE_KEY);
             localStorage.removeItem('wildpulse_player_level');
@@ -16009,7 +16136,7 @@ window.deleteProgress = function() {
             }
 
             location.reload();
-        }
+        });
     }
 };
 
@@ -22109,10 +22236,16 @@ window.closeBattleModal = function() {
         if (wasInChallenge) {
             window.challengeTier++;
             localStorage.setItem('wildpulse_challenge_tier', window.challengeTier.toString());
+            const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
             setTimeout(() => {
-                if (confirm(`Challenge Victory! You've reached Tier ${window.challengeTier}. Continue to next battle?`)) {
-                    window.startChallengeBattle();
-                }
+                window.showConfirm(
+                    pNum,
+                    'CHALLENGE VICTORY!',
+                    `You've reached Tier ${window.challengeTier}. Continue to next battle?`,
+                    () => {
+                        window.startChallengeBattle();
+                    }
+                );
             }, 500);
         } else if (wasInNpcBattle) {
             // No creature sprite or base respawning for NPC trainer battles
@@ -23152,7 +23285,11 @@ function update() {
     }
 
     let p1HasPhotonicWings = (window.collectedCreatures || []).filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'photonic_wings');
-    const speed = p1HasPhotonicWings ? 240 : 200;
+    let speed = p1HasPhotonicWings ? 240 : 200;
+    const isRaining = (window.weatherPattern === 'light_rain' || window.weatherPattern === 'heavy_rain' || window.weatherPattern === 'thunderstorm');
+    if (isRaining) {
+        speed = Math.floor(speed * 1.25);
+    }
 
     if (typeof Phaser === 'undefined') return;
 
@@ -24196,6 +24333,10 @@ function update() {
         let p2IsSwimming = p2InWater && window.currentSeason !== 'Winter';
         let p2HasPhotonicWings = (window.collectedCreatures2 || []).filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'photonic_wings');
         let speedForP2 = p2HasPhotonicWings ? 240 : 200;
+        const isRainingP2 = (window.weatherPattern === 'light_rain' || window.weatherPattern === 'heavy_rain' || window.weatherPattern === 'thunderstorm');
+        if (isRainingP2) {
+            speedForP2 = Math.floor(speedForP2 * 1.25);
+        }
         let p2Speed = p2IsSwimming ? speedForP2 * 0.5 : speedForP2;
 
         if (window.gameStarted && p2CanMove) {
