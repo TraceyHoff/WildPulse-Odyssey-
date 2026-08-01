@@ -2555,7 +2555,7 @@
             <button id="menuDeleteBtn" style="width: 100%; margin: 8px 0; background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a;">Delete Progress</button>
             <button id="exitGameBtn" style="width: 100%; margin: 8px 0;">Exit Game</button>
             <div style="margin-top: 15px; padding: 10px; border-top: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.2); border-radius: 8px; font-size: 0.85em; text-align: left;">
-                <div style="font-weight: bold; color: #4caf50; margin-bottom: 8px; text-align: center;">Performance Settings</div>
+                <div onclick="window.runPerformanceCheck()" style="font-weight: bold; color: #4caf50; margin-bottom: 8px; text-align: center; cursor: pointer; text-decoration: underline;" title="Click to run real-time Performance Diagnostic Check">Performance Settings 🔍</div>
                 <label style="display: flex; align-items: center; gap: 8px; margin: 6px 0; cursor: pointer;">
                     <input type="checkbox" id="perfParticlesP1" checked style="cursor: pointer;"> Weather Particles
                 </label>
@@ -4115,6 +4115,9 @@ window.WildPulseMusic = {
     currentChord: [],
 
     async start() {
+        if (typeof Tone !== 'undefined' && Tone.context && Tone.context.state === 'suspended') {
+            try { await Tone.context.resume(); } catch(e) {}
+        }
         if (this.initialized) return;
         try {
             await Tone.start();
@@ -4274,7 +4277,7 @@ window.WildPulseMusic = {
             }
 
             const beatsPerChord = 4;
-            const totalBeats = Tone.Transport.seconds * (this.bpm / 60);
+            const totalBeats = time * (this.bpm / 60);
             const index = Math.floor(totalBeats / beatsPerChord) % prog.length;
             const targetChord = prog[index];
 
@@ -4298,25 +4301,25 @@ window.WildPulseMusic = {
 
             if (this.state === 'BATTLE' || this.state === 'PVP') {
                 // Energetic syncopated techno bass
-                const step = Math.floor(Tone.Transport.seconds * 8) % 8;
+                const step = Math.round(time * (this.bpm / 30)) % 8;
                 if (step === 0 || step === 2 || step === 3 || step === 5 || step === 6) {
                     this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.6);
                 }
             } else if (this.state === 'TRADE') {
                 // Chill lounge bass - shorter duration to avoid overlap warnings
-                const step = Math.floor(Tone.Transport.seconds * 2) % 4;
+                const step = Math.round(time * (this.bpm / 60)) % 4;
                 if (step === 0) {
                     this.synths.bass.triggerAttackRelease(bassNote, "8n", time, 0.4);
                 }
             } else if (this.state === 'MENU') {
                 // Menu slow pulse
-                const step = Math.floor(Tone.Transport.seconds * 2) % 4;
+                const step = Math.round(time * (this.bpm / 60)) % 4;
                 if (step === 0 || step === 2) {
                     this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.45);
                 }
             } else {
                 // Exploring bass - playful, galloping adventure bassline!
-                const step = Math.floor(Tone.Transport.seconds * 8) % 8;
+                const step = Math.round(time * (this.bpm / 30)) % 8;
                 const note = (step === 3 || step === 7) ? rootNote.replace(/\d/, '3') : bassNote;
                 if (step === 0 || step === 2 || step === 3 || step === 4 || step === 6 || step === 7) {
                     this.synths.bass.triggerAttackRelease(note, "16n", time, 0.55);
@@ -4329,13 +4332,13 @@ window.WildPulseMusic = {
             if (!this.currentChord || this.currentChord.length === 0) return;
             if (this.state === 'TRADE') return;
 
-            const step = Math.floor(Tone.Transport.seconds * 16) % 16;
+            const step = Math.round(time * (this.bpm / 15)) % 16;
 
             if (this.state === 'BATTLE' || this.state === 'PVP') {
                 const noteIndex = step % this.currentChord.length;
                 let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
                 if (Math.random() > 0.3) {
-                    const cutoff = 400 + Math.sin(Tone.Transport.seconds * 0.2) * 500;
+                    const cutoff = 400 + Math.sin(time * 0.2) * 500;
                     if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
                         this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
                     }
@@ -4345,7 +4348,7 @@ window.WildPulseMusic = {
                 const noteIndex = step % this.currentChord.length;
                 let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
                 if (step % 2 === 0) {
-                    const cutoff = 350 + Math.sin(Tone.Transport.seconds * 0.15) * 200;
+                    const cutoff = 350 + Math.sin(time * 0.15) * 200;
                     if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
                         this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
                     }
@@ -4359,7 +4362,7 @@ window.WildPulseMusic = {
                 arpNote = arpNote.replace(/\d/, oct);
 
                 if (step % 4 !== 3) {
-                    const cutoff = 400 + Math.sin(Tone.Transport.seconds * 0.2) * 350;
+                    const cutoff = 400 + Math.sin(time * 0.2) * 350;
                     if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
                         this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
                     }
@@ -4372,7 +4375,7 @@ window.WildPulseMusic = {
         this.loops.push(new Tone.Loop(time => {
             if (!this.currentChord || this.currentChord.length === 0) return;
 
-            const step = Math.floor(Tone.Transport.seconds * 4) % 16; // 16-step cycle
+            const step = Math.round(time * (this.bpm / 30)) % 16; // 16-step cycle
             let shouldPlay = false;
             let noteOffset = 0;
             let noteLength = "8n";
@@ -4418,7 +4421,7 @@ window.WildPulseMusic = {
 
         // Drums: Kick Drum Loop (8n interval for syncopated adventure drum beats!)
         this.loops.push(new Tone.Loop(time => {
-            const step = Math.floor(Tone.Transport.seconds * 8) % 8;
+            const step = Math.round(time * (this.bpm / 30)) % 8;
             let shouldPlay = false;
             let vol = 0.5;
 
@@ -4443,7 +4446,7 @@ window.WildPulseMusic = {
 
         // Drums: Snare Drum Loop (8n interval for active backbeats and ghost notes!)
         this.loops.push(new Tone.Loop(time => {
-            const step = Math.floor(Tone.Transport.seconds * 8) % 8;
+            const step = Math.round(time * (this.bpm / 30)) % 8;
             let shouldPlay = false;
             let vol = 0.5;
 
@@ -4465,7 +4468,7 @@ window.WildPulseMusic = {
 
         // Drums: Hi-hat Loop (16n interval for energetic sixteenth-note adventure grooves!)
         this.loops.push(new Tone.Loop(time => {
-            const step = Math.floor(Tone.Transport.seconds * 16) % 16;
+            const step = Math.round(time * (this.bpm / 15)) % 16;
             let shouldPlay = false;
             let vol = 0.15;
 
@@ -4659,7 +4662,12 @@ window.WildPulseMusic = {
 
     toggle() {
         this.muted = !this.muted;
-        Tone.Destination.mute = this.muted;
+        if (typeof Tone !== 'undefined') {
+            Tone.Destination.mute = this.muted;
+            if (!this.muted && Tone.context && Tone.context.state === 'suspended') {
+                try { Tone.context.resume(); } catch(e) {}
+            }
+        }
         return this.muted;
     }
 };
@@ -4711,6 +4719,76 @@ window.getP1Name = function() {
 };
 window.getP2Name = function() {
     return localStorage.getItem('wildpulse_player2_name') || 'Player 2';
+};
+
+window.runPerformanceCheck = function() {
+    console.log("%c=== WILD PULSE PERFORMANCE AUDIT ===", "color: #00e5ff; font-weight: bold; font-size: 14px;");
+
+    const diagnostics = {
+        timestamp: new Date().toISOString(),
+        gameStarted: window.gameStarted,
+        coopActive: !!window.coopActive,
+        weatherPattern: window.weatherPattern || 'none',
+        weatherIntensity: window.weatherIntensity || 0,
+        perfWeatherParticles: !!window.perfWeatherParticles,
+        perfLowerSpawns: !!window.perfLowerSpawns,
+        perfLowerDrawDistance: !!window.perfLowerDrawDistance,
+    };
+
+    // 1. Phaser diagnostics
+    if (typeof game !== 'undefined' && game) {
+        diagnostics.phaser = {
+            initialized: true,
+            actualFps: Math.round(game.loop.actualFps) || 60,
+            loopDelta: (game.loop.delta || 16.66).toFixed(2) + "ms",
+        };
+        const scene = game.scene && game.scene.scenes[0];
+        if (scene) {
+            diagnostics.phaser.sceneChildrenCount = scene.children ? scene.children.list.length : 0;
+            diagnostics.phaser.wildCreaturesCount = scene.creaturesGroup ? scene.creaturesGroup.getLength() : 0;
+            diagnostics.phaser.remotePlayersCount = window.remotePlayers ? window.remotePlayers.length : 0;
+            diagnostics.phaser.texturesCount = scene.textures ? Object.keys(scene.textures.list).length : 0;
+            diagnostics.phaser.creatureTexturesCached = scene.textures ? Object.keys(scene.textures.list).filter(k => k.startsWith('creature_tex_')).length : 0;
+        }
+    } else {
+        diagnostics.phaser = { initialized: false };
+    }
+
+    // 2. Audio diagnostics
+    if (typeof Tone !== 'undefined' && Tone.context) {
+        diagnostics.audio = {
+            library: 'Tone.js',
+            state: Tone.context.state,
+            latencyHint: Tone.context.latencyHint || 'interactive',
+            lookAhead: (Tone.context.lookAhead || 0.1).toFixed(2) + "s",
+            sampleRate: Tone.context.sampleRate,
+        };
+    } else {
+        diagnostics.audio = { library: 'Unavailable' };
+    }
+
+    // 3. Cache checks
+    diagnostics.caches = {
+        colorValidationCacheSize: window.colorValidationCache ? Object.keys(window.colorValidationCache).length : 0,
+    };
+
+    // Print to console beautifully
+    console.table(diagnostics);
+    console.log("%c=====================================", "color: #00e5ff; font-weight: bold;");
+
+    // Display high-tech visual notification overlay
+    let fpsStr = diagnostics.phaser.actualFps ? `FPS: ${diagnostics.phaser.actualFps}` : 'FPS: N/A';
+    let textureStr = diagnostics.phaser.creatureTexturesCached !== undefined ? `Cached: ${diagnostics.phaser.creatureTexturesCached}` : 'Cached: 0';
+    let msg = `⚡ PERFORMANCE AUDIT: ${fpsStr} | ${textureStr} | Entities: ${diagnostics.phaser.sceneChildrenCount || 0} | Audio: ${diagnostics.audio.state || 'N/A'}`;
+
+    if (window.showModernNotification) {
+        window.showModernNotification(msg, 1);
+        if (window.coopActive && window.showModernNotification) {
+            window.showModernNotification(msg, 2);
+        }
+    } else {
+        alert(msg);
+    }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -6075,6 +6153,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('touchend', clearTouch, { passive: true });
     document.addEventListener('touchcancel', clearTouch, { passive: true });
+
+    // Keyboard Ctrl+Shift+P to trigger Performance Check on PC
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+            e.preventDefault();
+            if (window.runPerformanceCheck) window.runPerformanceCheck();
+        }
+    });
 
     // Keyboard Q key to toggle action wheel on PC
     window.addEventListener('keydown', (e) => {
@@ -8171,6 +8257,9 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const tailSway = Math.sin(t * 0.004) * 0.12;
     const blinkCycle = t % 4000;
     const isBlinking = blinkCycle > 3850; // blink for 150ms every 4s
+    const pupilPulse = 1.0 + Math.sin(t * 0.005) * 0.06;
+    const blushPulse = 1.0 + Math.sin(t * 0.0025) * 0.12;
+    const hornSway = Math.sin(t * 0.0035 + 1.0) * 0.04;
 
     const types = creature.type ? creature.type.split('-') : ['Normal'];
     const type1 = types[0];
@@ -9880,12 +9969,19 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         }
     };
 
-    // Draw main body shape
+    // Draw main body shape with outer shadow blur
+    ctx.save();
     ctx.fillStyle = bodyColor;
+    ctx.shadowColor = typeColor1;
+    ctx.shadowBlur = 4 + Math.sin(t * 0.004) * 2.5;
+    drawBodyPath();
+    ctx.fill();
+    ctx.restore();
+
     ctx.strokeStyle = '#222222';
     ctx.lineWidth = 1.5;
     drawBodyPath();
-    ctx.fill();
+    ctx.stroke();
 
     // 7. Draw Patterns & Textures (Clipped to Main Body)
     ctx.save();
@@ -10314,6 +10410,17 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
         }
     }
 
+    // Volumetric 3D lighting overlay shifting with breathing
+    const lightX = 50 - rx * 0.35 + Math.sin(t * 0.003) * 1.5;
+    const lightY = 50 - ry * 0.35 + Math.cos(t * 0.003) * 1.5;
+    const highlight = ctx.createRadialGradient(lightX, lightY, 2, 50, 50, Math.max(rx, ry) * 1.3);
+    highlight.addColorStop(0, 'rgba(255, 255, 255, 0.24)');
+    highlight.addColorStop(0.3, 'rgba(255, 255, 255, 0.08)');
+    highlight.addColorStop(0.7, 'rgba(0, 0, 0, 0.04)');
+    highlight.addColorStop(1, 'rgba(0, 0, 0, 0.30)');
+    ctx.fillStyle = highlight;
+    ctx.fillRect(0, 0, 100, 100);
+
     ctx.restore(); // end of clipping block
 
     // Draw thin black stroke outline around the main body to look crisp!
@@ -10326,6 +10433,11 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const hornVal = (creature.clawHorn || '').toLowerCase();
     const hasHorns = hornVal !== 'none' && hornVal !== '';
     if (hasHorns) {
+        ctx.save();
+        ctx.translate(50, 50 - ry * 0.8);
+        ctx.rotate(hornSway);
+        ctx.translate(-50, -(50 - ry * 0.8));
+
         ctx.fillStyle = clawHornCol;
         ctx.strokeStyle = '#333333';
         ctx.lineWidth = 1.5;
@@ -10618,6 +10730,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.closePath();
             ctx.fill(); ctx.stroke();
         }
+        ctx.restore();
     }
 
     // 9. Draw Eyes (On Front of Body)
@@ -10654,10 +10767,10 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.beginPath();
             ctx.arc(ex, ey + eRad * 0.2, eRad * 0.9, 0, Math.PI * 2);
             ctx.fill();
-            // Dark pupil
+            // Dark pupil with pulse
             ctx.fillStyle = '#011627';
             ctx.beginPath();
-            ctx.arc(ex, ey + eRad * 0.3, eRad * 0.55, 0, Math.PI * 2);
+            ctx.arc(ex, ey + eRad * 0.3, eRad * 0.55 * pupilPulse, 0, Math.PI * 2);
             ctx.fill();
             // Dual glistening white highlights
             ctx.fillStyle = '#ffffff';
@@ -10767,9 +10880,9 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             // Colored iris
             ctx.fillStyle = eyesCol;
             ctx.beginPath(); ctx.arc(ex, ey + eRad * 0.2, eRad * 0.9, 0, Math.PI * 2); ctx.fill();
-            // Pupil
+            // Pupil with pulse
             ctx.fillStyle = '#000000';
-            ctx.beginPath(); ctx.arc(ex, ey + eRad * 0.3, eRad * 0.55, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(ex, ey + eRad * 0.3, eRad * 0.55 * pupilPulse, 0, Math.PI * 2); ctx.fill();
             // Two high sparkling white highlights
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
@@ -10814,8 +10927,8 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.fillStyle = eyesCol;
             ctx.beginPath();
             if (style.includes('starry')) {
-                // Draw tiny 4-pointed star pupil
-                let pSize = eRad * 0.7;
+                // Draw tiny 4-pointed star pupil with pulse
+                let pSize = eRad * 0.7 * pupilPulse;
                 ctx.moveTo(ex, ey - pSize);
                 ctx.lineTo(ex + pSize/3, ey - pSize/3);
                 ctx.lineTo(ex + pSize, ey);
@@ -10826,17 +10939,17 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
                 ctx.lineTo(ex - pSize/3, ey - pSize/3);
                 ctx.closePath();
             } else {
-                ctx.arc(ex, ey, eRad * 0.55, 0, Math.PI * 2);
+                ctx.arc(ex, ey, eRad * 0.55 * pupilPulse, 0, Math.PI * 2);
             }
             ctx.fill();
 
-            // Pupil Center (dark slit for fierce/snake or circle for gentle/standard)
+            // Pupil Center with pulse (dark slit for fierce/snake or circle for gentle/standard)
             ctx.fillStyle = '#000000';
             ctx.beginPath();
             if (style.includes('fierce') || style.includes('narrow') || style.includes('cold') || style.includes('piercing')) {
-                ctx.ellipse(ex, ey, eRad * 0.15, eRad * 0.45, 0, 0, Math.PI * 2);
+                ctx.ellipse(ex, ey, eRad * 0.15 * pupilPulse, eRad * 0.45 * pupilPulse, 0, 0, Math.PI * 2);
             } else {
-                ctx.arc(ex, ey, eRad * 0.32, 0, Math.PI * 2); // Larger pupil for cute expression
+                ctx.arc(ex, ey, eRad * 0.32 * pupilPulse, 0, Math.PI * 2); // Larger pupil for cute expression
             }
             ctx.fill();
 
@@ -10899,8 +11012,8 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     let blushDist = rx * 0.44;
     let blushY = eyeY + 3.5;
     ctx.beginPath();
-    ctx.ellipse(50 - blushDist, blushY, 4.5, 2.8, 0, 0, Math.PI * 2);
-    ctx.ellipse(50 + blushDist, blushY, 4.5, 2.8, 0, 0, Math.PI * 2);
+    ctx.ellipse(50 - blushDist, blushY, 4.5 * blushPulse, 2.8 * blushPulse, 0, 0, Math.PI * 2);
+    ctx.ellipse(50 + blushDist, blushY, 4.5 * blushPulse, 2.8 * blushPulse, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
     ctx.restore();
@@ -25219,9 +25332,11 @@ function update() {
         const lerpQuantity = (emitter, target) => {
             if (!emitter) return;
             if (!window.perfWeatherParticles) {
-                emitter.setQuantity(0);
-                emitter.killAll();
-                emitter._currentQuantity = 0;
+                if (emitter._currentQuantity !== 0) {
+                    emitter.setQuantity(0);
+                    emitter.killAll();
+                    emitter._currentQuantity = 0;
+                }
                 return;
             }
             if (emitter._currentQuantity === undefined) emitter._currentQuantity = 0;
