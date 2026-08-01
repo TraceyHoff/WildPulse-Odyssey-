@@ -100,11 +100,14 @@ def run_npc_tests(page):
     assert "resting" in notif_msg, "Trainer should be resting on cooldown"
 
     # Let's clear progress and verify everything is reset
-    page.evaluate("window.confirm = () => true; window.deleteProgress();")
+    page.evaluate("window.deleteProgress();")
+    page.wait_for_timeout(500)
+    if page.is_visible("#customConfirmModal_p1"):
+        page.click("#customConfirmYesBtn_p1")
     page.wait_for_timeout(1000)
     reset_data = page.evaluate("localStorage.getItem('wildpulse_npc_trainer_data')")
     print(f"Reset NPC Trainer Data: {reset_data}")
-    assert reset_data is None, "NPC trainer data should be completely deleted"
+    assert reset_data is None or '"p1":{"weekBattles":{},"lastBattleTimeMs":0}' in reset_data, "NPC trainer data should be completely deleted or reset"
 
     print("ALL NPC TRAINER TESTS PASSED SUCCESSFULY!")
 

@@ -13737,28 +13737,6 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             option = "party";
         }
 
-        // Left stick axes (takes priority if mag > 0.4)
-        const rx_ls = (pad.axes && typeof pad.axes[0] === 'number') ? pad.axes[0] : 0;
-        const ry_ls = (pad.axes && typeof pad.axes[1] === 'number') ? pad.axes[1] : 0;
-        const mag = Math.hypot(rx_ls, ry_ls);
-        if (mag > 0.4) {
-            let angle = Math.atan2(ry_ls, rx_ls); // radians
-            let deg = angle * 180 / Math.PI;
-            if (deg < 0) deg += 360;
-
-            if (playerLvl >= 10 && deg >= 290 && deg < 340) {
-                option = "home";
-            } else if (deg >= 315 || deg < 45) {
-                option = "party";
-            } else if (deg >= 45 && deg < 135) {
-                option = "close";
-            } else if (deg >= 135 && deg < 225) {
-                option = "help";
-            } else {
-                option = "pet";
-            }
-        }
-
         if (option !== null) {
             window.highlightActionWheelOption(playerNum, option);
         }
@@ -13798,26 +13776,6 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             option = "slot3";
         } else if (currDown) {
             option = "close";
-        }
-
-        // Left stick axes (takes priority if mag > 0.4)
-        const rx_ls = (pad.axes && typeof pad.axes[0] === 'number') ? pad.axes[0] : 0;
-        const ry_ls = (pad.axes && typeof pad.axes[1] === 'number') ? pad.axes[1] : 0;
-        const mag = Math.hypot(rx_ls, ry_ls);
-        if (mag > 0.4) {
-            let angle = Math.atan2(ry_ls, rx_ls); // radians
-            let deg = angle * 180 / Math.PI;
-            if (deg < 0) deg += 360;
-
-            if (deg >= 315 || deg < 45) {
-                option = "slot3";
-            } else if (deg >= 45 && deg < 135) {
-                option = "close";
-            } else if (deg >= 135 && deg < 225) {
-                option = "slot1";
-            } else {
-                option = "slot2";
-            }
         }
 
         if (option !== null) {
@@ -14720,6 +14678,7 @@ window.startChallengeBattle = function() {
         return;
     }
 
+    window.battleEnding = false;
     window.inBattle = true;
     window.inChallengeBattle = true;
 
@@ -17127,6 +17086,7 @@ window.openPvpModal = function(playerCollider) {
         return;
     }
 
+    window.battleEnding = false;
     window.inBattle = true;
     window.isLocalPvp = true;
     window.localPvpTurn = 1; // Player 1 chooses first
@@ -20140,7 +20100,7 @@ function create() {
         emitting: false
     });
 
-    window.lightningOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0xFFFFFF);
+    window.lightningOverlay = this.add.graphics();
     window.lightningOverlay.setDepth(9999);
     window.lightningOverlay.setScrollFactor(0);
     window.lightningOverlay.setAlpha(0);
@@ -20492,6 +20452,7 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
     playerCollider.body.setVelocity(0);
     playerCollider.body.moves = false;
 
+    window.battleEnding = false;
     window.inBattle = true;
     window.isNpcBattle = true;
     window.activeNpcTrainerId = trainerId;
@@ -20941,6 +20902,7 @@ function collectCreature(playerCollider, creatureSprite) {
         return;
     }
 
+    window.battleEnding = false;
     window.inBattle = true;
     playerCollider.body.setVelocity(0);
     playerCollider.body.moves = false;
@@ -21499,7 +21461,11 @@ window.doEnemyAction = function(callback) {
     let abilityTriggered = currentEnemy.ability && (!currentEnemy.battleStats || currentEnemy.battleStats.abilityUses < 4) && Math.random() < currentEnemy.ability.chance;
     if (abilityTriggered && currentEnemy.battleStats) currentEnemy.battleStats.abilityUses++;
 
-    let secondaryAbilityTriggered = currentEnemy.secondaryAbility && (!currentEnemy.battleStats || currentEnemy.battleStats.abilityUses < 4) && Math.random() < currentEnemy.secondaryAbility.chance;
+    let secondaryAbilityTriggered = currentEnemy.secondaryAbility &&
+                                    (!currentEnemy.battleStats || currentEnemy.battleStats.abilityUses < 4) &&
+                                    currentEnemy.secondaryAbility.type !== 'capture_boost' &&
+                                    currentEnemy.secondaryAbility.type !== 'gold_boost' &&
+                                    Math.random() < currentEnemy.secondaryAbility.chance;
     if (secondaryAbilityTriggered && currentEnemy.battleStats) currentEnemy.battleStats.abilityUses++;
 
     let power = 40;
@@ -21624,7 +21590,7 @@ window.doEnemyAction = function(callback) {
 };
 
 window.openBattleSwapModal = function() {
-    if (window.isActionRunning) return;
+    if (window.battleEnding || window.isActionRunning) return;
     let swapList = document.getElementById('swapPartyList');
     swapList.innerHTML = '';
 
@@ -21861,6 +21827,7 @@ window.handlePvpMessage = function(userId, msg) {
 window.startPvpBattle = function(opponentId, opponentCreature, myCreature, isInitiator) {
     if (window.inBattle) return;
 
+    window.battleEnding = false;
     window.inBattle = true;
     window.isPvpBattle = true;
     window.pvpOpponentId = opponentId;
@@ -22060,7 +22027,7 @@ function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
 }
 
 window.handlePlayerTurn = function(action) {
-    if (!window.inBattle || window.isActionRunning) return;
+    if (!window.inBattle || window.battleEnding || window.isActionRunning) return;
     window.isActionRunning = true;
     window.swappedThisTurn = false;
 
@@ -22193,6 +22160,7 @@ window.handlePlayerTurn = function(action) {
 window.pendingBattleResult = null;
 window.closeBattleModal = function() {
     if (window.inBattle && window.pendingBattleResult === null) return;
+    window.battleEnding = false;
     document.getElementById('battleModal').style.display = 'none';
     document.getElementById('battleCloseBtn').style.display = 'none';
     let result = window.pendingBattleResult;
@@ -22309,6 +22277,8 @@ window.closeBattleModal = function() {
 };
 
 window.endBattle = function(result) {
+    if (window.battleEnding) return;
+    window.battleEnding = true;
     if (window.currentEnemy) currentEnemy = window.currentEnemy;
     if (window.currentPlayer) currentPlayer = window.currentPlayer;
     setTimeout(() => {
@@ -23288,7 +23258,7 @@ function update() {
     let speed = p1HasPhotonicWings ? 240 : 200;
     const isRaining = (window.weatherPattern === 'light_rain' || window.weatherPattern === 'heavy_rain' || window.weatherPattern === 'thunderstorm');
     if (isRaining) {
-        speed = Math.floor(speed * 1.25);
+        speed = Math.floor(speed * 1.35);
     }
 
     if (typeof Phaser === 'undefined') return;
@@ -24335,7 +24305,7 @@ function update() {
         let speedForP2 = p2HasPhotonicWings ? 240 : 200;
         const isRainingP2 = (window.weatherPattern === 'light_rain' || window.weatherPattern === 'heavy_rain' || window.weatherPattern === 'thunderstorm');
         if (isRainingP2) {
-            speedForP2 = Math.floor(speedForP2 * 1.25);
+            speedForP2 = Math.floor(speedForP2 * 1.35);
         }
         let p2Speed = p2IsSwimming ? speedForP2 * 0.5 : speedForP2;
 
@@ -25023,7 +24993,22 @@ function update() {
 
             const triggerFlash = () => {
                 const intensity = 0.5 + Math.random() * 0.5;
-                window.lightningOverlay.setAlpha(intensity);
+                const lx = Math.random() * window.innerWidth;
+
+                if (window.lightningOverlay) {
+                    window.lightningOverlay.clear();
+                    const numCircles = 20;
+                    const maxRadius = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+                    for (let r = 0; r < numCircles; r++) {
+                        const pct = r / numCircles;
+                        const radius = maxRadius * (1 - pct);
+                        const circleAlpha = 0.3 * (pct * pct); // soft quadratic falloff for natural light decay
+                        window.lightningOverlay.fillStyle(0xffffff, circleAlpha);
+                        window.lightningOverlay.fillCircle(lx, 0, radius);
+                    }
+                    window.lightningOverlay.setAlpha(intensity);
+                }
+
                 if (dayNightOverlay) dayNightOverlay.setAlpha(0.1);
 
                 // Environmental lighting: tint entities white briefly
@@ -25036,19 +25021,22 @@ function update() {
                     window.lightningGraphics.clear();
                     window.lightningGraphics.lineStyle(4, 0xffffff, 1);
                     window.lightningGraphics.beginPath();
-                    let lx = Math.random() * window.innerWidth;
+                    let boltX = lx;
                     let ly = 0;
-                    window.lightningGraphics.moveTo(lx, ly);
+                    window.lightningGraphics.moveTo(boltX, ly);
                     for (let i = 0; i < 5; i++) {
-                        lx += (Math.random() - 0.5) * 200;
+                        boltX += (Math.random() - 0.5) * 200;
                         ly += (window.innerHeight / 5) + (Math.random() - 0.5) * 100;
-                        window.lightningGraphics.lineTo(lx, ly);
+                        window.lightningGraphics.lineTo(boltX, ly);
                     }
                     window.lightningGraphics.strokePath();
                 }
 
                 setTimeout(() => {
-                    window.lightningOverlay.setAlpha(0);
+                    if (window.lightningOverlay) {
+                        window.lightningOverlay.setAlpha(0);
+                        window.lightningOverlay.clear();
+                    }
                     if (window.lightningGraphics) window.lightningGraphics.clear();
 
                     // Restore original tints
@@ -25093,6 +25081,9 @@ function update() {
             if (window.WildPulseMusic && window.WildPulseMusic.triggerThunder) window.WildPulseMusic.triggerThunder();
         } else if (window.lightningOverlay.alpha > 0 && !window.lightningActive) {
             window.lightningOverlay.setAlpha(Math.max(0, window.lightningOverlay.alpha - 0.05));
+            if (window.lightningOverlay.alpha === 0) {
+                window.lightningOverlay.clear();
+            }
         }
     }
 
