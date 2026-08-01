@@ -6796,12 +6796,6 @@ document.addEventListener('focusin', function(e) {
             e.target.removeAttribute('inputmode');
             e.target.readOnly = false;
         }
-
-        let playerNum = 1;
-        if (e.target.id.includes('_p2') || e.target.closest('#partyList_P2') || e.target.closest('#customizationModal_p2')) {
-            playerNum = 2;
-        }
-        window.openVirtualKeyboard(playerNum, e.target);
     }
 });
 
@@ -13629,7 +13623,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         activeParty.forEach(creature => {
             const maxHp = window.getEffectiveStat(creature, 'health');
             creature.currentHp = maxHp;
-            window.adjustHappiness(creature, 10, playerNum);
+            window.adjustHappiness(creature, 6, playerNum);
         });
 
         const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -13650,7 +13644,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
                 creature.currentHp = maxHp;
             }
 
-            window.adjustHappiness(creature, 15, playerNum);
+            window.adjustHappiness(creature, 10, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -13693,7 +13687,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
                 creature.bonusStats.specialDefense += boostAmount;
             }
 
-            window.adjustHappiness(creature, 15, playerNum);
+            window.adjustHappiness(creature, 10, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -13718,7 +13712,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         }
 
         window.promptCreatureSelection(playerNum, "Choose Creature to Feed", (creature) => {
-            window.adjustHappiness(creature, 15, playerNum);
+            window.adjustHappiness(creature, 10, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -14649,15 +14643,28 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         // Handle right stick vertical movement to scroll descriptions in the party modal or scroll modal containers directly
         const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
         if (Math.abs(ry) > 0.15 && scrollTarget) {
-            const isPartyModal = container.id === 'partyModal' || container.querySelector('#partyList') || container.querySelector('#partyList_P2');
-            if (isPartyModal) {
-                const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`) || document.activeElement;
-                if (focusedEl) {
-                    const card = focusedEl.closest('.party-card');
-                    if (card) {
-                        const descText = card.querySelector('.creature-desc-text');
-                        if (descText) {
-                            descText.scrollTop += ry * 4;
+            let canScroll = true;
+            if (window[`p${playerNum}CursorVisible`]) {
+                const cy = window[`p${playerNum}CursorY`] !== undefined ? window[`p${playerNum}CursorY`] : (window.innerHeight / 2);
+                const topBound = window.innerHeight * 0.15;
+                const bottomBound = window.innerHeight * 0.85;
+                if (cy > topBound && cy < bottomBound) {
+                    canScroll = false;
+                }
+            }
+            if (canScroll) {
+                const isPartyModal = container.id === 'partyModal' || container.querySelector('#partyList') || container.querySelector('#partyList_P2');
+                if (isPartyModal) {
+                    const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`) || document.activeElement;
+                    if (focusedEl) {
+                        const card = focusedEl.closest('.party-card');
+                        if (card) {
+                            const descText = card.querySelector('.creature-desc-text');
+                            if (descText) {
+                                descText.scrollTop += ry * 4;
+                            } else {
+                                scrollTarget.scrollTop += ry * 15;
+                            }
                         } else {
                             scrollTarget.scrollTop += ry * 15;
                         }
@@ -14667,8 +14674,6 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                 } else {
                     scrollTarget.scrollTop += ry * 15;
                 }
-            } else {
-                scrollTarget.scrollTop += ry * 15;
             }
         }
 
@@ -14684,12 +14689,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
 
         if (justUp || justDown || justLeft || justRight) {
-            // Scroll the resolved scroll target up and down when Up/Down dpad is pressed
+            // Scroll the resolved scroll target up and down when Up/Down dpad is pressed in small increments
             if (scrollTarget) {
                 if (justUp) {
-                    scrollTarget.scrollTop -= 30;
+                    scrollTarget.scrollTop -= 10;
                 } else if (justDown) {
-                    scrollTarget.scrollTop += 30;
+                    scrollTarget.scrollTop += 10;
                 }
             }
             const selectables = window.getNavigableElements(container);
@@ -23212,8 +23217,8 @@ window.endBattle = function(result) {
             }
 
             if (result === 'win') {
-                // Player 1 wins (+5 happiness), Player 2 loses (-5 happiness)
-                window.collectedCreatures.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 5, 1));
+                // Player 1 wins (+3 happiness), Player 2 loses (-5 happiness)
+                window.collectedCreatures.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 3, 1));
                 window.collectedCreatures2.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, -5, 2));
 
                 window.logBattle(`${window.getP1Name()} wins!`);
@@ -23228,8 +23233,8 @@ window.endBattle = function(result) {
                 window.saveStats();
                 window.showModernNotification(`🪙 ${window.getP1Name()} won ${c1} coins! ${window.getP2Name()} received ${c2} coins!`);
             } else if (result === 'loss') {
-                // Player 2 wins (+5 happiness), Player 1 loses (-5 happiness)
-                window.collectedCreatures2.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 5, 2));
+                // Player 2 wins (+3 happiness), Player 1 loses (-5 happiness)
+                window.collectedCreatures2.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 3, 2));
                 window.collectedCreatures.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, -5, 1));
 
                 window.logBattle(`${window.getP2Name()} wins!`);
@@ -23257,7 +23262,7 @@ window.endBattle = function(result) {
             const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
             const targetParty = pNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             if (result === 'win' || result === 'caught') {
-                targetParty.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 5, pNum));
+                targetParty.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 3, pNum));
             } else if (result === 'loss') {
                 targetParty.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, -5, pNum));
             }
