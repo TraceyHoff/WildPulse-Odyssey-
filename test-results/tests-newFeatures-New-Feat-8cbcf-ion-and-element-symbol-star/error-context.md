@@ -12,13 +12,17 @@
 # Error details
 
 ```
-Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
-╔════════════════════════════════════════════════════════════╗
-║ Looks like Playwright was just installed or updated.       ║
-║ Please run the following command to download new browsers: ║
-║                                                            ║
-║     npx playwright install                                 ║
-║                                                            ║
-║ <3 Playwright Team                                         ║
-╚════════════════════════════════════════════════════════════╝
+Error: page.evaluate: TypeError: scene.textures.get is not a function
+    at spawnCreature (http://localhost:3000/:21449:36)
+    at eval (eval at evaluate (:311:30), <anonymous>:56:14)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic: Hospital
+  - button "Menu" [ref=e4]
 ```

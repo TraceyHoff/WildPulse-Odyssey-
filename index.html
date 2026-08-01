@@ -1938,7 +1938,7 @@
         border: 3px solid #00ffd2 !important;
         box-shadow: 0 0 35px rgba(0, 255, 210, 0.25), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
         border-radius: 12px !important;
-        padding: 20px !important;
+        padding: 8px 15px !important;
         box-sizing: border-box !important;
         height: 100vh !important;
         max-height: 100vh !important;
@@ -1968,7 +1968,7 @@
         max-width: none !important;
         max-height: none !important;
         border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
-        padding: 20px !important;
+        padding: 8px 15px !important;
         background-color: transparent !important;
     }
     body.coop-active-layout #battleModal_p2 {
@@ -1981,7 +1981,7 @@
         max-width: none !important;
         max-height: none !important;
         border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
-        padding: 20px !important;
+        padding: 8px 15px !important;
         background-color: transparent !important;
     }
     body.coop-active-layout #battleModal.pvp-battle-active {
@@ -1999,8 +1999,8 @@
         align-items: center !important;
         width: 100% !important;
         height: 100% !important;
-        gap: 15px !important;
-        margin-bottom: 10px !important;
+        gap: 8px !important;
+        margin-bottom: 2px !important;
     }
 
     #playerCombatant, #playerCombatant_p2 {
@@ -2066,6 +2066,73 @@
         0%, 100% { transform: translateY(0px); }
         50% { transform: translateY(-8px); }
     }
+
+    /* ========================================== */
+    /* CUSTOM BATTLE ABILITIES & ATTACK ANIMATIONS */
+    /* ========================================== */
+    @keyframes fireSparkle {
+        0% { transform: translateY(20px) scale(0.4); opacity: 0; }
+        20% { opacity: 1; }
+        100% { transform: translateY(-60px) scale(1.2); opacity: 0; }
+    }
+    @keyframes waterBubble {
+        0% { transform: translate(0, 30px) scale(0.5); opacity: 0; }
+        30% { opacity: 0.8; transform: translate(-10px, 10px) scale(0.9); }
+        60% { transform: translate(10px, -15px) scale(1.1); }
+        100% { transform: translateY(-50px) scale(0.6); opacity: 0; }
+    }
+    @keyframes natureLeaf {
+        0% { transform: rotate(0deg) translateX(10px) rotate(0deg) scale(0.3); opacity: 0; }
+        20% { opacity: 1; }
+        100% { transform: rotate(360deg) translateX(45px) rotate(-360deg) scale(1.2); opacity: 0; }
+    }
+    @keyframes electricShock {
+        0% { transform: scale(0.2) rotate(0deg); opacity: 0; filter: brightness(2.0); }
+        20% { opacity: 1; transform: scale(1.1) rotate(15deg); }
+        40% { transform: scale(0.9) rotate(-10deg); }
+        60% { transform: scale(1.2) rotate(20deg); }
+        100% { transform: scale(1.4) rotate(0deg); opacity: 0; }
+    }
+    @keyframes generalPulse {
+        0% { transform: scale(0.2); opacity: 0; border-width: 8px; }
+        20% { opacity: 0.8; }
+        100% { transform: scale(1.8); opacity: 0; border-width: 1px; }
+    }
+    @keyframes clawSlash {
+        0% { transform: scaleY(0) scaleX(1); opacity: 0; }
+        10% { opacity: 1; transform: scaleY(1.2) scaleX(1); }
+        90% { opacity: 1; }
+        100% { transform: scaleY(1) scaleX(0); opacity: 0; filter: blur(1px); }
+    }
+
+    .claw-scratch-container {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) rotate(-15deg) !important;
+        width: 100px !important;
+        height: 100px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        z-index: 10 !important;
+        pointer-events: none !important;
+    }
+
+    .claw-mark {
+        width: 6px !important;
+        height: 80px !important;
+        background: linear-gradient(180deg, #ff1744 0%, #ff5252 50%, #ffffff 100%) !important;
+        box-shadow: 0 0 12px #ff1744, 0 0 4px #ffffff !important;
+        border-radius: 4px !important;
+        transform-origin: top !important;
+        animation: clawSlash 0.3s cubic-bezier(0.15, 0.85, 0.35, 1) forwards !important;
+    }
+
+    .claw-mark:nth-child(1) { animation-delay: 0s !important; transform: rotate(-5deg) translateY(-5px) !important; }
+    .claw-mark:nth-child(2) { animation-delay: 0.04s !important; transform: rotate(0deg) translateY(0px) !important; }
+    .claw-mark:nth-child(3) { animation-delay: 0.08s !important; transform: rotate(5deg) translateY(5px) !important; }
+    .claw-mark:nth-child(4) { animation-delay: 0.12s !important; transform: rotate(10deg) translateY(10px) !important; }
 
     /* Floating Info Card styling */
     .combatant-info-card {
@@ -2185,7 +2252,7 @@
 
     .battle-controls {
         grid-area: controls !important;
-        display: grid !important;
+        display: grid;
         grid-template-columns: 1fr 1fr !important;
         grid-template-rows: 1fr 1fr !important;
         gap: 8px !important;
@@ -2266,12 +2333,12 @@
                 "area"
                 "log"
                 "controls" !important;
-            gap: 10px !important;
-            padding: 12px !important;
+            gap: 6px !important;
+            padding: 6px 12px !important;
         }
 
         .battle-area {
-            gap: 8px !important;
+            gap: 4px !important;
             flex-direction: column !important;
         }
 
@@ -21836,6 +21903,147 @@ window.showFloatingText = function(containerId, text, color) {
     }, 1000); // Matches animation duration
 };
 
+window.triggerClawSlashAnimation = function(isPlayerTarget) {
+    const spriteId = isPlayerTarget ? 'pSprite' : 'eSprite';
+    const spriteEl = document.getElementById(spriteId);
+    if (!spriteEl) return;
+    const pedestalContainer = spriteEl.closest('.sprite-pedestal-container');
+    if (!pedestalContainer) return;
+
+    const clawContainer = document.createElement('div');
+    clawContainer.className = 'claw-scratch-container';
+
+    for (let i = 0; i < 4; i++) {
+        const mark = document.createElement('div');
+        mark.className = 'claw-mark';
+        clawContainer.appendChild(mark);
+    }
+
+    pedestalContainer.appendChild(clawContainer);
+
+    setTimeout(() => {
+        if (clawContainer.parentNode) {
+            clawContainer.parentNode.removeChild(clawContainer);
+        }
+    }, 600);
+};
+
+window.triggerAbilityVisualEffect = function(isPlayerUser, ability) {
+    const spriteId = isPlayerUser ? 'pSprite' : 'eSprite';
+    const spriteEl = document.getElementById(spriteId);
+    if (!spriteEl) return;
+    const pedestalContainer = spriteEl.closest('.sprite-pedestal-container');
+    if (!pedestalContainer) return;
+
+    const abilityName = (ability && ability.name) ? ability.name.toLowerCase() : '';
+    const abilityColor = (ability && ability.color) ? ability.color : '#00ffcc';
+
+    let effectType = 'general';
+    if (abilityName.includes('fire') || abilityName.includes('flame') || abilityName.includes('cauterize') || abilityName.includes('blazing') || abilityName.includes('burn')) {
+        effectType = 'fire';
+    } else if (abilityName.includes('water') || abilityName.includes('hydro') || abilityName.includes('aqua') || abilityName.includes('mist') || abilityName.includes('tidal') || abilityName.includes('bubble') || abilityName.includes('rain')) {
+        effectType = 'water';
+    } else if (abilityName.includes('nature') || abilityName.includes('solar') || abilityName.includes('vine') || abilityName.includes('synthesis') || abilityName.includes('spore') || abilityName.includes('chlorophyll') || abilityName.includes('overgrow') || abilityName.includes('thorny') || abilityName.includes('leaf')) {
+        effectType = 'nature';
+    } else if (abilityName.includes('electric') || abilityName.includes('electro') || abilityName.includes('thunder') || abilityName.includes('shock') || abilityName.includes('spark') || abilityName.includes('lightning') || abilityName.includes('volt') || abilityName.includes('flash')) {
+        effectType = 'electric';
+    }
+
+    const effectContainer = document.createElement('div');
+    effectContainer.style.position = 'absolute';
+    effectContainer.style.top = '0';
+    effectContainer.style.left = '0';
+    effectContainer.style.width = '100%';
+    effectContainer.style.height = '100%';
+    effectContainer.style.pointerEvents = 'none';
+    effectContainer.style.zIndex = '5';
+
+    if (effectType === 'fire') {
+        for (let i = 0; i < 12; i++) {
+            const spark = document.createElement('div');
+            spark.style.position = 'absolute';
+            spark.style.bottom = '15px';
+            spark.style.left = `${20 + Math.random() * 60}%`;
+            spark.style.width = `${6 + Math.random() * 8}px`;
+            spark.style.height = spark.style.width;
+            spark.style.borderRadius = '50%';
+            spark.style.background = 'radial-gradient(circle, #fff 0%, #ff9800 40%, #ff5722 100%)';
+            spark.style.boxShadow = '0 0 10px #ff5722, 0 0 4px #ff3300';
+            spark.style.animation = 'fireSparkle 0.6s ease-out forwards';
+            spark.style.animationDelay = `${Math.random() * 0.3}s`;
+            effectContainer.appendChild(spark);
+        }
+    } else if (effectType === 'water') {
+        for (let i = 0; i < 8; i++) {
+            const bubble = document.createElement('div');
+            bubble.style.position = 'absolute';
+            bubble.style.bottom = '10px';
+            bubble.style.left = `${15 + Math.random() * 70}%`;
+            bubble.style.width = `${8 + Math.random() * 12}px`;
+            bubble.style.height = bubble.style.width;
+            bubble.style.borderRadius = '50%';
+            bubble.style.border = '1px solid rgba(255, 255, 255, 0.7)';
+            bubble.style.background = 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(33,150,243,0.3) 60%, rgba(33,150,243,0.05) 100%)';
+            bubble.style.boxShadow = '0 0 8px rgba(33, 150, 243, 0.5)';
+            bubble.style.animation = 'waterBubble 0.8s ease-in-out forwards';
+            bubble.style.animationDelay = `${Math.random() * 0.4}s`;
+            effectContainer.appendChild(bubble);
+        }
+    } else if (effectType === 'nature') {
+        const leaves = ['🍃', '🍂', '🌿', '🌱'];
+        for (let i = 0; i < 6; i++) {
+            const leaf = document.createElement('div');
+            leaf.style.position = 'absolute';
+            leaf.style.top = '40%';
+            leaf.style.left = '40%';
+            leaf.style.fontSize = `${14 + Math.random() * 8}px`;
+            leaf.innerText = leaves[Math.floor(Math.random() * leaves.length)];
+            leaf.style.animation = 'natureLeaf 0.9s cubic-bezier(0.25, 0.8, 0.25, 1) forwards';
+            leaf.style.animationDelay = `${i * 0.12}s`;
+            effectContainer.appendChild(leaf);
+        }
+    } else if (effectType === 'electric') {
+        for (let i = 0; i < 3; i++) {
+            const shock = document.createElement('div');
+            shock.style.position = 'absolute';
+            shock.style.top = '10%';
+            shock.style.left = '10%';
+            shock.style.width = '80%';
+            shock.style.height = '80%';
+            shock.style.display = 'flex';
+            shock.style.justifyContent = 'center';
+            shock.style.alignItems = 'center';
+            shock.style.fontSize = '40px';
+            shock.innerText = '⚡';
+            shock.style.color = '#ffeb3b';
+            shock.style.textShadow = '0 0 15px #ffeb3b, 0 0 30px #ffc107';
+            shock.style.animation = 'electricShock 0.5s ease-out forwards';
+            shock.style.animationDelay = `${i * 0.15}s`;
+            effectContainer.appendChild(shock);
+        }
+    } else {
+        const pulse = document.createElement('div');
+        pulse.style.position = 'absolute';
+        pulse.style.top = '10%';
+        pulse.style.left = '10%';
+        pulse.style.width = '80%';
+        pulse.style.height = '80%';
+        pulse.style.borderRadius = '50%';
+        pulse.style.border = `4px solid ${abilityColor}`;
+        pulse.style.boxShadow = `0 0 15px ${abilityColor}, inset 0 0 15px ${abilityColor}`;
+        pulse.style.animation = 'generalPulse 0.6s ease-out forwards';
+        effectContainer.appendChild(pulse);
+    }
+
+    pedestalContainer.appendChild(effectContainer);
+
+    setTimeout(() => {
+        if (effectContainer.parentNode) {
+            effectContainer.parentNode.removeChild(effectContainer);
+        }
+    }, 1500);
+};
+
 window.doPlayerAction = function(action, callback) {
     try {
         if (window.currentPlayer) currentPlayer = window.currentPlayer;
@@ -21893,6 +22101,7 @@ window.doPlayerAction = function(action, callback) {
         }
 
         if (abilityTriggered) {
+            window.triggerAbilityVisualEffect(true, currentPlayer.ability);
             logBattle(`<span style="color:${currentPlayer.ability.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Ability: ${currentPlayer.ability.message}</span>`);
             if (currentPlayer.ability.type === 'damage' || currentPlayer.ability.type === 'direct_damage') {
                 damageMultiplier = 1.0 + currentPlayer.ability.value;
@@ -21914,6 +22123,7 @@ window.doPlayerAction = function(action, callback) {
         }
 
         if (secondaryAbilityTriggered) {
+            window.triggerAbilityVisualEffect(true, currentPlayer.secondaryAbility);
             logBattle(`<span style="color:${currentPlayer.secondaryAbility.color}; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Support Ability: ${currentPlayer.secondaryAbility.message}</span>`);
             if (currentPlayer.secondaryAbility.type === 'raise_stat') {
                 if (!currentPlayer.battleStats) currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
@@ -21951,6 +22161,7 @@ window.doPlayerAction = function(action, callback) {
             damage = 0; // No damage taken!
             setTimeout(() => {
                 window.triggerAnimation('enemyCombatant', 'shake', 150);
+                window.triggerClawSlashAnimation(false);
                 window.showFloatingText('enemyCombatant', '+' + healAmt, '#4caf50');
             }, 100);
             logBattle(`<span class="heal" style="color:#00bcd4; font-weight:bold;">💧 Aqua Absorb: ${currentEnemy.name} absorbed the Water attack and restored ${healAmt} HP!</span>`);
@@ -21958,6 +22169,7 @@ window.doPlayerAction = function(action, callback) {
             currentEnemy.currentHp -= damage;
             setTimeout(() => {
                 window.triggerAnimation('enemyCombatant', 'shake', 150);
+                window.triggerClawSlashAnimation(false);
                 window.showFloatingText('enemyCombatant', '-' + damage.toFixed(1), '#ff5555');
             }, 100);
         }
@@ -22147,6 +22359,7 @@ window.doEnemyAction = function(callback) {
     }
 
     if (abilityTriggered) {
+        window.triggerAbilityVisualEffect(false, currentEnemy.ability);
         logBattle(`<span style="color:${currentEnemy.ability.color}; font-weight:bold;">Wild ${currentEnemy.name}'s Ability: ${currentEnemy.ability.message}</span>`);
         if (currentEnemy.ability.type === 'damage' || currentEnemy.ability.type === 'direct_damage') {
             damageMultiplier = 1.0 + currentEnemy.ability.value;
@@ -22168,6 +22381,7 @@ window.doEnemyAction = function(callback) {
     }
 
     if (secondaryAbilityTriggered) {
+        window.triggerAbilityVisualEffect(false, currentEnemy.secondaryAbility);
         logBattle(`<span style="color:${currentEnemy.secondaryAbility.color}; font-weight:bold;">Wild ${currentEnemy.name}'s Support Ability: ${currentEnemy.secondaryAbility.message}</span>`);
         if (currentEnemy.secondaryAbility.type === 'raise_stat') {
             if (!currentEnemy.battleStats) currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
@@ -22205,6 +22419,7 @@ window.doEnemyAction = function(callback) {
         damage = 0; // No damage taken!
         setTimeout(() => {
             window.triggerAnimation('playerCombatant', 'shake', 150);
+            window.triggerClawSlashAnimation(true);
             window.showFloatingText('playerCombatant', '+' + healAmt, '#4caf50');
         }, 100);
         logBattle(`<span class="heal" style="color:#00bcd4; font-weight:bold;">💧 Aqua Absorb: ${currentPlayer.nickname || currentPlayer.name} absorbed the Water attack and restored ${healAmt} HP!</span>`);
@@ -22212,6 +22427,7 @@ window.doEnemyAction = function(callback) {
         currentPlayer.currentHp -= damage;
         setTimeout(() => {
             window.triggerAnimation('playerCombatant', 'shake', 150);
+            window.triggerClawSlashAnimation(true);
             window.showFloatingText('playerCombatant', '-' + damage.toFixed(1), '#ff5555');
         }, 100);
     }
@@ -22825,10 +23041,23 @@ window.handlePlayerTurn = function(action) {
 
 window.pendingBattleResult = null;
 window.closeBattleModal = function() {
+    if (window.battleAutoCloseTimeout) {
+        clearTimeout(window.battleAutoCloseTimeout);
+        window.battleAutoCloseTimeout = null;
+    }
     if (window.inBattle && window.pendingBattleResult === null) return;
     window.battleEnding = false;
-    document.getElementById('battleModal').style.display = 'none';
-    document.getElementById('battleCloseBtn').style.display = 'none';
+
+    const m1 = document.getElementById('battleModal');
+    if (m1) m1.style.display = 'none';
+    const m2 = document.getElementById('battleModal_p2');
+    if (m2) m2.style.display = 'none';
+
+    const b1 = document.getElementById('battleCloseBtn');
+    if (b1) b1.style.display = 'none';
+    const b2 = document.getElementById('battleCloseBtn_p2');
+    if (b2) b2.style.display = 'none';
+
     let result = window.pendingBattleResult;
     window.pendingBattleResult = null;
     window.isActionRunning = false;
@@ -22945,6 +23174,13 @@ window.closeBattleModal = function() {
 window.endBattle = function(result) {
     if (window.battleEnding) return;
     window.battleEnding = true;
+
+    // Hide battle buttons immediately
+    const ctrlP1 = document.getElementById('battleControls');
+    if (ctrlP1) ctrlP1.style.display = 'none';
+    const ctrlP2 = document.getElementById('battleControls_p2');
+    if (ctrlP2) ctrlP2.style.display = 'none';
+
     if (window.currentEnemy) currentEnemy = window.currentEnemy;
     if (window.currentPlayer) currentPlayer = window.currentPlayer;
     setTimeout(() => {
@@ -23268,6 +23504,14 @@ window.endBattle = function(result) {
             localStorage.setItem(storageKey, JSON.stringify(activeParty));
         }
         window.isActionRunning = false;
+
+        // Auto-close battle modal 10 seconds after battle is fully finished
+        if (window.battleAutoCloseTimeout) clearTimeout(window.battleAutoCloseTimeout);
+        window.battleAutoCloseTimeout = setTimeout(() => {
+            if (window.closeBattleModal) {
+                window.closeBattleModal();
+            }
+        }, 10000); // 10 seconds
     }, 1500);
 };
 
