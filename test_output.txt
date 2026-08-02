@@ -1,1471 +1,1160 @@
 
 Running 77 tests using 2 workers
 
-  ✘   1 tests/calculateDamage.spec.js:4:3 › window.calculateDamage › calculates basic physical damage correctly (1.2s)
-  ✘   2 tests/breedingAndMenuColors.spec.js:12:3 › Breeding Notification and Colorful Player 2 Menu Buttons › should style Player 2 menu buttons identically and colorfully like Player 1 menu buttons (1.2s)
-  ✘   3 tests/calculateDamage.spec.js:38:3 › window.calculateDamage › calculates basic special damage correctly (1.2s)
-  ✘   4 tests/breedingAndMenuColors.spec.js:54:3 › Breeding Notification and Colorful Player 2 Menu Buttons › should trigger modern screen-top notification upon successful breeding session (1.2s)
-  ✘   5 tests/calculateDamage.spec.js:67:3 › window.calculateDamage › applies type modifiers properly and caps them (1.2s)
-  ✘   6 tests/coinsReward.spec.js:10:3 › Coins Reward System › should default player 1 and player 2 coins to 0 (1.2s)
-  ✘   7 tests/calculateDamage.spec.js:97:3 › window.calculateDamage › prevents OHKO from super effective attacks (1.2s)
-  ✘   8 tests/coinsReward.spec.js:21:3 › Coins Reward System › should correctly display coins inside the menu modal (1.2s)
-  ✘   9 tests/calculateDamage.spec.js:125:3 › window.calculateDamage › enforces minimum 1 damage (1.2s)
-  ✘  10 tests/coinsReward.spec.js:34:3 › Coins Reward System › should award coins on wild creature win and scale/cap correctly (1.2s)
-  ✘  11 tests/coopFeatures.spec.js:12:3 › Co-op Split Screen and Player 2 Features › should generate a random Gen 1 starter creature for Player 2 on a new game (1.2s)
-  ✘  12 tests/coinsReward.spec.js:100:3 › Coins Reward System › should award 80 coins to Player 1 on online PvP battle win (1.1s)
-  ✘  13 tests/coopFeatures.spec.js:26:3 › Co-op Split Screen and Player 2 Features › should allow Player 2 to open the menu modal using the Player 2 menu button in split-screen mode (1.2s)
-  ✘  14 tests/coinsReward.spec.js:119:3 › Coins Reward System › should award 80 coins correctly in local PvP battles (1.2s)
-  ✘  15 tests/coopFeatures.spec.js:51:3 › Co-op Split Screen and Player 2 Features › should display close button inside challengeModal in split-screen mode (1.2s)
-  ✘  16 tests/creatureLicenseAndExPall.spec.js:12:3 › Creature License and ExPALL updates › starting inventory should contain 1 Creature License (1.2s)
-  ✘  17 tests/coopFeatures.spec.js:76:3 › Co-op Split Screen and Player 2 Features › should prevent opening multiple modals simultaneously and prevent re-opening closed modal until leaving the tile (1.2s)
-  ✘  18 tests/creatureLicenseAndExPall.spec.js:33:3 › Creature License and ExPALL updates › shop should display updated ExPALL price (250) and new Creature License (175) (1.2s)
-  ✘  19 tests/coopFeatures.spec.js:164:3 › Co-op Split Screen and Player 2 Features › should trigger trade modal on overlap and prevent re-triggering until leaving the tile (1.2s)
-  ✘  20 tests/creatureLicenseAndExPall.spec.js:51:3 › Creature License and ExPALL updates › Creature License cannot be used directly like healing juice (1.2s)
-  ✘  21 tests/coopFeatures.spec.js:233:3 › Co-op Split Screen and Player 2 Features › should trigger PvP battle on overlap and prevent re-triggering until leaving the tile (1.2s)
-  ✘  22 tests/creatureLicenseAndExPall.spec.js:77:3 › Creature License and ExPALL updates › Creature License boosts capture rate and is consumed only on successful catch (1.2s)
-  ✘  23 tests/coopFeatures.spec.js:300:3 › Co-op Split Screen and Player 2 Features › should spawn both Player 1 and Player 2 on the tile directly above the hospital (10050, 9950) when starting a new game in split-screen co-op (1.2s)
-  ✘  24 tests/customization.spec.js:11:3 › In-game Character Customization › should open customization from in-game menu and customize character (1.2s)
-  ✘  25 tests/coopFeatures.spec.js:337:3 › Co-op Split Screen and Player 2 Features › should assert that when combat ends with a loss, showModernNotification is called instead of alert (1.2s)
-  ✘  26 tests/customization.spec.js:46:3 › In-game Character Customization › should support customizing Player 2 in Co-op mode (1.2s)
-  ✘  27 tests/coopFeatures.spec.js:387:3 › Co-op Split Screen and Player 2 Features › should not contain Delete Progress, Exit Game, or Performance Settings in Player 2 menu modal (1.2s)
-  ✘  28 tests/customizationShapes.spec.js:11:3 › Character Body Shapes Customization & Locking › should default to Square shape and show other shapes locked at Tier 1 (1.2s)
-  ✘  29 tests/coopFeatures.spec.js:414:3 › Co-op Split Screen and Player 2 Features › should clear both player 1 and player 2 data when progress is deleted (1.2s)
-  ✘  30 tests/customizationShapes.spec.js:50:3 › Character Body Shapes Customization & Locking › should unlock shapes when challenge tier increases (1.2s)
-PAGE ERROR: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document.
-  ✘  31 tests/expallAndDivider.spec.js:4:3 › ExPALL and Split-Screen Divider › players start the game with two healing juice bottles (1.2s)
-  ✘  32 tests/favoriteAndScroll.spec.js:21:3 › Favorite and Gamepad Scrolling Systems › should allow toggling favorite on creatures and restrict to max 3 (1.2s)
-PAGE ERROR: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document.
-  ✘  33 tests/expallAndDivider.spec.js:20:3 › ExPALL and Split-Screen Divider › ExPALL item is registered and active (1.2s)
-  ✘  34 tests/favoriteAndScroll.spec.js:73:3 › Favorite and Gamepad Scrolling Systems › favorited creatures should gain half XP when not in battle (1.2s)
-PAGE ERROR: Failed to read the 'sessionStorage' property from 'Window': Access is denied for this document.
-  ✘  35 tests/expallAndDivider.spec.js:35:3 › ExPALL and Split-Screen Divider › Co-op split line exists and displays correctly in split screen co-op mode (1.2s)
-  ✘  36 tests/favoriteAndScroll.spec.js:116:3 › Favorite and Gamepad Scrolling Systems › right stick vertical analog input should scroll description in party modal (1.2s)
-  ✘  37 tests/friendSystem.spec.js:4:3 › Friend System › initializes and scales friend level stats correctly (1.2s)
-  ✘  38 tests/getEffectiveStat.spec.js:4:3 › window.getEffectiveStat › handles creature with missing nature (1.2s)
-  ✘  39 tests/friendSystem.spec.js:50:3 › Friend System › updateFriendExperience adds XP in party and degrades in storage (1.2s)
-  ✘  40 tests/getEffectiveStat.spec.js:34:3 › window.getEffectiveStat › scales stats correctly at higher levels (15% per level) (1.2s)
-  ✘  41 tests/getRandomNature.spec.js:4:3 › window.getRandomNature › handles empty window.natures array (1.2s)
-  ✘  42 tests/getTypeModifier.spec.js:4:3 › window.getTypeModifier › returns 1 when attackType is not in typeChart (1.2s)
-  ✘  43 tests/helpModalAndInventorySlots.spec.js:11:3 › Help Modal Close and Inventory Slots UI Tests › should correctly show/hide inventory slots in singleplayer and co-op (1.2s)
-  ✘  44 tests/getTypeModifier.spec.js:14:3 › window.getTypeModifier › returns 1 when defenseType is not defined for attackType (1.2s)
-  ✘  45 tests/helpModalAndInventorySlots.spec.js:68:3 › Help Modal Close and Inventory Slots UI Tests › should correctly close Player 2 help modal via the close button in co-op mode (1.2s)
-  ✘  46 tests/getTypeModifier.spec.js:24:3 › window.getTypeModifier › returns correct modifier for basic single types (1.2s)
-  ✘  47 tests/helpModalAndInventorySlots.spec.js:100:3 › Help Modal Close and Inventory Slots UI Tests › isPointerOverButton should correctly identify inventory-slot as interactive (1.2s)
-  ✘  48 tests/hospitalArrowsAndSymbols.spec.js:13:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrows exist and are displayed for Player 1 (1.2s)
-  ✘  49 tests/newFeatures.spec.js:18:3 › New Features Tests › respawnEnemyBase chooses a different species (1.2s)
-  ✘  50 tests/hospitalArrowsAndSymbols.spec.js:27:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrow updates rotation dynamically as player moves (1.2s)
-  ✘  51 tests/newFeatures.spec.js:46:3 › New Features Tests › window.releaseCreature enforces party release restrictions (1.2s)
-  ✘  52 tests/hospitalArrowsAndSymbols.spec.js:68:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrows are correctly structured and positioned in co-op split screen (1.2s)
-  ✘  53 tests/newFeatures.spec.js:88:3 › New Features Tests › shiny creature notifications, culling protection, and element symbol star (1.2s)
-  ✘  54 tests/hospitalArrowsAndSymbols.spec.js:95:3 › Hospital Directional Arrows and Creature Type Symbols › creature element type symbols are rendered above creatures (1.2s)
-  ✘  55 tests/odysseyFeatures.spec.js:8:3 › Odyssey New Features Tests › friend level stat bonus displayed in pink next to base stats (1.2s)
-  ✘  56 tests/onboardingAndSellPrice.spec.js:14:3 › Introductory Onboarding and Dynamic Sell Price Tests › should trigger high tech introductory modals and customization onboarding flow on new game start (1.2s)
-  ✘  57 tests/odysseyFeatures.spec.js:32:3 › Odyssey New Features Tests › breeding center strictly enforces level 5 requirement (1.2s)
-  ✘  58 tests/onboardingAndSellPrice.spec.js:65:3 › Introductory Onboarding and Dynamic Sell Price Tests › should calculate dynamic creature selling price based on stats, nature, and mood (1.2s)
-  ✘  59 tests/odysseyFeatures.spec.js:67:3 › Odyssey New Features Tests › storage box caps at 75 creatures (1.2s)
-  ✘  60 tests/partyColorsAndSize.spec.js:11:3 › Party Modal Text Color & Creature World Scaling Tests › should apply dark-text class and dark styles to Light and Electric creatures in the party modal (1.2s)
-  ✘  61 tests/odysseyFeatures.spec.js:115:3 › Odyssey New Features Tests › allows selling creatures for coins at the shop (1.2s)
-  ✘  62 tests/partyColorsAndSize.spec.js:97:3 › Party Modal Text Color & Creature World Scaling Tests › should scale wild creatures to the same size as the player character (48x48) (1.2s)
-  ✘  63 tests/petAndShopStock.spec.js:19:3 › Companion and Shop Stock Replenishment Systems › companion should follow player 1 and update when party changes (1.2s)
-  ✘  64 tests/pointerButtonBlock.spec.js:11:3 › isPointerOverButton › correctly identifies buttons and interactive elements, and ignores canvas (1.2s)
-  ✘  65 tests/petAndShopStock.spec.js:75:3 › Companion and Shop Stock Replenishment Systems › shop should track stock and replenish every 5 days (1.2s)
-  ✘  66 tests/shopAndInventory.spec.js:15:3 › Shop and Inventory Systems › should buy items, display them, handle stacking, and enforce limits (1.2s)
-  ✘  67 tests/splitScreenHospitalAndSelection.spec.js:14:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › hospital heal should heal Player 2 and display notification on Player 2s side (left: 75%) (1.2s)
-  ✘  68 tests/shopAndInventory.spec.js:98:3 › Shop and Inventory Systems › should use items and apply their effects correctly (1.2s)
-  ✘  69 tests/splitScreenHospitalAndSelection.spec.js:66:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › hospital heal should heal Player 1 and display notification on Player 1s side (left: 25%) (1.2s)
-  ✘  70 tests/shopAndInventory.spec.js:142:3 › Shop and Inventory Systems › should display dynamic available to buy quantity and each player coins (1.3s)
-  ✘  71 tests/splitScreenHospitalAndSelection.spec.js:118:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › creature selection overlay should cover only that players side in co-op (1.2s)
-  ✘  72 tests/splitScreenIndicatorsAndWeather.spec.js:17:3 › Split-Screen Indicators and Weather Delay › should display status indicators correctly above players heads in split-screen co-op mode (1.2s)
-  ✘  73 tests/visualTimerCircles.spec.js:10:3 › Active Visual Timer Circles › should display active timer circles with correct emojis and text on the screen (1.2s)
-  ✘  74 tests/splitScreenIndicatorsAndWeather.spec.js:123:3 › Split-Screen Indicators and Weather Delay › should force clear skies weather for the first 4 minutes of game age (1.2s)
-  ✘  75 tests/visualTimerCircles.spec.js:62:3 › Active Visual Timer Circles › should support split screen co-op symmetrically and isolate P1/P2 timer viewports (1.2s)
-  ✘  76 tests/weather.spec.js:13:3 › Weather and Particles › starts with clear skies (1.2s)
-  ✘  77 tests/weather.spec.js:18:3 › Weather and Particles › particle emitters follow wind vector exactly (1.2s)
+  ✘   1 tests/calculateDamage.spec.js:4:3 › window.calculateDamage › calculates basic physical damage correctly (6ms)
+  ✘   2 tests/breedingAndMenuColors.spec.js:12:3 › Breeding Notification and Colorful Player 2 Menu Buttons › should style Player 2 menu buttons identically and colorfully like Player 1 menu buttons (5ms)
+  ✘   3 tests/calculateDamage.spec.js:38:3 › window.calculateDamage › calculates basic special damage correctly (4ms)
+  ✘   4 tests/breedingAndMenuColors.spec.js:54:3 › Breeding Notification and Colorful Player 2 Menu Buttons › should trigger modern screen-top notification upon successful breeding session (5ms)
+  ✘   5 tests/calculateDamage.spec.js:67:3 › window.calculateDamage › applies type modifiers properly and caps them (4ms)
+  ✘   6 tests/coinsReward.spec.js:10:3 › Coins Reward System › should default player 1 and player 2 coins to 0 (6ms)
+  ✘   7 tests/calculateDamage.spec.js:97:3 › window.calculateDamage › prevents OHKO from super effective attacks (5ms)
+  ✘   8 tests/coinsReward.spec.js:21:3 › Coins Reward System › should correctly display coins inside the menu modal (4ms)
+  ✘   9 tests/calculateDamage.spec.js:125:3 › window.calculateDamage › enforces minimum 1 damage (5ms)
+  ✘  10 tests/coinsReward.spec.js:34:3 › Coins Reward System › should award coins on wild creature win and scale/cap correctly (5ms)
+  ✘  11 tests/coopFeatures.spec.js:12:3 › Co-op Split Screen and Player 2 Features › should generate a random Gen 1 starter creature for Player 2 on a new game (4ms)
+  ✘  12 tests/coinsReward.spec.js:100:3 › Coins Reward System › should award 80 coins to Player 1 on online PvP battle win (4ms)
+  ✘  13 tests/coopFeatures.spec.js:26:3 › Co-op Split Screen and Player 2 Features › should allow Player 2 to open the menu modal using the Player 2 menu button in split-screen mode (4ms)
+  ✘  14 tests/coinsReward.spec.js:119:3 › Coins Reward System › should award 80 coins correctly in local PvP battles (6ms)
+  ✘  15 tests/coopFeatures.spec.js:51:3 › Co-op Split Screen and Player 2 Features › should display close button inside challengeModal in split-screen mode (4ms)
+  ✘  16 tests/creatureLicenseAndExPall.spec.js:12:3 › Creature License and ExPALL updates › starting inventory should contain 1 Creature License (5ms)
+  ✘  17 tests/coopFeatures.spec.js:76:3 › Co-op Split Screen and Player 2 Features › should prevent opening multiple modals simultaneously and prevent re-opening closed modal until leaving the tile (4ms)
+  ✘  18 tests/creatureLicenseAndExPall.spec.js:33:3 › Creature License and ExPALL updates › shop should display updated ExPALL price (250) and new Creature License (175) (5ms)
+  ✘  19 tests/coopFeatures.spec.js:164:3 › Co-op Split Screen and Player 2 Features › should trigger trade modal on overlap and prevent re-triggering until leaving the tile (4ms)
+  ✘  20 tests/creatureLicenseAndExPall.spec.js:51:3 › Creature License and ExPALL updates › Creature License cannot be used directly like healing juice (6ms)
+  ✘  21 tests/coopFeatures.spec.js:233:3 › Co-op Split Screen and Player 2 Features › should trigger PvP battle on overlap and prevent re-triggering until leaving the tile (4ms)
+  ✘  22 tests/creatureLicenseAndExPall.spec.js:77:3 › Creature License and ExPALL updates › Creature License boosts capture rate and is consumed only on successful catch (5ms)
+  ✘  23 tests/coopFeatures.spec.js:300:3 › Co-op Split Screen and Player 2 Features › should spawn both Player 1 and Player 2 on the tile directly above the hospital (10050, 9950) when starting a new game in split-screen co-op (5ms)
+  ✘  24 tests/customization.spec.js:11:3 › In-game Character Customization › should open customization from in-game menu and customize character (5ms)
+  ✘  25 tests/coopFeatures.spec.js:337:3 › Co-op Split Screen and Player 2 Features › should assert that when combat ends with a loss, showModernNotification is called instead of alert (4ms)
+  ✘  26 tests/customization.spec.js:46:3 › In-game Character Customization › should support customizing Player 2 in Co-op mode (5ms)
+  ✘  27 tests/coopFeatures.spec.js:387:3 › Co-op Split Screen and Player 2 Features › should not contain Delete Progress, Exit Game, or Performance Settings in Player 2 menu modal (4ms)
+  ✘  28 tests/customizationShapes.spec.js:11:3 › Character Body Shapes Customization & Locking › should default to Square shape and show other shapes locked at Tier 1 (4ms)
+  ✘  29 tests/coopFeatures.spec.js:414:3 › Co-op Split Screen and Player 2 Features › should clear both player 1 and player 2 data when progress is deleted (5ms)
+  ✘  30 tests/customizationShapes.spec.js:50:3 › Character Body Shapes Customization & Locking › should unlock shapes when challenge tier increases (4ms)
+  ✘  31 tests/expallAndDivider.spec.js:4:3 › ExPALL and Split-Screen Divider › players start the game with two healing juice bottles (4ms)
+  ✘  32 tests/favoriteAndScroll.spec.js:21:3 › Favorite and Gamepad Scrolling Systems › should allow toggling favorite on creatures and restrict to max 3 (4ms)
+  ✘  33 tests/expallAndDivider.spec.js:20:3 › ExPALL and Split-Screen Divider › ExPALL item is registered and active (4ms)
+  ✘  34 tests/favoriteAndScroll.spec.js:73:3 › Favorite and Gamepad Scrolling Systems › favorited creatures should gain half XP when not in battle (5ms)
+  ✘  35 tests/expallAndDivider.spec.js:35:3 › ExPALL and Split-Screen Divider › Co-op split line exists and displays correctly in split screen co-op mode (4ms)
+  ✘  36 tests/favoriteAndScroll.spec.js:116:3 › Favorite and Gamepad Scrolling Systems › right stick vertical analog input should scroll description in party modal (5ms)
+  ✘  37 tests/friendSystem.spec.js:4:3 › Friend System › initializes and scales friend level stats correctly (4ms)
+  ✘  38 tests/getEffectiveStat.spec.js:4:3 › window.getEffectiveStat › handles creature with missing nature (6ms)
+  ✘  39 tests/friendSystem.spec.js:50:3 › Friend System › updateFriendExperience adds XP in party and degrades in storage (4ms)
+  ✘  40 tests/getEffectiveStat.spec.js:34:3 › window.getEffectiveStat › scales stats correctly at higher levels (15% per level) (4ms)
+  ✘  41 tests/getRandomNature.spec.js:4:3 › window.getRandomNature › handles empty window.natures array (4ms)
+  ✘  42 tests/getTypeModifier.spec.js:4:3 › window.getTypeModifier › returns 1 when attackType is not in typeChart (4ms)
+  ✘  43 tests/helpModalAndInventorySlots.spec.js:11:3 › Help Modal Close and Inventory Slots UI Tests › should correctly show/hide inventory slots in singleplayer and co-op (4ms)
+  ✘  44 tests/getTypeModifier.spec.js:14:3 › window.getTypeModifier › returns 1 when defenseType is not defined for attackType (4ms)
+  ✘  45 tests/helpModalAndInventorySlots.spec.js:68:3 › Help Modal Close and Inventory Slots UI Tests › should correctly close Player 2 help modal via the close button in co-op mode (4ms)
+  ✘  46 tests/getTypeModifier.spec.js:24:3 › window.getTypeModifier › returns correct modifier for basic single types (4ms)
+  ✘  47 tests/helpModalAndInventorySlots.spec.js:100:3 › Help Modal Close and Inventory Slots UI Tests › isPointerOverButton should correctly identify inventory-slot as interactive (4ms)
+  ✘  48 tests/hospitalArrowsAndSymbols.spec.js:13:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrows exist and are displayed for Player 1 (5ms)
+  ✘  49 tests/newFeatures.spec.js:18:3 › New Features Tests › respawnEnemyBase chooses a different species (4ms)
+  ✘  50 tests/hospitalArrowsAndSymbols.spec.js:27:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrow updates rotation dynamically as player moves (8ms)
+  ✘  51 tests/newFeatures.spec.js:46:3 › New Features Tests › window.releaseCreature enforces party release restrictions (5ms)
+  ✘  52 tests/hospitalArrowsAndSymbols.spec.js:68:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrows are correctly structured and positioned in co-op split screen (5ms)
+  ✘  53 tests/newFeatures.spec.js:88:3 › New Features Tests › shiny creature notifications, culling protection, and element symbol star (5ms)
+  ✘  54 tests/hospitalArrowsAndSymbols.spec.js:95:3 › Hospital Directional Arrows and Creature Type Symbols › creature element type symbols are rendered above creatures (5ms)
+  ✘  55 tests/odysseyFeatures.spec.js:8:3 › Odyssey New Features Tests › friend level stat bonus displayed in pink next to base stats (4ms)
+  ✘  56 tests/onboardingAndSellPrice.spec.js:14:3 › Introductory Onboarding and Dynamic Sell Price Tests › should trigger high tech introductory modals and customization onboarding flow on new game start (4ms)
+  ✘  57 tests/odysseyFeatures.spec.js:32:3 › Odyssey New Features Tests › breeding center strictly enforces level 5 requirement (8ms)
+  ✘  58 tests/onboardingAndSellPrice.spec.js:65:3 › Introductory Onboarding and Dynamic Sell Price Tests › should calculate dynamic creature selling price based on stats, nature, and mood (9ms)
+  ✘  59 tests/odysseyFeatures.spec.js:67:3 › Odyssey New Features Tests › storage box caps at 75 creatures (4ms)
+  ✘  60 tests/partyColorsAndSize.spec.js:11:3 › Party Modal Text Color & Creature World Scaling Tests › should apply dark-text class and dark styles to Light and Electric creatures in the party modal (5ms)
+  ✘  61 tests/odysseyFeatures.spec.js:115:3 › Odyssey New Features Tests › allows selling creatures for coins at the shop (7ms)
+  ✘  62 tests/partyColorsAndSize.spec.js:97:3 › Party Modal Text Color & Creature World Scaling Tests › should scale wild creatures to the same size as the player character (48x48) (5ms)
+  ✘  63 tests/petAndShopStock.spec.js:19:3 › Companion and Shop Stock Replenishment Systems › companion should follow player 1 and update when party changes (5ms)
+  ✘  64 tests/pointerButtonBlock.spec.js:11:3 › isPointerOverButton › correctly identifies buttons and interactive elements, and ignores canvas (5ms)
+  ✘  65 tests/petAndShopStock.spec.js:75:3 › Companion and Shop Stock Replenishment Systems › shop should track stock and replenish every 5 days (4ms)
+  ✘  66 tests/shopAndInventory.spec.js:15:3 › Shop and Inventory Systems › should buy items, display them, handle stacking, and enforce limits (5ms)
+  ✘  67 tests/splitScreenHospitalAndSelection.spec.js:14:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › hospital heal should heal Player 2 and display notification on Player 2s side (left: 75%) (5ms)
+  ✘  68 tests/shopAndInventory.spec.js:98:3 › Shop and Inventory Systems › should use items and apply their effects correctly (5ms)
+  ✘  69 tests/splitScreenHospitalAndSelection.spec.js:66:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › hospital heal should heal Player 1 and display notification on Player 1s side (left: 25%) (4ms)
+  ✘  70 tests/shopAndInventory.spec.js:142:3 › Shop and Inventory Systems › should display dynamic available to buy quantity and each player coins (4ms)
+  ✘  71 tests/splitScreenHospitalAndSelection.spec.js:118:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › creature selection overlay should cover only that players side in co-op (4ms)
+  ✘  72 tests/splitScreenIndicatorsAndWeather.spec.js:17:3 › Split-Screen Indicators and Weather Delay › should display status indicators correctly above players heads in split-screen co-op mode (5ms)
+  ✘  73 tests/visualTimerCircles.spec.js:10:3 › Active Visual Timer Circles › should display active timer circles with correct emojis and text on the screen (4ms)
+  ✘  74 tests/splitScreenIndicatorsAndWeather.spec.js:123:3 › Split-Screen Indicators and Weather Delay › should force clear skies weather for the first 4 minutes of game age (5ms)
+  ✘  75 tests/visualTimerCircles.spec.js:62:3 › Active Visual Timer Circles › should support split screen co-op symmetrically and isolate P1/P2 timer viewports (4ms)
+  ✘  76 tests/weather.spec.js:13:3 › Weather and Particles › starts with clear skies (5ms)
+  ✘  77 tests/weather.spec.js:18:3 › Weather and Particles › particle emitters follow wind vector exactly (5ms)
 
 
   1) tests/breedingAndMenuColors.spec.js:12:3 › Breeding Notification and Colorful Player 2 Menu Buttons › should style Player 2 menu buttons identically and colorfully like Player 1 menu buttons
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should style Player 2 menu buttons identically and colorfully like Player 1 menu buttons', async ({ page }) => {
-        at /app/tests/breedingAndMenuColors.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-breedingAndMenuColor-77163--like-Player-1-menu-buttons/error-context.md
 
   2) tests/breedingAndMenuColors.spec.js:54:3 › Breeding Notification and Colorful Player 2 Menu Buttons › should trigger modern screen-top notification upon successful breeding session
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should style Player 2 menu buttons identically and colorfully like Player 1 menu buttons', async ({ page }) => {
-        at /app/tests/breedingAndMenuColors.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-breedingAndMenuColor-5c7f4-successful-breeding-session/error-context.md
 
   3) tests/calculateDamage.spec.js:4:3 › window.calculateDamage › calculates basic physical damage correctly
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('window.calculateDamage', () => {
-      4 |   test('calculates basic physical damage correctly', async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |
-      7 |     const result = await page.evaluate(() => {
-      8 |       // Mock dependencies to isolate calculateDamage logic
-        at /app/tests/calculateDamage.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-calculateDamage-wind-aa589-c-physical-damage-correctly/error-context.md
 
   4) tests/calculateDamage.spec.js:38:3 › window.calculateDamage › calculates basic special damage correctly
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      37 |
-      38 |   test('calculates basic special damage correctly', async ({ page }) => {
-    > 39 |     await page.goto('http://localhost:3000');
-         |                ^
-      40 |
-      41 |     const result = await page.evaluate(() => {
-      42 |       window.getEffectiveStat = (creature, stat) => {
-        at /app/tests/calculateDamage.spec.js:39:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-calculateDamage-wind-b7e7f-ic-special-damage-correctly/error-context.md
 
   5) tests/calculateDamage.spec.js:67:3 › window.calculateDamage › applies type modifiers properly and caps them
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      66 |
-      67 |   test('applies type modifiers properly and caps them', async ({ page }) => {
-    > 68 |     await page.goto('http://localhost:3000');
-         |                ^
-      69 |
-      70 |     const result = await page.evaluate(() => {
-      71 |       window.getEffectiveStat = (creature, stat) => {
-        at /app/tests/calculateDamage.spec.js:68:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-calculateDamage-wind-b3f6f-iers-properly-and-caps-them/error-context.md
 
   6) tests/calculateDamage.spec.js:97:3 › window.calculateDamage › prevents OHKO from super effective attacks
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       96 |
-       97 |   test('prevents OHKO from super effective attacks', async ({ page }) => {
-    >  98 |     await page.goto('http://localhost:3000');
-          |                ^
-       99 |
-      100 |     const result = await page.evaluate(() => {
-      101 |       window.getEffectiveStat = (creature, stat) => {
-        at /app/tests/calculateDamage.spec.js:98:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-calculateDamage-wind-3bf1d-rom-super-effective-attacks/error-context.md
 
   7) tests/calculateDamage.spec.js:125:3 › window.calculateDamage › enforces minimum 1 damage ──────
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      124 |
-      125 |   test('enforces minimum 1 damage', async ({ page }) => {
-    > 126 |     await page.goto('http://localhost:3000');
-          |                ^
-      127 |
-      128 |     const result = await page.evaluate(() => {
-      129 |       window.getEffectiveStat = (creature, stat) => {
-        at /app/tests/calculateDamage.spec.js:126:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-calculateDamage-wind-3a2da-e-enforces-minimum-1-damage/error-context.md
 
   8) tests/coinsReward.spec.js:10:3 › Coins Reward System › should default player 1 and player 2 coins to 0
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |   });
-       9 |
-      10 |   test('should default player 1 and player 2 coins to 0', async ({ page }) => {
-        at /app/tests/coinsReward.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coinsReward-Coins-Re-78095-r-1-and-player-2-coins-to-0/error-context.md
 
   9) tests/coinsReward.spec.js:21:3 › Coins Reward System › should correctly display coins inside the menu modal
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |   });
-       9 |
-      10 |   test('should default player 1 and player 2 coins to 0', async ({ page }) => {
-        at /app/tests/coinsReward.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coinsReward-Coins-Re-0144c-coins-inside-the-menu-modal/error-context.md
 
   10) tests/coinsReward.spec.js:34:3 › Coins Reward System › should award coins on wild creature win and scale/cap correctly
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |   });
-       9 |
-      10 |   test('should default player 1 and player 2 coins to 0', async ({ page }) => {
-        at /app/tests/coinsReward.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coinsReward-Coins-Re-5a065-win-and-scale-cap-correctly/error-context.md
 
   11) tests/coinsReward.spec.js:100:3 › Coins Reward System › should award 80 coins to Player 1 on online PvP battle win
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |   });
-       9 |
-      10 |   test('should default player 1 and player 2 coins to 0', async ({ page }) => {
-        at /app/tests/coinsReward.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coinsReward-Coins-Re-5e156--1-on-online-PvP-battle-win/error-context.md
 
   12) tests/coinsReward.spec.js:119:3 › Coins Reward System › should award 80 coins correctly in local PvP battles
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |   });
-       9 |
-      10 |   test('should default player 1 and player 2 coins to 0', async ({ page }) => {
-        at /app/tests/coinsReward.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coinsReward-Coins-Re-a85a6-rectly-in-local-PvP-battles/error-context.md
 
   13) tests/coopFeatures.spec.js:12:3 › Co-op Split Screen and Player 2 Features › should generate a random Gen 1 starter creature for Player 2 on a new game
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-5b358--for-Player-2-on-a-new-game/error-context.md
 
   14) tests/coopFeatures.spec.js:26:3 › Co-op Split Screen and Player 2 Features › should allow Player 2 to open the menu modal using the Player 2 menu button in split-screen mode
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-b54fd-button-in-split-screen-mode/error-context.md
 
   15) tests/coopFeatures.spec.js:51:3 › Co-op Split Screen and Player 2 Features › should display close button inside challengeModal in split-screen mode
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-da333-eModal-in-split-screen-mode/error-context.md
 
   16) tests/coopFeatures.spec.js:76:3 › Co-op Split Screen and Player 2 Features › should prevent opening multiple modals simultaneously and prevent re-opening closed modal until leaving the tile
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-a75a2-odal-until-leaving-the-tile/error-context.md
 
   17) tests/coopFeatures.spec.js:164:3 › Co-op Split Screen and Player 2 Features › should trigger trade modal on overlap and prevent re-triggering until leaving the tile
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-e8108-ring-until-leaving-the-tile/error-context.md
 
   18) tests/coopFeatures.spec.js:233:3 › Co-op Split Screen and Player 2 Features › should trigger PvP battle on overlap and prevent re-triggering until leaving the tile
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-1913d-ring-until-leaving-the-tile/error-context.md
 
   19) tests/coopFeatures.spec.js:300:3 › Co-op Split Screen and Player 2 Features › should spawn both Player 1 and Player 2 on the tile directly above the hospital (10050, 9950) when starting a new game in split-screen co-op
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-dc79a--game-in-split-screen-co-op/error-context.md
 
   20) tests/coopFeatures.spec.js:337:3 › Co-op Split Screen and Player 2 Features › should assert that when combat ends with a loss, showModernNotification is called instead of alert
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-7ec61--is-called-instead-of-alert/error-context.md
 
   21) tests/coopFeatures.spec.js:387:3 › Co-op Split Screen and Player 2 Features › should not contain Delete Progress, Exit Game, or Performance Settings in Player 2 menu modal
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-a46d7-ings-in-Player-2-menu-modal/error-context.md
 
   22) tests/coopFeatures.spec.js:414:3 › Co-op Split Screen and Player 2 Features › should clear both player 1 and player 2 data when progress is deleted
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |   });
-      11 |
-      12 |   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
-        at /app/tests/coopFeatures.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-coopFeatures-Co-op-S-f0c6a-ta-when-progress-is-deleted/error-context.md
 
   23) tests/creatureLicenseAndExPall.spec.js:12:3 › Creature License and ExPALL updates › starting inventory should contain 1 Creature License
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |     await page.click('#startGameBtn');
-       9 |     await page.waitForSelector('#menuBtn', { state: 'visible' });
-      10 |   });
-        at /app/tests/creatureLicenseAndExPall.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-creatureLicenseAndEx-d5a51--contain-1-Creature-License/error-context.md
 
   24) tests/creatureLicenseAndExPall.spec.js:33:3 › Creature License and ExPALL updates › shop should display updated ExPALL price (250) and new Creature License (175)
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |     await page.click('#startGameBtn');
-       9 |     await page.waitForSelector('#menuBtn', { state: 'visible' });
-      10 |   });
-        at /app/tests/creatureLicenseAndExPall.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-creatureLicenseAndEx-d920c-d-new-Creature-License-175-/error-context.md
 
   25) tests/creatureLicenseAndExPall.spec.js:51:3 › Creature License and ExPALL updates › Creature License cannot be used directly like healing juice
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |     await page.click('#startGameBtn');
-       9 |     await page.waitForSelector('#menuBtn', { state: 'visible' });
-      10 |   });
-        at /app/tests/creatureLicenseAndExPall.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-creatureLicenseAndEx-e8c49-directly-like-healing-juice/error-context.md
 
   26) tests/creatureLicenseAndExPall.spec.js:77:3 › Creature License and ExPALL updates › Creature License boosts capture rate and is consumed only on successful catch
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |     await page.click('#startGameBtn');
-       9 |     await page.waitForSelector('#menuBtn', { state: 'visible' });
-      10 |   });
-        at /app/tests/creatureLicenseAndExPall.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-creatureLicenseAndEx-a402a-ed-only-on-successful-catch/error-context.md
 
   27) tests/customization.spec.js:11:3 › In-game Character Customization › should open customization from in-game menu and customize character
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should open customization from in-game menu and customize character', async ({ page }) => {
-        at /app/tests/customization.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-customization-In-gam-e9f5d-enu-and-customize-character/error-context.md
 
   28) tests/customization.spec.js:46:3 › In-game Character Customization › should support customizing Player 2 in Co-op mode
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should open customization from in-game menu and customize character', async ({ page }) => {
-        at /app/tests/customization.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-customization-In-gam-c636c-zing-Player-2-in-Co-op-mode/error-context.md
 
   29) tests/customizationShapes.spec.js:11:3 › Character Body Shapes Customization & Locking › should default to Square shape and show other shapes locked at Tier 1
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should default to Square shape and show other shapes locked at Tier 1', async ({ page }) => {
-        at /app/tests/customizationShapes.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-customizationShapes--c550c-her-shapes-locked-at-Tier-1/error-context.md
 
   30) tests/customizationShapes.spec.js:50:3 › Character Body Shapes Customization & Locking › should unlock shapes when challenge tier increases
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should default to Square shape and show other shapes locked at Tier 1', async ({ page }) => {
-        at /app/tests/customizationShapes.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-customizationShapes--0f368-en-challenge-tier-increases/error-context.md
 
   31) tests/expallAndDivider.spec.js:4:3 › ExPALL and Split-Screen Divider › players start the game with two healing juice bottles
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('ExPALL and Split-Screen Divider', () => {
-      4 |   test('players start the game with two healing juice bottles', async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |
-      7 |     const p1Inv = await page.evaluate(() => {
-      8 |       // Clear localStorage so we get fresh defaults
-        at /app/tests/expallAndDivider.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-expallAndDivider-ExP-d6de7-h-two-healing-juice-bottles/error-context.md
 
   32) tests/expallAndDivider.spec.js:20:3 › ExPALL and Split-Screen Divider › ExPALL item is registered and active
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      19 |
-      20 |   test('ExPALL item is registered and active', async ({ page }) => {
-    > 21 |     await page.goto('http://localhost:3000');
-         |                ^
-      22 |
-      23 |     const result = await page.evaluate(() => {
-      24 |       // ExPALL should be present in store replenishment stock defaults
-        at /app/tests/expallAndDivider.spec.js:21:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-expallAndDivider-ExP-f50e9-em-is-registered-and-active/error-context.md
 
   33) tests/expallAndDivider.spec.js:35:3 › ExPALL and Split-Screen Divider › Co-op split line exists and displays correctly in split screen co-op mode
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      34 |
-      35 |   test('Co-op split line exists and displays correctly in split screen co-op mode', async ({ page }) => {
-    > 36 |     await page.goto('http://localhost:3000');
-         |                ^
-      37 |
-      38 |     // Initially hidden
-      39 |     const lineVisibleInitial = await page.locator('#coopSplitLine').isVisible();
-        at /app/tests/expallAndDivider.spec.js:36:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-expallAndDivider-ExP-9d5fc--in-split-screen-co-op-mode/error-context.md
 
   34) tests/favoriteAndScroll.spec.js:21:3 › Favorite and Gamepad Scrolling Systems › should allow toggling favorite on creatures and restrict to max 3
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      10 |     });
-      11 |
-    > 12 |     await page.goto('http://localhost:3000');
-         |                ^
-      13 |     // Start game and wait
-      14 |     const startBtn = page.locator('#startGameBtn');
-      15 |     if (await startBtn.isVisible()) {
-        at /app/tests/favoriteAndScroll.spec.js:12:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-favoriteAndScroll-Fa-40e6e-tures-and-restrict-to-max-3/error-context.md
 
   35) tests/favoriteAndScroll.spec.js:73:3 › Favorite and Gamepad Scrolling Systems › favorited creatures should gain half XP when not in battle
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      10 |     });
-      11 |
-    > 12 |     await page.goto('http://localhost:3000');
-         |                ^
-      13 |     // Start game and wait
-      14 |     const startBtn = page.locator('#startGameBtn');
-      15 |     if (await startBtn.isVisible()) {
-        at /app/tests/favoriteAndScroll.spec.js:12:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-favoriteAndScroll-Fa-47442--half-XP-when-not-in-battle/error-context.md
 
   36) tests/favoriteAndScroll.spec.js:116:3 › Favorite and Gamepad Scrolling Systems › right stick vertical analog input should scroll description in party modal
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      10 |     });
-      11 |
-    > 12 |     await page.goto('http://localhost:3000');
-         |                ^
-      13 |     // Start game and wait
-      14 |     const startBtn = page.locator('#startGameBtn');
-      15 |     if (await startBtn.isVisible()) {
-        at /app/tests/favoriteAndScroll.spec.js:12:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-favoriteAndScroll-Fa-9759a--description-in-party-modal/error-context.md
 
   37) tests/friendSystem.spec.js:4:3 › Friend System › initializes and scales friend level stats correctly
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('Friend System', () => {
-      4 |   test('initializes and scales friend level stats correctly', async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |
-      7 |     const result = await page.evaluate(() => {
-      8 |       try {
-        at /app/tests/friendSystem.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-friendSystem-Friend--644af-riend-level-stats-correctly/error-context.md
 
   38) tests/friendSystem.spec.js:50:3 › Friend System › updateFriendExperience adds XP in party and degrades in storage
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      49 |
-      50 |   test('updateFriendExperience adds XP in party and degrades in storage', async ({ page }) => {
-    > 51 |     await page.goto('http://localhost:3000');
-         |                ^
-      52 |
-      53 |     const result = await page.evaluate(() => {
-      54 |       try {
-        at /app/tests/friendSystem.spec.js:51:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-friendSystem-Friend--efd9b-rty-and-degrades-in-storage/error-context.md
 
   39) tests/getEffectiveStat.spec.js:4:3 › window.getEffectiveStat › handles creature with missing nature
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      4 |   test('handles creature with missing nature', async ({ page }) => {
-      5 |     // Navigate to the index page where getEffectiveStat is defined
-    > 6 |     await page.goto('http://localhost:3000');
-        |                ^
-      7 |
-      8 |     // Call the function with a mock creature that lacks a 'nature' field
-      9 |     const result = await page.evaluate(() => {
-        at /app/tests/getEffectiveStat.spec.js:6:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-getEffectiveStat-win-cdaec-reature-with-missing-nature/error-context.md
 
   40) tests/getEffectiveStat.spec.js:34:3 › window.getEffectiveStat › scales stats correctly at higher levels (15% per level)
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      33 |
-      34 |   test('scales stats correctly at higher levels (15% per level)', async ({ page }) => {
-    > 35 |     await page.goto('http://localhost:3000');
-         |                ^
-      36 |
-      37 |     const result = await page.evaluate(() => {
-      38 |       const mockCreature = {
-        at /app/tests/getEffectiveStat.spec.js:35:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-getEffectiveStat-win-7acaa-higher-levels-15-per-level-/error-context.md
 
   41) tests/getRandomNature.spec.js:4:3 › window.getRandomNature › handles empty window.natures array
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      4 |   test('handles empty window.natures array', async ({ page }) => {
-      5 |     // Navigate to the index page where window.natures and getRandomNature are defined
-    > 6 |     await page.goto('http://localhost:3000');
-        |                ^
-      7 |
-      8 |     // Check what getRandomNature returns when natures is empty
-      9 |     const result = await page.evaluate(() => {
-        at /app/tests/getRandomNature.spec.js:6:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-getRandomNature-wind-01f67--empty-window-natures-array/error-context.md
 
   42) tests/getTypeModifier.spec.js:4:3 › window.getTypeModifier › returns 1 when attackType is not in typeChart
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('window.getTypeModifier', () => {
-      4 |   test('returns 1 when attackType is not in typeChart', async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |
-      7 |     const result = await page.evaluate(() => {
-      8 |       return window.getTypeModifier('NonExistentType', 'Water');
-        at /app/tests/getTypeModifier.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-getTypeModifier-wind-829d1-ackType-is-not-in-typeChart/error-context.md
 
   43) tests/getTypeModifier.spec.js:14:3 › window.getTypeModifier › returns 1 when defenseType is not defined for attackType
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      13 |
-      14 |   test('returns 1 when defenseType is not defined for attackType', async ({ page }) => {
-    > 15 |     await page.goto('http://localhost:3000');
-         |                ^
-      16 |
-      17 |     const result = await page.evaluate(() => {
-      18 |       return window.getTypeModifier('Fire', 'NonExistentType');
-        at /app/tests/getTypeModifier.spec.js:15:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-getTypeModifier-wind-041a2--not-defined-for-attackType/error-context.md
 
   44) tests/getTypeModifier.spec.js:24:3 › window.getTypeModifier › returns correct modifier for basic single types
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      23 |
-      24 |   test('returns correct modifier for basic single types', async ({ page }) => {
-    > 25 |     await page.goto('http://localhost:3000');
-         |                ^
-      26 |
-      27 |     const result = await page.evaluate(() => {
-      28 |       return {
-        at /app/tests/getTypeModifier.spec.js:25:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-getTypeModifier-wind-ce040-fier-for-basic-single-types/error-context.md
 
   45) tests/helpModalAndInventorySlots.spec.js:11:3 › Help Modal Close and Inventory Slots UI Tests › should correctly show/hide inventory slots in singleplayer and co-op
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should correctly show/hide inventory slots in singleplayer and co-op', async ({ page }) => {
-        at /app/tests/helpModalAndInventorySlots.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-helpModalAndInventor-8215f-s-in-singleplayer-and-co-op/error-context.md
 
   46) tests/helpModalAndInventorySlots.spec.js:68:3 › Help Modal Close and Inventory Slots UI Tests › should correctly close Player 2 help modal via the close button in co-op mode
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should correctly show/hide inventory slots in singleplayer and co-op', async ({ page }) => {
-        at /app/tests/helpModalAndInventorySlots.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-helpModalAndInventor-05a6d--close-button-in-co-op-mode/error-context.md
 
   47) tests/helpModalAndInventorySlots.spec.js:100:3 › Help Modal Close and Inventory Slots UI Tests › isPointerOverButton should correctly identify inventory-slot as interactive
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should correctly show/hide inventory slots in singleplayer and co-op', async ({ page }) => {
-        at /app/tests/helpModalAndInventorySlots.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-helpModalAndInventor-9cd5e-ventory-slot-as-interactive/error-context.md
 
   48) tests/hospitalArrowsAndSymbols.spec.js:13:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrows exist and are displayed for Player 1
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Wait for the game to start and players/creatures to initialize
-      10 |     await page.waitForFunction(() => window.gameStarted === true);
-      11 |   });
-        at /app/tests/hospitalArrowsAndSymbols.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-hospitalArrowsAndSym-4e671--are-displayed-for-Player-1/error-context.md
 
   49) tests/hospitalArrowsAndSymbols.spec.js:27:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrow updates rotation dynamically as player moves
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Wait for the game to start and players/creatures to initialize
-      10 |     await page.waitForFunction(() => window.gameStarted === true);
-      11 |   });
-        at /app/tests/hospitalArrowsAndSymbols.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-hospitalArrowsAndSym-f2e5b-dynamically-as-player-moves/error-context.md
 
   50) tests/hospitalArrowsAndSymbols.spec.js:68:3 › Hospital Directional Arrows and Creature Type Symbols › hospital arrows are correctly structured and positioned in co-op split screen
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Wait for the game to start and players/creatures to initialize
-      10 |     await page.waitForFunction(() => window.gameStarted === true);
-      11 |   });
-        at /app/tests/hospitalArrowsAndSymbols.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-hospitalArrowsAndSym-51721-ioned-in-co-op-split-screen/error-context.md
 
   51) tests/hospitalArrowsAndSymbols.spec.js:95:3 › Hospital Directional Arrows and Creature Type Symbols › creature element type symbols are rendered above creatures
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Wait for the game to start and players/creatures to initialize
-      10 |     await page.waitForFunction(() => window.gameStarted === true);
-      11 |   });
-        at /app/tests/hospitalArrowsAndSymbols.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-hospitalArrowsAndSym-c345f-re-rendered-above-creatures/error-context.md
 
   52) tests/newFeatures.spec.js:18:3 › New Features Tests › respawnEnemyBase chooses a different species
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('New Features Tests', () => {
-      4 |   test.beforeEach(async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |     // Start game session by clicking start button
-      7 |     await page.click('#startGameBtn');
-      8 |     // Wait for the game to start and the main menu button to be visible
-        at /app/tests/newFeatures.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-newFeatures-New-Feat-7adaf-chooses-a-different-species/error-context.md
 
   53) tests/newFeatures.spec.js:46:3 › New Features Tests › window.releaseCreature enforces party release restrictions
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('New Features Tests', () => {
-      4 |   test.beforeEach(async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |     // Start game session by clicking start button
-      7 |     await page.click('#startGameBtn');
-      8 |     // Wait for the game to start and the main menu button to be visible
-        at /app/tests/newFeatures.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-newFeatures-New-Feat-88d37--party-release-restrictions/error-context.md
 
   54) tests/newFeatures.spec.js:88:3 › New Features Tests › shiny creature notifications, culling protection, and element symbol star
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('New Features Tests', () => {
-      4 |   test.beforeEach(async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |     // Start game session by clicking start button
-      7 |     await page.click('#startGameBtn');
-      8 |     // Wait for the game to start and the main menu button to be visible
-        at /app/tests/newFeatures.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-newFeatures-New-Feat-8cbcf-ion-and-element-symbol-star/error-context.md
 
   55) tests/odysseyFeatures.spec.js:8:3 › Odyssey New Features Tests › friend level stat bonus displayed in pink next to base stats
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('Odyssey New Features Tests', () => {
-      4 |   test.beforeEach(async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |   });
-      7 |
-      8 |   test('friend level stat bonus displayed in pink next to base stats', async ({ page }) => {
-        at /app/tests/odysseyFeatures.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-odysseyFeatures-Odys-0b408--in-pink-next-to-base-stats/error-context.md
 
   56) tests/odysseyFeatures.spec.js:32:3 › Odyssey New Features Tests › breeding center strictly enforces level 5 requirement
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('Odyssey New Features Tests', () => {
-      4 |   test.beforeEach(async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |   });
-      7 |
-      8 |   test('friend level stat bonus displayed in pink next to base stats', async ({ page }) => {
-        at /app/tests/odysseyFeatures.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-odysseyFeatures-Odys-42b80-nforces-level-5-requirement/error-context.md
 
   57) tests/odysseyFeatures.spec.js:67:3 › Odyssey New Features Tests › storage box caps at 75 creatures
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('Odyssey New Features Tests', () => {
-      4 |   test.beforeEach(async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |   });
-      7 |
-      8 |   test('friend level stat bonus displayed in pink next to base stats', async ({ page }) => {
-        at /app/tests/odysseyFeatures.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-odysseyFeatures-Odys-6afba-ge-box-caps-at-75-creatures/error-context.md
 
   58) tests/odysseyFeatures.spec.js:115:3 › Odyssey New Features Tests › allows selling creatures for coins at the shop
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      3 | test.describe('Odyssey New Features Tests', () => {
-      4 |   test.beforeEach(async ({ page }) => {
-    > 5 |     await page.goto('http://localhost:3000');
-        |                ^
-      6 |   });
-      7 |
-      8 |   test('friend level stat bonus displayed in pink next to base stats', async ({ page }) => {
-        at /app/tests/odysseyFeatures.spec.js:5:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-odysseyFeatures-Odys-8dedf-tures-for-coins-at-the-shop/error-context.md
 
   59) tests/onboardingAndSellPrice.spec.js:14:3 › Introductory Onboarding and Dynamic Sell Price Tests › should trigger high tech introductory modals and customization onboarding flow on new game start
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       9 |       window.__test_onboarding = true;
-      10 |     });
-    > 11 |     await page.goto('http://localhost:3000');
-         |                ^
-      12 |   });
-      13 |
-      14 |   test('should trigger high tech introductory modals and customization onboarding flow on new game start', async ({ page }) => {
-        at /app/tests/onboardingAndSellPrice.spec.js:11:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-onboardingAndSellPri-19869-ding-flow-on-new-game-start/error-context.md
 
   60) tests/onboardingAndSellPrice.spec.js:65:3 › Introductory Onboarding and Dynamic Sell Price Tests › should calculate dynamic creature selling price based on stats, nature, and mood
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       9 |       window.__test_onboarding = true;
-      10 |     });
-    > 11 |     await page.goto('http://localhost:3000');
-         |                ^
-      12 |   });
-      13 |
-      14 |   test('should trigger high tech introductory modals and customization onboarding flow on new game start', async ({ page }) => {
-        at /app/tests/onboardingAndSellPrice.spec.js:11:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-onboardingAndSellPri-e5a5a-ed-on-stats-nature-and-mood/error-context.md
 
   61) tests/partyColorsAndSize.spec.js:11:3 › Party Modal Text Color & Creature World Scaling Tests › should apply dark-text class and dark styles to Light and Electric creatures in the party modal
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should apply dark-text class and dark styles to Light and Electric creatures in the party modal', async ({ page }) => {
-        at /app/tests/partyColorsAndSize.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-partyColorsAndSize-P-df0a3-reatures-in-the-party-modal/error-context.md
 
   62) tests/partyColorsAndSize.spec.js:97:3 › Party Modal Text Color & Creature World Scaling Tests › should scale wild creatures to the same size as the player character (48x48)
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('should apply dark-text class and dark styles to Light and Electric creatures in the party modal', async ({ page }) => {
-        at /app/tests/partyColorsAndSize.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-partyColorsAndSize-P-d9531-the-player-character-48x48-/error-context.md
 
   63) tests/petAndShopStock.spec.js:19:3 › Companion and Shop Stock Replenishment Systems › companion should follow player 1 and update when party changes
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |
-       8 |     // Navigate to the local server
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |     // Start game and wait
-      11 |     const startBtn = page.locator('#startGameBtn');
-      12 |     if (await startBtn.isVisible()) {
-        at /app/tests/petAndShopStock.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-petAndShopStock-Comp-b5ba9-d-update-when-party-changes/error-context.md
 
   64) tests/petAndShopStock.spec.js:75:3 › Companion and Shop Stock Replenishment Systems › shop should track stock and replenish every 5 days
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |
-       8 |     // Navigate to the local server
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |     // Start game and wait
-      11 |     const startBtn = page.locator('#startGameBtn');
-      12 |     if (await startBtn.isVisible()) {
-        at /app/tests/petAndShopStock.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-petAndShopStock-Comp-d5c9c--and-replenish-every-5-days/error-context.md
 
   65) tests/pointerButtonBlock.spec.js:11:3 › isPointerOverButton › correctly identifies buttons and interactive elements, and ignores canvas
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |   });
-      10 |
-      11 |   test('correctly identifies buttons and interactive elements, and ignores canvas', async ({ page }) => {
-        at /app/tests/pointerButtonBlock.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-pointerButtonBlock-i-bab77-elements-and-ignores-canvas/error-context.md
 
   66) tests/shopAndInventory.spec.js:15:3 › Shop and Inventory Systems › should buy items, display them, handle stacking, and enforce limits
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-       7 |     // Navigate to local port 3000
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Start game session by clicking start button
-      10 |     await page.click('#startGameBtn');
-      11 |     // Wait for the game to start and the main menu button to be visible
-        at /app/tests/shopAndInventory.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-shopAndInventory-Sho-f601d-stacking-and-enforce-limits/error-context.md
 
   67) tests/shopAndInventory.spec.js:98:3 › Shop and Inventory Systems › should use items and apply their effects correctly
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-       7 |     // Navigate to local port 3000
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Start game session by clicking start button
-      10 |     await page.click('#startGameBtn');
-      11 |     // Wait for the game to start and the main menu button to be visible
-        at /app/tests/shopAndInventory.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-shopAndInventory-Sho-64f24-ply-their-effects-correctly/error-context.md
 
   68) tests/shopAndInventory.spec.js:142:3 › Shop and Inventory Systems › should display dynamic available to buy quantity and each player coins
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-       7 |     // Navigate to local port 3000
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Start game session by clicking start button
-      10 |     await page.click('#startGameBtn');
-      11 |     // Wait for the game to start and the main menu button to be visible
-        at /app/tests/shopAndInventory.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-shopAndInventory-Sho-8a1cd-ntity-and-each-player-coins/error-context.md
 
   69) tests/splitScreenHospitalAndSelection.spec.js:14:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › hospital heal should heal Player 2 and display notification on Player 2s side (left: 75%)
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |     // Wait for the game to start and players/creatures to initialize
-      11 |     await page.waitForFunction(() => window.gameStarted === true);
-      12 |   });
-        at /app/tests/splitScreenHospitalAndSelection.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-splitScreenHospitalA-51e04--on-Player-2s-side-left-75-/error-context.md
 
   70) tests/splitScreenHospitalAndSelection.spec.js:66:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › hospital heal should heal Player 1 and display notification on Player 1s side (left: 25%)
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |     // Wait for the game to start and players/creatures to initialize
-      11 |     await page.waitForFunction(() => window.gameStarted === true);
-      12 |   });
-        at /app/tests/splitScreenHospitalAndSelection.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-splitScreenHospitalA-5f715--on-Player-1s-side-left-25-/error-context.md
 
   71) tests/splitScreenHospitalAndSelection.spec.js:118:3 › Split-Screen Hospital Heal Notification and Creature Selection Overlay › creature selection overlay should cover only that players side in co-op
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       7 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       8 |     });
-    >  9 |     await page.goto('http://localhost:3000');
-         |                ^
-      10 |     // Wait for the game to start and players/creatures to initialize
-      11 |     await page.waitForFunction(() => window.gameStarted === true);
-      12 |   });
-        at /app/tests/splitScreenHospitalAndSelection.spec.js:9:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-splitScreenHospitalA-260fa--that-players-side-in-co-op/error-context.md
 
   72) tests/splitScreenIndicatorsAndWeather.spec.js:17:3 › Split-Screen Indicators and Weather Delay › should display status indicators correctly above players heads in split-screen co-op mode
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      10 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-      11 |     });
-    > 12 |     await page.goto('http://localhost:3000');
-         |                ^
-      13 |     // Wait for the game/Phaser to load
-      14 |     await page.waitForFunction(() => typeof window.coopActive !== 'undefined');
-      15 |   });
-        at /app/tests/splitScreenIndicatorsAndWeather.spec.js:12:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-splitScreenIndicator-e9399--in-split-screen-co-op-mode/error-context.md
 
   73) tests/splitScreenIndicatorsAndWeather.spec.js:123:3 › Split-Screen Indicators and Weather Delay › should force clear skies weather for the first 4 minutes of game age
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-      10 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-      11 |     });
-    > 12 |     await page.goto('http://localhost:3000');
-         |                ^
-      13 |     // Wait for the game/Phaser to load
-      14 |     await page.waitForFunction(() => typeof window.coopActive !== 'undefined');
-      15 |   });
-        at /app/tests/splitScreenIndicatorsAndWeather.spec.js:12:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-splitScreenIndicator-15900-first-4-minutes-of-game-age/error-context.md
 
   74) tests/visualTimerCircles.spec.js:10:3 › Active Visual Timer Circles › should display active timer circles with correct emojis and text on the screen
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |   });
-       9 |
-      10 |   test('should display active timer circles with correct emojis and text on the screen', async ({ page }) => {
-        at /app/tests/visualTimerCircles.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-visualTimerCircles-A-ca97f-ojis-and-text-on-the-screen/error-context.md
 
   75) tests/visualTimerCircles.spec.js:62:3 › Active Visual Timer Circles › should support split screen co-op symmetrically and isolate P1/P2 timer viewports
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       5 |     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-       6 |     page.on('pageerror', err => console.log('PAGE ERROR:', err.message));
-    >  7 |     await page.goto('http://localhost:3000');
-         |                ^
-       8 |   });
-       9 |
-      10 |   test('should display active timer circles with correct emojis and text on the screen', async ({ page }) => {
-        at /app/tests/visualTimerCircles.spec.js:7:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-visualTimerCircles-A-0afa2-olate-P1-P2-timer-viewports/error-context.md
 
   76) tests/weather.spec.js:13:3 › Weather and Particles › starts with clear skies ─────────────────
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Wait for Phaser to initialize and emitters to be created
-      10 |     await page.waitForFunction(() => window.leafRedEmitter !== undefined);
-      11 |   });
-        at /app/tests/weather.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-weather-Weather-and-Particles-starts-with-clear-skies/error-context.md
 
   77) tests/weather.spec.js:18:3 › Weather and Particles › particle emitters follow wind vector exactly
 
-    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/
-    Call log:
-      - navigating to "http://localhost:3000/", waiting until "load"
-
-
-       6 |       sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-       7 |     });
-    >  8 |     await page.goto('http://localhost:3000');
-         |                ^
-       9 |     // Wait for Phaser to initialize and emitters to be created
-      10 |     await page.waitForFunction(() => window.leafRedEmitter !== undefined);
-      11 |   });
-        at /app/tests/weather.spec.js:8:16
+    Error: browserType.launch: Executable doesn't exist at /home/jules/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright was just installed or updated.       ║
+    ║ Please run the following command to download new browsers: ║
+    ║                                                            ║
+    ║     npx playwright install                                 ║
+    ║                                                            ║
+    ║ <3 Playwright Team                                         ║
+    ╚════════════════════════════════════════════════════════════╝
 
     Error Context: test-results/tests-weather-Weather-and--637ca--follow-wind-vector-exactly/error-context.md
 
