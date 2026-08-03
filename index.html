@@ -7162,9 +7162,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeBtn.innerText = 'Skip & Start';
                 closeBtn.style.background = 'linear-gradient(180deg, #ff9800, #f57c00)';
                 closeBtn.style.borderColor = '#ffb74d';
-                if (playerNum === 2) {
-                    closeBtn.style.display = 'none';
-                }
+                // Always hide Skip & Start button for both Player 1 and Player 2 during setup
+                closeBtn.style.display = 'none';
             }
 
             const closeBtnTop = document.getElementById('closeCustomizationBtnTop' + suffix);
@@ -9611,6 +9610,73 @@ window.getCreatureColor = function(creature) {
     return (r << 16) | (g << 8) | b;
 };
 
+// Check if color can be successfully parsed by HTML5 Canvas (with O(1) cache for performance)
+const isValidColor = (str) => {
+    if (!str) return false;
+    const cleanStr = str.replace(/\s+/g, '');
+    if (!window.colorValidationCache) {
+        window.colorValidationCache = {};
+    }
+    if (window.colorValidationCache[cleanStr] !== undefined) {
+        return window.colorValidationCache[cleanStr];
+    }
+    const s = new Option().style;
+    s.color = cleanStr;
+    const valid = s.color !== '';
+    window.colorValidationCache[cleanStr] = valid;
+    return valid;
+};
+
+// Fantasy color mapping helper
+const mapFantasyColor = (colStr, defaultCol = '#ffffff') => {
+    if (!colStr) return defaultCol.replace(/\s+/g, '');
+    const cleanCol = colStr.replace(/\s+/g, '');
+    if (cleanCol.startsWith('#') || cleanCol.startsWith('rgb')) return cleanCol;
+    const lower = cleanCol.toLowerCase();
+    const mapping = {
+        ruby: '#e0115f',
+        crimson: '#dc143c',
+        emerald: '#50c878',
+        sapphire: '#0f52ba',
+        gold: '#ffd700',
+        azure: '#007fff',
+        violet: '#8f00ff',
+        onyx: '#353839',
+        obsidian: '#151515',
+        turquoise: '#30d5c8',
+        teal: '#008080',
+        amber: '#ffbf00',
+        amethyst: '#9966cc',
+        quartz: '#e6e6fa',
+        pearl: '#eae0c8',
+        silver: '#c0c0c0',
+        bronze: '#cd7f32',
+        copper: '#b87333',
+        coral: '#ff7f50',
+        frost: '#a5f2f3',
+        snow: '#fafaff',
+        lava: '#cf1020',
+        shadow: '#2a2a2a',
+        void: '#120a2a',
+        storm: '#4f738e',
+        plasma: '#b500ff',
+        magma: '#ff3300',
+        moss: '#8a9a86',
+        leaf: '#4caf50',
+        flora: '#ff69b4',
+        bloom: '#ff85a2',
+        cinder: '#4b3621'
+    };
+    let result = cleanCol;
+    for (let key in mapping) {
+        if (lower.includes(key)) {
+            result = mapping[key];
+            break;
+        }
+    }
+    return result;
+};
+
 window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackground = false) {
     const ctx = canvas.getContext('2d');
     ctx.save();
@@ -9727,73 +9793,6 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     const types = creature.type ? creature.type.split('-') : ['Normal'];
     const type1 = types[0];
     const typeColor1 = window.TYPE_COLORS[type1] || 'rgba(169, 169, 169, 0.85)';
-
-    // Check if color can be successfully parsed by HTML5 Canvas (with O(1) cache for performance)
-    const isValidColor = (str) => {
-        if (!str) return false;
-        const cleanStr = str.replace(/\s+/g, '');
-        if (!window.colorValidationCache) {
-            window.colorValidationCache = {};
-        }
-        if (window.colorValidationCache[cleanStr] !== undefined) {
-            return window.colorValidationCache[cleanStr];
-        }
-        const s = new Option().style;
-        s.color = cleanStr;
-        const valid = s.color !== '';
-        window.colorValidationCache[cleanStr] = valid;
-        return valid;
-    };
-
-    // Fantasy color mapping helper
-    const mapFantasyColor = (colStr, defaultCol = '#ffffff') => {
-        if (!colStr) return defaultCol.replace(/\s+/g, '');
-        const cleanCol = colStr.replace(/\s+/g, '');
-        if (cleanCol.startsWith('#') || cleanCol.startsWith('rgb')) return cleanCol;
-        const lower = cleanCol.toLowerCase();
-        const mapping = {
-            ruby: '#e0115f',
-            crimson: '#dc143c',
-            emerald: '#50c878',
-            sapphire: '#0f52ba',
-            gold: '#ffd700',
-            azure: '#007fff',
-            violet: '#8f00ff',
-            onyx: '#353839',
-            obsidian: '#151515',
-            turquoise: '#30d5c8',
-            teal: '#008080',
-            amber: '#ffbf00',
-            amethyst: '#9966cc',
-            quartz: '#e6e6fa',
-            pearl: '#eae0c8',
-            silver: '#c0c0c0',
-            bronze: '#cd7f32',
-            copper: '#b87333',
-            coral: '#ff7f50',
-            frost: '#a5f2f3',
-            snow: '#fafaff',
-            lava: '#cf1020',
-            shadow: '#2a2a2a',
-            void: '#120a2a',
-            storm: '#4f738e',
-            plasma: '#b500ff',
-            magma: '#ff3300',
-            moss: '#8a9a86',
-            leaf: '#4caf50',
-            flora: '#ff69b4',
-            bloom: '#ff85a2',
-            cinder: '#4b3621'
-        };
-        let result = cleanCol;
-        for (let key in mapping) {
-            if (lower.includes(key)) {
-                result = mapping[key];
-                break;
-            }
-        }
-        return result;
-    };
 
     // Parse base body color
     let baseColorHex = '#' + (creature.color || 0xffffff).toString(16).padStart(6, '0');
@@ -12701,9 +12700,14 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
         if (window[animFrameKey]) {
             cancelAnimationFrame(window[animFrameKey]);
         }
+        let lastRenderTime = 0;
         const animate = () => {
             if (modal.style.display === 'flex') {
-                window.renderCreatureCanvas(canvas, creature, 400, true);
+                const now = Date.now();
+                if (now - lastRenderTime >= 40) { // Throttle to 25 FPS (every 40ms)
+                    window.renderCreatureCanvas(canvas, creature, 400, true);
+                    lastRenderTime = now;
+                }
                 window[animFrameKey] = requestAnimationFrame(animate);
             } else {
                 window[animFrameKey] = null;
@@ -12838,9 +12842,14 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
     if (window[animFrameKey]) {
         cancelAnimationFrame(window[animFrameKey]);
     }
+    let lastRenderTime = 0;
     const animate = () => {
         if (modal.style.display === 'flex') {
-            window.renderCreatureCanvas(canvas, creature, 400, true);
+            const now = Date.now();
+            if (now - lastRenderTime >= 40) { // Throttle to 25 FPS (every 40ms)
+                window.renderCreatureCanvas(canvas, creature, 400, true);
+                lastRenderTime = now;
+            }
             window[animFrameKey] = requestAnimationFrame(animate);
         } else {
             window[animFrameKey] = null;
