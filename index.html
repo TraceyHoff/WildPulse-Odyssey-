@@ -3566,6 +3566,18 @@ window.getQuestNpcPos = function(npc) {
     return { r, c };
 };
 
+window.getQuestNpcPixelPos = function(npcId) {
+    if (!window.questNpcList || !window.getQuestNpcPos) return null;
+    const npc = window.questNpcList.find(n => n.id === npcId);
+    if (!npc) return null;
+    const pos = window.getQuestNpcPos(npc);
+    if (!pos) return null;
+    return {
+        x: pos.c * 100 + 50,
+        y: pos.r * 100 + 50
+    };
+};
+
 window.generateQuestNpcTexture = function(scene, textureKey) {
     if (!scene || !scene.textures) return;
     if (scene.textures.exists(textureKey)) return;
@@ -3783,11 +3795,33 @@ window.openQuestModal = function(playerNum, npcId) {
 
     const renderQuestDetails = () => {
         if (!activeQuest) {
-            // Generate a fresh potential quest so player can preview it!
-            const potentialQuest = window.generateProceduralQuest(npcId, playerNum);
+            const sessionKey = `p${playerNum}_${npcId}`;
+            window.questSessionState = window.questSessionState || {};
+            if (!window.questSessionState[sessionKey]) {
+                const firstQuest = window.generateProceduralQuest(npcId, playerNum);
+                window.questSessionState[sessionKey] = {
+                    quests: [firstQuest],
+                    index: 0
+                };
+            }
+
+            const state = window.questSessionState[sessionKey];
+            let potentialQuest = state.quests[state.index];
+            if (!potentialQuest) {
+                potentialQuest = window.generateProceduralQuest(npcId, playerNum);
+                state.quests.push(potentialQuest);
+                state.index = state.quests.length - 1;
+            }
+
+            const accentColor = playerNum === 2 ? '#ff9800' : '#00ffcc';
+
             detailContainer.innerHTML = `
-                <div style="text-align: center; font-weight: bold; color: #ffeb3b; font-size: 16px; margin-bottom: 10px;">AVAILABLE CONSOLE OPERATION</div>
-                <div style="font-size: 15px; color: #00ffcc; font-weight: bold; margin-bottom: 5px;">${potentialQuest.title}</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <button class="btn" id="questPrevBtn_p${playerNum}" style="padding: 6px 15px; font-size: 14px; background: rgba(255,255,255,0.05); border: 2px solid ${accentColor}; color: ${accentColor}; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Courier New', monospace; transition: all 0.2s;">◀ PREV</button>
+                    <div style="font-weight: bold; color: #ffeb3b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">AVAILABLE QUEST</div>
+                    <button class="btn" id="questNextBtn_p${playerNum}" style="padding: 6px 15px; font-size: 14px; background: rgba(255,255,255,0.05); border: 2px solid ${accentColor}; color: ${accentColor}; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Courier New', monospace; transition: all 0.2s;">NEXT ▶</button>
+                </div>
+                <div style="font-size: 15px; color: ${accentColor}; font-weight: bold; margin-bottom: 5px;">${potentialQuest.title}</div>
                 <div style="font-size: 13px; color: #ddd; margin-bottom: 15px; line-height: 1.4;">${potentialQuest.description}</div>
                 <div style="font-size: 12px; color: #aaa; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                     <strong style="color: #ffeb3b;">Rewards:</strong>
@@ -3800,11 +3834,43 @@ window.openQuestModal = function(playerNum, npcId) {
             completeBtn.style.display = 'none';
             cancelBtn.style.display = 'none';
 
+            const prevBtn = document.getElementById(`questPrevBtn_p${playerNum}`);
+            const nextBtn = document.getElementById(`questNextBtn_p${playerNum}`);
+
+            if (prevBtn) {
+                prevBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (state.index > 0) {
+                        state.index--;
+                    } else {
+                        if (state.quests.length > 0) {
+                            state.index = state.quests.length - 1;
+                        }
+                    }
+                    renderQuestDetails();
+                };
+            }
+
+            if (nextBtn) {
+                nextBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (state.index < state.quests.length - 1) {
+                        state.index++;
+                    } else {
+                        const newQuest = window.generateProceduralQuest(npcId, playerNum);
+                        state.quests.push(newQuest);
+                        state.index = state.quests.length - 1;
+                    }
+                    renderQuestDetails();
+                };
+            }
+
             acceptBtn.onclick = () => {
                 quests.push(potentialQuest);
                 window.saveQuests();
                 activeQuest = potentialQuest;
                 window.showModernNotification(`📡 Accepted quest: ${activeQuest.title}!`, 4000, playerNum);
+                delete window.questSessionState[sessionKey];
                 renderQuestDetails();
             };
         } else {
@@ -22113,16 +22179,20 @@ function handleQuestNpcOverlap(playerCollider, npcSprite) {
 
     if (window.battleStates && window.battleStates[playerNum] && window.battleStates[playerNum].inBattle) return;
 
+    const questNpcId = npcSprite.getData('questNpcId');
+    if (!questNpcId) return;
+
     // Throttle interaction to avoid rapid fire
     if (playerCollider.lastQuestTalkTime && game && game.scene.scenes[0].time.now - playerCollider.lastQuestTalkTime < 1000) return;
     if (game && game.scene.scenes[0]) {
         playerCollider.lastQuestTalkTime = game.scene.scenes[0].time.now;
     }
 
-    const questNpcId = npcSprite.getData('questNpcId');
-    if (!questNpcId) return;
+    playerCollider.hasQuestModalOpened = playerCollider.hasQuestModalOpened || {};
+    if (playerCollider.hasQuestModalOpened[questNpcId]) return;
 
     if (window.openQuestModal) {
+        playerCollider.hasQuestModalOpened[questNpcId] = true;
         window.openQuestModal(playerNum, questNpcId);
     }
 }
@@ -24900,6 +24970,24 @@ function isPointerOverButton(p) {
 }
 
 function update() {
+    // Check and reset quest modal triggers for players who walked away
+    [ { player: window.player, num: 1 }, { player: window.player2, num: 2 } ].forEach(pData => {
+        const pObj = pData.player;
+        if (pObj && pObj.hasQuestModalOpened) {
+            for (let npcId in pObj.hasQuestModalOpened) {
+                if (pObj.hasQuestModalOpened[npcId]) {
+                    const pos = window.getQuestNpcPixelPos ? window.getQuestNpcPixelPos(npcId) : null;
+                    if (pos) {
+                        const dist = Phaser.Math.Distance.Between(pObj.x, pObj.y, pos.x, pos.y);
+                        if (dist > 150) {
+                            pObj.hasQuestModalOpened[npcId] = false;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
     // Real-time world creature animations (optimized to eliminate lag and GC pressure)
     const activeScene = this || (window.game && window.game.scene && window.game.scene.scenes[0]);
 
