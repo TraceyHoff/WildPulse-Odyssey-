@@ -283,14 +283,14 @@
         }
 
         /* Redesign scrollbars inside modals to look futuristic/holographic */
-        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar, #introModal > div::-webkit-scrollbar, #introModal_p2 > div::-webkit-scrollbar, #fullSizeImageModal > div::-webkit-scrollbar, #fullSizeImageModal_p2 > div::-webkit-scrollbar {
+        #breedingModal::-webkit-scrollbar, #menuModal::-webkit-scrollbar, #partyModal::-webkit-scrollbar, #storageModal::-webkit-scrollbar, #helpModal::-webkit-scrollbar, #levelUpModal::-webkit-scrollbar, #tradeModal::-webkit-scrollbar, #pvpModal::-webkit-scrollbar, #journalModal::-webkit-scrollbar, #battleSwapModal::-webkit-scrollbar, #storeModal::-webkit-scrollbar, #storageChestModal::-webkit-scrollbar, #battleModal::-webkit-scrollbar, #customizationModal::-webkit-scrollbar, #introModal > div::-webkit-scrollbar, #introModal_p2 > div::-webkit-scrollbar, #fullSizeImageModal > div::-webkit-scrollbar, #fullSizeImageModal_p2 > div::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
-        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track, #introModal > div::-webkit-scrollbar-track, #introModal_p2 > div::-webkit-scrollbar-track, #fullSizeImageModal > div::-webkit-scrollbar-track, #fullSizeImageModal_p2 > div::-webkit-scrollbar-track {
+        #breedingModal::-webkit-scrollbar-track, #menuModal::-webkit-scrollbar-track, #partyModal::-webkit-scrollbar-track, #storageModal::-webkit-scrollbar-track, #helpModal::-webkit-scrollbar-track, #levelUpModal::-webkit-scrollbar-track, #tradeModal::-webkit-scrollbar-track, #pvpModal::-webkit-scrollbar-track, #journalModal::-webkit-scrollbar-track, #battleSwapModal::-webkit-scrollbar-track, #storeModal::-webkit-scrollbar-track, #storageChestModal::-webkit-scrollbar-track, #battleModal::-webkit-scrollbar-track, #customizationModal::-webkit-scrollbar-track, #introModal > div::-webkit-scrollbar-track, #introModal_p2 > div::-webkit-scrollbar-track, #fullSizeImageModal > div::-webkit-scrollbar-track, #fullSizeImageModal_p2 > div::-webkit-scrollbar-track {
             background: rgba(0, 0, 0, 0.2);
         }
-        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb, #introModal > div::-webkit-scrollbar-thumb, #introModal_p2 > div::-webkit-scrollbar-thumb, #fullSizeImageModal > div::-webkit-scrollbar-thumb, #fullSizeImageModal_p2 > div::-webkit-scrollbar-thumb {
+        #breedingModal::-webkit-scrollbar-thumb, #menuModal::-webkit-scrollbar-thumb, #partyModal::-webkit-scrollbar-thumb, #storageModal::-webkit-scrollbar-thumb, #helpModal::-webkit-scrollbar-thumb, #levelUpModal::-webkit-scrollbar-thumb, #tradeModal::-webkit-scrollbar-thumb, #pvpModal::-webkit-scrollbar-thumb, #journalModal::-webkit-scrollbar-thumb, #battleSwapModal::-webkit-scrollbar-thumb, #storeModal::-webkit-scrollbar-thumb, #storageChestModal::-webkit-scrollbar-thumb, #battleModal::-webkit-scrollbar-thumb, #customizationModal::-webkit-scrollbar-thumb, #introModal > div::-webkit-scrollbar-thumb, #introModal_p2 > div::-webkit-scrollbar-thumb, #fullSizeImageModal > div::-webkit-scrollbar-thumb, #fullSizeImageModal_p2 > div::-webkit-scrollbar-thumb {
             background: rgba(0, 255, 210, 0.4);
             border-radius: 3px;
         }
@@ -323,7 +323,7 @@
         }
 
         /* General text elements high-tech adjustments */
-        #breedingModal h2, #menuModal h2, #partyModal h2, #storageModal h2, #helpModal h2, #levelUpModal h2, #tradeModal h2, #pvpModal h2, #journalModal h2, #battleSwapModal h2, #storeModal h2, #battleModal h2, #customizationModal h2 {
+        #breedingModal h2, #menuModal h2, #partyModal h2, #storageModal h2, #helpModal h2, #levelUpModal h2, #tradeModal h2, #pvpModal h2, #journalModal h2, #battleSwapModal h2, #storeModal h2, #storageChestModal h2, #battleModal h2, #customizationModal h2 {
             font-family: 'Courier New', Courier, monospace, sans-serif !important;
             font-weight: bold !important;
             text-transform: uppercase !important;
@@ -340,7 +340,8 @@
         #helpModal > *:not(.close-btn),
         #levelUpModal > *:not(.close-btn),
         #journalModal > *:not(.close-btn),
-        #storeModal > *:not(.close-btn) {
+        #storeModal > *:not(.close-btn),
+        #storageChestModal > *:not(.close-btn) {
             max-width: 550px;
             width: 100%;
             margin-left: auto !important;
@@ -404,7 +405,8 @@
         body.coop-active-layout #helpModal > *:not(.close-btn),
         body.coop-active-layout #levelUpModal > *:not(.close-btn),
         body.coop-active-layout #journalModal > *:not(.close-btn),
-        body.coop-active-layout #storeModal > *:not(.close-btn) {
+        body.coop-active-layout #storeModal > *:not(.close-btn),
+        body.coop-active-layout #storageChestModal > *:not(.close-btn) {
             max-width: none !important;
             width: 100% !important;
         }
@@ -418,7 +420,8 @@
         body.coop-active-layout #levelUpModal,
         body.coop-active-layout #tradeModal,
         body.coop-active-layout #journalModal,
-        body.coop-active-layout #storeModal {
+        body.coop-active-layout #storeModal,
+        body.coop-active-layout #storageChestModal {
             padding: 0 !important;
             background: transparent !important;
             pointer-events: none !important;
@@ -439,6 +442,7 @@
         body.coop-active-layout #levelUpModal > .close-btn,
         body.coop-active-layout #journalModal > .close-btn,
         body.coop-active-layout #storeModal > .close-btn,
+        body.coop-active-layout #storageChestModal > .close-btn,
         body.coop-active-layout #tradeModal > .close-btn,
         body.coop-active-layout #customizationModal > .close-btn {
             display: none !important;
@@ -1108,7 +1112,7 @@
             right: auto;
         }
         .inventory-slot {
-            display: none !important;
+            display: flex;
             width: 48px;
             height: 48px;
             background: rgba(10, 30, 20, 0.75);
@@ -2447,6 +2451,12 @@
                             <div>Action Buttons:</div><div>Tap dedicated UI buttons and slots directly</div>
                         </div>
                     </div>
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                        <strong style="color: #ffd700; display: block; margin-bottom: 5px;">🧳 STORAGE CHEST</strong>
+                        <div style="color: #ddd; font-size: 13px; text-align: left; line-height: 1.4;">
+                            Buy placeable <strong style="color: #ffd700;">Storage Chests 🧳</strong> in the store once you reach Level 10. Step on a placed chest to deposit/withdraw items. Works with touch/mouse clicking, PC keys, and controller virtual cursors!
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -2563,6 +2573,12 @@
                             <div>Move Character:</div><div>Swipe or tap relative position to move</div>
                             <div>Action Wheel:</div><div>Double-tap/Double-touch anywhere to toggle action wheel</div>
                             <div>Action Buttons:</div><div>Tap dedicated UI buttons and slots directly</div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                        <strong style="color: #ffd700; display: block; margin-bottom: 5px;">🧳 STORAGE CHEST</strong>
+                        <div style="color: #ddd; font-size: 13px; text-align: left; line-height: 1.4;">
+                            Buy placeable <strong style="color: #ffd700;">Storage Chests 🧳</strong> in the store once you reach Level 10. Step on a placed chest to deposit/withdraw items. Works with touch/mouse clicking, PC keys, and controller virtual cursors!
                         </div>
                     </div>
                 </div>
@@ -3259,6 +3275,256 @@ window.generateNpcTrainerCoords = function(seed) {
             window.npcTrainerCoords[trainerId] = { r: r, c: c };
             trainerIdx++;
         }
+    }
+};
+
+window.p1ActiveChestTile = null;
+window.p2ActiveChestTile = null;
+
+window.getChestItems = function(playerNum, x, y) {
+    const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
+    const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+    const tile = miniTiles.find(t => Math.floor(t.x) === Math.floor(x) && Math.floor(t.y) === Math.floor(y) && t.type === 'storage_chest');
+    return tile ? (tile.items || []) : [];
+};
+
+window.saveChestItems = function(playerNum, x, y, items) {
+    const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
+    const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+    const tile = miniTiles.find(t => Math.floor(t.x) === Math.floor(x) && Math.floor(t.y) === Math.floor(y) && t.type === 'storage_chest');
+    if (tile) {
+        tile.items = items;
+        localStorage.setItem(miniTilesKey, JSON.stringify(miniTiles));
+    }
+};
+
+window.openStorageChestModal = function(playerNum, tileSprite) {
+    if (window.inBattle) return;
+
+    if (playerNum === 2) {
+        if (window.p2StorageChestClosedWhileOverlapping) return;
+    } else {
+        if (window.p1StorageChestClosedWhileOverlapping) return;
+    }
+
+    if (window.coopActive) {
+        const activeModal = (playerNum === 2) ? window.p2ActiveModal : window.p1ActiveModal;
+        if (activeModal !== null) return;
+    } else {
+        if (window.isAnyModalOpen()) return;
+    }
+
+    if (playerNum === 2) {
+        window.p2ActiveChestTile = tileSprite;
+    } else {
+        window.p1ActiveChestTile = tileSprite;
+    }
+
+    window.updateStorageChestUI(playerNum);
+
+    if (window.coopActive) {
+        window.closeAllModalsForPlayer(playerNum, 'storageChestModal');
+        if (playerNum === 2) window.p2ActiveModal = 'storageChestModal';
+        else window.p1ActiveModal = 'storageChestModal';
+        window.updateModalVisibility();
+    } else {
+        document.getElementById('storageChestModal').style.display = 'block';
+    }
+};
+
+window.closeStorageChestModal = function(playerNum = 1) {
+    if (window.coopActive) {
+        if (playerNum === 2) {
+            window.p2ActiveModal = null;
+            window.p2StorageChestClosedWhileOverlapping = true;
+            window.p2ActiveChestTile = null;
+        } else {
+            window.p1ActiveModal = null;
+            window.p1StorageChestClosedWhileOverlapping = true;
+            window.p1ActiveChestTile = null;
+        }
+        window.updateModalVisibility();
+    } else {
+        window.p1StorageChestClosedWhileOverlapping = true;
+        window.p1ActiveChestTile = null;
+        let _m_chestModal = document.getElementById('storageChestModal');
+        if (_m_chestModal) {
+            _m_chestModal.children[0].classList.add('modal-fade-out');
+            setTimeout(() => {
+                _m_chestModal.style.display = 'none';
+                _m_chestModal.children[0].classList.remove('modal-fade-out');
+            }, 190);
+        }
+    }
+};
+
+window.depositItemIntoChest = function(playerNum, invSlotIndex) {
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const item = inv[invSlotIndex];
+    if (!item || item.quantity <= 0) return;
+
+    const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
+    if (!tileSprite) return;
+
+    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+
+    let added = false;
+    for (let cItem of chestItems) {
+        if (cItem.name === item.name && cItem.quantity < 10) {
+            cItem.quantity++;
+            added = true;
+            break;
+        }
+    }
+
+    if (!added) {
+        if (chestItems.length < 10) {
+            chestItems.push({ name: item.name, quantity: 1 });
+            added = true;
+        } else {
+            window.showModernNotification("❌ Storage Chest is full (max 10 slots)!", 3000, playerNum);
+            return;
+        }
+    }
+
+    if (added) {
+        item.quantity--;
+        if (item.quantity <= 0) {
+            inv.splice(invSlotIndex, 1);
+        }
+        window.saveInventory();
+        window.saveChestItems(playerNum, tileSprite.x, tileSprite.y, chestItems);
+
+        if (window.updateInventoryUI) window.updateInventoryUI();
+        window.updateStorageChestUI(playerNum);
+        window.showModernNotification(`📥 Deposited 1x ${item.name} into Storage Chest.`, 2000, playerNum);
+    }
+};
+
+window.withdrawItemFromChest = function(playerNum, chestSlotIndex) {
+    const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
+    if (!tileSprite) return;
+
+    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    const item = chestItems[chestSlotIndex];
+    if (!item || item.quantity <= 0) return;
+
+    if (!window.canAddInventoryItem(playerNum, item.name)) {
+        window.showModernNotification("🎒 Inventory full! Cannot withdraw item.", 3000, playerNum);
+        return;
+    }
+
+    window.addInventoryItem(playerNum, item.name);
+
+    item.quantity--;
+    if (item.quantity <= 0) {
+        chestItems.splice(chestSlotIndex, 1);
+    }
+
+    window.saveChestItems(playerNum, tileSprite.x, tileSprite.y, chestItems);
+
+    if (window.updateInventoryUI) window.updateInventoryUI();
+    window.updateStorageChestUI(playerNum);
+    window.showModernNotification(`📤 Withdrew 1x ${item.name} from Storage Chest.`, 2000, playerNum);
+};
+
+window.updateStorageChestUI = function(playerNum) {
+    const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
+    if (!tileSprite) return;
+
+    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+
+    const itemIcons = {
+        "Mini Hospital": "🏥",
+        "Mini Store": "🏪",
+        "Mini Trade": "🔄",
+        "Mini PvP": "⚔️",
+        "Mini Breeding Center": "🥚",
+        "Mini Challenge": "👑",
+        "Storage Chest": "🧳",
+        "Repellent": "🧴",
+        "HP Booster": "💚",
+        "Attack Booster": "⚔️",
+        "Defense Booster": "🛡️",
+        "Speed Booster": "⚡",
+        "Sp. Atk Booster": "🔮",
+        "Sp. Def Booster": "🧿",
+        "Jank Juice": "🧃",
+        "Healing Juice Bottle": "🧪",
+        "Healing Juice Jug": "🏺",
+        "ExPALL": "✨",
+        "Creature License": "🎫",
+        "Creature Cookie": "🍪",
+        "Pedometer": "👣"
+    };
+
+    // 1. Render Chest Slots
+    const slotsContainerId = playerNum === 2 ? 'p2ChestSlotsContainer' : 'p1ChestSlotsContainer';
+    const slotsContainer = document.getElementById(slotsContainerId);
+    if (slotsContainer) {
+        let slotsHtml = '';
+        for (let i = 0; i < 10; i++) {
+            const item = chestItems[i];
+            if (item) {
+                const icon = itemIcons[item.name] || "📦";
+                slotsHtml += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">${icon}</span>
+                            <div style="text-align: left;">
+                                <div style="font-size: 13px; font-weight: bold; color: #fff;">${item.name}</div>
+                                <div style="font-size: 11px; color: #aaa;">Qty: ${item.quantity}/10</div>
+                            </div>
+                        </div>
+                        <button class="withdraw-btn" onclick="window.withdrawItemFromChest(${playerNum}, ${i})" style="padding: 4px 8px; font-size: 11px; border-radius: 4px; color: #00e5ff; background: rgba(0,229,255,0.1); border: 1px solid #00e5ff; cursor: pointer;">
+                            Withdraw
+                        </button>
+                    </div>
+                `;
+            } else {
+                slotsHtml += `
+                    <div style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 6px; padding: 12px; font-size: 12px; color: #666;">
+                        Empty Slot ${i + 1}
+                    </div>
+                `;
+            }
+        }
+        slotsContainer.innerHTML = slotsHtml;
+    }
+
+    // 2. Render Player Inventory
+    const invContainerId = playerNum === 2 ? 'p2ChestInvContainer' : 'p1ChestInvContainer';
+    const invContainer = document.getElementById(invContainerId);
+    if (invContainer) {
+        let invHtml = '';
+        for (let i = 0; i < 3; i++) {
+            const item = inv[i];
+            if (item) {
+                const icon = itemIcons[item.name] || "📦";
+                invHtml += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">${icon}</span>
+                            <div style="text-align: left;">
+                                <div style="font-size: 13px; font-weight: bold; color: #fff;">${item.name}</div>
+                                <div style="font-size: 11px; color: #aaa;">Qty: ${item.quantity}/10</div>
+                            </div>
+                        </div>
+                        <button class="deposit-btn" onclick="window.depositItemIntoChest(${playerNum}, ${i})" style="padding: 4px 8px; font-size: 11px; border-radius: 4px; color: #ff007f; background: rgba(255,0,127,0.1); border: 1px solid #ff007f; cursor: pointer;">
+                            Deposit
+                        </button>
+                    </div>
+                `;
+            } else {
+                invHtml += `
+                    <div style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 6px; padding: 12px; font-size: 12px; color: #666;">
+                        Empty Slot ${i + 1}
+                    </div>
+                `;
+            }
+        }
+        invContainer.innerHTML = invHtml;
     }
 };
 // Initialize on load
@@ -4728,6 +4994,7 @@ function escapeHtml(unsafe) {
 
             <h3 style="color: #ffd700; margin-top: 15px; font-size: 15px;">🎒 Shop & Usable Items</h3>
             <p>• Items stack up to 10 inside 3 inventory slots (raised default/replenishment stock of 15!). Buy boosters, healing items, <strong>Creature Licenses</strong> (passive 1.5x catch success), <strong>ExPALL</strong> (shares battle victory XP with whole party), or <strong>Jank Juice 🧃</strong> (greatly increases wild shiny spawn rate to 15% for 6 minutes, priced at 150 coins).</p>
+            <p>• <strong>Storage Chest (Placeable) 🧳:</strong> Buy this from the shop for 500 coins and place it near your home! Stepping on it opens a 10-slot persistent item storage. You can deposit items into it from your inventory or withdraw them back. Works with Touch, Mouse, and Gamepad controls.</p>
 
             <h3 style="color: #00ffcc; margin-top: 15px;">Type Chart & Natures</h3>
             <h3>Type Matchups</h3>
@@ -4853,6 +5120,60 @@ function escapeHtml(unsafe) {
         </div>
     </div>
     <button class="close-store-btn" style="margin-top: 20px; padding: 10px; width: 100%; background: linear-gradient(180deg, #555, #222); border-radius: 12px; border: 1px solid #777; color: white; cursor: pointer;">Close</button>
+</div>
+
+<div id="storageChestModal" style="display:none; position:fixed; color:white; z-index:900; text-align:center;">
+    <button class="close-btn close-storage-chest-btn" aria-label="Close Storage Chest" onclick="window.closeStorageChestModal(1)">X</button>
+    <div class="coop-columns">
+        <!-- Player 1 Column -->
+        <div class="coop-column p1-col">
+            <button class="close-btn close-storage-chest-btn" aria-label="Close Storage Chest" onclick="window.closeStorageChestModal(1)">X</button>
+            <h2 class="neon-text" style="color: #00e5ff; margin-top: 0; margin-bottom: 10px;">🧳 P1 Storage Chest</h2>
+
+            <div style="display: flex; gap: 15px; margin-top: 15px; justify-content: center; flex-wrap: wrap;">
+                <!-- Left: Chest 10 Slots -->
+                <div style="flex: 1; min-width: 260px; max-width: 380px; background: rgba(0,0,0,0.6); border: 2px solid #00e5ff; border-radius: 10px; padding: 12px; box-sizing: border-box;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #00e5ff; text-transform: uppercase;">Chest Slots (10 max)</div>
+                    <div id="p1ChestSlotsContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Right: Inventory Slots -->
+                <div style="flex: 1; min-width: 260px; max-width: 380px; background: rgba(0,0,0,0.6); border: 2px solid #ff007f; border-radius: 10px; padding: 12px; box-sizing: border-box;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ff007f; text-transform: uppercase;">Your Inventory (3 max)</div>
+                    <div id="p1ChestInvContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player 2 Column -->
+        <div class="coop-column p2-col">
+            <button class="close-btn close-storage-chest-btn" aria-label="Close Storage Chest" onclick="window.closeStorageChestModal(2)">X</button>
+            <h2 class="neon-text" style="color: #ffd700; margin-top: 0; margin-bottom: 10px;">🧳 P2 Storage Chest</h2>
+
+            <div style="display: flex; gap: 15px; margin-top: 15px; justify-content: center; flex-wrap: wrap;">
+                <!-- Left: Chest 10 Slots -->
+                <div style="flex: 1; min-width: 260px; max-width: 380px; background: rgba(0,0,0,0.6); border: 2px solid #ffd700; border-radius: 10px; padding: 12px; box-sizing: border-box;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ffd700; text-transform: uppercase;">Chest Slots (10 max)</div>
+                    <div id="p2ChestSlotsContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Right: Inventory Slots -->
+                <div style="flex: 1; min-width: 260px; max-width: 380px; background: rgba(0,0,0,0.6); border: 2px solid #ff007f; border-radius: 10px; padding: 12px; box-sizing: border-box;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ff007f; text-transform: uppercase;">Your Inventory (3 max)</div>
+                    <div id="p2ChestInvContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="close-storage-chest-btn" style="margin-top: 20px; padding: 10px; width: 100%; background: linear-gradient(180deg, #555, #222); border-radius: 12px; border: 1px solid #777; color: white; cursor: pointer;" onclick="window.closeStorageChestModal(1)">Close</button>
 </div>
 
 <!-- Action Wheel Modal -->
@@ -5963,9 +6284,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const p1Slots = document.getElementById('p1InventorySlots');
         if (p1Slots) p1Slots.style.display = 'flex';
+        window._lastP1SlotsDisplay = 'flex';
         if (window.coopActive) {
             const p2Slots = document.getElementById('p2InventorySlots');
             if (p2Slots) p2Slots.style.display = 'flex';
+            window._lastP2SlotsDisplay = 'flex';
         }
 
         if (window.updateInventoryUI) {
@@ -7104,8 +7427,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.startGame) window.startGame();
 
     // Auto-start game if coming from world code join
-    if (sessionStorage.getItem('wildpulse_skip_start_modal') === 'true') {
+    const isSkipStartModal = sessionStorage.getItem('wildpulse_skip_start_modal') === 'true';
+    if (isSkipStartModal) {
         sessionStorage.removeItem('wildpulse_skip_start_modal');
+        const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
+        if (isAutomation && !localStorage.getItem('wildpulse_player_color')) {
+            localStorage.setItem('wildpulse_player_color', '#00ffcc');
+            localStorage.setItem('wildpulse_player_name', 'P1');
+        }
         if (window.startGameSession) window.startGameSession();
     }
 
@@ -14046,6 +14375,52 @@ window.promptCreatureSelection = function(playerNum, titleText, callback) {
 };
 
 // Item Use Logic
+window.updateActiveBuffsHUD = function() {
+    const p1Buffs = document.getElementById('p1ActiveBuffs');
+    if (p1Buffs) {
+        let txts = [];
+        if (window.p1RepellentTime && window.p1RepellentTime > 0) {
+            txts.push(`🧴 Repel: ${Math.ceil(window.p1RepellentTime / 1000)}s`);
+        }
+        if (window.p1JankJuiceTime && window.p1JankJuiceTime > 0) {
+            txts.push(`🧃 Shiny: ${Math.ceil(window.p1JankJuiceTime / 1000)}s`);
+        }
+        if (window.p1ExPallTime && window.p1ExPallTime > 0) {
+            txts.push(`✨ ExPALL: ${Math.ceil(window.p1ExPallTime / 1000)}s`);
+        }
+        if (window.p1PedometerTime && window.p1PedometerTime > 0) {
+            txts.push(`👣 Pedometer: ${Math.ceil(window.p1PedometerTime / 1000)}s`);
+        }
+        const textVal = txts.join('\n');
+        if (window._lastP1BuffsText !== textVal) {
+            p1Buffs.innerText = textVal;
+            window._lastP1BuffsText = textVal;
+        }
+    }
+
+    const p2Buffs = document.getElementById('p2ActiveBuffs');
+    if (p2Buffs) {
+        let txts = [];
+        if (window.p2RepellentTime && window.p2RepellentTime > 0) {
+            txts.push(`🧴 Repel: ${Math.ceil(window.p2RepellentTime / 1000)}s`);
+        }
+        if (window.p2JankJuiceTime && window.p2JankJuiceTime > 0) {
+            txts.push(`🧃 Shiny: ${Math.ceil(window.p2JankJuiceTime / 1000)}s`);
+        }
+        if (window.p2ExPallTime && window.p2ExPallTime > 0) {
+            txts.push(`✨ ExPALL: ${Math.ceil(window.p2ExPallTime / 1000)}s`);
+        }
+        if (window.p2PedometerTime && window.p2PedometerTime > 0) {
+            txts.push(`👣 Pedometer: ${Math.ceil(window.p2PedometerTime / 1000)}s`);
+        }
+        const textVal = txts.join('\n');
+        if (window._lastP2BuffsText !== textVal) {
+            p2Buffs.innerText = textVal;
+            window._lastP2BuffsText = textVal;
+        }
+    }
+};
+
 window.useInventoryItem = function(playerNum, slotIndex) {
     const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
     const item = inv[slotIndex];
@@ -14073,6 +14448,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.p1RepellentTime = (window.p1RepellentTime || 0) + 60000;
         }
         window.saveActiveBuffTimers();
+        if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("🧴 Repellent active! Wild encounters prevented for 60 seconds.", 3000, playerNum);
     }
@@ -14083,6 +14459,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.p1PedometerTime = (window.p1PedometerTime || 0) + 60000;
         }
         window.saveActiveBuffTimers();
+        if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("👣 Pedometer active! Egg hatching progress is doubled for 60 seconds.", 3000, playerNum);
     }
@@ -14093,6 +14470,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.p1JankJuiceTime = (window.p1JankJuiceTime || 0) + 360000;
         }
         window.saveActiveBuffTimers();
+        if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("🧃 Jank Juice active! Wild shiny spawn rates significantly increased for 6 minutes.", 3000, playerNum);
     }
@@ -14103,6 +14481,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.p1ExPallTime = (window.p1ExPallTime || 0) + 180000;
         }
         window.saveActiveBuffTimers();
+        if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 180 seconds.", 3000, playerNum);
     }
@@ -14594,7 +14973,7 @@ window.getActiveContainerForPlayer = function(playerNum) {
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
             'battleModal', 'battleSwapModal', 'challengeModal',
-            'journalModal', 'storeModal', 'customizationModal', 'actionWheelModal', 'inventoryWheelModal',
+            'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'actionWheelModal', 'inventoryWheelModal',
             'creatureSelectModal_p1', 'creatureSelectModal_p2',
             'respawnChoiceModal_p1', 'respawnChoiceModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
             'customConfirmModal_p1', 'customConfirmModal_p2'
@@ -15373,7 +15752,7 @@ window.isAnyModalOpen = function() {
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal',
-        'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
+        'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
         'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal', 'inventoryWheelModal',
         'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
         'customConfirmModal_p1', 'customConfirmModal_p2'
@@ -15395,7 +15774,7 @@ window.updateModalVisibility = function() {
         // Reset classes and styles in case co-op was just disabled
         const modalIds = [
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
-            'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
+            'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
             'challengeModal', 'battleModal', 'actionWheelModal', 'inventoryWheelModal'
         ];
         modalIds.forEach(id => {
@@ -15417,7 +15796,7 @@ window.updateModalVisibility = function() {
 
     const modalIds = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
-        'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'customizationModal', 'customizationModal_p2',
+        'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
         'challengeModal', 'actionWheelModal', 'inventoryWheelModal'
     ];
 
@@ -15520,6 +15899,7 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
         { id: 'breedingModal', close: (p) => { if (window.closeBreedingModal) window.closeBreedingModal(p); } },
         { id: 'journalModal', close: (p) => { if (window.closeJournalModal) window.closeJournalModal(p); } },
         { id: 'storeModal', close: (p) => { if (window.closeStoreModal) window.closeStoreModal(p); } },
+        { id: 'storageChestModal', close: (p) => { if (window.closeStorageChestModal) window.closeStorageChestModal(p); } },
         { id: 'challengeModal', close: (p) => { if (window.closeChallengeModal) window.closeChallengeModal(p); } },
         { id: 'customizationModal', close: (p) => { if (window.closeCustomizationModal) window.closeCustomizationModal(p); } },
         { id: 'inventoryWheelModal', close: (p) => { if (window.closeInventoryWheel) window.closeInventoryWheel(p); } }
@@ -15559,6 +15939,7 @@ window.closeAllModals = function(exceptId) {
         { id: 'breedingModal', close: () => { if (window.closeBreedingModal) window.closeBreedingModal(); } },
         { id: 'journalModal', close: () => { if (window.closeJournalModal) window.closeJournalModal(); } },
         { id: 'storeModal', close: () => { if (window.closeStoreModal) window.closeStoreModal(); } },
+        { id: 'storageChestModal', close: () => { if (window.closeStorageChestModal) window.closeStorageChestModal(); } },
         { id: 'challengeModal', close: () => { if (window.closeChallengeModal) window.closeChallengeModal(); } },
         { id: 'battleSwapModal', close: () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); } },
         { id: 'tradeModal', close: () => { if (window.closeTradeModal) window.closeTradeModal(); } },
@@ -18128,6 +18509,8 @@ window.p1ChallengeClosedWhileOverlapping = false;
 window.p2ChallengeClosedWhileOverlapping = false;
 window.p1BreedingClosedWhileOverlapping = false;
 window.p2BreedingClosedWhileOverlapping = false;
+window.p1StorageChestClosedWhileOverlapping = false;
+window.p2StorageChestClosedWhileOverlapping = false;
 
 let pendingPvpOffer = null;
 
@@ -20297,8 +20680,8 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             tSprite.setData('trainerName', trainerName);
             tSprite.setData('nameText', nameText);
             if (tSprite.body) {
-                tSprite.body.setImmovable(true);
-                tSprite.body.setAllowGravity(false);
+                if (typeof tSprite.body.setImmovable === 'function') tSprite.body.setImmovable(true);
+                if (typeof tSprite.body.setAllowGravity === 'function') tSprite.body.setAllowGravity(false);
             }
             sprites.push(tSprite);
         }
@@ -20335,8 +20718,8 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             qSprite.setData('questNpcName', npcName);
             qSprite.setData('nameText', nameText);
             if (qSprite.body) {
-                qSprite.body.setImmovable(true);
-                qSprite.body.setAllowGravity(false);
+                if (typeof qSprite.body.setImmovable === 'function') qSprite.body.setImmovable(true);
+                if (typeof qSprite.body.setAllowGravity === 'function') qSprite.body.setAllowGravity(false);
             }
             sprites.push(qSprite);
         }
@@ -20591,6 +20974,7 @@ window.spawnMiniTiles = function(scene) {
             else if (tile.type === 'pvp') textureKey = 'pvp_tile';
             else if (tile.type === 'breed') textureKey = 'breed_tile';
             else if (tile.type === 'challenge') textureKey = 'challenge_tile';
+            else if (tile.type === 'storage_chest') textureKey = 'storage_chest_tile';
 
             if (textureKey) {
                 let mSprite = window.miniTilesGroup.create(tile.x, tile.y, textureKey);
@@ -20884,7 +21268,8 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
         "Mini Trade": "trade",
         "Mini PvP": "pvp",
         "Mini Breeding Center": "breed",
-        "Mini Challenge": "challenge"
+        "Mini Challenge": "challenge",
+        "Storage Chest": "storage_chest"
     };
     const tileType = typeMap[itemName];
 
@@ -21535,6 +21920,11 @@ function create() {
             } else {
                 if (window.openBreedingModal) window.openBreedingModal(pCol);
             }
+        } else if (tileSprite.miniTileType === 'storage_chest') {
+            const playerNum = (pCol === window.player2 || pCol === 2) ? 2 : 1;
+            if (window.openStorageChestModal) {
+                window.openStorageChestModal(playerNum, tileSprite);
+            }
         }
     }, null, this);
 
@@ -21897,7 +22287,7 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
                 window.renderCreatureCanvas(dCanvas, enemyCreature, 64, false);
                 scene.textures.addCanvas(textureKey, dCanvas);
             } else {
-                const tex = scene.textures.get(textureKey);
+                const tex = (typeof scene.textures.get === 'function') ? scene.textures.get(textureKey) : null;
                 if (tex) {
                     const cvs = tex.getSourceImage();
                     if (cvs) cvs.creatureDataReference = enemyCreature;
@@ -22088,7 +22478,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         window.renderCreatureCanvas(dCanvas, clonedData, 64, false); // false = no background/aura for world sprite!
         scene.textures.addCanvas(textureKey, dCanvas);
     } else {
-        const tex = scene.textures.get(textureKey);
+        const tex = (typeof scene.textures.get === 'function') ? scene.textures.get(textureKey) : null;
         if (tex) {
             const cvs = tex.getSourceImage();
             if (cvs) cvs.creatureDataReference = clonedData;
@@ -22166,7 +22556,7 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         window.renderCreatureCanvas(dCanvas, followCreature, 64, false);
         scene.textures.addCanvas(textureKey, dCanvas);
     } else {
-        const tex = scene.textures.get(textureKey);
+        const tex = (typeof scene.textures.get === 'function') ? scene.textures.get(textureKey) : null;
         if (tex) {
             const cvs = tex.getSourceImage();
             if (cvs) cvs.creatureDataReference = followCreature;
@@ -24301,6 +24691,11 @@ window.enableCoop = function(scene) {
             } else {
                 if (window.openBreedingModal) window.openBreedingModal(pCol);
             }
+        } else if (tileSprite.miniTileType === 'storage_chest') {
+            const playerNum = (pCol === window.player2 || pCol === 2) ? 2 : 1;
+            if (window.openStorageChestModal) {
+                window.openStorageChestModal(playerNum, tileSprite);
+            }
         }
     }, null, scene));
 
@@ -24458,7 +24853,7 @@ function isPointerOverButton(p) {
                     target.id === 'breedingModal' || target.id === 'menuModal' || target.id === 'partyModal' ||
                     target.id === 'storageModal' || target.id === 'helpModal' || target.id === 'levelUpModal' ||
                     target.id === 'tradeModal' || target.id === 'pvpModal' || target.id === 'journalModal' ||
-                    target.id === 'battleSwapModal' || target.id === 'storeModal' || target.id === 'battleModal' ||
+                    target.id === 'battleSwapModal' || target.id === 'storeModal' || target.id === 'storageChestModal' || target.id === 'battleModal' ||
                     target.id === 'customizationModal' || target.id === 'challengeModal' || target.id === 'socialSidebar' ||
                     target.id === 'introModal'
                 )) {
@@ -24976,6 +25371,35 @@ function update() {
     }
     if (!p2BreedOverlap) {
         window.p2BreedingClosedWhileOverlapping = false;
+    }
+
+    // Storage Chest overlap resets
+    let storageChestOverlap = false;
+    if (typeof window.miniTilesGroup !== 'undefined' && window.miniTilesGroup) {
+        window.miniTilesGroup.getChildren().forEach(tile => {
+            if (tile.miniTileType === 'storage_chest') {
+                if (Phaser.Math.Distance.Between(player.x, player.y, tile.x, tile.y) < 100) {
+                    storageChestOverlap = true;
+                }
+            }
+        });
+    }
+    if (!storageChestOverlap) {
+        window.p1StorageChestClosedWhileOverlapping = false;
+    }
+
+    let p2StorageChestOverlap = false;
+    if (window.coopActive && window.player2 && typeof window.miniTilesGroup !== 'undefined' && window.miniTilesGroup) {
+        window.miniTilesGroup.getChildren().forEach(tile => {
+            if (tile.miniTileType === 'storage_chest') {
+                if (Phaser.Math.Distance.Between(window.player2.x, window.player2.y, tile.x, tile.y) < 100) {
+                    p2StorageChestOverlap = true;
+                }
+            }
+        });
+    }
+    if (!p2StorageChestOverlap) {
+        window.p2StorageChestClosedWhileOverlapping = false;
     }
 
 
