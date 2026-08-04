@@ -19,6 +19,10 @@ test.describe('Random Events System', () => {
         NighttimeEclipse: window.getEventBoostedType('Nighttime Eclipse'),
         HeatWave: window.getEventBoostedType('Heat Wave'),
         Aurora: window.getEventBoostedType('Aurora'),
+        FlashFreeze: window.getEventBoostedType('Flash Freeze'),
+        GustyWinds: window.getEventBoostedType('Gusty Winds'),
+        Earthquake: window.getEventBoostedType('Earthquake'),
+        BountifulBloom: window.getEventBoostedType('Bountiful Bloom'),
         None: window.getEventBoostedType('None')
       };
     });
@@ -29,6 +33,10 @@ test.describe('Random Events System', () => {
     expect(mappings.NighttimeEclipse).toBe('Dark');
     expect(mappings.HeatWave).toBe('Fire');
     expect(mappings.Aurora).toBe('Cosmic');
+    expect(mappings.FlashFreeze).toBe('Ice');
+    expect(mappings.GustyWinds).toBe('Wind');
+    expect(mappings.Earthquake).toBe('Earth');
+    expect(mappings.BountifulBloom).toBe('Nature');
     expect(mappings.None).toBeNull();
   });
 
@@ -49,48 +57,129 @@ test.describe('Random Events System', () => {
       window.getTypeModifier = () => 1;
 
       // Base damage with level 10, power 40 is 11.6
-      const attackerWater = { level: 10, type: 'Water' };
+      const attackerIce = { level: 10, type: 'Ice' };
+      const attackerWind = { level: 10, type: 'Wind' };
+      const attackerEarth = { level: 10, type: 'Earth' };
+      const attackerNature = { level: 10, type: 'Nature' };
       const attackerFire = { level: 10, type: 'Fire' };
       const defender = { type: 'Normal' };
 
-      // Set Heat Wave event (boosts Fire)
-      window.activeRandomEvent = 'Heat Wave';
+      // Set Flash Freeze event (boosts Ice)
+      window.activeRandomEvent = 'Flash Freeze';
       window.activeRandomEventEndTime = window.totalElapsedMs + 120000;
+      const dmgIce_FlashFreeze = window.calculateDamage(attackerIce, defender, 40);
+      const dmgFire_FlashFreeze = window.calculateDamage(attackerFire, defender, 40);
 
-      const dmgWater = window.calculateDamage(attackerWater, defender, 40);
-      const dmgFire = window.calculateDamage(attackerFire, defender, 40);
+      // Set Gusty Winds event (boosts Wind)
+      window.activeRandomEvent = 'Gusty Winds';
+      window.activeRandomEventEndTime = window.totalElapsedMs + 120000;
+      const dmgWind_GustyWinds = window.calculateDamage(attackerWind, defender, 40);
+      const dmgFire_GustyWinds = window.calculateDamage(attackerFire, defender, 40);
 
-      return { dmgWater, dmgFire };
+      // Set Earthquake event (boosts Earth)
+      window.activeRandomEvent = 'Earthquake';
+      window.activeRandomEventEndTime = window.totalElapsedMs + 120000;
+      const dmgEarth_Earthquake = window.calculateDamage(attackerEarth, defender, 40);
+      const dmgFire_Earthquake = window.calculateDamage(attackerFire, defender, 40);
+
+      // Set Bountiful Bloom event (boosts Nature)
+      window.activeRandomEvent = 'Bountiful Bloom';
+      window.activeRandomEventEndTime = window.totalElapsedMs + 120000;
+      const dmgNature_BountifulBloom = window.calculateDamage(attackerNature, defender, 40);
+      const dmgFire_BountifulBloom = window.calculateDamage(attackerFire, defender, 40);
+
+      return {
+        dmgIce_FlashFreeze,
+        dmgFire_FlashFreeze,
+        dmgWind_GustyWinds,
+        dmgFire_GustyWinds,
+        dmgEarth_Earthquake,
+        dmgFire_Earthquake,
+        dmgNature_BountifulBloom,
+        dmgFire_BountifulBloom
+      };
     });
 
-    // Fire is boosted during Heat Wave: base 11.6 * 1.5 = 17.4
-    // Water is NOT boosted: 11.6
-    expect(result.dmgWater).toBeCloseTo(11.6);
-    expect(result.dmgFire).toBeCloseTo(17.4);
+    // Flash Freeze
+    expect(result.dmgIce_FlashFreeze).toBeCloseTo(17.4);
+    expect(result.dmgFire_FlashFreeze).toBeCloseTo(11.6);
+
+    // Gusty Winds
+    expect(result.dmgWind_GustyWinds).toBeCloseTo(17.4);
+    expect(result.dmgFire_GustyWinds).toBeCloseTo(11.6);
+
+    // Earthquake
+    expect(result.dmgEarth_Earthquake).toBeCloseTo(17.4);
+    expect(result.dmgFire_Earthquake).toBeCloseTo(11.6);
+
+    // Bountiful Bloom
+    expect(result.dmgNature_BountifulBloom).toBeCloseTo(17.4);
+    expect(result.dmgFire_BountifulBloom).toBeCloseTo(11.6);
   });
 
   test('updates activeEventBadge HTML element with countdown timer and correct styles', async ({ page }) => {
-    // Force active event Heat Wave
+    // Disable the background update loop from auto-overriding our mocked values
     await page.evaluate(() => {
-      window.activeRandomEvent = 'Heat Wave';
+      window.updateRandomEvents = null;
+    });
+
+    // 1. Force Flash Freeze
+    await page.evaluate(() => {
+      window.gameStarted = true;
+      window.activeRandomEvent = 'Flash Freeze';
       window.activeRandomEventEndTime = window.totalElapsedMs + 100000; // 100 seconds left
       window.updateEventBadgeUI();
     });
+    const badge1 = page.locator('#activeEventBadge');
+    await expect(badge1).toBeVisible();
+    let text1 = await badge1.innerText();
+    expect(text1.toUpperCase()).toContain('❄️ FLASH FREEZE');
+    expect(text1).toContain('1:40');
 
-    const badge = page.locator('#activeEventBadge');
-    await expect(badge).toBeVisible();
+    // 2. Force Gusty Winds
+    await page.evaluate(() => {
+      window.gameStarted = true;
+      window.activeRandomEvent = 'Gusty Winds';
+      window.activeRandomEventEndTime = window.totalElapsedMs + 120000; // 120 seconds left
+      window.updateEventBadgeUI();
+    });
+    const badge2 = page.locator('#activeEventBadge');
+    await expect(badge2).toBeVisible();
+    let text2 = await badge2.innerText();
+    expect(text2.toUpperCase()).toContain('🌀 GUSTY WINDS');
+    expect(text2).toContain('2:00');
 
-    const text = await badge.innerText();
-    expect(text.toUpperCase()).toContain('🔥 HEAT WAVE');
-    expect(text).toContain('1:40'); // 100 seconds is 1m 40s
+    // 3. Force Earthquake
+    await page.evaluate(() => {
+      window.gameStarted = true;
+      window.activeRandomEvent = 'Earthquake';
+      window.activeRandomEventEndTime = window.totalElapsedMs + 80000; // 80 seconds left
+      window.updateEventBadgeUI();
+    });
+    const badge3 = page.locator('#activeEventBadge');
+    await expect(badge3).toBeVisible();
+    let text3 = await badge3.innerText();
+    expect(text3.toUpperCase()).toContain('🌋 EARTHQUAKE');
+    expect(text3).toContain('1:20');
+
+    // 4. Force Bountiful Bloom
+    await page.evaluate(() => {
+      window.gameStarted = true;
+      window.activeRandomEvent = 'Bountiful Bloom';
+      window.activeRandomEventEndTime = window.totalElapsedMs + 90000; // 90 seconds left
+      window.updateEventBadgeUI();
+    });
+    const badge4 = page.locator('#activeEventBadge');
+    await expect(badge4).toBeVisible();
+    let text4 = await badge4.innerText();
+    expect(text4.toUpperCase()).toContain('🌸 BLOOM');
+    expect(text4).toContain('1:30');
   });
 
   test('applies visual dayNightOverlay color overrides', async ({ page }) => {
     const colors = await page.evaluate(() => {
       const getOverlayColorForEvent = (event) => {
         window.activeRandomEvent = event;
-        // Trigger manual update (this runs the logic normally inside update loop)
-        // Set totalElapsedMs >= 600000 to unlock event visuals
         window.totalElapsedMs = 650000;
 
         // Find or create dayNightOverlay mock
@@ -113,6 +202,14 @@ test.describe('Random Events System', () => {
               targetAlpha = Math.max(targetAlpha, 0.25);
           } else if (window.activeRandomEvent === 'Aurora') {
               targetAlpha = Math.max(targetAlpha, 0.40);
+          } else if (window.activeRandomEvent === 'Flash Freeze') {
+              targetAlpha = Math.max(targetAlpha, 0.35);
+          } else if (window.activeRandomEvent === 'Gusty Winds') {
+              targetAlpha = Math.max(targetAlpha, 0.20);
+          } else if (window.activeRandomEvent === 'Earthquake') {
+              targetAlpha = Math.max(targetAlpha, 0.25);
+          } else if (window.activeRandomEvent === 'Bountiful Bloom') {
+              targetAlpha = Math.max(targetAlpha, 0.30);
           }
         }
 
@@ -121,6 +218,14 @@ test.describe('Random Events System', () => {
             fillColor = 0xcc3300;
         } else if (window.activeRandomEvent === 'Aurora') {
             fillColor = 0x3a005c;
+        } else if (window.activeRandomEvent === 'Flash Freeze') {
+            fillColor = 0xb2ebf2;
+        } else if (window.activeRandomEvent === 'Gusty Winds') {
+            fillColor = 0xe5ffff;
+        } else if (window.activeRandomEvent === 'Earthquake') {
+            fillColor = 0x8d6e63;
+        } else if (window.activeRandomEvent === 'Bountiful Bloom') {
+            fillColor = 0x81c784;
         }
 
         return { fillColor, targetAlpha };
@@ -129,6 +234,10 @@ test.describe('Random Events System', () => {
       return {
         heatwave: getOverlayColorForEvent('Heat Wave'),
         aurora: getOverlayColorForEvent('Aurora'),
+        flashfreeze: getOverlayColorForEvent('Flash Freeze'),
+        gustywinds: getOverlayColorForEvent('Gusty Winds'),
+        earthquake: getOverlayColorForEvent('Earthquake'),
+        bountifulbloom: getOverlayColorForEvent('Bountiful Bloom'),
         none: getOverlayColorForEvent('None')
       };
     });
@@ -138,6 +247,18 @@ test.describe('Random Events System', () => {
 
     expect(colors.aurora.fillColor).toBe(0x3a005c);
     expect(colors.aurora.targetAlpha).toBe(0.40);
+
+    expect(colors.flashfreeze.fillColor).toBe(0xb2ebf2);
+    expect(colors.flashfreeze.targetAlpha).toBe(0.35);
+
+    expect(colors.gustywinds.fillColor).toBe(0xe5ffff);
+    expect(colors.gustywinds.targetAlpha).toBe(0.20);
+
+    expect(colors.earthquake.fillColor).toBe(0x8d6e63);
+    expect(colors.earthquake.targetAlpha).toBe(0.25);
+
+    expect(colors.bountifulbloom.fillColor).toBe(0x81c784);
+    expect(colors.bountifulbloom.targetAlpha).toBe(0.30);
 
     expect(colors.none.fillColor).toBe(0x000033);
   });
