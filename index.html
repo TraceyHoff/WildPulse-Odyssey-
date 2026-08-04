@@ -3231,11 +3231,15 @@ window.getEventBoostedType = function(event) {
     if (event === 'Nighttime Eclipse') return 'Dark';
     if (event === 'Heat Wave') return 'Fire';
     if (event === 'Aurora') return 'Cosmic';
+    if (event === 'Flash Freeze') return 'Ice';
+    if (event === 'Gusty Winds') return 'Wind';
+    if (event === 'Earthquake') return 'Earth';
+    if (event === 'Bountiful Bloom') return 'Nature';
     return null;
 };
 
 window.rollRandomEvent = function() {
-    const events = ['Rain', 'Thunderstorm', 'Daytime Radiance', 'Nighttime Eclipse', 'Heat Wave', 'Aurora', 'None'];
+    const events = ['Daytime Radiance', 'Nighttime Eclipse', 'Heat Wave', 'Aurora', 'Gusty Winds', 'Earthquake', 'Bountiful Bloom', 'None'];
     const chosen = events[Math.floor(Math.random() * events.length)];
     const duration = (chosen === 'None') ? 60000 : 120000;
 
@@ -3248,13 +3252,7 @@ window.rollRandomEvent = function() {
     if (window.showModernNotification) {
         let msg = "";
         let color = "#4caf50";
-        if (chosen === 'Rain') {
-            msg = "🌧️ WEATHER EVENT: A heavy rain downpour has started! Water-type creatures are now 50% stronger!";
-            color = "#2196f3";
-        } else if (chosen === 'Thunderstorm') {
-            msg = "⛈️ WEATHER EVENT: A violent electric storm is surging! Electric-type creatures are now 50% stronger!";
-            color = "#ffeb3b";
-        } else if (chosen === 'Daytime Radiance') {
+        if (chosen === 'Daytime Radiance') {
             msg = "☀️ SOLAR EVENT: Daytime Radiance has descended! Light-type creatures are now 50% stronger!";
             color = "#ffeb3b";
         } else if (chosen === 'Nighttime Eclipse') {
@@ -3266,6 +3264,15 @@ window.rollRandomEvent = function() {
         } else if (chosen === 'Aurora') {
             msg = "🌌 CELESTIAL EVENT: A beautiful Aurora Borealis illuminates the atmosphere! Cosmic-type creatures are now 50% stronger!";
             color = "#00e5ff";
+        } else if (chosen === 'Gusty Winds') {
+            msg = "🌀 WEATHER EVENT: Gusty Winds are howling across the land! Wind-type creatures are now 50% stronger!";
+            color = "#a7ffeb";
+        } else if (chosen === 'Earthquake') {
+            msg = "🌋 SEISMIC EVENT: An Earthquake is shaking the ground! Earth-type creatures are now 50% stronger!";
+            color = "#ffb74d";
+        } else if (chosen === 'Bountiful Bloom') {
+            msg = "🌸 BIOLOGICAL EVENT: A Bountiful Bloom has erupted! Nature-type creatures are now 50% stronger!";
+            color = "#81c784";
         } else {
             msg = "🍃 The atmospheric event has subsided. The world returns to normal.";
             color = "#4caf50";
@@ -3279,9 +3286,57 @@ window.updateRandomEvents = function(scene) {
         return;
     }
 
+    const isRainWeather = (window.weatherPattern === 'light_rain' || window.weatherPattern === 'heavy_rain');
+    const isStormWeather = (window.weatherPattern === 'thunderstorm');
+    const isSnowWeather = (window.weatherPattern === 'light_snow' || window.weatherPattern === 'heavy_snow' || window.weatherPattern === 'thundersnow');
+    const isDynamicWeatherActive = (isRainWeather || isStormWeather || isSnowWeather);
+
+    if (isDynamicWeatherActive) {
+        const targetEvent = isRainWeather ? 'Rain' : (isStormWeather ? 'Thunderstorm' : 'Flash Freeze');
+        if (window.activeRandomEvent !== targetEvent) {
+            window.activeRandomEvent = targetEvent;
+            window.activeRandomEventEndTime = window.weatherEventEndTime || (window.totalElapsedMs + 120000);
+            localStorage.setItem('wildpulse_active_random_event', targetEvent);
+            localStorage.setItem('wildpulse_active_random_event_end_time', window.activeRandomEventEndTime.toString());
+
+            if (window.showModernNotification) {
+                let msg = "";
+                let color = "#4caf50";
+                if (targetEvent === 'Rain') {
+                    msg = "🌧️ WEATHER EVENT: A heavy rain downpour has started! Water-type creatures are now 50% stronger!";
+                    color = "#2196f3";
+                } else if (targetEvent === 'Thunderstorm') {
+                    msg = "⛈️ WEATHER EVENT: A violent electric storm is surging! Electric-type creatures are now 50% stronger!";
+                    color = "#ffeb3b";
+                } else if (targetEvent === 'Flash Freeze') {
+                    msg = "❄️ CLIMATE EVENT: A Flash Freeze has gripped the region! Ice-type creatures are now 50% stronger!";
+                    color = "#00e5ff";
+                }
+                window.showModernNotification(msg, color);
+            }
+        } else {
+            if (window.weatherEventEndTime) {
+                window.activeRandomEventEndTime = window.weatherEventEndTime;
+                localStorage.setItem('wildpulse_active_random_event_end_time', window.activeRandomEventEndTime.toString());
+            }
+        }
+        return;
+    }
+
+    // No dynamic weather active. If we were in a weather-based random event, clear it back to None
+    if (window.activeRandomEvent === 'Rain' || window.activeRandomEvent === 'Thunderstorm' || window.activeRandomEvent === 'Flash Freeze') {
+        window.activeRandomEvent = 'None';
+        window.activeRandomEventEndTime = 0;
+        localStorage.setItem('wildpulse_active_random_event', 'None');
+        localStorage.setItem('wildpulse_active_random_event_end_time', '0');
+        if (window.showModernNotification) {
+            window.showModernNotification("🍃 The weather event has subsided. The world returns to normal.", "#4caf50");
+        }
+    }
+
     if (window.totalElapsedMs < 600000) {
         if (window.activeRandomEvent && window.activeRandomEvent !== 'None') {
-            // Keep forced event active for testing
+            // Keep forced event active for testing / debugging / user-triggered
         } else {
             window.activeRandomEvent = 'None';
             window.activeRandomEventEndTime = 0;
@@ -3291,20 +3346,6 @@ window.updateRandomEvents = function(scene) {
 
     if (!window.activeRandomEvent || window.totalElapsedMs >= window.activeRandomEventEndTime) {
         window.rollRandomEvent();
-    }
-
-    if (window.activeRandomEvent === 'Rain') {
-        window.weatherPattern = 'heavy_rain';
-        window.weatherIntensity = 1.0;
-        window.cloudCoverage = 'cloudy';
-    } else if (window.activeRandomEvent === 'Thunderstorm') {
-        window.weatherPattern = 'thunderstorm';
-        window.weatherIntensity = 1.0;
-        window.cloudCoverage = 'cloudy';
-    } else if (window.activeRandomEvent && window.activeRandomEvent !== 'None') {
-        if (window.weatherPattern === 'light_rain' || window.weatherPattern === 'heavy_rain' || window.weatherPattern === 'thunderstorm') {
-            window.weatherPattern = 'none';
-        }
     }
 };
 
@@ -3351,6 +3392,22 @@ window.updateEventBadgeUI = function() {
         text = `🌌 Aurora: Cosmic +50% DMG [${timeStr}]`;
         color = "#00e5ff";
         shadow = "0 0 10px rgba(0,229,255,0.5)";
+    } else if (window.activeRandomEvent === 'Flash Freeze') {
+        text = `❄️ Flash Freeze: Ice +50% DMG [${timeStr}]`;
+        color = "#00e5ff";
+        shadow = "0 0 10px rgba(0,229,255,0.5)";
+    } else if (window.activeRandomEvent === 'Gusty Winds') {
+        text = `🌀 Gusty Winds: Wind +50% DMG [${timeStr}]`;
+        color = "#a7ffeb";
+        shadow = "0 0 10px rgba(167,255,235,0.5)";
+    } else if (window.activeRandomEvent === 'Earthquake') {
+        text = `🌋 Earthquake: Earth +50% DMG [${timeStr}]`;
+        color = "#ffb74d";
+        shadow = "0 0 10px rgba(255,183,77,0.5)";
+    } else if (window.activeRandomEvent === 'Bountiful Bloom') {
+        text = `🌸 Bloom: Nature +50% DMG [${timeStr}]`;
+        color = "#81c784";
+        shadow = "0 0 10px rgba(129,199,132,0.5)";
     }
 
     el.innerHTML = text;
@@ -26031,6 +26088,18 @@ function update() {
         } else if (window.activeRandomEvent === 'Daytime Radiance') {
             targetAlpha = Math.max(targetAlpha, 0.10);
             fillColor = 0xfffae6;
+        } else if (window.activeRandomEvent === 'Flash Freeze') {
+            targetAlpha = Math.max(targetAlpha, 0.35);
+            fillColor = 0xb2ebf2;
+        } else if (window.activeRandomEvent === 'Gusty Winds') {
+            targetAlpha = Math.max(targetAlpha, 0.20);
+            fillColor = 0xe5ffff;
+        } else if (window.activeRandomEvent === 'Earthquake') {
+            targetAlpha = Math.max(targetAlpha, 0.25);
+            fillColor = 0x8d6e63;
+        } else if (window.activeRandomEvent === 'Bountiful Bloom') {
+            targetAlpha = Math.max(targetAlpha, 0.30);
+            fillColor = 0x81c784;
         }
     }
 
@@ -27342,6 +27411,8 @@ function update() {
         const eventStartOffset = cycleRng() * (WEATHER_WINDOW - eventDuration);
         const eventStartTime = COOLDOWN_DURATION + eventStartOffset;
         const eventEndTime = eventStartTime + eventDuration;
+
+        window.weatherEventEndTime = cycleIndex * CYCLE_DURATION + eventEndTime;
 
         let targetPattern = 'none';
         let targetIntensity = 0;
