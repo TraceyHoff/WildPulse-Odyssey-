@@ -2915,6 +2915,9 @@
 <div id="p1Timers" class="player-timers-container"></div>
 <div id="p2Timers" class="player-timers-container"></div>
 
+<!-- Glowing Active Event HUD Badge -->
+<div id="activeEventBadge" style="position: fixed; top: 15px; left: 50%; transform: translate(-50%, 0); z-index: 10000; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); padding: 6px 16px; border: 2px solid #00ffcc; border-radius: 20px; color: #00ffcc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; display: none; align-items: center; gap: 8px; box-shadow: 0 0 10px rgba(0,255,204,0.5); pointer-events: none;"></div>
+
 <!-- Hospital Directional Arrows Overlay -->
 <div id="p1HospitalArrow" style="position: fixed; top: 20px; left: 50%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
     <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
@@ -3215,6 +3218,147 @@ window.gameSeed = window.roomSeed;
 window.initialRoomSeed = window.roomSeed;
 
 window.totalElapsedMs = parseInt(localStorage.getItem('wildpulse_total_elapsed_ms')) || 0;
+
+// Random Events System
+window.activeRandomEvent = localStorage.getItem('wildpulse_active_random_event') || 'None';
+window.activeRandomEventEndTime = parseInt(localStorage.getItem('wildpulse_active_random_event_end_time')) || 0;
+
+window.getEventBoostedType = function(event) {
+    if (!event) return null;
+    if (event === 'Rain') return 'Water';
+    if (event === 'Thunderstorm') return 'Electric';
+    if (event === 'Daytime Radiance') return 'Light';
+    if (event === 'Nighttime Eclipse') return 'Dark';
+    if (event === 'Heat Wave') return 'Fire';
+    if (event === 'Aurora') return 'Cosmic';
+    return null;
+};
+
+window.rollRandomEvent = function() {
+    const events = ['Rain', 'Thunderstorm', 'Daytime Radiance', 'Nighttime Eclipse', 'Heat Wave', 'Aurora', 'None'];
+    const chosen = events[Math.floor(Math.random() * events.length)];
+    const duration = (chosen === 'None') ? 60000 : 120000;
+
+    window.activeRandomEvent = chosen;
+    window.activeRandomEventEndTime = window.totalElapsedMs + duration;
+
+    localStorage.setItem('wildpulse_active_random_event', chosen);
+    localStorage.setItem('wildpulse_active_random_event_end_time', window.activeRandomEventEndTime.toString());
+
+    if (window.showModernNotification) {
+        let msg = "";
+        let color = "#4caf50";
+        if (chosen === 'Rain') {
+            msg = "🌧️ WEATHER EVENT: A heavy rain downpour has started! Water-type creatures are now 50% stronger!";
+            color = "#2196f3";
+        } else if (chosen === 'Thunderstorm') {
+            msg = "⛈️ WEATHER EVENT: A violent electric storm is surging! Electric-type creatures are now 50% stronger!";
+            color = "#ffeb3b";
+        } else if (chosen === 'Daytime Radiance') {
+            msg = "☀️ SOLAR EVENT: Daytime Radiance has descended! Light-type creatures are now 50% stronger!";
+            color = "#ffeb3b";
+        } else if (chosen === 'Nighttime Eclipse') {
+            msg = "🌙 LUNAR EVENT: A cosmic Nighttime Eclipse has shrouded the sky! Dark-type creatures are now 50% stronger!";
+            color = "#ab47bc";
+        } else if (chosen === 'Heat Wave') {
+            msg = "🔥 CLIMATE EVENT: A blazing Heat Wave has swept the region! Fire-type creatures are now 50% stronger!";
+            color = "#ff5722";
+        } else if (chosen === 'Aurora') {
+            msg = "🌌 CELESTIAL EVENT: A beautiful Aurora Borealis illuminates the atmosphere! Cosmic-type creatures are now 50% stronger!";
+            color = "#00e5ff";
+        } else {
+            msg = "🍃 The atmospheric event has subsided. The world returns to normal.";
+            color = "#4caf50";
+        }
+        window.showModernNotification(msg, color);
+    }
+};
+
+window.updateRandomEvents = function(scene) {
+    if (!window.gameStarted) {
+        return;
+    }
+
+    if (window.totalElapsedMs < 600000) {
+        if (window.activeRandomEvent && window.activeRandomEvent !== 'None') {
+            // Keep forced event active for testing
+        } else {
+            window.activeRandomEvent = 'None';
+            window.activeRandomEventEndTime = 0;
+            return;
+        }
+    }
+
+    if (!window.activeRandomEvent || window.totalElapsedMs >= window.activeRandomEventEndTime) {
+        window.rollRandomEvent();
+    }
+
+    if (window.activeRandomEvent === 'Rain') {
+        window.weatherPattern = 'heavy_rain';
+        window.weatherIntensity = 1.0;
+        window.cloudCoverage = 'cloudy';
+    } else if (window.activeRandomEvent === 'Thunderstorm') {
+        window.weatherPattern = 'thunderstorm';
+        window.weatherIntensity = 1.0;
+        window.cloudCoverage = 'cloudy';
+    } else if (window.activeRandomEvent && window.activeRandomEvent !== 'None') {
+        if (window.weatherPattern === 'light_rain' || window.weatherPattern === 'heavy_rain' || window.weatherPattern === 'thunderstorm') {
+            window.weatherPattern = 'none';
+        }
+    }
+};
+
+window.updateEventBadgeUI = function() {
+    const el = document.getElementById('activeEventBadge');
+    if (!el) return;
+
+    if (!window.gameStarted || !window.activeRandomEvent || window.activeRandomEvent === 'None') {
+        el.style.display = 'none';
+        return;
+    }
+
+    const remainingMs = window.activeRandomEventEndTime - window.totalElapsedMs;
+    const remainingSecs = Math.max(0, Math.ceil(remainingMs / 1000));
+    const mins = Math.floor(remainingSecs / 60);
+    const secs = remainingSecs % 60;
+    const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+    let text = "";
+    let color = "#00ffcc";
+    let shadow = "0 0 10px rgba(0,255,204,0.5)";
+
+    if (window.activeRandomEvent === 'Rain') {
+        text = `🌧️ Rain: Water +50% DMG [${timeStr}]`;
+        color = "#2196f3";
+        shadow = "0 0 10px rgba(33,150,243,0.5)";
+    } else if (window.activeRandomEvent === 'Thunderstorm') {
+        text = `⚡ Storm: Electric +50% DMG [${timeStr}]`;
+        color = "#ffeb3b";
+        shadow = "0 0 10px rgba(255,235,59,0.5)";
+    } else if (window.activeRandomEvent === 'Daytime Radiance') {
+        text = `☀️ Day: Light +50% DMG [${timeStr}]`;
+        color = "#ffeb3b";
+        shadow = "0 0 10px rgba(255,235,59,0.5)";
+    } else if (window.activeRandomEvent === 'Nighttime Eclipse') {
+        text = `🌙 Eclipse: Dark +50% DMG [${timeStr}]`;
+        color = "#ab47bc";
+        shadow = "0 0 10px rgba(171,71,188,0.5)";
+    } else if (window.activeRandomEvent === 'Heat Wave') {
+        text = `🔥 Heat Wave: Fire +50% DMG [${timeStr}]`;
+        color = "#ff5722";
+        shadow = "0 0 10px rgba(255,87,34,0.5)";
+    } else if (window.activeRandomEvent === 'Aurora') {
+        text = `🌌 Aurora: Cosmic +50% DMG [${timeStr}]`;
+        color = "#00e5ff";
+        shadow = "0 0 10px rgba(0,229,255,0.5)";
+    }
+
+    el.innerHTML = text;
+    el.style.color = color;
+    el.style.borderColor = color;
+    el.style.boxShadow = shadow;
+    el.style.display = 'flex';
+};
 
 window.windAngle = 0;
 window.windSpeed = 200;
@@ -13688,6 +13832,14 @@ window.calculateDamage = function(attacker, defender, power = 40) {
     let specDamage = ((((2 * level / 5 + 2) * power * (spAtk / spDef)) / 50) + 2) * typeMod;
 
     let damage = Math.max(physDamage, specDamage);
+
+    // Apply Random Event boost (1.5x damage for matching types)
+    if (window.activeRandomEvent && window.activeRandomEvent !== 'None') {
+        const boostedType = window.getEventBoostedType(window.activeRandomEvent);
+        if (boostedType && (attacker.type === boostedType || attacker.type2 === boostedType)) {
+            damage *= 1.5;
+        }
+    }
 
     // Passive: Earthquake Guard
     if (defender.mutation && defender.mutation.id === 'tectonic_plates') {
@@ -25426,6 +25578,12 @@ function update() {
         if (window.updateVisualTimerCircles) {
             window.updateVisualTimerCircles();
         }
+        if (window.updateRandomEvents) {
+            window.updateRandomEvents(this);
+        }
+        if (window.updateEventBadgeUI) {
+            window.updateEventBadgeUI();
+        }
         window.lastTimerVisualUpdate = now;
     }
 
@@ -25859,7 +26017,25 @@ function update() {
     }
 
     let targetAlpha = Math.max(dayNightAlpha, weatherAlpha);
+    let fillColor = 0x000033;
+    if (window.activeRandomEvent && window.activeRandomEvent !== 'None') {
+        if (window.activeRandomEvent === 'Heat Wave') {
+            targetAlpha = Math.max(targetAlpha, 0.25);
+            fillColor = 0xcc3300;
+        } else if (window.activeRandomEvent === 'Aurora') {
+            targetAlpha = Math.max(targetAlpha, 0.40);
+            fillColor = 0x3a005c;
+        } else if (window.activeRandomEvent === 'Nighttime Eclipse') {
+            targetAlpha = Math.max(targetAlpha, 0.50);
+            fillColor = 0x050015;
+        } else if (window.activeRandomEvent === 'Daytime Radiance') {
+            targetAlpha = Math.max(targetAlpha, 0.10);
+            fillColor = 0xfffae6;
+        }
+    }
+
     if (dayNightOverlay) {
+        dayNightOverlay.setFillStyle(fillColor);
         dayNightOverlay.setAlpha(dayNightOverlay.alpha + (targetAlpha - dayNightOverlay.alpha) * 0.05);
     }
 
