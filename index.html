@@ -7603,6 +7603,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Keyboard interaction (Enter, Space, E/e) to interact with tiles/mini-tiles/NPCs
+    window.addEventListener('keydown', (e) => {
+        if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+        if (window.inBattle) return;
+        if (window.isAnyModalOpen && window.isAnyModalOpen()) return;
+
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'e' || e.key === 'E') {
+            const playerObj = window.player;
+            if (playerObj && playerObj.currentTileOverlap) {
+                const overlap = playerObj.currentTileOverlap;
+                const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 150);
+                if (isCurrent && overlap.callback) {
+                    overlap.callback();
+                }
+            }
+        }
+    });
+
     // Keyboard I key hold to open Inventory Wheel on PC
     window.addEventListener('keydown', (e) => {
         if (e.key === 'i' || e.key === 'I') {
@@ -15378,6 +15396,20 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const container = window.getActiveContainerForPlayer(playerNum);
     const inModal = (container !== null);
 
+    if (!inModal) {
+        if (justA) {
+            const playerObj = playerNum === 2 ? window.player2 : window.player;
+            if (playerObj && playerObj.currentTileOverlap) {
+                const overlap = playerObj.currentTileOverlap;
+                const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 150);
+                if (isCurrent && overlap.callback) {
+                    overlap.callback();
+                    return;
+                }
+            }
+        }
+    }
+
     if (container && container.id === 'actionWheelModal') {
         let option = null;
         const playerLvl = playerNum === 2 ? window.p2Level : window.p1Level;
@@ -21959,47 +21991,74 @@ function create() {
 
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
-    this.physics.add.overlap(player, hospitalGroup, healParty, null, this);
-    this.physics.add.overlap(player, storeGroup, openStoreModal, null, this);
-    this.physics.add.overlap(player, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, this);
-    this.physics.add.overlap(player, tradeGroup, (pCol) => { if (window.openTradeModal) window.openTradeModal(pCol); }, null, this);
-    this.physics.add.overlap(player, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, this);
+    this.physics.add.overlap(player, hospitalGroup, (pCol, tile) => {
+        window.registerTileOverlap(1, 'hospital', () => healParty(pCol, tile));
+    }, null, this);
+    this.physics.add.overlap(player, storeGroup, (pCol) => {
+        window.registerTileOverlap(1, 'store', () => openStoreModal(pCol));
+    }, null, this);
+    this.physics.add.overlap(player, challengeGroup, (pCol) => {
+        window.registerTileOverlap(1, 'challenge', () => {
+            if (window.openChallengeModal) window.openChallengeModal(pCol);
+        });
+    }, null, this);
+    this.physics.add.overlap(player, tradeGroup, (pCol) => {
+        window.registerTileOverlap(1, 'trade', () => {
+            if (window.openTradeModal) window.openTradeModal(pCol);
+        });
+    }, null, this);
+    this.physics.add.overlap(player, pvpGroup, (pCol) => {
+        window.registerTileOverlap(1, 'pvp', () => {
+            if (window.openPvpModal) window.openPvpModal(pCol);
+        });
+    }, null, this);
     this.physics.add.overlap(player, window.breedGroup, (pCol) => {
-        const lvl = window.p1Level || 1;
-        if (lvl < 7) {
-            window.showModernNotification(`🔒 Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, 1);
-            return;
-        }
-        if (window.openBreedingModal) window.openBreedingModal(pCol);
+        window.registerTileOverlap(1, 'breeding_center', () => {
+            const lvl = window.p1Level || 1;
+            if (lvl < 7) {
+                window.showModernNotification(`🔒 Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, 1);
+                return;
+            }
+            if (window.openBreedingModal) window.openBreedingModal(pCol);
+        });
     }, null, this);
     this.physics.add.overlap(player, window.npcTrainersGroup, handleNpcTrainerOverlap, null, this);
     this.physics.add.overlap(player, window.questNpcGroup, handleQuestNpcOverlap, null, this);
 
     // Overlaps for functional mini-tiles
     this.physics.add.overlap(player, window.miniTilesGroup, (pCol, tileSprite) => {
-        if (tileSprite.miniTileType === 'hospital') {
-            healParty(pCol);
-        } else if (tileSprite.miniTileType === 'store') {
-            openStoreModal(pCol);
-        } else if (tileSprite.miniTileType === 'challenge') {
-            if (window.openChallengeModal) window.openChallengeModal(pCol);
-        } else if (tileSprite.miniTileType === 'trade') {
-            if (window.openTradeModal) window.openTradeModal(pCol);
-        } else if (tileSprite.miniTileType === 'pvp') {
-            if (window.openPvpModal) window.openPvpModal(pCol);
-        } else if (tileSprite.miniTileType === 'breed') {
-            const playerNum = (pCol === window.player2 || pCol === 2) ? 2 : 1;
-            const lvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
-            if (lvl < 7) {
-                window.showModernNotification(`🔒 Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, playerNum);
-            } else {
-                if (window.openBreedingModal) window.openBreedingModal(pCol);
-            }
-        } else if (tileSprite.miniTileType === 'storage_chest') {
-            const playerNum = (pCol === window.player2 || pCol === 2) ? 2 : 1;
-            if (window.openStorageChestModal) {
-                window.openStorageChestModal(playerNum, tileSprite);
-            }
+        const tileType = tileSprite.miniTileType;
+        if (tileType === 'hospital') {
+            window.registerTileOverlap(1, 'hospital', () => healParty(pCol));
+        } else if (tileType === 'store') {
+            window.registerTileOverlap(1, 'store', () => openStoreModal(pCol));
+        } else if (tileType === 'challenge') {
+            window.registerTileOverlap(1, 'challenge', () => {
+                if (window.openChallengeModal) window.openChallengeModal(pCol);
+            });
+        } else if (tileType === 'trade') {
+            window.registerTileOverlap(1, 'trade', () => {
+                if (window.openTradeModal) window.openTradeModal(pCol);
+            });
+        } else if (tileType === 'pvp') {
+            window.registerTileOverlap(1, 'pvp', () => {
+                if (window.openPvpModal) window.openPvpModal(pCol);
+            });
+        } else if (tileType === 'breed') {
+            window.registerTileOverlap(1, 'breeding_center', () => {
+                const lvl = window.p1Level || 1;
+                if (lvl < 7) {
+                    window.showModernNotification(`🔒 Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, 1);
+                } else {
+                    if (window.openBreedingModal) window.openBreedingModal(pCol);
+                }
+            });
+        } else if (tileType === 'storage_chest') {
+            window.registerTileOverlap(1, 'storage_chest', () => {
+                if (window.openStorageChestModal) {
+                    window.openStorageChestModal(1, tileSprite);
+                }
+            });
         }
     }, null, this);
 
@@ -22043,6 +22102,29 @@ function create() {
             let p1WorldX = this.cameras.main.scrollX + pointer.x;
             let p1WorldY = this.cameras.main.scrollY + pointer.y;
             window.tryPlaceHome(1, p1WorldX, p1WorldY);
+        }
+    });
+
+    // Pointer listener (Mouse left-click and touch screen taps) to open active tile modal
+    this.input.on('pointerdown', (pointer) => {
+        if (window.inBattle) return;
+        if (window.isAnyModalOpen && window.isAnyModalOpen()) return;
+
+        // Determine which player's half of the screen was clicked/tapped (in co-op layout)
+        let clickedPlayerNum = 1;
+        if (window.coopActive) {
+            if (pointer.x >= window.innerWidth / 2) {
+                clickedPlayerNum = 2;
+            }
+        }
+
+        const playerObj = clickedPlayerNum === 2 ? window.player2 : window.player;
+        if (playerObj && playerObj.currentTileOverlap) {
+            const overlap = playerObj.currentTileOverlap;
+            const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 150);
+            if (isCurrent && overlap.callback) {
+                overlap.callback();
+            }
         }
     });
 
@@ -22147,6 +22229,23 @@ function updateHospitalArrows() {
         if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
     }
 }
+
+window.registerTileOverlap = function(playerNum, tileType, callback) {
+    const playerObj = playerNum === 2 ? window.player2 : window.player;
+    if (!playerObj) return;
+
+    playerObj.lastTileOverlapTime = Date.now();
+    playerObj.currentTileOverlap = {
+        type: tileType,
+        callback: callback
+    };
+
+    if (playerObj.lastTileOverlapType !== tileType) {
+        playerObj.lastTileOverlapType = tileType;
+        let displayName = tileType.toUpperCase().replace(/_/g, ' ');
+        window.showModernNotification(`Press A, Click, or Tap to interact with ${displayName}`, 2500, playerNum);
+    }
+};
 
 function healParty(playerCollider, hospitalCollider) {
     if (window.inBattle) return;
@@ -24734,47 +24833,74 @@ window.enableCoop = function(scene) {
     window.p2Colliders = [];
     window.p2Colliders.push(scene.physics.add.collider(window.player2, window.treesGroup));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, creaturesGroup, collectCreature, null, scene));
-    window.p2Colliders.push(scene.physics.add.overlap(window.player2, hospitalGroup, healParty, null, scene));
-    window.p2Colliders.push(scene.physics.add.overlap(window.player2, storeGroup, openStoreModal, null, scene));
-    window.p2Colliders.push(scene.physics.add.overlap(window.player2, challengeGroup, (pCol) => { if (window.openChallengeModal) window.openChallengeModal(pCol); }, null, scene));
-    window.p2Colliders.push(scene.physics.add.overlap(window.player2, tradeGroup, (pCol) => { if (window.openTradeModal) window.openTradeModal(pCol); }, null, scene));
-    window.p2Colliders.push(scene.physics.add.overlap(window.player2, pvpGroup, (pCol) => { if (window.openPvpModal) window.openPvpModal(pCol); }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, hospitalGroup, (pCol, tile) => {
+        window.registerTileOverlap(2, 'hospital', () => healParty(pCol, tile));
+    }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, storeGroup, (pCol) => {
+        window.registerTileOverlap(2, 'store', () => openStoreModal(pCol));
+    }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, challengeGroup, (pCol) => {
+        window.registerTileOverlap(2, 'challenge', () => {
+            if (window.openChallengeModal) window.openChallengeModal(pCol);
+        });
+    }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, tradeGroup, (pCol) => {
+        window.registerTileOverlap(2, 'trade', () => {
+            if (window.openTradeModal) window.openTradeModal(pCol);
+        });
+    }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, pvpGroup, (pCol) => {
+        window.registerTileOverlap(2, 'pvp', () => {
+            if (window.openPvpModal) window.openPvpModal(pCol);
+        });
+    }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.breedGroup, (pCol) => {
-        const lvl = window.p2Level || 1;
-        if (lvl < 7) {
-            window.showModernNotification(`🔒 Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, 2);
-            return;
-        }
-        if (window.openBreedingModal) window.openBreedingModal(pCol);
+        window.registerTileOverlap(2, 'breeding_center', () => {
+            const lvl = window.p2Level || 1;
+            if (lvl < 7) {
+                window.showModernNotification(`🔒 Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, 2);
+                return;
+            }
+            if (window.openBreedingModal) window.openBreedingModal(pCol);
+        });
     }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.npcTrainersGroup, handleNpcTrainerOverlap, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.questNpcGroup, handleQuestNpcOverlap, null, scene));
 
     // Overlaps for functional mini-tiles for Player 2
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.miniTilesGroup, (pCol, tileSprite) => {
-        if (tileSprite.miniTileType === 'hospital') {
-            healParty(pCol);
-        } else if (tileSprite.miniTileType === 'store') {
-            openStoreModal(pCol);
-        } else if (tileSprite.miniTileType === 'challenge') {
-            if (window.openChallengeModal) window.openChallengeModal(pCol);
-        } else if (tileSprite.miniTileType === 'trade') {
-            if (window.openTradeModal) window.openTradeModal(pCol);
-        } else if (tileSprite.miniTileType === 'pvp') {
-            if (window.openPvpModal) window.openPvpModal(pCol);
-        } else if (tileSprite.miniTileType === 'breed') {
-            const playerNum = (pCol === window.player2 || pCol === 2) ? 2 : 1;
-            const lvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
-            if (lvl < 7) {
-                window.showModernNotification(`🔒 Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, playerNum);
-            } else {
-                if (window.openBreedingModal) window.openBreedingModal(pCol);
-            }
-        } else if (tileSprite.miniTileType === 'storage_chest') {
-            const playerNum = (pCol === window.player2 || pCol === 2) ? 2 : 1;
-            if (window.openStorageChestModal) {
-                window.openStorageChestModal(playerNum, tileSprite);
-            }
+        const tileType = tileSprite.miniTileType;
+        if (tileType === 'hospital') {
+            window.registerTileOverlap(2, 'hospital', () => healParty(pCol));
+        } else if (tileType === 'store') {
+            window.registerTileOverlap(2, 'store', () => openStoreModal(pCol));
+        } else if (tileType === 'challenge') {
+            window.registerTileOverlap(2, 'challenge', () => {
+                if (window.openChallengeModal) window.openChallengeModal(pCol);
+            });
+        } else if (tileType === 'trade') {
+            window.registerTileOverlap(2, 'trade', () => {
+                if (window.openTradeModal) window.openTradeModal(pCol);
+            });
+        } else if (tileType === 'pvp') {
+            window.registerTileOverlap(2, 'pvp', () => {
+                if (window.openPvpModal) window.openPvpModal(pCol);
+            });
+        } else if (tileType === 'breed') {
+            window.registerTileOverlap(2, 'breeding_center', () => {
+                const lvl = window.p2Level || 1;
+                if (lvl < 7) {
+                    window.showModernNotification(`🔒 Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, 2);
+                } else {
+                    if (window.openBreedingModal) window.openBreedingModal(pCol);
+                }
+            });
+        } else if (tileType === 'storage_chest') {
+            window.registerTileOverlap(2, 'storage_chest', () => {
+                if (window.openStorageChestModal) {
+                    window.openStorageChestModal(2, tileSprite);
+                }
+            });
         }
     }, null, scene));
 
@@ -24979,6 +25105,17 @@ function isPointerOverButton(p) {
 }
 
 function update() {
+    // Check and reset tile overlap state for players who walked away (no active physical collision in last 200ms)
+    [ { player: window.player, num: 1 }, { player: window.player2, num: 2 } ].forEach(pData => {
+        const pObj = pData.player;
+        if (pObj && pObj.lastTileOverlapTime) {
+            if (Date.now() - pObj.lastTileOverlapTime > 200) {
+                pObj.currentTileOverlap = null;
+                pObj.lastTileOverlapType = null;
+            }
+        }
+    });
+
     // Check and reset quest modal triggers for players who walked away
     [ { player: window.player, num: 1 }, { player: window.player2, num: 2 } ].forEach(pData => {
         const pObj = pData.player;
