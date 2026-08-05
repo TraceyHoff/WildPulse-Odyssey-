@@ -3913,10 +3913,12 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     let targetCount = 1;
     let rewardCoins = 150 + Math.floor(Math.random() * 100);
     let rewardXp = 50 + Math.floor(Math.random() * 50);
-    let rewardItem = "Healing Juice Bottle";
+    let rewardItem = null;
 
     const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
-    rewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+    if (Math.random() < 0.35) {
+        rewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+    }
 
     if (questType === 'catch') {
         const base = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
@@ -4089,7 +4091,7 @@ window.openQuestModal = function(playerNum, npcId) {
                     <strong style="color: #ffeb3b;">Rewards:</strong>
                     <div style="margin-top: 4px;">🪙 ${potentialQuest.rewards.coins} Coins</div>
                     <div>⚡ ${potentialQuest.rewards.xp} Player XP</div>
-                    <div>🎁 ${potentialQuest.rewards.item}</div>
+                    ${potentialQuest.rewards.item ? `<div>🎁 ${potentialQuest.rewards.item}</div>` : ''}
                 </div>
             `;
             acceptBtn.style.display = 'block';
@@ -4156,7 +4158,7 @@ window.openQuestModal = function(playerNum, npcId) {
                     <strong style="color: #ffeb3b;">Rewards:</strong>
                     <div style="margin-top: 4px;">🪙 ${activeQuest.rewards.coins} Coins</div>
                     <div>⚡ ${activeQuest.rewards.xp} Player XP</div>
-                    <div>🎁 ${activeQuest.rewards.item}</div>
+                    ${activeQuest.rewards.item ? `<div>🎁 ${activeQuest.rewards.item}</div>` : ''}
                 </div>
             `;
             acceptBtn.style.display = 'none';
@@ -4202,20 +4204,22 @@ window.openQuestModal = function(playerNum, npcId) {
 
                 // 3. Item
                 let itemGainedMsg = "";
-                if (window.canAddInventoryItem && window.canAddInventoryItem(playerNum, activeQuest.rewards.item)) {
-                    if (window.addInventoryItem) window.addInventoryItem(playerNum, activeQuest.rewards.item);
-                    itemGainedMsg = activeQuest.rewards.item;
-                } else {
-                    const bonusCoins = 50;
-                    if (playerNum === 2) {
-                        window.p2Coins = (window.p2Coins || 0) + bonusCoins;
-                        localStorage.setItem('wildpulse_p2_coins', window.p2Coins.toString());
+                if (activeQuest.rewards.item) {
+                    if (window.canAddInventoryItem && window.canAddInventoryItem(playerNum, activeQuest.rewards.item)) {
+                        if (window.addInventoryItem) window.addInventoryItem(playerNum, activeQuest.rewards.item);
+                        itemGainedMsg = " and " + activeQuest.rewards.item;
                     } else {
-                        window.coins = (window.coins || 0) + bonusCoins;
-                        localStorage.setItem('wildpulse_coins', window.coins.toString());
+                        const bonusCoins = 50;
+                        if (playerNum === 2) {
+                            window.p2Coins = (window.p2Coins || 0) + bonusCoins;
+                            localStorage.setItem('wildpulse_p2_coins', window.p2Coins.toString());
+                        } else {
+                            window.coins = (window.coins || 0) + bonusCoins;
+                            localStorage.setItem('wildpulse_coins', window.coins.toString());
+                        }
+                        if (window.updatePlayerCoinDisplay) window.updatePlayerCoinDisplay();
+                        itemGainedMsg = ` and ${bonusCoins} bonus coins (due to full inventory)`;
                     }
-                    if (window.updatePlayerCoinDisplay) window.updatePlayerCoinDisplay();
-                    itemGainedMsg = `${bonusCoins} bonus coins (due to full inventory)`;
                 }
 
                 // Mark completed and remove
@@ -4226,7 +4230,7 @@ window.openQuestModal = function(playerNum, npcId) {
                 if (window.WildPulseMusic && window.WildPulseMusic.synth) {
                     try { window.WildPulseMusic.synth.triggerAttackRelease("C5", "8n"); } catch(e){}
                 }
-                window.showModernNotification(`🎉 Quest complete! Earned ${activeQuest.rewards.coins} coins, ${activeQuest.rewards.xp} Player XP, and ${itemGainedMsg}!`, 6000, playerNum);
+                window.showModernNotification(`🎉 Quest complete! Earned ${activeQuest.rewards.coins} coins, ${activeQuest.rewards.xp} Player XP${itemGainedMsg}!`, 6000, playerNum);
 
                 // Close modal
                 window.closeQuestModal(playerNum);
@@ -16712,28 +16716,39 @@ window.startChallengeBattle = function() {
     // Determine enemy level based on tier
     const enemyLevel = window.challengeTier;
 
-    // Pick a random base creature for the challenge
+    window.npcEnemyIndex = 0;
+    window.npcEnemyParty = [];
+
+    const activeParty = collectedCreatures.filter(c => !c.stored && !c.isEgg);
     const rng = Math.random;
-    const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
-    currentEnemy = JSON.parse(JSON.stringify(basePrototype));
-    currentEnemy.level = enemyLevel;
-    currentEnemy.xp = 0;
-    currentEnemy.isShiny = rng() < 0.05; // 5x more likely in challenge
 
-    // Assign stats/ability/etc
-    if (currentEnemy.stats) {
-        for (let stat in currentEnemy.stats) {
-            currentEnemy.stats[stat] += Math.floor(rng() * 32); // Random IVs
-            if (currentEnemy.isShiny) currentEnemy.stats[stat] = Math.floor(currentEnemy.stats[stat] * 1.2);
+    activeParty.forEach((playerCreature, idx) => {
+        // Pick a random base creature for the challenge
+        const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+        let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
+        enemyCreature.level = enemyLevel;
+        enemyCreature.xp = 0;
+        enemyCreature.isShiny = rng() < 0.05; // 5x more likely in challenge
+
+        // Assign stats/ability/etc
+        if (enemyCreature.stats) {
+            for (let stat in enemyCreature.stats) {
+                enemyCreature.stats[stat] += Math.floor(rng() * 32); // Random IVs
+                if (enemyCreature.isShiny) enemyCreature.stats[stat] = Math.floor(enemyCreature.stats[stat] * 1.2);
+            }
         }
-    }
-    currentEnemy.nature = window.getRandomNature(false, rng);
-    currentEnemy.mood = window.getRandomMood(false, rng);
-    currentEnemy.temperament = window.getRandomTemperament(rng);
-    window.assignAbility(currentEnemy, rng);
-    currentEnemy.id = "challenge_" + Date.now();
-    currentEnemy.color = window.getCreatureColor(currentEnemy);
+        enemyCreature.nature = window.getRandomNature(false, rng);
+        enemyCreature.mood = window.getRandomMood(false, rng);
+        enemyCreature.temperament = window.getRandomTemperament(rng);
+        window.assignAbility(enemyCreature, rng);
+        enemyCreature.id = "challenge_" + idx + "_" + Date.now();
+        enemyCreature.color = window.getCreatureColor(enemyCreature);
 
+        window.npcEnemyParty.push(enemyCreature);
+    });
+
+    currentEnemy = window.npcEnemyParty[0];
+    window.currentEnemy = currentEnemy;
     currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
     currentEnemy.currentHp = currentEnemy.maxHp;
     currentEnemy.isDefending = false;
@@ -16754,7 +16769,8 @@ window.startChallengeBattle = function() {
     window.battleLogQueue = [];
 
     logBattle(`<span style="color:#ffd700; font-size: 1.2em;">--- CHALLENGE TIER ${window.challengeTier} ---</span>`);
-    logBattle(`The arena gates open... Challenge opponent <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level}) approaches!`);
+    logBattle(`The arena gates open... Challenge opponent approaches with ${window.npcEnemyParty.length} creatures!`);
+    logBattle(`Next challenge creature emerges: <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level})!`);
     logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
 
     window.updateBattleUI();
@@ -16878,31 +16894,42 @@ window.startDojoBattle = function() {
     // Determine enemy level based on dojo tier - stronger opponents!
     const enemyLevel = 20 + window.dojoTier * 5;
 
-    // Pick a random base creature for the Dojo battle
+    window.npcEnemyIndex = 0;
+    window.npcEnemyParty = [];
+
+    const activeParty = activeList.filter(c => !c.stored && !c.isEgg);
     const rng = Math.random;
-    const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
-    currentEnemy = JSON.parse(JSON.stringify(basePrototype));
 
-    currentEnemy.level = enemyLevel;
-    currentEnemy.xp = 0;
-    currentEnemy.isShiny = rng() < 0.1; // 10% shiny chance for Dojo leaders!
+    activeParty.forEach((playerCreature, idx) => {
+        // Pick a random base creature for the Dojo battle
+        const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+        let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
 
-    // Assign stats/ability/etc - DOJO LEADER BUFFED STATS!
-    if (currentEnemy.stats) {
-        for (let stat in currentEnemy.stats) {
-            // High IVs + 30% stat multiplier for pure elite strength!
-            currentEnemy.stats[stat] += Math.floor(rng() * 32) + 20;
-            currentEnemy.stats[stat] = Math.floor(currentEnemy.stats[stat] * 1.3);
-            if (currentEnemy.isShiny) currentEnemy.stats[stat] = Math.floor(currentEnemy.stats[stat] * 1.2);
+        enemyCreature.level = enemyLevel;
+        enemyCreature.xp = 0;
+        enemyCreature.isShiny = rng() < 0.1; // 10% shiny chance for Dojo leaders!
+
+        // Assign stats/ability/etc - DOJO LEADER BUFFED STATS!
+        if (enemyCreature.stats) {
+            for (let stat in enemyCreature.stats) {
+                // High IVs + 30% stat multiplier for pure elite strength!
+                enemyCreature.stats[stat] += Math.floor(rng() * 32) + 20;
+                enemyCreature.stats[stat] = Math.floor(enemyCreature.stats[stat] * 1.3);
+                if (enemyCreature.isShiny) enemyCreature.stats[stat] = Math.floor(enemyCreature.stats[stat] * 1.2);
+            }
         }
-    }
-    currentEnemy.nature = window.getRandomNature(false, rng);
-    currentEnemy.mood = window.getRandomMood(false, rng);
-    currentEnemy.temperament = window.getRandomTemperament(rng);
-    window.assignAbility(currentEnemy, rng);
-    currentEnemy.id = "dojo_" + Date.now();
-    currentEnemy.color = window.getCreatureColor(currentEnemy);
+        enemyCreature.nature = window.getRandomNature(false, rng);
+        enemyCreature.mood = window.getRandomMood(false, rng);
+        enemyCreature.temperament = window.getRandomTemperament(rng);
+        window.assignAbility(enemyCreature, rng);
+        enemyCreature.id = "dojo_" + idx + "_" + Date.now();
+        enemyCreature.color = window.getCreatureColor(enemyCreature);
 
+        window.npcEnemyParty.push(enemyCreature);
+    });
+
+    currentEnemy = window.npcEnemyParty[0];
+    window.currentEnemy = currentEnemy;
     currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
     currentEnemy.currentHp = currentEnemy.maxHp;
     currentEnemy.isDefending = false;
@@ -16923,7 +16950,8 @@ window.startDojoBattle = function() {
     window.battleLogQueue = [];
 
     logBattle(`<span style="color:#ff3366; font-size: 1.2em; text-shadow: 0 0 5px rgba(255,51,102,0.8);">--- DOJO LEADER TIER ${window.dojoTier} ---</span>`);
-    logBattle(`The Dojo gates slide open... Dojo Leader's <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level}) challenges you!`);
+    logBattle(`The Dojo gates slide open... Dojo Leader challenges you with ${window.npcEnemyParty.length} creatures!`);
+    logBattle(`Dojo Leader sends out <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level})!`);
     logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
 
     window.updateBattleUI();
@@ -23550,7 +23578,7 @@ function processStatuses(creature) {
 
 window.handleFaint = function(target) {
     if (target === currentEnemy) {
-        if (window.isNpcBattle) {
+        if (window.isNpcBattle || window.inDojoBattle || window.inChallengeBattle) {
             if (window.npcEnemyIndex < window.npcEnemyParty.length - 1) {
                 window.npcEnemyIndex++;
                 currentEnemy = window.npcEnemyParty[window.npcEnemyIndex];
@@ -23560,13 +23588,21 @@ window.handleFaint = function(target) {
                 currentEnemy.isDefending = false;
                 currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
 
-                logBattle(`Trainer's creature fainted!`);
-                logBattle(`Trainer sends out <span style="color:#f44336">${currentEnemy.name}</span> (Lvl ${currentEnemy.level})!`);
+                if (window.inDojoBattle) {
+                    logBattle(`Dojo Leader's creature fainted!`);
+                    logBattle(`Dojo Leader sends out <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level})!`);
+                } else if (window.inChallengeBattle) {
+                    logBattle(`Challenge creature fainted!`);
+                    logBattle(`Next challenge creature emerges: <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level})!`);
+                } else {
+                    logBattle(`Trainer's creature fainted!`);
+                    logBattle(`Trainer sends out <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level})!`);
+                }
                 updateBattleUI();
                 return false; // Battle continues
             } else {
                 // All fainted
-                if (window.activeNpcTrainerId) {
+                if (window.isNpcBattle && window.activeNpcTrainerId) {
                     const trainerId = window.activeNpcTrainerId;
                     const trainerData = window.getNpcTrainerData(trainerId);
                     const currentWeek = Math.floor(window.wildpulse_inGameDays / 7);
