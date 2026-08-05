@@ -262,4 +262,32 @@ test.describe('Random Events System', () => {
 
     expect(colors.none.fillColor).toBe(0x000033);
   });
+
+  test('asserts 4 minutes active event duration and 10 minutes cooldown duration', async ({ page }) => {
+    // Test rolling from 'None' (cooldown) to active event (should last 4 minutes = 240,000ms)
+    const activeResult = await page.evaluate(() => {
+      window.totalElapsedMs = 1000000;
+      window.activeRandomEvent = 'None';
+      window.rollRandomEvent();
+      return {
+        event: window.activeRandomEvent,
+        duration: window.activeRandomEventEndTime - window.totalElapsedMs
+      };
+    });
+    expect(activeResult.event).not.toBe('None');
+    expect(activeResult.duration).toBe(240000); // 4 minutes
+
+    // Test rolling from active event to 'None' (cooldown) (should last 10 minutes = 600,000ms)
+    const cooldownResult = await page.evaluate(() => {
+      window.totalElapsedMs = 2000000;
+      window.activeRandomEvent = 'Daytime Radiance';
+      window.rollRandomEvent();
+      return {
+        event: window.activeRandomEvent,
+        duration: window.activeRandomEventEndTime - window.totalElapsedMs
+      };
+    });
+    expect(cooldownResult.event).toBe('None');
+    expect(cooldownResult.duration).toBe(600000); // 10 minutes
+  });
 });

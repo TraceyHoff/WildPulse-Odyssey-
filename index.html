@@ -3239,9 +3239,19 @@ window.getEventBoostedType = function(event) {
 };
 
 window.rollRandomEvent = function() {
-    const events = ['Daytime Radiance', 'Nighttime Eclipse', 'Heat Wave', 'Aurora', 'Gusty Winds', 'Earthquake', 'Bountiful Bloom', 'None'];
-    const chosen = events[Math.floor(Math.random() * events.length)];
-    const duration = (chosen === 'None') ? 60000 : 120000;
+    const activeEvents = ['Daytime Radiance', 'Nighttime Eclipse', 'Heat Wave', 'Aurora', 'Gusty Winds', 'Earthquake', 'Bountiful Bloom'];
+    let chosen = 'None';
+    let duration = 600000; // 10 minutes default cooldown
+
+    // If we had a running active random event, go to 'None' (10 minutes cooldown)
+    if (window.activeRandomEvent && window.activeRandomEvent !== 'None') {
+        chosen = 'None';
+        duration = 600000; // 10 minutes
+    } else {
+        // If we were in cooldown, roll an active random event for 4 minutes
+        chosen = activeEvents[Math.floor(Math.random() * activeEvents.length)];
+        duration = 240000; // 4 minutes
+    }
 
     window.activeRandomEvent = chosen;
     window.activeRandomEventEndTime = window.totalElapsedMs + duration;
@@ -3295,7 +3305,7 @@ window.updateRandomEvents = function(scene) {
         const targetEvent = isRainWeather ? 'Rain' : (isStormWeather ? 'Thunderstorm' : 'Flash Freeze');
         if (window.activeRandomEvent !== targetEvent) {
             window.activeRandomEvent = targetEvent;
-            window.activeRandomEventEndTime = window.weatherEventEndTime || (window.totalElapsedMs + 120000);
+            window.activeRandomEventEndTime = window.weatherEventEndTime || (window.totalElapsedMs + 240000); // 4 minutes
             localStorage.setItem('wildpulse_active_random_event', targetEvent);
             localStorage.setItem('wildpulse_active_random_event_end_time', window.activeRandomEventEndTime.toString());
 
@@ -3323,12 +3333,12 @@ window.updateRandomEvents = function(scene) {
         return;
     }
 
-    // No dynamic weather active. If we were in a weather-based random event, clear it back to None
+    // No dynamic weather active. If we were in a weather-based random event, clear it back to None with a 10 minutes cooldown
     if (window.activeRandomEvent === 'Rain' || window.activeRandomEvent === 'Thunderstorm' || window.activeRandomEvent === 'Flash Freeze') {
         window.activeRandomEvent = 'None';
-        window.activeRandomEventEndTime = 0;
+        window.activeRandomEventEndTime = window.totalElapsedMs + 600000; // 10 minutes cooldown after weather
         localStorage.setItem('wildpulse_active_random_event', 'None');
-        localStorage.setItem('wildpulse_active_random_event_end_time', '0');
+        localStorage.setItem('wildpulse_active_random_event_end_time', window.activeRandomEventEndTime.toString());
         if (window.showModernNotification) {
             window.showModernNotification("🍃 The weather event has subsided. The world returns to normal.", "#4caf50");
         }
@@ -13816,7 +13826,8 @@ window.typeChart = {
 })();
 
 window.getTypeModifier = function(attackType, defenseType) {
-    if (window.typeChart[attackType] && window.typeChart[attackType][defenseType] !== undefined) {
+    if (!attackType || !defenseType) return 1;
+    if (window.typeChart && window.typeChart[attackType] && window.typeChart[attackType][defenseType] !== undefined) {
         return window.typeChart[attackType][defenseType];
     }
     return 1;
@@ -14267,6 +14278,11 @@ window.addInventoryItem = function(playerNum, itemName) {
 
 // Store Content and Purchase Logic
 window.buyStoreItem = function(playerNum, itemName, price) {
+    if (price < 0) {
+        window.showModernNotification("❌ Invalid item price!", 3000, playerNum);
+        return;
+    }
+
     const stats = playerNum === 2 ? window.gameStats2 : window.gameStats;
     if (!stats) return;
 
@@ -14789,7 +14805,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
     }
     else if (item.name === "Healing Juice Jug") {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
-        const activeParty = party.filter(c => !c.stored);
+        const activeParty = party.filter(c => !c.stored && !c.isEgg);
 
         if (activeParty.length === 0) {
             window.showModernNotification("❌ You have no creatures to heal.", 3000, playerNum);
@@ -18199,7 +18215,7 @@ window.breed = function(parent1, parent2) {
         childName = childName.charAt(0).toUpperCase() + childName.slice(1).toLowerCase();
     }
 
-    const combinedFeatures = [...parent1.features, ...parent2.features];
+    const combinedFeatures = [...(parent1.features || []), ...(parent2.features || [])];
 
     // Shuffle and pick a random subset to avoid feature bloat
     const uniqueFeatures = Array.from(new Set(combinedFeatures)).sort(() => 0.5 - Math.random());
@@ -18725,6 +18741,11 @@ window.doBreed = function(playerNum = 1) {
         const p1 = list[p1Index];
         const p2 = list[p2Index];
 
+        if (p1.isEgg || p2.isEgg) {
+            if (resEl) resEl.innerText = 'Eggs cannot be used as parents for breeding.';
+            return;
+        }
+
         const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
         let playerLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
         if (isAutomation) {
@@ -19038,8 +19059,8 @@ window.openPvpModal = function(playerCollider) {
         if (window.p1PvpClosedWhileOverlapping) return;
     }
 
-    const hasHealthyP1 = window.collectedCreatures.some(c => !c.stored && (c.currentHp === undefined || c.currentHp > 0));
-    const hasHealthyP2 = window.collectedCreatures2.some(c => !c.stored && (c.currentHp === undefined || c.currentHp > 0));
+    const hasHealthyP1 = window.collectedCreatures.some(c => !c.stored && !c.isEgg && (c.currentHp === undefined || c.currentHp > 0));
+    const hasHealthyP2 = window.collectedCreatures2.some(c => !c.stored && !c.isEgg && (c.currentHp === undefined || c.currentHp > 0));
 
     if (!hasHealthyP1 || !hasHealthyP2) {
         window.showModernNotification("Both players must have at least one healthy creature to battle!");
@@ -23268,7 +23289,7 @@ window.handleFaint = function(target) {
             window.adjustHappiness(orig, -15, window.activeBattlePlayer === 2 ? 2 : 1);
         }
 
-        let next = activeParty.find(c => !c.stored && c.currentHp > 0 && String(c.id) !== String(currentPlayer?.id));
+        let next = activeParty.find(c => !c.stored && !c.isEgg && c.currentHp > 0 && String(c.id) !== String(currentPlayer?.id));
         if (next) {
             currentPlayer = JSON.parse(JSON.stringify(next));
             window.currentPlayer = currentPlayer;
@@ -24291,7 +24312,7 @@ function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
             localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
         }
 
-        let next = window.collectedCreatures.find(c => !c.stored && c.currentHp > 0);
+        let next = window.collectedCreatures.find(c => !c.stored && !c.isEgg && c.currentHp > 0);
         if (next) {
             window.logBattle(`${window.getP1Name()}'s creature fainted! Please swap in a healthy creature.`);
             window.localPvpForceSwap = 1;
@@ -24311,7 +24332,7 @@ function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
             localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
         }
 
-        let next = window.collectedCreatures2.find(c => !c.stored && c.currentHp > 0);
+        let next = window.collectedCreatures2.find(c => !c.stored && !c.isEgg && c.currentHp > 0);
         if (next) {
             window.logBattle(`${window.getP2Name()}'s creature fainted! Please swap in a healthy creature.`);
             window.localPvpForceSwap = 2;
