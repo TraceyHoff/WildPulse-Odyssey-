@@ -451,6 +451,7 @@
         body.coop-active-layout .coop-columns .close-btn,
         body.coop-active-layout #customizationModal .close-btn,
         body.coop-active-layout #challengeModal .close-btn,
+        body.coop-active-layout #dojoModal .close-btn,
         body.coop-active-layout #battleCloseBtn {
             display: flex !important;
             position: absolute !important;
@@ -742,6 +743,37 @@
             border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
         }
         body.coop-active-layout #challengeModal.p2-challenge-active > div {
+            left: 50vw !important;
+            right: auto !important;
+            border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* Dojo Modal Specific Overrides under Co-op */
+        body.coop-active-layout #dojoModal {
+            background: transparent !important;
+            pointer-events: none !important;
+        }
+        body.coop-active-layout #dojoModal > div {
+            position: fixed !important;
+            top: 0 !important;
+            height: 100vh !important;
+            width: 50vw !important;
+            max-width: none !important;
+            background: linear-gradient(135deg, rgba(30, 10, 10, 0.95), rgba(40, 0, 10, 0.95)) !important;
+            backdrop-filter: blur(25px);
+            padding: 40px 20px !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+            pointer-events: auto !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+        }
+        body.coop-active-layout #dojoModal.p1-challenge-active > div {
+            left: 0 !important;
+            right: auto !important;
+            border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
+        }
+        body.coop-active-layout #dojoModal.p2-challenge-active > div {
             left: 50vw !important;
             right: auto !important;
             border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
@@ -3100,6 +3132,24 @@
     </div>
 </div>
 
+<div id="dojoModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 700; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
+    <div style="background: linear-gradient(135deg, rgba(30, 10, 10, 0.95), rgba(40, 0, 10, 0.95)); padding: 30px 20px; border-radius: 15px; border: 2px solid #ff3366; box-shadow: 0 10px 40px rgba(255, 51, 102, 0.3); text-align: center; width: 90%; max-width: 450px; box-sizing: border-box; margin: auto; position: relative;">
+        <button class="close-btn" id="closeDojoBtn" aria-label="Close Dojo">X</button>
+        <button class="close-btn" id="closeDojoBtn_p2" aria-label="Close Dojo" style="display:none;">X</button>
+        <h2 style="color: #ff3366; font-size: 32px; margin-top: 0; text-shadow: 0 0 10px rgba(255,51,102,0.5);">Dojo Leader</h2>
+        <div style="margin: 25px 0; font-size: 18px; line-height: 1.6;">
+            <p>Prove your ultimate mastery. Duel the Dojo Leader in a test of pure strength!</p>
+            <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,51,102,0.3); margin: 20px 0;">
+                <p style="margin: 5px 0;">Current Tier: <span id="dojoTierText" style="color: #ff3366; font-weight: bold; font-size: 24px;">1</span></p>
+                <p style="margin: 5px 0; font-size: 16px; color: #aaa;">Difficulty: <span id="dojoDifficultyText">Hyper Elite</span></p>
+                <p style="margin: 5px 0; font-size: 16px; color: #00ffff;">XP Bonus: <span id="dojoXpBonusText">+50%</span></p>
+            </div>
+        </div>
+        <button id="startDojoBtn" style="width: 100%; padding: 15px; font-size: 20px; background: linear-gradient(180deg, #ff3366, #b3002d); color: #fff; border: none; cursor: pointer; border-radius: 12px; font-weight: bold; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">CHALLENGE LEADER</button>
+        <p style="font-size: 14px; color: #888; margin-top: 15px;">Defeat the Leader to advance to the next Tier!</p>
+    </div>
+</div>
+
 <button id="menuBtn">Menu</button>
 <button id="menuBtn_P2" style="display: none;">Menu</button>
 
@@ -3653,6 +3703,7 @@ window.updateStorageChestUI = function(playerNum) {
         "Mini PvP": "⚔️",
         "Mini Breeding Center": "🥚",
         "Mini Challenge": "👑",
+        "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
         "Repellent": "🧴",
         "HP Booster": "💚",
@@ -5640,6 +5691,7 @@ window.battleStates = {
         npcEnemyIndex: 0,
         npcEnemyParty: null,
         inChallengeBattle: false,
+        inDojoBattle: false,
         playerParty: null
     },
     2: {
@@ -5657,6 +5709,7 @@ window.battleStates = {
         npcEnemyIndex: 0,
         npcEnemyParty: null,
         inChallengeBattle: false,
+        inDojoBattle: false,
         playerParty: null
     }
 };
@@ -5665,7 +5718,7 @@ const battleKeys = [
     'inBattle', 'currentPlayer', 'currentEnemy', 'currentEnemySprite',
     'battleLogQueue', 'isTyping', 'isActionRunning', 'pendingBattleResult',
     'swappedThisTurn', 'isNpcBattle', 'activeNpcTrainerId', 'npcEnemyIndex',
-    'npcEnemyParty', 'inChallengeBattle', 'playerParty'
+    'npcEnemyParty', 'inChallengeBattle', 'inDojoBattle', 'playerParty'
 ];
 
 battleKeys.forEach(key => {
@@ -6764,6 +6817,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('closeChallengeBtn')?.addEventListener('click', () => {
         const playerNum = (window.p2ActiveModal === 'challengeModal') ? 2 : 1;
         if (window.closeChallengeModal) window.closeChallengeModal(playerNum);
+    });
+    document.getElementById('startDojoBtn')?.addEventListener('click', () => { if (window.startDojoBattle) window.startDojoBattle(); });
+    document.getElementById('closeDojoBtn')?.addEventListener('click', () => {
+        const playerNum = (window.p2ActiveModal === 'dojoModal') ? 2 : 1;
+        if (window.closeDojoModal) window.closeDojoModal(playerNum);
+    });
+    document.getElementById('closeDojoBtn_p2')?.addEventListener('click', () => {
+        if (window.closeDojoModal) window.closeDojoModal(2);
     });
     document.getElementById('menuDeleteBtn')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(1); });
     document.getElementById('menuDeleteBtn_P2')?.addEventListener('click', () => { if (window.deleteProgress) window.deleteProgress(2); });
@@ -14463,6 +14524,11 @@ window.updateStoreUI = function() {
                 { name: "Mini Challenge", icon: "👑", price: 650, desc: "A functional smaller version of the Challenge area. Place near your home." }
             );
         }
+        if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
+            activeItems.push(
+                { name: "Dojo Tile", icon: "⛩️", price: 800, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." }
+            );
+        }
 
         let html = `
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
@@ -14922,6 +14988,14 @@ window.useInventoryItem = function(playerNum, slotIndex) {
 // Render Inventory UI
 window.updateInventoryUI = function() {
     const itemIcons = {
+        "Mini Hospital": "🏥",
+        "Mini Store": "🏪",
+        "Mini Trade": "🔄",
+        "Mini PvP": "⚔️",
+        "Mini Breeding Center": "🥚",
+        "Mini Challenge": "👑",
+        "Dojo Tile": "⛩️",
+        "Storage Chest": "🧳",
         "Repellent": "🧴",
         "HP Booster": "💚",
         "Attack Booster": "⚔️",
@@ -15290,7 +15364,7 @@ window.getActiveContainerForPlayer = function(playerNum) {
         const modals = [
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
-            'battleModal', 'battleSwapModal', 'challengeModal',
+            'battleModal', 'battleSwapModal', 'challengeModal', 'dojoModal',
             'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'actionWheelModal', 'inventoryWheelModal',
             'creatureSelectModal_p1', 'creatureSelectModal_p2',
             'respawnChoiceModal_p1', 'respawnChoiceModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
@@ -16083,7 +16157,7 @@ window.isAnyModalOpen = function() {
     const modals = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
-        'battleModal', 'battleSwapModal', 'challengeModal',
+        'battleModal', 'battleSwapModal', 'challengeModal', 'dojoModal',
         'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
         'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal', 'inventoryWheelModal',
         'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
@@ -16107,7 +16181,7 @@ window.updateModalVisibility = function() {
         const modalIds = [
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
-            'challengeModal', 'battleModal', 'actionWheelModal', 'inventoryWheelModal'
+            'challengeModal', 'dojoModal', 'battleModal', 'actionWheelModal', 'inventoryWheelModal'
         ];
         modalIds.forEach(id => {
             const modalEl = document.getElementById(id);
@@ -16129,7 +16203,7 @@ window.updateModalVisibility = function() {
     const modalIds = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
-        'challengeModal', 'actionWheelModal', 'inventoryWheelModal'
+        'challengeModal', 'dojoModal', 'actionWheelModal', 'inventoryWheelModal'
     ];
 
     modalIds.forEach(id => {
@@ -16177,7 +16251,7 @@ window.updateModalVisibility = function() {
                 }
             }
 
-            if (id === 'challengeModal') {
+            if (id === 'challengeModal' || id === 'dojoModal') {
                 if (p1Open) {
                     modalEl.classList.add('p1-challenge-active');
                     modalEl.classList.remove('p2-challenge-active');
@@ -16191,7 +16265,7 @@ window.updateModalVisibility = function() {
             if (id === 'helpModal') {
                 modalEl.classList.remove('p1-help-active', 'p2-help-active');
             }
-            if (id === 'challengeModal') {
+            if (id === 'challengeModal' || id === 'dojoModal') {
                 modalEl.classList.remove('p1-challenge-active', 'p2-challenge-active');
             }
         }
@@ -16233,6 +16307,7 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
         { id: 'storeModal', close: (p) => { if (window.closeStoreModal) window.closeStoreModal(p); } },
         { id: 'storageChestModal', close: (p) => { if (window.closeStorageChestModal) window.closeStorageChestModal(p); } },
         { id: 'challengeModal', close: (p) => { if (window.closeChallengeModal) window.closeChallengeModal(p); } },
+        { id: 'dojoModal', close: (p) => { if (window.closeDojoModal) window.closeDojoModal(p); } },
         { id: 'customizationModal', close: (p) => { if (window.closeCustomizationModal) window.closeCustomizationModal(p); } },
         { id: 'inventoryWheelModal', close: (p) => { if (window.closeInventoryWheel) window.closeInventoryWheel(p); } }
     ];
@@ -16273,6 +16348,7 @@ window.closeAllModals = function(exceptId) {
         { id: 'storeModal', close: () => { if (window.closeStoreModal) window.closeStoreModal(); } },
         { id: 'storageChestModal', close: () => { if (window.closeStorageChestModal) window.closeStorageChestModal(); } },
         { id: 'challengeModal', close: () => { if (window.closeChallengeModal) window.closeChallengeModal(); } },
+        { id: 'dojoModal', close: () => { if (window.closeDojoModal) window.closeDojoModal(); } },
         { id: 'battleSwapModal', close: () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); } },
         { id: 'tradeModal', close: () => { if (window.closeTradeModal) window.closeTradeModal(); } },
         { id: 'pvpModal', close: () => { if (window.closePvpModal) window.closePvpModal(); } },
@@ -16491,6 +16567,8 @@ window.closeJournalModal = function(playerNum = 1) {
 
 window.challengeTier = parseInt(localStorage.getItem('wildpulse_challenge_tier')) || 1;
 window.inChallengeBattle = false;
+window.dojoTier = parseInt(localStorage.getItem('wildpulse_dojo_tier')) || 1;
+window.inDojoBattle = false;
 
 // Randomize customization for a new game
 window.randomizePlayerCustomization = function(playerNum) {
@@ -16677,6 +16755,175 @@ window.startChallengeBattle = function() {
 
     logBattle(`<span style="color:#ffd700; font-size: 1.2em;">--- CHALLENGE TIER ${window.challengeTier} ---</span>`);
     logBattle(`The arena gates open... Challenge opponent <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level}) approaches!`);
+    logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
+
+    window.updateBattleUI();
+};
+
+window.openDojoModal = function(playerCollider, playerNum = 1) {
+    if (window.inBattle) return;
+
+    if (playerNum === 2) {
+        if (window.p2DojoClosedWhileOverlapping) return;
+    } else {
+        if (window.p1DojoClosedWhileOverlapping) return;
+    }
+
+    if (window.coopActive) {
+        const activeModal = (playerNum === 2) ? window.p2ActiveModal : window.p1ActiveModal;
+        if (activeModal !== null) return;
+    } else {
+        if (window.isAnyModalOpen()) return;
+    }
+
+    if (window.coopActive) {
+        window.closeAllModalsForPlayer(playerNum, 'dojoModal');
+        if (playerNum === 2) window.p2ActiveModal = 'dojoModal';
+        else window.p1ActiveModal = 'dojoModal';
+    } else {
+        window.closeAllModals('dojoModal');
+    }
+
+    const modal = document.getElementById('dojoModal');
+    const tierText = document.getElementById('dojoTierText');
+    const diffText = document.getElementById('dojoDifficultyText');
+    const xpBonusText = document.getElementById('dojoXpBonusText');
+
+    tierText.innerText = window.dojoTier;
+    let difficulty = "Hyper Elite";
+    if (window.dojoTier > 20) difficulty = "Grandmaster";
+    else if (window.dojoTier > 15) difficulty = "Champion";
+    else if (window.dojoTier > 10) difficulty = "Master";
+    else if (window.dojoTier > 5) difficulty = "Expert";
+    diffText.innerText = difficulty;
+    xpBonusText.innerText = `+50%`;
+
+    // Make sure close buttons show/hide correctly based on playerNum in co-op
+    const closeBtn1 = document.getElementById('closeDojoBtn');
+    const closeBtn2 = document.getElementById('closeDojoBtn_p2');
+    if (window.coopActive) {
+        if (playerNum === 2) {
+            if (closeBtn1) closeBtn1.style.display = 'none';
+            if (closeBtn2) closeBtn2.style.display = 'block';
+        } else {
+            if (closeBtn1) closeBtn1.style.display = 'block';
+            if (closeBtn2) closeBtn2.style.display = 'none';
+        }
+    } else {
+        if (closeBtn1) closeBtn1.style.display = 'block';
+        if (closeBtn2) closeBtn2.style.display = 'none';
+    }
+
+    if (window.coopActive) {
+        window.updateModalVisibility();
+    } else {
+        modal.style.display = 'flex';
+    }
+};
+
+window.closeDojoModal = function(playerNum = 1) {
+    window.dojoModalClosedFlag = true;
+    if (window.coopActive) {
+        if (playerNum === 2) {
+            window.p2ActiveModal = null;
+            window.p2DojoClosedWhileOverlapping = true;
+        } else {
+            window.p1ActiveModal = null;
+            window.p1DojoClosedWhileOverlapping = true;
+        }
+        window.updateModalVisibility();
+    } else {
+        window.p1DojoClosedWhileOverlapping = true;
+        document.getElementById('dojoModal').style.display = 'none';
+    }
+};
+
+window.startDojoBattle = function() {
+    if (window.inBattle) return;
+
+    // Symmetrically determine the active player num
+    let playerNum = 1;
+    if (window.coopActive) {
+        if (window.p2ActiveModal === 'dojoModal') playerNum = 2;
+    }
+
+    // Set activeBattlePlayer correctly before initiating
+    window.activeBattlePlayer = playerNum;
+
+    window.closeDojoModal(playerNum);
+
+    const activeList = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+
+    if (!activeList || !activeList.some(c => !c.stored && !c.isEgg && c.currentHp > 0)) {
+        window.showModernNotification("You have no healthy creatures to battle with!", 3000, playerNum);
+        return;
+    }
+
+    window.battleEnding = false;
+    window.inBattle = true;
+    window.inDojoBattle = true;
+
+    if (window.coopActive && playerNum === 2) {
+        if (window.player2 && window.player2.body) {
+            window.player2.body.setVelocity(0);
+            window.player2.body.moves = false;
+        }
+    } else {
+        if (player && player.body) {
+            player.body.setVelocity(0);
+            player.body.moves = false;
+        }
+    }
+
+    // Determine enemy level based on dojo tier - stronger opponents!
+    const enemyLevel = 20 + window.dojoTier * 5;
+
+    // Pick a random base creature for the Dojo battle
+    const rng = Math.random;
+    const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+    currentEnemy = JSON.parse(JSON.stringify(basePrototype));
+
+    currentEnemy.level = enemyLevel;
+    currentEnemy.xp = 0;
+    currentEnemy.isShiny = rng() < 0.1; // 10% shiny chance for Dojo leaders!
+
+    // Assign stats/ability/etc - DOJO LEADER BUFFED STATS!
+    if (currentEnemy.stats) {
+        for (let stat in currentEnemy.stats) {
+            // High IVs + 30% stat multiplier for pure elite strength!
+            currentEnemy.stats[stat] += Math.floor(rng() * 32) + 20;
+            currentEnemy.stats[stat] = Math.floor(currentEnemy.stats[stat] * 1.3);
+            if (currentEnemy.isShiny) currentEnemy.stats[stat] = Math.floor(currentEnemy.stats[stat] * 1.2);
+        }
+    }
+    currentEnemy.nature = window.getRandomNature(false, rng);
+    currentEnemy.mood = window.getRandomMood(false, rng);
+    currentEnemy.temperament = window.getRandomTemperament(rng);
+    window.assignAbility(currentEnemy, rng);
+    currentEnemy.id = "dojo_" + Date.now();
+    currentEnemy.color = window.getCreatureColor(currentEnemy);
+
+    currentEnemy.maxHp = window.getEffectiveStat(currentEnemy, 'health');
+    currentEnemy.currentHp = currentEnemy.maxHp;
+    currentEnemy.isDefending = false;
+    currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    let firstHealthy = activeList.find(c => !c.stored && !c.isEgg && c.currentHp > 0);
+    window.currentPlayer = JSON.parse(JSON.stringify(firstHealthy));
+    currentPlayer = window.currentPlayer;
+    currentPlayer.maxHp = window.getEffectiveStat(currentPlayer, 'health');
+    currentPlayer.currentHp = currentPlayer.currentHp !== undefined ? currentPlayer.currentHp : currentPlayer.maxHp;
+    currentPlayer.isDefending = false;
+    currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    document.getElementById('battleModal').style.display = 'block';
+    document.getElementById('battleControls').style.display = 'grid';
+    document.getElementById('battleCloseBtn').style.display = 'none';
+    document.getElementById('battleLog').innerHTML = '';
+    window.battleLogQueue = [];
+
+    logBattle(`<span style="color:#ff3366; font-size: 1.2em; text-shadow: 0 0 5px rgba(255,51,102,0.8);">--- DOJO LEADER TIER ${window.dojoTier} ---</span>`);
+    logBattle(`The Dojo gates slide open... Dojo Leader's <span style="color:#f44336">${currentEnemy.isShiny ? 'Shiny ' : ''}${currentEnemy.name}</span> (Lvl ${currentEnemy.level}) challenges you!`);
     logBattle(`Go, <span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span>!`);
 
     window.updateBattleUI();
@@ -17855,6 +18102,8 @@ window.updateInventoryWheelUI = function(playerNum) {
         "Mini PvP": "⚔️",
         "Mini Breeding Center": "🥚",
         "Mini Challenge": "👑",
+        "Dojo Tile": "⛩️",
+        "Storage Chest": "🧳",
         "Repellent": "🧴",
         "HP Booster": "💚",
         "Attack Booster": "⚔️",
@@ -18844,6 +19093,8 @@ window.p1StoreClosedWhileOverlapping = false;
 window.p2StoreClosedWhileOverlapping = false;
 window.p1ChallengeClosedWhileOverlapping = false;
 window.p2ChallengeClosedWhileOverlapping = false;
+window.p1DojoClosedWhileOverlapping = false;
+window.p2DojoClosedWhileOverlapping = false;
 window.p1BreedingClosedWhileOverlapping = false;
 window.p2BreedingClosedWhileOverlapping = false;
 window.p1StorageChestClosedWhileOverlapping = false;
@@ -20370,6 +20621,37 @@ function generateTileTextures(scene) {
     pvpCtx.lineTo(20, 80);
     pvpCtx.stroke();
     scene.textures.addCanvas('pvp_tile', pvpCanvas);
+
+    // Pre-generate Dojo Tile texture
+    const dojoCanvas = document.createElement('canvas');
+    dojoCanvas.width = 100;
+    dojoCanvas.height = 100;
+    const dojoCtx = dojoCanvas.getContext('2d');
+
+    // Cyberpunk red/dark gradient
+    const dojoGrad = dojoCtx.createLinearGradient(0, 0, 100, 100);
+    dojoGrad.addColorStop(0, '#ff0055'); // Hot Pink/Red
+    dojoGrad.addColorStop(1, '#110022'); // Cyber Dark
+    dojoCtx.fillStyle = dojoGrad;
+    dojoCtx.fillRect(0, 0, 100, 100);
+
+    // Golden border
+    dojoCtx.strokeStyle = '#ffd700';
+    dojoCtx.lineWidth = 4;
+    dojoCtx.strokeRect(2, 2, 96, 96);
+
+    // Torii Gate drawing (Japanese Shinto Gate)
+    dojoCtx.fillStyle = '#ffd700'; // Golden torii gate
+    // Top bar (Kasagi)
+    dojoCtx.fillRect(20, 25, 60, 8);
+    // Lower bar (Nuki)
+    dojoCtx.fillRect(25, 40, 50, 6);
+    // Left Pillar
+    dojoCtx.fillRect(32, 25, 8, 55);
+    // Right Pillar
+    dojoCtx.fillRect(60, 25, 8, 55);
+
+    scene.textures.addCanvas('dojo_tile', dojoCanvas);
 }
 
 function generateMiscTextures(scene) {
@@ -20591,6 +20873,38 @@ function generateMiscTextures(scene) {
         data.name = name;
         window.saveNpcTrainerData(trainerId, data);
         return name;
+    };
+
+    window.hasDefeatedAllTrainers = function(playerNum) {
+        const pKey = playerNum === 2 ? 'p2' : 'p1';
+        for (let i = 1; i <= 24; i++) {
+            const trainerId = 'npc_trainer_' + i;
+            const data = window.getNpcTrainerData(trainerId);
+
+            let isDefeated = false;
+            // Check player-specific sub-object
+            if (data[pKey]) {
+                if (data[pKey].defeated === true) {
+                    isDefeated = true;
+                } else if (data[pKey].weekBattles) {
+                    const sum = Object.values(data[pKey].weekBattles).reduce((a, b) => a + b, 0);
+                    if (sum > 0) isDefeated = true;
+                }
+            }
+            // For P1/Singleplayer, check top-level keys too
+            if (playerNum === 1 && !isDefeated) {
+                if (data.defeated === true) {
+                    isDefeated = true;
+                } else if (data.weekBattles) {
+                    const sum = Object.values(data.weekBattles).reduce((a, b) => a + b, 0);
+                    if (sum > 0) isDefeated = true;
+                }
+            }
+            if (!isDefeated) {
+                return false;
+            }
+        }
+        return true;
     };
 
     window.getNpcTrainerStartPos = function(trainerId) {
@@ -21312,6 +21626,7 @@ window.spawnMiniTiles = function(scene) {
             else if (tile.type === 'breed') textureKey = 'breed_tile';
             else if (tile.type === 'challenge') textureKey = 'challenge_tile';
             else if (tile.type === 'storage_chest') textureKey = 'storage_chest_tile';
+            else if (tile.type === 'dojo') textureKey = 'dojo_tile';
 
             if (textureKey) {
                 let mSprite = window.miniTilesGroup.create(tile.x, tile.y, textureKey);
@@ -21542,7 +21857,8 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         "Mini Trade": "trade_tile",
         "Mini PvP": "pvp_tile",
         "Mini Breeding Center": "breed_tile",
-        "Mini Challenge": "challenge_tile"
+        "Mini Challenge": "challenge_tile",
+        "Dojo Tile": "dojo_tile"
     };
     const textureKey = textureMap[itemName] || 'home_tile';
 
@@ -21606,7 +21922,8 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
         "Mini PvP": "pvp",
         "Mini Breeding Center": "breed",
         "Mini Challenge": "challenge",
-        "Storage Chest": "storage_chest"
+        "Storage Chest": "storage_chest",
+        "Dojo Tile": "dojo"
     };
     const tileType = typeMap[itemName];
 
@@ -22288,6 +22605,10 @@ function create() {
                 if (window.openStorageChestModal) {
                     window.openStorageChestModal(1, tileSprite);
                 }
+            });
+        } else if (tileType === 'dojo') {
+            window.registerTileOverlap(1, 'dojo', () => {
+                if (window.openDojoModal) window.openDojoModal(pCol, 1);
             });
         }
     }, null, this);
@@ -24519,9 +24840,11 @@ window.closeBattleModal = function() {
     }
 
     const wasInChallenge = window.inChallengeBattle;
+    const wasInDojo = window.inDojoBattle;
     const wasInNpcBattle = window.isNpcBattle;
     window.inBattle = false;
     window.inChallengeBattle = false; // Reset challenge flag
+    window.inDojoBattle = false; // Reset Dojo flag
     window.isNpcBattle = false;
     window.activeNpcTrainerId = null;
     window.npcEnemyParty = null;
@@ -24547,6 +24870,33 @@ window.closeBattleModal = function() {
                     `You've reached Tier ${window.challengeTier}. Continue to next battle?`,
                     () => {
                         window.startChallengeBattle();
+                    }
+                );
+            }, 500);
+        } else if (wasInDojo) {
+            window.dojoTier++;
+            localStorage.setItem('wildpulse_dojo_tier', window.dojoTier.toString());
+            const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
+            const coinsAwarded = Math.floor((200 + window.dojoTier * 20) * window.getPassiveGoldMultiplier(pNum));
+            if (pNum === 2) {
+                if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
+                window.gameStats2.coins = (window.gameStats2.coins || 0) + coinsAwarded;
+                localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+            } else {
+                if (!window.gameStats) window.gameStats = JSON.parse(localStorage.getItem('wildpulse_stats')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
+                window.gameStats.coins = (window.gameStats.coins || 0) + coinsAwarded;
+            }
+            window.saveStats();
+            if (window.updateMenuCoins) window.updateMenuCoins();
+            window.showModernNotification(`🥇 Dojo Leader Defeated! Won ${coinsAwarded} coins!`, 4000, pNum);
+
+            setTimeout(() => {
+                window.showConfirm(
+                    pNum,
+                    'DOJO VICTORY!',
+                    `You've reached Dojo Tier ${window.dojoTier}. Challenge next tier?`,
+                    () => {
+                        window.startDojoBattle();
                     }
                 );
             }, 500);
@@ -24965,6 +25315,7 @@ window.endBattle = function(result) {
                 window.closeBattleModal();
             }
         }, 10000); // 10 seconds
+        window.battleEnding = false;
     }, 1500);
 };
 
@@ -25130,6 +25481,10 @@ window.enableCoop = function(scene) {
                 if (window.openStorageChestModal) {
                     window.openStorageChestModal(2, tileSprite);
                 }
+            });
+        } else if (tileType === 'dojo') {
+            window.registerTileOverlap(2, 'dojo', () => {
+                if (window.openDojoModal) window.openDojoModal(pCol, 2);
             });
         }
     }, null, scene));
