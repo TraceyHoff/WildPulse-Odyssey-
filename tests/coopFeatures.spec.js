@@ -3,10 +3,15 @@ const { test, expect } = require('@playwright/test');
 test.describe('Co-op Split Screen and Player 2 Features', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.clear();
-      sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
+      if (!sessionStorage.getItem('wildpulse_started_once')) {
+        localStorage.clear();
+        sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
+        sessionStorage.setItem('wildpulse_started_once', 'true');
+      }
     });
     await page.goto('http://localhost:3000');
+    // Wait for the game to start and players/creatures to initialize
+    await page.waitForFunction(() => window.gameStarted === true);
   });
 
   test('should generate a random Gen 1 starter creature for Player 2 on a new game', async ({ page }) => {
@@ -80,6 +85,7 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     });
 
     await page.waitForSelector('#menuBtn', { state: 'visible' });
+    await page.waitForTimeout(500); // Warmup wait to let Phaser settle
 
     // 1. Move player to the store tile coordinates (10350, 10350)
     await page.evaluate(() => {
@@ -89,10 +95,12 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
       }
     });
 
-    // Wait for Phaser's physics engine to register the overlap and automatically open the store modal
-    await page.waitForTimeout(500);
+    // Wait for Phaser's physics engine to register the overlap and press Enter
+    await page.waitForTimeout(100);
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(200);
 
-    // Verify storeModal is now open automatically
+    // Verify storeModal is now open
     const isStoreOpenAtStart = await page.evaluate(() => {
       const store = document.getElementById('storeModal');
       return store && window.getComputedStyle(store).display !== 'none';
@@ -151,8 +159,10 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
       }
     });
 
-    // Wait for Phaser loop to detect overlap and open the store modal again
-    await page.waitForTimeout(500);
+    // Wait for Phaser loop to detect overlap and press Enter again
+    await page.waitForTimeout(100);
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(200);
 
     const isStoreOpenOnReentry = await page.evaluate(() => {
       const store = document.getElementById('storeModal');
@@ -171,6 +181,15 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     const isCoopActive = await page.evaluate(() => window.coopActive);
     expect(isCoopActive).toBe(true);
 
+    // Close menu modals to avoid blocking tile interactions
+    await page.evaluate(() => {
+      if (window.closeMenuModal) {
+        window.closeMenuModal(1);
+        window.closeMenuModal(2);
+      }
+    });
+    await page.waitForTimeout(200);
+
     // 2. Move Player 1 to trade tile (10050, 10350)
     await page.evaluate(() => {
       if (window.player) {
@@ -179,8 +198,10 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
       }
     });
 
-    // Wait for overlap detection
-    await page.waitForTimeout(500);
+    // Wait for overlap detection and press Enter
+    await page.waitForTimeout(100);
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(200);
 
     // Verify tradeModal is open
     const isTradeOpen = await page.evaluate(() => {
@@ -237,6 +258,15 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     await page.waitForSelector('#menuModal', { state: 'visible' });
     await page.click('#coopToggleBtn');
 
+    // Close menu modals to avoid blocking tile interactions
+    await page.evaluate(() => {
+      if (window.closeMenuModal) {
+        window.closeMenuModal(1);
+        window.closeMenuModal(2);
+      }
+    });
+    await page.waitForTimeout(200);
+
     // 2. Move Player 1 to pvp tile (10350, 10050)
     await page.evaluate(() => {
       if (window.player) {
@@ -245,8 +275,10 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
       }
     });
 
-    // Wait for overlap detection
-    await page.waitForTimeout(500);
+    // Wait for overlap detection and press Enter
+    await page.waitForTimeout(100);
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(200);
 
     // Verify battleModal is open (which local PvP opens)
     const isBattleOpen = await page.evaluate(() => {
@@ -424,13 +456,17 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
       localStorage.setItem('wildpulse_stats2', JSON.stringify({ battlesWon: 2 }));
       localStorage.setItem('wildpulse_coop_active', 'true');
 
-      // Mock confirm to return true
+      // Mock confirm to return true, and showConfirm to call Yes immediately
       window.confirm = () => true;
+      window.showConfirm = (playerNum, title, text, onYes) => {
+        if (onYes) onYes();
+      };
     });
 
     // Execute deleteProgress and wait for navigation (reload)
     const navigationPromise = page.waitForNavigation();
     await page.evaluate(() => {
+      window.coopActive = true;
       window.deleteProgress();
     });
     await navigationPromise;
