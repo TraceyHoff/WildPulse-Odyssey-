@@ -18005,6 +18005,7 @@ window.useActionWheelOption = function(playerNum, optionName) {
             localStorage.setItem(lastPetKey, now.toString());
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
             localStorage.setItem(storageKey, JSON.stringify(party));
+            // Present-tense petting notification: "You pet [creature] and it's Happiness Increased!"
             window.showModernNotification(`👋 You pet ${target.nickname || target.name} and it's Happiness Increased! 💖`, 3000, playerNum);
         } else {
             window.showModernNotification(`👋 You pet ${target.nickname || target.name}! 💖`, 3000, playerNum);
