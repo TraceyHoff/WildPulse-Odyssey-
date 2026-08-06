@@ -7889,7 +7889,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const playerObj = window.player;
             if (playerObj && playerObj.currentTileOverlap) {
                 const overlap = playerObj.currentTileOverlap;
-                const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 150);
+                const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 1000);
                 if (isCurrent && overlap.callback) {
                     overlap.callback();
                 }
@@ -15704,7 +15704,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             const playerObj = playerNum === 2 ? window.player2 : window.player;
             if (playerObj && playerObj.currentTileOverlap) {
                 const overlap = playerObj.currentTileOverlap;
-                const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 150);
+                const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 1000);
                 if (isCurrent && overlap.callback) {
                     overlap.callback();
                     return;
@@ -18005,9 +18005,9 @@ window.useActionWheelOption = function(playerNum, optionName) {
             localStorage.setItem(lastPetKey, now.toString());
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
             localStorage.setItem(storageKey, JSON.stringify(party));
-            window.showModernNotification(`👋 You petted ${target.nickname || target.name}! Happiness increased! 💖`, 3000, playerNum);
+            window.showModernNotification(`👋 You pet ${target.nickname || target.name} and it's Happiness Increased! 💖`, 3000, playerNum);
         } else {
-            window.showModernNotification(`👋 You petted ${target.nickname || target.name}! 💖`, 3000, playerNum);
+            window.showModernNotification(`👋 You pet ${target.nickname || target.name}! 💖`, 3000, playerNum);
         }
 
         try {
@@ -22579,7 +22579,7 @@ function create() {
     // Overlap physics
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, (pCol, tile) => {
-        window.registerTileOverlap(1, 'hospital', () => healParty(pCol, tile));
+        healParty.call(this, pCol, tile);
     }, null, this);
     this.physics.add.overlap(player, storeGroup, (pCol) => {
         window.registerTileOverlap(1, 'store', () => openStoreModal(pCol));
@@ -22616,7 +22616,7 @@ function create() {
     this.physics.add.overlap(player, window.miniTilesGroup, (pCol, tileSprite) => {
         const tileType = tileSprite.miniTileType;
         if (tileType === 'hospital') {
-            window.registerTileOverlap(1, 'hospital', () => healParty(pCol));
+            healParty.call(this, pCol);
         } else if (tileType === 'store') {
             window.registerTileOverlap(1, 'store', () => openStoreModal(pCol));
         } else if (tileType === 'challenge') {
@@ -22712,7 +22712,7 @@ function create() {
         const playerObj = clickedPlayerNum === 2 ? window.player2 : window.player;
         if (playerObj && playerObj.currentTileOverlap) {
             const overlap = playerObj.currentTileOverlap;
-            const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 150);
+            const isCurrent = (Date.now() - playerObj.lastTileOverlapTime < 1000);
             if (isCurrent && overlap.callback) {
                 overlap.callback();
             }
@@ -22843,7 +22843,6 @@ function healParty(playerCollider, hospitalCollider) {
 
     // Only trigger heal once per 5 seconds to avoid spamming
     if (playerCollider.lastHealTime && this.time.now - playerCollider.lastHealTime < 5000) return;
-    playerCollider.lastHealTime = this.time.now;
 
     const isP2 = (playerCollider === window.player2);
     const party = isP2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -22862,6 +22861,7 @@ function healParty(playerCollider, hospitalCollider) {
     }
 
     if (healedAny) {
+        playerCollider.lastHealTime = this.time.now;
         localStorage.setItem(storageKey, JSON.stringify(party));
         if (isP2) {
             window.showModernNotification("Your party has been fully healed!", 3000, 2);
@@ -25463,7 +25463,7 @@ window.enableCoop = function(scene) {
     window.p2Colliders.push(scene.physics.add.collider(window.player2, window.treesGroup));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, creaturesGroup, collectCreature, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, hospitalGroup, (pCol, tile) => {
-        window.registerTileOverlap(2, 'hospital', () => healParty(pCol, tile));
+        healParty.call(scene, pCol, tile);
     }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, storeGroup, (pCol) => {
         window.registerTileOverlap(2, 'store', () => openStoreModal(pCol));
@@ -25500,7 +25500,7 @@ window.enableCoop = function(scene) {
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.miniTilesGroup, (pCol, tileSprite) => {
         const tileType = tileSprite.miniTileType;
         if (tileType === 'hospital') {
-            window.registerTileOverlap(2, 'hospital', () => healParty(pCol));
+            healParty.call(scene, pCol);
         } else if (tileType === 'store') {
             window.registerTileOverlap(2, 'store', () => openStoreModal(pCol));
         } else if (tileType === 'challenge') {
