@@ -166,4 +166,24 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
     await expect(page.locator('#storeContent')).toContainText('Stock: 5');
     await expect(buyHPBoosterBtn).toContainText('Buy');
   });
+
+  test('petting creature should show the correct active and present tense notification', async ({ page }) => {
+    // Setup player party with a custom first creature and clear pet cooldown
+    await page.evaluate(() => {
+        window.collectedCreatures = [
+            { id: "test_c1", name: "Phoenix", level: 5, currentHp: 50, stats: { health: 100 }, generation: 1, type: "Fire", happiness: 50 }
+        ];
+        localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
+        localStorage.removeItem('wildpulse_p1_last_pet_time');
+    });
+
+    // Use Action Wheel option 'pet'
+    await page.evaluate(() => {
+        window.useActionWheelOption(1, 'pet');
+    });
+
+    // Verify notification text matches the expected present tense wording
+    const notificationText = page.locator('#modernNotification');
+    await expect(notificationText).toContainText("👋 You pet Phoenix and it's Happiness Increased! 💖");
+  });
 });
