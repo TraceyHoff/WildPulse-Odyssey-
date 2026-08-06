@@ -163,4 +163,41 @@ test.describe('Dojo Tile and Dojo Leader Battle System', () => {
     expect(battleResult.coinsAwarded).toBe(240);
     expect(battleResult.dojoTier).toBe(2);
   });
+
+  test('should block openDojoModal and startDojoBattle if not all trainers are defeated and not in automation', async ({ page }) => {
+    // Setup party for player
+    await page.evaluate(() => {
+      window.collectedCreatures = [
+        { id: 'c1', name: 'Sparo', level: 10, currentHp: 100, stats: { health: 100, attack: 10, defense: 10, speed: 10, specialAttack: 10, specialDefense: 10 } }
+      ];
+      window.p1Level = 5;
+    });
+
+    const blockResult = await page.evaluate(() => {
+      // Temporarily override navigator.webdriver accessor for this test block
+      Object.defineProperty(navigator, 'webdriver', {
+        get: () => false,
+        configurable: true
+      });
+
+      // Clear any trainer defeat data to ensure they are NOT all defeated
+      localStorage.removeItem('wildpulse_npc_trainer_data');
+
+      // Attempt to open Dojo Modal for player 1
+      window.openDojoModal(null, 1);
+
+      // Return whether the modal is visible and check block state
+      return {
+        displayStyle: document.getElementById('dojoModal').style.display,
+        inBattle: window.inBattle,
+        inDojoBattle: window.inDojoBattle
+      };
+    });
+
+    // The modal should remain hidden (not display 'flex' or 'block')
+    expect(blockResult.displayStyle).not.toBe('flex');
+    expect(blockResult.displayStyle).not.toBe('block');
+    expect(blockResult.inBattle).not.toBe(true);
+    expect(blockResult.inDojoBattle).not.toBe(true);
+  });
 });

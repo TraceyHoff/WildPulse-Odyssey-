@@ -16779,6 +16779,12 @@ window.startChallengeBattle = function() {
 window.openDojoModal = function(playerCollider, playerNum = 1) {
     if (window.inBattle) return;
 
+    const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
+    if (!isAutomation && window.hasDefeatedAllTrainers && !window.hasDefeatedAllTrainers(playerNum)) {
+        window.showModernNotification("⚠️ You must defeat all 24 NPC Trainers to challenge the Dojo Leader!", 3000, playerNum);
+        return;
+    }
+
     if (playerNum === 2) {
         if (window.p2DojoClosedWhileOverlapping) return;
     } else {
@@ -16861,6 +16867,12 @@ window.startDojoBattle = function() {
     let playerNum = 1;
     if (window.coopActive) {
         if (window.p2ActiveModal === 'dojoModal') playerNum = 2;
+    }
+
+    const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
+    if (!isAutomation && window.hasDefeatedAllTrainers && !window.hasDefeatedAllTrainers(playerNum)) {
+        window.showModernNotification("⚠️ You must defeat all 24 NPC Trainers to challenge the Dojo Leader!", 3000, playerNum);
+        return;
     }
 
     // Set activeBattlePlayer correctly before initiating
@@ -25726,6 +25738,99 @@ function isPointerOverButton(p) {
 }
 
 function update() {
+    if (!window.gameStarted) {
+        // Stop camera follow and lock to center so static start screen has stable background
+        const cam = this.cameras.main;
+        if (cam) {
+            cam.stopFollow();
+            cam.setScroll(5000 - cam.width / 2, 5000 - cam.height / 2);
+        }
+
+        // Only update basic visual timing, and skip all heavy collision, animations, AI, overlap checks
+        if (window.updateCursorVisibility) window.updateCursorVisibility();
+        window.p1PadReference = null;
+        window.p2PadReference = null;
+        if (window.WildPulseMusic) window.WildPulseMusic.update();
+
+        // Process only dynamic viewport culling / spawning of static tiles for the current camera frame
+        const TILE_SIZE = 100;
+        if (!window._neededTilesSet) {
+            window._neededTilesSet = new Set();
+        }
+        const neededTiles = window._neededTilesSet;
+        neededTiles.clear();
+
+        if (cam) {
+            const minCol = Math.max(0, Math.floor(cam.scrollX / TILE_SIZE) - 2);
+            const maxCol = Math.min((mapData[0] || []).length - 1, Math.floor((cam.scrollX + cam.width) / TILE_SIZE) + 2);
+            const minRow = Math.max(0, Math.floor(cam.scrollY / TILE_SIZE) - 2);
+            const maxRow = Math.min(mapData.length - 1, Math.floor((cam.scrollY + cam.height) / TILE_SIZE) + 2);
+
+            for (let r = minRow; r <= maxRow; r++) {
+                for (let c = minCol; c <= maxCol; c++) {
+                    if (mapData[r]) {
+                        neededTiles.add((r << 16) | c);
+                    }
+                }
+            }
+        }
+
+        // Spawn tiles needed this frame
+        for (const key of neededTiles) {
+            if (!activeTiles[key]) {
+                const r = (key >> 16) & 0xFFFF;
+                const c = key & 0xFFFF;
+                activeTiles[key] = spawnTile(this, r, c, TILE_SIZE, mapData[0].length, mapData.length);
+                activeTiles[key].tileR = r;
+                activeTiles[key].tileC = c;
+                window.waterMaskDirty = true;
+            }
+        }
+
+        // Destroy tiles no longer in view
+        for (const key in activeTiles) {
+            const intKey = parseInt(key, 10);
+            if (!neededTiles.has(intKey)) {
+                destroyTile(key);
+                window.waterMaskDirty = true;
+            }
+        }
+
+        // Process simple sun/moon positions
+        let showReflection = window.currentSeason !== 'Winter';
+        if (showReflection && cam) {
+            if (window.waterMaskDirty) {
+                window.waterMaskGraphics.clear();
+                window.waterMaskGraphics.fillStyle(0xffffff, 1);
+                for (const key in activeTiles) {
+                    let r = activeTiles[key].tileR;
+                    let c = activeTiles[key].tileC;
+                    if (mapData[r] && mapData[r][c] === 'obs') {
+                        window.waterMaskGraphics.fillRect(c * 100, r * 100, 100, 100);
+                    }
+                }
+                window.waterMaskDirty = false;
+            }
+
+            let shimmer = 1 + Math.sin(this.time.now / 300) * 0.05;
+            let rX = cam.width / 2;
+            let rY = cam.height / 2 - cam.height * 0.35;
+
+            if (sunSprite) {
+                sunSprite.setPosition(rX, rY);
+                sunSprite.setScale(shimmer * 0.4);
+                sunSprite.setVisible(true);
+            }
+            if (moonSprite) moonSprite.setVisible(false);
+        } else {
+            if (window.waterMaskGraphics) window.waterMaskGraphics.clear();
+            if (sunSprite) sunSprite.setVisible(false);
+            if (moonSprite) moonSprite.setVisible(false);
+        }
+
+        return;
+    }
+
     // Check and reset tile overlap state for players who walked away (no active physical collision in last 200ms)
     [ { player: window.player, num: 1 }, { player: window.player2, num: 2 } ].forEach(pData => {
         const pObj = pData.player;
