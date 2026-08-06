@@ -22833,8 +22833,9 @@ window.registerTileOverlap = function(playerNum, tileType, callback) {
 
     if (playerObj.lastTileOverlapType !== tileType) {
         playerObj.lastTileOverlapType = tileType;
-        let displayName = tileType.toUpperCase().replace(/_/g, ' ');
-        window.showModernNotification(`Press A, Click, or Tap to interact with ${displayName}`, 2500, playerNum);
+        if (callback) {
+            callback();
+        }
     }
 };
 
