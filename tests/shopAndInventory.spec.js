@@ -16,7 +16,7 @@ test.describe('Shop and Inventory Systems', () => {
     // 1. Grant initial coins and clear inventory for testing
     await page.evaluate(() => {
         if (!window.gameStats) window.gameStats = { coins: 0 };
-        window.gameStats.coins = 500;
+        window.gameStats.coins = 1500;
         window.updateMenuCoins();
         // Clear inventory to start fresh
         window.p1Inventory = [];
@@ -143,7 +143,7 @@ test.describe('Shop and Inventory Systems', () => {
     // Grant coins and prepare empty inventory
     await page.evaluate(() => {
         if (!window.gameStats) window.gameStats = { coins: 0 };
-        window.gameStats.coins = 350;
+        window.gameStats.coins = 1000;
         window.updateMenuCoins();
         window.p1Inventory = [];
         window.saveInventory();
@@ -173,12 +173,12 @@ test.describe('Shop and Inventory Systems', () => {
 
     await expect(page.locator('#storeModal')).toBeVisible();
 
-    // Verify Player 1 Coins are displayed as 350
+    // Verify Player 1 Coins are displayed as 1000
     const storeP1Col = page.locator('#storeContent');
-    await expect(storeP1Col).toContainText('Coins: 350');
+    await expect(storeP1Col).toContainText('Coins: 1000');
 
     // Since inventory is empty, dynamic available to buy for each item is 30 (10 per slot * 3 slots)
-    const repelLabel = storeP1Col.locator('.available-qty-label').first();
+    const repelLabel = page.locator('div').filter({ hasText: /^Repellent$/ }).locator('..').locator('.available-qty-label').first();
     await expect(repelLabel).toContainText('Available to Buy: 30');
 
     // Buy 1 Repellent
