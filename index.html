@@ -1965,7 +1965,7 @@
         grid-template-areas:
             "area area"
             "log controls" !important;
-        gap: 15px !important;
+        gap: 6px !important;
         font-family: 'Courier New', monospace !important;
         color: #fff !important;
         background: linear-gradient(180deg, #020914 0%, #08162e 100%) !important;
@@ -1974,7 +1974,7 @@
         border: 3px solid #00ffd2 !important;
         box-shadow: 0 0 35px rgba(0, 255, 210, 0.25), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
         border-radius: 12px !important;
-        padding: 8px 15px !important;
+        padding: 4px 10px !important;
         box-sizing: border-box !important;
         height: 100vh !important;
         max-height: 100vh !important;
@@ -2004,7 +2004,7 @@
         max-width: none !important;
         max-height: none !important;
         border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
-        padding: 8px 15px !important;
+        padding: 4px 10px !important;
         background-color: transparent !important;
     }
     body.coop-active-layout #battleModal_p2 {
@@ -2017,7 +2017,7 @@
         max-width: none !important;
         max-height: none !important;
         border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
-        padding: 8px 15px !important;
+        padding: 4px 10px !important;
         background-color: transparent !important;
     }
     body.coop-active-layout #battleModal.pvp-battle-active {
@@ -2369,8 +2369,8 @@
                 "area"
                 "log"
                 "controls" !important;
-            gap: 6px !important;
-            padding: 6px 12px !important;
+            gap: 4px !important;
+            padding: 3px 8px !important;
         }
 
         .battle-area {
@@ -3290,6 +3290,9 @@ window.getEventBoostedType = function(event) {
 
 window.rollRandomEvent = function() {
     const activeEvents = ['Daytime Radiance', 'Nighttime Eclipse', 'Heat Wave', 'Aurora', 'Gusty Winds', 'Earthquake', 'Bountiful Bloom'];
+    if (window.coopActive) {
+        activeEvents.push('Dual Battle');
+    }
     let chosen = 'None';
     let duration = 600000; // 10 minutes default cooldown
 
@@ -3333,6 +3336,9 @@ window.rollRandomEvent = function() {
         } else if (chosen === 'Bountiful Bloom') {
             msg = "🌸 BIOLOGICAL EVENT: A Bountiful Bloom has erupted! Nature-type creatures are now 50% stronger!";
             color = "#81c784";
+        } else if (chosen === 'Dual Battle') {
+            msg = "👥 DUAL BATTLE: Team up! Wild encounters will now trigger a cooperative Dual Battle against two wild creatures!";
+            color = "#ff007f";
         } else {
             msg = "🍃 The atmospheric event has subsided. The world returns to normal.";
             color = "#4caf50";
@@ -3468,6 +3474,10 @@ window.updateEventBadgeUI = function() {
         text = `🌸 Bloom: Nature +50% DMG [${timeStr}]`;
         color = "#81c784";
         shadow = "0 0 10px rgba(129,199,132,0.5)";
+    } else if (window.activeRandomEvent === 'Dual Battle') {
+        text = `👥 Dual Battle Event! [${timeStr}]`;
+        color = "#ff007f";
+        shadow = "0 0 10px rgba(255,0,127,0.5)";
     }
 
     el.innerHTML = text;
@@ -6471,6 +6481,11 @@ window.runPerformanceCheck = function() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Capture original battle area HTML for Dual Battle restores
+    const battleArea = document.querySelector('#battleModal .battle-area');
+    if (battleArea) {
+        window.originalBattleAreaHTML = battleArea.innerHTML;
+    }
 
     // Performance Settings Sync and Hook-ups
     const p1Particles = document.getElementById('perfParticlesP1');
@@ -15388,6 +15403,12 @@ window.getActiveContainerForPlayer = function(playerNum) {
                 if (window.coopActive) {
                     if (id === 'battleModal' || id === 'battleModal_p2') {
                         const pNum = (id === 'battleModal_p2') ? 2 : 1;
+                        if (window.isDualBattle) {
+                            if (window.dualBattleTurn === playerNum) {
+                                return document.getElementById('battleModal');
+                            }
+                            return null;
+                        }
                         if (window.isLocalPvp) {
                             if (window.localPvpTurn === pNum) {
                                 return el;
@@ -15397,6 +15418,12 @@ window.getActiveContainerForPlayer = function(playerNum) {
                         }
                     } else if (id === 'battleSwapModal' || id === 'battleSwapModal_p2') {
                         const pNum = (id === 'battleSwapModal_p2') ? 2 : 1;
+                        if (window.isDualBattle) {
+                            const isP2Swap = (window.playerParty === window.collectedCreatures2);
+                            if (playerNum === 2 && isP2Swap) return document.getElementById('battleSwapModal');
+                            if (playerNum === 1 && !isP2Swap) return document.getElementById('battleSwapModal');
+                            return null;
+                        }
                         if (window.isLocalPvp) {
                             const isP1TurnToSwap = window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1);
                             const isP2TurnToSwap = window.localPvpForceSwap === 2 || (window.localPvpForceSwap === null && window.localPvpTurn === 2);
@@ -16041,6 +16068,23 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
 
         if (justA) {
+            if (window.isDualBattle) {
+                const isP2Swap = (window.playerParty === window.collectedCreatures2);
+                const isSwapOpen = document.getElementById('battleSwapModal') && document.getElementById('battleSwapModal').style.display !== 'none' && document.getElementById('battleSwapModal').style.display !== '';
+
+                let isAllowed = false;
+                if (isSwapOpen) {
+                    if (playerNum === 1 && !isP2Swap) isAllowed = true;
+                    if (playerNum === 2 && isP2Swap) isAllowed = true;
+                } else {
+                    if (playerNum === 1 && window.dualBattleTurn === 1) isAllowed = true;
+                    if (playerNum === 2 && window.dualBattleTurn === 2) isAllowed = true;
+                }
+                if (!isAllowed) {
+                    return;
+                }
+            }
+
             if (window.isLocalPvp) {
                 const isP1TurnToSwap = window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1);
                 const isP2TurnToSwap = window.localPvpForceSwap === 2 || (window.localPvpForceSwap === null && window.localPvpTurn === 2);
@@ -19687,6 +19731,505 @@ window.initializeBattleMutations = function() {
     }
 };
 
+window.isDualBattle = false;
+window.currentPlayer2 = null;
+window.currentEnemy2 = null;
+window.dualBattleTurn = 1;
+window.dualBattleActions = {};
+
+window.getDualBattleAreaHTML = function() {
+    return `
+        <div class="combatant" id="playerCombatant" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Player 1 Creature Card & Sprite -->
+            <div class="dual-sub-combatant" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div class="combatant-info-card player-info" style="width: 100%; box-sizing: border-box; padding: 6px;">
+                    <div class="combatant-header">
+                        <h3 id="pName" class="retro-font" style="font-size: 13px; margin: 0;">P1 Creature</h3>
+                        <span class="combatant-level retro-font" style="font-size: 11px;">Lv.<span id="pLevel"></span><span id="pStatus" class="retro-font" style="font-weight:bold; color:#ff9800; margin-left: 5px;"></span></span>
+                    </div>
+                    <div class="combatant-details retro-font" style="font-size: 10px; display: flex; justify-content: space-between; margin-top: 2px;">
+                        <div>TYPE: <span id="pType"></span></div>
+                        <div>ABILITY: <span id="pAbility"></span></div>
+                    </div>
+                    <div class="hp-section" style="margin-top: 2px;">
+                        <div class="hp-bar-container" style="height: 10px;"><div class="hp-bar" id="pHPBar"></div></div>
+                    </div>
+                    <div id="pHPText" class="hp-text-num retro-font" style="font-size: 10px; text-align: right;"></div>
+                </div>
+                <div class="sprite-pedestal-container" style="width: 80px; height: 80px;">
+                    <div class="sprite-pedestal" style="width: 70px; height: 20px; bottom: 5px;"></div>
+                    <div id="pSprite" class="combatant-sprite"></div>
+                </div>
+            </div>
+            <!-- Player 2 Creature Card & Sprite -->
+            <div class="dual-sub-combatant" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div class="combatant-info-card player-info" style="width: 100%; box-sizing: border-box; padding: 6px; border-color: #ff00ff !important;">
+                    <div class="combatant-header">
+                        <h3 id="pName2" class="retro-font" style="font-size: 13px; margin: 0;">P2 Creature</h3>
+                        <span class="combatant-level retro-font" style="font-size: 11px;">Lv.<span id="pLevel2"></span><span id="pStatus2" class="retro-font" style="font-weight:bold; color:#ff9800; margin-left: 5px;"></span></span>
+                    </div>
+                    <div class="combatant-details retro-font" style="font-size: 10px; display: flex; justify-content: space-between; margin-top: 2px;">
+                        <div>TYPE: <span id="pType2"></span></div>
+                        <div>ABILITY: <span id="pAbility2"></span></div>
+                    </div>
+                    <div class="hp-section" style="margin-top: 2px;">
+                        <div class="hp-bar-container" style="height: 10px;"><div class="hp-bar" id="pHPBar2"></div></div>
+                    </div>
+                    <div id="pHPText2" class="hp-text-num retro-font" style="font-size: 10px; text-align: right;"></div>
+                </div>
+                <div class="sprite-pedestal-container" style="width: 80px; height: 80px;">
+                    <div class="sprite-pedestal" style="width: 70px; height: 20px; bottom: 5px;"></div>
+                    <div id="pSprite2" class="combatant-sprite"></div>
+                </div>
+            </div>
+        </div>
+        <div class="combatant" id="enemyCombatant" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Enemy 1 Creature Card & Sprite -->
+            <div class="dual-sub-combatant" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div class="combatant-info-card enemy-info" style="width: 100%; box-sizing: border-box; padding: 6px;">
+                    <div class="combatant-header">
+                        <h3 id="eName" class="retro-font" style="font-size: 13px; margin: 0;">Enemy 1</h3>
+                        <span class="combatant-level retro-font" style="font-size: 11px;">Lv.<span id="eLevel"></span><span id="eStatus" class="retro-font" style="font-weight:bold; color:#ff9800; margin-left: 5px;"></span></span>
+                    </div>
+                    <div class="combatant-details retro-font" style="font-size: 10px; display: flex; justify-content: space-between; margin-top: 2px;">
+                        <div>TYPE: <span id="eType"></span></div>
+                        <div>ABILITY: <span id="eAbility"></span></div>
+                    </div>
+                    <div class="hp-section" style="margin-top: 2px;">
+                        <div class="hp-bar-container" style="height: 10px;"><div class="hp-bar" id="eHPBar"></div></div>
+                    </div>
+                    <div id="eHPText" class="hp-text-num retro-font" style="font-size: 10px; text-align: right;"></div>
+                </div>
+                <div class="sprite-pedestal-container" style="width: 80px; height: 80px;">
+                    <div class="sprite-pedestal" style="width: 70px; height: 20px; bottom: 5px;"></div>
+                    <div id="eSprite" class="combatant-sprite"></div>
+                </div>
+            </div>
+            <!-- Enemy 2 Creature Card & Sprite -->
+            <div class="dual-sub-combatant" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <div class="combatant-info-card enemy-info" style="width: 100%; box-sizing: border-box; padding: 6px; border-color: #ff3366 !important;">
+                    <div class="combatant-header">
+                        <h3 id="eName2" class="retro-font" style="font-size: 13px; margin: 0;">Enemy 2</h3>
+                        <span class="combatant-level retro-font" style="font-size: 11px;">Lv.<span id="eLevel2"></span><span id="eStatus2" class="retro-font" style="font-weight:bold; color:#ff9800; margin-left: 5px;"></span></span>
+                    </div>
+                    <div class="combatant-details retro-font" style="font-size: 10px; display: flex; justify-content: space-between; margin-top: 2px;">
+                        <div>TYPE: <span id="eType2"></span></div>
+                        <div>ABILITY: <span id="eAbility2"></span></div>
+                    </div>
+                    <div class="hp-section" style="margin-top: 2px;">
+                        <div class="hp-bar-container" style="height: 10px;"><div class="hp-bar" id="eHPBar2"></div></div>
+                    </div>
+                    <div id="eHPText2" class="hp-text-num retro-font" style="font-size: 10px; text-align: right;"></div>
+                </div>
+                <div class="sprite-pedestal-container" style="width: 80px; height: 80px;">
+                    <div class="sprite-pedestal" style="width: 70px; height: 20px; bottom: 5px;"></div>
+                    <div id="eSprite2" class="combatant-sprite"></div>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+window.startDualBattle = function(playerCollider, creatureSprite) {
+    if (window.inBattle) return;
+
+    // Check both players have healthy creatures
+    const activeParty1 = window.collectedCreatures.filter(c => !c.stored && !c.isEgg);
+    const activeParty2 = window.collectedCreatures2.filter(c => !c.stored && !c.isEgg);
+
+    const healthy1 = activeParty1.filter(c => (c.currentHp === undefined || c.currentHp > 0));
+    const healthy2 = activeParty2.filter(c => (c.currentHp === undefined || c.currentHp > 0));
+
+    if (healthy1.length === 0 || healthy2.length === 0) {
+        window.showModernNotification("Both players must have at least one healthy creature to participate in a Dual Battle!", 3000);
+        return;
+    }
+
+    // Stop movement for both players
+    if (window.player && window.player.body) {
+        window.player.body.setVelocity(0);
+        window.player.body.moves = false;
+    }
+    if (window.player2 && window.player2.body) {
+        window.player2.body.setVelocity(0);
+        window.player2.body.moves = false;
+    }
+
+    window.battleEnding = false;
+    window.inBattle = true;
+    window.isDualBattle = true;
+    window.dualBattleTurn = 1; // P1 chooses first
+    window.dualBattleActions = {};
+
+    // Symmetrically initialize HP for both parties if undefined
+    activeParty1.forEach(c => {
+        if (c.currentHp === undefined) c.currentHp = window.getEffectiveStat(c, 'health');
+    });
+    activeParty2.forEach(c => {
+        if (c.currentHp === undefined) c.currentHp = window.getEffectiveStat(c, 'health');
+    });
+
+    // Player 1's active combatant
+    const firstHealthyP1 = healthy1[0];
+    window.currentPlayer = JSON.parse(JSON.stringify(firstHealthyP1));
+    window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
+    window.currentPlayer.currentHp = window.currentPlayer.currentHp !== undefined ? window.currentPlayer.currentHp : window.currentPlayer.maxHp;
+    window.currentPlayer.isDefending = false;
+    window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+    currentPlayer = window.currentPlayer;
+
+    // Player 2's active combatant
+    const firstHealthyP2 = healthy2[0];
+    window.currentPlayer2 = JSON.parse(JSON.stringify(firstHealthyP2));
+    window.currentPlayer2.maxHp = window.getEffectiveStat(window.currentPlayer2, 'health');
+    window.currentPlayer2.currentHp = window.currentPlayer2.currentHp !== undefined ? window.currentPlayer2.currentHp : window.currentPlayer2.maxHp;
+    window.currentPlayer2.isDefending = false;
+    window.currentPlayer2.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    // Wild Enemy 1 (from creatureSprite)
+    window.currentEnemy = JSON.parse(JSON.stringify(creatureSprite.getData('creatureData')));
+    window.currentEnemySprite = creatureSprite;
+    window.currentEnemy.maxHp = window.getEffectiveStat(window.currentEnemy, 'health');
+    window.currentEnemy.currentHp = window.currentEnemy.maxHp;
+    window.currentEnemy.isDefending = false;
+    window.currentEnemy.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+    currentEnemy = window.currentEnemy;
+
+    // Generate Wild Enemy 2
+    const basePrototype = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+    window.currentEnemy2 = JSON.parse(JSON.stringify(basePrototype));
+    window.currentEnemy2.level = window.currentEnemy.level || 1;
+    if (window.currentEnemy2.stats) {
+        for (let stat in window.currentEnemy2.stats) {
+            window.currentEnemy2.stats[stat] += Math.floor(Math.random() * 32); // IV
+        }
+    }
+    window.currentEnemy2.nature = window.getRandomNature ? window.getRandomNature(false, Math.random) : 'Normal';
+    window.currentEnemy2.mood = window.getRandomMood ? window.getRandomMood(false, Math.random) : 'Normal';
+    window.currentEnemy2.temperament = window.getRandomTemperament ? window.getRandomTemperament(Math.random) : 'Normal';
+    if (window.assignAbility) window.assignAbility(window.currentEnemy2, Math.random);
+    window.currentEnemy2.id = `dual_wild_enemy2_${Date.now()}`;
+    window.currentEnemy2.color = window.getCreatureColor(window.currentEnemy2);
+    window.currentEnemy2.maxHp = window.getEffectiveStat(window.currentEnemy2, 'health');
+    window.currentEnemy2.currentHp = window.currentEnemy2.maxHp;
+    window.currentEnemy2.isDefending = false;
+    window.currentEnemy2.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    // Update HTML of .battle-area to Dual Battle template
+    const battleArea = document.querySelector('#battleModal .battle-area');
+    if (battleArea) {
+        battleArea.innerHTML = window.getDualBattleAreaHTML();
+    }
+
+    // Set up class for full-width styling
+    const battleModal = document.getElementById('battleModal');
+    if (battleModal) {
+        battleModal.classList.add('dual-battle-active');
+        battleModal.style.display = 'block';
+    }
+
+    document.getElementById('battleControls').style.display = 'grid';
+    document.getElementById('battleCloseBtn').style.display = 'none';
+    document.getElementById('battleLog').innerHTML = '';
+    window.battleLogQueue = [];
+    window.isActionRunning = false;
+
+    window.logBattle(`👥 DUAL BATTLE STARTED! Cooperative challenge against TWO wild creatures!`);
+    window.logBattle(`${window.getP1Name()} sends out <span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span>!`);
+    window.logBattle(`${window.getP2Name()} sends out <span style="color:#ff00ff">${window.currentPlayer2.nickname || window.currentPlayer2.name}</span>!`);
+    window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
+
+    window.updateBattleUI();
+};
+
+window.executeDualBattleRound = function() {
+    let p1Action = window.dualBattleActions.p1;
+    let p2Action = window.dualBattleActions.p2;
+
+    const step1_swap = () => {
+        if (!window.inBattle) return;
+        step2_p1_action();
+    };
+
+    const step2_p1_action = () => {
+        if (!window.inBattle) return;
+        if (window.currentPlayer.currentHp <= 0) {
+            setTimeout(step3_p2_action, 500);
+            return;
+        }
+
+        if (p1Action === 'defend') {
+            window.currentPlayer.isDefending = true;
+            window.logBattle(`<span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span> <span style="color:#ffb74d">is Defending!</span>`);
+            setTimeout(step3_p2_action, 1000);
+            return;
+        }
+
+        let target = window.currentEnemy;
+        let targetLabel = 'enemyCombatant';
+        if (window.currentEnemy.currentHp <= 0) {
+            target = window.currentEnemy2;
+        }
+
+        if (target && target.currentHp > 0) {
+            let dmg = window.calculateDamage(window.currentPlayer, target, 45);
+            if (window.currentPlayer.isDefending) dmg *= 0.5;
+            if (target.isDefending) dmg *= 0.5;
+
+            if (Math.random() < 0.10) {
+                dmg *= 1.5;
+                window.logBattle("<span class=\"critical\">Critical Hit by Player 1!</span>");
+            }
+
+            target.currentHp = Math.max(0, target.currentHp - dmg);
+            window.logBattle(`<span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span> attacks <span style="color:#f44336">${target.name}</span>! Dealt <span class="damage">${dmg.toFixed(1)} damage</span>.`);
+
+            window.triggerAnimation(targetLabel, 'shake', 150);
+            window.triggerClawSlashAnimation(false);
+            window.showFloatingText(targetLabel, '-' + dmg.toFixed(1), '#ff5555');
+        }
+
+        setTimeout(step3_p2_action, 1500);
+    };
+
+    const step3_p2_action = () => {
+        if (!window.inBattle) return;
+        if (window.currentPlayer2.currentHp <= 0) {
+            setTimeout(step4_e1_action, 500);
+            return;
+        }
+
+        if (p2Action === 'defend') {
+            window.currentPlayer2.isDefending = true;
+            window.logBattle(`<span style="color:#ff00ff">${window.currentPlayer2.nickname || window.currentPlayer2.name}</span> <span style="color:#ffb74d">is Defending!</span>`);
+            setTimeout(step4_e1_action, 1000);
+            return;
+        }
+
+        let target = window.currentEnemy2;
+        let targetLabel = 'enemyCombatant';
+        if (window.currentEnemy2.currentHp <= 0) {
+            target = window.currentEnemy;
+        }
+
+        if (target && target.currentHp > 0) {
+            let dmg = window.calculateDamage(window.currentPlayer2, target, 45);
+            if (window.currentPlayer2.isDefending) dmg *= 0.5;
+            if (target.isDefending) dmg *= 0.5;
+
+            if (Math.random() < 0.10) {
+                dmg *= 1.5;
+                window.logBattle("<span class=\"critical\">Critical Hit by Player 2!</span>");
+            }
+
+            target.currentHp = Math.max(0, target.currentHp - dmg);
+            window.logBattle(`<span style="color:#ff00ff">${window.currentPlayer2.nickname || window.currentPlayer2.name}</span> attacks <span style="color:#f44336">${target.name}</span>! Dealt <span class="damage">${dmg.toFixed(1)} damage</span>.`);
+
+            window.triggerAnimation(targetLabel, 'shake', 150);
+            window.triggerClawSlashAnimation(false);
+            window.showFloatingText(targetLabel, '-' + dmg.toFixed(1), '#ff5555');
+        }
+
+        setTimeout(step4_e1_action, 1500);
+    };
+
+    const step4_e1_action = () => {
+        if (!window.inBattle) return;
+        if (window.currentEnemy.currentHp <= 0) {
+            setTimeout(step5_e2_action, 500);
+            return;
+        }
+
+        let target = window.currentPlayer;
+        let targetLabel = 'playerCombatant';
+        if (window.currentPlayer.currentHp <= 0) {
+            target = window.currentPlayer2;
+        }
+
+        if (target && target.currentHp > 0) {
+            let dmg = window.calculateDamage(window.currentEnemy, target, 40);
+            if (target.isDefending) dmg *= 0.5;
+
+            if (Math.random() < 0.10) {
+                dmg *= 1.5;
+                window.logBattle("<span class=\"critical\">Critical Hit by Wild Enemy!</span>");
+            }
+
+            target.currentHp = Math.max(0, target.currentHp - dmg);
+            window.logBattle(`Wild <span style="color:#f44336">${window.currentEnemy.name}</span> attacks <span style="color:#2196F3">${target.nickname || target.name}</span>! Dealt <span class="damage">${dmg.toFixed(1)} damage</span>.`);
+
+            window.triggerAnimation(targetLabel, 'shake', 150);
+            window.triggerClawSlashAnimation(true);
+            window.showFloatingText(targetLabel, '-' + dmg.toFixed(1), '#ff5555');
+        }
+
+        setTimeout(step5_e2_action, 1500);
+    };
+
+    const step5_e2_action = () => {
+        if (!window.inBattle) return;
+        if (window.currentEnemy2.currentHp <= 0) {
+            setTimeout(step6_end_round, 500);
+            return;
+        }
+
+        let target = window.currentPlayer2;
+        let targetLabel = 'playerCombatant';
+        if (window.currentPlayer2.currentHp <= 0) {
+            target = window.currentPlayer;
+        }
+
+        if (target && target.currentHp > 0) {
+            let dmg = window.calculateDamage(window.currentEnemy2, target, 40);
+            if (target.isDefending) dmg *= 0.5;
+
+            if (Math.random() < 0.10) {
+                dmg *= 1.5;
+                window.logBattle("<span class=\"critical\">Critical Hit by Wild Enemy!</span>");
+            }
+
+            target.currentHp = Math.max(0, target.currentHp - dmg);
+            window.logBattle(`Wild <span style="color:#ff3366">${window.currentEnemy2.name}</span> attacks <span style="color:#2196F3">${target.nickname || target.name}</span>! Dealt <span class="damage">${dmg.toFixed(1)} damage</span>.`);
+
+            window.triggerAnimation(targetLabel, 'shake', 150);
+            window.triggerClawSlashAnimation(true);
+            window.showFloatingText(targetLabel, '-' + dmg.toFixed(1), '#ff5555');
+        }
+
+        setTimeout(step6_end_round, 1500);
+    };
+
+    const step6_end_round = () => {
+        if (window.currentPlayer) window.currentPlayer.isDefending = false;
+        if (window.currentPlayer2) window.currentPlayer2.isDefending = false;
+
+        const collectedP1 = window.collectedCreatures.find(c => c.id === window.currentPlayer.id);
+        if (collectedP1) {
+            collectedP1.currentHp = window.currentPlayer.currentHp;
+        }
+        const collectedP2 = window.collectedCreatures2.find(c => c.id === window.currentPlayer2.id);
+        if (collectedP2) {
+            collectedP2.currentHp = window.currentPlayer2.currentHp;
+        }
+        localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
+        localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+
+        window.checkDualBattleFaintsOrEnd(() => {
+            window.dualBattleTurn = 1;
+            window.dualBattleActions = {};
+            window.isActionRunning = false;
+            window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
+            window.updateBattleUI();
+        });
+    };
+
+    step1_swap();
+};
+
+window.checkDualBattleFaintsOrEnd = function(callback) {
+    const enemiesFainted = (window.currentEnemy.currentHp <= 0 && window.currentEnemy2.currentHp <= 0);
+    if (enemiesFainted) {
+        window.logBattle(`<span style="color:#55ff55; font-weight:bold;">VICTORY! Both wild creatures have been defeated cooperatively!</span>`);
+
+        window.saveGold(1, (window.getGold(1) || 0) + 150);
+        window.saveGold(2, (window.getGold(2) || 0) + 150);
+        window.logBattle(`Both players received 150 gold coins!`);
+
+        window.currentPlayer.xp = (window.currentPlayer.xp || 0) + 40;
+        window.currentPlayer2.xp = (window.currentPlayer2.xp || 0) + 40;
+        window.logBattle(`Both active creatures gained 40 XP!`);
+
+        window.checkLevelUpForCreature(window.currentPlayer, 1);
+        window.checkLevelUpForCreature(window.currentPlayer2, 2);
+
+        const collectedP1 = window.collectedCreatures.find(c => c.id === window.currentPlayer.id);
+        if (collectedP1) {
+            collectedP1.xp = window.currentPlayer.xp;
+            collectedP1.currentHp = window.currentPlayer.currentHp;
+        }
+        const collectedP2 = window.collectedCreatures2.find(c => c.id === window.currentPlayer2.id);
+        if (collectedP2) {
+            collectedP2.xp = window.currentPlayer2.xp;
+            collectedP2.currentHp = window.currentPlayer2.currentHp;
+        }
+        localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
+        localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+
+        setTimeout(() => {
+            window.endDualBattle('win');
+        }, 2000);
+        return;
+    }
+
+    const activePartyP1 = window.collectedCreatures.filter(c => !c.stored && !c.isEgg);
+    const healthyP1 = activePartyP1.filter(c => (c.currentHp !== undefined && c.currentHp > 0) || c.id === window.currentPlayer.id && window.currentPlayer.currentHp > 0);
+
+    const activePartyP2 = window.collectedCreatures2.filter(c => !c.stored && !c.isEgg);
+    const healthyP2 = activePartyP2.filter(c => (c.currentHp !== undefined && c.currentHp > 0) || c.id === window.currentPlayer2.id && window.currentPlayer2.currentHp > 0);
+
+    const p1Fainted = (window.currentPlayer.currentHp <= 0);
+    const p2Fainted = (window.currentPlayer2.currentHp <= 0);
+
+    if (p1Fainted && healthyP1.length === 0 && p2Fainted && healthyP2.length === 0) {
+        window.logBattle(`<span style="color:#ff5555; font-weight:bold;">DEFEAT! All cooperative creatures have fainted!</span>`);
+        setTimeout(() => {
+            window.endDualBattle('loss');
+        }, 2000);
+        return;
+    }
+
+    if (p1Fainted && healthyP1.length > 0) {
+        window.logBattle(`<span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span> has fainted!`);
+        window.playerParty = window.collectedCreatures;
+        window.openBattleSwapModal();
+        return;
+    }
+
+    if (p2Fainted && healthyP2.length > 0) {
+        window.logBattle(`<span style="color:#ff00ff">${window.currentPlayer2.nickname || window.currentPlayer2.name}</span> has fainted!`);
+        window.playerParty = window.collectedCreatures2;
+        window.openBattleSwapModal();
+        return;
+    }
+
+    if (callback) callback();
+};
+
+window.endDualBattle = function(result) {
+    window.inBattle = false;
+    window.isDualBattle = false;
+
+    if (window.player && window.player.body) {
+        window.player.body.moves = true;
+        window.player.lastBattleTime = window.gameScene ? window.gameScene.time.now : Date.now();
+    }
+    if (window.player2 && window.player2.body) {
+        window.player2.body.moves = true;
+        window.player2.lastBattleTime = window.gameScene ? window.gameScene.time.now : Date.now();
+    }
+
+    const battleArea = document.querySelector('#battleModal .battle-area');
+    if (battleArea && window.originalBattleAreaHTML) {
+        battleArea.innerHTML = window.originalBattleAreaHTML;
+    }
+
+    const battleModal = document.getElementById('battleModal');
+    if (battleModal) {
+        battleModal.classList.remove('dual-battle-active');
+        battleModal.style.display = 'none';
+    }
+
+    if (result === 'win' && window.currentEnemySprite) {
+        window.currentEnemySprite.destroy();
+    }
+
+    if (result === 'loss') {
+        if (window.handleFaintDefeat) {
+            window.handleFaintDefeat();
+        }
+    }
+};
+
 window.updateBattleUI = function() {
     if (window.inBattle && !window.battleMutationsProcessed) {
         window.battleMutationsProcessed = true;
@@ -19699,16 +20242,18 @@ window.updateBattleUI = function() {
 
     const battleModal = document.getElementById('battleModal');
     if (battleModal && window.coopActive) {
-        battleModal.classList.remove('p1-battle-active', 'p2-battle-active', 'pvp-battle-active');
+        battleModal.classList.remove('p1-battle-active', 'p2-battle-active', 'pvp-battle-active', 'dual-battle-active');
         if (window.isLocalPvp) {
             battleModal.classList.add('pvp-battle-active');
+        } else if (window.isDualBattle) {
+            battleModal.classList.add('dual-battle-active');
         } else if (window.activeBattlePlayer === 2) {
             battleModal.classList.add('p2-battle-active');
         } else {
             battleModal.classList.add('p1-battle-active');
         }
     } else if (battleModal) {
-        battleModal.classList.remove('p1-battle-active', 'p2-battle-active', 'pvp-battle-active');
+        battleModal.classList.remove('p1-battle-active', 'p2-battle-active', 'pvp-battle-active', 'dual-battle-active');
     }
 
     const isCombatActive = window.inBattle && window.pendingBattleResult === null;
@@ -19787,6 +20332,82 @@ window.updateBattleUI = function() {
         document.getElementById('eHPText').style.color = currentEnemy.currentHp <= 0.3 * currentEnemy.maxHp ? '#f44336' : '#4caf50';
         document.getElementById('eHPBar').style.width = (Math.max(0, currentEnemy.currentHp) / currentEnemy.maxHp * 100) + '%';
         window.drawCreatureSprite('eSprite', currentEnemy);
+    }
+
+    // Player 2 & Enemy 2 for Dual Battle
+    if (window.isDualBattle && window.currentPlayer2) {
+        const pName2El = document.getElementById('pName2');
+        if (pName2El) {
+            pName2El.innerText = window.currentPlayer2.nickname || window.currentPlayer2.name;
+            document.getElementById('pLevel2').innerText = window.currentPlayer2.level || 1;
+            document.getElementById('pLevel2').style.color = '#ff00ff';
+            document.getElementById('pType2').innerText = window.currentPlayer2.type || 'Normal';
+            document.getElementById('pType2').setAttribute('data-tooltip', window.getTypeTooltip(window.currentPlayer2.type || 'Normal'));
+            if (window.currentPlayer2.ability) {
+                let abText = window.currentPlayer2.ability.name;
+                let abTooltip = `${window.currentPlayer2.ability.message} (${window.currentPlayer2.ability.type}: ${window.currentPlayer2.ability.value})`;
+                if (window.currentPlayer2.secondaryAbility) {
+                    abText += ` & ${window.currentPlayer2.secondaryAbility.name}`;
+                    abTooltip += ` | ${window.currentPlayer2.secondaryAbility.message} (${window.currentPlayer2.secondaryAbility.type}: ${window.currentPlayer2.secondaryAbility.value})`;
+                }
+                document.getElementById('pAbility2').innerText = abText;
+                document.getElementById('pAbility2').style.color = window.currentPlayer2.ability.color;
+                document.getElementById('pAbility2').setAttribute('data-tooltip', abTooltip);
+            } else {
+                document.getElementById('pAbility2').innerText = 'None';
+                document.getElementById('pAbility2').style.color = '#fff';
+                document.getElementById('pAbility2').removeAttribute('data-tooltip');
+            }
+            document.getElementById('pStatus2').innerText = window.currentPlayer2.status ? `[${window.currentPlayer2.status}]` : '';
+            document.getElementById('pHPText2').innerText = Math.max(0, window.currentPlayer2.currentHp).toFixed(1) + ' / ' + window.currentPlayer2.maxHp.toFixed(1);
+            document.getElementById('pHPText2').style.color = window.currentPlayer2.currentHp <= 0.3 * window.currentPlayer2.maxHp ? '#f44336' : '#4caf50';
+            document.getElementById('pHPBar2').style.width = (Math.max(0, window.currentPlayer2.currentHp) / window.currentPlayer2.maxHp * 100) + '%';
+            window.drawCreatureSprite('pSprite2', window.currentPlayer2);
+        }
+
+        // Highlight active turn card
+        const nameCard = document.getElementById('pName');
+        const nameCard2 = document.getElementById('pName2');
+        const card1 = nameCard ? nameCard.closest('.combatant-info-card') : null;
+        const card2 = nameCard2 ? nameCard2.closest('.combatant-info-card') : null;
+        if (window.dualBattleTurn === 1) {
+            if (card1) card1.style.boxShadow = '0 0 15px #00ffd2';
+            if (card2) card2.style.boxShadow = 'none';
+        } else {
+            if (card1) card1.style.boxShadow = 'none';
+            if (card2) card2.style.boxShadow = '0 0 15px #ff00ff';
+        }
+    }
+
+    if (window.isDualBattle && window.currentEnemy2) {
+        const eName2El = document.getElementById('eName2');
+        if (eName2El) {
+            eName2El.innerText = window.currentEnemy2.name;
+            document.getElementById('eLevel2').innerText = window.currentEnemy2.level || 1;
+            document.getElementById('eLevel2').style.color = '#ff3366';
+            document.getElementById('eType2').innerText = window.currentEnemy2.type || 'Normal';
+            document.getElementById('eType2').setAttribute('data-tooltip', window.getTypeTooltip(window.currentEnemy2.type || 'Normal'));
+            if (window.currentEnemy2.ability) {
+                let abText = window.currentEnemy2.ability.name;
+                let abTooltip = `${window.currentEnemy2.ability.message} (${window.currentEnemy2.ability.type}: ${window.currentEnemy2.ability.value})`;
+                if (window.currentEnemy2.secondaryAbility) {
+                    abText += ` & ${window.currentEnemy2.secondaryAbility.name}`;
+                    abTooltip += ` | ${window.currentEnemy2.secondaryAbility.message} (${window.currentEnemy2.secondaryAbility.type}: ${window.currentEnemy2.secondaryAbility.value})`;
+                }
+                document.getElementById('eAbility2').innerText = abText;
+                document.getElementById('eAbility2').style.color = window.currentEnemy2.ability.color;
+                document.getElementById('eAbility2').setAttribute('data-tooltip', abTooltip);
+            } else {
+                document.getElementById('eAbility2').innerText = 'None';
+                document.getElementById('eAbility2').style.color = '#fff';
+                document.getElementById('eAbility2').removeAttribute('data-tooltip');
+            }
+            document.getElementById('eStatus2').innerText = window.currentEnemy2.status ? `[${window.currentEnemy2.status}]` : '';
+            document.getElementById('eHPText2').innerText = Math.max(0, window.currentEnemy2.currentHp).toFixed(1) + ' / ' + window.currentEnemy2.maxHp.toFixed(1);
+            document.getElementById('eHPText2').style.color = window.currentEnemy2.currentHp <= 0.3 * window.currentEnemy2.maxHp ? '#f44336' : '#4caf50';
+            document.getElementById('eHPBar2').style.width = (Math.max(0, window.currentEnemy2.currentHp) / window.currentEnemy2.maxHp * 100) + '%';
+            window.drawCreatureSprite('eSprite2', window.currentEnemy2);
+        }
     }
 }
 
@@ -23388,6 +24009,13 @@ function collectCreature(playerCollider, creatureSprite) {
     if (isP2Player && window.p2RepellentTime && window.p2RepellentTime > 0) return;
     if (!isP2Player && window.p1RepellentTime && window.p1RepellentTime > 0) return;
 
+    if (window.coopActive && window.activeRandomEvent === 'Dual Battle') {
+        if (window.startDualBattle) {
+            window.startDualBattle(playerCollider, creatureSprite);
+            return;
+        }
+    }
+
     if (playerCollider.lastBattleTime && this.time.now - playerCollider.lastBattleTime < 5000) return;
 
     // Prevent battles when hospital or trade tile is on screen
@@ -24346,6 +24974,71 @@ window.doBattleSwap = function(newCreature) {
     if (window.isActionRunning) return;
     window.isActionRunning = true;
 
+    if (window.isDualBattle) {
+        const isP2Swap = (window.playerParty === window.collectedCreatures2);
+        if (isP2Swap) {
+            // Swap Player 2
+            if (window.currentPlayer2) {
+                let activeCreature = window.collectedCreatures2.find(c => String(c.id) === String(window.currentPlayer2.id));
+                if (activeCreature) {
+                    activeCreature.currentHp = Math.max(0, window.currentPlayer2.currentHp);
+                    activeCreature.status = window.currentPlayer2.status;
+                    localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
+                }
+            }
+            window.closeBattleSwapModal();
+            window.logBattle(`${window.getP2Name()} swapped in ${newCreature.nickname || newCreature.name}!`);
+
+            window.currentPlayer2 = JSON.parse(JSON.stringify(newCreature));
+            window.currentPlayer2.maxHp = window.getEffectiveStat(window.currentPlayer2, 'health');
+            window.currentPlayer2.isDefending = false;
+            window.currentPlayer2.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+            window.updateBattleUI();
+        } else {
+            // Swap Player 1
+            if (window.currentPlayer) {
+                let activeCreature = window.collectedCreatures.find(c => String(c.id) === String(window.currentPlayer.id));
+                if (activeCreature) {
+                    activeCreature.currentHp = Math.max(0, window.currentPlayer.currentHp);
+                    activeCreature.status = window.currentPlayer.status;
+                    localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
+                }
+            }
+            window.closeBattleSwapModal();
+            window.logBattle(`${window.getP1Name()} swapped in ${newCreature.nickname || newCreature.name}!`);
+
+            window.currentPlayer = JSON.parse(JSON.stringify(newCreature));
+            currentPlayer = window.currentPlayer;
+            window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
+            window.currentPlayer.isDefending = false;
+            window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+            window.updateBattleUI();
+        }
+
+        const p1Fainted = (window.currentPlayer.currentHp <= 0);
+        const p2Fainted = (window.currentPlayer2.currentHp <= 0);
+
+        if (p1Fainted) {
+            window.playerParty = window.collectedCreatures;
+            window.isActionRunning = false;
+            window.openBattleSwapModal();
+            return;
+        }
+        if (p2Fainted) {
+            window.playerParty = window.collectedCreatures2;
+            window.isActionRunning = false;
+            window.openBattleSwapModal();
+            return;
+        }
+
+        window.isActionRunning = false;
+        window.dualBattleTurn = 1;
+        window.dualBattleActions = {};
+        window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
+        window.updateBattleUI();
+        return;
+    }
+
     if (window.isLocalPvp) {
         if (window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1)) {
             // Swap Player 1
@@ -24723,6 +25416,55 @@ window.handlePlayerTurn = function(action) {
     if (!window.inBattle || window.battleEnding || window.isActionRunning) return;
     window.isActionRunning = true;
     window.swappedThisTurn = false;
+
+    if (window.isDualBattle) {
+        if (window.dualBattleTurn === 1) {
+            if (action === 'catch') {
+                window.logBattle(`<span style="color:#f44336">You cannot catch during cooperative Dual Battles! Focus on defeating the wild threats!</span>`);
+                window.isActionRunning = false;
+                return;
+            }
+            if (action === 'run') {
+                window.logBattle(`${window.getP1Name()} fled! Both players lose!`);
+                window.endDualBattle('loss');
+                return;
+            }
+            if (action === 'swap') {
+                window.playerParty = window.collectedCreatures;
+                window.openBattleSwapModal();
+                window.isActionRunning = false;
+                return;
+            }
+
+            window.dualBattleActions.p1 = action;
+            window.dualBattleTurn = 2;
+            window.isActionRunning = false;
+            window.logBattle(`${window.getP2Name()}'s Turn: Choose action!`);
+            window.updateBattleUI();
+            return;
+        } else if (window.dualBattleTurn === 2) {
+            if (action === 'catch') {
+                window.logBattle(`<span style="color:#f44336">You cannot catch during cooperative Dual Battles! Focus on defeating the wild threats!</span>`);
+                window.isActionRunning = false;
+                return;
+            }
+            if (action === 'run') {
+                window.logBattle(`${window.getP2Name()} fled! Both players lose!`);
+                window.endDualBattle('loss');
+                return;
+            }
+            if (action === 'swap') {
+                window.playerParty = window.collectedCreatures2;
+                window.openBattleSwapModal();
+                window.isActionRunning = false;
+                return;
+            }
+
+            window.dualBattleActions.p2 = action;
+            window.executeDualBattleRound();
+            return;
+        }
+    }
 
     if (window.isLocalPvp) {
         if (window.localPvpTurn === 1) {
