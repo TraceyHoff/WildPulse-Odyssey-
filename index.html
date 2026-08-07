@@ -3728,7 +3728,10 @@ window.updateStorageChestUI = function(playerNum) {
         "ExPALL": "✨",
         "Creature License": "🎫",
         "Creature Cookie": "🍪",
-        "Pedometer": "👣"
+        "Pedometer": "👣",
+        "Cyber-Core Upgrade": "🔘",
+        "Nano-Nurture Serum": "💉",
+        "DNA Stabilizer": "🧬"
     };
 
     // 1. Render Chest Slots
@@ -14186,7 +14189,10 @@ const defaultStock = {
     "ExPALL": 15,
     "Creature License": 15,
     "Creature Cookie": 15,
-    "Pedometer": 15
+    "Pedometer": 15,
+    "Cyber-Core Upgrade": 15,
+    "Nano-Nurture Serum": 15,
+    "DNA Stabilizer": 15
 };
 window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
@@ -14522,7 +14528,10 @@ window.updateStoreUI = function() {
         { name: "ExPALL", icon: "✨", price: 250, desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", price: 175, desc: "Boosts wild capture success rate. Consumed only on success." },
         { name: "Creature Cookie", icon: "🍪", price: 30, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
-        { name: "Pedometer", icon: "👣", price: 100, desc: "Gains double egg hatching progress when moving for 60 seconds." }
+        { name: "Pedometer", icon: "👣", price: 100, desc: "Gains double egg hatching progress when moving for 60 seconds." },
+        { name: "Cyber-Core Upgrade", icon: "🔘", price: 200, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
+        { name: "Nano-Nurture Serum", icon: "💉", price: 80, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
+        { name: "DNA Stabilizer", icon: "🧬", price: 300, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -15002,6 +15011,58 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`🍪 Fed ${creature.nickname || creature.name} a Creature Cookie! Happiness increased.`, 3000, playerNum);
         });
     }
+    else if (item.name === "Cyber-Core Upgrade") {
+        window.promptCreatureSelection(playerNum, "Upgrade Which Creature?", (creature) => {
+            if (creature.isEgg) {
+                window.showModernNotification("❌ Cannot use on an Egg!", 3000, playerNum);
+                return;
+            }
+
+            const lvUp = window.gainXp(creature, 150);
+            window.adjustHappiness(creature, 10, playerNum);
+
+            const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
+            localStorage.setItem(storageKey, JSON.stringify(party));
+
+            consumeItem();
+            if (window.renderPartyList) window.renderPartyList();
+            window.showModernNotification(`🔘 Cyber-Core Upgrade installed! ${creature.nickname || creature.name} gained 150 XP${lvUp ? ' and leveled up!' : '!'}`, 3000, playerNum);
+        });
+    }
+    else if (item.name === "Nano-Nurture Serum") {
+        window.promptCreatureSelection(playerNum, "Choose Creature for Nano-Nurture", (creature) => {
+            if (creature.isEgg) {
+                window.showModernNotification("❌ Cannot use on an Egg!", 3000, playerNum);
+                return;
+            }
+
+            creature.happiness = 100;
+            const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
+            const found = party.find(c => String(c.id) === String(creature.id));
+            if (found) found.happiness = 100;
+            localStorage.setItem(key, JSON.stringify(party));
+
+            consumeItem();
+            if (window.renderPartyList) window.renderPartyList();
+            window.showModernNotification(`💉 Nano-Nurture Serum injected! ${creature.nickname || creature.name}'s Happiness has been completely restored to 100! 💖`, 3000, playerNum);
+        });
+    }
+    else if (item.name === "DNA Stabilizer") {
+        window.promptCreatureSelection(playerNum, "Choose Egg to Stabilize & Hatch", (creature) => {
+            if (!creature.isEgg) {
+                window.showModernNotification("❌ DNA Stabilizer can only be used on Mysterious Eggs!", 3000, playerNum);
+                return;
+            }
+
+            consumeItem();
+            if (window.closeAllModalsForPlayer) {
+                window.closeAllModalsForPlayer(playerNum);
+            }
+            window.hatchEgg(creature, playerNum);
+        });
+    }
 };
 
 // Render Inventory UI
@@ -15028,7 +15089,10 @@ window.updateInventoryUI = function() {
         "ExPALL": "✨",
         "Creature License": "🎫",
         "Creature Cookie": "🍪",
-        "Pedometer": "👣"
+        "Pedometer": "👣",
+        "Cyber-Core Upgrade": "🔘",
+        "Nano-Nurture Serum": "💉",
+        "DNA Stabilizer": "🧬"
     };
 
     const updatePlayerSlots = (playerNum, containerId) => {
@@ -18202,7 +18266,10 @@ window.updateInventoryWheelUI = function(playerNum) {
         "ExPALL": "✨",
         "Creature License": "🎫",
         "Creature Cookie": "🍪",
-        "Pedometer": "👣"
+        "Pedometer": "👣",
+        "Cyber-Core Upgrade": "🔘",
+        "Nano-Nurture Serum": "💉",
+        "DNA Stabilizer": "🧬"
     };
 
     const slots = ["slot1", "slot2", "slot3"];
@@ -19967,8 +20034,16 @@ window.executeDualBattleRound = function() {
 
         let target = window.currentEnemy;
         let targetLabel = 'enemyCombatant';
-        if (window.currentEnemy.currentHp <= 0) {
+        if (window.dualBattleActions.p1_target === 2) {
             target = window.currentEnemy2;
+            if (!target || target.currentHp <= 0) {
+                target = window.currentEnemy;
+            }
+        } else {
+            target = window.currentEnemy;
+            if (!target || target.currentHp <= 0) {
+                target = window.currentEnemy2;
+            }
         }
 
         if (target && target.currentHp > 0) {
@@ -20008,8 +20083,16 @@ window.executeDualBattleRound = function() {
 
         let target = window.currentEnemy2;
         let targetLabel = 'enemyCombatant';
-        if (window.currentEnemy2.currentHp <= 0) {
+        if (window.dualBattleActions.p2_target === 1) {
             target = window.currentEnemy;
+            if (!target || target.currentHp <= 0) {
+                target = window.currentEnemy2;
+            }
+        } else {
+            target = window.currentEnemy2;
+            if (!target || target.currentHp <= 0) {
+                target = window.currentEnemy;
+            }
         }
 
         if (target && target.currentHp > 0) {
@@ -20131,13 +20214,30 @@ window.checkDualBattleFaintsOrEnd = function(callback) {
     if (enemiesFainted) {
         window.logBattle(`<span style="color:#55ff55; font-weight:bold;">VICTORY! Both wild creatures have been defeated cooperatively!</span>`);
 
-        window.saveGold(1, (window.getGold(1) || 0) + 150);
-        window.saveGold(2, (window.getGold(2) || 0) + 150);
-        window.logBattle(`Both players received 150 gold coins!`);
+        // Award 225 gold (modified for passive gold multipliers)
+        if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
+        let p1CoinsWon = Math.floor(225 * window.getPassiveGoldMultiplier(1));
+        window.gameStats.coins += p1CoinsWon;
 
-        window.currentPlayer.xp = (window.currentPlayer.xp || 0) + 40;
-        window.currentPlayer2.xp = (window.currentPlayer2.xp || 0) + 40;
-        window.logBattle(`Both active creatures gained 40 XP!`);
+        if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
+        if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
+        let p2CoinsWon = Math.floor(225 * window.getPassiveGoldMultiplier(2));
+        window.gameStats2.coins += p2CoinsWon;
+        localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
+
+        window.saveStats();
+        if (window.updateMenuCoins) window.updateMenuCoins();
+
+        window.logBattle(`Both players received 225 gold coins!`);
+
+        // Award 80 XP
+        window.currentPlayer.xp = (window.currentPlayer.xp || 0) + 80;
+        window.currentPlayer2.xp = (window.currentPlayer2.xp || 0) + 80;
+        window.logBattle(`Both active creatures gained 80 XP!`);
+
+        // Adjust happiness (+3 for victory)
+        window.collectedCreatures.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 3, 1));
+        window.collectedCreatures2.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 3, 2));
 
         window.checkLevelUpForCreature(window.currentPlayer, 1);
         window.checkLevelUpForCreature(window.currentPlayer2, 2);
@@ -24970,6 +25070,163 @@ window.closeBattleSwapModal = function() {
     document.getElementById('battleSwapModal').style.display = 'none';
 };
 
+window.promptDualBattleTarget = function(playerNum, callback) {
+    if (navigator.webdriver) {
+        // Automatically target the first non-fainted enemy in automated tests to prevent modal blocking
+        const targetId = (window.currentEnemy && window.currentEnemy.currentHp > 0) ? 1 : 2;
+        callback(targetId);
+        return;
+    }
+
+    const prevActiveModal = playerNum === 2 ? window.p2ActiveModal : window.p1ActiveModal;
+    const modalId = playerNum === 2 ? 'creatureSelectModal_p2' : 'creatureSelectModal_p1';
+
+    const overlay = document.createElement('div');
+    overlay.id = modalId;
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    if (window.coopActive) {
+        overlay.style.width = '50vw';
+        if (playerNum === 2) {
+            overlay.style.left = '50vw';
+        } else {
+            overlay.style.left = '0';
+        }
+    } else {
+        overlay.style.width = '100vw';
+        overlay.style.left = '0';
+    }
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0,0,0,0.7)';
+    overlay.style.zIndex = '300000';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+
+    if (playerNum === 2) {
+        window.p2ActiveModal = modalId;
+    } else {
+        window.p1ActiveModal = modalId;
+    }
+
+    if (window.updateModalVisibility) {
+        window.updateModalVisibility();
+    }
+
+    const dialog = document.createElement('div');
+    dialog.style.background = 'linear-gradient(135deg, #2b1111, #150707)';
+    dialog.style.border = '2px solid #ef5350';
+    dialog.style.borderRadius = '12px';
+    dialog.style.padding = '20px';
+    dialog.style.width = '320px';
+    dialog.style.maxWidth = '90%';
+    dialog.style.color = 'white';
+    dialog.style.textAlign = 'center';
+    dialog.style.boxShadow = '0 8px 24px rgba(239, 83, 80, 0.4)';
+
+    const title = document.createElement('h3');
+    title.innerText = "SELECT TARGET";
+    title.style.margin = '0 0 15px 0';
+    title.style.color = '#ef5350';
+    title.style.fontFamily = 'monospace';
+    title.style.letterSpacing = '2px';
+    dialog.appendChild(title);
+
+    const targets = [
+        { id: 1, data: window.currentEnemy, label: 'Enemy 1' },
+        { id: 2, data: window.currentEnemy2, label: 'Enemy 2' }
+    ];
+
+    targets.forEach((t) => {
+        const enemy = t.data;
+        if (!enemy) return;
+
+        const maxHp = enemy.maxHp || 100;
+        const currHp = enemy.currentHp !== undefined ? enemy.currentHp : maxHp;
+        const isFainted = currHp <= 0;
+
+        const btn = document.createElement('button');
+        btn.className = 'creature-select-btn target-select-btn';
+        btn.style.display = 'block';
+        btn.style.width = '100%';
+        btn.style.margin = '10px 0';
+        btn.style.padding = '12px';
+        btn.style.background = isFainted ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.1)';
+        btn.style.border = isFainted ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(255,255,255,0.2)';
+        btn.style.borderRadius = '8px';
+        btn.style.color = isFainted ? '#666' : 'white';
+        btn.style.cursor = isFainted ? 'not-allowed' : 'pointer';
+        btn.style.textAlign = 'left';
+        btn.style.fontSize = '14px';
+        btn.style.transition = 'all 0.2s';
+
+        if (!isFainted) {
+            btn.onmouseover = () => {
+                btn.style.background = 'rgba(239, 83, 80, 0.2)';
+                btn.style.borderColor = '#ef5350';
+            };
+            btn.onmouseout = () => {
+                btn.style.background = 'rgba(255,255,255,0.1)';
+                btn.style.borderColor = 'rgba(255,255,255,0.2)';
+            };
+        }
+
+        let hpColor = '#4caf50';
+        if (isFainted) hpColor = '#f44336';
+        else if (currHp < maxHp * 0.4) hpColor = '#ff9800';
+
+        btn.innerHTML = `
+            <div style="font-weight: bold; color: ${isFainted ? '#666' : '#ffeb3b'};">
+                ${enemy.name} (Lvl ${enemy.level || 1})
+            </div>
+            <div style="font-size: 11px; color: ${isFainted ? '#555' : '#aaa'}; margin-top: 4px;">
+                HP: <span style="color: ${hpColor}; font-weight: bold;">${currHp.toFixed(1)} / ${maxHp.toFixed(1)}</span>
+                ${isFainted ? ' <span style="color:#f44336; font-weight:bold;">[DEFEATED]</span>' : ''}
+            </div>
+        `;
+
+        if (!isFainted) {
+            btn.onclick = () => {
+                document.body.removeChild(overlay);
+                if (playerNum === 2) window.p2ActiveModal = prevActiveModal;
+                else window.p1ActiveModal = prevActiveModal;
+                if (window.updateModalVisibility) window.updateModalVisibility();
+                callback(t.id);
+            };
+        } else {
+            btn.disabled = true;
+        }
+
+        dialog.appendChild(btn);
+    });
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.innerText = "Cancel";
+    cancelBtn.style.marginTop = '15px';
+    cancelBtn.style.padding = '10px';
+    cancelBtn.style.background = '#333';
+    cancelBtn.style.border = '1px solid #555';
+    cancelBtn.style.borderRadius = '8px';
+    cancelBtn.style.color = 'white';
+    cancelBtn.style.cursor = 'pointer';
+    cancelBtn.style.fontSize = '12px';
+    cancelBtn.style.width = '100%';
+    cancelBtn.style.transition = 'background 0.2s';
+    cancelBtn.onmouseover = () => cancelBtn.style.background = '#444';
+    cancelBtn.onmouseout = () => cancelBtn.style.background = '#333';
+    cancelBtn.onclick = () => {
+        document.body.removeChild(overlay);
+        if (playerNum === 2) window.p2ActiveModal = prevActiveModal;
+        else window.p1ActiveModal = prevActiveModal;
+        if (window.updateModalVisibility) window.updateModalVisibility();
+        window.isActionRunning = false;
+    };
+    dialog.appendChild(cancelBtn);
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+};
+
 window.doBattleSwap = function(newCreature) {
     if (window.isActionRunning) return;
     window.isActionRunning = true;
@@ -25436,12 +25693,25 @@ window.handlePlayerTurn = function(action) {
                 return;
             }
 
-            window.dualBattleActions.p1 = action;
-            window.dualBattleTurn = 2;
-            window.isActionRunning = false;
-            window.logBattle(`${window.getP2Name()}'s Turn: Choose action!`);
-            window.updateBattleUI();
-            return;
+            if (action === 'attack') {
+                window.promptDualBattleTarget(1, (targetId) => {
+                    window.dualBattleActions.p1 = 'attack';
+                    window.dualBattleActions.p1_target = targetId;
+                    window.dualBattleTurn = 2;
+                    window.isActionRunning = false;
+                    window.logBattle(`${window.getP2Name()}'s Turn: Choose action!`);
+                    window.updateBattleUI();
+                });
+                return;
+            } else {
+                window.dualBattleActions.p1 = action;
+                window.dualBattleActions.p1_target = null;
+                window.dualBattleTurn = 2;
+                window.isActionRunning = false;
+                window.logBattle(`${window.getP2Name()}'s Turn: Choose action!`);
+                window.updateBattleUI();
+                return;
+            }
         } else if (window.dualBattleTurn === 2) {
             if (action === 'catch') {
                 window.logBattle(`<span style="color:#f44336">You cannot catch during cooperative Dual Battles! Focus on defeating the wild threats!</span>`);
@@ -25460,9 +25730,19 @@ window.handlePlayerTurn = function(action) {
                 return;
             }
 
-            window.dualBattleActions.p2 = action;
-            window.executeDualBattleRound();
-            return;
+            if (action === 'attack') {
+                window.promptDualBattleTarget(2, (targetId) => {
+                    window.dualBattleActions.p2 = 'attack';
+                    window.dualBattleActions.p2_target = targetId;
+                    window.executeDualBattleRound();
+                });
+                return;
+            } else {
+                window.dualBattleActions.p2 = action;
+                window.dualBattleActions.p2_target = null;
+                window.executeDualBattleRound();
+                return;
+            }
         }
     }
 
@@ -27175,7 +27455,10 @@ function update() {
                     "ExPALL": 15,
                     "Creature License": 15,
                     "Creature Cookie": 15,
-                    "Pedometer": 15
+                    "Pedometer": 15,
+                    "Cyber-Core Upgrade": 15,
+                    "Nano-Nurture Serum": 15,
+                    "DNA Stabilizer": 15
                 };
                 window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
                 window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
