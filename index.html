@@ -14063,7 +14063,9 @@ window.calculateDamage = function(attacker, defender, power = 40) {
 
 
 window.getXpRequirement = function(level) {
-    return 100 * Math.pow(level, 2);
+    const step = Math.floor((level - 1) / 2);
+    const req = 75 + step * 25;
+    return Math.min(req, 1000);
 };
 
 window.gainXp = function(creature, amount) {
@@ -14244,7 +14246,8 @@ const defaultStock = {
     "Pedometer": 15,
     "Cyber-Core Upgrade": 15,
     "Nano-Nurture Serum": 15,
-    "DNA Stabilizer": 15
+    "DNA Stabilizer": 15,
+    "Storage Chest": 15
 };
 window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
@@ -14425,7 +14428,7 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     if (!stats) return;
 
     const stock = playerNum === 2 ? window.p2StoreStock : window.p1StoreStock;
-    const currentStock = stock[itemName] !== undefined ? stock[itemName] : 5;
+    const currentStock = stock[itemName] !== undefined ? stock[itemName] : 15;
 
     if (currentStock <= 0) {
         window.showModernNotification("❌ Item is out of stock!", 3000, playerNum);
@@ -14567,23 +14570,23 @@ window.sellCreature = function(playerNum) {
 
 window.updateStoreUI = function() {
     const items = [
-        { name: "Repellent", icon: "🧴", price: 50, desc: "Stops wild creature attacks for 60 seconds." },
-        { name: "HP Booster", icon: "💚", price: 150, desc: "Permanently raises creature's HP by 10." },
-        { name: "Attack Booster", icon: "⚔️", price: 120, desc: "Permanently raises creature's Attack by 5." },
-        { name: "Defense Booster", icon: "🛡️", price: 120, desc: "Permanently raises creature's Defense by 5." },
-        { name: "Speed Booster", icon: "⚡", price: 120, desc: "Permanently raises creature's Speed by 5." },
-        { name: "Sp. Atk Booster", icon: "🔮", price: 120, desc: "Permanently raises creature's Sp. Atk by 5." },
-        { name: "Sp. Def Booster", icon: "🧿", price: 120, desc: "Permanently raises creature's Sp. Def by 5." },
-        { name: "Jank Juice", icon: "🧃", price: 150, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },
-        { name: "Healing Juice Bottle", icon: "🧪", price: 40, desc: "Heals one creature or revives with 50% HP." },
-        { name: "Healing Juice Jug", icon: "🏺", price: 120, desc: "Fully heals and revives all active party creatures." },
-        { name: "ExPALL", icon: "✨", price: 250, desc: "Allows whole party to receive battle experience for 180s." },
-        { name: "Creature License", icon: "🎫", price: 175, desc: "Boosts wild capture success rate. Consumed only on success." },
-        { name: "Creature Cookie", icon: "🍪", price: 30, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
-        { name: "Pedometer", icon: "👣", price: 100, desc: "Gains double egg hatching progress when moving for 60 seconds." },
-        { name: "Cyber-Core Upgrade", icon: "🔘", price: 200, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
-        { name: "Nano-Nurture Serum", icon: "💉", price: 80, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
-        { name: "DNA Stabilizer", icon: "🧬", price: 300, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." }
+        { name: "Repellent", icon: "🧴", price: 170, desc: "Stops wild creature attacks for 60 seconds." },
+        { name: "HP Booster", icon: "💚", price: 270, desc: "Permanently raises creature's HP by 10." },
+        { name: "Attack Booster", icon: "⚔️", price: 240, desc: "Permanently raises creature's Attack by 5." },
+        { name: "Defense Booster", icon: "🛡️", price: 240, desc: "Permanently raises creature's Defense by 5." },
+        { name: "Speed Booster", icon: "⚡", price: 240, desc: "Permanently raises creature's Speed by 5." },
+        { name: "Sp. Atk Booster", icon: "🔮", price: 240, desc: "Permanently raises creature's Sp. Atk by 5." },
+        { name: "Sp. Def Booster", icon: "🧿", price: 240, desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Jank Juice", icon: "🧃", price: 270, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },
+        { name: "Healing Juice Bottle", icon: "🧪", price: 160, desc: "Heals one creature or revives with 50% HP." },
+        { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures." },
+        { name: "ExPALL", icon: "✨", price: 370, desc: "Allows whole party to receive battle experience for 180s." },
+        { name: "Creature License", icon: "🎫", price: 295, desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
+        { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
+        { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
+        { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
+        { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -14594,21 +14597,28 @@ window.updateStoreUI = function() {
 
         const pLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
         const activeItems = [...items];
+        if (pLvl >= 6) {
+            activeItems.push(
+                { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage." }
+            );
+        }
         if (pLvl >= 10) {
             activeItems.push(
-                { name: "Mini Hospital", icon: "🏥", price: 650, desc: "A functional smaller version of the Hospital. Place near your home." },
-                { name: "Mini Store", icon: "🏪", price: 650, desc: "A functional smaller version of the Store. Place near your home." },
-                { name: "Mini Trade", icon: "🔄", price: 650, desc: "A functional smaller version of the Trade center. Place near your home." },
-                { name: "Mini PvP", icon: "⚔️", price: 650, desc: "A functional smaller version of the PvP arena. Place near your home." },
-                { name: "Mini Breeding Center", icon: "🥚", price: 650, desc: "A functional smaller version of the Breeding Center. Place near your home." },
-                { name: "Mini Challenge", icon: "👑", price: 650, desc: "A functional smaller version of the Challenge area. Place near your home." }
+                { name: "Mini Hospital", icon: "🏥", price: 770, desc: "A functional smaller version of the Hospital. Place near your home." },
+                { name: "Mini Store", icon: "🏪", price: 770, desc: "A functional smaller version of the Store. Place near your home." },
+                { name: "Mini Trade", icon: "🔄", price: 770, desc: "A functional smaller version of the Trade center. Place near your home." },
+                { name: "Mini PvP", icon: "⚔️", price: 770, desc: "A functional smaller version of the PvP arena. Place near your home." },
+                { name: "Mini Breeding Center", icon: "🥚", price: 770, desc: "A functional smaller version of the Breeding Center. Place near your home." },
+                { name: "Mini Challenge", icon: "👑", price: 770, desc: "A functional smaller version of the Challenge area. Place near your home." }
             );
         }
         if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
             activeItems.push(
-                { name: "Dojo Tile", icon: "⛩️", price: 800, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." }
+                { name: "Dojo Tile", icon: "⛩️", price: 920, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." }
             );
         }
+
+        activeItems.sort((a, b) => a.price - b.price);
 
         let html = `
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
@@ -14628,7 +14638,7 @@ window.updateStoreUI = function() {
             const freeSlots = 3 - inv.length;
             const available = spaceInExisting + (freeSlots * 10);
 
-            const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 5) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 5);
+            const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 15) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 15);
 
             let displayedPrice = item.price;
             const activePartyForLuckyUI = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -27551,7 +27561,8 @@ function update() {
                     "Pedometer": 15,
                     "Cyber-Core Upgrade": 15,
                     "Nano-Nurture Serum": 15,
-                    "DNA Stabilizer": 15
+                    "DNA Stabilizer": 15,
+                    "Storage Chest": 15
                 };
                 window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
                 window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
