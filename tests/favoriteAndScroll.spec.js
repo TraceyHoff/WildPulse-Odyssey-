@@ -131,25 +131,69 @@ test.describe('Favorite and Gamepad Scrolling Systems', () => {
     const partyModal = page.locator('#partyModal');
     await expect(partyModal).toBeVisible();
 
-    // 2. Focus on the party card or any navigable element inside it
+    // 2. Focus on the party card or any navigable element inside it, and append a scrollable .creature-desc-text
     await page.evaluate(() => {
         const card = document.querySelector('.party-card');
         if (card) {
             card.focus();
             // Mock gamepad-focused class
             card.classList.add('gamepad-focused-p1');
+
+            // Add a mock description element for testing scroll
+            const desc = document.createElement('div');
+            desc.className = 'creature-desc-text';
+            desc.style.setProperty('display', 'block', 'important');
+            desc.style.height = '50px';
+            desc.style.overflowY = 'auto';
+            // Large content to make it scrollable
+            desc.innerHTML = '<div style="height: 200px;">Scrolling Content...</div>';
+            card.appendChild(desc);
         }
     });
 
     // Get initial scrollTop of description text
     const initialScrollTop = await page.evaluate(() => {
         const descText = document.querySelector('.creature-desc-text');
+        console.log("TEST DEBUG: descText exists:", !!descText);
+        if (descText) {
+            console.log("TEST DEBUG: descText clientHeight:", descText.clientHeight);
+            console.log("TEST DEBUG: descText scrollHeight:", descText.scrollHeight);
+            console.log("TEST DEBUG: descText scrollTop:", descText.scrollTop);
+        }
         return descText ? descText.scrollTop : null;
     });
     expect(initialScrollTop).toBe(0);
 
-    // 3. Simulate processGamepadInputForPlayer with right stick vertical axis movement
+    // 3. Spy on processGamepadInputForPlayer and log details
     await page.evaluate(() => {
+        const orig = window.processGamepadInputForPlayer;
+        window.processGamepadInputForPlayer = function(playerNum, pad) {
+            console.log("SPY ENTRY");
+            const container = window.getActiveContainerForPlayer(playerNum);
+            console.log("SPY container:", container ? container.id : "null");
+            if (container) {
+                const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`) || document.activeElement;
+                console.log("SPY focusedEl:", focusedEl ? (focusedEl.className || focusedEl.tagName) : "null");
+                if (focusedEl) {
+                    const card = focusedEl.closest('.party-card');
+                    console.log("SPY card:", !!card);
+                    if (card) {
+                        const descText = card.querySelector('.creature-desc-text');
+                        console.log("SPY descText:", !!descText);
+                    }
+                }
+            }
+            orig(playerNum, pad);
+        };
+    });
+
+    // 4. Simulate processGamepadInputForPlayer with right stick vertical axis movement
+    // Set p1CursorY to bottom boundary so that right-stick downward movement actually scrolls
+    await page.evaluate(() => {
+        window.p1CursorVisible = true;
+        window.p1CursorX = window.innerWidth / 2;
+        window.p1CursorY = window.innerHeight * 0.9;
+
         const mockPad = {
             rightStick: { y: 1.0 },
             buttons: Array(16).fill({ pressed: false })
@@ -162,6 +206,7 @@ test.describe('Favorite and Gamepad Scrolling Systems', () => {
     // Get new scrollTop of description text after right stick input simulation
     const updatedScrollTop = await page.evaluate(() => {
         const descText = document.querySelector('.creature-desc-text');
+        console.log("TEST DEBUG: updated scrollTop:", descText ? descText.scrollTop : null);
         return descText ? descText.scrollTop : null;
     });
 
