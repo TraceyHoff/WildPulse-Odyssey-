@@ -5773,6 +5773,7 @@ window.setTimeout = function(callback, delay, ...args) {
 
 // Overwrite document.getElementById to append _p2 suffix to element IDs in battleModal and battleSwapModal when activeBattlePlayer === 2 and co-op is active
 const originalGetElementById = document.getElementById;
+window.originalGetElementById = originalGetElementById;
 document.getElementById = function(id) {
     if (window.coopActive) {
         const battleIds = [
@@ -5787,6 +5788,68 @@ document.getElementById = function(id) {
     }
     return originalGetElementById.call(document, id);
 };
+
+window.isPlayerTurnInBattle = function(playerNum) {
+    if (!window.inBattle || window.battleEnding || window.isActionRunning) {
+        return false;
+    }
+    if (window.isDualBattle) {
+        const isP1SwapOpen = window.originalGetElementById.call(document, 'battleSwapModal')?.style.display === 'flex';
+        const isP2SwapOpen = window.originalGetElementById.call(document, 'battleSwapModal_p2')?.style.display === 'flex';
+        if (playerNum === 1 && isP1SwapOpen) return true;
+        if (playerNum === 2 && isP2SwapOpen) return true;
+
+        if (isP1SwapOpen || isP2SwapOpen) return false;
+
+        return window.dualBattleTurn === playerNum;
+    }
+    if (window.isLocalPvp) {
+        const isP1SwapOpen = window.originalGetElementById.call(document, 'battleSwapModal')?.style.display === 'flex';
+        const isP2SwapOpen = window.originalGetElementById.call(document, 'battleSwapModal_p2')?.style.display === 'flex';
+
+        const isP1TurnToSwap = window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1);
+        const isP2TurnToSwap = window.localPvpForceSwap === 2 || (window.localPvpForceSwap === null && window.localPvpTurn === 2);
+
+        if (playerNum === 1 && isP1SwapOpen && isP1TurnToSwap) return true;
+        if (playerNum === 2 && isP2SwapOpen && isP2TurnToSwap) return true;
+
+        if (isP1SwapOpen || isP2SwapOpen) return false;
+
+        return window.localPvpTurn === playerNum;
+    }
+    return playerNum === window.activeBattlePlayer;
+};
+
+// Intercept all battle clicks/touches in the capturing phase to enforce turn limits and active player updates
+document.addEventListener('click', function(e) {
+    if (!window.inBattle) return;
+
+    const isBattleClick = e.target.closest('#battleModal, #battleModal_p2, #battleSwapModal, #battleSwapModal_p2');
+    if (!isBattleClick) return;
+
+    // Always permit close/run operations or exit button clicks
+    if (e.target.closest('.close-btn, #battleCloseBtn, #battleCloseBtn_p2')) return;
+
+    let clickPlayer = 1;
+    if (window.isExecutingGamepadClick) {
+        clickPlayer = window.isExecutingGamepadClick;
+    } else if (window.coopActive) {
+        if (e.clientX >= window.innerWidth / 2) {
+            clickPlayer = 2;
+        }
+    } else {
+        clickPlayer = window.isLocalPvp ? window.localPvpTurn : (window.isDualBattle ? window.dualBattleTurn : 1);
+    }
+
+    if (window.isPlayerTurnInBattle && !window.isPlayerTurnInBattle(clickPlayer)) {
+        e.stopPropagation();
+        e.preventDefault();
+        return;
+    }
+
+    // Symmetrically set activeBattlePlayer to the clicking player
+    window.activeBattlePlayer = clickPlayer;
+}, true); // Use capturing phase!
 
 window.remotePlayers = [];
 let remotePlayers = window.remotePlayers; // userId -> Phaser sprite
@@ -15433,6 +15496,17 @@ window.getActiveContainerForPlayer = function(playerNum) {
             }
         }
 
+        if (window.isDualBattle || window.isLocalPvp) {
+            const bModal = window.originalGetElementById.call(document, 'battleModal');
+            if (bModal && bModal.style.display !== 'none' && bModal.style.display !== '') {
+                const targetSwap = window.originalGetElementById.call(document, playerNum === 2 ? 'battleSwapModal_p2' : 'battleSwapModal');
+                if (targetSwap && targetSwap.style.display !== 'none' && targetSwap.style.display !== '') {
+                    return targetSwap;
+                }
+                return bModal;
+            }
+        }
+
         const modals = [
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
@@ -16125,48 +16199,29 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
 
         if (justA) {
-            if (window.isDualBattle) {
-                const isP2Swap = (window.playerParty === window.collectedCreatures2);
-                const isSwapOpen = document.getElementById('battleSwapModal') && document.getElementById('battleSwapModal').style.display !== 'none' && document.getElementById('battleSwapModal').style.display !== '';
-
-                let isAllowed = false;
-                if (isSwapOpen) {
-                    if (playerNum === 1 && !isP2Swap) isAllowed = true;
-                    if (playerNum === 2 && isP2Swap) isAllowed = true;
-                } else {
-                    if (playerNum === 1 && window.dualBattleTurn === 1) isAllowed = true;
-                    if (playerNum === 2 && window.dualBattleTurn === 2) isAllowed = true;
-                }
-                if (!isAllowed) {
-                    return;
-                }
-            }
-
-            if (window.isLocalPvp) {
-                const isP1TurnToSwap = window.localPvpForceSwap === 1 || (window.localPvpForceSwap === null && window.localPvpTurn === 1);
-                const isP2TurnToSwap = window.localPvpForceSwap === 2 || (window.localPvpForceSwap === null && window.localPvpTurn === 2);
-                const isSwapOpen = document.getElementById('battleSwapModal') && document.getElementById('battleSwapModal').style.display !== 'none' && document.getElementById('battleSwapModal').style.display !== '';
-
-                let isAllowed = false;
-                if (isSwapOpen) {
-                    if (playerNum === 1 && isP1TurnToSwap) isAllowed = true;
-                    if (playerNum === 2 && isP2TurnToSwap) isAllowed = true;
-                } else {
-                    if (playerNum === 1 && window.localPvpTurn === 1) isAllowed = true;
-                    if (playerNum === 2 && window.localPvpTurn === 2) isAllowed = true;
-                }
-                if (!isAllowed) {
+            if (window.isDualBattle || window.isLocalPvp) {
+                if (window.isPlayerTurnInBattle && !window.isPlayerTurnInBattle(playerNum)) {
                     return;
                 }
             }
 
             const cursorTarget = window[`p${playerNum}LastInteractive`] || null;
             if (cursorTarget && window[`p${playerNum}CursorVisible`]) {
-                cursorTarget.click();
+                window.isExecutingGamepadClick = playerNum;
+                try {
+                    cursorTarget.click();
+                } finally {
+                    window.isExecutingGamepadClick = null;
+                }
             } else {
                 const focusedEl = container ? container.querySelector(`.gamepad-focused-p${playerNum}`) : null;
                 if (focusedEl) {
-                    focusedEl.click();
+                    window.isExecutingGamepadClick = playerNum;
+                    try {
+                        focusedEl.click();
+                    } finally {
+                        window.isExecutingGamepadClick = null;
+                    }
                 }
             }
         }
