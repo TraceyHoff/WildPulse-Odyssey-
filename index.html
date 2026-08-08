@@ -1390,10 +1390,17 @@
             font-family: monospace !important;
             outline: none !important;
             transition: all 0.2s ease !important;
+            pointer-events: auto !important;
         }
         input[type="text"]:focus, select:focus {
             border-color: #00ffd2 !important;
             box-shadow: 0 0 10px rgba(0, 255, 210, 0.4) !important;
+        }
+        select option {
+            background-color: #0b1424 !important;
+            color: #00ffd2 !important;
+            font-family: monospace !important;
+            pointer-events: auto !important;
         }
 
 
@@ -5823,44 +5830,46 @@ function escapeHtml(unsafe) {
 <div id="helpModal" style="display:none; position:absolute; z-index:400; color:white; overflow-y:auto; font-size:16px; max-height: 85vh; padding: 25px; box-sizing: border-box; background: rgba(5, 10, 20, 0.95); border: 2px solid #00ffcc; border-radius: 12px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);">
     <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
     <div style="text-align: center; border-bottom: 2px solid #00ffcc; padding-bottom: 12px; margin-bottom: 15px;">
-        <h2 style="margin: 0; font-size: 18px; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px;">*** [ ENCYCLOPEDIA PACKET: FIELD RESEARCH ARCHIVE BY DR. ARIS VANCE ] ***</h2>
-        <p style="margin: 5px 0 0 0; font-size: 13px; color: #aaa; line-height: 1.4;"><em>"Greetings, field operatives. I have compiled my lifetime of creature genetics, grid cartography, and combat mechanics into these digital field logs. Refer to these archives to optimize your specimens and navigate the wildlands successfully."</em></p>
+        <h2 class="neon-title" style="margin: 0; font-size: 20px; color: #00ffcc; text-transform: uppercase; letter-spacing: 2px;">*** [ DECRYPTED ARCHIVE: CYBERNETIC FIELD GUIDE ] ***</h2>
+        <p style="margin: 8px 0 0 0; font-size: 13px; color: #00ffd2; line-height: 1.4;"><em>"Field Operative, this terminal hosts Dr. Aris Vance's encrypted bio-digital archive. Access these database logs to optimize your neural connection with specimens, master traversal mechanics, and survive the Wildlands of the Grid."</em></p>
     </div>
     <div class="coop-columns" style="display: flex; gap: 20px;">
         <button class="close-btn close-help-btn" aria-label="Close Help" style="display:none;">X</button>
         <!-- Column 1 -->
         <div class="coop-column" style="flex: 1; text-align: left; max-height: 55vh; overflow-y: auto; padding-right: 5px;">
-            <h2 style="margin-top: 0; font-size: 16px; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px;">🎮 Gameplay & Controls</h2>
-            <p>• <strong>Movement:</strong> Move character with ARROWS / WASD (PC) or Left Stick / D-Pad (Gamepad) or touch drag (Mobile).</p>
-            <p>• <strong>Action Wheel:</strong> Press <strong>Q</strong> key (PC), hold <strong>Right Bumper</strong> (Gamepad), or <strong>Double-Tap</strong> screen (Mobile) to toggle options: <em>👋 Pet</em>, <em>👥 Party</em>, <em>❓ Help</em>, or <em>❌ Close</em>.</p>
-            <p>• <strong>Virtual Cursor:</strong> Inside modals, use the Right Stick to navigate and press <strong>A</strong> (index 0) to click, or <strong>B</strong> (index 1) to close.</p>
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                <h3 style="margin-top: 0; font-size: 15px; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(0, 255, 204, 0.3); padding-bottom: 5px;">🎮 MODULE_01: CONTROL INTERFACE</h3>
+                <p>• <strong>Traverse Grid:</strong> Use <span style="color:#00ff96;">W, A, S, D</span> or <span style="color:#00ff96;">Arrow Keys</span> on PC, <span style="color:#00ff96;">Left Stick / D-Pad</span> on Gamepad, or drag to navigate touch-screen systems.</p>
+                <p>• <strong>Action Wheel:</strong> Toggle circular systems with <span style="color:#00ff96;">Q</span> on PC, hold <span style="color:#00ff96;">Right Bumper</span> on Controller, or double-touch the viewport on Mobile. Use D-Pad (no Left Stick) to select, and <span style="color:#00ff96;">A</span> to confirm.</p>
+                <p>• <strong>Inventory Wheel:</strong> Access slots by pressing <span style="color:#00ff96;">I</span> on PC, or holding <span style="color:#00ff96;">Left Bumper</span> on Gamepad. Static slots are completely hidden during inactive phases.</p>
+                <p>• <strong>Interface Cursor:</strong> Within holographic menus, guide separate virtual cursors using the Gamepad <span style="color:#00ff96;">Right Stick</span>. Confirm with <span style="color:#00ff96;">A</span> and exit with <span style="color:#00ff96;">B</span>.</p>
+            </div>
 
-            <h3 style="color: #ffd700; margin-top: 15px; font-size: 15px;">📊 Stats & Friend Levels</h3>
-            <p>• <strong>Stats:</strong> HP (Health), Atk (Physical dmg), Def (Defense), Spe (Speed), SpA (Special dmg), SpD (Special defense).</p>
-            <p>• <strong>Friend System:</strong> Active party creatures passively gain +1 Friend XP and +1 Happiness every 30 seconds. Leveling up adds +2 to two random stats (all stats on multiples of 10). Stored creatures passively degrade by -1 XP and -1 Happiness every 180 seconds.</p>
-
-            <h3 style="color: #ffd700; margin-top: 15px; font-size: 15px;">🧬 DNA Breeding & Eggs</h3>
-            <p>• <strong>Breeding:</strong> Once you reach Character Level 7, breed creatures of any level! Requires selecting one Male and one Female parent at the Breeding Center. Offspring inherit blended stats and natures.</p>
-            <p>• <strong>Eggs:</strong> Egg details/stats/mutations are masked as '???'. Hatch Eggs in-place by walking 1000 steps with them in your active party (stored eggs won't accumulate progress). Egg shells feature custom circular translucent spots colored with linear gradients of their parents' types.</p>
-            <p>• <strong>Pedometer 👣:</strong> Buy this from the shop for 100 coins! Using it grants a 60s buff that doubles egg hatching progress while moving.</p>
-            <p>• <strong>Shinies:</strong> There is a 0.1% chance to find a Shiny (+20% stats), with a 25% chance of passing rarity to bred offspring.</p>
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                <h3 style="margin-top: 0; font-size: 15px; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(0, 255, 204, 0.3); padding-bottom: 5px;">🧬 MODULE_02: COMPANION BIOMES & STATS</h3>
+                <p>• <strong>Anatomy Stats:</strong> Combatants possess six modular core statistics: HP (Vitality), Atk (Damage), Def (Mitigation), Spe (Velocity), SpA (Special Damage), and SpD (Special Defense).</p>
+                <p>• <strong>Bonding Experience:</strong> Creatures active in your main party acquire +1 Friend XP and +1 Happiness passively every 30 seconds. Leveling up adds +2 bonus points to random attributes (boosts all stats on multiples of 10). Stored specimens slowly lose -1 XP and -1 Happiness every 180 seconds.</p>
+                <p>• <strong>Happiness Sync:</strong> Happiness ranges from 0 to 100. PET your creatures (+10 Happiness) or use Creature Cookies (+10 Happiness, 5-min cooldown) to restore levels. Fainting in battle reduces Happiness by -15.</p>
+            </div>
         </div>
         <!-- Column 2 -->
         <div class="coop-column" style="flex: 1; text-align: left; max-height: 55vh; overflow-y: auto; padding-right: 5px;">
-            <h2 style="margin-top: 0; font-size: 16px; color: #ff4081; text-transform: uppercase; letter-spacing: 1px;">📈 Advanced Features</h2>
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">🔬 MODULE_03: DNA SYNTHESIS & HATCHING</h3>
+                <p>• <strong>Breeding Program:</strong> Unlocked at <span style="color:#ff007f; font-weight:bold;">Player Level 7</span>. Trait hybridization requires selecting one Male and one Female parent. Egg parent-checking strictly blocks eggs from breeding.</p>
+                <p>• <strong>Mysterious Eggs:</strong> Unhatched zygotes are rendered with parent-colored linear gradients, spots, and 3D shine, with all stats masked as '???'. Hatch eggs by walking 1000 steps with them in your active party.</p>
+                <p>• <strong>Pedometer 👣:</strong> Retails for 220 gold. Using it activates a 60-second operational buff that doubles your stepping velocity toward hatching eggs.</p>
+                <p>• <strong>Mutations & Traits:</strong> Hybridizing offers opportunities to inherit 18 unique mutations (including Bioluminescent Core, Void Infusion, Double Helix...) and 16 distinct temperaments, detailed in the full-sized card preview.</p>
+            </div>
 
-            <h3 style="color: #ffd700; margin-top: 10px; font-size: 15px;">💖 Happiness & Cooldowns</h3>
-            <p>• Clamped between 0-100. Restored via visual Petting (+5 Happiness) or feeding Creature Cookies (+15 Happiness), both subject to a strict 5-minute cooldown per player.</p>
-
-            <h3 style="color: #ffd700; margin-top: 15px; font-size: 15px;">🧬 Mutations & Temperaments</h3>
-            <p>• Bred creatures can inherit one of 18 unique mutations (with unique passive effects, stat multipliers, or gold finding passives like Metal Sweep) and 16 distinct temperaments. These details are only visible in the <strong>Full-Sized Preview Modal</strong> (click a creature's canvas card).</p>
-
-            <h3 style="color: #ffd700; margin-top: 15px; font-size: 15px;">⚔️ NPC Trainers</h3>
-            <p>• <strong>24 unique wandering trainers</strong> (Neo, Trinity, Hiro, River, Alt...) spawn across the 60,000px grid map and chase you. Win battles for 100 coins (limit: 3 wins per week per player, with a 6-hour cooldown).</p>
-
-            <h3 style="color: #ffd700; margin-top: 15px; font-size: 15px;">🎒 Shop & Usable Items</h3>
-            <p>• Items stack up to 10 inside 3 inventory slots (raised default/replenishment stock of 15!). Buy boosters, healing items, <strong>Creature Licenses</strong> (passive 1.5x catch success), <strong>ExPALL</strong> (shares battle victory XP with whole party), or <strong>Jank Juice 🧃</strong> (greatly increases wild shiny spawn rate to 15% for 6 minutes, priced at 150 coins).</p>
-            <p>• <strong>Storage Chest (Placeable) 🧳:</strong> Buy this from the shop for 500 coins and place it near your home! Stepping on it opens a 10-slot persistent item storage. You can deposit items into it from your inventory or withdraw them back. Works with Touch, Mouse, and Gamepad controls.</p>
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">⛩️ MODULE_04: GRID CONFLICTS & LOGISTICS</h3>
+                <p>• <strong>NPC Trainer Patrols:</strong> 24 elite trainers wander and chase operatives. Defeat them to receive gold rewards. Defeated trainers are marked with neon green nameplates and 🏆 trophies.</p>
+                <p>• <strong>Dojo Challenge:</strong> Buy the Dojo Tile for 920 gold once you defeat all 24 trainers. Placing it unlocks scalable elite Dojo Leader boss fights.</p>
+                <p>• <strong>Sanctuary Base:</strong> Once you reach <span style="color:#ff007f; font-weight:bold;">Player Level 10</span>, place a cozy procedural custom Home. Design floor styles, wall textures, and ambient glow overlay styles inside.</p>
+                <p>• <strong>Storage Chest 🧳:</strong> Unlocks at <span style="color:#ff007f; font-weight:bold;">Player Level 6</span>. Place a persistent chest to deposit or withdraw up to 10 item stacks. Placed chests serialize contents safely in storage.</p>
+                <p>• <strong>Operational Catalog:</strong> Access boosters, Healing Juice, <strong>Creature Licenses</strong> (passive 1.5x catch success, consumed on catch), and <strong>Jank Juice 🧃</strong> (boosts shiny spawn chance for 6 min) from the store.</p>
+            </div>
 
             <h3 style="color: #00ffcc; margin-top: 15px;">Type Chart & Natures</h3>
             <h3>Type Matchups</h3>
@@ -27135,6 +27144,7 @@ window.closeBattleModal = function() {
     }
     if (window.inBattle && window.pendingBattleResult === null) return;
     window.battleEnding = false;
+    window.xpAwardedForCurrentBattle = false;
 
     const m1 = document.getElementById('battleModal');
     if (m1) m1.style.display = 'none';
@@ -27322,6 +27332,11 @@ window.endBattle = function(result) {
         window.pendingBattleResult = result;
         document.getElementById('battleControls').style.display = 'none';
         document.getElementById('battleCloseBtn').style.display = 'flex'; // Show close button
+
+        if (window.xpAwardedForCurrentBattle) {
+            return;
+        }
+        window.xpAwardedForCurrentBattle = true;
 
         activeParty = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         storageKey = window.activeBattlePlayer === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
@@ -27662,7 +27677,7 @@ window.endBattle = function(result) {
                 window.closeBattleModal();
             }
         }, 10000); // 10 seconds
-        window.battleEnding = false;
+        // window.battleEnding = false; // Moved to closeBattleModal to prevent post-battle input spam
     }, 1500);
 };
 
