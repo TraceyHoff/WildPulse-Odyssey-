@@ -2773,6 +2773,64 @@
     </div>
 </div>
 
+<!-- Player 1 Home Customization Modal -->
+<div id="homeCustomizationModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(30, 10, 40, 0.95), rgba(10, 0, 30, 0.95)); padding: 25px 20px; border-radius: 15px; border: 2px solid #bf55ec; box-shadow: 0 10px 40px rgba(191, 85, 236, 0.4); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
+        <button class="close-btn" onclick="window.closeHomeCustomizationModal(1)" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">X</button>
+        <h2 style="margin-top: 0; color: #bf55ec; text-shadow: 0 0 10px rgba(191,85,236,0.6); font-family: 'Courier New', monospace;">🏠 Home Designer</h2>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 20px;">Redesign your cozy sanctuary room!</p>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Wall Style:</label>
+            <select id="homeWallStyleSelect_p1" onchange="window.onHomeStyleChange(1)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
+                <option value="cyber_circuit">Cyber Circuit (Default)</option>
+                <option value="wooden_log">Cozy Redwood Log</option>
+                <option value="hollow_matrix">Cyber green Matrix Waterfall</option>
+                <option value="glowing_vines">Bio-Neon Glowing Vines</option>
+                <option value="industrial_plate">Industrial Metallic Plating</option>
+                <option value="galaxy_projection">Deep Space Galaxy Projection</option>
+                <option value="aurora_wave">Cosmic Aurora Waves</option>
+                <option value="crimson_fortress">Crimson Ruby Crystal Fortress</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Floor Style:</label>
+            <select id="homeFloorStyleSelect_p1" onchange="window.onHomeStyleChange(1)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
+                <option value="cyber_neon">Cyber Neon Grid (Default)</option>
+                <option value="retro_wood">Retro Synthwave Parquet</option>
+                <option value="obsidian_tech">Hexagonal Obsidian Tech</option>
+                <option value="pink_velvet">Pink Velvet & Gold Circuit</option>
+                <option value="blue_circuit">Ocean Blue Plated Circuit</option>
+                <option value="royal_marble">White Marble & Digital Gold</option>
+                <option value="solar_dust">Solar Golden Sparkle panels</option>
+                <option value="emerald_weave">Carbon Emerald Green Weave</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Ambient Glow:</label>
+            <select id="homeLightStyleSelect_p1" onchange="window.onHomeStyleChange(1)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
+                <option value="cyan">Cyber Cyan Glow</option>
+                <option value="pink">Neon Pink Glow</option>
+                <option value="green">Toxic Green Glow</option>
+                <option value="gold">Solar Golden Glow</option>
+                <option value="purple">Cosmic Purple Glow</option>
+                <option value="obsidian">Shadow Obsidian Dim</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: left; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(191,85,236,0.2);">
+            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #bf55ec; font-size: 13px;">Placed Mini-Tiles Inside:</label>
+            <div id="homePlacedMiniTilesList_p1" style="font-size: 12px; font-family: monospace; line-height: 1.4; color: #00ffcc;">
+                None
+            </div>
+        </div>
+
+        <button class="home-design-done-btn" onclick="window.closeHomeCustomizationModal(1)" style="padding: 10px 30px; font-size: 16px; background: linear-gradient(180deg, #bf55ec, #8e44ad); color: white; border: 1px solid #bf55ec; cursor: pointer; border-radius: 8px; font-weight: bold; font-family: monospace;">Done</button>
+    </div>
+</div>
+
 <!-- Player 2 Character Customization Modal -->
 <div id="customizationModal_p2" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
     <div style="position: relative; background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95)); padding: 25px 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
@@ -2918,6 +2976,64 @@
         </div>
         <button id="saveCustomizationBtn_p2" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 1px solid #a5d6a7; cursor: pointer; border-radius: 8px; margin-right: 10px;">Save</button>
         <button id="closeCustomizationBtn_p2" style="padding: 10px 30px; font-size: 18px; background: linear-gradient(180deg, #555, #222); color: white; border: 1px solid #777; cursor: pointer; border-radius: 8px;">Close</button>
+    </div>
+</div>
+
+<!-- Player 2 Home Customization Modal -->
+<div id="homeCustomizationModal_p2" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
+    <div style="position: relative; background: linear-gradient(135deg, rgba(30, 10, 40, 0.95), rgba(10, 0, 30, 0.95)); padding: 25px 20px; border-radius: 15px; border: 2px solid #bf55ec; box-shadow: 0 10px 40px rgba(191, 85, 236, 0.4); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
+        <button class="close-btn" onclick="window.closeHomeCustomizationModal(2)" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">X</button>
+        <h2 style="margin-top: 0; color: #bf55ec; text-shadow: 0 0 10px rgba(191,85,236,0.6); font-family: 'Courier New', monospace;">🏠 Home Designer</h2>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 20px;">Redesign your cozy sanctuary room!</p>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Wall Style:</label>
+            <select id="homeWallStyleSelect_p2" onchange="window.onHomeStyleChange(2)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
+                <option value="cyber_circuit">Cyber Circuit (Default)</option>
+                <option value="wooden_log">Cozy Redwood Log</option>
+                <option value="hollow_matrix">Cyber green Matrix Waterfall</option>
+                <option value="glowing_vines">Bio-Neon Glowing Vines</option>
+                <option value="industrial_plate">Industrial Metallic Plating</option>
+                <option value="galaxy_projection">Deep Space Galaxy Projection</option>
+                <option value="aurora_wave">Cosmic Aurora Waves</option>
+                <option value="crimson_fortress">Crimson Ruby Crystal Fortress</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Floor Style:</label>
+            <select id="homeFloorStyleSelect_p2" onchange="window.onHomeStyleChange(2)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
+                <option value="cyber_neon">Cyber Neon Grid (Default)</option>
+                <option value="retro_wood">Retro Synthwave Parquet</option>
+                <option value="obsidian_tech">Hexagonal Obsidian Tech</option>
+                <option value="pink_velvet">Pink Velvet & Gold Circuit</option>
+                <option value="blue_circuit">Ocean Blue Plated Circuit</option>
+                <option value="royal_marble">White Marble & Digital Gold</option>
+                <option value="solar_dust">Solar Golden Sparkle panels</option>
+                <option value="emerald_weave">Carbon Emerald Green Weave</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: left;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Ambient Glow:</label>
+            <select id="homeLightStyleSelect_p2" onchange="window.onHomeStyleChange(2)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
+                <option value="cyan">Cyber Cyan Glow</option>
+                <option value="pink">Neon Pink Glow</option>
+                <option value="green">Toxic Green Glow</option>
+                <option value="gold">Solar Golden Glow</option>
+                <option value="purple">Cosmic Purple Glow</option>
+                <option value="obsidian">Shadow Obsidian Dim</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px; text-align: left; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(191,85,236,0.2);">
+            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #bf55ec; font-size: 13px;">Placed Mini-Tiles Inside:</label>
+            <div id="homePlacedMiniTilesList_p2" style="font-size: 12px; font-family: monospace; line-height: 1.4; color: #00ffcc;">
+                None
+            </div>
+        </div>
+
+        <button class="home-design-done-btn" onclick="window.closeHomeCustomizationModal(2)" style="padding: 10px 30px; font-size: 16px; background: linear-gradient(180deg, #bf55ec, #8e44ad); color: white; border: 1px solid #bf55ec; cursor: pointer; border-radius: 8px; font-weight: bold; font-family: monospace;">Done</button>
     </div>
 </div>
 
@@ -4979,72 +5095,195 @@ window.generateBreedTile = function(scene) {
 };
 
 window.generateHomeInteriorTextures = function(scene) {
-    // 1. Wall Tile (matching outside design: purple body + cyan trim)
-    const wallCanvas = document.createElement('canvas');
-    wallCanvas.width = 100;
-    wallCanvas.height = 100;
-    const wallCtx = wallCanvas.getContext('2d');
+    // PRE-GENERATE ALL 8 WALL STYLES
+    const wallStyles = {
+        'cyber_circuit': function(ctx) {
+            ctx.fillStyle = '#0f111a'; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#bf55ec'; ctx.fillRect(10, 10, 80, 80);
+            ctx.fillStyle = '#1c1024'; ctx.fillRect(18, 18, 64, 64);
+            ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 3; ctx.strokeRect(25, 25, 50, 50);
+            ctx.beginPath(); ctx.moveTo(25, 50); ctx.lineTo(75, 50); ctx.moveTo(50, 25); ctx.lineTo(50, 75); ctx.stroke();
+        },
+        'wooden_log': function(ctx) {
+            ctx.fillStyle = '#5c4033'; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#8b4513';
+            for (let y = 5; y < 100; y += 24) {
+                ctx.fillRect(5, y, 90, 20);
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath(); ctx.arc(15, y + 10, 3, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(85, y + 10, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#8b4513';
+            }
+            ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 2;
+            for (let y = 5; y < 100; y += 24) ctx.strokeRect(5, y, 90, 20);
+        },
+        'hollow_matrix': function(ctx) {
+            ctx.fillStyle = '#050a05'; ctx.fillRect(0, 0, 100, 100);
+            ctx.strokeStyle = 'rgba(0, 255, 100, 0.4)'; ctx.lineWidth = 1;
+            for (let x = 0; x < 100; x += 25) {
+                for (let y = 0; y < 100; y += 20) ctx.strokeRect(x, y, 25, 20);
+            }
+            ctx.fillStyle = '#39ff14'; ctx.font = '10px monospace';
+            for (let x = 12; x < 100; x += 25) {
+                ctx.fillText("0", x, 15);
+                ctx.fillText("1", x, 40);
+                ctx.fillText("0", x, 65);
+                ctx.fillText("1", x, 90);
+            }
+        },
+        'glowing_vines': function(ctx) {
+            ctx.fillStyle = '#111811'; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#1e351e'; ctx.beginPath(); ctx.arc(50, 50, 40, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#39ff14'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, 80); ctx.bezierCurveTo(40, 50, 60, 20, 100, 40); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(20, 100); ctx.bezierCurveTo(30, 40, 80, 70, 100, 10); ctx.stroke();
+            ctx.fillStyle = '#ff007f';
+            ctx.beginPath(); ctx.arc(45, 52, 6, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(70, 43, 5, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#00ffff';
+            ctx.beginPath(); ctx.arc(45, 52, 2, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(70, 43, 1.5, 0, Math.PI*2); ctx.fill();
+        },
+        'industrial_plate': function(ctx) {
+            ctx.fillStyle = '#22252a'; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#3a3f47'; ctx.fillRect(8, 8, 84, 84);
+            ctx.fillStyle = '#8a95a5';
+            const rivets = [[12,12], [88,12], [12,88], [88,88]];
+            rivets.forEach(pt => { ctx.beginPath(); ctx.arc(pt[0], pt[1], 3, 0, Math.PI*2); ctx.fill(); });
+            ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(25, 40); ctx.lineTo(40, 25);
+            ctx.moveTo(45, 40); ctx.lineTo(60, 25);
+            ctx.moveTo(65, 40); ctx.lineTo(80, 25);
+            ctx.stroke();
+            ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(20, 75); ctx.lineTo(80, 75); ctx.stroke();
+        },
+        'galaxy_projection': function(ctx) {
+            ctx.fillStyle = '#03001e'; ctx.fillRect(0, 0, 100, 100);
+            let grad = ctx.createRadialGradient(50, 50, 5, 50, 50, 45);
+            grad.addColorStop(0, 'rgba(191, 85, 236, 0.4)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#ffffff';
+            [[15, 25], [75, 20], [30, 80], [80, 75], [50, 45]].forEach(pt => {
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 2, 0, Math.PI*2); ctx.fill();
+                ctx.fillRect(pt[0] - 4, pt[1], 9, 0.8);
+                ctx.fillRect(pt[0], pt[1] - 4, 0.8, 9);
+            });
+        },
+        'aurora_wave': function(ctx) {
+            ctx.fillStyle = '#060112'; ctx.fillRect(0, 0, 100, 100);
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.6)'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(0, 20); ctx.bezierCurveTo(30, 60, 70, 10, 100, 50); ctx.stroke();
+            ctx.strokeStyle = 'rgba(255, 0, 127, 0.5)'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(0, 50); ctx.bezierCurveTo(40, 20, 60, 80, 100, 30); ctx.stroke();
+        },
+        'crimson_fortress': function(ctx) {
+            ctx.fillStyle = '#1c0303'; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#b31515'; ctx.fillRect(12, 12, 76, 76);
+            ctx.fillStyle = '#e63946'; ctx.fillRect(18, 18, 64, 64);
+            ctx.fillStyle = '#111'; ctx.fillRect(8, 8, 12, 84);
+            ctx.fillRect(80, 8, 12, 84);
+            ctx.strokeStyle = '#ffb703'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(50, 25); ctx.lineTo(50, 75); ctx.stroke();
+        }
+    };
 
-    // Dark metallic obsidian base
-    wallCtx.fillStyle = '#0f111a';
-    wallCtx.fillRect(0, 0, 100, 100);
+    // Generate Wall Canvas textures
+    for (const [key, drawFunc] of Object.entries(wallStyles)) {
+        const c = document.createElement('canvas'); c.width = 100; c.height = 100;
+        drawFunc(c.getContext('2d'));
+        scene.textures.addCanvas(`wall_${key}`, c);
+    }
+    // Backward compatibility: home_wall_tile maps to wall_cyber_circuit
+    const wallDefault = document.createElement('canvas'); wallDefault.width = 100; wallDefault.height = 100;
+    wallStyles['cyber_circuit'](wallDefault.getContext('2d'));
+    scene.textures.addCanvas('home_wall_tile', wallDefault);
 
-    // Cyberpunk wall structure: thick purple panel/bricks
-    wallCtx.fillStyle = '#bf55ec'; // Purple
-    wallCtx.fillRect(10, 10, 80, 80);
+    // PRE-GENERATE ALL 8 FLOOR STYLES
+    const floorStyles = {
+        'cyber_neon': function(ctx) {
+            const floorGrad = ctx.createRadialGradient(50, 50, 10, 50, 50, 50);
+            floorGrad.addColorStop(0, '#2c133a'); floorGrad.addColorStop(1, '#0b0612');
+            ctx.fillStyle = floorGrad; ctx.fillRect(0, 0, 100, 100);
+            ctx.strokeStyle = 'rgba(191, 85, 236, 0.25)'; ctx.lineWidth = 1; ctx.strokeRect(0, 0, 100, 100);
+            ctx.fillStyle = '#00ffcc';
+            ctx.fillRect(2, 2, 8, 2); ctx.fillRect(2, 2, 2, 8);
+            ctx.fillRect(90, 2, 8, 2); ctx.fillRect(96, 2, 2, 8);
+            ctx.fillRect(2, 96, 8, 2); ctx.fillRect(2, 90, 2, 8);
+            ctx.fillRect(90, 96, 8, 2); ctx.fillRect(96, 90, 2, 8);
+        },
+        'retro_wood': function(ctx) {
+            ctx.fillStyle = '#3a1f04'; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#5c3317';
+            ctx.fillRect(4, 4, 42, 42); ctx.fillRect(52, 4, 44, 42);
+            ctx.fillRect(4, 52, 42, 44); ctx.fillRect(52, 52, 44, 44);
+            ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 2;
+            ctx.strokeRect(4, 4, 42, 42); ctx.strokeRect(52, 4, 44, 42);
+            ctx.strokeRect(4, 52, 42, 44); ctx.strokeRect(52, 52, 44, 44);
+        },
+        'obsidian_tech': function(ctx) {
+            ctx.fillStyle = '#121214'; ctx.fillRect(0, 0, 100, 100);
+            ctx.strokeStyle = '#ff6b00'; ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, 10); ctx.lineTo(85, 30); ctx.lineTo(85, 70); ctx.lineTo(50, 90); ctx.lineTo(15, 70); ctx.lineTo(15, 30);
+            ctx.closePath(); ctx.stroke();
+            ctx.fillStyle = '#ff6b00';
+            ctx.beginPath(); ctx.arc(50, 50, 8, 0, Math.PI*2); ctx.fill();
+        },
+        'pink_velvet': function(ctx) {
+            ctx.fillStyle = '#4a0e2e'; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#80144f';
+            ctx.beginPath(); ctx.arc(25, 25, 20, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(75, 75, 20, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#ffb703'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
+            ctx.strokeRect(10, 10, 80, 80); ctx.setLineDash([]);
+        },
+        'blue_circuit': function(ctx) {
+            ctx.fillStyle = '#0a192f'; ctx.fillRect(0, 0, 100, 100);
+            ctx.strokeStyle = '#172a45'; ctx.lineWidth = 2; ctx.strokeRect(5, 5, 90, 90);
+            ctx.fillStyle = '#64ffda';
+            ctx.beginPath(); ctx.arc(30, 30, 5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(70, 70, 5, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = '#64ffda'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(30, 30); ctx.lineTo(70, 70); ctx.stroke();
+        },
+        'royal_marble': function(ctx) {
+            ctx.fillStyle = '#f4f1ea'; ctx.fillRect(0, 0, 100, 100);
+            ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(0, 20); ctx.bezierCurveTo(40, 50, 30, 80, 100, 80); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(20, 0); ctx.bezierCurveTo(50, 30, 80, 20, 80, 100); ctx.stroke();
+        },
+        'solar_dust': function(ctx) {
+            ctx.fillStyle = '#2d1a00'; ctx.fillRect(0, 0, 100, 100);
+            ctx.fillStyle = '#ffd700'; ctx.fillRect(15, 15, 70, 70);
+            ctx.fillStyle = '#472d00'; ctx.fillRect(20, 20, 60, 60);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(48, 10, 4, 4); ctx.fillRect(10, 48, 4, 4);
+            ctx.fillRect(86, 48, 4, 4); ctx.fillRect(48, 86, 4, 4);
+        },
+        'emerald_weave': function(ctx) {
+            ctx.fillStyle = '#021e11'; ctx.fillRect(0, 0, 100, 100);
+            ctx.strokeStyle = '#104f2d'; ctx.lineWidth = 3;
+            for (let i = 0; i <= 100; i += 20) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 100); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(100, i); ctx.stroke();
+            }
+            ctx.strokeStyle = '#39ff14'; ctx.lineWidth = 1;
+            ctx.strokeRect(10, 10, 80, 80);
+        }
+    };
 
-    // Darker inner panel
-    wallCtx.fillStyle = '#1c1024';
-    wallCtx.fillRect(18, 18, 64, 64);
-
-    // Glowing cyan accents / high-tech circuit panel pattern
-    wallCtx.strokeStyle = '#00ffcc'; // Cyan
-    wallCtx.lineWidth = 3;
-    wallCtx.strokeRect(25, 25, 50, 50);
-
-    // Inner cross lines or pattern
-    wallCtx.beginPath();
-    wallCtx.moveTo(25, 50);
-    wallCtx.lineTo(75, 50);
-    wallCtx.moveTo(50, 25);
-    wallCtx.lineTo(50, 75);
-    wallCtx.stroke();
-
-    scene.textures.addCanvas('home_wall_tile', wallCanvas);
-
-    // 2. Floor Tile (matching outside design: elegant futuristic carpet/flooring)
-    const floorCanvas = document.createElement('canvas');
-    floorCanvas.width = 100;
-    floorCanvas.height = 100;
-    const floorCtx = floorCanvas.getContext('2d');
-
-    // Deep dark violet background
-    const floorGrad = floorCtx.createRadialGradient(50, 50, 10, 50, 50, 50);
-    floorGrad.addColorStop(0, '#2c133a'); // Dark violet center
-    floorGrad.addColorStop(1, '#0b0612'); // Almost black edges
-    floorCtx.fillStyle = floorGrad;
-    floorCtx.fillRect(0, 0, 100, 100);
-
-    // Fine high-tech grid lines
-    floorCtx.strokeStyle = 'rgba(191, 85, 236, 0.25)'; // Semitransparent purple
-    floorCtx.lineWidth = 1;
-    floorCtx.strokeRect(0, 0, 100, 100);
-
-    // Cyan glowing micro corner-accents
-    floorCtx.fillStyle = '#00ffcc';
-    floorCtx.fillRect(2, 2, 8, 2);
-    floorCtx.fillRect(2, 2, 2, 8);
-
-    floorCtx.fillRect(90, 2, 8, 2);
-    floorCtx.fillRect(96, 2, 2, 8);
-
-    floorCtx.fillRect(2, 96, 8, 2);
-    floorCtx.fillRect(2, 90, 2, 8);
-
-    floorCtx.fillRect(90, 96, 8, 2);
-    floorCtx.fillRect(96, 90, 2, 8);
-
-    scene.textures.addCanvas('home_floor_tile', floorCanvas);
+    // Generate Floor Canvas textures
+    for (const [key, drawFunc] of Object.entries(floorStyles)) {
+        const c = document.createElement('canvas'); c.width = 100; c.height = 100;
+        drawFunc(c.getContext('2d'));
+        scene.textures.addCanvas(`floor_${key}`, c);
+    }
+    // Backward compatibility: home_floor_tile maps to floor_cyber_neon
+    const floorDefault = document.createElement('canvas'); floorDefault.width = 100; floorDefault.height = 100;
+    floorStyles['cyber_neon'](floorDefault.getContext('2d'));
+    scene.textures.addCanvas('home_floor_tile', floorDefault);
 
     // 3. Exit Door/Rug Tile (matching the outside's door: cyan filled with purple trim)
     const doorCanvas = document.createElement('canvas');
@@ -5084,6 +5323,142 @@ window.generateHomeInteriorTextures = function(scene) {
     doorCtx.fill();
 
     scene.textures.addCanvas('home_door_tile', doorCanvas);
+};
+
+window.generatePlantTextures = function(scene) {
+    const plants = {
+        'plant_cyber_fern': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(45, 50, 50, 15); ctx.stroke();
+            ctx.strokeStyle = '#00bfff'; ctx.lineWidth = 2;
+            for (let y = 30; y < 90; y += 12) {
+                ctx.beginPath(); ctx.moveTo(50, y); ctx.quadraticCurveTo(15, y - 10, 20 + y*0.2, y - 5); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(50, y); ctx.quadraticCurveTo(85, y - 10, 80 - y*0.2, y - 5); ctx.stroke();
+            }
+            ctx.fillStyle = '#ffffff';
+            for (let y = 30; y < 90; y += 12) {
+                ctx.beginPath(); ctx.arc(20 + y*0.2, y - 5, 2.5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(80 - y*0.2, y - 5, 2.5, 0, Math.PI*2); ctx.fill();
+            }
+        },
+        'plant_crystal_rose': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.strokeStyle = '#2d1a24'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 45); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 75); ctx.lineTo(35, 60); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 65); ctx.lineTo(65, 50); ctx.stroke();
+            ctx.fillStyle = '#1c241c';
+            [[35,60], [65,50], [45,80]].forEach(pt => {
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 10, 6, Math.PI/4, 0, Math.PI*2); ctx.fill();
+            });
+            ctx.fillStyle = '#ff1493'; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+            const roses = [[50,35], [30,50], [70,40]];
+            roses.forEach(pt => {
+                ctx.fillStyle = '#e6005c';
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 12, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ff66a3';
+                ctx.beginPath();
+                ctx.moveTo(pt[0], pt[1] - 10);
+                ctx.lineTo(pt[0] + 8, pt[1] - 4);
+                ctx.lineTo(pt[0] + 5, pt[1] + 6);
+                ctx.lineTo(pt[0] - 5, pt[1] + 6);
+                ctx.lineTo(pt[0] - 8, pt[1] - 4);
+                ctx.closePath(); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 3, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_bio_orchid': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.strokeStyle = '#4a2574'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(30, 60, 45, 30); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(70, 55, 65, 40); ctx.stroke();
+            ctx.fillStyle = '#bf55ec';
+            const flowers = [[45,30], [65,40], [38,55]];
+            flowers.forEach(pt => {
+                ctx.fillStyle = '#bf55ec';
+                for (let i = 0; i < 5; i++) {
+                    let angle = (i * 2 * Math.PI) / 5;
+                    ctx.beginPath();
+                    ctx.ellipse(pt[0] + Math.cos(angle)*8, pt[1] + Math.sin(angle)*8, 9, 5, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                ctx.fillStyle = '#ff00ff';
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 5, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#00ffff';
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 2, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_solar_lotus': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.fillStyle = '#0e241e'; ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.ellipse(50, 75, 35, 12, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(15, 75); ctx.lineTo(85, 75); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 63); ctx.lineTo(50, 87); ctx.stroke();
+            const cx = 50, cy = 55;
+            ctx.fillStyle = '#ffb703';
+            for (let i = 0; i < 6; i++) {
+                let angle = (i * 2 * Math.PI) / 6;
+                ctx.beginPath();
+                ctx.ellipse(cx + Math.cos(angle)*10, cy + Math.sin(angle)*6, 12, 6, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#ffea00';
+            for (let i = 0; i < 6; i++) {
+                let angle = (i * 2 * Math.PI) / 6 + Math.PI/6;
+                ctx.beginPath();
+                ctx.ellipse(cx + Math.cos(angle)*7, cy + Math.sin(angle)*4, 9, 4, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.fillStyle = '#ff6b00';
+            ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI*2); ctx.fill();
+        },
+        'plant_cosmic_shroom': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.fillStyle = '#eae2f8';
+            ctx.fillRect(45, 55, 10, 40);
+            ctx.fillRect(28, 65, 8, 30);
+            let grad1 = ctx.createRadialGradient(50, 45, 2, 50, 55, 25);
+            grad1.addColorStop(0, '#ff00ff'); grad1.addColorStop(1, '#8a2be2');
+            ctx.fillStyle = grad1;
+            ctx.beginPath(); ctx.ellipse(50, 50, 22, 14, 0, 0, Math.PI, true); ctx.fill();
+            let grad2 = ctx.createRadialGradient(32, 60, 1, 32, 65, 15);
+            grad2.addColorStop(0, '#00ffff'); grad2.addColorStop(1, '#4b0082');
+            ctx.fillStyle = grad2;
+            ctx.beginPath(); ctx.ellipse(32, 62, 16, 10, 0, 0, Math.PI, true); ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            [[42, 45], [58, 48], [50, 42], [28, 59], [36, 61]].forEach(pt => {
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 1.8, 0, Math.PI*2); ctx.fill();
+            });
+            ctx.fillStyle = '#ffd700';
+            [[50, 20], [32, 30], [68, 28], [45, 12]].forEach(pt => {
+                ctx.fillRect(pt[0], pt[1], 2, 2);
+            });
+        },
+        'plant_velvet_moss': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            let grad = ctx.createRadialGradient(50, 75, 5, 50, 75, 40);
+            grad.addColorStop(0, '#023015'); grad.addColorStop(0.7, '#0b522c'); grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath(); ctx.ellipse(50, 75, 38, 20, 0, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ffd700';
+            const flowers = [[35, 70], [50, 65], [68, 72], [45, 80], [58, 76]];
+            flowers.forEach(pt => {
+                ctx.fillRect(pt[0] - 3, pt[1], 7, 1);
+                ctx.fillRect(pt[0], pt[1] - 3, 1, 7);
+                ctx.fillStyle = '#ff6b00';
+                ctx.fillRect(pt[0], pt[1], 1, 1);
+                ctx.fillStyle = '#ffd700';
+            });
+        }
+    };
+
+    for (const [key, drawFunc] of Object.entries(plants)) {
+        const c = document.createElement('canvas'); c.width = 100; c.height = 100;
+        drawFunc(c.getContext('2d'));
+        scene.textures.addCanvas(key, c);
+    }
 };
 
 window.generateChallengeTile = function(scene) {
@@ -7336,6 +7711,99 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (window.syncCustomColorPickers) {
             window.syncCustomColorPickers(playerNum);
+        }
+    };
+
+    // Home Customization Modal handlers
+    window.openHomeCustomizationModal = function(playerNum) {
+        if (window.inBattle) return;
+
+        // Close other modals for this player
+        if (window.coopActive) {
+            window.closeAllModalsForPlayer(playerNum, 'homeCustomizationModal');
+            if (playerNum === 2) window.p2ActiveModal = 'homeCustomizationModal';
+            else window.p1ActiveModal = 'homeCustomizationModal';
+            window.updateModalVisibility();
+        } else {
+            window.closeAllModals('homeCustomizationModal');
+            document.getElementById('homeCustomizationModal').style.display = 'flex';
+            window.p1ActiveModal = 'homeCustomizationModal';
+        }
+
+        // Fill initial values from localStorage
+        const wall = localStorage.getItem(`wildpulse_p${playerNum}_home_wall_style`) || 'cyber_circuit';
+        const floor = localStorage.getItem(`wildpulse_p${playerNum}_home_floor_style`) || 'cyber_neon';
+        const light = localStorage.getItem(`wildpulse_p${playerNum}_home_light_style`) || 'cyan';
+
+        const wallSel = document.getElementById(`homeWallStyleSelect_p${playerNum}`);
+        const floorSel = document.getElementById(`homeFloorStyleSelect_p${playerNum}`);
+        const lightSel = document.getElementById(`homeLightStyleSelect_p${playerNum}`);
+
+        if (wallSel) wallSel.value = wall;
+        if (floorSel) floorSel.value = floor;
+        if (lightSel) lightSel.value = light;
+
+        // Populate placed mini-tiles list inside home
+        const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
+        const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+        const minC = playerNum === 2 ? 590 : 580;
+        const maxC = playerNum === 2 ? 594 : 584;
+        const minR = 580, maxR = 584;
+
+        const interiorTiles = miniTiles.filter(tile => {
+            let col = Math.floor(tile.x / 100);
+            let row = Math.floor(tile.y / 100);
+            return row >= minR && row <= maxR && col >= minC && col <= maxC;
+        });
+
+        const listDiv = document.getElementById(`homePlacedMiniTilesList_p${playerNum}`);
+        if (listDiv) {
+            if (interiorTiles.length === 0) {
+                listDiv.innerHTML = "No mini-tiles placed inside yet.";
+            } else {
+                const prettyNames = {
+                    "hospital": "Mini Hospital",
+                    "store": "Mini Store",
+                    "trade": "Mini Trade",
+                    "pvp": "Mini PvP",
+                    "breed": "Mini Breeding Center",
+                    "challenge": "Mini Challenge",
+                    "storage_chest": "Storage Chest",
+                    "dojo": "Dojo Tile"
+                };
+                listDiv.innerHTML = interiorTiles.map(t => {
+                    let col = Math.floor(t.x / 100);
+                    let row = Math.floor(t.y / 100);
+                    return `• ${prettyNames[t.type] || t.type} (Row ${row}, Col ${col})`;
+                }).join("<br>");
+            }
+        }
+    };
+
+    window.closeHomeCustomizationModal = function(playerNum) {
+        if (window.coopActive) {
+            if (playerNum === 2) window.p2ActiveModal = null;
+            else window.p1ActiveModal = null;
+            window.updateModalVisibility();
+        } else {
+            const el = document.getElementById('homeCustomizationModal');
+            if (el) el.style.display = 'none';
+            window.p1ActiveModal = null;
+        }
+    };
+
+    window.onHomeStyleChange = function(playerNum) {
+        const wallSel = document.getElementById(`homeWallStyleSelect_p${playerNum}`);
+        const floorSel = document.getElementById(`homeFloorStyleSelect_p${playerNum}`);
+        const lightSel = document.getElementById(`homeLightStyleSelect_p${playerNum}`);
+
+        if (wallSel && floorSel && lightSel) {
+            localStorage.setItem(`wildpulse_p${playerNum}_home_wall_style`, wallSel.value);
+            localStorage.setItem(`wildpulse_p${playerNum}_home_floor_style`, floorSel.value);
+            localStorage.setItem(`wildpulse_p${playerNum}_home_light_style`, lightSel.value);
+
+            // Rebuild interior room tiles dynamically and instantly
+            window.rebuildHomeInteriorTiles(playerNum);
         }
     };
 
@@ -18180,12 +18648,16 @@ window.openActionWheel = function(playerNum) {
         window.p1ActiveModal = 'actionWheelModal';
     }
 
-    // Toggle Home button visibility dynamically based on level
+    // Toggle Home button visibility dynamically based on level or inside home room state
     const pLvl = playerNum === 2 ? window.p2Level : window.p1Level;
     const homeBtn = document.getElementById(`actionWheelHome_p${playerNum}`);
     if (homeBtn) {
-        if (pLvl >= 10) {
+        if (window.isPlayerInsideHome(playerNum)) {
             homeBtn.style.display = 'block';
+            homeBtn.innerHTML = '🎨 Design';
+        } else if (pLvl >= 10) {
+            homeBtn.style.display = 'block';
+            homeBtn.innerHTML = '🏠 Home';
         } else {
             homeBtn.style.display = 'none';
         }
@@ -18315,8 +18787,14 @@ window.useActionWheelOption = function(playerNum, optionName) {
             window.openHelpModal(playerNum);
         }
     } else if (optionName === 'home') {
-        if (window.startHomePlacement) {
-            window.startHomePlacement(playerNum);
+        if (window.isPlayerInsideHome(playerNum)) {
+            if (window.openHomeCustomizationModal) {
+                window.openHomeCustomizationModal(playerNum);
+            }
+        } else {
+            if (window.startHomePlacement) {
+                window.startHomePlacement(playerNum);
+            }
         }
     }
 };
@@ -21938,6 +22416,7 @@ function preload() {
     window.generateChallengeTile(this);
     window.generateBreedTile(this);
     window.generateHomeInteriorTextures(this);
+    window.generatePlantTextures(this);
     generateCelestialReflections(this);
     setupDynamicGrass(this);
     generateWaterTextures(this);
@@ -22043,6 +22522,37 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 treeReflection.baseTreeType = treeType;
                 sprites.push(treeReflection);
             }
+        } else if (hash >= 15 && hash < 35 && window.treesGroup && !isAboveHospital) {
+            // Plant life spawning!
+            const plantTypes = ['plant_cyber_fern', 'plant_crystal_rose', 'plant_bio_orchid', 'plant_solar_lotus', 'plant_cosmic_shroom', 'plant_velvet_moss'];
+            const plantType = plantTypes[(r * 13 + c * 7) % plantTypes.length];
+
+            // Subtle shadow sprite
+            let shadow = scene.add.sprite(posX, posY + 15, plantType);
+            shadow.setTintFill(0x000000);
+            shadow.setAlpha(0.2);
+            shadow.setOrigin(0.5, 0.8);
+            shadow.setScale(1.0, 0.45);
+            shadow.setDepth(1);
+            sprites.push(shadow);
+
+            let plant = scene.add.sprite(posX, posY + 15, plantType);
+            plant.setOrigin(0.5, 0.8);
+            plant.setDepth(10 + (posY + 15) / 10000);
+            plant.isPlant = true;
+            plant.plantType = plantType;
+
+            // Swaying tween
+            scene.tweens.add({
+                targets: plant,
+                angle: { from: -4, to: 4 },
+                duration: 2500 + (r * 29 + c * 43) % 2000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+
+            sprites.push(plant);
         }
     } else if (mapData[r][c] === 'hospital') {
         let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
@@ -22137,16 +22647,24 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             sprites.push(bSprite);
         }
     } else if (mapData[r][c] === 'home_floor') {
-        let floor = scene.add.sprite(posX, posY, 'home_floor_tile');
+        let pNum = 1;
+        if (c >= 589 && c <= 595) pNum = 2;
+        const style = localStorage.getItem(`wildpulse_p${pNum}_home_floor_style`) || 'cyber_neon';
+        const textureKey = `floor_${style}`;
+        let floor = scene.add.sprite(posX, posY, textureKey);
         floor.setDepth(-1);
         sprites.push(floor);
     } else if (mapData[r][c] === 'home_wall') {
-        let wall = scene.add.sprite(posX, posY, 'home_wall_tile');
+        let pNum = 1;
+        if (c >= 589 && c <= 595) pNum = 2;
+        const style = localStorage.getItem(`wildpulse_p${pNum}_home_wall_style`) || 'cyber_circuit';
+        const textureKey = `wall_${style}`;
+        let wall = scene.add.sprite(posX, posY, textureKey);
         wall.setDepth(10);
         sprites.push(wall);
 
         if (obstaclesGroup) {
-            let obsSprite = obstaclesGroup.create(posX, posY, 'home_wall_tile');
+            let obsSprite = obstaclesGroup.create(posX, posY, textureKey);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
                 obsSprite.body.updateFromGameObject();
@@ -22574,6 +23092,84 @@ window.spawnPlayerHomes = function(scene) {
     }
 };
 
+window.isPlayerInsideHome = function(playerNum) {
+    const p = playerNum === 2 ? window.player2 : window.player;
+    if (!p) return false;
+    if (playerNum === 1) {
+        return p.x >= 57900 && p.x <= 58500 && p.y >= 57900 && p.y <= 58500;
+    } else {
+        return p.x >= 58900 && p.x <= 59500 && p.y >= 57900 && p.y <= 58500;
+    }
+};
+
+window.rebuildHomeInteriorTiles = function(playerNum) {
+    const scene = game.scene.scenes[0];
+    if (!scene) return;
+
+    const minR = 579, maxR = 585;
+    const minC = playerNum === 2 ? 589 : 579;
+    const maxC = playerNum === 2 ? 595 : 585;
+
+    for (let r = minR; r <= maxR; r++) {
+        for (let c = minC; c <= maxC; c++) {
+            const key = `${r}_${c}`;
+            if (activeTiles[key]) {
+                activeTiles[key].forEach(sprite => {
+                    if (sprite.isHomeTile || sprite.isMiniTile) return;
+                    if (window.obstaclesGroup && window.obstaclesGroup.contains(sprite)) {
+                        window.obstaclesGroup.remove(sprite, true, true);
+                    } else if (window.homeDoorsGroup && window.homeDoorsGroup.contains(sprite)) {
+                        window.homeDoorsGroup.remove(sprite, true, true);
+                    } else {
+                        if (sprite.destroy) sprite.destroy();
+                    }
+                });
+                delete activeTiles[key];
+            }
+            activeTiles[key] = spawnTile(scene, r, c, 100, mapData[0].length, mapData.length);
+            activeTiles[key].tileR = r;
+            activeTiles[key].tileC = c;
+        }
+    }
+    window.updateHomeAmbientOverlay(playerNum);
+};
+
+window.updateHomeAmbientOverlay = function(playerNum) {
+    const scene = game.scene.scenes[0];
+    if (!scene) return;
+
+    const overlayId = `p${playerNum}AmbientOverlay`;
+    if (window[overlayId]) {
+        window[overlayId].destroy();
+        window[overlayId] = null;
+    }
+
+    const isInside = window.isPlayerInsideHome(playerNum);
+    if (!isInside) return;
+
+    const style = localStorage.getItem(`wildpulse_p${playerNum}_home_light_style`) || 'cyan';
+    const colorMap = {
+        'cyan': 0x00ffcc,
+        'pink': 0xff007f,
+        'green': 0x39ff14,
+        'gold': 0xffd700,
+        'purple': 0xbf55ec,
+        'obsidian': 0x0f111a
+    };
+    const color = colorMap[style] || 0x00ffcc;
+    const alpha = style === 'obsidian' ? 0.35 : 0.15;
+
+    const startX = playerNum === 2 ? 58900 : 57900;
+    const startY = 57900;
+    const width = 700;
+    const height = 700;
+
+    const overlay = scene.add.rectangle(startX + width/2, startY + height/2, width, height, color, alpha);
+    overlay.setDepth(9.5);
+    overlay.setBlendMode(Phaser.BlendModes.ADD);
+    window[overlayId] = overlay;
+};
+
 window.handleHomeOverlap = function(playerNum, pCol, homeSprite) {
     if (window.inBattle) return;
 
@@ -22604,6 +23200,9 @@ window.handleHomeOverlap = function(playerNum, pCol, homeSprite) {
     if (playerObj.body) {
         playerObj.body.updateFromGameObject();
     }
+
+    // Trigger ambient light overlay on entry
+    window.updateHomeAmbientOverlay(playerNum);
 
     window.showModernNotification("🏠 Entering your cozy home!", 3000, playerNum);
 };
@@ -22642,6 +23241,9 @@ window.handleHomeExitOverlap = function(playerNum, pCol, doorSprite) {
     if (playerObj.body) {
         playerObj.body.updateFromGameObject();
     }
+
+    // Trigger clean-up of ambient light overlay on exit
+    window.updateHomeAmbientOverlay(playerNum);
 
     window.showModernNotification("🏠 Leaving your cozy home.", 3000, playerNum);
 };
@@ -22838,14 +23440,26 @@ window.cancelHomePlacement = function(playerNum) {
 window.isValidMiniTileLocation = function(row, col, playerNum) {
     if (!mapData || !mapData[row] || col < 0 || col >= mapData[0].length) return false;
 
-    // Check if tile is not grass (e.g. water, hospital, pvp, breed, challenge, trade, store, npc_trainer)
     const tileType = mapData[row][col];
-    if (tileType !== 'grass') return false;
+    const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
 
-    // Check if there is a tree on this grass tile
-    let hash = (row * 31 + col * 17) % 100;
-    const isAboveHospital = (row === 99 && col === 100);
-    if (hash < 12 && !isAboveHospital) return false;
+    if (isInside) {
+        // Must be placed on home_floor tile
+        if (tileType !== 'home_floor') return false;
+        // Check player boundaries
+        const minR = 580, maxR = 584;
+        const minC = playerNum === 2 ? 590 : 580;
+        const maxC = playerNum === 2 ? 594 : 584;
+        if (row < minR || row > maxR || col < minC || col > maxC) return false;
+    } else {
+        // Check if tile is grass
+        if (tileType !== 'grass') return false;
+
+        // Check if there is a tree on this grass tile
+        let hash = (row * 31 + col * 17) % 100;
+        const isAboveHospital = (row === 99 && col === 100);
+        if (hash < 12 && !isAboveHospital) return false;
+    }
 
     // Check other homes/structures
     for (let pNum of [1, 2]) {
@@ -22935,18 +23549,22 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
     let snappedX = col * 100 + 50;
     let snappedY = row * 100 + 50;
 
-    // 1. Check distance to placed home (must be within 15 tiles = 1500px)
-    const hx = parseFloat(localStorage.getItem(`wildpulse_p${playerNum}_home_x`));
-    const hy = parseFloat(localStorage.getItem(`wildpulse_p${playerNum}_home_y`));
-    const distance = Math.hypot(snappedX - hx, snappedY - hy);
-    if (distance > 1500) {
-        window.showModernNotification("❌ Too far from your Home! Mini tiles must be placed within 15 tiles (1500px) of your Home.", 3000, playerNum);
-        return;
+    const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
+
+    if (!isInside) {
+        // 1. Check distance to placed home (must be within 15 tiles = 1500px)
+        const hx = parseFloat(localStorage.getItem(`wildpulse_p${playerNum}_home_x`));
+        const hy = parseFloat(localStorage.getItem(`wildpulse_p${playerNum}_home_y`));
+        const distance = Math.hypot(snappedX - hx, snappedY - hy);
+        if (distance > 1500) {
+            window.showModernNotification("❌ Too far from your Home! Mini tiles must be placed within 15 tiles (1500px) of your Home.", 3000, playerNum);
+            return;
+        }
     }
 
     // 2. Validate location
     if (!window.isValidMiniTileLocation(row, col, playerNum)) {
-        window.showModernNotification("❌ Invalid location! Cannot place on water, trees, buildings, or other structures.", 3000, playerNum);
+        window.showModernNotification("❌ Invalid location! Cannot place on water, trees, walls, or existing structures.", 3000, playerNum);
         return;
     }
 
@@ -22989,7 +23607,11 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
 
     // Exit placement mode
     window.exitMiniTilePlacementMode(playerNum);
-    window.showModernNotification(`✅ Placed ${itemName} successfully!`, 4000, playerNum);
+    if (isInside) {
+        window.showModernNotification(`✅ Placed ${itemName} inside your Home!`, 4000, playerNum);
+    } else {
+        window.showModernNotification(`✅ Placed ${itemName} successfully!`, 4000, playerNum);
+    }
 };
 
 window.exitMiniTilePlacementMode = function(playerNum) {
