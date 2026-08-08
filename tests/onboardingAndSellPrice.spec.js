@@ -12,6 +12,7 @@ test.describe('Introductory Onboarding and Dynamic Sell Price Tests', () => {
   });
 
   test('should trigger high tech introductory modals and customization onboarding flow on new game start', async ({ page }) => {
+    test.setTimeout(60000);
     // Click Start Game on a fresh state
     await page.click('#startGameBtn');
 
@@ -34,7 +35,31 @@ test.describe('Introductory Onboarding and Dynamic Sell Price Tests', () => {
     await expect(page.locator('#introModalSlide1')).toBeHidden();
     await expect(page.locator('#introModalSlide2')).toBeVisible();
 
-    // Click Configure Avatar / Next on slide 2
+    // Click Next to advance to slide 3 (Item Carousel)
+    await page.click('#introNextBtn');
+
+    // Verify slide 3 title and content are shown, slide 2 is hidden
+    await expect(titleEl).toHaveText('[ ITEM DATABASE ]');
+    await expect(page.locator('#introModalSlide2')).toBeHidden();
+    await expect(page.locator('#introModalSlide3')).toBeVisible();
+
+    // Verify item count / name are correct
+    const carouselCount = page.locator('#introItemCarouselCount');
+    await expect(carouselCount).toHaveText('ITEM 1 / 25');
+    const carouselName = page.locator('#introItemCarouselName');
+    await expect(carouselName).toHaveText('Repellent');
+
+    // Click Next Item to cycle
+    await page.click('#introItemNextBtn', { force: true });
+    await expect(carouselCount).toHaveText('ITEM 2 / 25');
+    await expect(carouselName).toHaveText('HP Booster');
+
+    // Click Prev Item to cycle back
+    await page.click('#introItemPrevBtn', { force: true });
+    await expect(carouselCount).toHaveText('ITEM 1 / 25');
+    await expect(carouselName).toHaveText('Repellent');
+
+    // Click Configure Avatar on slide 3
     await page.click('#introNextBtn');
 
     // Intro modal should close
