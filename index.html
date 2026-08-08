@@ -3929,11 +3929,11 @@ window.updateStorageChestUI = function(playerNum) {
         for (let i = 0; i < 10; i++) {
             const item = chestItems[i];
             if (item) {
-                const icon = itemIcons[item.name] || "📦";
+                const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 28) : (itemIcons[item.name] || "📦");
                 slotsHtml += `
                     <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 20px;">${icon}</span>
+                            <span style="display: inline-block; vertical-align: middle;">${icon}</span>
                             <div style="text-align: left;">
                                 <div style="font-size: 13px; font-weight: bold; color: #fff;">${item.name}</div>
                                 <div style="font-size: 11px; color: #aaa;">Qty: ${item.quantity}/10</div>
@@ -3963,11 +3963,11 @@ window.updateStorageChestUI = function(playerNum) {
         for (let i = 0; i < 3; i++) {
             const item = inv[i];
             if (item) {
-                const icon = itemIcons[item.name] || "📦";
+                const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 28) : (itemIcons[item.name] || "📦");
                 invHtml += `
                     <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 20px;">${icon}</span>
+                            <span style="display: inline-block; vertical-align: middle;">${icon}</span>
                             <div style="text-align: left;">
                                 <div style="font-size: 13px; font-weight: bold; color: #fff;">${item.name}</div>
                                 <div style="font-size: 11px; color: #aaa;">Qty: ${item.quantity}/10</div>
@@ -5134,33 +5134,73 @@ window.generateBreedTile = function(scene) {
     canvas.height = 100;
     const ctx = canvas.getContext('2d');
 
-    // Pink to violet radial gradient
-    const grad = ctx.createRadialGradient(50, 50, 10, 50, 50, 50);
-    grad.addColorStop(0, '#ff1493'); // Neon deep pink
-    grad.addColorStop(1, '#4b0082'); // Indigo
-    ctx.fillStyle = grad;
+    // Dark indigo base
+    ctx.fillStyle = '#100a20';
     ctx.fillRect(0, 0, 100, 100);
 
-    // Border
-    ctx.strokeStyle = '#ff69b4';
+    // Neon pink circuit lines on background
+    ctx.strokeStyle = '#ff007f';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(10, 10); ctx.lineTo(30, 10); ctx.lineTo(40, 30);
+    ctx.moveTo(90, 90); ctx.lineTo(70, 90); ctx.lineTo(60, 70);
+    ctx.moveTo(10, 90); ctx.lineTo(10, 70); ctx.lineTo(25, 60);
+    ctx.moveTo(90, 10); ctx.lineTo(90, 30); ctx.lineTo(75, 40);
+    ctx.stroke();
+
+    // Bio incubation chamber ring
+    ctx.strokeStyle = 'rgba(255, 0, 127, 0.4)';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(50, 50, 38, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Glowing main border
+    ctx.strokeStyle = '#ff00ff';
     ctx.lineWidth = 4;
     ctx.strokeRect(2, 2, 96, 96);
 
-    // Draw an Egg shape in the center (White/light pink)
-    ctx.fillStyle = '#ffffff';
+    // Draw tech-bracket corners
+    ctx.fillStyle = '#ff00ff';
+    ctx.fillRect(2, 2, 15, 4);
+    ctx.fillRect(2, 2, 4, 15);
+    ctx.fillRect(83, 2, 15, 4);
+    ctx.fillRect(94, 2, 4, 15);
+    ctx.fillRect(2, 94, 15, 4);
+    ctx.fillRect(2, 81, 4, 15);
+    ctx.fillRect(83, 94, 15, 4);
+    ctx.fillRect(94, 81, 4, 15);
+
+    // 3D Egg shape in the center (White/light pink gradient)
+    const eggGrad = ctx.createLinearGradient(50, 20, 50, 80);
+    eggGrad.addColorStop(0, '#ffffff');
+    eggGrad.addColorStop(0.5, '#ffd2f2');
+    eggGrad.addColorStop(1, '#ff80df');
+    ctx.fillStyle = eggGrad;
     ctx.beginPath();
-    // Simple egg shape: top narrower, bottom wider
-    ctx.moveTo(50, 25);
-    ctx.bezierCurveTo(35, 25, 30, 75, 50, 75);
-    ctx.bezierCurveTo(70, 75, 65, 25, 50, 25);
+    ctx.moveTo(50, 22);
+    ctx.bezierCurveTo(32, 22, 26, 78, 50, 78);
+    ctx.bezierCurveTo(74, 78, 68, 22, 50, 22);
     ctx.fill();
 
-    // Speckles/spots on the egg
-    ctx.fillStyle = '#ff1493';
-    ctx.beginPath(); ctx.arc(44, 45, 4, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(56, 55, 3, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(48, 62, 2.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(52, 38, 2, 0, Math.PI*2); ctx.fill();
+    // Speckles/spots on the egg (Glowing deep pink)
+    ctx.fillStyle = '#ff007f';
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = '#ff007f';
+    ctx.beginPath(); ctx.arc(43, 44, 5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(57, 56, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(47, 64, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(53, 36, 2.5, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0; // reset
+
+    // Holographic grid line overlay on egg
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(35, 50); ctx.lineTo(65, 50);
+    ctx.moveTo(40, 60); ctx.lineTo(60, 60);
+    ctx.moveTo(42, 40); ctx.lineTo(58, 40);
+    ctx.stroke();
 
     scene.textures.addCanvas('breed_tile', canvas);
 };
@@ -5538,37 +5578,86 @@ window.generateChallengeTile = function(scene) {
     canvas.height = 100;
     const ctx = canvas.getContext('2d');
 
-    // Gold Background
-    const grad = ctx.createRadialGradient(50, 50, 10, 50, 50, 50);
-    grad.addColorStop(0, '#ffd700');
-    grad.addColorStop(1, '#b8860b');
-    ctx.fillStyle = grad;
+    // Deep purple-to-indigo base with cyber grid
+    const bgGrad = ctx.createLinearGradient(0, 0, 100, 100);
+    bgGrad.addColorStop(0, '#2e1a47');
+    bgGrad.addColorStop(1, '#0e081a');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 100, 100);
 
-    // Border
-    ctx.strokeStyle = '#8b4513';
+    // Cyber grid lines
+    ctx.strokeStyle = 'rgba(191, 85, 236, 0.25)';
+    ctx.lineWidth = 1;
+    for (let x = 10; x < 100; x += 15) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 100); ctx.stroke();
+    }
+    for (let y = 10; y < 100; y += 15) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(100, y); ctx.stroke();
+    }
+
+    // Glowing neon gold border
+    ctx.strokeStyle = '#ffd700';
     ctx.lineWidth = 4;
     ctx.strokeRect(2, 2, 96, 96);
 
-    // Crown Icon (Black)
-    ctx.fillStyle = '#000';
+    // Corner brackets
+    ctx.fillStyle = '#ffd700';
+    ctx.fillRect(2, 2, 12, 4);
+    ctx.fillRect(2, 2, 4, 12);
+    ctx.fillRect(86, 2, 12, 4);
+    ctx.fillRect(94, 2, 4, 12);
+    ctx.fillRect(2, 94, 12, 4);
+    ctx.fillRect(2, 84, 4, 12);
+    ctx.fillRect(86, 94, 12, 4);
+    ctx.fillRect(94, 84, 4, 12);
+
+    // Pedestal base
+    ctx.fillStyle = '#444';
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(20, 70); // Base
-    ctx.lineTo(80, 70);
-    ctx.lineTo(85, 30);
-    ctx.lineTo(70, 50);
-    ctx.lineTo(50, 20);
-    ctx.lineTo(30, 50);
-    ctx.lineTo(15, 30);
+    ctx.moveTo(30, 80);
+    ctx.lineTo(70, 80);
+    ctx.lineTo(62, 58);
+    ctx.lineTo(38, 58);
     ctx.closePath();
     ctx.fill();
+    ctx.stroke();
 
-    // Small jewels
-    ctx.fillStyle = '#ff0000';
-    ctx.beginPath(); ctx.arc(50, 30, 3, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#0000ff';
-    ctx.beginPath(); ctx.arc(35, 45, 2, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(65, 45, 2, 0, Math.PI*2); ctx.fill();
+    // Holographic glowing crown pedestal overlay
+    const ringGrad = ctx.createRadialGradient(50, 50, 5, 50, 50, 30);
+    ringGrad.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+    ringGrad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    ctx.fillStyle = ringGrad;
+    ctx.beginPath();
+    ctx.ellipse(50, 50, 25, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Glowing Golden Crown Icon
+    ctx.fillStyle = '#ffd700';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#ffd700';
+    ctx.beginPath();
+    ctx.moveTo(25, 50); // Base left
+    ctx.lineTo(75, 50); // Base right
+    ctx.lineTo(80, 22); // Right peak
+    ctx.lineTo(65, 36); // Dip right
+    ctx.lineTo(50, 16); // Center peak
+    ctx.lineTo(35, 36); // Dip left
+    ctx.lineTo(20, 22); // Left peak
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0; // reset
+
+    // Small glowing neon jewels on crown
+    ctx.fillStyle = '#ff003c'; // ruby center
+    ctx.beginPath(); ctx.arc(50, 24, 3.5, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = '#00f3ff'; // sapphire left
+    ctx.beginPath(); ctx.arc(32, 40, 2.5, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = '#00ff66'; // emerald right
+    ctx.beginPath(); ctx.arc(68, 40, 2.5, 0, Math.PI*2); ctx.fill();
 
     scene.textures.addCanvas('challenge_tile', canvas);
 };
@@ -15441,7 +15530,7 @@ window.updateStoreUI = function() {
 
             html += `
                 <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
-                    <div style="font-size: 24px; min-width: 35px; text-align: center;">${item.icon}</div>
+                    <div style="font-size: 24px; min-width: 35px; text-align: center; display: flex; align-items: center; justify-content: center;">${window.getItemIconHTML ? window.getItemIconHTML(item.name, 32) : item.icon}</div>
                     <div style="flex: 1;">
                         <div style="font-weight: bold; font-size: 14px; color: #fff;">${item.name}</div>
                         <div style="font-size: 11px; color: #aaa; margin-top: 2px;">${item.desc}</div>
@@ -15904,6 +15993,275 @@ window.useInventoryItem = function(playerNum, slotIndex) {
     }
 };
 
+window.getItemIconHTML = function(itemName, size = 24) {
+    let svgContent = '';
+    let glowColor = '#00ffd2';
+    let baseColor = '#0b1424';
+
+    // Choose theme colors based on item type
+    if (itemName.includes("Booster")) {
+        if (itemName.startsWith("HP")) glowColor = '#00ff66';
+        else if (itemName.startsWith("Attack")) glowColor = '#ff3366';
+        else if (itemName.startsWith("Defense")) glowColor = '#0066ff';
+        else if (itemName.startsWith("Speed")) glowColor = '#ffd700';
+        else if (itemName.startsWith("Sp. Atk")) glowColor = '#ff00ff';
+        else if (itemName.startsWith("Sp. Def")) glowColor = '#00ffff';
+    } else if (itemName.includes("Healing") || itemName.includes("Serum")) {
+        glowColor = '#00ff96';
+    } else if (itemName === "Jank Juice") {
+        glowColor = '#ff00ff';
+    } else if (itemName === "Repellent") {
+        glowColor = '#ff3300';
+    } else if (itemName === "ExPALL") {
+        glowColor = '#ffd700';
+    } else if (itemName === "Creature Cookie") {
+        glowColor = '#ff9f00';
+    } else if (itemName === "Pedometer") {
+        glowColor = '#00ffd2';
+    } else if (itemName.startsWith("Mini") || itemName.includes("Tile") || itemName === "Storage Chest") {
+        glowColor = '#00ffd2';
+        if (itemName === "Storage Chest") glowColor = '#ff7f00';
+        else if (itemName === "Dojo Tile") glowColor = '#ffd700';
+    }
+
+    switch (itemName) {
+        case "Repellent":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3300" stroke-width="4"/>
+                <path d="M40,20 L60,20 L55,35 L45,35 Z" fill="#666" />
+                <rect x="35" y="35" width="30" height="50" rx="5" fill="#222" stroke="#ff3300" stroke-width="3" />
+                <path d="M40,45 L60,45" stroke="#ff3300" stroke-width="2" />
+                <circle cx="50" cy="60" r="8" fill="#ff3300" opacity="0.8" />
+                <path d="M50,20 Q65,10 75,5 Q60,5 50,15" fill="#ff3300" opacity="0.5" />
+                <circle cx="70" cy="8" r="3" fill="#ff3300" />
+                <circle cx="78" cy="12" r="2" fill="#ff3300" />`;
+            break;
+        case "HP Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff66" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#00ff66" stroke-width="2" stroke-dasharray="4,4" />
+                <path d="M50,30 C45,20 25,20 25,40 C25,60 50,80 50,80 C50,80 75,60 75,40 C75,20 55,20 50,30 Z" fill="#00ff66" filter="url(#glow)"/>`;
+            break;
+        case "Attack Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3366" stroke-width="4"/>
+                <path d="M20,80 L40,60 L50,65 L30,85 Z" fill="#ff3366" />
+                <path d="M80,20 L60,40 L50,35 L70,15 Z" fill="#ff3366" />
+                <path d="M25,75 L75,25 L80,30 L30,80 Z" fill="#fff" stroke="#ff3366" stroke-width="2" />
+                <path d="M75,75 L25,25 L20,30 L70,80 Z" fill="#fff" stroke="#ff3366" stroke-width="2" />
+                <circle cx="50" cy="50" r="10" fill="none" stroke="#ff3366" stroke-width="3" />`;
+            break;
+        case "Defense Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#0066ff" stroke-width="4"/>
+                <path d="M30,25 L50,15 L70,25 L70,55 C70,70 50,85 50,85 C50,85 30,70 30,55 Z" fill="#0066ff" filter="url(#glow)"/>
+                <path d="M35,30 L50,22 L65,30 L65,53 C65,65 50,77 50,77 C50,77 35,65 35,53 Z" fill="#fff" opacity="0.3" />`;
+            break;
+        case "Speed Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
+                <path d="M60,15 L25,55 L50,55 L35,85 L80,45 L50,45 Z" fill="#ffd700" filter="url(#glow)"/>
+                <line x1="15" y1="35" x2="35" y2="35" stroke="#ffd700" stroke-width="3" stroke-linecap="round" />
+                <line x1="10" y1="50" x2="30" y2="50" stroke="#ffd700" stroke-width="3" stroke-linecap="round" />`;
+            break;
+        case "Sp. Atk Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
+                <circle cx="50" cy="50" r="20" fill="none" stroke="#ff00ff" stroke-width="3" />
+                <path d="M50,15 C60,25 65,40 50,50 C35,60 40,75 50,85" fill="none" stroke="#ff00ff" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
+                <circle cx="50" cy="50" r="6" fill="#fff" />`;
+            break;
+        case "Sp. Def Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffff" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#00ffff" stroke-width="3" filter="url(#glow)" />
+                <circle cx="50" cy="50" r="15" fill="none" stroke="#00ffff" stroke-width="1" stroke-dasharray="4,2" />
+                <rect x="42" y="42" width="16" height="16" rx="4" fill="#00ffff" />`;
+            break;
+        case "Jank Juice":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
+                <rect x="30" y="30" width="40" height="55" rx="8" fill="url(#pouchGrad)" stroke="#ff00ff" stroke-width="2" />
+                <path d="M45,30 L45,15 Q45,10 55,12" fill="none" stroke="#ffd700" stroke-width="4" stroke-linecap="round" />
+                <path d="M50,42 L52,48 L58,48 L53,52 L55,58 L50,54 L45,58 L47,52 L42,48 L48,48 Z" fill="#ffd700" filter="url(#glow)" />`;
+            break;
+        case "Healing Juice Bottle":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff96" stroke-width="4"/>
+                <path d="M42,20 L58,20 L55,30 L45,30 Z" fill="#666" />
+                <path d="M45,30 L55,30 L65,55 L65,80 C65,85 35,85 35,80 L35,55 Z" fill="#00ff96" opacity="0.4" />
+                <path d="M38,58 L62,58 L62,78 C62,82 38,82 38,78 Z" fill="#00ff96" filter="url(#glow)"/>
+                <circle cx="45" cy="65" r="3" fill="#fff" />
+                <circle cx="55" cy="72" r="2" fill="#fff" />`;
+            break;
+        case "Healing Juice Jug":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffaa00" stroke-width="4"/>
+                <rect x="32" y="32" width="36" height="50" rx="6" fill="#444" stroke="#ffaa00" stroke-width="3"/>
+                <path d="M40,20 L60,20 L55,32 L45,32 Z" fill="#ffaa00" />
+                <rect x="40" y="45" width="20" height="30" rx="3" fill="#ffaa00" filter="url(#glow)"/>
+                <line x1="32" y1="50" x2="68" y2="50" stroke="#111" stroke-width="2" />
+                <path d="M26,45 Q20,60 32,70" fill="none" stroke="#ffaa00" stroke-width="2" />
+                <path d="M74,45 Q80,60 68,70" fill="none" stroke="#ffaa00" stroke-width="2" />`;
+            break;
+        case "ExPALL":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
+                <rect x="30" y="30" width="40" height="40" rx="5" fill="#151515" stroke="#ffd700" stroke-width="3" />
+                <line x1="20" y1="40" x2="30" y2="40" stroke="#ffd700" stroke-width="3" />
+                <line x1="20" y1="50" x2="30" y2="50" stroke="#ffd700" stroke-width="3" />
+                <line x1="20" y1="60" x2="30" y2="60" stroke="#ffd700" stroke-width="3" />
+                <line x1="70" y1="40" x2="80" y2="40" stroke="#ffd700" stroke-width="3" />
+                <line x1="70" y1="50" x2="80" y2="50" stroke="#ffd700" stroke-width="3" />
+                <line x1="70" y1="60" x2="80" y2="60" stroke="#ffd700" stroke-width="3" />
+                <path d="M50,40 L53,46 L59,46 L54,50 L56,56 L50,52 L44,56 L46,50 L41,46 L47,46 Z" fill="#ffd700" filter="url(#glow)" />`;
+            break;
+        case "Creature License":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00f3ff" stroke-width="4"/>
+                <rect x="20" y="30" width="60" height="40" rx="6" fill="#102535" stroke="#00f3ff" stroke-width="2" />
+                <line x1="28" y1="60" x2="28" y2="40" stroke="#00f3ff" stroke-width="2" />
+                <line x1="33" y1="60" x2="33" y2="40" stroke="#00f3ff" stroke-width="1" />
+                <line x1="37" y1="60" x2="37" y2="40" stroke="#00f3ff" stroke-width="3" />
+                <rect x="62" y="38" width="12" height="10" rx="2" fill="#ffd700" />
+                <path d="M46,52 A4,4 0 0,1 54,52 L56,48 L52,48 L50,45 L48,48 Z" fill="none" stroke="#00f3ff" stroke-width="2" />`;
+            break;
+        case "Creature Cookie":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff9f00" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="#a05a2c" stroke="#ff9f00" stroke-width="3" />
+                <circle cx="40" cy="35" r="4" fill="#00ffd2" />
+                <circle cx="65" cy="40" r="4" fill="#ff00ff" />
+                <circle cx="45" cy="65" r="4" fill="#00ffd2" />
+                <circle cx="60" cy="60" r="4" fill="#ff00ff" />
+                <path d="M42,48 Q50,56 58,48" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" />`;
+            break;
+        case "Pedometer":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M30,30 L45,30 L45,55 L65,65 L60,75 L30,75 Z" fill="#00ffd2" opacity="0.3" />
+                <path d="M35,35 L45,35 L45,58 L60,68 L56,72 L35,72 Z" fill="none" stroke="#00ffd2" stroke-width="2" />
+                <path d="M65,30 A15,15 0 0,1 75,45" fill="none" stroke="#00ffd2" stroke-width="3" stroke-linecap="round" filter="url(#glow)" />
+                <path d="M72,25 A22,22 0 0,1 85,45" fill="none" stroke="#00ffd2" stroke-width="2" stroke-linecap="round" />`;
+            break;
+        case "Cyber-Core Upgrade":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff7f00" stroke-width="4"/>
+                <polygon points="50,15 75,30 85,55 75,80 50,90 25,80 15,55 25,30" fill="#1a1a1a" stroke="#ff7f00" stroke-width="3" />
+                <path d="M50,15 L50,35 M50,90 L50,70 M15,55 L35,55 M85,55 L65,55" stroke="#ff7f00" stroke-width="2" />
+                <circle cx="50" cy="55" r="14" fill="#ff7f00" filter="url(#glow)" />
+                <circle cx="50" cy="55" r="7" fill="#fff" />`;
+            break;
+        case "Nano-Nurture Serum":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
+                <rect x="42" y="25" width="16" height="45" rx="2" fill="none" stroke="#ff00ff" stroke-width="3" />
+                <line x1="30" y1="20" x2="70" y2="20" stroke="#ff00ff" stroke-width="3" />
+                <line x1="50" y1="20" x2="50" y2="40" stroke="#ff00ff" stroke-width="4" />
+                <rect x="45" y="45" width="10" height="22" fill="#ff00ff" filter="url(#glow)" />
+                <line x1="50" y1="70" x2="50" y2="85" stroke="#ff00ff" stroke-width="2" />
+                <circle cx="50" cy="85" r="2" fill="#fff" />`;
+            break;
+        case "DNA Stabilizer":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00f3ff" stroke-width="4"/>
+                <rect x="35" y="20" width="30" height="60" rx="15" fill="none" stroke="#00f3ff" stroke-width="3" />
+                <path d="M44,30 Q50,40 56,50 Q44,60 50,70" fill="none" stroke="#00f3ff" stroke-width="3" filter="url(#glow)" />
+                <path d="M56,30 Q44,40 50,50 Q56,60 44,70" fill="none" stroke="#00ff96" stroke-width="3" filter="url(#glow)" />
+                <line x1="46" y1="36" x2="54" y2="34" stroke="#fff" stroke-width="1.5" />
+                <line x1="46" y1="46" x2="54" y2="44" stroke="#fff" stroke-width="1.5" />
+                <line x1="46" y1="56" x2="54" y2="54" stroke="#fff" stroke-width="1.5" />
+                <line x1="46" y1="66" x2="54" y2="64" stroke="#fff" stroke-width="1.5" />`;
+            break;
+        case "Storage Chest":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff7f00" stroke-width="4"/>
+                <rect x="25" y="30" width="50" height="45" rx="6" fill="#252525" stroke="#ff7f00" stroke-width="3" />
+                <line x1="25" y1="45" x2="75" y2="45" stroke="#ff7f00" stroke-width="4" stroke-dasharray="8,4" />
+                <rect x="42" y="55" width="16" height="12" rx="2" fill="#ffd700" />
+                <circle cx="50" cy="61" r="2" fill="#00ffd2" filter="url(#glow)" />`;
+            break;
+        case "Mini Hospital":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff96" stroke-width="4"/>
+                <path d="M20,75 L80,75 L80,50 A30,30 0 0,0 20,50 Z" fill="#222" stroke="#00ff96" stroke-width="3" />
+                <rect x="46" y="44" width="8" height="24" fill="#00ff96" filter="url(#glow)" />
+                <rect x="38" y="52" width="24" height="8" fill="#00ff96" filter="url(#glow)" />`;
+            break;
+        case "Mini Store":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
+                <rect x="22" y="30" width="56" height="48" rx="4" fill="#222" stroke="#ffd700" stroke-width="3" />
+                <polygon points="22,30 78,30 72,40 28,40" fill="#ffd700" />
+                <circle cx="50" cy="58" r="10" fill="none" stroke="#ffd700" stroke-width="2" />
+                <text x="50" y="61" font-family="'Courier New', monospace" font-size="11" font-weight="bold" fill="#ffd700" text-anchor="middle">$</text>`;
+            break;
+        case "Mini Trade":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00f3ff" stroke-width="4"/>
+                <circle cx="50" cy="50" r="28" fill="none" stroke="#00f3ff" stroke-width="2" />
+                <path d="M30,50 A20,20 0 0,1 70,50" fill="none" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" />
+                <path d="M70,50 L65,42 M70,50 L78,46" stroke="#00f3ff" stroke-width="3" stroke-linecap="round" />
+                <path d="M70,50 A20,20 0 0,1 30,50" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+                <path d="M30,50 L35,58 M30,50 L22,54" stroke="#fff" stroke-width="3" stroke-linecap="round" />`;
+            break;
+        case "Mini PvP":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3366" stroke-width="4"/>
+                <line x1="25" y1="75" x2="75" y2="25" stroke="#ff3366" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />
+                <line x1="75" y1="75" x2="25" y2="25" stroke="#00ffd2" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />`;
+            break;
+        case "Mini Breeding Center":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
+                <rect x="35" y="25" width="30" height="40" rx="15" fill="#222" stroke="#ff00ff" stroke-width="2" />
+                <ellipse cx="50" cy="45" rx="8" ry="12" fill="#fff" filter="url(#glow)" />
+                <circle cx="46" cy="42" r="2" fill="#ff00ff" />
+                <circle cx="54" cy="48" r="1.5" fill="#ff00ff" />`;
+            break;
+        case "Mini Challenge":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#bf55ec" stroke-width="4"/>
+                <path d="M30,75 L70,75 L60,55 L40,55 Z" fill="#333" stroke="#bf55ec" stroke-width="2" />
+                <path d="M35,35 L65,35 L68,20 L58,28 L50,15 L42,28 L32,20 Z" fill="#ffd700" filter="url(#glow)" />`;
+            break;
+        case "Dojo Tile":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
+                <rect x="25" y="32" width="50" height="6" fill="#ff3300" stroke="#ffd700" stroke-width="1.5" />
+                <rect x="30" y="44" width="40" height="4" fill="#ff3300" />
+                <rect x="34" y="32" width="6" height="48" fill="#ff3300" stroke="#ffd700" stroke-width="1" />
+                <rect x="60" y="32" width="6" height="48" fill="#ff3300" stroke="#ffd700" stroke-width="1" />`;
+            break;
+        default:
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <text x="50" y="55" font-family="'Courier New', monospace" font-size="40" fill="#00ffd2" text-anchor="middle">📦</text>`;
+            break;
+    }
+
+    const emojiMap = {
+        "Mini Hospital": "🏥",
+        "Mini Store": "🏪",
+        "Mini Trade": "🔄",
+        "Mini PvP": "⚔️",
+        "Mini Breeding Center": "🥚",
+        "Mini Challenge": "👑",
+        "Dojo Tile": "⛩️",
+        "Storage Chest": "🧳",
+        "Repellent": "🧴",
+        "HP Booster": "💚",
+        "Attack Booster": "⚔️",
+        "Defense Booster": "🛡️",
+        "Speed Booster": "⚡",
+        "Sp. Atk Booster": "🔮",
+        "Sp. Def Booster": "🧿",
+        "Jank Juice": "🧃",
+        "Healing Juice Bottle": "🧪",
+        "Healing Juice Jug": "🏺",
+        "ExPALL": "✨",
+        "Creature License": "🎫",
+        "Creature Cookie": "🍪",
+        "Pedometer": "👣",
+        "Cyber-Core Upgrade": "🔘",
+        "Nano-Nurture Serum": "💉",
+        "DNA Stabilizer": "🧬"
+    };
+    const emoji = emojiMap[itemName] || "📦";
+
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px ${glowColor});">
+        <defs>
+            <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#182d4d"/>
+                <stop offset="100%" stop-color="#070d18"/>
+            </radialGradient>
+            <linearGradient id="pouchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3d1547" />
+                <stop offset="100%" stop-color="#14061a" />
+            </linearGradient>
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+        </defs>
+        ${svgContent}
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emoji}</span>`;
+};
+
 // Render Inventory UI
 window.updateInventoryUI = function() {
     const itemIcons = {
@@ -15947,7 +16305,7 @@ window.updateInventoryUI = function() {
 
             const item = inv[i];
             if (item) {
-                const icon = itemIcons[item.name] || "📦";
+                const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 32) : (itemIcons[item.name] || "📦");
                 slot.innerHTML = `
                     <div class="inventory-item-inner" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; position: relative;" title="${item.name}: Click to use">
                         ${icon}
@@ -19209,12 +19567,12 @@ window.updateInventoryWheelUI = function(playerNum) {
 
         const item = inv[idx];
         if (item) {
-            const icon = itemIcons[item.name] || "📦";
+            const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 24) : (itemIcons[item.name] || "📦");
             let displayName = item.name;
             if (displayName.length > 12) {
                 displayName = displayName.substring(0, 10) + "..";
             }
-            btn.innerHTML = `<span style="font-size:16px; line-height:1;">${icon}</span><span style="font-size:8px; line-height:1.2; margin-top:2px; font-weight:normal; text-align:center;">${displayName} (${item.quantity})</span>`;
+            btn.innerHTML = `<span style="display:flex; align-items:center; justify-content:center; width:24px; height:24px; line-height:1; margin:0 auto;">${icon}</span><span style="font-size:8px; line-height:1.2; margin-top:2px; font-weight:normal; text-align:center;">${displayName} (${item.quantity})</span>`;
             btn.style.opacity = '1';
         } else {
             btn.innerHTML = `<span style="color:#666;">Empty</span>`;
@@ -22216,155 +22574,260 @@ function generateCloudTextures(scene) {
 }
 
 function generateTileTextures(scene) {
-    // Pre-generate Hospital Tile texture
+    // Pre-generate Hospital Tile texture (Upgraded Cyber Medical Terminal)
     const hospitalCanvas = document.createElement('canvas');
     hospitalCanvas.width = 100;
     hospitalCanvas.height = 100;
     const hospitalCtx = hospitalCanvas.getContext('2d');
-    hospitalCtx.fillStyle = '#FFFFFF';
+    // Dark Space Cadet grey grid
+    hospitalCtx.fillStyle = '#0a0f1d';
     hospitalCtx.fillRect(0, 0, 100, 100);
-    hospitalCtx.fillStyle = '#FF0000';
-    hospitalCtx.fillRect(40, 20, 20, 60); // Vertical part of cross
-    hospitalCtx.fillRect(20, 40, 60, 20); // Horizontal part of cross
+    // Cyber circuits in background
+    hospitalCtx.strokeStyle = 'rgba(0, 255, 150, 0.15)';
+    hospitalCtx.lineWidth = 1;
+    hospitalCtx.beginPath();
+    hospitalCtx.moveTo(10, 10); hospitalCtx.lineTo(90, 10); hospitalCtx.lineTo(90, 90);
+    hospitalCtx.stroke();
+    // Neon Green / Cyan glowing cross base
+    hospitalCtx.fillStyle = '#00ff88';
+    hospitalCtx.shadowBlur = 10;
+    hospitalCtx.shadowColor = '#00ff88';
+    hospitalCtx.fillRect(42, 20, 16, 60); // Vertical
+    hospitalCtx.fillRect(20, 42, 60, 16); // Horizontal
+    hospitalCtx.shadowBlur = 0;
+    // Electrocardiogram line at bottom
+    hospitalCtx.strokeStyle = '#00ffd2';
+    hospitalCtx.lineWidth = 2;
+    hospitalCtx.beginPath();
+    hospitalCtx.moveTo(15, 85); hospitalCtx.lineTo(35, 85); hospitalCtx.lineTo(40, 75); hospitalCtx.lineTo(45, 95); hospitalCtx.lineTo(50, 85); hospitalCtx.lineTo(85, 85);
+    hospitalCtx.stroke();
+    // Neon Green glowing border
+    hospitalCtx.strokeStyle = '#00ff88';
+    hospitalCtx.lineWidth = 4;
+    hospitalCtx.strokeRect(2, 2, 96, 96);
     scene.textures.addCanvas('hospital_tile', hospitalCanvas);
 
-
-
-    // Pre-generate Store Tile texture
+    // Pre-generate Store Tile texture (Upgraded Vendor Kiosk)
     const storeCanvas = document.createElement('canvas');
     storeCanvas.width = 100;
     storeCanvas.height = 100;
     const storeCtx = storeCanvas.getContext('2d');
-    storeCtx.fillStyle = '#FFD700'; // Gold
+    // Deep carbon background
+    storeCtx.fillStyle = '#11161b';
     storeCtx.fillRect(0, 0, 100, 100);
-    storeCtx.fillStyle = '#008000'; // Green
-    storeCtx.font = 'bold 80px sans-serif';
+    // Hexagonal circuit grid lines
+    storeCtx.strokeStyle = 'rgba(255, 170, 0, 0.2)';
+    storeCtx.lineWidth = 1.5;
+    storeCtx.beginPath();
+    storeCtx.moveTo(50, 15); storeCtx.lineTo(85, 35); storeCtx.lineTo(85, 75); storeCtx.lineTo(50, 95); storeCtx.lineTo(15, 75); storeCtx.lineTo(15, 35);
+    storeCtx.closePath();
+    storeCtx.stroke();
+    // Glowing Credits symbol frame
+    storeCtx.strokeStyle = '#ff9f00';
+    storeCtx.lineWidth = 2;
+    storeCtx.beginPath();
+    storeCtx.arc(50, 50, 28, 0, Math.PI * 2);
+    storeCtx.stroke();
+    // Glowing golden credits symbol in center
+    storeCtx.fillStyle = '#ffaa00';
+    storeCtx.shadowBlur = 10;
+    storeCtx.shadowColor = '#ffaa00';
+    storeCtx.font = 'bold 45px "Courier New", monospace';
     storeCtx.textAlign = 'center';
     storeCtx.textBaseline = 'middle';
     storeCtx.fillText('$', 50, 50);
+    storeCtx.shadowBlur = 0;
+    // Glowing orange tech border
+    storeCtx.strokeStyle = '#ffaa00';
+    storeCtx.lineWidth = 4;
+    storeCtx.strokeRect(2, 2, 96, 96);
     scene.textures.addCanvas('store_tile', storeCanvas);
 
-    // Pre-generate Home Tile texture
+    // Pre-generate Home Tile texture (Upgraded Cozy Base Node)
     const homeCanvas = document.createElement('canvas');
     homeCanvas.width = 100;
     homeCanvas.height = 100;
     const homeCtx = homeCanvas.getContext('2d');
-
-    // A nice glowing purple/blue gradient for the house tile base
     const homeGrad = homeCtx.createRadialGradient(50, 50, 10, 50, 50, 50);
     homeGrad.addColorStop(0, '#bf55ec'); // Purple
     homeGrad.addColorStop(1, '#0b1120'); // Dark background
     homeCtx.fillStyle = homeGrad;
     homeCtx.fillRect(0, 0, 100, 100);
-
+    // Tech details inside home tile
+    homeCtx.strokeStyle = 'rgba(0, 255, 204, 0.2)';
+    homeCtx.lineWidth = 1;
+    homeCtx.beginPath();
+    homeCtx.moveTo(5, 50); homeCtx.lineTo(95, 50);
+    homeCtx.moveTo(50, 5); homeCtx.lineTo(50, 95);
+    homeCtx.stroke();
     // Glowing neon green border
     homeCtx.strokeStyle = '#00ffcc';
     homeCtx.lineWidth = 4;
     homeCtx.strokeRect(2, 2, 96, 96);
-
     // Draw a cyberpunk style house/home shape
     homeCtx.fillStyle = '#00ffcc';
     homeCtx.beginPath();
-    // Roof
-    homeCtx.moveTo(50, 20);
-    homeCtx.lineTo(80, 50);
-    homeCtx.lineTo(20, 50);
+    homeCtx.moveTo(50, 20); homeCtx.lineTo(80, 50); homeCtx.lineTo(20, 50);
     homeCtx.closePath();
     homeCtx.fill();
-
     // Body of the house
     homeCtx.fillStyle = '#bf55ec';
     homeCtx.fillRect(25, 50, 50, 35);
-
-    // Door
-    homeCtx.fillStyle = '#00ffcc';
-    homeCtx.fillRect(42, 60, 16, 25);
-
+    // Glowing digital door
+    homeCtx.fillStyle = '#fff';
+    homeCtx.shadowBlur = 8;
+    homeCtx.shadowColor = '#00ffcc';
+    homeCtx.fillRect(43, 62, 14, 23);
+    homeCtx.shadowBlur = 0;
     scene.textures.addCanvas('home_tile', homeCanvas);
 
-    // Pre-generate Trade Tile texture
+    // Pre-generate Trade Tile texture (Upgraded Circular Portal Grid)
     const tradeCanvas = document.createElement('canvas');
     tradeCanvas.width = 100;
     tradeCanvas.height = 100;
     const tradeCtx = tradeCanvas.getContext('2d');
-    tradeCtx.fillStyle = '#ADD8E6'; // Light blue
+    // Dark violet base
+    tradeCtx.fillStyle = '#0a0515';
     tradeCtx.fillRect(0, 0, 100, 100);
-
-    // Draw white arrows
-    tradeCtx.fillStyle = '#FFFFFF';
+    // Circular transfer rings
+    tradeCtx.strokeStyle = 'rgba(0, 243, 255, 0.2)';
+    tradeCtx.lineWidth = 2;
+    tradeCtx.beginPath();
+    tradeCtx.arc(50, 50, 40, 0, Math.PI * 2);
+    tradeCtx.stroke();
+    // Inner transfer rings
+    tradeCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    tradeCtx.strokeRect(20, 20, 60, 60);
     // Right facing arrow (top)
+    tradeCtx.fillStyle = '#00f3ff';
+    tradeCtx.shadowBlur = 8;
+    tradeCtx.shadowColor = '#00f3ff';
     tradeCtx.beginPath();
-    tradeCtx.moveTo(30, 25);
-    tradeCtx.lineTo(60, 25);
-    tradeCtx.lineTo(60, 15);
-    tradeCtx.lineTo(80, 35);
-    tradeCtx.lineTo(60, 55);
-    tradeCtx.lineTo(60, 45);
-    tradeCtx.lineTo(30, 45);
+    tradeCtx.moveTo(25, 30); tradeCtx.lineTo(55, 30); tradeCtx.lineTo(55, 20); tradeCtx.lineTo(75, 40); tradeCtx.lineTo(55, 60); tradeCtx.lineTo(55, 50); tradeCtx.lineTo(25, 50);
+    tradeCtx.closePath();
     tradeCtx.fill();
-
     // Left facing arrow (bottom)
+    tradeCtx.fillStyle = '#ffffff';
+    tradeCtx.shadowColor = '#ffffff';
     tradeCtx.beginPath();
-    tradeCtx.moveTo(70, 75);
-    tradeCtx.lineTo(40, 75);
-    tradeCtx.lineTo(40, 85);
-    tradeCtx.lineTo(20, 65);
-    tradeCtx.lineTo(40, 45);
-    tradeCtx.lineTo(40, 55);
-    tradeCtx.lineTo(70, 55);
+    tradeCtx.moveTo(75, 70); tradeCtx.lineTo(45, 70); tradeCtx.lineTo(45, 80); tradeCtx.lineTo(25, 60); tradeCtx.lineTo(45, 40); tradeCtx.lineTo(45, 50); tradeCtx.lineTo(75, 50);
+    tradeCtx.closePath();
     tradeCtx.fill();
+    tradeCtx.shadowBlur = 0;
+    // Blue glowing cybernetic border
+    tradeCtx.strokeStyle = '#00f3ff';
+    tradeCtx.lineWidth = 4;
+    tradeCtx.strokeRect(2, 2, 96, 96);
     scene.textures.addCanvas('trade_tile', tradeCanvas);
 
-    // Pre-generate PvP Tile texture
+    // Pre-generate PvP Tile texture (Upgraded Duel Carbon Pad)
     const pvpCanvas = document.createElement('canvas');
     pvpCanvas.width = 100;
     pvpCanvas.height = 100;
     const pvpCtx = pvpCanvas.getContext('2d');
-    pvpCtx.fillStyle = '#800000'; // Dark Red
+    // Dark crimson charcoal base
+    pvpCtx.fillStyle = '#1c050a';
     pvpCtx.fillRect(0, 0, 100, 100);
-
-    // Draw crossed swords
-    pvpCtx.strokeStyle = '#FFFFFF';
-    pvpCtx.lineWidth = 4;
+    // Gridlines in background
+    pvpCtx.strokeStyle = 'rgba(255, 46, 46, 0.15)';
+    pvpCtx.lineWidth = 1;
+    for(let i = 15; i < 100; i += 15) {
+        pvpCtx.beginPath(); pvpCtx.moveTo(i, 0); pvpCtx.lineTo(i, 100); pvpCtx.stroke();
+        pvpCtx.beginPath(); pvpCtx.moveTo(0, i); pvpCtx.lineTo(100, i); pvpCtx.stroke();
+    }
+    // Draw crossed energy blades
+    pvpCtx.lineWidth = 5;
     pvpCtx.lineCap = 'round';
-    pvpCtx.beginPath();
-    pvpCtx.moveTo(20, 20);
-    pvpCtx.lineTo(80, 80);
-    pvpCtx.moveTo(80, 20);
-    pvpCtx.lineTo(20, 80);
-    pvpCtx.stroke();
+    pvpCtx.shadowBlur = 10;
+    // Saber 1 (Electric Blue)
+    pvpCtx.shadowColor = '#00ffd2';
+    pvpCtx.strokeStyle = '#fff';
+    pvpCtx.beginPath(); pvpCtx.moveTo(20, 20); pvpCtx.lineTo(80, 80); pvpCtx.stroke();
+    // Saber 2 (Energy Crimson)
+    pvpCtx.shadowColor = '#ff2e2e';
+    pvpCtx.beginPath(); pvpCtx.moveTo(80, 20); pvpCtx.lineTo(20, 80); pvpCtx.stroke();
+    pvpCtx.shadowBlur = 0;
+    // Crimson neon border with caution striped corner indicators
+    pvpCtx.strokeStyle = '#ff3366';
+    pvpCtx.lineWidth = 4;
+    pvpCtx.strokeRect(2, 2, 96, 96);
+    pvpCtx.fillStyle = '#ffd700'; // yellow stripes
+    pvpCtx.fillRect(2, 2, 10, 4); pvpCtx.fillRect(2, 2, 4, 10);
+    pvpCtx.fillRect(88, 2, 10, 4); pvpCtx.fillRect(94, 2, 4, 10);
+    pvpCtx.fillRect(2, 94, 10, 4); pvpCtx.fillRect(2, 86, 4, 10);
+    pvpCtx.fillRect(88, 94, 10, 4); pvpCtx.fillRect(94, 86, 4, 10);
     scene.textures.addCanvas('pvp_tile', pvpCanvas);
 
-    // Pre-generate Dojo Tile texture
+    // Pre-generate Dojo Tile texture (Upgraded Cyber shinto archway)
     const dojoCanvas = document.createElement('canvas');
     dojoCanvas.width = 100;
     dojoCanvas.height = 100;
     const dojoCtx = dojoCanvas.getContext('2d');
-
-    // Cyberpunk red/dark gradient
     const dojoGrad = dojoCtx.createLinearGradient(0, 0, 100, 100);
     dojoGrad.addColorStop(0, '#ff0055'); // Hot Pink/Red
     dojoGrad.addColorStop(1, '#110022'); // Cyber Dark
     dojoCtx.fillStyle = dojoGrad;
     dojoCtx.fillRect(0, 0, 100, 100);
-
+    // Golden circular background node
+    dojoCtx.strokeStyle = 'rgba(255, 215, 0, 0.2)';
+    dojoCtx.lineWidth = 2;
+    dojoCtx.beginPath();
+    dojoCtx.arc(50, 52, 32, 0, Math.PI * 2);
+    dojoCtx.stroke();
+    // Torii Gate drawing (Japanese Shinto Gate with cyber glow)
+    dojoCtx.shadowBlur = 8;
+    dojoCtx.shadowColor = '#ffd700';
+    dojoCtx.fillStyle = '#ffd700'; // Golden torii gate
+    dojoCtx.fillRect(20, 25, 60, 8); // Top bar (Kasagi)
+    dojoCtx.fillRect(25, 40, 50, 6); // Lower bar (Nuki)
+    dojoCtx.fillRect(32, 25, 8, 55); // Left Pillar
+    dojoCtx.fillRect(60, 25, 8, 55); // Right Pillar
+    dojoCtx.shadowBlur = 0;
+    // Hanging glowing cyan lanterns
+    dojoCtx.fillStyle = '#00ffff';
+    dojoCtx.fillRect(26, 44, 4, 8);
+    dojoCtx.fillRect(70, 44, 4, 8);
     // Golden border
     dojoCtx.strokeStyle = '#ffd700';
     dojoCtx.lineWidth = 4;
     dojoCtx.strokeRect(2, 2, 96, 96);
-
-    // Torii Gate drawing (Japanese Shinto Gate)
-    dojoCtx.fillStyle = '#ffd700'; // Golden torii gate
-    // Top bar (Kasagi)
-    dojoCtx.fillRect(20, 25, 60, 8);
-    // Lower bar (Nuki)
-    dojoCtx.fillRect(25, 40, 50, 6);
-    // Left Pillar
-    dojoCtx.fillRect(32, 25, 8, 55);
-    // Right Pillar
-    dojoCtx.fillRect(60, 25, 8, 55);
-
     scene.textures.addCanvas('dojo_tile', dojoCanvas);
+
+    // Pre-generate Storage Chest Tile texture (Upgraded Metallic chest) - MISSING in legacy
+    const storageChestCanvas = document.createElement('canvas');
+    storageChestCanvas.width = 100;
+    storageChestCanvas.height = 100;
+    const storageChestCtx = storageChestCanvas.getContext('2d');
+    // Dark steel plate background
+    storageChestCtx.fillStyle = '#22272e';
+    storageChestCtx.fillRect(0, 0, 100, 100);
+    // Steel panel lines
+    storageChestCtx.strokeStyle = '#30363d';
+    storageChestCtx.lineWidth = 2;
+    storageChestCtx.strokeRect(10, 10, 80, 80);
+    // Glowing orange/blue warning security panels
+    storageChestCtx.strokeStyle = '#ff7f00';
+    storageChestCtx.lineWidth = 3;
+    storageChestCtx.strokeRect(22, 25, 56, 50);
+    // Keypad scanner
+    storageChestCtx.fillStyle = '#252525';
+    storageChestCtx.fillRect(40, 45, 20, 15);
+    storageChestCtx.fillStyle = '#00ffcc'; // Glowing card scanner node
+    storageChestCtx.shadowBlur = 6;
+    storageChestCtx.shadowColor = '#00ffcc';
+    storageChestCtx.fillRect(44, 51, 12, 3);
+    storageChestCtx.shadowBlur = 0;
+    // Glowing orange hazard lines
+    storageChestCtx.fillStyle = '#ff7f00';
+    storageChestCtx.fillRect(22, 25, 10, 4);
+    storageChestCtx.fillRect(68, 25, 10, 4);
+    storageChestCtx.fillRect(22, 71, 10, 4);
+    storageChestCtx.fillRect(68, 71, 10, 4);
+    // Outer orange tech border
+    storageChestCtx.strokeStyle = '#ff7f00';
+    storageChestCtx.lineWidth = 4;
+    storageChestCtx.strokeRect(2, 2, 96, 96);
+    scene.textures.addCanvas('storage_chest_tile', storageChestCanvas);
 }
 
 function generateMiscTextures(scene) {
