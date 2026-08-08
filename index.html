@@ -4978,6 +4978,114 @@ window.generateBreedTile = function(scene) {
     scene.textures.addCanvas('breed_tile', canvas);
 };
 
+window.generateHomeInteriorTextures = function(scene) {
+    // 1. Wall Tile (matching outside design: purple body + cyan trim)
+    const wallCanvas = document.createElement('canvas');
+    wallCanvas.width = 100;
+    wallCanvas.height = 100;
+    const wallCtx = wallCanvas.getContext('2d');
+
+    // Dark metallic obsidian base
+    wallCtx.fillStyle = '#0f111a';
+    wallCtx.fillRect(0, 0, 100, 100);
+
+    // Cyberpunk wall structure: thick purple panel/bricks
+    wallCtx.fillStyle = '#bf55ec'; // Purple
+    wallCtx.fillRect(10, 10, 80, 80);
+
+    // Darker inner panel
+    wallCtx.fillStyle = '#1c1024';
+    wallCtx.fillRect(18, 18, 64, 64);
+
+    // Glowing cyan accents / high-tech circuit panel pattern
+    wallCtx.strokeStyle = '#00ffcc'; // Cyan
+    wallCtx.lineWidth = 3;
+    wallCtx.strokeRect(25, 25, 50, 50);
+
+    // Inner cross lines or pattern
+    wallCtx.beginPath();
+    wallCtx.moveTo(25, 50);
+    wallCtx.lineTo(75, 50);
+    wallCtx.moveTo(50, 25);
+    wallCtx.lineTo(50, 75);
+    wallCtx.stroke();
+
+    scene.textures.addCanvas('home_wall_tile', wallCanvas);
+
+    // 2. Floor Tile (matching outside design: elegant futuristic carpet/flooring)
+    const floorCanvas = document.createElement('canvas');
+    floorCanvas.width = 100;
+    floorCanvas.height = 100;
+    const floorCtx = floorCanvas.getContext('2d');
+
+    // Deep dark violet background
+    const floorGrad = floorCtx.createRadialGradient(50, 50, 10, 50, 50, 50);
+    floorGrad.addColorStop(0, '#2c133a'); // Dark violet center
+    floorGrad.addColorStop(1, '#0b0612'); // Almost black edges
+    floorCtx.fillStyle = floorGrad;
+    floorCtx.fillRect(0, 0, 100, 100);
+
+    // Fine high-tech grid lines
+    floorCtx.strokeStyle = 'rgba(191, 85, 236, 0.25)'; // Semitransparent purple
+    floorCtx.lineWidth = 1;
+    floorCtx.strokeRect(0, 0, 100, 100);
+
+    // Cyan glowing micro corner-accents
+    floorCtx.fillStyle = '#00ffcc';
+    floorCtx.fillRect(2, 2, 8, 2);
+    floorCtx.fillRect(2, 2, 2, 8);
+
+    floorCtx.fillRect(90, 2, 8, 2);
+    floorCtx.fillRect(96, 2, 2, 8);
+
+    floorCtx.fillRect(2, 96, 8, 2);
+    floorCtx.fillRect(2, 90, 2, 8);
+
+    floorCtx.fillRect(90, 96, 8, 2);
+    floorCtx.fillRect(96, 90, 2, 8);
+
+    scene.textures.addCanvas('home_floor_tile', floorCanvas);
+
+    // 3. Exit Door/Rug Tile (matching the outside's door: cyan filled with purple trim)
+    const doorCanvas = document.createElement('canvas');
+    doorCanvas.width = 100;
+    doorCanvas.height = 100;
+    const doorCtx = doorCanvas.getContext('2d');
+
+    // Floor background first
+    doorCtx.fillStyle = '#0b0612';
+    doorCtx.fillRect(0, 0, 100, 100);
+
+    // Outside border matching floor
+    doorCtx.strokeStyle = 'rgba(191, 85, 236, 0.3)';
+    doorCtx.lineWidth = 2;
+    doorCtx.strokeRect(0, 0, 100, 100);
+
+    // Beautiful glowing door/mat area in the center
+    doorCtx.fillStyle = '#00ffcc'; // Cyan
+    doorCtx.fillRect(20, 25, 60, 50);
+
+    // Inner border/pattern on door
+    doorCtx.strokeStyle = '#bf55ec'; // Purple
+    doorCtx.lineWidth = 4;
+    doorCtx.strokeRect(25, 30, 50, 40);
+
+    // Draw an exit arrow or text "EXIT" or a door handle
+    doorCtx.fillStyle = '#bf55ec';
+    doorCtx.beginPath();
+    doorCtx.moveTo(50, 62); // Point of arrow
+    doorCtx.lineTo(40, 48);
+    doorCtx.lineTo(46, 48);
+    doorCtx.lineTo(46, 38);
+    doorCtx.lineTo(54, 38);
+    doorCtx.lineTo(54, 48);
+    doorCtx.lineTo(60, 48);
+    doorCtx.closePath();
+    doorCtx.fill();
+
+    scene.textures.addCanvas('home_door_tile', doorCanvas);
+};
+
 window.generateChallengeTile = function(scene) {
     const canvas = document.createElement('canvas');
     canvas.width = 100;
@@ -21829,6 +21937,7 @@ function preload() {
     window.generateWeatherIcons(this);
     window.generateChallengeTile(this);
     window.generateBreedTile(this);
+    window.generateHomeInteriorTextures(this);
     generateCelestialReflections(this);
     setupDynamicGrass(this);
     generateWaterTextures(this);
@@ -22026,6 +22135,45 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             bSprite.setVisible(false);
             bSprite.isBreedTile = true;
             sprites.push(bSprite);
+        }
+    } else if (mapData[r][c] === 'home_floor') {
+        let floor = scene.add.sprite(posX, posY, 'home_floor_tile');
+        floor.setDepth(-1);
+        sprites.push(floor);
+    } else if (mapData[r][c] === 'home_wall') {
+        let wall = scene.add.sprite(posX, posY, 'home_wall_tile');
+        wall.setDepth(10);
+        sprites.push(wall);
+
+        if (obstaclesGroup) {
+            let obsSprite = obstaclesGroup.create(posX, posY, 'home_wall_tile');
+            obsSprite.setVisible(false);
+            if (obsSprite.body) {
+                obsSprite.body.updateFromGameObject();
+            }
+            sprites.push(obsSprite);
+        }
+    } else if (mapData[r][c] === 'home_door_p1') {
+        let door = scene.add.sprite(posX, posY, 'home_door_tile');
+        door.setDepth(-0.9);
+        sprites.push(door);
+
+        if (window.homeDoorsGroup) {
+            let dSprite = window.homeDoorsGroup.create(posX, posY, 'home_door_tile');
+            dSprite.setVisible(false);
+            dSprite.playerNum = 1;
+            sprites.push(dSprite);
+        }
+    } else if (mapData[r][c] === 'home_door_p2') {
+        let door = scene.add.sprite(posX, posY, 'home_door_tile');
+        door.setDepth(-0.9);
+        sprites.push(door);
+
+        if (window.homeDoorsGroup) {
+            let dSprite = window.homeDoorsGroup.create(posX, posY, 'home_door_tile');
+            dSprite.setVisible(false);
+            dSprite.playerNum = 2;
+            sprites.push(dSprite);
         }
     } else if (mapData[r][c] && mapData[r][c].startsWith('npc_trainer')) {
         let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
@@ -22426,6 +22574,78 @@ window.spawnPlayerHomes = function(scene) {
     }
 };
 
+window.handleHomeOverlap = function(playerNum, pCol, homeSprite) {
+    if (window.inBattle) return;
+
+    const now = Date.now();
+    const playerObj = playerNum === 2 ? window.player2 : window.player;
+    if (!playerObj) return;
+
+    if (playerObj.lastHomeOverlapTime && now - playerObj.lastHomeOverlapTime < 1500) {
+        return;
+    }
+    playerObj.lastHomeOverlapTime = now;
+
+    // Teleport inside!
+    // Save current positions for exiting.
+    window[`p${playerNum}PreHomePos`] = {
+        x: playerObj.x,
+        y: playerObj.y,
+        homeX: homeSprite.x,
+        homeY: homeSprite.y + 100
+    };
+
+    // Player 1 room center: (col 582, row 582) -> X = 582 * 100 + 50, Y = 582 * 100 + 50
+    // Player 2 room center: (col 592, row 582) -> X = 592 * 100 + 50, Y = 582 * 100 + 50
+    const insideX = playerNum === 2 ? (592 * 100 + 50) : (582 * 100 + 50);
+    const insideY = 582 * 100 + 50;
+
+    playerObj.setPosition(insideX, insideY);
+    if (playerObj.body) {
+        playerObj.body.updateFromGameObject();
+    }
+
+    window.showModernNotification("🏠 Entering your cozy home!", 3000, playerNum);
+};
+
+window.handleHomeExitOverlap = function(playerNum, pCol, doorSprite) {
+    if (window.inBattle) return;
+    if (doorSprite.playerNum !== playerNum) return;
+
+    const now = Date.now();
+    const playerObj = playerNum === 2 ? window.player2 : window.player;
+    if (!playerObj) return;
+
+    if (playerObj.lastHomeExitOverlapTime && now - playerObj.lastHomeExitOverlapTime < 1500) {
+        return;
+    }
+    playerObj.lastHomeExitOverlapTime = now;
+
+    // Teleport back outside!
+    const prePos = window[`p${playerNum}PreHomePos`];
+    let targetX = playerNum === 2 ? 5000 : 4900;
+    let targetY = 5000;
+
+    if (prePos) {
+        targetX = prePos.x;
+        targetY = prePos.y;
+    } else {
+        const hx = localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
+        const hy = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
+        if (hx && hy) {
+            targetX = parseFloat(hx);
+            targetY = parseFloat(hy) + 100;
+        }
+    }
+
+    playerObj.setPosition(targetX, targetY);
+    if (playerObj.body) {
+        playerObj.body.updateFromGameObject();
+    }
+
+    window.showModernNotification("🏠 Leaving your cozy home.", 3000, playerNum);
+};
+
 window.spawnMiniTiles = function(scene) {
     if (!scene) return;
     if (window.miniTilesGroup) {
@@ -22802,6 +23022,7 @@ function create() {
     pvpGroup = this.physics.add.staticGroup();
     window.breedGroup = this.physics.add.staticGroup();
     window.homesGroup = this.physics.add.staticGroup();
+    window.homeDoorsGroup = this.physics.add.staticGroup();
     window.questNpcGroup = this.physics.add.staticGroup();
     window.npcTrainersGroup = this.physics.add.group();
 
@@ -22888,6 +23109,31 @@ function create() {
     mapData[100][103] = 'pvp';
     // Breeding center tile
     mapData[97][100] = 'breed';
+
+    // Generate separate home interior maps for Player 1 and Player 2 at safe isolated coordinates
+    // Player 1 room: Walkable 5x5 at row 580 to 584, col 580 to 584
+    for (let r = 579; r <= 585; r++) {
+        for (let c = 579; c <= 585; c++) {
+            if (r === 579 || r === 585 || c === 579 || c === 585) {
+                mapData[r][c] = 'home_wall';
+            } else {
+                mapData[r][c] = 'home_floor';
+            }
+        }
+    }
+    mapData[584][582] = 'home_door_p1';
+
+    // Player 2 room: Walkable 5x5 at row 580 to 584, col 590 to 594
+    for (let r = 579; r <= 585; r++) {
+        for (let c = 589; c <= 595; c++) {
+            if (r === 579 || r === 585 || c === 589 || c === 595) {
+                mapData[r][c] = 'home_wall';
+            } else {
+                mapData[r][c] = 'home_floor';
+            }
+        }
+    }
+    mapData[584][592] = 'home_door_p2';
 
     // Place all 24 standard NPC trainers dynamically based on stable coordinates
     if (window.npcTrainerCoords) {
@@ -23073,6 +23319,7 @@ function create() {
     window.localPlayerLabel.setDepth(10);
 
     this.physics.add.collider(player, window.treesGroup);
+    this.physics.add.collider(player, obstaclesGroup);
 
     // Immediately broadcast identity and position to all open channels and socket so they see us if they were already connected
     const identityMsg = {
@@ -23357,6 +23604,12 @@ function create() {
     window.spawnMiniTiles(this);
 
     // Overlap physics
+    this.physics.add.overlap(player, window.homesGroup, (pCol, homeSprite) => {
+        window.handleHomeOverlap(1, pCol, homeSprite);
+    }, null, this);
+    this.physics.add.overlap(player, window.homeDoorsGroup, (pCol, doorSprite) => {
+        window.handleHomeExitOverlap(1, pCol, doorSprite);
+    }, null, this);
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, (pCol, tile) => {
         healParty.call(this, pCol, tile);
@@ -26543,6 +26796,13 @@ window.enableCoop = function(scene) {
     // Physics colliders and overlaps for Player 2
     window.p2Colliders = [];
     window.p2Colliders.push(scene.physics.add.collider(window.player2, window.treesGroup));
+    window.p2Colliders.push(scene.physics.add.collider(window.player2, obstaclesGroup));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.homesGroup, (pCol, homeSprite) => {
+        window.handleHomeOverlap(2, pCol, homeSprite);
+    }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.homeDoorsGroup, (pCol, doorSprite) => {
+        window.handleHomeExitOverlap(2, pCol, doorSprite);
+    }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, creaturesGroup, collectCreature, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, hospitalGroup, (pCol, tile) => {
         healParty.call(scene, pCol, tile);
