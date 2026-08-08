@@ -3576,71 +3576,101 @@ window.updateEventBadgeUI = function() {
     const el = document.getElementById('activeEventBadge');
     if (!el) return;
 
-    if (!window.gameStarted || !window.activeRandomEvent || window.activeRandomEvent === 'None') {
+    if (!window.gameStarted) {
         el.style.display = 'none';
         return;
     }
 
-    const remainingMs = window.activeRandomEventEndTime - window.totalElapsedMs;
-    const remainingSecs = Math.max(0, Math.ceil(remainingMs / 1000));
-    const mins = Math.floor(remainingSecs / 60);
-    const secs = remainingSecs % 60;
-    const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+    const hasRandomEvent = (window.activeRandomEvent && window.activeRandomEvent !== 'None');
+    const hasWeatherEvent = (window.activeWeatherEvent && window.activeWeatherEvent !== 'None');
 
-    let text = "";
-    let color = "#00ffcc";
-    let shadow = "0 0 10px rgba(0,255,204,0.5)";
-
-    if (window.activeRandomEvent === 'Rain') {
-        text = `🌧️ Rain: Water +50% DMG [${timeStr}]`;
-        color = "#2196f3";
-        shadow = "0 0 10px rgba(33,150,243,0.5)";
-    } else if (window.activeRandomEvent === 'Thunderstorm') {
-        text = `⚡ Storm: Electric +50% DMG [${timeStr}]`;
-        color = "#ffeb3b";
-        shadow = "0 0 10px rgba(255,235,59,0.5)";
-    } else if (window.activeRandomEvent === 'Daytime Radiance') {
-        text = `☀️ Day: Light +50% DMG [${timeStr}]`;
-        color = "#ffeb3b";
-        shadow = "0 0 10px rgba(255,235,59,0.5)";
-    } else if (window.activeRandomEvent === 'Nighttime Eclipse') {
-        text = `🌙 Eclipse: Dark +50% DMG [${timeStr}]`;
-        color = "#ab47bc";
-        shadow = "0 0 10px rgba(171,71,188,0.5)";
-    } else if (window.activeRandomEvent === 'Heat Wave') {
-        text = `🔥 Heat Wave: Fire +50% DMG [${timeStr}]`;
-        color = "#ff5722";
-        shadow = "0 0 10px rgba(255,87,34,0.5)";
-    } else if (window.activeRandomEvent === 'Aurora') {
-        text = `🌌 Aurora: Cosmic +50% DMG [${timeStr}]`;
-        color = "#00e5ff";
-        shadow = "0 0 10px rgba(0,229,255,0.5)";
-    } else if (window.activeRandomEvent === 'Flash Freeze') {
-        text = `❄️ Flash Freeze: Ice +50% DMG [${timeStr}]`;
-        color = "#00e5ff";
-        shadow = "0 0 10px rgba(0,229,255,0.5)";
-    } else if (window.activeRandomEvent === 'Gusty Winds') {
-        text = `🌀 Gusty Winds: Wind +50% DMG [${timeStr}]`;
-        color = "#a7ffeb";
-        shadow = "0 0 10px rgba(167,255,235,0.5)";
-    } else if (window.activeRandomEvent === 'Earthquake') {
-        text = `🌋 Earthquake: Earth +50% DMG [${timeStr}]`;
-        color = "#ffb74d";
-        shadow = "0 0 10px rgba(255,183,77,0.5)";
-    } else if (window.activeRandomEvent === 'Bountiful Bloom') {
-        text = `🌸 Bloom: Nature +50% DMG [${timeStr}]`;
-        color = "#81c784";
-        shadow = "0 0 10px rgba(129,199,132,0.5)";
-    } else if (window.activeRandomEvent === 'Dual Battle') {
-        text = `👥 Dual Battle Event! [${timeStr}]`;
-        color = "#ff007f";
-        shadow = "0 0 10px rgba(255,0,127,0.5)";
+    if (!hasRandomEvent && !hasWeatherEvent) {
+        el.style.display = 'none';
+        return;
     }
 
-    el.innerHTML = text;
-    el.style.color = color;
-    el.style.borderColor = color;
-    el.style.boxShadow = shadow;
+    let parts = [];
+    let colors = [];
+
+    if (hasRandomEvent) {
+        const remainingMs = window.activeRandomEventEndTime - window.totalElapsedMs;
+        const remainingSecs = Math.max(0, Math.ceil(remainingMs / 1000));
+        const mins = Math.floor(remainingSecs / 60);
+        const secs = remainingSecs % 60;
+        const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+        let text = "";
+        let color = "#00ffcc";
+
+        if (window.activeRandomEvent === 'Rain') {
+            text = `🌧️ Rain: Water +50% DMG [${timeStr}]`;
+            color = "#2196f3";
+        } else if (window.activeRandomEvent === 'Thunderstorm') {
+            text = `⚡ Storm: Electric +50% DMG [${timeStr}]`;
+            color = "#ffeb3b";
+        } else if (window.activeRandomEvent === 'Daytime Radiance') {
+            text = `☀️ Day: Light +50% DMG [${timeStr}]`;
+            color = "#ffeb3b";
+        } else if (window.activeRandomEvent === 'Nighttime Eclipse') {
+            text = `🌙 Eclipse: Dark +50% DMG [${timeStr}]`;
+            color = "#ab47bc";
+        } else if (window.activeRandomEvent === 'Heat Wave') {
+            text = `🔥 Heat Wave: Fire +50% DMG [${timeStr}]`;
+            color = "#ff5722";
+        } else if (window.activeRandomEvent === 'Aurora') {
+            text = `🌌 Aurora: Cosmic +50% DMG [${timeStr}]`;
+            color = "#00e5ff";
+        } else if (window.activeRandomEvent === 'Flash Freeze') {
+            text = `❄️ Flash Freeze: Ice +50% DMG [${timeStr}]`;
+            color = "#00e5ff";
+        } else if (window.activeRandomEvent === 'Gusty Winds') {
+            text = `🌀 Gusty Winds: Wind +50% DMG [${timeStr}]`;
+            color = "#a7ffeb";
+        } else if (window.activeRandomEvent === 'Earthquake') {
+            text = `🌋 Earthquake: Earth +50% DMG [${timeStr}]`;
+            color = "#ffb74d";
+        } else if (window.activeRandomEvent === 'Bountiful Bloom') {
+            text = `🌸 Bloom: Nature +50% DMG [${timeStr}]`;
+            color = "#81c784";
+        } else if (window.activeRandomEvent === 'Dual Battle') {
+            text = `👥 Dual Battle Event! [${timeStr}]`;
+            color = "#ff007f";
+        }
+        if (text) {
+            parts.push(text);
+            colors.push(color);
+        }
+    }
+
+    if (hasWeatherEvent) {
+        let text = "";
+        let color = "#00ffcc";
+        if (window.activeWeatherEvent === 'Rain') {
+            text = `🌧️ Rain: Water +50% DMG`;
+            color = "#2196f3";
+        } else if (window.activeWeatherEvent === 'Thunderstorm') {
+            text = `⛈️ Storm: Electric +50% DMG`;
+            color = "#ffeb3b";
+        } else if (window.activeWeatherEvent === 'Flash Freeze') {
+            text = `❄️ Flash Freeze: Ice +50% DMG`;
+            color = "#00e5ff";
+        }
+        if (text) {
+            parts.push(text);
+            colors.push(color);
+        }
+    }
+
+    if (parts.length === 0) {
+        el.style.display = 'none';
+        return;
+    }
+
+    el.innerHTML = parts.join(' | ');
+    const finalColor = colors[0] || "#00ffcc";
+    el.style.color = finalColor;
+    el.style.borderColor = finalColor;
+    el.style.boxShadow = `0 0 10px ${finalColor}80`;
     el.style.display = 'flex';
 };
 
@@ -6157,7 +6187,7 @@ function escapeHtml(unsafe) {
 </div>
 
 <!-- Custom Confirmation Modals -->
-<div id="customConfirmModal_p1" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200060; align-items:center; justify-content:center; box-sizing:border-box;">
+<div id="customConfirmModal_p1" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200060; align-items:center; justify-content:center; box-sizing:border-box; pointer-events: auto !important;">
     <div class="modal-box neon-box" style="width: 340px; background: rgba(11,17,32,0.95); border: 2px solid #00ffcc; border-radius: 16px; padding: 25px; text-align: center; color: white; font-family: 'Courier New', monospace; pointer-events: auto;">
         <h3 id="customConfirmTitle_p1" style="color: #00ffcc; margin-top: 0; font-size: 20px; text-shadow: 0 0 10px rgba(0,255,204,0.5); letter-spacing: 2px; text-transform: uppercase;">CONFIRMATION</h3>
         <p id="customConfirmMessage_p1" style="font-size: 14px; margin: 20px 0; color: #bbb; line-height: 1.5;"></p>
@@ -6168,7 +6198,7 @@ function escapeHtml(unsafe) {
     </div>
 </div>
 
-<div id="customConfirmModal_p2" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200060; align-items:center; justify-content:center; box-sizing:border-box;">
+<div id="customConfirmModal_p2" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:200060; align-items:center; justify-content:center; box-sizing:border-box; pointer-events: auto !important;">
     <div class="modal-box neon-box" style="width: 340px; background: rgba(11,17,32,0.95); border: 2px solid #ff9800; border-radius: 16px; padding: 25px; text-align: center; color: white; font-family: 'Courier New', monospace; pointer-events: auto;">
         <h3 id="customConfirmTitle_p2" style="color: #ff9800; margin-top: 0; font-size: 20px; text-shadow: 0 0 10px rgba(255,152,0,0.5); letter-spacing: 2px; text-transform: uppercase;">CONFIRMATION</h3>
         <p id="customConfirmMessage_p2" style="font-size: 14px; margin: 20px 0; color: #bbb; line-height: 1.5;"></p>
@@ -13903,8 +13933,8 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
     const statsList = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'];
     const statsHtml = statsList.map(stat => {
         let base = creature.stats[stat] || 50;
-        let eff = window.getEffectiveStat(creature, stat).toFixed(1);
-        let scaled = window.getScaledBaseStat(creature, stat).toFixed(1);
+        let eff = Math.round(window.getEffectiveStat(creature, stat));
+        let scaled = Math.round(window.getScaledBaseStat(creature, stat));
         let statColor = statColors[stat] || 'white';
 
         let affected = false;
@@ -13933,7 +13963,7 @@ window.showFullSizeImage = function(creature, playerNum = 1) {
         let friendBonus = (creature.friendBonusStats && creature.friendBonusStats[stat]) ? creature.friendBonusStats[stat] : 0;
         let friendBonusHtml = friendBonus > 0 ? ` <span style="color: #ff4081; font-weight: bold;">(+${friendBonus})</span>` : '';
 
-        return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature and Mood modifications."><span style="color:${statColor};">${stat}</span>: <span style="color:${statValueColor}; font-weight:bold;">${Math.floor(scaled)}</span>${friendBonusHtml}${effHtml}</div>`;
+        return `<div data-tooltip="${stat} indicates the creature's combat capability. Base is ${base}, scaled by level to ${scaled}. Effective is ${eff} after Nature and Mood modifications."><span style="color:${statColor};">${stat}</span>: <span style="color:${statValueColor}; font-weight:bold;">${scaled}</span>${friendBonusHtml}${effHtml}</div>`;
     }).join('');
 
     descHtml += `
@@ -17060,6 +17090,13 @@ window.showConfirm = function(playerNum, title, message, onConfirm, onCancel = n
     noBtn.onclick = () => {
         hideModal();
         if (onCancel) onCancel();
+    };
+
+    modalEl.onclick = (e) => {
+        if (e.target === modalEl) {
+            hideModal();
+            if (onCancel) onCancel();
+        }
     };
 
     modalEl.style.display = 'flex';
@@ -26297,7 +26334,8 @@ window.openBattleSwapModal = function() {
     availableCreatures.forEach(creature => {
         let div = document.createElement('div');
         div.className = 'swap-item';
-        let hpPercent = Math.max(0, (creature.currentHp / creature.maxHp) * 100);
+        const maxHp = creature.maxHp || window.getEffectiveStat(creature, 'health') || 50;
+        let hpPercent = Math.max(0, (creature.currentHp / maxHp) * 100);
 
         let typeHtml = window.getTypeTooltip(creature.type);
         if (creature.type2) {
@@ -26314,7 +26352,7 @@ window.openBattleSwapModal = function() {
                     <div style="width: 150px; height: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; margin-top: 6px; overflow: hidden;">
                         <div style="height: 100%; width: ${hpPercent}%; background: linear-gradient(90deg, #4caf50, #81c784); box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);"></div>
                     </div>
-                    <span style="font-size: 11px; color: #eee; margin-top: 2px; display: inline-block;">HP: ${Math.floor(creature.currentHp)} / ${creature.maxHp}</span>
+                    <span style="font-size: 11px; color: #eee; margin-top: 2px; display: inline-block;">HP: ${Math.floor(creature.currentHp)} / ${Math.round(maxHp)}</span>
                 </div>
             </div>
             <button style="padding: 10px 20px; background: linear-gradient(180deg, #00ffd2, #008f7a); color: #0a1423; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,255,210,0.3);">Select</button>
@@ -27634,10 +27672,11 @@ window.endBattle = function(result) {
                     const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
 
                     ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
-                        let newStat = window.getEffectiveStat(expTarget, stat);
-                        let diff = newStat - oldStats[stat];
+                        let oldVal = Math.round(oldStats[stat]);
+                        let newVal = Math.round(window.getEffectiveStat(expTarget, stat));
+                        let diff = newVal - oldVal;
                         if (diff > 0) {
-                            statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldStats[stat].toFixed(1)} <span style="color:#4caf50">➔ ${newStat.toFixed(1)} (+${diff.toFixed(1)})</span></div>`;
+                            statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldVal} <span style="color:#4caf50">➔ ${newVal} (+${diff})</span></div>`;
                         }
                     });
 
@@ -29006,29 +29045,30 @@ function update() {
 
     let targetAlpha = Math.max(dayNightAlpha, weatherAlpha);
     let fillColor = 0x000033;
-    if (window.activeRandomEvent && window.activeRandomEvent !== 'None') {
-        if (window.activeRandomEvent === 'Heat Wave') {
+    let targetEventForVisual = (window.activeRandomEvent && window.activeRandomEvent !== 'None') ? window.activeRandomEvent : window.activeWeatherEvent;
+    if (targetEventForVisual && targetEventForVisual !== 'None') {
+        if (targetEventForVisual === 'Heat Wave') {
             targetAlpha = Math.max(targetAlpha, 0.25);
             fillColor = 0xcc3300;
-        } else if (window.activeRandomEvent === 'Aurora') {
+        } else if (targetEventForVisual === 'Aurora') {
             targetAlpha = Math.max(targetAlpha, 0.40);
             fillColor = 0x3a005c;
-        } else if (window.activeRandomEvent === 'Nighttime Eclipse') {
+        } else if (targetEventForVisual === 'Nighttime Eclipse') {
             targetAlpha = Math.max(targetAlpha, 0.50);
             fillColor = 0x050015;
-        } else if (window.activeRandomEvent === 'Daytime Radiance') {
+        } else if (targetEventForVisual === 'Daytime Radiance') {
             targetAlpha = Math.max(targetAlpha, 0.10);
             fillColor = 0xfffae6;
-        } else if (window.activeRandomEvent === 'Flash Freeze') {
+        } else if (targetEventForVisual === 'Flash Freeze') {
             targetAlpha = Math.max(targetAlpha, 0.35);
             fillColor = 0xb2ebf2;
-        } else if (window.activeRandomEvent === 'Gusty Winds') {
+        } else if (targetEventForVisual === 'Gusty Winds') {
             targetAlpha = Math.max(targetAlpha, 0.20);
             fillColor = 0xe5ffff;
-        } else if (window.activeRandomEvent === 'Earthquake') {
+        } else if (targetEventForVisual === 'Earthquake') {
             targetAlpha = Math.max(targetAlpha, 0.25);
             fillColor = 0x8d6e63;
-        } else if (window.activeRandomEvent === 'Bountiful Bloom') {
+        } else if (targetEventForVisual === 'Bountiful Bloom') {
             targetAlpha = Math.max(targetAlpha, 0.30);
             fillColor = 0x81c784;
         }
