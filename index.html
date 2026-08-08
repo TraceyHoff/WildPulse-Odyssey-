@@ -5632,6 +5632,10 @@ window.getCachedElement = function(id) {
         window._domCache = {};
     }
     let el = window._domCache[id];
+    if (el && !el.isConnected) {
+        delete window._domCache[id];
+        el = null;
+    }
     if (!el) {
         el = document.getElementById(id);
         if (el) {
@@ -16674,42 +16678,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             }
         }
 
-        // Handle right stick vertical movement to scroll descriptions in the party modal or scroll modal containers directly
-        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
-        if (Math.abs(ry) > 0.15 && scrollTarget) {
-            let canScroll = true;
-            if (window[`p${playerNum}CursorVisible`]) {
-                const cy = window[`p${playerNum}CursorY`] !== undefined ? window[`p${playerNum}CursorY`] : (window.innerHeight / 2);
-                const topBound = window.innerHeight * 0.15;
-                const bottomBound = window.innerHeight * 0.85;
-                if (cy > topBound && cy < bottomBound) {
-                    canScroll = false;
-                }
-            }
-            if (canScroll) {
-                const isPartyModal = container.id === 'partyModal' || container.querySelector('#partyList') || container.querySelector('#partyList_P2');
-                if (isPartyModal) {
-                    const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`) || document.activeElement;
-                    if (focusedEl) {
-                        const card = focusedEl.closest('.party-card');
-                        if (card) {
-                            const descText = card.querySelector('.creature-desc-text');
-                            if (descText) {
-                                descText.scrollTop += ry * 4;
-                            } else {
-                                scrollTarget.scrollTop += ry * 15;
-                            }
-                        } else {
-                            scrollTarget.scrollTop += ry * 15;
-                        }
-                    } else {
-                        scrollTarget.scrollTop += ry * 15;
-                    }
-                } else {
-                    scrollTarget.scrollTop += ry * 15;
-                }
-            }
-        }
+        // Handle right stick vertical movement (Disabled: only the D-pad is used for scrolling)
 
         if (container.classList.contains('inventory-slots-container')) {
             const selectables = window.getNavigableElements(container);
@@ -16741,12 +16710,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
 
         if (justUp || justDown || ((justLeft || justRight) && !selectBypass)) {
-            // Scroll the resolved scroll target up and down when Up/Down dpad is pressed in small increments
+            // Scroll the resolved scroll target up and down when Up/Down dpad is pressed in symmetric step increments of 30px
             if (scrollTarget) {
                 if (justUp) {
-                    scrollTarget.scrollTop -= 10;
+                    scrollTarget.scrollTop -= 30;
                 } else if (justDown) {
-                    scrollTarget.scrollTop += 10;
+                    scrollTarget.scrollTop += 30;
                 }
             }
             const selectables = window.getNavigableElements(container);
@@ -16778,7 +16747,15 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                         newEl.focus();
                     } catch(e) {}
                     try {
-                        newEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                        let isVisible = true;
+                        if (scrollTarget) {
+                            const rect = newEl.getBoundingClientRect();
+                            const scrollRect = scrollTarget.getBoundingClientRect();
+                            isVisible = (rect.top >= scrollRect.top && rect.bottom <= scrollRect.bottom);
+                        }
+                        if (!isVisible) {
+                            newEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                        }
                     } catch(e) {}
                 }
             }
@@ -16907,7 +16884,8 @@ window.isAnyModalOpen = function() {
         'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
         'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal', 'inventoryWheelModal',
         'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
-        'customConfirmModal_p1', 'customConfirmModal_p2'
+        'customConfirmModal_p1', 'customConfirmModal_p2',
+        'questModal_p1', 'questModal_p2'
     ];
     if (window.coopActive) {
         modals.push('battleModal_p2', 'battleSwapModal_p2');
@@ -27873,23 +27851,59 @@ function update() {
     const activeScene = this || (window.game && window.game.scene && window.game.scene.scenes[0]);
 
     // Update PC controls for Home Placement Mode
-    if (activeScene && activeScene.input && window.p1HomePlacementMode) {
-        const pointer = activeScene.input.activePointer;
-        // Let preview follow mouse world position
-        let p1WorldX = activeScene.cameras.main.scrollX + pointer.x;
-        let p1WorldY = activeScene.cameras.main.scrollY + pointer.y;
-        window.p1HomePreviewX = p1WorldX;
-        window.p1HomePreviewY = p1WorldY;
+    if (activeScene && activeScene.input) {
+        if (window.p1HomePlacementMode) {
+            const pointer = activeScene.input.activePointer;
+            if (activeScene._lastP1PointerX === undefined) {
+                activeScene._lastP1PointerX = pointer.x;
+                activeScene._lastP1PointerY = pointer.y;
+            }
+            if (pointer.x !== activeScene._lastP1PointerX || pointer.y !== activeScene._lastP1PointerY) {
+                const cam = activeScene.cameras.main;
+                const wp = cam.getWorldPoint(pointer.x, pointer.y);
+                window.p1HomePreviewX = wp.x;
+                window.p1HomePreviewY = wp.y;
+                activeScene._lastP1PointerX = pointer.x;
+                activeScene._lastP1PointerY = pointer.y;
+            }
 
-        if (window.p1HomePreviewSprite) {
-            window.p1HomePreviewSprite.setPosition(window.p1HomePreviewX, window.p1HomePreviewY);
+            if (window.p1HomePreviewSprite) {
+                window.p1HomePreviewSprite.setPosition(window.p1HomePreviewX, window.p1HomePreviewY);
+            }
+
+            // Check for cancel keys
+            const escKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+            const cKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+            if (Phaser.Input.Keyboard.JustDown(escKey) || Phaser.Input.Keyboard.JustDown(cKey)) {
+                window.cancelHomePlacement(1);
+            }
         }
 
-        // Check for cancel keys
-        const escKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-        const cKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
-        if (Phaser.Input.Keyboard.JustDown(escKey) || Phaser.Input.Keyboard.JustDown(cKey)) {
-            window.cancelHomePlacement(1);
+        if (window.p2HomePlacementMode) {
+            const pointer = activeScene.input.activePointer;
+            if (activeScene._lastP2PointerX === undefined) {
+                activeScene._lastP2PointerX = pointer.x;
+                activeScene._lastP2PointerY = pointer.y;
+            }
+            if (pointer.x !== activeScene._lastP2PointerX || pointer.y !== activeScene._lastP2PointerY) {
+                const cam = (window.coopActive && window.camera2) ? window.camera2 : activeScene.cameras.main;
+                const wp = cam.getWorldPoint(pointer.x, pointer.y);
+                window.p2HomePreviewX = wp.x;
+                window.p2HomePreviewY = wp.y;
+                activeScene._lastP2PointerX = pointer.x;
+                activeScene._lastP2PointerY = pointer.y;
+            }
+
+            if (window.p2HomePreviewSprite) {
+                window.p2HomePreviewSprite.setPosition(window.p2HomePreviewX, window.p2HomePreviewY);
+            }
+
+            // Check for cancel keys
+            const escKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+            const cKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+            if (Phaser.Input.Keyboard.JustDown(escKey) || Phaser.Input.Keyboard.JustDown(cKey)) {
+                window.cancelHomePlacement(2);
+            }
         }
     }
 
