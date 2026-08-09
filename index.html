@@ -5440,127 +5440,501 @@ window.generatePlantTextures = function(scene) {
     const plants = {
         'plant_cyber_fern': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
-            ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(45, 50, 50, 15); ctx.stroke();
-            ctx.strokeStyle = '#00bfff'; ctx.lineWidth = 2;
-            for (let y = 30; y < 90; y += 12) {
-                ctx.beginPath(); ctx.moveTo(50, y); ctx.quadraticCurveTo(15, y - 10, 20 + y*0.2, y - 5); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(50, y); ctx.quadraticCurveTo(85, y - 10, 80 - y*0.2, y - 5); ctx.stroke();
+            // Main organic main stem
+            ctx.strokeStyle = '#00ffd2'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(46, 55, 52, 15); ctx.stroke();
+            // Highly detailed feather-like fern side fronds with neon glow
+            ctx.strokeStyle = '#00b3ff'; ctx.lineWidth = 1.5;
+            for (let y = 30; y < 90; y += 8) {
+                // Left leaflet
+                ctx.beginPath(); ctx.moveTo(50, y); ctx.quadraticCurveTo(20, y - 12, 18 + y*0.15, y - 6); ctx.stroke();
+                // Right leaflet
+                ctx.beginPath(); ctx.moveTo(50, y); ctx.quadraticCurveTo(80, y - 12, 82 - y*0.15, y - 6); ctx.stroke();
             }
+            // Add tiny detailed bio-luminescent glow nodules
             ctx.fillStyle = '#ffffff';
-            for (let y = 30; y < 90; y += 12) {
-                ctx.beginPath(); ctx.arc(20 + y*0.2, y - 5, 2.5, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(80 - y*0.2, y - 5, 2.5, 0, Math.PI*2); ctx.fill();
+            for (let y = 30; y < 90; y += 8) {
+                ctx.beginPath(); ctx.arc(18 + y*0.15, y - 6, 1.8, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(82 - y*0.15, y - 6, 1.8, 0, Math.PI*2); ctx.fill();
             }
         },
         'plant_crystal_rose': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
-            ctx.strokeStyle = '#2d1a24'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 45); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(50, 75); ctx.lineTo(35, 60); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(50, 65); ctx.lineTo(65, 50); ctx.stroke();
-            ctx.fillStyle = '#1c241c';
-            [[35,60], [65,50], [45,80]].forEach(pt => {
-                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 10, 6, Math.PI/4, 0, Math.PI*2); ctx.fill();
+            // Elegant woody stem with thorns
+            ctx.strokeStyle = '#203a27'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(55, 65, 50, 35); ctx.stroke();
+            // Side branches
+            ctx.beginPath(); ctx.moveTo(52, 70); ctx.quadraticCurveTo(35, 55, 32, 50); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 55); ctx.quadraticCurveTo(68, 48, 70, 42); ctx.stroke();
+            // Draw detailed tiny thorns
+            ctx.strokeStyle = '#385e3d'; ctx.lineWidth = 1;
+            [[49, 80, -3], [53, 65, 3], [44, 58, -3], [59, 52, 3]].forEach(t => {
+                ctx.beginPath(); ctx.moveTo(t[0], t[1]); ctx.lineTo(t[0] + t[2], t[1] - 2); ctx.stroke();
             });
-            ctx.fillStyle = '#ff1493'; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
-            const roses = [[50,35], [30,50], [70,40]];
+            // Draw beautiful green leaves
+            ctx.fillStyle = '#1b5230'; ctx.strokeStyle = '#203a27'; ctx.lineWidth = 0.5;
+            [[34, 52], [66, 44], [43, 75], [57, 62]].forEach(pt => {
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 8, 4, Math.PI/4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            });
+            // Detailed delicate roses - made smaller & multi-layered
+            const roses = [[50,35], [32,50], [70,42]];
             roses.forEach(pt => {
-                ctx.fillStyle = '#e6005c';
-                ctx.beginPath(); ctx.arc(pt[0], pt[1], 12, 0, Math.PI*2); ctx.fill();
+                // Rose shadow base
+                ctx.fillStyle = '#9e003a';
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 8, 0, Math.PI*2); ctx.fill();
+                // Outer petals
+                ctx.fillStyle = '#ff1493';
+                for (let i = 0; i < 5; i++) {
+                    let angle = (i * 2 * Math.PI) / 5;
+                    ctx.beginPath();
+                    ctx.arc(pt[0] + Math.cos(angle)*4, pt[1] + Math.sin(angle)*4, 4.5, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                // Inner delicate wrap-around petals
                 ctx.fillStyle = '#ff66a3';
                 ctx.beginPath();
-                ctx.moveTo(pt[0], pt[1] - 10);
-                ctx.lineTo(pt[0] + 8, pt[1] - 4);
-                ctx.lineTo(pt[0] + 5, pt[1] + 6);
-                ctx.lineTo(pt[0] - 5, pt[1] + 6);
-                ctx.lineTo(pt[0] - 8, pt[1] - 4);
-                ctx.closePath(); ctx.fill(); ctx.stroke();
+                ctx.arc(pt[0], pt[1], 3.5, 0, Math.PI*2);
+                ctx.fill();
                 ctx.fillStyle = '#ffffff';
-                ctx.beginPath(); ctx.arc(pt[0], pt[1], 3, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 1, 0, Math.PI*2); ctx.fill();
             });
         },
         'plant_bio_orchid': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
-            ctx.strokeStyle = '#4a2574'; ctx.lineWidth = 2.5;
-            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(30, 60, 45, 30); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(70, 55, 65, 40); ctx.stroke();
-            ctx.fillStyle = '#bf55ec';
-            const flowers = [[45,30], [65,40], [38,55]];
+            // Rich violet stem system
+            ctx.strokeStyle = '#3b1c5c'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 60, 45, 30); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(65, 55, 62, 40); ctx.stroke();
+            // Broad base leaves
+            ctx.fillStyle = '#223c2a'; ctx.strokeStyle = '#122619'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.ellipse(35, 88, 16, 7, -Math.PI/12, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.ellipse(65, 90, 15, 6, Math.PI/12, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            // Detailed delicate orchid blossoms, smaller and more complex
+            const flowers = [[45,30], [62,40], [38,55], [58,58]];
             flowers.forEach(pt => {
                 ctx.fillStyle = '#bf55ec';
-                for (let i = 0; i < 5; i++) {
-                    let angle = (i * 2 * Math.PI) / 5;
+                // 3 Outer delicate sepals
+                for (let i = 0; i < 3; i++) {
+                    let angle = (i * 2 * Math.PI) / 3 - Math.PI/2;
                     ctx.beginPath();
-                    ctx.ellipse(pt[0] + Math.cos(angle)*8, pt[1] + Math.sin(angle)*8, 9, 5, angle, 0, Math.PI*2);
+                    ctx.ellipse(pt[0] + Math.cos(angle)*5, pt[1] + Math.sin(angle)*5, 6, 3, angle, 0, Math.PI*2);
                     ctx.fill();
                 }
+                // 2 Large side petals
+                ctx.fillStyle = '#df73ff';
+                ctx.beginPath(); ctx.ellipse(pt[0] - 4, pt[1], 5, 3.5, Math.PI/6, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(pt[0] + 4, pt[1], 5, 3.5, -Math.PI/6, 0, Math.PI*2); ctx.fill();
+                // Golden-cyan center stamen column
                 ctx.fillStyle = '#ff00ff';
-                ctx.beginPath(); ctx.arc(pt[0], pt[1], 5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(pt[0], pt[1] + 2, 2.5, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#00ffff';
-                ctx.beginPath(); ctx.arc(pt[0], pt[1], 2, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 1.2, 0, Math.PI*2); ctx.fill();
             });
         },
         'plant_solar_lotus': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
-            ctx.fillStyle = '#0e241e'; ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.ellipse(50, 75, 35, 12, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(15, 75); ctx.lineTo(85, 75); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(50, 63); ctx.lineTo(50, 87); ctx.stroke();
-            const cx = 50, cy = 55;
-            ctx.fillStyle = '#ffb703';
-            for (let i = 0; i < 6; i++) {
-                let angle = (i * 2 * Math.PI) / 6;
+            // [GRID REMOVED] Draws beautiful green leafy stalks rising up instead
+            // Render lush leafy stalks base
+            ctx.strokeStyle = '#1a4030'; ctx.lineWidth = 3;
+            // Central main stalk
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(45, 60, 50, 35); ctx.stroke();
+            // Left side stalk
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(30, 65, 32, 48); ctx.stroke();
+            // Right side stalk
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(70, 70, 68, 52); ctx.stroke();
+
+            // Broad leafy pads supporting the stems
+            ctx.fillStyle = '#0f3a28'; ctx.strokeStyle = '#20ff9a'; ctx.lineWidth = 1;
+            [[28, 80, 14], [72, 82, 12], [50, 88, 16]].forEach(leaf => {
                 ctx.beginPath();
-                ctx.ellipse(cx + Math.cos(angle)*10, cy + Math.sin(angle)*6, 12, 6, angle, 0, Math.PI*2);
-                ctx.fill();
-            }
-            ctx.fillStyle = '#ffea00';
-            for (let i = 0; i < 6; i++) {
-                let angle = (i * 2 * Math.PI) / 6 + Math.PI/6;
-                ctx.beginPath();
-                ctx.ellipse(cx + Math.cos(angle)*7, cy + Math.sin(angle)*4, 9, 4, angle, 0, Math.PI*2);
-                ctx.fill();
-            }
-            ctx.fillStyle = '#ff6b00';
-            ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI*2); ctx.fill();
+                ctx.arc(leaf[0], leaf[1], leaf[2], 0, Math.PI * 2);
+                ctx.fill(); ctx.stroke();
+                // Leaf veins
+                ctx.strokeStyle = 'rgba(32, 255, 154, 0.4)'; ctx.lineWidth = 0.5;
+                for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+                    ctx.beginPath(); ctx.moveTo(leaf[0], leaf[1]);
+                    ctx.lineTo(leaf[0] + Math.cos(a)*leaf[2], leaf[1] + Math.sin(a)*leaf[2]);
+                    ctx.stroke();
+                }
+            });
+
+            // Delicate smaller yellow/gold lotus blossoms on the tips
+            const nodes = [[50, 35], [32, 48], [68, 52]];
+            nodes.forEach(node => {
+                const cx = node[0], cy = node[1];
+                // Outer golden-yellow petals
+                ctx.fillStyle = '#ffb703';
+                for (let i = 0; i < 8; i++) {
+                    let angle = (i * 2 * Math.PI) / 8;
+                    ctx.beginPath();
+                    ctx.ellipse(cx + Math.cos(angle)*6, cy + Math.sin(angle)*4, 7, 3, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                // Inner bright yellow crown
+                ctx.fillStyle = '#ffea00';
+                for (let i = 0; i < 6; i++) {
+                    let angle = (i * 2 * Math.PI) / 6 + Math.PI/6;
+                    ctx.beginPath();
+                    ctx.ellipse(cx + Math.cos(angle)*4, cy + Math.sin(angle)*2.5, 5, 2, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                // Fiery orange pistil
+                ctx.fillStyle = '#ff5100';
+                ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI*2); ctx.fill();
+            });
         },
         'plant_cosmic_shroom': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
-            ctx.fillStyle = '#eae2f8';
-            ctx.fillRect(45, 55, 10, 40);
-            ctx.fillRect(28, 65, 8, 30);
-            let grad1 = ctx.createRadialGradient(50, 45, 2, 50, 55, 25);
-            grad1.addColorStop(0, '#ff00ff'); grad1.addColorStop(1, '#8a2be2');
+            // Detailed organic pale stems
+            ctx.fillStyle = '#e5deff'; ctx.strokeStyle = '#4a154b'; ctx.lineWidth = 1;
+            // Stems
+            ctx.beginPath(); ctx.moveTo(46, 95); ctx.lineTo(46, 55); ctx.quadraticCurveTo(46, 45, 50, 42); ctx.lineTo(54, 42); ctx.lineTo(54, 95); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(28, 95); ctx.lineTo(28, 65); ctx.quadraticCurveTo(28, 58, 32, 56); ctx.lineTo(36, 56); ctx.lineTo(36, 95); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+            // Cap 1 (Main) with rich neon purple gradient and fine gills
+            let grad1 = ctx.createRadialGradient(50, 42, 2, 50, 52, 22);
+            grad1.addColorStop(0, '#f43f5e'); grad1.addColorStop(0.5, '#a855f7'); grad1.addColorStop(1, '#3b0764');
             ctx.fillStyle = grad1;
-            ctx.beginPath(); ctx.ellipse(50, 50, 22, 14, 0, 0, Math.PI, true); ctx.fill();
-            let grad2 = ctx.createRadialGradient(32, 60, 1, 32, 65, 15);
-            grad2.addColorStop(0, '#00ffff'); grad2.addColorStop(1, '#4b0082');
+            ctx.beginPath(); ctx.ellipse(50, 44, 20, 13, 0, 0, Math.PI, true); ctx.fill();
+            // Gills lines under Cap 1
+            ctx.strokeStyle = '#ec4899'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(30, 44); ctx.lineTo(70, 44); ctx.stroke();
+            for (let gx = 34; gx <= 66; gx += 4) {
+                ctx.beginPath(); ctx.moveTo(gx, 44); ctx.lineTo(50 + (gx - 50)*0.2, 40); ctx.stroke();
+            }
+
+            // Cap 2 (Small)
+            let grad2 = ctx.createRadialGradient(32, 56, 1, 32, 62, 14);
+            grad2.addColorStop(0, '#06b6d4'); grad2.addColorStop(0.6, '#3b82f6'); grad2.addColorStop(1, '#1e1b4b');
             ctx.fillStyle = grad2;
-            ctx.beginPath(); ctx.ellipse(32, 62, 16, 10, 0, 0, Math.PI, true); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(32, 58, 14, 9, 0, 0, Math.PI, true); ctx.fill();
+            // Gills lines under Cap 2
+            ctx.strokeStyle = '#22d3ee';
+            ctx.beginPath(); ctx.moveTo(18, 58); ctx.lineTo(46, 58); ctx.stroke();
+
+            // Delicate white glowing cap spots
             ctx.fillStyle = '#ffffff';
-            [[42, 45], [58, 48], [50, 42], [28, 59], [36, 61]].forEach(pt => {
-                ctx.beginPath(); ctx.arc(pt[0], pt[1], 1.8, 0, Math.PI*2); ctx.fill();
+            [[42, 38], [58, 41], [50, 36], [26, 54], [36, 55], [31, 52]].forEach(pt => {
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 1.5, 0, Math.PI*2); ctx.fill();
             });
-            ctx.fillStyle = '#ffd700';
-            [[50, 20], [32, 30], [68, 28], [45, 12]].forEach(pt => {
-                ctx.fillRect(pt[0], pt[1], 2, 2);
+
+            // Floating cosmic spore particles
+            ctx.fillStyle = '#fef08a';
+            [[50, 20], [32, 30], [68, 28], [42, 15], [56, 10], [25, 45]].forEach(pt => {
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 1.5, 0, Math.PI*2); ctx.fill();
             });
         },
         'plant_velvet_moss': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
-            let grad = ctx.createRadialGradient(50, 75, 5, 50, 75, 40);
-            grad.addColorStop(0, '#023015'); grad.addColorStop(0.7, '#0b522c'); grad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = grad;
-            ctx.beginPath(); ctx.ellipse(50, 75, 38, 20, 0, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ffd700';
-            const flowers = [[35, 70], [50, 65], [68, 72], [45, 80], [58, 76]];
+            // [PLAIN OVAL REMOVED] Redesigned as a highly detailed lush bush with organic foliage layers
+            // Base/back shadow layer
+            ctx.fillStyle = '#061c0d';
+            ctx.beginPath(); ctx.arc(50, 75, 34, 0, Math.PI*2); ctx.fill();
+
+            // Layer 1: Dark green deep clumps
+            ctx.fillStyle = '#0f3d1f';
+            [[32, 75, 18], [68, 75, 18], [50, 65, 20], [50, 82, 16], [38, 64, 15], [62, 64, 15]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+
+            // Layer 2: Medium green leafy clumps to build texture and break simple oval
+            ctx.fillStyle = '#165c2f';
+            [[36, 74, 15], [64, 74, 15], [50, 68, 17], [50, 80, 13], [42, 63, 12], [58, 63, 12]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+
+            // Layer 3: Vibrant light green highlight clumps
+            ctx.fillStyle = '#22c55e';
+            [[42, 70, 10], [58, 70, 10], [50, 64, 12], [48, 78, 9], [34, 76, 8], [66, 76, 8]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+
+            // Detailed small multi-petal gold/yellow flowers nested inside clumps
+            const flowers = [[35, 70], [50, 62], [65, 72], [44, 78], [56, 76], [24, 74], [76, 74]];
             flowers.forEach(pt => {
-                ctx.fillRect(pt[0] - 3, pt[1], 7, 1);
-                ctx.fillRect(pt[0], pt[1] - 3, 1, 7);
-                ctx.fillStyle = '#ff6b00';
-                ctx.fillRect(pt[0], pt[1], 1, 1);
-                ctx.fillStyle = '#ffd700';
+                const fx = pt[0], fy = pt[1];
+                ctx.fillStyle = '#eab308'; // Golden orange petals
+                for (let i = 0; i < 5; i++) {
+                    let angle = (i * 2 * Math.PI) / 5;
+                    ctx.beginPath();
+                    ctx.ellipse(fx + Math.cos(angle)*3, fy + Math.sin(angle)*3, 3.5, 1.8, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                ctx.fillStyle = '#facc15'; // Yellow core highlights
+                ctx.beginPath(); ctx.arc(fx, fy, 1.8, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#b45309'; // Reddish-brown center dot
+                ctx.beginPath(); ctx.arc(fx, fy, 0.8, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_plasma_lily': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Green stems
+            ctx.strokeStyle = '#164e63'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 60, 42, 35); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(65, 70, 60, 45); ctx.stroke();
+            // Slender green leaves
+            ctx.fillStyle = '#155e75'; ctx.strokeStyle = '#0891b2'; ctx.lineWidth = 0.5;
+            [[33, 70], [64, 76], [41, 80], [58, 85]].forEach(pt => {
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 10, 4, Math.PI/3, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            });
+            // Cyan/Blue Lilies
+            const nodes = [[42, 35], [60, 45]];
+            nodes.forEach(pt => {
+                const lx = pt[0], ly = pt[1];
+                // Outer cyan petals
+                ctx.fillStyle = '#06b6d4';
+                for (let i = 0; i < 6; i++) {
+                    let angle = (i * 2 * Math.PI) / 6;
+                    ctx.beginPath();
+                    ctx.ellipse(lx + Math.cos(angle)*5, ly + Math.sin(angle)*5, 7, 2.5, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                // Inner bright neon blue star shape
+                ctx.fillStyle = '#3b82f6';
+                for (let i = 0; i < 3; i++) {
+                    let angle = (i * 2 * Math.PI) / 3;
+                    ctx.beginPath();
+                    ctx.ellipse(lx + Math.cos(angle)*3, ly + Math.sin(angle)*3, 5, 1.8, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                // Glowing golden center stamens
+                ctx.fillStyle = '#eab308';
+                ctx.beginPath(); ctx.arc(lx, ly, 1.8, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_neon_dahlia': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Thick dark green stalk
+            ctx.strokeStyle = '#14532d'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 40); ctx.stroke();
+            // Pointed jagged dahlia leaves
+            ctx.fillStyle = '#166534'; ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 1;
+            [[38, 70, -Math.PI/6], [62, 60, Math.PI/6], [36, 52, -Math.PI/4]].forEach(leaf => {
+                ctx.beginPath();
+                ctx.ellipse(leaf[0], leaf[1], 12, 6, leaf[2], 0, Math.PI*2);
+                ctx.fill(); ctx.stroke();
+            });
+            // Overlapping neon pink/violet Dahlia blossom (small, delicate, and dense)
+            const cx = 50, cy = 40;
+            // Layer 1 (Back outer petals)
+            ctx.fillStyle = '#701a75';
+            for (let i = 0; i < 12; i++) {
+                let angle = (i * 2 * Math.PI) / 12;
+                ctx.beginPath();
+                ctx.ellipse(cx + Math.cos(angle)*7, cy + Math.sin(angle)*7, 5, 2.5, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // Layer 2 (Middle)
+            ctx.fillStyle = '#d946ef';
+            for (let i = 0; i < 8; i++) {
+                let angle = (i * 2 * Math.PI) / 8 + Math.PI/8;
+                ctx.beginPath();
+                ctx.ellipse(cx + Math.cos(angle)*4.5, cy + Math.sin(angle)*4.5, 4, 2, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // Layer 3 (Inner core)
+            ctx.fillStyle = '#fdf4ff';
+            ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI*2); ctx.fill();
+        },
+        'plant_glow_tulip': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Long thin stems
+            ctx.strokeStyle = '#065f46'; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.moveTo(42, 95); ctx.quadraticCurveTo(35, 65, 40, 42); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(58, 95); ctx.quadraticCurveTo(65, 60, 60, 48); ctx.stroke();
+            // Tall sword-like wrapping green leaves
+            ctx.fillStyle = '#0f766e';
+            ctx.beginPath();
+            ctx.moveTo(42, 95); ctx.quadraticCurveTo(28, 60, 34, 45); ctx.quadraticCurveTo(40, 65, 42, 95);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(58, 95); ctx.quadraticCurveTo(72, 55, 66, 40); ctx.quadraticCurveTo(60, 62, 58, 95);
+            ctx.fill();
+            // Cup-shaped orange/yellow glowing tulips
+            const flowers = [[40, 42], [60, 48]];
+            flowers.forEach(f => {
+                const tx = f[0], ty = f[1];
+                // Base bulb
+                ctx.fillStyle = '#ea580c';
+                ctx.beginPath(); ctx.arc(tx, ty + 2, 5, 0, Math.PI); ctx.fill();
+                // 3 Pointed petals
+                ctx.fillStyle = '#facc15';
+                ctx.beginPath();
+                ctx.moveTo(tx - 5, ty + 2); ctx.lineTo(tx - 4, ty - 6); ctx.lineTo(tx - 1.5, ty + 1);
+                ctx.lineTo(tx + 1, ty - 7); ctx.lineTo(tx + 1.5, ty + 1);
+                ctx.lineTo(tx + 4, ty - 6); ctx.lineTo(tx + 5, ty + 2);
+                ctx.closePath(); ctx.fill();
+            });
+        },
+        'plant_cyber_brier': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Redesigned bushy cluster of tangled branches
+            ctx.strokeStyle = '#312e81'; ctx.lineWidth = 2.5;
+            // Interlocking branches
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(35, 60); ctx.lineTo(45, 35); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(65, 65); ctx.lineTo(55, 40); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(35, 60); ctx.lineTo(60, 45); ctx.stroke();
+
+            // Tiny leaf clumps to look like a bush
+            ctx.fillStyle = '#3730a3';
+            [[35, 60, 10], [65, 65, 10], [45, 35, 8], [55, 40, 8], [60, 45, 9]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+            ctx.fillStyle = '#4338ca';
+            [[35, 60, 7], [65, 65, 7], [45, 35, 5], [55, 40, 5], [60, 45, 6]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+
+            // Bright crimson mini blossoms with golden stamen centers
+            const blossoms = [[35, 60], [65, 65], [45, 35], [55, 40], [60, 45]];
+            blossoms.forEach(b => {
+                const bx = b[0], by = b[1];
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath(); ctx.arc(bx, by, 3.5, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath(); ctx.arc(bx, by, 1, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_holo_iris': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Thick dark blue stem
+            ctx.strokeStyle = '#1e1b4b'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 35); ctx.stroke();
+            // Sword-like ribbed green leaves radiating from base
+            ctx.fillStyle = '#064e3b';
+            [[42, 95, -Math.PI/8], [58, 95, Math.PI/8], [46, 95, -Math.PI/16], [54, 95, Math.PI/16]].forEach(leaf => {
+                ctx.beginPath();
+                ctx.ellipse(leaf[0], 75, 20, 4, leaf[2], 0, Math.PI*2);
+                ctx.fill();
+            });
+            // Elegant purple & gold fan-shaped iris blossoms
+            const ix = 50, iy = 35;
+            // 3 Drooping outer petals
+            ctx.fillStyle = '#6d28d9';
+            for (let i = 0; i < 3; i++) {
+                let angle = (i * 2 * Math.PI) / 3 + Math.PI/6;
+                ctx.beginPath();
+                ctx.ellipse(ix + Math.cos(angle)*5, iy + Math.sin(angle)*5, 6, 2.8, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // Golden bright center spots
+            ctx.fillStyle = '#fbbf24';
+            for (let i = 0; i < 3; i++) {
+                let angle = (i * 2 * Math.PI) / 3 + Math.PI/6;
+                ctx.beginPath();
+                ctx.ellipse(ix + Math.cos(angle)*3, iy + Math.sin(angle)*3, 2.5, 1.2, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // 3 Upright inner petals
+            ctx.fillStyle = '#a78bfa';
+            ctx.beginPath(); ctx.ellipse(ix - 3, iy - 4, 4, 2, -Math.PI/3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(ix + 3, iy - 4, 4, 2, Math.PI/3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(ix, iy - 6, 4, 2, 0, 0, Math.PI*2); ctx.fill();
+        },
+        'plant_frost_shrub': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Highly detailed frosty/crystalline blue-silver bush
+            ctx.fillStyle = '#1e3a8a'; // Deep blue shadow clumps
+            [[34, 76, 16], [66, 76, 16], [50, 68, 18], [42, 65, 14], [58, 65, 14]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+            ctx.fillStyle = '#3b82f6'; // Bright blue mid layers
+            [[36, 74, 12], [64, 74, 12], [50, 70, 14], [44, 64, 10], [56, 64, 10]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+            ctx.fillStyle = '#93c5fd'; // Ice light blue highlight clumps
+            [[40, 72, 8], [60, 72, 8], [50, 66, 10], [46, 62, 7], [54, 62, 7], [26, 74, 7], [74, 74, 7]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+            // Crystalline white star flowers with glowing centers
+            const stars = [[34, 72], [50, 64], [66, 72], [44, 76], [56, 76]];
+            stars.forEach(st => {
+                const sx = st[0], sy = st[1];
+                ctx.fillStyle = '#f8fafc';
+                // 4-point star blossoms
+                ctx.fillRect(sx - 3, sy, 7, 1);
+                ctx.fillRect(sx, sy - 3, 1, 7);
+                ctx.fillStyle = '#67e8f9';
+                ctx.beginPath(); ctx.arc(sx, sy, 1, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_amber_shrub': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Autumn detailed gold/amber bush
+            ctx.fillStyle = '#78350f'; // Dark bronze shadow base
+            [[32, 76, 16], [68, 76, 16], [50, 68, 18], [40, 64, 14], [60, 64, 14]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+            ctx.fillStyle = '#d97706'; // Amber mid foliage
+            [[36, 74, 12], [64, 74, 12], [50, 70, 14], [42, 63, 10], [58, 63, 10]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+            ctx.fillStyle = '#f59e0b'; // Golden yellow outer leaves
+            [[40, 72, 8], [60, 72, 8], [50, 66, 10], [46, 61, 7], [54, 61, 7], [25, 74, 7], [75, 74, 7]].forEach(c => {
+                ctx.beginPath(); ctx.arc(c[0], c[1], c[2], 0, Math.PI*2); ctx.fill();
+            });
+            // Tiny clusters of bright coral red berries
+            const berries = [[32, 72], [35, 74], [48, 64], [52, 63], [65, 72], [68, 70], [44, 74], [56, 75]];
+            berries.forEach(pt => {
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 1.8, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_tox_foliage': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Thick curving violet main stem
+            ctx.strokeStyle = '#4c1d95'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 55, 45, 20); ctx.stroke();
+            // Pointed segmented leaves with glowing green centers
+            ctx.strokeStyle = '#581c87'; ctx.lineWidth = 1;
+            for (let y = 35; y < 90; y += 10) {
+                // Left segmented leaf
+                ctx.fillStyle = '#1e1b4b';
+                ctx.beginPath(); ctx.ellipse(32, y - 5, 11, 4, -Math.PI/6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#22c55e'; // neon green center vein
+                ctx.beginPath(); ctx.ellipse(32, y - 5, 7, 1.2, -Math.PI/6, 0, Math.PI*2); ctx.fill();
+
+                // Right segmented leaf
+                ctx.fillStyle = '#1e1b4b';
+                ctx.beginPath(); ctx.ellipse(68, y - 5, 11, 4, Math.PI/6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#22c55e';
+                ctx.beginPath(); ctx.ellipse(68, y - 5, 7, 1.2, Math.PI/6, 0, Math.PI*2); ctx.fill();
+            }
+            // Glowing neon spore nodules
+            ctx.fillStyle = '#a855f7';
+            [[40, 25], [38, 45], [62, 50], [41, 65], [59, 70]].forEach(node => {
+                ctx.beginPath(); ctx.arc(node[0], node[1], 2, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_sunfire_blossom': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Slender curved dark green stems
+            ctx.strokeStyle = '#064e3b'; ctx.lineWidth = 1.8;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(40, 60, 44, 30); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(62, 65, 58, 42); ctx.stroke();
+            // Fern-like pinnate dark leaves
+            ctx.strokeStyle = '#022c22'; ctx.lineWidth = 1;
+            for (let ly = 45; ly < 90; ly += 12) {
+                ctx.beginPath(); ctx.moveTo(42, ly); ctx.lineTo(30, ly - 6); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(58, ly); ctx.lineTo(70, ly - 6); ctx.stroke();
+            }
+            // Fiery blossoms on tips
+            const flowers = [[44, 30], [58, 42]];
+            flowers.forEach(fl => {
+                const fx = fl[0], fy = fl[1];
+                // Outer fire-red petals
+                ctx.fillStyle = '#dc2626';
+                for (let i = 0; i < 5; i++) {
+                    let angle = (i * 2 * Math.PI) / 5;
+                    ctx.beginPath();
+                    ctx.ellipse(fx + Math.cos(angle)*4, fy + Math.sin(angle)*4, 5, 2, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                // Inner glowing orange core
+                ctx.fillStyle = '#f97316';
+                ctx.beginPath(); ctx.arc(fx, fy, 2.5, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#facc15';
+                ctx.beginPath(); ctx.arc(fx, fy, 1, 0, Math.PI*2); ctx.fill();
             });
         }
     };
@@ -5949,8 +6323,8 @@ function escapeHtml(unsafe) {
 <div id="helpModal" style="display:none; position:absolute; z-index:400; color:white; overflow-y:auto; font-size:16px; max-height: 85vh; padding: 25px; box-sizing: border-box; background: rgba(5, 10, 20, 0.95); border: 2px solid #00ffcc; border-radius: 12px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);">
     <button class="close-btn close-help-btn" aria-label="Close Help">X</button>
     <div style="text-align: center; border-bottom: 2px solid #00ffcc; padding-bottom: 12px; margin-bottom: 15px;">
-        <h2 class="neon-title" style="margin: 0; font-size: 20px; color: #00ffcc; text-transform: uppercase; letter-spacing: 2px;">*** [ DECRYPTED ARCHIVE: CYBERNETIC FIELD GUIDE ] ***</h2>
-        <p style="margin: 8px 0 0 0; font-size: 13px; color: #00ffd2; line-height: 1.4;"><em>"Field Operative, this terminal hosts Dr. Aris Vance's encrypted bio-digital archive. Access these database logs to optimize your neural connection with specimens, master traversal mechanics, and survive the Wildlands of the Grid."</em></p>
+        <h2 class="neon-title" style="margin: 0; font-size: 20px; color: #00ffcc; text-transform: uppercase; letter-spacing: 2px;">*** [ CYBERNETIC FIELD GUIDE & ARCHIVE ] ***</h2>
+        <p style="margin: 8px 0 0 0; font-size: 13px; color: #00ffd2; line-height: 1.4;"><em>"Welcome, Operative. This terminal contains essential logs from Dr. Aris Vance. Refer to these entries to manage your active creatures, navigate the grid coordinates safely, and survive the challenges of the Wildlands."</em></p>
     </div>
     <div class="coop-columns" style="display: flex; gap: 20px;">
         <button class="close-btn close-help-btn" aria-label="Close Help" style="display:none;">X</button>
@@ -5958,36 +6332,36 @@ function escapeHtml(unsafe) {
         <div class="coop-column" style="flex: 1; text-align: left; max-height: 55vh; overflow-y: auto; padding-right: 5px;">
             <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                 <h3 style="margin-top: 0; font-size: 15px; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(0, 255, 204, 0.3); padding-bottom: 5px;">🎮 MODULE_01: CONTROL INTERFACE</h3>
-                <p>• <strong>Traverse Grid:</strong> Use <span style="color:#00ff96;">W, A, S, D</span> or <span style="color:#00ff96;">Arrow Keys</span> on PC, <span style="color:#00ff96;">Left Stick / D-Pad</span> on Gamepad, or drag to navigate touch-screen systems.</p>
-                <p>• <strong>Action Wheel:</strong> Toggle circular systems with <span style="color:#00ff96;">Q</span> on PC, hold <span style="color:#00ff96;">Right Bumper</span> on Controller, or double-touch the viewport on Mobile. Use D-Pad (no Left Stick) to select, and <span style="color:#00ff96;">A</span> to confirm.</p>
-                <p>• <strong>Inventory Wheel:</strong> Access slots by pressing <span style="color:#00ff96;">I</span> on PC, or holding <span style="color:#00ff96;">Left Bumper</span> on Gamepad. Static slots are completely hidden during inactive phases.</p>
-                <p>• <strong>Interface Cursor:</strong> Within holographic menus, guide separate virtual cursors using the Gamepad <span style="color:#00ff96;">Right Stick</span>. Confirm with <span style="color:#00ff96;">A</span> and exit with <span style="color:#00ff96;">B</span>.</p>
+                <p>• <strong>Movement:</strong> Walk using <span style="color:#00ff96;">W, A, S, D</span> or <span style="color:#00ff96;">Arrow Keys</span> on PC, the <span style="color:#00ff96;">Left Stick / D-Pad</span> on Gamepads, or by touching and dragging on mobile viewports.</p>
+                <p>• <strong>Action Wheel:</strong> Tap <span style="color:#00ff96;">Q</span> on PC, hold <span style="color:#00ff96;">Right Bumper</span> on your Gamepad, or double-tap the screen on Mobile. Navigate choices using the D-Pad and press <span style="color:#00ff96;">A</span> to confirm.</p>
+                <p>• <strong>Inventory Wheel:</strong> Hold <span style="color:#00ff96;">I</span> on PC or the <span style="color:#00ff96;">Left Bumper</span> on Gamepads to access item slots quickly. Releasing the key or button closes the wheel.</p>
+                <p>• <strong>Virtual Cursor:</strong> Use the Gamepad <span style="color:#00ff96;">Right Stick</span> to move separate virtual cursors in menu screens. Select items with <span style="color:#00ff96;">A</span> and close menus with <span style="color:#00ff96;">B</span>.</p>
             </div>
 
             <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                 <h3 style="margin-top: 0; font-size: 15px; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(0, 255, 204, 0.3); padding-bottom: 5px;">🧬 MODULE_02: COMPANION BIOMES & STATS</h3>
-                <p>• <strong>Anatomy Stats:</strong> Combatants possess six modular core statistics: HP (Vitality), Atk (Damage), Def (Mitigation), Spe (Velocity), SpA (Special Damage), and SpD (Special Defense).</p>
-                <p>• <strong>Bonding Experience:</strong> Creatures active in your main party acquire +1 Friend XP and +1 Happiness passively every 30 seconds. Leveling up adds +2 bonus points to random attributes (boosts all stats on multiples of 10). Stored specimens slowly lose -1 XP and -1 Happiness every 180 seconds.</p>
-                <p>• <strong>Happiness Sync:</strong> Happiness ranges from 0 to 100. PET your creatures (+10 Happiness) or use Creature Cookies (+10 Happiness, 5-min cooldown) to restore levels. Fainting in battle reduces Happiness by -15.</p>
+                <p>• <strong>Creature Stats:</strong> Every companion has six core attributes: HP (Health), Atk (Physical Strike), Def (Physical Shield), Spe (Speed), SpA (Special Strike), and SpD (Special Shield).</p>
+                <p>• <strong>Bonding & Growth:</strong> Keep companions in your active party to gain <span style="color:#00ff96;">+1 Friend XP</span> and <span style="color:#00ff96;">+1 Happiness</span> every 30 seconds. Leveling up grants +2 bonus points across random stats. On multiples of Level 10, all stats get a boost. Stored companions slowly lose -1 XP and -1 Happiness every 180 seconds.</p>
+                <p>• <strong>Managing Happiness:</strong> Values range from 0 to 100. Choose **Pet** on your active wheel or feed them **Creature Cookies** (+10 Happiness, 5-minute cooldown) to lift spirits. Fainting in battle decreases happiness by -15.</p>
             </div>
         </div>
         <!-- Column 2 -->
         <div class="coop-column" style="flex: 1; text-align: left; max-height: 55vh; overflow-y: auto; padding-right: 5px;">
             <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                 <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">🔬 MODULE_03: DNA SYNTHESIS & HATCHING</h3>
-                <p>• <strong>Breeding Program:</strong> Unlocked at <span style="color:#ff007f; font-weight:bold;">Player Level 7</span>. Trait hybridization requires selecting one Male and one Female parent. Egg parent-checking strictly blocks eggs from breeding.</p>
-                <p>• <strong>Mysterious Eggs:</strong> Unhatched zygotes are rendered with parent-colored linear gradients, spots, and 3D shine, with all stats masked as '???'. Hatch eggs by walking 1000 steps with them in your active party.</p>
-                <p>• <strong>Pedometer 👣:</strong> Retails for 220 gold. Using it activates a 60-second operational buff that doubles your stepping velocity toward hatching eggs.</p>
-                <p>• <strong>Mutations & Traits:</strong> Hybridizing offers opportunities to inherit 18 unique mutations (including Bioluminescent Core, Void Infusion, Double Helix...) and 16 distinct temperaments, detailed in the full-sized card preview.</p>
+                <p>• <strong>Breeding Program:</strong> Unlocks at <span style="color:#ff007f; font-weight:bold;">Player Level 7</span>. Combine traits by selecting one Male and one Female parent at the Breeding Center. Eggs themselves cannot breed.</p>
+                <p>• <strong>Mysterious Eggs:</strong> Eggs inherit dual-color linear gradients from their parents. Their stats, mutations, and temperaments are hidden under '???' until hatched. Keep them in your active party and walk <span style="color:#ff007f; font-weight:bold;">1000 steps</span> to hatch them.</p>
+                <p>• <strong>Pedometer 👣:</strong> Buy this from the shop for 220 gold. Use it to gain a 60-second buff that doubles your step speed toward hatching eggs.</p>
+                <p>• <strong>Mutations & Traits:</strong> Breeding yields chances to pass down any of 18 unique mutations (such as Bioluminescent Core or Double Helix) and 16 temperaments. Check these details on the full-size preview screen.</p>
             </div>
 
             <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                 <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">⛩️ MODULE_04: GRID CONFLICTS & LOGISTICS</h3>
-                <p>• <strong>NPC Trainer Patrols:</strong> 24 elite trainers wander and chase operatives. Defeat them to receive gold rewards. Defeated trainers are marked with neon green nameplates and 🏆 trophies.</p>
-                <p>• <strong>Dojo Challenge:</strong> Buy the Dojo Tile for 920 gold once you defeat all 24 trainers. Placing it unlocks scalable elite Dojo Leader boss fights.</p>
-                <p>• <strong>Sanctuary Base:</strong> Once you reach <span style="color:#ff007f; font-weight:bold;">Player Level 10</span>, place a cozy procedural custom Home. Design floor styles, wall textures, and ambient glow overlay styles inside.</p>
-                <p>• <strong>Storage Chest 🧳:</strong> Unlocks at <span style="color:#ff007f; font-weight:bold;">Player Level 6</span>. Place a persistent chest to deposit or withdraw up to 10 item stacks. Placed chests serialize contents safely in storage.</p>
-                <p>• <strong>Operational Catalog:</strong> Access boosters, Healing Juice, <strong>Creature Licenses</strong> (passive 1.5x catch success, consumed on catch), and <strong>Jank Juice 🧃</strong> (boosts shiny spawn chance for 6 min) from the store.</p>
+                <p>• <strong>Wandering Trainers:</strong> Challenge the 24 elite trainers scattered across the world to win gold. Defeated trainers display green nameplates and a <span style="color:#ffd700;">🏆 trophy</span>.</p>
+                <p>• <strong>Dojo Challenge:</strong> Defeat all 24 trainers to unlock the Dojo Tile in the shop for 920 gold. Placed Dojo Tiles let you fight the Dojo Leader in scalable boss battles.</p>
+                <p>• <strong>Sanctuary Base:</strong> Once you reach <span style="color:#ff007f; font-weight:bold;">Player Level 10</span>, place your Home. Step inside and select '🎨 Design' on your Action Wheel to change walls, floors, and ambient glows.</p>
+                <p>• <strong>Storage Chest 🧳:</strong> Available at <span style="color:#ff007f; font-weight:bold;">Player Level 6</span>. Purchase for 620 gold and place up to 3 chests to store your extra item stacks (maximum 10 per slot).</p>
+                <p>• <strong>Item Catalog:</strong> Visit the store to buy recovery items, **Creature Licenses** (provides a passive 1.5x capture rate, consumed only on successful catch), and **Jank Juice** (increases shiny spawn rates for 6 minutes).</p>
             </div>
 
             <h3 style="color: #00ffcc; margin-top: 15px;">Type Chart & Natures</h3>
@@ -23339,8 +23713,12 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             }
         } else if ((isStartScreenShorePlant || (hash >= 15 && hash < 35)) && window.treesGroup && !isAboveHospital) {
             // Plant life spawning!
-            const plantTypes = ['plant_cyber_fern', 'plant_crystal_rose', 'plant_bio_orchid', 'plant_solar_lotus', 'plant_cosmic_shroom', 'plant_velvet_moss'];
-            const plantType = plantTypes[(r * 13 + c * 7) % plantTypes.length];
+            const plantTypes = [
+                'plant_cyber_fern', 'plant_crystal_rose', 'plant_bio_orchid', 'plant_solar_lotus', 'plant_cosmic_shroom', 'plant_velvet_moss',
+                'plant_plasma_lily', 'plant_neon_dahlia', 'plant_glow_tulip', 'plant_cyber_brier', 'plant_holo_iris', 'plant_frost_shrub',
+                'plant_amber_shrub', 'plant_tox_foliage', 'plant_sunfire_blossom'
+            ];
+            const plantType = plantTypes[(r * 31 + c * 17) % plantTypes.length];
 
             // Subtle shadow sprite
             let shadow = scene.add.sprite(posX, posY + 15, plantType);
