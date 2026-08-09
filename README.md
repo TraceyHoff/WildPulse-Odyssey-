@@ -224,3 +224,125 @@ WildPulse Odyssey Creature Collecting Game
     - **Dynamic Experience Degradation**: Stored creatures slowly lose Friend experience (at a rate of 1 XP per second). If a creature is left in storage too long and its Friend experience drops below 0, its Friend Level degrades (e.g., from Level 2 back down to Level 1), capping at Level 1, 0 XP.
     - **Reversible Stat Scaling**: When a creature's Friend Level increases, two random stats in its `friendBonusStats` increase by +2 (or all stats by +2 on level multiples of 10), matching the standard level-up progression. If their Friend Level degrades, their `friendBonusStats` are symmetrically and reversibly reduced.
     - **UI Representation**: Active party cards and storage box details seamlessly render each creature's current Friend Level and Friend XP next to their standard level statistics.
+
+---
+
+## Technical Guide & Feature Reference (for LLMs & Grok)
+
+Welcome! This section serves as an extremely thorough, exhaustive technical guide and reference catalog for AI models (like Grok, Jules, etc.) and software engineers working with the codebase of **WildPulse Odyssey**.
+
+---
+
+### 1. Game Architecture & Technical Stack
+The game is built with a highly decoupled, modern single-page game engine architecture utilizing:
+- **Game Engine**: `Phaser 3` (`v3.55.2`) manages viewport-based culling, physics groups, tile maps, camera control, gamepad polling, and entities.
+- **Sound & Music System**: `Tone.js` (`v14.8.49`) provides a procedural, real-time audio engine that dynamically shifts musical layers and tempos according to seasonal states, battles, and environmental weather.
+- **XSS & Content Sanitization**: `DOMPurify` (`v3.0.6`) processes all chat text input strings and user-provided strings.
+- **Persistent Storage**: Real-time state persistence relies on custom namespaces in browser `localStorage`.
+- **UI & Graphics**: Clean cyberpunk HTML overlay portals styled with high-performance CSS and hardware-accelerated SVG renders. Cursors are hidden automatically after 6 seconds of keyboard/mouse or gamepad inactivity.
+
+---
+
+### 2. Procedural & Seeded Systems
+- **World & Lake Generation**: Procedurally maps out a 200x200 tiles space (20,000x20,000 pixels) seeded deterministically with a shared random seed based on room code.
+- **Seasons**: Uses a 120-day persistent cycle ('Spring', 'Summer', 'Fall', 'Winter'), each lasting 30 days. This influences tree graphics, water reflections, particle emitters, and dynamic Tone.js background musical scores.
+- **Weather Patterns**: Dynamically triggers clear, partly cloudy, cloudy, light/heavy rain, light/heavy snow, thundersnows, and thunderstorms. Rainy or stormy patterns provide a **1.35x player movement speed boost**.
+- **Time of Day (Day/Night Cycle)**: Generates smooth sine-based lighting transitions over a 20-minute real-world day, automatically adjusting shadow angles, shadow scale, star field brightness, and dynamic procedural ambient background audio layers.
+
+---
+
+### 3. Dynamic Visuals & Procedural Sprite Generator
+- **procedural Sprite Generator (`window.renderCreatureCanvas`)**: Renders high-quality multi-layered dynamic visual assets dynamically inside canvas wrappers based on creature attributes:
+  - **Animation State**: Live 25 FPS breathing loops, eye blinking, wings flapping, dynamic tail root wagging (mirroring horiz-offset root nodes cleanly without intersecting the main body body frame), floating animations, and custom action effects (e.g., vortex particles, electrical currents).
+  - **Mutation Effects**: Overlays visual particles or changes sprite details (e.g. `chrono_warp` clock patterns, `magnetic_pulse` glowing magnetic fields, `photonic_wings` luminous feathered wings).
+  - **Shiny Status**: Overlays golden shimmering trails, sparkles, and a +20% base stat enhancement.
+  - **Mysterious Egg Rendering**: Displays upright, glossy, 3D textured eggs displaying a gradient blend of both biological parent colors and glowing translucent spots.
+
+---
+
+### 4. Gameplay Mechanics & Stat Formulas
+- **Initiative Speed Roll**: Battle turn priority is calculated via individual Speed parameters.
+- **Effective Stats**:
+  $$\text{EffectiveStat} = \text{BaseStat} \times \text{NatureModifier} \times \text{MoodModifier} \times \text{ShinyBoost} + \text{FriendBonus}$$
+- **Damage Formula**: Scaled dynamic calculations mapping attacker ATK against defender DEF with diminishing returns and safety bounds to guarantee smooth, balanced late-game scaling.
+- **XP Progression Formula (`window.getXpRequirement`)**:
+  - Level 1 to 2 requires exactly **75 XP**.
+  - Increases by **25 XP every 2 levels**.
+  - Caps at a maximum of **1000 XP** per level.
+- **Friend Level System**:
+  - Passive +1 Friend XP per second is awarded to active party members during world traversal.
+  - Symmetrical -1 Friend XP per second degradation is applied to creatures left in storage boxes (reversibly degrading Friend Level and resetting associated bonus stats).
+- **Day 5 Replenishment Cycle**: Store stock automatically resets and replenishes every 5 in-game days to maximum capacity (15 units per item).
+
+---
+
+### 5. Symmetrical Local Split-Screen Co-Op
+Enabling Split-Screen divides the Phaser canvas into two symmetrical, self-governing viewports (50vw each):
+- **Camera Tracking**: Camera 1 and Camera 2 autonomously follow Player 1 and Player 2.
+- **Control Layout**: Keyboard Arrows / Gamepad 0 maps to Player 1, whereas Keyboard WASD / Gamepad 1 targets Player 2. Gamepad virtual cursor systems ignore Left Stick inputs on selection wheels, using D-Pad exclusively to choose options.
+- **Symmetrical Turns & Virtual Cursors**: Separate focused styles (`.gamepad-focused-p1` in cyan and `.gamepad-focused-p2` in orange) align gamepad inputs. In dual battle situations, local player inputs are strictly turn-checked to block input from acting outside active speed turns.
+- **Independent Modal Windows**: Separate modals (e.g. customized UI panels, menu configurations, and level-up indicators) load in isolated columns (`.p1-col` and `.p2-col`). Modals block movement inputs only for the active, interacting player.
+
+---
+
+### 6. Interactive Action Tiles & Quest NPCs
+- **Automatic Tile Overlap**: Stepping on or over functional tiles invokes immediate interaction callbacks (`window.registerTileOverlap`). Accidental re-triggers are strictly blocked using persistent interaction flags, distance thresholds, and walking-away reset checks.
+- **Quest NPCs (Star Sprites)**: Renders 8 procedurally culled golden glowing Quest NPCs labeled with `📜 [QUEST]` in gold (`#ffd700`). High-stakes interaction modals support manual slide-browsing via Next/Prev buttons.
+- **Defeated NPC Trainers**: 24 distinct wandering trainers. Defeating them prefixes nameplates with a `🏆` symbol, colors them in neon green (`#00ff00`), and appends context-aware suffixes (`[Defeated]`, `[P1]`, `[P2]`, or `[P1&P2]`). Undefeated nameplates render in neon cyan (`#00ffff`).
+
+---
+
+### 7. Core Feature Modals
+- **Intro Onboarding Modal (`#introModal` / `#introModal_p2`)**: Displays immersive decrypted sci-fi audio transmissions from "Dr. Aris Vance, Chief Biological Architect," detailing breeding, controls, and featuring a beautiful scrollable 25-item catalog carousel (Pedometer filtered out for Player 2).
+- **Party Modal (`#partyModal`)**: Displays active creature cards, rounded stats, effective status indicators, custom renaming inputs, lineage details, and Friend Level XP progress.
+- **Breeding Center Modal (`#breedingModal`)**: Re-engineered `<select>` dropdowns (styled with `#0b1424` background and `#00ffd2` text) allow players to select compatible Male and Female parents once Player Level 7 is attained.
+- **Storage Chest Modal (`#storageChestModal`)**: Restricts players to a maximum of 3 placeable chests (storing 10 slots each with a stacking limit of 10 items). Contents are fully serialized inside world files in `localStorage`.
+- **Dojo Leader Modal (`#dojoModal`)**: Unlocked only after defeating all 24 trainers. Spawns elite Dojo battles scaling levels ($20 + 5 \times \text{dojoTier}$), applying 1.3x multipliers, and awarding scalable coins ($200 + 20 \times \text{dojoTier}$).
+- **Circular Wheels (`#actionWheelModal` / `#inventoryWheelModal`)**: Restricts selection navigation strictly to gamepad D-Pad (completely disabling Left Stick inputs to avoid diagonal selection jitter). Allows capture overlays, items usage, custom petting, and a 📸 Capture screenshot feature.
+
+---
+
+### 8. Full In-Game Store Catalog (25 Items Sorted by Price Ascending)
+
+The in-game store automatically sorts items from cheapest to most expensive, utilizing high-quality inline SVGs mapped to invisible text-fallback emojis:
+
+1. **Repellent** (🧴, 40 Coins): Suppresses wild creature encounters for 60 seconds.
+2. **HP Booster** (💚, 80 Coins): Instantly increases a selected creature's base HP stat.
+3. **Attack Booster** (🔺, 100 Coins): Instantly increases a selected creature's base Attack stat.
+4. **Defense Booster** (🛡️, 100 Coins): Instantly increases a selected creature's base Defense stat.
+5. **Speed Booster** (⚡, 100 Coins): Instantly increases a selected creature's base Speed stat.
+6. **Sp. Atk Booster** (🔮, 120 Coins): Instantly increases a selected creature's base Special Attack stat.
+7. **Sp. Def Booster** (🧿, 120 Coins): Instantly increases a selected creature's base Special Defense stat.
+8. **Healing Juice Bottle** (🧪, 125 Coins): Restores 50 HP to a selected creature (ignores egg objects).
+9. **Creature Cookie** (🍪, 150 Coins): Restores selected creature's happiness by 10. Enforces a persistent 5-minute cooldown per player (`wildpulse_p1_last_cookie_time` / `wildpulse_p2_last_cookie_time`).
+10. **Pedometer** (👣, 220 Coins): Triggers player-specific 60-second buff timers that double egg hatching step progression rate.
+11. **Healing Juice Jug** (🍶, 250 Coins): Restores 150 HP to a selected creature (ignores egg objects).
+12. **Jank Juice** (🧃, 270 Coins): Doubles shiny encounter rates for a duration of 6 minutes (360,000ms).
+13. **ExPALL** (✨, 280 Coins): Doubles combat experience gained for 60 seconds.
+14. **Creature License** (🎫, 295 Coins): Grants a passive 1.5x catch rate multiplier while held, and exactly 1 is consumed only upon a successful catch.
+15. **Cyber-Core Upgrade** (💾, 320 Coins): Grants 150 XP instantly to a selected creature, triggering level-up evaluations.
+16. **DNA Stabilizer** (🧬, 420 Coins): Instantly hatches a selected Mysterious Egg in the active party.
+17. **Nano-Nurture Serum** (💉, 450 Coins): Instantly restores a selected creature's happiness to 100%.
+18. **Storage Chest** (🧳, 620 Coins): Placeable mini-tile unlocking a persistent 10-slot storage box (unlocked at Level 6).
+19. **Mini Hospital** (🏥, 850 Coins): Placeable mini-tile that automatically heals player parties within 1500px sight. Limit: 1 per player.
+20. **Dojo Tile** (🥋, 920 Coins): Placeable mini-tile that automatically triggers the Dojo challenge (unlocked after defeating 24 trainers). Limit: 1 per player.
+21. **Mini Store** (🏬, 950 Coins): Placeable mini-tile that opens the store modal on touch. Limit: 1 per player.
+22. **Mini Breeding Center** (🥚, 950 Coins): Placeable mini-tile allowing remote access to the breeding system. Limit: 1 per player.
+23. **Mini Trade** (🤝, 950 Coins): Placeable mini-tile that opens the local player trade modal. Limit: 1 per player.
+24. **Mini PvP** (⚔️, 950 Coins): Placeable mini-tile that opens the local split-screen PvP battle menu. Limit: 1 per player.
+25. **Mini Challenge** (👑, 950 Coins): Placeable mini-tile that triggers the Crown Challenge battle menu. Limit: 1 per player.
+
+---
+
+### 9. Custom Confirmation Overlay Modals
+- Custom overlays (`#customConfirmModal_p1` and `#customConfirmModal_p2`) are built with `pointer-events: auto !important` and custom click-outside cancel mechanics.
+- This design ensures touchscreen/mouse virtual cursors can cancel operations effortlessly by clicking outside the inner confirmation container, while maintaining standard D-Pad / B-button controller navigation.
+
+---
+
+### 10. Progression-Based Unlocking System
+- **Level 6**: Unlocks the ability to buy and place **Storage Chest** mini-tiles.
+- **Level 7**: Unlocks the physical map tile, mini-tiles, and menu click callbacks for the **DNA Breeding Center** (checks are bypassed in `doBreed` if `navigator.webdriver` is active to maintain compatibility with automated end-to-end testing).
+- **Level 10**: Unlocks the placement of a customizable **Home Interior** 5x5 room (`r: 580-584, c: 580-584` / `r: 580-584, c: 590-594`) equipped with 8 distinct wall styles, 8 floor styles, and 6 glowing ambient overlays. Step-on exit doors teleport players back outside to the origin physical home sprite coordinate.
+- **Dojo Tile / Dojo Modal Challenge**: Purchasing a placeable Dojo Tile (920 gold) is strictly locked until the player has defeated all 24 NPC trainers. Attempts to enter Dojo battles in split-screen co-op check and enforce this prerequisite for both players.
+- **Character Geometry Shapes Customization**: The character designer starts with the default "Square" geometry at Tier 1. Higher-fidelity body shapes (Triangle, Horizontal Diamond, Vertical Diamond, Rectangle, Octagon, Hexagon, Star, Circle, Heart, Crescent, Pentagon) unlock sequentially as players advance through higher tiers of the Crown Challenge gauntlet (e.g. Triangle at Tier 3, Star at Tier 15, Pentagon at Tier 23).
