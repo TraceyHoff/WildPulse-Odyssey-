@@ -6903,6 +6903,15 @@ window.WildPulseMusic = {
     update() {
         if (!this.initialized || this.muted) return;
 
+        if (typeof Tone !== 'undefined') {
+            if (Tone.context && Tone.context.state === 'suspended') {
+                try { Tone.context.resume(); } catch(e) {}
+            }
+            if (Tone.Transport && Tone.Transport.state !== 'started') {
+                try { Tone.Transport.start(); } catch(e) {}
+            }
+        }
+
         const now = Date.now();
         if (this.lastMusicUpdate && now - this.lastMusicUpdate < 200) return;
         this.lastMusicUpdate = now;
@@ -7448,11 +7457,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.addEventListener('click', () => {
-        // Start music on first interaction anywhere
-        if (window.WildPulseMusic && !window.WildPulseMusic.initialized) {
-            window.WildPulseMusic.start();
+    const triggerAudio = () => {
+        if (window.WildPulseMusic) {
+            if (!window.WildPulseMusic.initialized) {
+                window.WildPulseMusic.start();
+            } else if (window.WildPulseMusic.initialized && !window.WildPulseMusic.muted) {
+                if (typeof Tone !== 'undefined') {
+                    if (Tone.context && Tone.context.state === 'suspended') {
+                        Tone.context.resume().catch(e => {});
+                    }
+                    if (Tone.Transport && Tone.Transport.state !== 'started') {
+                        Tone.Transport.start();
+                    }
+                }
+            }
         }
+    };
+    document.addEventListener('click', triggerAudio);
+    document.addEventListener('keydown', triggerAudio);
+    document.addEventListener('touchstart', triggerAudio);
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            triggerAudio();
+        }
+    });
+
+    window.addEventListener("focus", () => {
+        triggerAudio();
     });
 
 
