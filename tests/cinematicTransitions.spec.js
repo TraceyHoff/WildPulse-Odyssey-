@@ -93,3 +93,35 @@ test.describe('Cyberpunk Cinematic Transitions & Battle Effects', () => {
     expect(hasClassAfter).toBe(false);
   });
 });
+
+test.describe('Cyberpunk Custom Loading Screen', () => {
+  test('should render custom loading elements and progress successfully', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.clear();
+      sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
+    });
+
+    // Go to page
+    await page.goto('http://localhost:3000');
+
+    // 1. Check if the custom loading elements are present in the DOM
+    const loadingScreen = page.locator('#loadingScreen');
+    await expect(loadingScreen).toBeVisible();
+
+    const canvas = page.locator('#loadingCanvas');
+    await expect(canvas).toBeAttached();
+
+    const bar = page.locator('#loadingBar');
+    await expect(bar).toBeAttached();
+
+    const statusText = page.locator('#loadingStatusText');
+    await expect(statusText).toBeVisible();
+    await expect(statusText).toHaveText(/(INITIALIZING SYSTEM CONTROLS|INITIALIZING SYNAPSE CHANNELS|DECRYPTING BIOME SECTORS|SYNCHRONIZING CREATURE GENOME|STABILIZING WORLD GRID|READY TO ENTER SYSTEM)/);
+
+    // 2. Wait for game to start (which triggers completeLoadingScreen)
+    await page.waitForFunction(() => window.gameStarted === true, null, { timeout: 20000 });
+
+    // 3. The loading screen should eventually fade out and have display none
+    await expect(loadingScreen).toBeHidden({ timeout: 10000 });
+  });
+});
