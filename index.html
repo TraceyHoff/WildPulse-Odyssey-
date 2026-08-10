@@ -1634,29 +1634,83 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: #000;
+        background: #080d16;
         z-index: 100000;
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
         color: #fff;
-        font-family: sans-serif;
+        font-family: 'Courier New', Courier, monospace;
+        overflow: hidden;
     }
 
-    .spinner {
-        border: 8px solid rgba(255, 255, 255, 0.3);
-        border-top: 8px solid #42a5f5;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        animation: spin 1s linear infinite;
+    #loadingCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    #loadingContent {
+        position: relative;
+        z-index: 10;
+        background: rgba(11, 20, 36, 0.9);
+        border: 2px solid #00ffd2;
+        box-shadow: 0 0 30px rgba(0, 255, 210, 0.3);
+        padding: 30px 40px;
+        border-radius: 12px;
+        text-align: center;
+        max-width: 500px;
+        width: 90%;
+    }
+
+    .loading-title {
+        font-size: 32px;
+        letter-spacing: 6px;
+        color: #00ffd2;
+        margin: 0 0 15px 0;
+        text-shadow: 0 0 15px rgba(0, 255, 210, 0.8), -2px -2px 0 #ff00ff, 2px 2px 0 #00ffff;
+        font-weight: 900;
+        animation: textPulse 1.5s ease-in-out infinite alternate;
+    }
+
+    .loading-status {
+        font-size: 14px;
+        color: #ff3366;
+        letter-spacing: 2px;
         margin-bottom: 20px;
+        text-shadow: 0 0 5px rgba(255, 51, 102, 0.5);
     }
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    .loading-bar-container {
+        width: 100%;
+        height: 12px;
+        background: #0d1b2e;
+        border: 1px solid rgba(0, 255, 210, 0.3);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.6);
+    }
+
+    #loadingBar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #ff00ff, #00ffd2);
+        box-shadow: 0 0 12px #00ffd2;
+        border-radius: 5px;
+        transition: width 0.1s linear;
+    }
+
+    .loading-sub {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.6);
+        letter-spacing: 1px;
+        text-transform: uppercase;
     }
 
     @keyframes shake {
@@ -2441,11 +2495,15 @@
         pointer-events: none;
         overflow: hidden;
         font-family: 'Courier New', Courier, monospace;
+        will-change: transform, opacity;
+        transform: translate3d(0, 0, 0);
+        transition: opacity 0.2s ease;
+        opacity: 1;
     }
 
     #cyberTransitionOverlay.active {
         display: flex;
-        animation: cyberFlashGlitch 0.6s ease-out forwards;
+        animation: cyberFlashGlitch 0.5s ease-out forwards;
     }
 
     .cyber-grid-background {
@@ -2458,8 +2516,9 @@
             linear-gradient(rgba(0, 255, 210, 0.05) 2px, transparent 2px),
             linear-gradient(90deg, rgba(0, 255, 210, 0.05) 2px, transparent 2px);
         background-size: 40px 40px;
-        transform: perspective(500px) rotateX(60deg);
+        transform: perspective(500px) rotateX(60deg) translateY(0);
         animation: gridScroll 4s linear infinite;
+        will-change: transform;
     }
 
     .cyber-scanline-beam {
@@ -2471,6 +2530,7 @@
         background: linear-gradient(180deg, transparent, rgba(0, 255, 210, 0.8), transparent);
         box-shadow: 0 0 20px rgba(0, 255, 210, 0.8);
         animation: scanlineSweep 1.5s linear infinite;
+        will-change: transform;
     }
 
     .cyber-glitch-text {
@@ -2510,13 +2570,13 @@
             background: rgba(0, 0, 0, 0.95);
         }
         30% {
-            transform: skewX(-5deg);
+            transform: skewX(-5deg) translate3d(0, 0, 0);
         }
         35% {
-            transform: skewX(5deg);
+            transform: skewX(5deg) translate3d(0, 0, 0);
         }
         40% {
-            transform: none;
+            transform: translate3d(0, 0, 0);
         }
         100% {
             opacity: 1;
@@ -2525,19 +2585,19 @@
 
     @keyframes gridScroll {
         0% {
-            background-position: 0 0;
+            transform: perspective(500px) rotateX(60deg) translateY(0);
         }
         100% {
-            background-position: 0 400px;
+            transform: perspective(500px) rotateX(60deg) translateY(40px);
         }
     }
 
     @keyframes scanlineSweep {
         0% {
-            top: -5%;
+            transform: translateY(-10px);
         }
         100% {
-            top: 105%;
+            transform: translateY(100vh);
         }
     }
 
@@ -3329,9 +3389,182 @@
 </div>
 
 <div id="loadingScreen">
-    <div class="spinner"></div>
-    <h2>Loading World...</h2>
+    <div class="cyber-grid-background" style="opacity: 0.12; pointer-events: none;"></div>
+    <div class="cyber-scanline-beam" style="opacity: 0.5;"></div>
+    <canvas id="loadingCanvas"></canvas>
+    <div id="loadingContent">
+        <h1 class="loading-title">WILD PULSE</h1>
+        <div class="loading-status" id="loadingStatusText">INITIALIZING SYSTEM CONTROLS...</div>
+        <div class="loading-bar-container">
+            <div id="loadingBar"></div>
+        </div>
+        <div class="loading-sub" id="loadingSubText">PREPARING BIOME NEURAL LINK...</div>
+    </div>
 </div>
+
+<script>
+(function() {
+    const canvas = document.getElementById('loadingCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Custom creature presets to run around (representing our game creatures)
+    const loadingCreaturesData = [
+        { id: 'l1', name: 'Flarehawk', type: 'Fire', color: 0xe63946, skinFurColor: 'ruby', eyesColor: 'crimson', wingsColor: 'crimson', tailColor: 'crimson' },
+        { id: 'l2', name: 'Oceanweaver', type: 'Water', color: 0x457b9d, skinFurColor: 'turquoise', eyesColor: 'sapphire', wingsColor: 'teal', tailColor: 'turquoise' },
+        { id: 'l3', name: 'Volt-Pike', type: 'Electric', color: 0xffb703, skinFurColor: 'yellow', eyesColor: 'amber', wingsColor: 'amber', tailColor: 'yellow' },
+        { id: 'l4', name: 'Leaf-Sprout', type: 'Grass', color: 0x2a9d8f, skinFurColor: 'emerald', eyesColor: 'emerald', wingsColor: 'green', tailColor: 'green' },
+        { id: 'l5', name: 'Shadow-Fang', type: 'Dark', color: 0x7209b7, skinFurColor: 'indigo', eyesColor: 'purple', wingsColor: 'purple', tailColor: 'indigo' }
+    ];
+
+    const creatures = [];
+    const numCreatures = 6;
+    for (let i = 0; i < numCreatures; i++) {
+        const data = loadingCreaturesData[i % loadingCreaturesData.length];
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = 120;
+        offCanvas.height = 120;
+
+        // Random starting positions and directions
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 3;
+
+        creatures.push({
+            data: data,
+            canvas: offCanvas,
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            scale: 0.6 + Math.random() * 0.5,
+            size: 80
+        });
+    }
+
+    let progress = 0;
+    let targetProgress = 0;
+    window.phaserInitComplete = false;
+
+    // Loading stages
+    const stageDurations = [350, 450, 350, 350];
+    let currentStage = 0;
+    const stages = [
+        { text: "INITIALIZING SYNAPSE CHANNELS...", target: 25 },
+        { text: "DECRYPTING BIOME SECTORS...", target: 55 },
+        { text: "SYNCHRONIZING CREATURE GENOME...", target: 80 },
+        { text: "STABILIZING WORLD GRID...", target: 95 }
+    ];
+
+    const statusTextEl = document.getElementById('loadingStatusText');
+    const barEl = document.getElementById('loadingBar');
+    const loadingScreenEl = document.getElementById('loadingScreen');
+
+    function advanceStage() {
+        if (currentStage < stages.length) {
+            const stage = stages[currentStage];
+            if (statusTextEl) statusTextEl.innerText = stage.text;
+            targetProgress = stage.target;
+            currentStage++;
+            setTimeout(advanceStage, stageDurations[currentStage % stageDurations.length]);
+        } else {
+            if (window.phaserInitComplete) {
+                if (statusTextEl) statusTextEl.innerText = "READY TO ENTER SYSTEM";
+                targetProgress = 100;
+            } else {
+                targetProgress = 95 + Math.random() * 3;
+                setTimeout(advanceStage, 100);
+            }
+        }
+    }
+
+    setTimeout(advanceStage, 100);
+
+    window.completeLoadingScreen = function() {
+        window.phaserInitComplete = true;
+    };
+
+    let isFadingOut = false;
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Advance progress
+        if (progress < targetProgress) {
+            progress += 0.5 + (targetProgress - progress) * 0.08;
+            if (progress > targetProgress) progress = targetProgress;
+        } else if (progress > targetProgress && targetProgress === 100) {
+            progress = 100;
+        } else if (window.phaserInitComplete && currentStage >= stages.length) {
+            progress += 1;
+            if (progress >= 100) {
+                progress = 100;
+                if (statusTextEl) statusTextEl.innerText = "READY TO ENTER SYSTEM";
+            }
+        }
+
+        if (barEl) {
+            barEl.style.width = progress + '%';
+        }
+
+        // Update and draw creatures
+        for (let c of creatures) {
+            c.x += c.vx;
+            c.y += c.vy;
+
+            const padding = 60;
+            if (c.x < -padding) c.x = window.innerWidth + padding;
+            else if (c.x > window.innerWidth + padding) c.x = -padding;
+
+            if (c.y < -padding) c.y = window.innerHeight + padding;
+            else if (c.y > window.innerHeight + padding) c.y = -padding;
+
+            if (window.renderCreatureCanvas) {
+                window.renderCreatureCanvas(c.canvas, c.data, c.size, false);
+            } else {
+                const oCtx = c.canvas.getContext('2d');
+                oCtx.clearRect(0, 0, 120, 120);
+                oCtx.fillStyle = '#' + (c.data.color || 0xffffff).toString(16).padStart(6, '0');
+                oCtx.beginPath();
+                oCtx.arc(60, 60, 20, 0, Math.PI * 2);
+                oCtx.fill();
+            }
+
+            ctx.save();
+            ctx.translate(c.x, c.y);
+
+            if (c.vx < 0) {
+                ctx.scale(-c.scale, c.scale);
+            } else {
+                ctx.scale(c.scale, c.scale);
+            }
+
+            ctx.drawImage(c.canvas, -c.size / 2, -c.size / 2);
+            ctx.restore();
+        }
+
+        if (progress >= 100 && window.phaserInitComplete && !isFadingOut) {
+            isFadingOut = true;
+            loadingScreenEl.style.transition = "opacity 0.6s cubic-bezier(0.1, 0.8, 0.2, 1)";
+            loadingScreenEl.style.opacity = "0";
+            setTimeout(() => {
+                loadingScreenEl.style.display = "none";
+                window.dispatchEvent(new Event('resize'));
+            }, 600);
+        }
+
+        requestAnimationFrame(draw);
+    }
+
+    requestAnimationFrame(draw);
+})();
+</script>
 
 <!-- Inventory Slots Overlay -->
 <div id="p1InventorySlots" class="inventory-slots-container">
@@ -7909,30 +8142,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
                             // Play Entry Cinematic Overlay
                             overlay.style.display = 'flex';
+                            overlay.style.opacity = '1';
                             overlay.classList.add('active');
 
                             // Temporarily dim the battle modal content for entry visual impact
                             battleModalEl.style.opacity = '0';
-                            battleModalEl.style.transition = 'opacity 0.3s ease';
+                            battleModalEl.style.transition = 'opacity 0.2s ease';
 
                             setTimeout(() => {
                                 // Fade in battle modal content after transition flash peak
                                 battleModalEl.style.opacity = '1';
-                            }, 400);
+                            }, 200);
 
                             setTimeout(() => {
                                 overlay.classList.remove('active');
                                 overlay.style.display = 'none';
-                            }, 800);
+                            }, 500);
                         } else if (currentDisplay === 'none' && (previousDisplay === 'block' || previousDisplay === '')) {
                             // Battle exited! Play exit glitch fade-out
                             overlay.style.display = 'flex';
+                            overlay.style.opacity = '1';
                             if (glitchText) glitchText.innerText = "⚡ BATTLE TERMINATED ⚡";
                             if (glitchSub) glitchSub.innerText = "⚡ [ RETURNING TO MAIN GRID ] ⚡";
 
                             setTimeout(() => {
+                                overlay.style.transition = 'opacity 0.2s ease';
+                                overlay.style.opacity = '0';
+                            }, 200);
+
+                            setTimeout(() => {
                                 overlay.style.display = 'none';
-                            }, 600);
+                                overlay.style.opacity = '1'; // reset for next time
+                            }, 400);
                         }
                         previousDisplay = currentDisplay;
                     }
@@ -26357,7 +26598,11 @@ function create() {
         }
     });
 
-    document.getElementById('loadingScreen').style.display = 'none';
+    if (window.completeLoadingScreen) {
+        window.completeLoadingScreen();
+    } else {
+        document.getElementById('loadingScreen').style.display = 'none';
+    }
 }
 
 function updateHospitalArrows() {
