@@ -3355,7 +3355,7 @@
 <div id="p2Timers" class="player-timers-container"></div>
 
 <!-- Glowing Active Event HUD Badge -->
-<div id="activeEventBadge" style="position: fixed; top: 15px; left: 50%; transform: translate(-50%, 0); z-index: 10000; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); padding: 6px 16px; border: 2px solid #00ffcc; border-radius: 20px; color: #00ffcc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; display: none; align-items: center; gap: 8px; box-shadow: 0 0 10px rgba(0,255,204,0.5); pointer-events: none;"></div>
+<div id="activeEventBadge" style="position: fixed; top: 110px; left: 50%; transform: translate(-50%, 0); z-index: 10000; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); padding: 6px 16px; border: 2px solid #00ffcc; border-radius: 20px; color: #00ffcc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; display: none; align-items: center; gap: 8px; box-shadow: 0 0 10px rgba(0,255,204,0.5); pointer-events: none;"></div>
 
 <!-- Hospital Directional Arrows Overlay -->
 <div id="p1HospitalArrow" style="position: fixed; top: 20px; left: 50%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
@@ -6478,12 +6478,38 @@ window.showModernNotification = function(text, duration = 3000, playerNum = null
     el.innerText = text;
     el.style.opacity = '1';
 
+    const lowerTextForTop = (text || '').toLowerCase();
+    const isWeatherOrEventNotification =
+        lowerTextForTop.includes('solar event') ||
+        lowerTextForTop.includes('lunar event') ||
+        lowerTextForTop.includes('climate event') ||
+        lowerTextForTop.includes('celestial event') ||
+        lowerTextForTop.includes('weather event') ||
+        lowerTextForTop.includes('seismic event') ||
+        lowerTextForTop.includes('biological event') ||
+        lowerTextForTop.includes('dual battle') ||
+        lowerTextForTop.includes('subsided') ||
+        lowerTextForTop.includes('downpour') ||
+        lowerTextForTop.includes('storm is surging') ||
+        lowerTextForTop.includes('flash freeze');
+
+    if (isWeatherOrEventNotification) {
+        el.style.top = '150px';
+    } else {
+        el.style.top = '20px';
+    }
+
     if (playerNum === 2) {
         const fallbackEl = document.getElementById('modernNotification');
         if (fallbackEl) {
             fallbackEl.innerText = text;
             fallbackEl.style.opacity = '1';
             fallbackEl.style.left = '75%';
+            if (isWeatherOrEventNotification) {
+                fallbackEl.style.top = '150px';
+            } else {
+                fallbackEl.style.top = '20px';
+            }
         }
     }
 
@@ -26558,7 +26584,7 @@ function handleNpcTrainerOverlap(playerCollider, npcSprite) {
 
     // Ask player to confirm battle
     if (confirm(`Trainer ${trainerName} challenges you to a battle! Do you accept?`)) {
-        if (window.coopActive && window.startNpcDualBattle) {
+        if (window.coopActive && window.startNpcDualBattle && Math.random() < 0.25) {
             window.startNpcDualBattle(playerCollider, trainerId, trainerName);
         } else if (window.startNpcBattle) {
             window.startNpcBattle(playerCollider, trainerId, trainerName);
