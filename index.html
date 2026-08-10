@@ -6506,20 +6506,24 @@ function escapeHtml(unsafe) {
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
             <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
-            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 15px;">Player 1 Journal</h2>
-            <div id="journalStats" style="font-size: 18px; margin: 20px 0;">
-                <p>Gen 1 Creatures Collected: <span id="journalGen1Count" style="color:#4caf50;">0 / 50</span></p>
-                <p>Gen 2 Unique Species Discovered: <span id="journalGen2Count" style="color:#2196F3;">0</span></p>
+            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 10px;">Player 1 Bestiary</h2>
+            <div id="journalStats" style="font-size: 14px; margin: 5px 0; color: #aaa;">
+                <p>Gen 1 Discovered: <span id="journalGen1Count" style="color:#4caf50; font-weight: bold;">0 / 50</span> | Gen 2: <span id="journalGen2Count" style="color:#2196F3; font-weight: bold;">0</span></p>
+            </div>
+            <div id="bestiaryList_P1" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #4caf50;">
+                <!-- Dynamically populated -->
             </div>
         </div>
 
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
             <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
-            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 15px;">Player 2 Journal</h2>
-            <div id="journalStats_P2" style="font-size: 18px; margin: 20px 0;">
-                <p>Gen 1 Creatures Collected: <span id="journalGen1Count_P2" style="color:#4caf50;">0 / 50</span></p>
-                <p>Gen 2 Unique Species Discovered: <span id="journalGen2Count_P2" style="color:#2196F3;">0</span></p>
+            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 10px;">Player 2 Bestiary</h2>
+            <div id="journalStats_P2" style="font-size: 14px; margin: 5px 0; color: #aaa;">
+                <p>Gen 1 Discovered: <span id="journalGen1Count_P2" style="color:#ff9800; font-weight: bold;">0 / 50</span> | Gen 2: <span id="journalGen2Count_P2" style="color:#2196F3; font-weight: bold;">0</span></p>
+            </div>
+            <div id="bestiaryList_P2" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #ff9800;">
+                <!-- Dynamically populated -->
             </div>
         </div>
     </div>
@@ -15444,11 +15448,13 @@ window.gainXp = function(creature, amount) {
 };
 
 // Augment base creatures with new stats and a nature
+const baseStatsSeed = window.gameSeed || 123456789;
+const baseStatsRng = window.mulberry32(baseStatsSeed);
 window.baseCreatures.forEach(c => {
-    c.stats.defense = c.stats.defense || Math.floor(Math.random() * 50 + 30);
-    c.stats.speed = c.stats.speed || Math.floor(Math.random() * 50 + 30);
-    c.stats.specialAttack = c.stats.specialAttack || Math.floor(Math.random() * 50 + 30);
-    c.stats.specialDefense = c.stats.specialDefense || Math.floor(Math.random() * 50 + 30);
+    c.stats.defense = c.stats.defense || Math.floor(baseStatsRng() * 50 + 30);
+    c.stats.speed = c.stats.speed || Math.floor(baseStatsRng() * 50 + 30);
+    c.stats.specialAttack = c.stats.specialAttack || Math.floor(baseStatsRng() * 50 + 30);
+    c.stats.specialDefense = c.stats.specialDefense || Math.floor(baseStatsRng() * 50 + 30);
 });
 
 
@@ -16863,19 +16869,21 @@ localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.col
 if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
     const gen1Creatures = window.baseCreatures.filter(c => !c.generation || c.generation === 1);
     if (gen1Creatures.length > 0) {
-        // Explicitly choose completely randomly across all 50 G1 species for player 1's starter
-        let randomIndex = Math.floor(Math.random() * gen1Creatures.length);
+        const starterSeed = window.gameSeed || 123456789;
+        const starterRng = window.mulberry32(starterSeed);
+        // Explicitly choose completely randomly across all 50 G1 species for player 1's starter deterministically
+        let randomIndex = Math.floor(starterRng() * gen1Creatures.length);
         let starter = JSON.parse(JSON.stringify(gen1Creatures[randomIndex]));
 
         // Assign IVs
         if (starter.stats) {
             for (let stat in starter.stats) {
-                starter.stats[stat] += Math.floor(Math.random() * 32);
+                starter.stats[stat] += Math.floor(starterRng() * 32);
             }
         }
 
         // Starter Shiny Chance
-        starter.isShiny = Math.random() < 0.001;
+        starter.isShiny = starterRng() < 0.001;
         if (starter.isShiny && starter.stats) {
             for (let stat in starter.stats) {
                 starter.stats[stat] = Math.floor(starter.stats[stat] * 1.2);
@@ -16883,21 +16891,21 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
         }
 
         starter.baseId = starter.id;
-        starter.nature = window.getRandomNature(true);
-        starter.mood = window.getRandomMood(true);
+        starter.nature = window.getRandomNature(true, starterRng);
+        starter.mood = window.getRandomMood(true, starterRng);
         starter.level = 1;
         starter.xp = 0;
         starter.friendLevel = 1;
         starter.friendXp = 0;
         starter.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
         starter.happiness = 50;
-        starter.gender = Math.random() < 0.5 ? 'Male' : 'Female';
-        starter.id = Date.now().toString() + "_starter";
+        starter.gender = starterRng() < 0.5 ? 'Male' : 'Female';
+        starter.id = "starter_p1_" + starterSeed;
 
         collectedCreaturesIds.add(starter.id);
         collectedCreatures.push(starter);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-        console.log("[Starter Selection] Randomized Player 1 starter selected completely independently of seed: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
+        console.log("[Starter Selection] Seeded Player 1 starter selected deterministically: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
     }
 }
 
@@ -16905,19 +16913,21 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
 if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
     const gen1Creatures = window.baseCreatures.filter(c => !c.generation || c.generation === 1);
     if (gen1Creatures.length > 0) {
-        // Explicitly choose completely randomly across all 50 G1 species for player 2's starter
-        let randomIndex = Math.floor(Math.random() * gen1Creatures.length);
+        const starterSeed2 = (window.gameSeed || 123456789) + 100;
+        const starterRng2 = window.mulberry32(starterSeed2);
+        // Explicitly choose completely randomly across all 50 G1 species for player 2's starter deterministically
+        let randomIndex = Math.floor(starterRng2() * gen1Creatures.length);
         let starter = JSON.parse(JSON.stringify(gen1Creatures[randomIndex]));
 
         // Assign IVs
         if (starter.stats) {
             for (let stat in starter.stats) {
-                starter.stats[stat] += Math.floor(Math.random() * 32);
+                starter.stats[stat] += Math.floor(starterRng2() * 32);
             }
         }
 
         // Starter Shiny Chance
-        starter.isShiny = Math.random() < 0.001;
+        starter.isShiny = starterRng2() < 0.001;
         if (starter.isShiny && starter.stats) {
             for (let stat in starter.stats) {
                 starter.stats[stat] = Math.floor(starter.stats[stat] * 1.2);
@@ -16925,21 +16935,21 @@ if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.ba
         }
 
         starter.baseId = starter.id;
-        starter.nature = window.getRandomNature(true);
-        starter.mood = window.getRandomMood(true);
+        starter.nature = window.getRandomNature(true, starterRng2);
+        starter.mood = window.getRandomMood(true, starterRng2);
         starter.level = 1;
         starter.xp = 0;
         starter.friendLevel = 1;
         starter.friendXp = 0;
         starter.friendBonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
         starter.happiness = 50;
-        starter.gender = Math.random() < 0.5 ? 'Male' : 'Female';
-        starter.id = Date.now().toString() + "_starter_p2";
+        starter.gender = starterRng2() < 0.5 ? 'Male' : 'Female';
+        starter.id = "starter_p2_" + starterSeed2;
 
         window.collectedCreaturesIds2.add(starter.id);
         window.collectedCreatures2.push(starter);
         localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
-        console.log("[Starter Selection] Randomized Player 2 starter selected completely independently of seed: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
+        console.log("[Starter Selection] Seeded Player 2 starter selected deterministically: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
     }
 }
 
@@ -18278,47 +18288,134 @@ window.returnToOwnWorld = function() {
 
 
 
+window.renderBestiary = function(playerNum = 1) {
+    const listEl = document.getElementById((playerNum === 2) ? 'bestiaryList_P2' : 'bestiaryList_P1');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    const collectedList = (playerNum === 2) ? (window.collectedCreatures2 || []) : (window.collectedCreatures || []);
+    const discoveredMap = {}; // key: species ID or name lowercase
+    const discoveredGen2 = [];
+
+    collectedList.forEach(c => {
+        if (!c.generation || c.generation === 1) {
+            const key = String(c.baseId || c.name || '').toLowerCase();
+            if (key) {
+                if (!discoveredMap[key]) {
+                    discoveredMap[key] = {
+                        speciesId: c.baseId || c.name,
+                        hasShiny: false,
+                        natures: new Set()
+                    };
+                }
+                if (c.isShiny) {
+                    discoveredMap[key].hasShiny = true;
+                }
+                if (c.nature && c.nature.name) {
+                    discoveredMap[key].natures.add(c.nature.name);
+                }
+            }
+        } else if (c.generation === 2) {
+            discoveredGen2.push(c);
+        }
+    });
+
+    if (window.baseCreatures && window.baseCreatures.length > 0) {
+        window.baseCreatures.forEach(baseSpecies => {
+            const key = String(baseSpecies.id || baseSpecies.name || '').toLowerCase();
+            const discInfo = discoveredMap[key];
+
+            const card = document.createElement('div');
+            card.className = 'bestiary-card';
+            card.style.padding = '8px';
+            card.style.marginBottom = '6px';
+            card.style.borderRadius = '4px';
+            card.style.background = 'rgba(255, 255, 255, 0.05)';
+            card.style.borderLeft = '4px solid #444';
+
+            if (discInfo) {
+                // DISCOVERED!
+                card.style.borderLeft = (playerNum === 2) ? '4px solid #ff9800' : '4px solid #4caf50';
+                const naturesList = Array.from(discInfo.natures).join(', ') || 'None';
+                const shinyIndicator = discInfo.hasShiny ? '<span style="color:#ffd700; font-weight:bold; margin-left: 5px;">✨ SHINY</span>' : '';
+
+                card.innerHTML = `
+                    <div style="font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
+                        <span>${baseSpecies.name} <span style="font-size:11px; color:#aaa; font-weight:normal;">(${baseSpecies.type})</span></span>
+                        <div>${shinyIndicator}</div>
+                    </div>
+                    <div style="font-size: 12px; color: #ccc; margin-top: 4px; line-height: 1.3;">
+                        ${baseSpecies.description || 'A magnificent wild creature.'}
+                    </div>
+                    <div style="font-size: 11px; color: #00ffd2; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2px;">
+                        <strong>Natures Discovered:</strong> ${naturesList}
+                    </div>
+                `;
+            } else {
+                // LOCKED!
+                card.style.borderLeft = '4px solid #444';
+                card.innerHTML = `
+                    <div style="font-weight: bold; font-size: 14px; color: #555;">
+                        ??? <span style="font-size:11px; color:#444;">(${baseSpecies.type})</span>
+                    </div>
+                    <div style="font-size: 12px; color: #555; font-style: italic; margin-top: 4px;">
+                        Analyze DNA sequence or capture this species to unlock details.
+                    </div>
+                `;
+            }
+            listEl.appendChild(card);
+        });
+    }
+
+    if (discoveredGen2.length > 0) {
+        const g2Header = document.createElement('div');
+        g2Header.style.margin = '15px 0 5px 0';
+        g2Header.style.fontWeight = 'bold';
+        g2Header.style.fontSize = '13px';
+        g2Header.style.color = '#2196F3';
+        g2Header.innerText = 'Discovered G2 Hybrids';
+        listEl.appendChild(g2Header);
+
+        discoveredGen2.forEach(c => {
+            const card = document.createElement('div');
+            card.className = 'bestiary-card-g2';
+            card.style.padding = '8px';
+            card.style.marginBottom = '6px';
+            card.style.borderRadius = '4px';
+            card.style.background = 'rgba(33, 150, 243, 0.05)';
+            card.style.borderLeft = '4px solid #2196F3';
+
+            const shinyIndicator = c.isShiny ? '<span style="color:#ffd700; font-weight:bold; margin-left: 5px;">✨ SHINY</span>' : '';
+            card.innerHTML = `
+                <div style="font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
+                    <span>${c.name} <span style="font-size:11px; color:#aaa; font-weight:normal;">(${c.type})</span></span>
+                    <div>${shinyIndicator}</div>
+                </div>
+                <div style="font-size: 12px; color: #ccc; margin-top: 4px; line-height: 1.3;">
+                    ${c.description || 'A unique G2 hybrid creature.'}
+                </div>
+                <div style="font-size: 11px; color: #00ffd2; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2px;">
+                    <strong>Nature:</strong> ${(c.nature && c.nature.name) || 'Normal'}
+                </div>
+            `;
+            listEl.appendChild(card);
+        });
+    }
+};
+
 window.openJournalModal = function(playerNum = 1) {
     if (window.coopActive) {
         window.closeMenuModal(playerNum);
         window.closeAllModalsForPlayer(playerNum, 'journalModal');
         if (playerNum === 2) {
             window.p2ActiveModal = 'journalModal';
-            const gen1Set2 = new Set();
-            const gen2Set2 = new Set();
-            window.collectedCreatures2.forEach(c => {
-                if (!c.generation || c.generation === 1) {
-                    gen1Set2.add(c.baseId || c.name);
-                } else if (c.generation === 2) {
-                    gen2Set2.add(c.name);
-                }
-            });
-            const g1CountP2 = document.getElementById('journalGen1Count_P2');
-            const g2CountP2 = document.getElementById('journalGen2Count_P2');
-            if (g1CountP2) g1CountP2.innerText = gen1Set2.size + ' / 50';
-            if (g2CountP2) g2CountP2.innerText = gen2Set2.size + ' / 2500';
         } else {
             window.p1ActiveModal = 'journalModal';
-            const gen1Set = new Set();
-            const gen2Set = new Set();
-            window.collectedCreatures.forEach(c => {
-                if (!c.generation || c.generation === 1) {
-                    gen1Set.add(c.baseId || c.name);
-                } else if (c.generation === 2) {
-                    gen2Set.add(c.name);
-                }
-            });
-            const g1CountP1 = document.getElementById('journalGen1Count');
-            const g2CountP1 = document.getElementById('journalGen2Count');
-            if (g1CountP1) g1CountP1.innerText = gen1Set.size + ' / 50';
-            if (g2CountP1) g2CountP1.innerText = gen2Set.size + ' / 2500';
         }
-        window.updateModalVisibility();
-    } else {
-        window.closeAllModals('journalModal');
+
         const gen1Set = new Set();
         const gen2Set = new Set();
-        window.collectedCreatures.forEach(c => {
+        (window.collectedCreatures || []).forEach(c => {
             if (!c.generation || c.generation === 1) {
                 gen1Set.add(c.baseId || c.name);
             } else if (c.generation === 2) {
@@ -18328,7 +18425,46 @@ window.openJournalModal = function(playerNum = 1) {
         const g1CountP1 = document.getElementById('journalGen1Count');
         const g2CountP1 = document.getElementById('journalGen2Count');
         if (g1CountP1) g1CountP1.innerText = gen1Set.size + ' / 50';
-        if (g2CountP1) g2CountP1.innerText = gen2Set.size + ' / 2500';
+        if (g2CountP1) g2CountP1.innerText = gen2Set.size;
+
+        const gen1Set2 = new Set();
+        const gen2Set2 = new Set();
+        (window.collectedCreatures2 || []).forEach(c => {
+            if (!c.generation || c.generation === 1) {
+                gen1Set2.add(c.baseId || c.name);
+            } else if (c.generation === 2) {
+                gen2Set2.add(c.name);
+            }
+        });
+        const g1CountP2 = document.getElementById('journalGen1Count_P2');
+        const g2CountP2 = document.getElementById('journalGen2Count_P2');
+        if (g1CountP2) g1CountP2.innerText = gen1Set2.size + ' / 50';
+        if (g2CountP2) g2CountP2.innerText = gen2Set2.size;
+
+        // Populate dynamic Bestiary
+        window.renderBestiary(1);
+        window.renderBestiary(2);
+
+        window.updateModalVisibility();
+    } else {
+        window.closeAllModals('journalModal');
+        const gen1Set = new Set();
+        const gen2Set = new Set();
+        (window.collectedCreatures || []).forEach(c => {
+            if (!c.generation || c.generation === 1) {
+                gen1Set.add(c.baseId || c.name);
+            } else if (c.generation === 2) {
+                gen2Set.add(c.name);
+            }
+        });
+        const g1CountP1 = document.getElementById('journalGen1Count');
+        const g2CountP1 = document.getElementById('journalGen2Count');
+        if (g1CountP1) g1CountP1.innerText = gen1Set.size + ' / 50';
+        if (g2CountP1) g2CountP1.innerText = gen2Set.size;
+
+        // Populate dynamic Bestiary
+        window.renderBestiary(1);
+
         document.getElementById('journalModal').style.display = 'block';
     }
 };
@@ -18358,9 +18494,11 @@ window.inDojoBattle = false;
 // Randomize customization for a new game
 window.randomizePlayerCustomization = function(playerNum) {
     const keyPrefix = playerNum === 2 ? 'wildpulse_player2_' : 'wildpulse_player_';
+    const seedVal = (window.gameSeed || 123456789) + playerNum * 1000;
+    const customRng = window.mulberry32(seedVal);
 
     // 1. Generate random colors
-    const getRandomHexColor = () => '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    const getRandomHexColor = () => '#' + Math.floor(customRng() * 16777215).toString(16).padStart(6, '0');
     const color = getRandomHexColor();
     const auraColor = getRandomHexColor();
     const patternColor = getRandomHexColor();
@@ -18380,7 +18518,7 @@ window.randomizePlayerCustomization = function(playerNum) {
     if (unlockedPatterns.length === 0) {
         unlockedPatterns = ['None', 'Dots', 'Stripes', 'Checkerboard'];
     }
-    const pattern = unlockedPatterns[Math.floor(Math.random() * unlockedPatterns.length)];
+    const pattern = unlockedPatterns[Math.floor(customRng() * unlockedPatterns.length)];
 
     // 3. Select randomized unlocked shape
     const tier = window.challengeTier || 1;
@@ -18399,7 +18537,7 @@ window.randomizePlayerCustomization = function(playerNum) {
         { id: 'Pentagon', tier: 23 }
     ];
     const unlockedShapes = shapes.filter(sh => sh.tier <= tier).map(sh => sh.id);
-    const shape = unlockedShapes[Math.floor(Math.random() * unlockedShapes.length)];
+    const shape = unlockedShapes[Math.floor(customRng() * unlockedShapes.length)];
 
     // 4. Save to localStorage
     localStorage.setItem(keyPrefix + 'color', color);
@@ -31534,14 +31672,28 @@ function update() {
     }
 
     if (window.lightningOverlay) {
-        if ((window.weatherPattern === 'thunderstorm' || window.weatherPattern === 'thundersnow') && Math.random() < 0.005 && !window.lightningActive) {
+        let shouldTriggerLightning = false;
+        let lightningRng = null;
+        if (window.weatherPattern === 'thunderstorm' || window.weatherPattern === 'thundersnow') {
+            const blockIndex = Math.floor(now / 500);
+            if (window.lastLightningBlockIndex !== blockIndex) {
+                window.lastLightningBlockIndex = blockIndex;
+                const rngSeed = (window.roomSeed || 987654321) + blockIndex + 777;
+                lightningRng = mulberry32(rngSeed);
+                if (lightningRng() < 0.05 && !window.lightningActive) {
+                    shouldTriggerLightning = true;
+                }
+            }
+        }
+
+        if (shouldTriggerLightning && lightningRng) {
             window.lightningActive = true;
             let flashes = 0;
-            const maxFlashes = 2 + Math.floor(Math.random() * 3);
+            const maxFlashes = 2 + Math.floor(lightningRng() * 3);
 
             const triggerFlash = () => {
-                const intensity = 0.5 + Math.random() * 0.5;
-                const lx = Math.random() * window.innerWidth;
+                const intensity = 0.5 + lightningRng() * 0.5;
+                const lx = lightningRng() * window.innerWidth;
 
                 if (window.lightningOverlay) {
                     window.lightningOverlay.clear();
@@ -31573,8 +31725,8 @@ function update() {
                     let ly = 0;
                     window.lightningGraphics.moveTo(boltX, ly);
                     for (let i = 0; i < 5; i++) {
-                        boltX += (Math.random() - 0.5) * 200;
-                        ly += (window.innerHeight / 5) + (Math.random() - 0.5) * 100;
+                        boltX += (lightningRng() - 0.5) * 200;
+                        ly += (window.innerHeight / 5) + (lightningRng() - 0.5) * 100;
                         window.lightningGraphics.lineTo(boltX, ly);
                     }
                     window.lightningGraphics.strokePath();
@@ -31618,11 +31770,11 @@ function update() {
 
                     flashes++;
                     if (flashes < maxFlashes) {
-                        setTimeout(triggerFlash, 50 + Math.random() * 100);
+                        setTimeout(triggerFlash, 50 + lightningRng() * 100);
                     } else {
                         window.lightningActive = false;
                     }
-                }, 50 + Math.random() * 50);
+                }, 50 + lightningRng() * 50);
             };
 
             triggerFlash();
