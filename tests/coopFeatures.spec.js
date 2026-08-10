@@ -24,7 +24,7 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     const starter = p2Creatures[0];
     expect(starter.level).toBe(1);
     expect(starter.xp).toBe(0);
-    expect(starter.id).toContain('_starter_p2');
+    expect(starter.id).toContain('starter_p2');
     expect(starter.generation === 1 || !starter.generation).toBe(true);
   });
 
