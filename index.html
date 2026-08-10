@@ -2425,10 +2425,200 @@
         }
     }
 
+    /* Cyberpunk Cinematic Transition Overlay and Battle Effects */
+    #cyberTransitionOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        overflow: hidden;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    #cyberTransitionOverlay.active {
+        display: flex;
+        animation: cyberFlashGlitch 0.6s ease-out forwards;
+    }
+
+    .cyber-grid-background {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background-image:
+            linear-gradient(rgba(0, 255, 210, 0.05) 2px, transparent 2px),
+            linear-gradient(90deg, rgba(0, 255, 210, 0.05) 2px, transparent 2px);
+        background-size: 40px 40px;
+        transform: perspective(500px) rotateX(60deg);
+        animation: gridScroll 4s linear infinite;
+    }
+
+    .cyber-scanline-beam {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(180deg, transparent, rgba(0, 255, 210, 0.8), transparent);
+        box-shadow: 0 0 20px rgba(0, 255, 210, 0.8);
+        animation: scanlineSweep 1.5s linear infinite;
+    }
+
+    .cyber-glitch-text {
+        color: #00ffd2;
+        font-size: 24px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        text-shadow: 0 0 10px rgba(0, 255, 210, 0.8), -2px -2px 0 #ff00ff, 2px 2px 0 #00ffff;
+        animation: textGlitchMove 0.15s steps(2) infinite, textPulse 1s ease-in-out infinite alternate;
+        z-index: 10;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    .cyber-status-sub {
+        color: #ff3366;
+        font-size: 14px;
+        letter-spacing: 2px;
+        margin-top: 15px;
+        text-transform: uppercase;
+        text-shadow: 0 0 5px rgba(255, 51, 102, 0.8);
+        animation: textPulse 0.5s ease-in-out infinite alternate;
+        z-index: 10;
+    }
+
+    @keyframes cyberFlashGlitch {
+        0% {
+            opacity: 0;
+            background: rgba(0, 255, 210, 0.8);
+        }
+        10% {
+            opacity: 1;
+            background: rgba(255, 51, 102, 0.5);
+        }
+        20% {
+            background: rgba(0, 0, 0, 0.95);
+        }
+        30% {
+            transform: skewX(-5deg);
+        }
+        35% {
+            transform: skewX(5deg);
+        }
+        40% {
+            transform: none;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes gridScroll {
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 0 400px;
+        }
+    }
+
+    @keyframes scanlineSweep {
+        0% {
+            top: -5%;
+        }
+        100% {
+            top: 105%;
+        }
+    }
+
+    @keyframes textGlitchMove {
+        0% {
+            transform: translate(0);
+        }
+        50% {
+            transform: translate(-3px, 2px) skewX(2deg);
+        }
+        100% {
+            transform: translate(2px, -2px) skewX(-2deg);
+        }
+    }
+
+    @keyframes textPulse {
+        0% {
+            opacity: 0.7;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    /* Screen Shake and Color Glitch on Critical/Faint/Victory */
+    .battle-critical-shake {
+        animation: intenseShake 0.4s cubic-bezier(.36,.07,.19,.97) both, colorGlitchFlash 0.4s linear;
+    }
+
+    @keyframes intenseShake {
+        10%, 90% { transform: translate3d(-4px, 0, 0) rotate(-1deg); }
+        20%, 80% { transform: translate3d(6px, -4px, 0) rotate(1deg); }
+        30%, 50%, 70% { transform: translate3d(-8px, 6px, 0) rotate(-1.5deg); }
+        40%, 60% { transform: translate3d(8px, -6px, 0) rotate(1.5deg); }
+    }
+
+    @keyframes colorGlitchFlash {
+        0% { filter: invert(0) saturate(1) hue-rotate(0deg); }
+        20% { filter: invert(0.8) saturate(3) hue-rotate(90deg); }
+        40% { filter: invert(0) saturate(1.5) hue-rotate(180deg); }
+        60% { filter: invert(0.8) saturate(4) hue-rotate(270deg); }
+        100% { filter: invert(0) saturate(1) hue-rotate(360deg); }
+    }
+
+    /* System Security Secured / Victory Override Banner */
+    .cyber-victory-banner {
+        position: absolute;
+        top: 35%;
+        left: 5%;
+        width: 90%;
+        background: linear-gradient(90deg, transparent, rgba(0, 255, 210, 0.9), transparent);
+        border-top: 2px solid #00ffd2;
+        border-bottom: 2px solid #00ffd2;
+        padding: 20px 0;
+        text-align: center;
+        z-index: 1000;
+        box-shadow: 0 0 30px rgba(0, 255, 210, 0.4);
+        animation: victoryBannerIntro 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes victoryBannerIntro {
+        0% {
+            transform: scaleX(0);
+            opacity: 0;
+        }
+        100% {
+            transform: scaleX(1);
+            opacity: 1;
+        }
+    }
+
 </style>
 
 </head>
 <body>
+<div id="cyberTransitionOverlay">
+    <div class="cyber-grid-background"></div>
+    <div class="cyber-scanline-beam"></div>
+    <div class="cyber-glitch-text" id="cyberGlitchText">⚡ LINKING NEURAL SYNC... ⚡</div>
+    <div class="cyber-status-sub" id="cyberGlitchSub">⚡ [ SYSTEM INTRUSION ENGAGED ] ⚡</div>
+</div>
 <div id="game-container"></div>
 <div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
     <h1 class="neon-title" style="position: relative; z-index: 10; font-size: 48px; margin-bottom: 40px;">WildPulse Odyssey</h1>
@@ -7651,6 +7841,79 @@ document.addEventListener('DOMContentLoaded', () => {
     const battleArea = document.querySelector('#battleModal .battle-area');
     if (battleArea) {
         window.originalBattleAreaHTML = battleArea.innerHTML;
+    }
+
+    // Cyberpunk Battle Entry & Exit Cinematic Transitions Observer
+    const battleModalEl = document.getElementById('battleModal');
+    const overlay = document.getElementById('cyberTransitionOverlay');
+    const glitchText = document.getElementById('cyberGlitchText');
+    const glitchSub = document.getElementById('cyberGlitchSub');
+
+    if (battleModalEl && overlay) {
+        let previousDisplay = battleModalEl.style.display;
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'style') {
+                    const currentDisplay = battleModalEl.style.display;
+                    if (currentDisplay !== previousDisplay) {
+                        if (currentDisplay === 'block') {
+                            // Battle mode initiated! Play cinematic entry
+                            if (window.gameScene && window.gameScene.cameras) {
+                                window.gameScene.cameras.main.shake(300, 0.01);
+                                if (window.camera2) window.camera2.shake(300, 0.01);
+                            }
+
+                            // Update text depending on type of battle
+                            if (window.inDojoBattle) {
+                                if (glitchText) glitchText.innerText = "⚡ DOJO LEADER CONFLICT ⚡";
+                                if (glitchSub) glitchSub.innerText = "⚡ [ HYPER ELITE PROTOCOL TRIGGERED ] ⚡";
+                            } else if (window.isNpcBattle) {
+                                if (glitchText) glitchText.innerText = "⚡ TRAINER FIELD DUEL ⚡";
+                                if (glitchSub) glitchSub.innerText = "⚡ [ NEURAL LINK SYNCING ] ⚡";
+                            } else if (window.inChallengeBattle) {
+                                if (glitchText) glitchText.innerText = "⚡ CROWN CHALLENGE INTRUSION ⚡";
+                                if (glitchSub) glitchSub.innerText = "⚡ [ LEVEL SECURITY UNLOCKED ] ⚡";
+                            } else if (window.isLocalPvp) {
+                                if (glitchText) glitchText.innerText = "⚡ LOCAL NETWORK PVP ENGAGED ⚡";
+                                if (glitchSub) glitchSub.innerText = "⚡ [ SYMMETRICAL DIVISION INITIATED ] ⚡";
+                            } else {
+                                if (glitchText) glitchText.innerText = "⚡ WILD CREATURE ENCOUNTER ⚡";
+                                if (glitchSub) glitchSub.innerText = "⚡ [ BIOME SECURING IN PROGRESS ] ⚡";
+                            }
+
+                            // Play Entry Cinematic Overlay
+                            overlay.style.display = 'flex';
+                            overlay.classList.add('active');
+
+                            // Temporarily dim the battle modal content for entry visual impact
+                            battleModalEl.style.opacity = '0';
+                            battleModalEl.style.transition = 'opacity 0.3s ease';
+
+                            setTimeout(() => {
+                                // Fade in battle modal content after transition flash peak
+                                battleModalEl.style.opacity = '1';
+                            }, 400);
+
+                            setTimeout(() => {
+                                overlay.classList.remove('active');
+                                overlay.style.display = 'none';
+                            }, 800);
+                        } else if (currentDisplay === 'none' && (previousDisplay === 'block' || previousDisplay === '')) {
+                            // Battle exited! Play exit glitch fade-out
+                            overlay.style.display = 'flex';
+                            if (glitchText) glitchText.innerText = "⚡ BATTLE TERMINATED ⚡";
+                            if (glitchSub) glitchSub.innerText = "⚡ [ RETURNING TO MAIN GRID ] ⚡";
+
+                            setTimeout(() => {
+                                overlay.style.display = 'none';
+                            }, 600);
+                        }
+                        previousDisplay = currentDisplay;
+                    }
+                }
+            });
+        });
+        observer.observe(battleModalEl, { attributes: true, attributeFilter: ['style'] });
     }
 
     // Performance Settings Sync and Hook-ups
@@ -15447,6 +15710,57 @@ window.gainXp = function(creature, amount) {
     return leveledUp;
 };
 
+window.checkLevelUpForCreature = function(creature, playerNum) {
+    if (!creature) return;
+
+    let oldStats = {};
+    ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
+        oldStats[stat] = window.getEffectiveStat(creature, stat);
+    });
+
+    let leveledUp = window.gainXp(creature, 0); // Apply level ups based on their current accumulated XP
+
+    if (leveledUp) {
+        let statsHtml = '';
+
+        if (creature.growthSpurtThisLevel) {
+            statsHtml += `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em;">✨ Growth Spurt! All stats increased! ✨</div>`;
+            creature.growthSpurtThisLevel = false;
+        }
+
+        const statColors = {health: '#4caf50', attack: '#ff9800', defense: '#9c27b0', speed: '#ffeb3b', specialAttack: '#00bcd4', specialDefense: '#e91e63'};
+
+        ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
+            let oldVal = Math.round(oldStats[stat]);
+            let newVal = Math.round(window.getEffectiveStat(creature, stat));
+            let diff = newVal - oldVal;
+            if (diff > 0) {
+                statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldVal} <span style="color:#4caf50">➔ ${newVal} (+${diff})</span></div>`;
+            }
+        });
+
+        if (window.coopActive) {
+            const targetPlayerNum = playerNum;
+            if (targetPlayerNum === 2) {
+                document.getElementById('levelUpTitle_P2').innerText = `${creature.nickname || creature.name} reached Level ${creature.level}!`;
+                document.getElementById('levelUpStats_P2').innerHTML = statsHtml;
+                document.getElementById('levelUpTitle_P1').innerText = "Player 1";
+                document.getElementById('levelUpStats_P1').innerHTML = `<p style="color:#aaa; font-style:italic;">Watching partner level up...</p>`;
+            } else {
+                document.getElementById('levelUpTitle_P1').innerText = `${creature.nickname || creature.name} reached Level ${creature.level}!`;
+                document.getElementById('levelUpStats_P1').innerHTML = statsHtml;
+                document.getElementById('levelUpTitle_P2').innerText = "Player 2";
+                document.getElementById('levelUpStats_P2').innerHTML = `<p style="color:#aaa; font-style:italic;">Watching partner level up...</p>`;
+            }
+        } else {
+            document.getElementById('levelUpTitle').innerText = `${creature.nickname || creature.name} reached Level ${creature.level}!`;
+            document.getElementById('levelUpStats').innerHTML = statsHtml;
+        }
+        document.getElementById('levelUpModal').style.display = 'block';
+        window.pendingLevelUp = true;
+    }
+};
+
 // Augment base creatures with new stats and a nature
 const baseStatsSeed = window.gameSeed || 123456789;
 const baseStatsRng = window.mulberry32(baseStatsSeed);
@@ -21690,6 +22004,17 @@ function logBattle(msg) {
     const playerNum = (window.activeBattlePlayer === 2 && window.coopActive) ? 2 : 1;
     window.battleStates[playerNum].battleLogQueue.push(msg);
     processLogQueue();
+
+    // Trigger visual critical hit shake/flash if critical hit log detected
+    if (msg && (msg.includes('Critical Hit') || msg.includes('critical') || msg.includes('Critical'))) {
+        const battleModal = document.getElementById('battleModal');
+        if (battleModal) {
+            battleModal.classList.add('battle-critical-shake');
+            setTimeout(() => {
+                battleModal.classList.remove('battle-critical-shake');
+            }, 400);
+        }
+    }
 }
 
 window.initializeBattleMutations = function() {
@@ -21922,6 +22247,167 @@ window.startDualBattle = function(playerCollider, creatureSprite) {
     window.updateBattleUI();
 };
 
+window.startNpcDualBattle = function(playerCollider, trainerId, trainerName) {
+    if (window.inBattle) return;
+
+    // Check both players have healthy creatures
+    const activeParty1 = window.collectedCreatures.filter(c => !c.stored && !c.isEgg);
+    const activeParty2 = window.collectedCreatures2.filter(c => !c.stored && !c.isEgg);
+
+    const healthy1 = activeParty1.filter(c => (c.currentHp === undefined || c.currentHp > 0));
+    const healthy2 = activeParty2.filter(c => (c.currentHp === undefined || c.currentHp > 0));
+
+    if (healthy1.length === 0 || healthy2.length === 0) {
+        window.showModernNotification("Both players must have at least one healthy creature to participate in a Dual Battle!", 3000);
+        return;
+    }
+
+    // Stop movement for both players
+    if (window.player && window.player.body) {
+        window.player.body.setVelocity(0);
+        window.player.body.moves = false;
+    }
+    if (window.player2 && window.player2.body) {
+        window.player2.body.setVelocity(0);
+        window.player2.body.moves = false;
+    }
+
+    window.battleEnding = false;
+    window.inBattle = true;
+    window.isDualBattle = true;
+    window.isNpcBattle = true;
+    window.activeNpcTrainerId = trainerId;
+    window.dualBattleTurn = 1; // P1 chooses first
+    window.dualBattleActions = {};
+
+    // Symmetrically initialize HP for both parties if undefined
+    activeParty1.forEach(c => {
+        if (c.currentHp === undefined) c.currentHp = window.getEffectiveStat(c, 'health');
+    });
+    activeParty2.forEach(c => {
+        if (c.currentHp === undefined) c.currentHp = window.getEffectiveStat(c, 'health');
+    });
+
+    // Player 1's active combatant
+    const firstHealthyP1 = healthy1[0];
+    window.currentPlayer = JSON.parse(JSON.stringify(firstHealthyP1));
+    window.currentPlayer.maxHp = window.getEffectiveStat(window.currentPlayer, 'health');
+    window.currentPlayer.currentHp = window.currentPlayer.currentHp !== undefined ? window.currentPlayer.currentHp : window.currentPlayer.maxHp;
+    window.currentPlayer.isDefending = false;
+    window.currentPlayer.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+    currentPlayer = window.currentPlayer;
+
+    // Player 2's active combatant
+    const firstHealthyP2 = healthy2[0];
+    window.currentPlayer2 = JSON.parse(JSON.stringify(firstHealthyP2));
+    window.currentPlayer2.maxHp = window.getEffectiveStat(window.currentPlayer2, 'health');
+    window.currentPlayer2.currentHp = window.currentPlayer2.currentHp !== undefined ? window.currentPlayer2.currentHp : window.currentPlayer2.maxHp;
+    window.currentPlayer2.isDefending = false;
+    window.currentPlayer2.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+
+    const rng = Math.random;
+
+    // Helper to generate matching enemy creature
+    const generateEnemy = (playerCreature, idx) => {
+        const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+        let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
+
+        enemyCreature.level = playerCreature.level || 1;
+        enemyCreature.xp = 0;
+
+        if (enemyCreature.stats) {
+            for (let stat in enemyCreature.stats) {
+                enemyCreature.stats[stat] += Math.floor(rng() * 32); // IV
+            }
+        }
+        enemyCreature.nature = window.getRandomNature(false, rng);
+        enemyCreature.mood = window.getRandomMood(false, rng);
+        enemyCreature.temperament = window.getRandomTemperament(rng);
+        window.assignAbility(enemyCreature, rng);
+        enemyCreature.id = `npc_enemy_dual_${trainerId}_${idx}_${Date.now()}`;
+        enemyCreature.color = window.getCreatureColor(enemyCreature);
+
+        const typePrefixes = {
+            "Fire": ["Ember", "Flare", "Ash", "Pyre", "Cinder", "Flame", "Ignis", "Scorchi", "Magma", "Lava", "Inferno", "Sear", "Char", "Blaze", "Smolder"],
+            "Water": ["Tide", "Aqua", "Ripple", "Surf", "Brine", "Splash", "Hydro", "Wave", "Ocean", "River", "Torrent", "Abyss", "Reef", "Fjord", "Glacier"],
+            "Nature": ["Moss", "Leaf", "Thorn", "Briar", "Petal", "Flora", "Bloom", "Vine", "Bark", "Root", "Sylvan", "Timber", "Grove", "Bramble", "Thicket"],
+            "Electric": ["Spark", "Volt", "Jolt", "Static", "Blitz", "Zap", "Wire", "Ohm", "Charge", "Amp", "Thunder", "Storm", "Galvan", "Circuit", "Pulse"],
+            "Ice": ["Frost", "Snow", "Chill", "Glace", "Rime", "Ice", "Polar", "Blizz", "Hail", "Winter", "Tundra", "Shiver", "Crystal", "Glacier", "Arctic"],
+            "Earth": ["Dune", "Rock", "Terra", "Mud", "Dust", "Stone", "Crag", "Soil", "Clay", "Quake", "Boulder", "Gravel", "Mountain", "Canyon", "Bedrock"],
+            "Wind": ["Gale", "Zephyr", "Breeze", "Gust", "Aero", "Wind", "Draft", "Squall", "Hover", "Flit", "Cyclone", "Tempest", "Aether", "Stratus", "Nimbus"],
+            "Light": ["Dawn", "Lux", "Glow", "Beam", "Ray", "Sun", "Shine", "Bright", "Solar", "Halo", "Radiant", "Lumen", "Aura", "Prism", "Glare"],
+            "Dark": ["Dusk", "Umbra", "Shade", "Gloom", "Void", "Night", "Shadow", "Murk", "Grim", "Obsid", "Phantom", "Abyss", "Stygian", "Onyx", "Nether"],
+            "Cosmic": ["Nova", "Star", "Astro", "Cosmo", "Nebula", "Space", "Luna", "Celest", "Orbit", "Meteor", "Galaxy", "Comet", "Quasar", "Pulsar", "Zenith"]
+        };
+        const suffixes = [
+            "hound", "bear", "fox", "hawk", "weaver", "stalker", "strider", "glider", "horn", "shell",
+            "fin", "paw", "scale", "claw", "tail", "wing", "fang", "snout", "mane", "hoof",
+            "beak", "crest", "tuft", "whisker", "spine", "pelt", "fleece", "hide", "gill", "web",
+            "wyrm", "drake", "beast", "fiend", "sprite", "wisp", "golem", "titan", "colossus", "lurker",
+            "runner", "dasher", "soarer", "diver", "crawler", "leaper", "bounder", "watcher", "seeker", "hunter"
+        ];
+        const pList = typePrefixes[enemyCreature.type] || typePrefixes["Nature"];
+        enemyCreature.name = pList[Math.floor(rng() * pList.length)] + suffixes[Math.floor(rng() * suffixes.length)];
+
+        // Generate dynamic texture if it doesn't exist
+        const isShiny = !!enemyCreature.isShiny;
+        const speciesId = enemyCreature.name;
+        const sanitizedId = String(speciesId).replace(/[^a-zA-Z0-9_]/g, '_');
+        const textureKey = `creature_tex_${sanitizedId}_${enemyCreature.id}_${isShiny ? 'shiny' : 'normal'}`;
+
+        if (game && game.scene.scenes[0]) {
+            const scene = game.scene.scenes[0];
+            if (!scene.textures.exists(textureKey)) {
+                const dCanvas = document.createElement('canvas');
+                dCanvas.width = 64;
+                dCanvas.height = 64;
+                dCanvas.creatureDataReference = enemyCreature;
+                window.renderCreatureCanvas(dCanvas, enemyCreature, 64, false);
+                scene.textures.addCanvas(textureKey, dCanvas);
+            }
+        }
+
+        enemyCreature.maxHp = window.getEffectiveStat(enemyCreature, 'health');
+        enemyCreature.currentHp = enemyCreature.maxHp;
+        enemyCreature.isDefending = false;
+        enemyCreature.battleStats = { attackMod: 1.0, accuracyMod: 1.0, abilityUses: 0 };
+        return enemyCreature;
+    };
+
+    // Generate Enemy 1 and Enemy 2 based on Player 1 and Player 2 active creatures
+    window.currentEnemy = generateEnemy(window.currentPlayer, 1);
+    window.currentEnemy2 = generateEnemy(window.currentPlayer2, 2);
+    window.currentEnemySprite = null; // No physical overworld sprite for the second wild enemy
+
+    // Update HTML of .battle-area to Dual Battle template
+    const battleArea = document.querySelector('#battleModal .battle-area');
+    if (battleArea) {
+        battleArea.innerHTML = window.getDualBattleAreaHTML();
+    }
+
+    // Set up class for full-width styling
+    const battleModal = document.getElementById('battleModal');
+    if (battleModal) {
+        battleModal.classList.add('dual-battle-active');
+        battleModal.style.display = 'block';
+    }
+
+    document.getElementById('battleControls').style.display = 'grid';
+    document.getElementById('battleCloseBtn').style.display = 'none';
+    document.getElementById('battleLog').innerHTML = '';
+    window.battleLogQueue = [];
+    window.isActionRunning = false;
+
+    window.logBattle(`<span style="color:#00ffff; font-size: 1.2em;">--- COOPERATIVE NPC DUEL WITH ${trainerName} ---</span>`);
+    window.logBattle(`Trainer ${trainerName} challenges you both to a 2v2 Dual Battle!`);
+    window.logBattle(`${window.getP1Name()} sends out <span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span>!`);
+    window.logBattle(`${window.getP2Name()} sends out <span style="color:#ff00ff">${window.currentPlayer2.nickname || window.currentPlayer2.name}</span>!`);
+    window.logBattle(`Trainer sends out <span style="color:#f44336">${window.currentEnemy.name}</span> (Lv.${window.currentEnemy.level}) and <span style="color:#ff3366">${window.currentEnemy2.name}</span> (Lv.${window.currentEnemy2.level})!`);
+    window.logBattle(`${window.getP1Name()}'s Turn: Choose action!`);
+
+    window.updateBattleUI();
+};
+
 window.executeDualBattleRound = function() {
     let p1Action = window.dualBattleActions.p1;
     let p2Action = window.dualBattleActions.p2;
@@ -22125,7 +22611,37 @@ window.executeDualBattleRound = function() {
 window.checkDualBattleFaintsOrEnd = function(callback) {
     const enemiesFainted = (window.currentEnemy.currentHp <= 0 && window.currentEnemy2.currentHp <= 0);
     if (enemiesFainted) {
-        window.logBattle(`<span style="color:#55ff55; font-weight:bold;">VICTORY! Both wild creatures have been defeated cooperatively!</span>`);
+        if (window.isNpcBattle && window.activeNpcTrainerId) {
+            window.logBattle(`<span style="color:#55ff55; font-weight:bold;">VICTORY! The trainer's team has been defeated cooperatively!</span>`);
+
+            const trainerId = window.activeNpcTrainerId;
+            const trainerData = window.getNpcTrainerData(trainerId);
+            const currentWeek = Math.floor(window.wildpulse_inGameDays / 7);
+
+            // Record defeated/weekly count for BOTH p1 and p2
+            if (!trainerData.p1) trainerData.p1 = { weekBattles: {}, lastBattleTimeMs: 0 };
+            if (!trainerData.p1.weekBattles) trainerData.p1.weekBattles = {};
+            trainerData.p1.weekBattles[currentWeek] = (trainerData.p1.weekBattles[currentWeek] || 0) + 1;
+            trainerData.p1.lastBattleTimeMs = window.totalElapsedMs;
+            trainerData.p1.defeated = true;
+
+            if (!trainerData.p2) trainerData.p2 = { weekBattles: {}, lastBattleTimeMs: 0 };
+            if (!trainerData.p2.weekBattles) trainerData.p2.weekBattles = {};
+            trainerData.p2.weekBattles[currentWeek] = (trainerData.p2.weekBattles[currentWeek] || 0) + 1;
+            trainerData.p2.lastBattleTimeMs = window.totalElapsedMs;
+            trainerData.p2.defeated = true;
+
+            // Sync top-level keys for P1/legacy compatibility
+            trainerData.defeated = true;
+            if (!trainerData.weekBattles) trainerData.weekBattles = {};
+            trainerData.weekBattles[currentWeek] = (trainerData.weekBattles[currentWeek] || 0) + 1;
+            trainerData.lastBattleTimeMs = window.totalElapsedMs;
+
+            window.saveNpcTrainerData(trainerId, trainerData);
+            window.logBattle(`<span style="color:#ffd700; font-weight:bold;">Cooperative victory credit recorded for BOTH players!</span>`);
+        } else {
+            window.logBattle(`<span style="color:#55ff55; font-weight:bold;">VICTORY! Both wild creatures have been defeated cooperatively!</span>`);
+        }
 
         // Award 225 gold (modified for passive gold multipliers)
         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
@@ -22211,6 +22727,8 @@ window.checkDualBattleFaintsOrEnd = function(callback) {
 window.endDualBattle = function(result) {
     window.inBattle = false;
     window.isDualBattle = false;
+    window.isNpcBattle = false;
+    window.activeNpcTrainerId = null;
 
     if (window.player && window.player.body) {
         window.player.body.moves = true;
@@ -26040,7 +26558,9 @@ function handleNpcTrainerOverlap(playerCollider, npcSprite) {
 
     // Ask player to confirm battle
     if (confirm(`Trainer ${trainerName} challenges you to a battle! Do you accept?`)) {
-        if (window.startNpcBattle) {
+        if (window.coopActive && window.startNpcDualBattle) {
+            window.startNpcDualBattle(playerCollider, trainerId, trainerName);
+        } else if (window.startNpcBattle) {
             window.startNpcBattle(playerCollider, trainerId, trainerName);
         }
     } else {
