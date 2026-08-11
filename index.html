@@ -4405,7 +4405,9 @@ window.updateStorageChestUI = function(playerNum) {
         "Pedometer": "👣",
         "Cyber-Core Upgrade": "🔘",
         "Nano-Nurture Serum": "💉",
-        "DNA Stabilizer": "🧬"
+        "DNA Stabilizer": "🧬",
+        "NPC Dual Link": "📡",
+        "Wild Dual Signal": "📶"
     };
 
     // 1. Render Chest Slots
@@ -9224,7 +9226,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Mini PvP", icon: "⚔️", desc: "A functional smaller version of the PvP arena. Place near your home. (Requires Lv 10)" },
         { name: "Mini Breeding Center", icon: "🥚", desc: "A functional smaller version of the Breeding Center. Place near your home. (Requires Lv 10)" },
         { name: "Mini Challenge", icon: "👑", desc: "A functional smaller version of the Challenge area. Place near your home. (Requires Lv 10)" },
-        { name: "Dojo Tile", icon: "⛩️", desc: "A placeable tile that summons the Dojo Leader for elite matches. (Defeat all 24 trainers)" }
+        { name: "Dojo Tile", icon: "⛩️", desc: "A placeable tile that summons the Dojo Leader for elite matches. (Defeat all 24 trainers)" },
+        { name: "NPC Dual Link", icon: "📡", desc: "Guarantees a 100% chance of a cooperative 2v2 NPC Trainer Dual Battle for 5 minutes." },
+        { name: "Wild Dual Signal", icon: "📶", desc: "Guarantees a 100% chance of a cooperative wild creature Dual Battle for 5 minutes." }
     ];
 
     window.updateIntroItemCarousel = function(playerNum = 1) {
@@ -16205,7 +16209,9 @@ const defaultStock = {
     "Cyber-Core Upgrade": 15,
     "Nano-Nurture Serum": 15,
     "DNA Stabilizer": 15,
-    "Storage Chest": 15
+    "Storage Chest": 15,
+    "NPC Dual Link": 15,
+    "Wild Dual Signal": 15
 };
 window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
@@ -16219,6 +16225,10 @@ window.p1ExPallTime = parseFloat(localStorage.getItem('wildpulse_p1ExPallTime'))
 window.p2ExPallTime = parseFloat(localStorage.getItem('wildpulse_p2ExPallTime')) || 0;
 window.p1PedometerTime = parseFloat(localStorage.getItem('wildpulse_p1PedometerTime')) || 0;
 window.p2PedometerTime = parseFloat(localStorage.getItem('wildpulse_p2PedometerTime')) || 0;
+window.p1NpcDualTime = parseFloat(localStorage.getItem('wildpulse_p1NpcDualTime')) || 0;
+window.p2NpcDualTime = parseFloat(localStorage.getItem('wildpulse_p2NpcDualTime')) || 0;
+window.p1WildDualTime = parseFloat(localStorage.getItem('wildpulse_p1WildDualTime')) || 0;
+window.p2WildDualTime = parseFloat(localStorage.getItem('wildpulse_p2WildDualTime')) || 0;
 
 window.saveInventory = function() {
     localStorage.setItem('wildpulse_inventory', JSON.stringify(window.p1Inventory));
@@ -16234,6 +16244,10 @@ window.saveActiveBuffTimers = function() {
     localStorage.setItem('wildpulse_p2ExPallTime', window.p2ExPallTime.toString());
     localStorage.setItem('wildpulse_p1PedometerTime', window.p1PedometerTime.toString());
     localStorage.setItem('wildpulse_p2PedometerTime', window.p2PedometerTime.toString());
+    localStorage.setItem('wildpulse_p1NpcDualTime', (window.p1NpcDualTime || 0).toString());
+    localStorage.setItem('wildpulse_p2NpcDualTime', (window.p2NpcDualTime || 0).toString());
+    localStorage.setItem('wildpulse_p1WildDualTime', (window.p1WildDualTime || 0).toString());
+    localStorage.setItem('wildpulse_p2WildDualTime', (window.p2WildDualTime || 0).toString());
 };
 
 window.updateVisualTimerCircles = function() {
@@ -16271,6 +16285,8 @@ function updatePlayerTimers(playerNum, isVisible) {
     const jankTime = playerNum === 2 ? window.p2JankJuiceTime : window.p1JankJuiceTime;
     const expallTime = playerNum === 2 ? window.p2ExPallTime : window.p1ExPallTime;
     const pedometerTime = playerNum === 2 ? window.p2PedometerTime : window.p1PedometerTime;
+    const npcDualTime = playerNum === 2 ? window.p2NpcDualTime : window.p1NpcDualTime;
+    const wildDualTime = playerNum === 2 ? window.p2WildDualTime : window.p1WildDualTime;
 
     if (repelTime && repelTime > 0) {
         buffs.push({ key: 'Repellent', emoji: '🧴', time: repelTime, baseline: 60000 });
@@ -16283,6 +16299,12 @@ function updatePlayerTimers(playerNum, isVisible) {
     }
     if (pedometerTime && pedometerTime > 0) {
         buffs.push({ key: 'Pedometer', emoji: '👣', time: pedometerTime, baseline: 60000 });
+    }
+    if (npcDualTime && npcDualTime > 0) {
+        buffs.push({ key: 'NPC Dual', emoji: '📡', time: npcDualTime, baseline: 300000 });
+    }
+    if (wildDualTime && wildDualTime > 0) {
+        buffs.push({ key: 'Wild Dual', emoji: '📶', time: wildDualTime, baseline: 300000 });
     }
 
     if (buffs.length === 0) {
@@ -16544,7 +16566,9 @@ window.updateStoreUI = function() {
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
         { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
-        { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." }
+        { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
+        { name: "NPC Dual Link", icon: "📡", price: 400, desc: "Guarantees a 100% chance of an NPC Trainer Dual Battle for 5 minutes." },
+        { name: "Wild Dual Signal", icon: "📶", price: 400, desc: "Guarantees a 100% chance of a wild creature Dual Battle for 5 minutes." }
     ];
 
     const renderColumn = (playerNum, containerId) => {
@@ -16823,6 +16847,12 @@ window.updateActiveBuffsHUD = function() {
         if (window.p1PedometerTime && window.p1PedometerTime > 0) {
             txts.push(`👣 Pedometer: ${Math.ceil(window.p1PedometerTime / 1000)}s`);
         }
+        if (window.p1NpcDualTime && window.p1NpcDualTime > 0) {
+            txts.push(`📡 NPC Dual: ${Math.ceil(window.p1NpcDualTime / 1000)}s`);
+        }
+        if (window.p1WildDualTime && window.p1WildDualTime > 0) {
+            txts.push(`📶 Wild Dual: ${Math.ceil(window.p1WildDualTime / 1000)}s`);
+        }
         const textVal = txts.join('\n');
         if (window._lastP1BuffsText !== textVal) {
             p1Buffs.innerText = textVal;
@@ -16844,6 +16874,12 @@ window.updateActiveBuffsHUD = function() {
         }
         if (window.p2PedometerTime && window.p2PedometerTime > 0) {
             txts.push(`👣 Pedometer: ${Math.ceil(window.p2PedometerTime / 1000)}s`);
+        }
+        if (window.p2NpcDualTime && window.p2NpcDualTime > 0) {
+            txts.push(`📡 NPC Dual: ${Math.ceil(window.p2NpcDualTime / 1000)}s`);
+        }
+        if (window.p2WildDualTime && window.p2WildDualTime > 0) {
+            txts.push(`📶 Wild Dual: ${Math.ceil(window.p2WildDualTime / 1000)}s`);
         }
         const textVal = txts.join('\n');
         if (window._lastP2BuffsText !== textVal) {
@@ -16916,6 +16952,28 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 180 seconds.", 3000, playerNum);
+    }
+    else if (item.name === "NPC Dual Link") {
+        if (playerNum === 2) {
+            window.p2NpcDualTime = (window.p2NpcDualTime || 0) + 300000;
+        } else {
+            window.p1NpcDualTime = (window.p1NpcDualTime || 0) + 300000;
+        }
+        window.saveActiveBuffTimers();
+        if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
+        consumeItem();
+        window.showModernNotification("📡 NPC Dual Link active! Cooperative 2v2 NPC Trainer battles guaranteed for 5 minutes.", 3000, playerNum);
+    }
+    else if (item.name === "Wild Dual Signal") {
+        if (playerNum === 2) {
+            window.p2WildDualTime = (window.p2WildDualTime || 0) + 300000;
+        } else {
+            window.p1WildDualTime = (window.p1WildDualTime || 0) + 300000;
+        }
+        window.saveActiveBuffTimers();
+        if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
+        consumeItem();
+        window.showModernNotification("📶 Wild Dual Signal active! Wild Dual battles guaranteed for 5 minutes.", 3000, playerNum);
     }
     else if (item.name === "Healing Juice Jug") {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -17110,6 +17168,10 @@ window.getItemIconHTML = function(itemName, size = 24) {
         glowColor = '#ff9f00';
     } else if (itemName === "Pedometer") {
         glowColor = '#00ffd2';
+    } else if (itemName === "NPC Dual Link") {
+        glowColor = '#00ffd2';
+    } else if (itemName === "Wild Dual Signal") {
+        glowColor = '#ff4400';
     } else if (itemName.startsWith("Mini") || itemName.includes("Tile") || itemName === "Storage Chest") {
         glowColor = '#00ffd2';
         if (itemName === "Storage Chest") glowColor = '#ff7f00';
@@ -17117,6 +17179,22 @@ window.getItemIconHTML = function(itemName, size = 24) {
     }
 
     switch (itemName) {
+        case "NPC Dual Link":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <circle cx="50" cy="50" r="28" fill="none" stroke="#00ffd2" stroke-width="2" stroke-dasharray="4,4" />
+                <path d="M50,80 L50,55" stroke="#00ffd2" stroke-width="4" stroke-linecap="round" />
+                <path d="M35,40 A20,20 0 0,1 65,40" fill="none" stroke="#00ffd2" stroke-width="3" stroke-linecap="round" filter="url(#glow)" />
+                <path d="M25,30 A35,35 0 0,1 75,30" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+                <circle cx="50" cy="55" r="5" fill="#00ffd2" />`;
+            break;
+        case "Wild Dual Signal":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff4400" stroke-width="4"/>
+                <circle cx="50" cy="50" r="28" fill="none" stroke="#ff4400" stroke-width="2" stroke-dasharray="4,4" />
+                <path d="M30,70 L30,60" stroke="#ff4400" stroke-width="4" stroke-linecap="round" />
+                <path d="M43,70 L43,50" stroke="#ff4400" stroke-width="4" stroke-linecap="round" />
+                <path d="M56,70 L56,40" stroke="#ff4400" stroke-width="4" stroke-linecap="round" />
+                <path d="M70,70 L70,30" stroke="#fff" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />`;
+            break;
         case "Repellent":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3300" stroke-width="4"/>
                 <path d="M40,20 L60,20 L55,35 L45,35 Z" fill="#666" />
@@ -17331,7 +17409,9 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "Pedometer": "👣",
         "Cyber-Core Upgrade": "🔘",
         "Nano-Nurture Serum": "💉",
-        "DNA Stabilizer": "🧬"
+        "DNA Stabilizer": "🧬",
+        "NPC Dual Link": "📡",
+        "Wild Dual Signal": "📶"
     };
     const emoji = emojiMap[itemName] || "📦";
 
@@ -17381,7 +17461,9 @@ window.updateInventoryUI = function() {
         "Pedometer": "👣",
         "Cyber-Core Upgrade": "🔘",
         "Nano-Nurture Serum": "💉",
-        "DNA Stabilizer": "🧬"
+        "DNA Stabilizer": "🧬",
+        "NPC Dual Link": "📡",
+        "Wild Dual Signal": "📶"
     };
 
     const updatePlayerSlots = (playerNum, containerId) => {
@@ -20823,7 +20905,9 @@ window.updateInventoryWheelUI = function(playerNum) {
         "Pedometer": "👣",
         "Cyber-Core Upgrade": "🔘",
         "Nano-Nurture Serum": "💉",
-        "DNA Stabilizer": "🧬"
+        "DNA Stabilizer": "🧬",
+        "NPC Dual Link": "📡",
+        "Wild Dual Signal": "📶"
     };
 
     const slots = ["slot1", "slot2", "slot3"];
@@ -20904,6 +20988,16 @@ window.deleteProgress = function(playerNum = 1) {
             localStorage.removeItem('wildpulse_p2_last_pet_time');
             localStorage.removeItem('wildpulse_p1PedometerTime');
             localStorage.removeItem('wildpulse_p2PedometerTime');
+            localStorage.removeItem('wildpulse_p1NpcDualTime');
+            localStorage.removeItem('wildpulse_p2NpcDualTime');
+            localStorage.removeItem('wildpulse_p1WildDualTime');
+            localStorage.removeItem('wildpulse_p2WildDualTime');
+            localStorage.removeItem('wildpulse_p1RepellentTime');
+            localStorage.removeItem('wildpulse_p2RepellentTime');
+            localStorage.removeItem('wildpulse_p1JankJuiceTime');
+            localStorage.removeItem('wildpulse_p2JankJuiceTime');
+            localStorage.removeItem('wildpulse_p1ExPallTime');
+            localStorage.removeItem('wildpulse_p2ExPallTime');
             localStorage.removeItem('wildpulse_p1_home_x');
             localStorage.removeItem('wildpulse_p1_home_y');
             localStorage.removeItem('wildpulse_p2_home_x');
@@ -20949,6 +21043,11 @@ window.deleteProgress = function(playerNum = 1) {
             localStorage.removeItem('wildpulse_p1_last_cookie_time');
             localStorage.removeItem('wildpulse_p1_last_pet_time');
             localStorage.removeItem('wildpulse_p1PedometerTime');
+            localStorage.removeItem('wildpulse_p1NpcDualTime');
+            localStorage.removeItem('wildpulse_p1WildDualTime');
+            localStorage.removeItem('wildpulse_p1RepellentTime');
+            localStorage.removeItem('wildpulse_p1JankJuiceTime');
+            localStorage.removeItem('wildpulse_p1ExPallTime');
             localStorage.removeItem('wildpulse_p1_home_x');
             localStorage.removeItem('wildpulse_p1_home_y');
             localStorage.removeItem('wildpulse_p1_mini_tiles');
@@ -26910,7 +27009,8 @@ function handleNpcTrainerOverlap(playerCollider, npcSprite) {
 
     // Ask player to confirm battle
     window.safeConfirm(playerNum, "TRAINER CHALLENGE", `Trainer ${trainerName} challenges you to a battle! Do you accept?`, () => {
-        if (window.coopActive && window.startNpcDualBattle && Math.random() < 0.25) {
+        const hasNpcDualBuff = (window.p1NpcDualTime && window.p1NpcDualTime > 0) || (window.p2NpcDualTime && window.p2NpcDualTime > 0);
+        if (window.coopActive && window.startNpcDualBattle && (hasNpcDualBuff || Math.random() < 0.25)) {
             window.startNpcDualBattle(playerCollider, trainerId, trainerName);
         } else if (window.startNpcBattle) {
             window.startNpcBattle(playerCollider, trainerId, trainerName);
@@ -27353,7 +27453,8 @@ function collectCreature(playerCollider, creatureSprite) {
     if (isP2Player && window.p2RepellentTime && window.p2RepellentTime > 0) return;
     if (!isP2Player && window.p1RepellentTime && window.p1RepellentTime > 0) return;
 
-    if (window.coopActive && window.activeRandomEvent === 'Dual Battle') {
+    const hasWildDualBuff = (window.p1WildDualTime && window.p1WildDualTime > 0) || (window.p2WildDualTime && window.p2WildDualTime > 0);
+    if (window.coopActive && (window.activeRandomEvent === 'Dual Battle' || hasWildDualBuff)) {
         if (window.startDualBattle) {
             window.startDualBattle(playerCollider, creatureSprite);
             return;
@@ -30589,6 +30690,20 @@ function update() {
             window.showModernNotification("👣 Player 1 Pedometer effect has worn off.");
         }
     }
+    if (window.p1NpcDualTime && window.p1NpcDualTime > 0) {
+        window.p1NpcDualTime = Math.max(0, window.p1NpcDualTime - p1Delta);
+        if (window.p1NpcDualTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("📡 Player 1 NPC Dual Link effect has worn off.");
+        }
+    }
+    if (window.p1WildDualTime && window.p1WildDualTime > 0) {
+        window.p1WildDualTime = Math.max(0, window.p1WildDualTime - p1Delta);
+        if (window.p1WildDualTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("📶 Player 1 Wild Dual Signal effect has worn off.");
+        }
+    }
 
     // Decrement Player 2 Buff Timers
     if (window.p2RepellentTime && window.p2RepellentTime > 0) {
@@ -30619,6 +30734,20 @@ function update() {
             window.showModernNotification("👣 Player 2 Pedometer effect has worn off.");
         }
     }
+    if (window.p2NpcDualTime && window.p2NpcDualTime > 0) {
+        window.p2NpcDualTime = Math.max(0, window.p2NpcDualTime - p2Delta);
+        if (window.p2NpcDualTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("📡 Player 2 NPC Dual Link effect has worn off.");
+        }
+    }
+    if (window.p2WildDualTime && window.p2WildDualTime > 0) {
+        window.p2WildDualTime = Math.max(0, window.p2WildDualTime - p2Delta);
+        if (window.p2WildDualTime === 0) {
+            window.saveActiveBuffTimers();
+            window.showModernNotification("📶 Player 2 Wild Dual Signal effect has worn off.");
+        }
+    }
 
     // Periodically save timers to keep them synced on disk (e.g. every 3 seconds)
     if (!window.lastTimerSaveTime) window.lastTimerSaveTime = 0;
@@ -30643,6 +30772,12 @@ function update() {
         if (window.p1PedometerTime && window.p1PedometerTime > 0) {
             txts.push(`👣 Pedometer: ${Math.ceil(window.p1PedometerTime / 1000)}s`);
         }
+        if (window.p1NpcDualTime && window.p1NpcDualTime > 0) {
+            txts.push(`📡 NPC Dual: ${Math.ceil(window.p1NpcDualTime / 1000)}s`);
+        }
+        if (window.p1WildDualTime && window.p1WildDualTime > 0) {
+            txts.push(`📶 Wild Dual: ${Math.ceil(window.p1WildDualTime / 1000)}s`);
+        }
         const textVal = txts.join('\n');
         if (window._lastP1BuffsText !== textVal) {
             p1Buffs.innerText = textVal;
@@ -30664,6 +30799,12 @@ function update() {
         }
         if (window.p2PedometerTime && window.p2PedometerTime > 0) {
             txts.push(`👣 Pedometer: ${Math.ceil(window.p2PedometerTime / 1000)}s`);
+        }
+        if (window.p2NpcDualTime && window.p2NpcDualTime > 0) {
+            txts.push(`📡 NPC Dual: ${Math.ceil(window.p2NpcDualTime / 1000)}s`);
+        }
+        if (window.p2WildDualTime && window.p2WildDualTime > 0) {
+            txts.push(`📶 Wild Dual: ${Math.ceil(window.p2WildDualTime / 1000)}s`);
         }
         const textVal = txts.join('\n');
         if (window._lastP2BuffsText !== textVal) {
@@ -30961,7 +31102,9 @@ function update() {
                     "Cyber-Core Upgrade": 15,
                     "Nano-Nurture Serum": 15,
                     "DNA Stabilizer": 15,
-                    "Storage Chest": 15
+                    "Storage Chest": 15,
+                    "NPC Dual Link": 15,
+                    "Wild Dual Signal": 15
                 };
                 window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
                 window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
