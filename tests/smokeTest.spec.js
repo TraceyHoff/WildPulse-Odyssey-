@@ -15,22 +15,20 @@ test.describe('Lightweight Cyber-Bestiary & deterministic Seeding Smoke Test', (
     // 1. Navigate to the game
     await page.goto('http://localhost:3000');
 
-    // 2. Set Level 7 (to access Breeding & Storage)
+    test.setTimeout(60000);
+
+    // 2. Set Level 7 and seed player color to bypass onboarding & start screen
     await page.evaluate(() => {
+      localStorage.setItem('wildpulse_player_color', '#FFFFFF');
       localStorage.setItem('wildpulse_p1_level', '7');
       localStorage.setItem('wildpulse_p2_level', '7');
     });
     await page.reload();
 
-    // 3. Start the game / Dismiss modals
+    // Click Start Game which will boot the game instantly (bypassing onboarding because player color is seeded)
     const startBtn = page.locator('#startGameBtn');
-    if (await startBtn.isVisible()) {
-      await startBtn.click();
-    }
-    const introClose = page.locator('#introModal .close-btn');
-    if (await introClose.isVisible()) {
-      await introClose.click();
-    }
+    await startBtn.waitFor({ state: 'visible', timeout: 15000 });
+    await startBtn.click();
 
     // Wait for the game to start
     await page.waitForFunction(() => window.gameStarted);
