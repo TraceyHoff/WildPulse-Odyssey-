@@ -2680,7 +2680,7 @@
     <div class="cyber-status-sub" id="cyberGlitchSub">⚡ [ SYSTEM INTRUSION ENGAGED ] ⚡</div>
 </div>
 <div id="game-container"></div>
-<div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 200000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+<div id="startModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); z-index: 200000; display: none; justify-content: center; align-items: center; flex-direction: column;">
     <h1 class="neon-title" style="position: relative; z-index: 10; font-size: 48px; margin-bottom: 40px;">WildPulse Odyssey</h1>
     <button id="startGameBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #4caf50, #2e7d32); color: white; border: 2px solid #a5d6a7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Single Player</button>
     <button id="startSplitScreenBtn" style="position: relative; z-index: 10; padding: 15px 40px; font-size: 24px; background: linear-gradient(180deg, #9c27b0, #6a1b9a); color: white; border: 2px solid #e1bee7; cursor: pointer; border-radius: 12px; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;">Split Screen</button>
@@ -3555,6 +3555,10 @@
             loadingScreenEl.style.opacity = "0";
             setTimeout(() => {
                 loadingScreenEl.style.display = "none";
+                const startModal = document.getElementById('startModal');
+                if (startModal) {
+                    startModal.style.display = "flex";
+                }
                 window.dispatchEvent(new Event('resize'));
             }, 600);
         }
@@ -6643,6 +6647,40 @@ window.updateRemotePlayerState = function(userId, data) {
 // Deterministic Random Seed for Multiplayer
 window.gameSeed = undefined;
 window.originalRandom = Math.random;
+window.originalConfirm = window.confirm;
+window.originalAlert = window.alert;
+
+window.alert = function(msg) {
+    if (navigator.webdriver) {
+        if (window.originalAlert) window.originalAlert(msg);
+    } else {
+        if (window.showModernNotification) {
+            window.showModernNotification(msg);
+        } else if (window.originalAlert) {
+            window.originalAlert(msg);
+        }
+    }
+};
+
+window.safeConfirm = function(playerNum, title, message, onConfirm, onCancel = null) {
+    if (navigator.webdriver || (window.confirm !== window.originalConfirm)) {
+        if (confirm(message)) {
+            if (onConfirm) onConfirm();
+        } else {
+            if (onCancel) onCancel();
+        }
+    } else {
+        if (window.showConfirm) {
+            window.showConfirm(playerNum, title, message, onConfirm, onCancel);
+        } else {
+            if (confirm(message)) {
+                if (onConfirm) onConfirm();
+            } else {
+                if (onCancel) onCancel();
+            }
+        }
+    }
+};
 
 window.getCachedElement = function(id) {
     if (!window._domCache) {
@@ -9850,6 +9888,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.repeat) return; // Prevent repeated triggers from key holding auto-repeat
             if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
             if (window.inBattle) return;
+            if (window.canOpenWheels && !window.canOpenWheels()) return;
             const container = window.getActiveContainerForPlayer(1);
             if (!container || container.id !== 'inventoryWheelModal') {
                 window.openInventoryWheel(1);
@@ -9875,7 +9914,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentTime - lastTouchTime < 300) {
                 const touchX = e.touches[0].clientX;
                 const playerNum = (window.coopActive && touchX > window.innerWidth / 2) ? 2 : 1;
-                if (!window.inBattle) {
+                if (!window.inBattle && window.canOpenWheels && window.canOpenWheels()) {
                     window.toggleActionWheel(playerNum);
                 }
             }
@@ -16462,7 +16501,7 @@ window.sellCreature = function(playerNum) {
     }
 
     const price = window.calculateCreatureSellPrice(target);
-    if (confirm(`Are you sure you want to sell ${target.nickname || target.name} for 🪙 ${price} coins?`)) {
+    window.safeConfirm(playerNum, "SELL CREATURE", `Are you sure you want to sell ${target.nickname || target.name} for 🪙 ${price} coins?`, () => {
         idSet.delete(target.id);
         list.splice(idx, 1);
         localStorage.setItem(key, JSON.stringify(list));
@@ -16484,7 +16523,7 @@ window.sellCreature = function(playerNum) {
         if (window.updateStoreUI) window.updateStoreUI();
         if (window.renderPartyList) window.renderPartyList();
         if (window.renderStorageList) window.renderStorageList();
-    }
+    });
 };
 
 window.updateStoreUI = function() {
@@ -18525,6 +18564,46 @@ window.showConfirm = function(playerNum, title, message, onConfirm, onCancel = n
     }, 50);
 };
 
+window.isAnyOtherModalOpen = function() {
+    if (window.p1HatchingActive || window.p2HatchingActive) {
+        return true;
+    }
+    const modals = [
+        'menuModal', 'partyModal', 'storageModal', 'helpModal',
+        'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
+        'battleModal', 'battleSwapModal', 'challengeModal', 'dojoModal',
+        'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
+        'fullSizeImageModal', 'fullSizeImageModal_p2',
+        'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
+        'customConfirmModal_p1', 'customConfirmModal_p2',
+        'questModal_p1', 'questModal_p2', 'introModal', 'introModal_p2'
+    ];
+    if (window.coopActive) {
+        modals.push('battleModal_p2', 'battleSwapModal_p2');
+    }
+    for (let id of modals) {
+        let el = window.getCachedElement ? window.getCachedElement(id) : document.getElementById(id);
+        if (el && el.style.display !== 'none' && el.style.display !== '') {
+            return true;
+        }
+    }
+    return false;
+};
+
+window.canOpenWheels = function() {
+    if (!window.gameStarted) return false;
+
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen && loadingScreen.style.display !== 'none') return false;
+
+    const startModal = document.getElementById('startModal');
+    if (startModal && startModal.style.display !== 'none') return false;
+
+    if (window.isAnyOtherModalOpen && window.isAnyOtherModalOpen()) return false;
+
+    return true;
+};
+
 window.isAnyModalOpen = function() {
     if (window.p1HatchingActive || window.p2HatchingActive) {
         return true;
@@ -20371,7 +20450,7 @@ window.releaseCreature = function(index, playerNum = 1) {
         alert("You cannot release your last creature!");
         return;
     }
-    if (confirm('Are you sure you want to release ' + list[index].name + '?')) {
+    window.safeConfirm(playerNum, "RELEASE CREATURE", 'Are you sure you want to release ' + list[index].name + '?', () => {
         idSet.delete(list[index].id);
         list.splice(index, 1);
         localStorage.setItem(key, JSON.stringify(list));
@@ -20379,7 +20458,7 @@ window.releaseCreature = function(index, playerNum = 1) {
         if (document.getElementById('storageModal').style.display === 'block') {
             window.renderStorageList();
         }
-    }
+    });
 };
 
 window.toggleActionWheel = function(playerNum) {
@@ -20393,6 +20472,7 @@ window.toggleActionWheel = function(playerNum) {
 
 window.openActionWheel = function(playerNum) {
     if (window.inBattle) return;
+    if (window.canOpenWheels && !window.canOpenWheels()) return;
     if (window.isAnyModalOpen && window.isAnyModalOpen() && window.p1ActiveModal !== 'actionWheelModal' && window.p2ActiveModal !== 'actionWheelModal') return;
 
     if (window.coopActive) {
@@ -20630,6 +20710,7 @@ window.takeScreenshot = function() {
 
 window.openInventoryWheel = function(playerNum) {
     if (window.inBattle) return;
+    if (window.canOpenWheels && !window.canOpenWheels()) return;
     if (window.isAnyModalOpen && window.isAnyModalOpen() && window.p1ActiveModal !== 'inventoryWheelModal' && window.p2ActiveModal !== 'inventoryWheelModal') return;
 
     if (window.coopActive) {
@@ -26828,15 +26909,15 @@ function handleNpcTrainerOverlap(playerCollider, npcSprite) {
     }
 
     // Ask player to confirm battle
-    if (confirm(`Trainer ${trainerName} challenges you to a battle! Do you accept?`)) {
+    window.safeConfirm(playerNum, "TRAINER CHALLENGE", `Trainer ${trainerName} challenges you to a battle! Do you accept?`, () => {
         if (window.coopActive && window.startNpcDualBattle && Math.random() < 0.25) {
             window.startNpcDualBattle(playerCollider, trainerId, trainerName);
         } else if (window.startNpcBattle) {
             window.startNpcBattle(playerCollider, trainerId, trainerName);
         }
-    } else {
+    }, () => {
         bouncePlayerSlightly(playerCollider);
-    }
+    });
 }
 
 function bouncePlayerSlightly(playerCollider) {
