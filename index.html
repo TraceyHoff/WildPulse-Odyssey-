@@ -23427,19 +23427,46 @@ function setupDynamicGrass(scene) {
     // Set up global grass blades arrays to use in dynamic updates
     window.grassBlades = [];
 
-    window.updateGrassColors = function() {
-        let colors;
-        if (window.currentSeason === 'Spring') {
-            colors = ['#a2d149', '#b3de69', '#7fb03e', '#d9ef8b'];
-        } else if (window.currentSeason === 'Summer') {
-            colors = ['#228B22', '#32CD32', '#006400'];
-        } else if (window.currentSeason === 'Fall') {
-            colors = ['#FFD700', '#FF0000', '#FFA500', '#D2B48C'];
-        } else if (window.currentSeason === 'Winter') {
-            colors = ['#ADD8E6', '#B0E0E6', '#87CEFA'];
+    window.getSeasonColors = function(season) {
+        if (season === 'Spring') {
+            return ['#a2d149', '#b3de69', '#7fb03e', '#d9ef8b'];
+        } else if (season === 'Summer') {
+            return ['#228B22', '#32CD32', '#006400'];
+        } else if (season === 'Fall') {
+            return ['#FFD700', '#FF0000', '#FFA500', '#D2B48C'];
+        } else if (season === 'Winter') {
+            return ['#ADD8E6', '#B0E0E6', '#87CEFA'];
         } else {
-            colors = ['#228B22', '#32CD32', '#006400']; // Default to summer green
+            return ['#228B22', '#32CD32', '#006400']; // Default to summer green
         }
+    };
+
+    window.getSeasonBgGradientColors = function(season) {
+        if (season === 'Spring') {
+            return ['#7fb03e', '#a2d149'];
+        } else if (season === 'Summer') {
+            return ['#004d00', '#228B22'];
+        } else if (season === 'Fall') {
+            return ['#a68a61', '#bda27e'];
+        } else if (season === 'Winter') {
+            return ['#7ba4b3', '#add8e6'];
+        } else {
+            return ['#004d00', '#228B22'];
+        }
+    };
+
+    window.drawGrassBgForSeason = function(canvas, season) {
+        const bgCtx = canvas.getContext('2d', { willReadFrequently: true });
+        let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
+        const gradCols = window.getSeasonBgGradientColors(season);
+        gradient.addColorStop(0, gradCols[0]);
+        gradient.addColorStop(1, gradCols[1]);
+        bgCtx.fillStyle = gradient;
+        bgCtx.fillRect(0, 0, 100, 100);
+    };
+
+    window.updateGrassColors = function() {
+        let colors = window.getSeasonColors(window.currentSeason);
 
         for (let i = 0; i < window.grassBlades.length; i++) {
             let rand = Math.random();
@@ -23452,33 +23479,64 @@ function setupDynamicGrass(scene) {
             } else {
                 window.grassBlades[i].color = rand > 0.6 ? colors[0] : (rand > 0.3 ? colors[1] : colors[2]);
             }
-
         }
 
         // Update static grass bg
         if (window.grassBgCanvas) {
-            const bgCtx = window.grassBgCanvas.getContext('2d', { willReadFrequently: true });
-            let gradient = bgCtx.createRadialGradient(50, 50, 0, 50, 50, 70);
-            if (window.currentSeason === 'Spring') {
-                gradient.addColorStop(0, '#7fb03e');
-                gradient.addColorStop(1, '#a2d149');
-            } else if (window.currentSeason === 'Summer') {
-                gradient.addColorStop(0, '#004d00');
-                gradient.addColorStop(1, '#228B22');
-            } else if (window.currentSeason === 'Fall') {
-                gradient.addColorStop(0, '#a68a61');
-                gradient.addColorStop(1, '#bda27e');
-            } else if (window.currentSeason === 'Winter') {
-                gradient.addColorStop(0, '#7ba4b3');
-                gradient.addColorStop(1, '#add8e6');
-            } else {
-                gradient.addColorStop(0, '#004d00');
-                gradient.addColorStop(1, '#228B22');
-            }
-            bgCtx.fillStyle = gradient;
-            bgCtx.fillRect(0, 0, 100, 100);
+            window.drawGrassBgForSeason(window.grassBgCanvas, window.currentSeason);
         }
         window.forceGrassRefresh = true;
+    };
+
+    window.startSeasonTransition = function(prev, next) {
+        window.seasonTransitionActive = true;
+        window.seasonTransitionProgress = 0.0;
+        window.seasonTransitionPrev = prev || 'Summer';
+        window.seasonTransitionNext = next;
+        window.seasonTransitionStartTime = null; // initialized on first update frame
+
+        if (!window.grassBgCanvasPrev) {
+            window.grassBgCanvasPrev = document.createElement('canvas');
+            window.grassBgCanvasPrev.width = 100;
+            window.grassBgCanvasPrev.height = 100;
+        }
+        if (!window.grassBgCanvasNext) {
+            window.grassBgCanvasNext = document.createElement('canvas');
+            window.grassBgCanvasNext.width = 100;
+            window.grassBgCanvasNext.height = 100;
+        }
+
+        window.drawGrassBgForSeason(window.grassBgCanvasPrev, window.seasonTransitionPrev);
+        window.drawGrassBgForSeason(window.grassBgCanvasNext, window.seasonTransitionNext);
+
+        const colorsPrev = window.getSeasonColors(window.seasonTransitionPrev);
+        const colorsNext = window.getSeasonColors(window.seasonTransitionNext);
+
+        for (let i = 0; i < window.grassBlades.length; i++) {
+            let blade = window.grassBlades[i];
+            let rand = Math.random();
+
+            if (colorsPrev.length === 4) {
+                if (rand > 0.75) blade.colorPrev = colorsPrev[0];
+                else if (rand > 0.5) blade.colorPrev = colorsPrev[1];
+                else if (rand > 0.25) blade.colorPrev = colorsPrev[2];
+                else blade.colorPrev = colorsPrev[3];
+            } else {
+                blade.colorPrev = rand > 0.6 ? colorsPrev[0] : (rand > 0.3 ? colorsPrev[1] : colorsPrev[2]);
+            }
+
+            if (colorsNext.length === 4) {
+                if (rand > 0.75) blade.colorNext = colorsNext[0];
+                else if (rand > 0.5) blade.colorNext = colorsNext[1];
+                else if (rand > 0.25) blade.colorNext = colorsNext[2];
+                else blade.colorNext = colorsNext[3];
+            } else {
+                blade.colorNext = rand > 0.6 ? colorsNext[0] : (rand > 0.3 ? colorsNext[1] : colorsNext[2]);
+            }
+        }
+
+        window.forceGrassRefresh = true;
+        window.showModernNotification(`The seasons are shifting... ${window.seasonTransitionPrev} is giving way to ${window.seasonTransitionNext}!`, 6000);
     };
 
     for (let i = 0; i < 200; i++) {
@@ -23517,6 +23575,44 @@ function setupDynamicGrass(scene) {
     });
 
     window.updateDynamicGrass = function(scene, timeNow, windVx, windVy) {
+        if (window.seasonTransitionActive) {
+            if (!window.seasonTransitionStartTime) {
+                window.seasonTransitionStartTime = timeNow;
+            }
+            const duration = 15000; // 15 seconds
+            const elapsed = timeNow - window.seasonTransitionStartTime;
+            window.seasonTransitionProgress = Math.min(1.0, elapsed / duration);
+
+            if (window.seasonTransitionProgress >= 1.0) {
+                window.seasonTransitionActive = false;
+                window.seasonTransitionStartTime = null;
+                if (window.updateGrassColors) {
+                    window.updateGrassColors();
+                }
+
+                // Force update all trees, shadows, and reflections to final season
+                if (window.treesGroup) {
+                    window.treesGroup.getChildren().forEach(tree => {
+                        if (tree.baseTreeType) {
+                            tree.setTexture(tree.baseTreeType + '_' + window.currentSeason);
+                        }
+                    });
+                }
+                for (let chunkKey in activeTiles) {
+                    activeTiles[chunkKey].forEach(sprite => {
+                        if ((sprite.isTreeReflection || sprite.isTreeShadow) && sprite.baseTreeType) {
+                            sprite.setTexture(sprite.baseTreeType + '_' + window.currentSeason);
+                            if (sprite.isTreeReflection) {
+                                sprite.setVisible(window.currentSeason !== 'Winter');
+                            }
+                        }
+                    });
+                }
+            } else {
+                window.forceGrassRefresh = true;
+            }
+        }
+
         const tex = scene.textures.get('grass_dynamic');
         if (!tex) return;
         const cvs = tex.getSourceImage();
@@ -23544,11 +23640,33 @@ function setupDynamicGrass(scene) {
         window.forceGrassRefresh = false;
 
         // Draw cached bg
-        ctx.drawImage(window.grassBgCanvas, 0, 0);
+        if (window.seasonTransitionActive && window.grassBgCanvasPrev && window.grassBgCanvasNext) {
+            ctx.drawImage(window.grassBgCanvasPrev, 0, 0);
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(50, 50, 75 * window.seasonTransitionProgress, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(window.grassBgCanvasNext, 0, 0);
+            ctx.restore();
+        } else {
+            ctx.drawImage(window.grassBgCanvas, 0, 0);
+        }
 
         for (let i = 0; i < window.grassBlades.length; i++) {
             let blade = window.grassBlades[i];
-            ctx.fillStyle = blade.color;
+
+            let color;
+            if (window.seasonTransitionActive) {
+                const dist = Math.sqrt((blade.x - 50) ** 2 + (blade.y - 50) ** 2);
+                if (dist <= 75 * window.seasonTransitionProgress) {
+                    color = blade.colorNext || blade.color;
+                } else {
+                    color = blade.colorPrev || blade.color;
+                }
+            } else {
+                color = blade.color;
+            }
+            ctx.fillStyle = color;
             let drawX = blade.x;
             let drawY = blade.y;
 
@@ -31124,31 +31242,54 @@ function update() {
         let newSeason = seasons[seasonIndex];
 
         if (newSeason !== window.currentSeason) {
+            window.previousSeason = window.currentSeason;
             window.currentSeason = newSeason;
             localStorage.setItem('wildpulse_currentSeason', window.currentSeason);
             window.waterMaskDirty = true;
-            if (window.updateGrassColors) window.updateGrassColors();
 
-            // Update all existing trees
+            if (window.startSeasonTransition) {
+                window.startSeasonTransition(window.previousSeason, window.currentSeason);
+            } else {
+                if (window.updateGrassColors) window.updateGrassColors();
+            }
+        }
+
+        // Continuous staggered tree, shadow, and reflection updates during active transitions
+        if (window.seasonTransitionActive) {
             if (window.treesGroup) {
                 window.treesGroup.getChildren().forEach(tree => {
                     if (tree.baseTreeType) {
-                        tree.setTexture(tree.baseTreeType + '_' + window.currentSeason);
+                        const r = Math.floor(tree.y / 100);
+                        const c = Math.floor(tree.x / 100);
+                        const threshold = ((r * 17 + c * 31) % 100) / 100;
+                        const currentSeasonKey = (window.seasonTransitionProgress < threshold)
+                            ? window.seasonTransitionPrev
+                            : window.currentSeason;
+                        if (tree.texture.key !== (tree.baseTreeType + '_' + currentSeasonKey)) {
+                            tree.setTexture(tree.baseTreeType + '_' + currentSeasonKey);
+                        }
                     }
                 });
             }
 
-            // Update tree reflections
             for (let chunkKey in activeTiles) {
                 activeTiles[chunkKey].forEach(sprite => {
-                    if (sprite.isTreeReflection && sprite.baseTreeType) {
-                        sprite.setTexture(sprite.baseTreeType + '_' + window.currentSeason);
-                        sprite.setVisible(window.currentSeason !== 'Winter');
+                    if ((sprite.isTreeReflection || sprite.isTreeShadow) && sprite.baseTreeType) {
+                        const r = Math.floor(sprite.y / 100);
+                        const c = Math.floor(sprite.x / 100);
+                        const threshold = ((r * 17 + c * 31) % 100) / 100;
+                        const currentSeasonKey = (window.seasonTransitionProgress < threshold)
+                            ? window.seasonTransitionPrev
+                            : window.currentSeason;
+                        if (sprite.texture.key !== (sprite.baseTreeType + '_' + currentSeasonKey)) {
+                            sprite.setTexture(sprite.baseTreeType + '_' + currentSeasonKey);
+                            if (sprite.isTreeReflection) {
+                                sprite.setVisible(currentSeasonKey !== 'Winter');
+                            }
+                        }
                     }
                 });
             }
-
-            window.showModernNotification(`The season has changed to ${window.currentSeason}!`, 4000);
         }
     }
 
