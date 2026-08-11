@@ -45,18 +45,18 @@ test.describe('Introductory Onboarding and Dynamic Sell Price Tests', () => {
 
     // Verify item count / name are correct
     const carouselCount = page.locator('#introItemCarouselCount');
-    await expect(carouselCount).toHaveText('ITEM 1 / 25');
+    await expect(carouselCount).toHaveText('ITEM 1 / 27');
     const carouselName = page.locator('#introItemCarouselName');
     await expect(carouselName).toHaveText('Repellent');
 
     // Click Next Item to cycle
     await page.click('#introItemNextBtn', { force: true });
-    await expect(carouselCount).toHaveText('ITEM 2 / 25');
+    await expect(carouselCount).toHaveText('ITEM 2 / 27');
     await expect(carouselName).toHaveText('HP Booster');
 
     // Click Prev Item to cycle back
     await page.click('#introItemPrevBtn', { force: true });
-    await expect(carouselCount).toHaveText('ITEM 1 / 25');
+    await expect(carouselCount).toHaveText('ITEM 1 / 27');
     await expect(carouselName).toHaveText('Repellent');
 
     // Click Configure Avatar on slide 3
