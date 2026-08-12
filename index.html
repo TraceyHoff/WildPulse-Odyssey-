@@ -6577,6 +6577,70 @@ window.updatePlantVisualState = function(sprite) {
             sprite.shadowSprite.setTexture(targetTexture);
         }
     }
+
+    // Dynamic Season styling: dying in winter, regrowing in spring
+    const currentSeason = window.currentSeason || 'Summer';
+    const dayOfSeason = (typeof wildpulse_inGameDays !== 'undefined' ? wildpulse_inGameDays : 0) % 30;
+    const dayProgress = currentTime / 24;
+    const seasonProgress = (dayOfSeason + dayProgress) / 30;
+
+    let scaleFactor = 1.0;
+    let targetAlpha = 1.0;
+    let targetTint = null;
+
+    if (currentSeason === 'Winter') {
+        // Eventually dying
+        const progressLimit = Math.min(1.0, seasonProgress / 0.8);
+        scaleFactor = Math.max(0.3, 1.0 - 0.7 * progressLimit);
+        targetAlpha = Math.max(0.0, 1.0 - progressLimit);
+        targetTint = 0x665544; // Dead brown/grey tint
+    } else if (currentSeason === 'Spring') {
+        // Regrowing
+        scaleFactor = 0.2 + 0.8 * seasonProgress;
+        targetAlpha = Math.min(1.0, seasonProgress / 0.25);
+        if (seasonProgress < 0.5) {
+            targetTint = 0x99ffbb; // Fresh young green/yellow sprout tint
+        } else {
+            targetTint = null;
+        }
+    } else if (currentSeason === 'Fall') {
+        // Autumn wilt/color turn
+        scaleFactor = 1.0;
+        targetAlpha = 1.0;
+        targetTint = 0xd2691e; // Rustic orange/amber tint
+    } else {
+        // Summer (full healthy neon)
+        scaleFactor = 1.0;
+        targetAlpha = 1.0;
+        targetTint = null;
+    }
+
+    const baseScale = 0.8;
+    const finalScale = baseScale * scaleFactor;
+
+    sprite.setScale(finalScale);
+    sprite.setAlpha(targetAlpha);
+    if (targetAlpha === 0) {
+        sprite.setVisible(false);
+    } else {
+        sprite.setVisible(true);
+    }
+
+    if (targetTint !== null) {
+        sprite.setTint(targetTint);
+    } else {
+        sprite.clearTint();
+    }
+
+    if (sprite.shadowSprite && sprite.shadowSprite.active) {
+        sprite.shadowSprite.setScale(finalScale, 0.45 * finalScale);
+        sprite.shadowSprite.setAlpha(0.2 * targetAlpha);
+        if (targetAlpha === 0) {
+            sprite.shadowSprite.setVisible(false);
+        } else {
+            sprite.shadowSprite.setVisible(true);
+        }
+    }
 };
 
 window.generateChallengeTile = function(scene) {
