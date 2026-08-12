@@ -17169,19 +17169,66 @@ window.getItemIconHTML = function(itemName, size = 24) {
     switch (itemName) {
         case "NPC Dual Link":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <circle cx="50" cy="50" r="28" fill="none" stroke="#00ffd2" stroke-width="2" stroke-dasharray="4,4" />
-                <path d="M50,80 L50,55" stroke="#00ffd2" stroke-width="4" stroke-linecap="round" />
-                <path d="M35,40 A20,20 0 0,1 65,40" fill="none" stroke="#00ffd2" stroke-width="3" stroke-linecap="round" filter="url(#glow)" />
-                <path d="M25,30 A35,35 0 0,1 75,30" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
-                <circle cx="50" cy="55" r="5" fill="#00ffd2" />`;
+                <!-- Cyber background grid & circuits -->
+                <path d="M10,30 L30,30 L40,40 M90,70 L70,70 L60,60" stroke="rgba(0, 255, 210, 0.25)" stroke-width="1.5" fill="none" />
+                <path d="M10,80 L25,80 L35,70 M90,20 L75,20 L65,30" stroke="rgba(0, 255, 210, 0.25)" stroke-width="1.5" fill="none" />
+                <circle cx="40" cy="40" r="3" fill="#00ffd2" opacity="0.4" />
+                <circle cx="60" cy="60" r="3" fill="#00ffd2" opacity="0.4" />
+                <circle cx="35" cy="70" r="3" fill="#00ffd2" opacity="0.4" />
+                <circle cx="65" cy="30" r="3" fill="#00ffd2" opacity="0.4" />
+
+                <!-- Main Dish Base / Stand -->
+                <path d="M40,82 L60,82 L55,65 L45,65 Z" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+
+                <!-- Parabolic transmitter dish -->
+                <path d="M25,48 Q50,68 75,48" fill="none" stroke="#00ffd2" stroke-width="4" stroke-linecap="round" />
+                <path d="M32,53 Q50,67 68,53" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+
+                <!-- Center feed horn/emitter -->
+                <path d="M50,58 L50,42" stroke="#00ffd2" stroke-width="3" stroke-linecap="round" />
+                <circle cx="50" cy="40" r="4.5" fill="#fff" filter="url(#glow)" />
+
+                <!-- Dual Link handshaking nodes -->
+                <circle cx="30" cy="25" r="5" fill="#00ffd2" filter="url(#glow)" />
+                <circle cx="70" cy="25" r="5" fill="#00ffd2" filter="url(#glow)" />
+                <path d="M35,25 Q50,15 65,25" fill="none" stroke="#00ffd2" stroke-width="2" stroke-dasharray="3,3" />
+                <path d="M35,25 L45,36" stroke="rgba(0, 255, 210, 0.5)" stroke-width="1.5" />
+                <path d="M65,25 L55,36" stroke="rgba(0, 255, 210, 0.5)" stroke-width="1.5" />`;
             break;
         case "Wild Dual Signal":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff4400" stroke-width="4"/>
-                <circle cx="50" cy="50" r="28" fill="none" stroke="#ff4400" stroke-width="2" stroke-dasharray="4,4" />
-                <path d="M30,70 L30,60" stroke="#ff4400" stroke-width="4" stroke-linecap="round" />
-                <path d="M43,70 L43,50" stroke="#ff4400" stroke-width="4" stroke-linecap="round" />
-                <path d="M56,70 L56,40" stroke="#ff4400" stroke-width="4" stroke-linecap="round" />
-                <path d="M70,70 L70,30" stroke="#fff" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />`;
+                <!-- Cyber background grid & circuits -->
+                <path d="M15,20 L15,40 L30,50 M85,80 L85,60 L70,50" stroke="rgba(255, 68, 0, 0.25)" stroke-width="1.5" fill="none" />
+                <circle cx="30" cy="50" r="3" fill="#ff4400" opacity="0.4" />
+                <circle cx="70" cy="50" r="3" fill="#ff4400" opacity="0.4" />
+
+                <!-- Radar sweeps and dual target indicators -->
+                <circle cx="50" cy="55" r="30" fill="none" stroke="rgba(255, 68, 0, 0.15)" stroke-width="1" />
+                <circle cx="50" cy="55" r="20" fill="none" stroke="rgba(255, 68, 0, 0.25)" stroke-width="1" stroke-dasharray="4,4" />
+
+                <!-- High-Tech Dual-Tower Transmitter -->
+                <!-- Left mast -->
+                <line x1="42" y1="80" x2="42" y2="45" stroke="#ff4400" stroke-width="3" stroke-linecap="round" />
+                <circle cx="42" cy="42" r="3.5" fill="#ff4400" />
+
+                <!-- Right mast -->
+                <line x1="58" y1="80" x2="58" y2="45" stroke="#ff4400" stroke-width="3" stroke-linecap="round" />
+                <circle cx="58" cy="42" r="3.5" fill="#ff4400" />
+
+                <!-- Center Energy Core -->
+                <rect x="46" y="55" width="8" height="25" rx="3" fill="#150805" stroke="#ff4400" stroke-width="2" />
+                <line x1="50" y1="58" x2="50" y2="77" stroke="#fff" stroke-width="2" filter="url(#glow)" />
+
+                <!-- Dual Pulsing Signal Waveforms radiating outwards -->
+                <path d="M34,42 A12,12 0 0,0 26,26" fill="none" stroke="#ff4400" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M30,38 A6,6 0 0,0 26,30" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
+
+                <path d="M66,42 A12,12 0 0,1 74,26" fill="none" stroke="#ff4400" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" />
+                <path d="M70,38 A6,6 0 0,1 74,30" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
+
+                <!-- Telemetry target crosshairs for wild tracking -->
+                <path d="M22,22 L28,22 M22,22 L22,28" stroke="#ff4400" stroke-width="2" />
+                <path d="M78,22 L72,22 M78,22 L78,28" stroke="#ff4400" stroke-width="2" />`;
             break;
         case "Repellent":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3300" stroke-width="4"/>
