@@ -6578,6 +6578,98 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_night_phlox': function(ctx) {
             plants['plant_night_phlox_closed'](ctx);
+        },
+        'plant_astral_bloom': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Thin glowing cosmic stalks
+            ctx.strokeStyle = '#bf55ec'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(30, 50, 45, 25); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(70, 60, 55, 35); ctx.stroke();
+            // Blooming glowing starburst petals (electric indigo & cyan)
+            [[45, 25], [55, 35]].forEach(pt => {
+                const cx = pt[0], cy = pt[1];
+                ctx.fillStyle = '#00ffff';
+                for (let i = 0; i < 6; i++) {
+                    let angle = (i * Math.PI) / 3;
+                    ctx.beginPath();
+                    ctx.ellipse(cx + Math.cos(angle)*4, cy + Math.sin(angle)*4, 6, 2, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                ctx.fillStyle = '#ff00ff';
+                ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(cx, cy, 1.2, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_void_tendril': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Spiral neon tendrils reaching up
+            ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(50, 95);
+            // Sine wave pattern
+            for (let y = 95; y >= 20; y -= 5) {
+                let x = 50 + Math.sin((y - 20) * 0.15) * 12;
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            // Tiny glowing cyan leaves on the curves
+            ctx.fillStyle = '#00ffcc';
+            for (let y = 80; y >= 30; y -= 15) {
+                let x = 50 + Math.sin((y - 20) * 0.15) * 12;
+                ctx.beginPath();
+                ctx.arc(x + (Math.cos(y) * 5), y, 3, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // Glowing core at the tip
+            let endX = 50 + Math.sin((20 - 20) * 0.15) * 12;
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#ff007f';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(endX, 20, 5, 0, Math.PI*2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        },
+        'plant_nebula_fern': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Rich magenta main stem
+            ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(54, 55, 48, 15); ctx.stroke();
+            // Side leaflets in neon violet/blue
+            ctx.strokeStyle = '#bf55ec'; ctx.lineWidth = 1.5;
+            for (let y = 30; y < 90; y += 8) {
+                // Left leaflet
+                ctx.beginPath(); ctx.moveTo(50, y); ctx.quadraticCurveTo(20, y - 10, 22 + y*0.12, y - 4); ctx.stroke();
+                // Right leaflet
+                ctx.beginPath(); ctx.moveTo(50, y); ctx.quadraticCurveTo(80, y - 10, 78 - y*0.12, y - 4); ctx.stroke();
+            }
+            // Bioluminescent nodes
+            ctx.fillStyle = '#00ffff';
+            for (let y = 30; y < 90; y += 8) {
+                ctx.beginPath(); ctx.arc(22 + y*0.12, y - 4, 2, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(78 - y*0.12, y - 4, 2, 0, Math.PI*2); ctx.fill();
+            }
+        },
+        'plant_aurora_spore': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Thick alien mushroom stalk
+            ctx.strokeStyle = '#00ffd2'; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(48, 60, 50, 40); ctx.stroke();
+            // Glowing emerald cap
+            ctx.fillStyle = '#39ff14';
+            ctx.beginPath();
+            ctx.arc(50, 40, 15, Math.PI, 0); // half circle cap
+            ctx.closePath();
+            ctx.fill();
+            // Inside gills glowing cyan
+            ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(35, 40); ctx.lineTo(65, 40); ctx.stroke();
+            // Little glowing spores dropping down
+            ctx.fillStyle = '#ffffff';
+            [[42, 52], [50, 58], [58, 52]].forEach(pt => {
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 1.5, 0, Math.PI*2); ctx.fill();
+            });
         }
     };
 
@@ -7153,7 +7245,7 @@ function escapeHtml(unsafe) {
                 <p>• <strong>Sanctuary Base:</strong> Once you reach <span style="color:#ff007f; font-weight:bold;">Player Level 10</span>, place your Home. Step inside and select '🎨 Design' on your Action Wheel to change walls, floors, and ambient glows.</p>
                 <p>• <strong>Storage Chest 🧳:</strong> Available at <span style="color:#ff007f; font-weight:bold;">Player Level 6</span>. Purchase for 620 gold and place up to 3 chests to store your extra item stacks (maximum 10 per slot).</p>
                 <p>• <strong>Item Catalog:</strong> Visit the store to buy recovery items, **Creature Licenses** (provides a passive 1.5x capture rate, consumed only on successful catch), and **Jank Juice** (increases shiny spawn rates for 6 minutes).</p>
-                <p>• <strong>Void Rifts & Portals 🌀:</strong> Under specific environmental alignments (Fall Thunderstorms at Night, Winter Thundersnows at Night, Spring Rains at Sunrise, or Summer Storms at Sunset), 3 rare procedurally placed portals materialize across the map. Step through them to access a high-stakes, 40x40 dimension filled with rare, high-level creatures! Step on the center return portal to return to safety.</p>
+                <p>• <strong>Hidden Grove Portals 🌀:</strong> Under specific environmental alignments (Fall Thunderstorms at Night, Winter Thundersnows at Night, Spring Rains at Sunrise, or Summer Storms at Sunset), 3 rare procedurally placed portals materialize across the map. Step through them to access the mysterious, high-stakes 40x40 Hidden Grove Portal World, filled with completely unique flora, glowing grass, much higher shiny rates, and high-level creatures! Step on the center return portal to return to safety.</p>
             </div>
 
             <h3 style="color: #00ffcc; margin-top: 15px;">Type Chart & Natures</h3>
@@ -24582,6 +24674,59 @@ function generateTileTextures(scene) {
     portalCtx.fill();
     scene.textures.addCanvas('portal_tile_texture', portalCanvas);
 
+    // Pre-generate floor_matrix texture (Otherworldly Neon/Alien Grass with Bioluminescent veins)
+    const floorMatrixCanvas = document.createElement('canvas');
+    floorMatrixCanvas.width = 100;
+    floorMatrixCanvas.height = 100;
+    const fmCtx = floorMatrixCanvas.getContext('2d');
+
+    // Deep glowing purple/indigo otherworldly grass base
+    let fmGrad = fmCtx.createRadialGradient(50, 50, 0, 50, 50, 75);
+    fmGrad.addColorStop(0, '#1c0933'); // Rich indigo/magenta core
+    fmGrad.addColorStop(1, '#0b0214'); // Very dark violet edges
+    fmCtx.fillStyle = fmGrad;
+    fmCtx.fillRect(0, 0, 100, 100);
+
+    // Faint glowing neon teal/cyan organic veins
+    fmCtx.strokeStyle = 'rgba(0, 255, 204, 0.25)'; // Neon cyan/teal
+    fmCtx.lineWidth = 1.5;
+    fmCtx.beginPath();
+    fmCtx.moveTo(20, 0); fmCtx.lineTo(20, 30); fmCtx.lineTo(50, 50); fmCtx.lineTo(50, 100);
+    fmCtx.moveTo(80, 100); fmCtx.lineTo(80, 70); fmCtx.lineTo(50, 50);
+    fmCtx.moveTo(20, 30); fmCtx.lineTo(0, 50);
+    fmCtx.moveTo(80, 70); fmCtx.lineTo(100, 50);
+    fmCtx.stroke();
+
+    // Paint glowing alien bioluminescent moss/grass clumps
+    fmCtx.fillStyle = '#39ff14'; // Neon bright lime green
+    fmCtx.shadowBlur = 10;
+    fmCtx.shadowColor = '#39ff14';
+
+    // Draw small delicate neon grass blades clumps
+    const clumpPositions = [[15, 20], [45, 75], [75, 30], [80, 80], [30, 45]];
+    clumpPositions.forEach(pos => {
+        let cx = pos[0];
+        let cy = pos[1];
+        fmCtx.beginPath();
+        fmCtx.moveTo(cx, cy); fmCtx.quadraticCurveTo(cx - 3, cy - 8, cx - 5, cy - 12);
+        fmCtx.moveTo(cx, cy); fmCtx.quadraticCurveTo(cx, cy - 10, cx, cy - 15);
+        fmCtx.moveTo(cx, cy); fmCtx.quadraticCurveTo(cx + 3, cy - 8, cx + 5, cy - 12);
+        fmCtx.strokeStyle = '#39ff14';
+        fmCtx.lineWidth = 2;
+        fmCtx.stroke();
+
+        // Spore at tip of central blade
+        fmCtx.fillStyle = '#00ffff'; // Cyan spore
+        fmCtx.shadowColor = '#00ffff';
+        fmCtx.beginPath();
+        fmCtx.arc(cx, cy - 15, 1.5, 0, Math.PI * 2);
+        fmCtx.fill();
+    });
+
+    // Reset shadow
+    fmCtx.shadowBlur = 0;
+    scene.textures.addCanvas('floor_matrix', floorMatrixCanvas);
+
     // Pre-generate Hospital Tile texture (Upgraded Cyber Medical Terminal)
     const hospitalCanvas = document.createElement('canvas');
     hospitalCanvas.width = 100;
@@ -25479,6 +25624,49 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         let floor = scene.add.sprite(posX, posY, 'floor_matrix');
         floor.setDepth(-1);
         sprites.push(floor);
+
+        // Spawn Hidden Grove completely unique flora on 20% of rift_floor tiles (excluding return portal center!)
+        let isReturnPortalCenter = (r >= 418 && r <= 422 && c >= 418 && c <= 422);
+        let hash = (r * 31 + c * 17) % 100;
+        if (hash >= 15 && hash < 35 && !isReturnPortalCenter && window.treesGroup) {
+            const grovePlantTypes = [
+                'plant_astral_bloom',
+                'plant_void_tendril',
+                'plant_nebula_fern',
+                'plant_aurora_spore'
+            ];
+            const plantType = grovePlantTypes[(r * 43 + c * 29) % grovePlantTypes.length];
+
+            // Subtle shadow sprite - scaled down to 0.8 to make plants smaller
+            let shadow = scene.add.sprite(posX, posY + 15, plantType);
+            shadow.setTintFill(0x000000);
+            shadow.setAlpha(0.2);
+            shadow.setOrigin(0.5, 0.8);
+            shadow.setScale(0.8, 0.45 * 0.8);
+            shadow.setDepth(1);
+            sprites.push(shadow);
+
+            // Plant sprite - scaled down to 0.8 to make plants smaller
+            let plant = scene.add.sprite(posX, posY + 15, plantType);
+            plant.setOrigin(0.5, 0.8);
+            plant.setScale(0.8);
+            plant.setDepth(10 + (posY + 15) / 10000);
+            plant.isPlant = true;
+            plant.plantType = plantType;
+            plant.shadowSprite = shadow;
+
+            // Swaying tween
+            scene.tweens.add({
+                targets: plant,
+                angle: { from: -4, to: 4 },
+                duration: 2500 + (r * 29 + c * 43) % 2000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+
+            sprites.push(plant);
+        }
     } else if (mapData[r][c] === 'rift_wall') {
         let wall = scene.add.sprite(posX, posY, 'wall_cyber_circuit');
         wall.setDepth(10);
@@ -26147,7 +26335,7 @@ window.handlePortalOverlap = function(playerNum, portalSprite) {
         console.log(`[Portal] After reset and updateFromGameObject, player body x: ${playerObj.body.x}, y: ${playerObj.body.y}, player sprite x: ${playerObj.x}, y: ${playerObj.y}`);
     }
 
-    window.showModernNotification("🌀 Transported inside the mysterious Void Rift!", 3000, playerNum);
+    window.showModernNotification("🌀 Transported inside the mysterious Hidden Grove Portal World!", 3000, playerNum);
 };
 
 window.handleReturnPortalOverlap = function(playerNum, rPortalSprite) {
@@ -27812,9 +28000,12 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         }
     }
 
-    // 0.1% Shiny Chance (increases to 15% if Jank Juice is active)
+    // 0.1% Shiny Chance (increases to 30% if inside Rift Portal World, or 15% if Jank Juice is active)
     let shinyChance = 0.001;
-    if ((window.p1JankJuiceTime && window.p1JankJuiceTime > 0) || (window.p2JankJuiceTime && window.p2JankJuiceTime > 0)) {
+    const isInsideRift = (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000);
+    if (isInsideRift) {
+        shinyChance = 0.30;
+    } else if ((window.p1JankJuiceTime && window.p1JankJuiceTime > 0) || (window.p2JankJuiceTime && window.p2JankJuiceTime > 0)) {
         shinyChance = 0.15;
     }
 
@@ -27893,7 +28084,6 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     }
 
     // Scale level if inside the Void Rift (Row 400-439, Col 400-439)
-    const isInsideRift = (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000);
     if (isInsideRift) {
         clonedData.level = Math.max(clonedData.level + 15, 30);
         clonedData.name += " [Void]";
