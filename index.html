@@ -2779,7 +2779,7 @@
 
                 <div id="introItemCarouselContainer" style="background: rgba(0,0,0,0.5); padding: 20px; border: 1px solid rgba(0, 255, 204, 0.3); border-radius: 8px; box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.1); text-align: center; margin-bottom: 25px; position: relative;">
                     <div id="introItemCarouselCount" style="color: #ff3366; font-size: 12px; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">ITEM 1 / 25</div>
-                    <div id="introItemCarouselIcon" style="font-size: 48px; margin-bottom: 10px;">🧴</div>
+                    <div id="introItemCarouselIcon" style="font-size: 48px; margin-bottom: 10px;"></div>
                     <h4 id="introItemCarouselName" style="color: #00ffcc; font-size: 18px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px rgba(0,255,204,0.4);">Repellent</h4>
                     <p id="introItemCarouselDesc" style="color: #ddd; font-size: 13px; min-height: 40px; margin: 0 0 20px 0; line-height: 1.4;">Stops wild creature encounters/attacks for 60 seconds.</p>
 
@@ -2944,7 +2944,7 @@
 
                 <div id="introItemCarouselContainer_p2" style="background: rgba(0,0,0,0.5); padding: 20px; border: 1px solid rgba(255, 0, 255, 0.3); border-radius: 8px; box-shadow: inset 0 0 15px rgba(255, 0, 255, 0.1); text-align: center; margin-bottom: 25px; position: relative;">
                     <div id="introItemCarouselCount_p2" style="color: #ff3366; font-size: 12px; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">ITEM 1 / 25</div>
-                    <div id="introItemCarouselIcon_p2" style="font-size: 48px; margin-bottom: 10px;">🧴</div>
+                    <div id="introItemCarouselIcon_p2" style="font-size: 48px; margin-bottom: 10px;"></div>
                     <h4 id="introItemCarouselName_p2" style="color: #ff00ff; font-size: 18px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 8px rgba(255,0,255,0.4);">Repellent</h4>
                     <p id="introItemCarouselDesc_p2" style="color: #ddd; font-size: 13px; min-height: 40px; margin: 0 0 20px 0; line-height: 1.4;">Stops wild creature encounters/attacks for 60 seconds.</p>
 
@@ -9579,7 +9579,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const descEl = document.getElementById('introItemCarouselDesc' + suffix);
 
         if (countEl) countEl.innerText = `ITEM ${idx + 1} / ${window.introCarouselItems.length}`;
-        if (iconEl) iconEl.innerText = item.icon;
+        if (iconEl) iconEl.innerHTML = window.getItemIconHTML ? window.getItemIconHTML(item.name, 48) : item.icon;
         if (nameEl) nameEl.innerText = item.name;
         if (descEl) descEl.innerText = item.desc;
     };
