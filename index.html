@@ -6344,6 +6344,206 @@ window.generatePlantTextures = function(scene) {
                 ctx.fillStyle = '#facc15';
                 ctx.beginPath(); ctx.arc(fx, fy, 1, 0, Math.PI*2); ctx.fill();
             });
+        },
+        'plant_vernal_bluebell_bud': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Stem
+            ctx.strokeStyle = '#0f5132'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 55, 45, 25); ctx.stroke();
+            // Leaves
+            ctx.fillStyle = '#146c43'; ctx.strokeStyle = '#198754'; ctx.lineWidth = 0.5;
+            [[38, 75], [58, 65], [42, 50]].forEach(pt => {
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 8, 3, Math.PI/4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            });
+            // Closed buds (drooping)
+            const buds = [[40, 42], [42, 30]];
+            buds.forEach(pt => {
+                ctx.fillStyle = '#0dcaf0'; // Cyber cyan
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 4, 2.5, Math.PI/6, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#0a58ca'; // Inner dark blue shade
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 2, 1.5, Math.PI/6, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_vernal_bluebell_bloom': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Stem
+            ctx.strokeStyle = '#0f5132'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 55, 45, 25); ctx.stroke();
+            // Leaves
+            ctx.fillStyle = '#146c43'; ctx.strokeStyle = '#198754'; ctx.lineWidth = 0.5;
+            [[38, 75], [58, 65], [42, 50]].forEach(pt => {
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 8, 3, Math.PI/4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            });
+            // Open drooping bell blossoms (flared out, smaller and delicate)
+            const blooms = [[40, 42], [42, 30]];
+            blooms.forEach(pt => {
+                const bx = pt[0], by = pt[1];
+                // Flared bell shape
+                ctx.fillStyle = '#0dcaf0';
+                ctx.beginPath();
+                ctx.moveTo(bx - 5, by - 2);
+                ctx.quadraticCurveTo(bx - 3, by + 4, bx - 4, by + 6);
+                ctx.lineTo(bx + 4, by + 6);
+                ctx.quadraticCurveTo(bx + 3, by + 4, bx + 5, by - 2);
+                ctx.closePath();
+                ctx.fill();
+                // Outer glow petals
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath(); ctx.arc(bx - 4, by + 6, 1.2, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(bx, by + 7, 1.2, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(bx + 4, by + 6, 1.2, 0, Math.PI*2); ctx.fill();
+                // Yellow stamen sticking out
+                ctx.fillStyle = '#ffc107';
+                ctx.fillRect(bx - 0.8, by + 5, 1.6, 4);
+                ctx.beginPath(); ctx.arc(bx, by + 9, 1.2, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_solstice_sunflower_bud': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Stalk
+            ctx.strokeStyle = '#1b4332'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 35); ctx.stroke();
+            // Broad leaves
+            ctx.fillStyle = '#2d6a4f'; ctx.strokeStyle = '#40916c'; ctx.lineWidth = 0.5;
+            [[38, 70], [62, 58]].forEach(pt => {
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 10, 5, pt[0] < 50 ? -Math.PI/6 : Math.PI/6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            });
+            // Bud on top
+            const cx = 50, cy = 35;
+            ctx.fillStyle = '#1b4332';
+            ctx.beginPath(); ctx.arc(cx, cy, 7, 0, Math.PI*2); ctx.fill();
+            // Yellow tips peeking
+            ctx.fillStyle = '#ffc107';
+            for (let i = 0; i < 6; i++) {
+                let angle = (i * 2 * Math.PI) / 6 - Math.PI/2;
+                ctx.beginPath();
+                ctx.moveTo(cx + Math.cos(angle)*6, cy + Math.sin(angle)*6);
+                ctx.lineTo(cx + Math.cos(angle)*9, cy + Math.sin(angle)*9);
+                ctx.lineTo(cx + Math.cos(angle + 0.3)*7, cy + Math.sin(angle + 0.3)*7);
+                ctx.closePath(); ctx.fill();
+            }
+        },
+        'plant_solstice_sunflower_bloom': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Stalk
+            ctx.strokeStyle = '#1b4332'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 35); ctx.stroke();
+            // Broad leaves
+            ctx.fillStyle = '#2d6a4f'; ctx.strokeStyle = '#40916c'; ctx.lineWidth = 0.5;
+            [[38, 70], [62, 58]].forEach(pt => {
+                ctx.beginPath(); ctx.ellipse(pt[0], pt[1], 10, 5, pt[0] < 50 ? -Math.PI/6 : Math.PI/6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+            });
+            // Radiant open bloom (smaller and delicate)
+            const cx = 50, cy = 35;
+            // Yellow petals
+            ctx.fillStyle = '#ffc107';
+            for (let i = 0; i < 12; i++) {
+                let angle = (i * 2 * Math.PI) / 12;
+                ctx.beginPath();
+                ctx.ellipse(cx + Math.cos(angle)*6, cy + Math.sin(angle)*6, 6, 2.2, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // Inner orange highlight ring
+            ctx.fillStyle = '#fd7e14';
+            ctx.beginPath(); ctx.arc(cx, cy, 4.5, 0, Math.PI*2); ctx.fill();
+            // Dark circuit core
+            ctx.fillStyle = '#343a40';
+            ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#20c997'; // Neon cyan-green center dot
+            ctx.beginPath(); ctx.arc(cx, cy, 1, 0, Math.PI*2); ctx.fill();
+        },
+        'plant_luna_lotus_closed': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Stems/base
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(45, 65, 50, 45); ctx.stroke();
+            // Dark base leaves
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.ellipse(50, 85, 12, 4, 0, 0, Math.PI*2); ctx.fill();
+            // Closed petals
+            const cx = 50, cy = 45;
+            ctx.fillStyle = '#4c1d95';
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, 5, 8, 0, 0, Math.PI*2);
+            ctx.fill();
+            // Dim teal line
+            ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(cx, cy - 8); ctx.lineTo(cx, cy + 8); ctx.stroke();
+        },
+        'plant_luna_lotus_bloom': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Stems/base
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(45, 65, 50, 45); ctx.stroke();
+            // Dark base leaves
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath(); ctx.ellipse(50, 85, 12, 4, 0, 0, Math.PI*2); ctx.fill();
+            // Luminous open lotus (smaller and delicate)
+            const cx = 50, cy = 45;
+            // Outer glowing violet petals
+            ctx.fillStyle = '#701a75';
+            for (let i = 0; i < 8; i++) {
+                let angle = (i * 2 * Math.PI) / 8;
+                ctx.beginPath();
+                ctx.ellipse(cx + Math.cos(angle)*5, cy + Math.sin(angle)*4, 7, 2.5, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // Inner cyan petals
+            ctx.fillStyle = '#06b6d4';
+            for (let i = 0; i < 6; i++) {
+                let angle = (i * 2 * Math.PI) / 6 + Math.PI/6;
+                ctx.beginPath();
+                ctx.ellipse(cx + Math.cos(angle)*3.5, cy + Math.sin(angle)*2.5, 5, 1.8, angle, 0, Math.PI*2);
+                ctx.fill();
+            }
+            // Luminous white stamen
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.arc(cx, cy, 2, 0, Math.PI*2); ctx.fill();
+        },
+        'plant_night_phlox_closed': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Thin stems
+            ctx.strokeStyle = '#1a052e'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(40, 60, 45, 35); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(60, 70, 55, 45); ctx.stroke();
+            // Closed purple buds
+            [[45, 35], [55, 45], [42, 55], [58, 62]].forEach(pt => {
+                ctx.fillStyle = '#4a0e4e';
+                ctx.beginPath(); ctx.arc(pt[0], pt[1], 2.5, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_night_phlox_bloom': function(ctx) {
+            ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            // Thin stems
+            ctx.strokeStyle = '#1a052e'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(40, 60, 45, 35); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(60, 70, 55, 45); ctx.stroke();
+            // Luminous neon pink phlox flowers (smaller and delicate)
+            const blossoms = [[45, 35], [55, 45], [42, 55], [58, 62]];
+            blossoms.forEach(pt => {
+                const bx = pt[0], by = pt[1];
+                ctx.fillStyle = '#e0115f'; // Neon magenta
+                for (let i = 0; i < 5; i++) {
+                    let angle = (i * 2 * Math.PI) / 5 - Math.PI/2;
+                    ctx.beginPath();
+                    ctx.ellipse(bx + Math.cos(angle)*2.2, by + Math.sin(angle)*2.2, 3.2, 1.4, angle, 0, Math.PI*2);
+                    ctx.fill();
+                }
+                ctx.fillStyle = '#fceff9'; // Sparkling center
+                ctx.beginPath(); ctx.arc(bx, by, 1.2, 0, Math.PI*2); ctx.fill();
+            });
+        },
+        'plant_vernal_bluebell': function(ctx) {
+            plants['plant_vernal_bluebell_bud'](ctx);
+        },
+        'plant_solstice_sunflower': function(ctx) {
+            plants['plant_solstice_sunflower_bud'](ctx);
+        },
+        'plant_luna_lotus': function(ctx) {
+            plants['plant_luna_lotus_closed'](ctx);
+        },
+        'plant_night_phlox': function(ctx) {
+            plants['plant_night_phlox_closed'](ctx);
         }
     };
 
@@ -6351,6 +6551,31 @@ window.generatePlantTextures = function(scene) {
         const c = document.createElement('canvas'); c.width = 100; c.height = 100;
         drawFunc(c.getContext('2d'));
         scene.textures.addCanvas(key, c);
+    }
+};
+
+window.updatePlantVisualState = function(sprite) {
+    if (!sprite || !sprite.plantType) return;
+
+    const currentTime = (typeof window.dayNightTime !== 'undefined' && window.dayNightTime !== null) ? window.dayNightTime : (typeof dayNightTime !== 'undefined' ? dayNightTime : 12.0);
+    const isNight = (currentTime >= 20 || currentTime < 6);
+
+    let targetTexture = sprite.plantType;
+    if (sprite.plantType === 'plant_vernal_bluebell') {
+        targetTexture = (window.currentSeason === 'Spring') ? 'plant_vernal_bluebell_bloom' : 'plant_vernal_bluebell_bud';
+    } else if (sprite.plantType === 'plant_solstice_sunflower') {
+        targetTexture = (window.currentSeason === 'Summer') ? 'plant_solstice_sunflower_bloom' : 'plant_solstice_sunflower_bud';
+    } else if (sprite.plantType === 'plant_luna_lotus') {
+        targetTexture = isNight ? 'plant_luna_lotus_bloom' : 'plant_luna_lotus_closed';
+    } else if (sprite.plantType === 'plant_night_phlox') {
+        targetTexture = isNight ? 'plant_night_phlox_bloom' : 'plant_night_phlox_closed';
+    }
+
+    if (sprite.texture.key !== targetTexture) {
+        sprite.setTexture(targetTexture);
+        if (sprite.shadowSprite && sprite.shadowSprite.active) {
+            sprite.shadowSprite.setTexture(targetTexture);
+        }
     }
 };
 
@@ -24963,24 +25188,33 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             const plantTypes = [
                 'plant_cyber_fern', 'plant_crystal_rose', 'plant_bio_orchid', 'plant_solar_lotus', 'plant_cosmic_shroom', 'plant_velvet_moss',
                 'plant_plasma_lily', 'plant_neon_dahlia', 'plant_glow_tulip', 'plant_cyber_brier', 'plant_holo_iris', 'plant_frost_shrub',
-                'plant_amber_shrub', 'plant_tox_foliage', 'plant_sunfire_blossom'
+                'plant_amber_shrub', 'plant_tox_foliage', 'plant_sunfire_blossom',
+                'plant_vernal_bluebell', 'plant_solstice_sunflower', 'plant_luna_lotus', 'plant_night_phlox'
             ];
             const plantType = plantTypes[(r * 31 + c * 17) % plantTypes.length];
 
-            // Subtle shadow sprite
+            // Subtle shadow sprite - scaled down to 0.8 to make flowers/plants smaller
             let shadow = scene.add.sprite(posX, posY + 15, plantType);
             shadow.setTintFill(0x000000);
             shadow.setAlpha(0.2);
             shadow.setOrigin(0.5, 0.8);
-            shadow.setScale(1.0, 0.45);
+            shadow.setScale(0.8, 0.45 * 0.8);
             shadow.setDepth(1);
             sprites.push(shadow);
 
+            // Plant sprite - scaled down to 0.8 to make flowers/plants smaller
             let plant = scene.add.sprite(posX, posY + 15, plantType);
             plant.setOrigin(0.5, 0.8);
+            plant.setScale(0.8);
             plant.setDepth(10 + (posY + 15) / 10000);
             plant.isPlant = true;
             plant.plantType = plantType;
+            plant.shadowSprite = shadow;
+
+            // Initialize the texture based on active season and time of day
+            if (window.updatePlantVisualState) {
+                window.updatePlantVisualState(plant);
+            }
 
             // Swaying tween
             scene.tweens.add({
@@ -31521,6 +31755,10 @@ function update() {
                 sprite.setAlpha(sAlpha);
                 sprite.setVisible(sAlpha > 0);
                 sprite.setTintFill(0x000000);
+            } else if (sprite.isPlant) {
+                if (window.updatePlantVisualState) {
+                    window.updatePlantVisualState(sprite);
+                }
             }
         });
     }

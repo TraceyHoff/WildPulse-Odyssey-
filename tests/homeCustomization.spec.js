@@ -16,11 +16,11 @@ test.describe('Home Customization & Plant Life System Tests', () => {
     });
     await page.reload();
 
-    // Dismiss start modal by clicking Single Player
+    // Dismiss start modal by clicking Single Player after loading screen finishes
     const startBtn = page.locator('#startGameBtn');
-    if (await startBtn.isVisible()) {
-      await startBtn.click();
-    }
+    await startBtn.waitFor({ state: 'visible', timeout: 30000 });
+    await startBtn.click();
+
     // Dismiss onboarding intro modal if visible
     const introClose = page.locator('#introModal .close-btn');
     if (await introClose.isVisible()) {
@@ -140,5 +140,101 @@ test.describe('Home Customization & Plant Life System Tests', () => {
       return (JSON.parse(localStorage.getItem('wildpulse_p1_mini_tiles')) || []).length;
     });
     expect(secondPlacement).toBe(1);
+  });
+
+  test('should pre-generate new dynamic plant textures and update visual state based on season and day/night time', async ({ page }) => {
+    // 1. Verify that the new dynamic plant textures have been pre-generated successfully in Phaser
+    const dynamicTexturesExist = await page.evaluate(() => {
+      const scene = window.game.scene.scenes[0];
+      return {
+        bluebellBud: scene.textures.exists('plant_vernal_bluebell_bud'),
+        bluebellBloom: scene.textures.exists('plant_vernal_bluebell_bloom'),
+        sunflowerBud: scene.textures.exists('plant_solstice_sunflower_bud'),
+        sunflowerBloom: scene.textures.exists('plant_solstice_sunflower_bloom'),
+        lunaLotusClosed: scene.textures.exists('plant_luna_lotus_closed'),
+        lunaLotusBloom: scene.textures.exists('plant_luna_lotus_bloom'),
+        nightPhloxClosed: scene.textures.exists('plant_night_phlox_closed'),
+        nightPhloxBloom: scene.textures.exists('plant_night_phlox_bloom')
+      };
+    });
+
+    expect(dynamicTexturesExist.bluebellBud).toBe(true);
+    expect(dynamicTexturesExist.bluebellBloom).toBe(true);
+    expect(dynamicTexturesExist.sunflowerBud).toBe(true);
+    expect(dynamicTexturesExist.sunflowerBloom).toBe(true);
+    expect(dynamicTexturesExist.lunaLotusClosed).toBe(true);
+    expect(dynamicTexturesExist.lunaLotusBloom).toBe(true);
+    expect(dynamicTexturesExist.nightPhloxClosed).toBe(true);
+    expect(dynamicTexturesExist.nightPhloxBloom).toBe(true);
+
+    // 2. Verify window.updatePlantVisualState logic for seasonal and night-blooming plants
+    const testVisualUpdates = await page.evaluate(() => {
+      const scene = window.game.scene.scenes[0];
+      const results = {};
+
+      // Mock plant sprite with a linked shadow
+      const mockShadow = scene.add.sprite(0, 0, 'plant_vernal_bluebell');
+      const mockPlant = scene.add.sprite(0, 0, 'plant_vernal_bluebell');
+      mockPlant.plantType = 'plant_vernal_bluebell';
+      mockPlant.shadowSprite = mockShadow;
+
+      // Spring season check
+      window.currentSeason = 'Spring';
+      window.updatePlantVisualState(mockPlant);
+      results.bluebellInSpring = {
+        plantKey: mockPlant.texture.key,
+        shadowKey: mockShadow.texture.key
+      };
+
+      // Summer season check
+      window.currentSeason = 'Summer';
+      window.updatePlantVisualState(mockPlant);
+      results.bluebellInSummer = {
+        plantKey: mockPlant.texture.key,
+        shadowKey: mockShadow.texture.key
+      };
+
+      // Mock a night-blooming plant
+      const mockLotusShadow = scene.add.sprite(0, 0, 'plant_luna_lotus');
+      const mockLotus = scene.add.sprite(0, 0, 'plant_luna_lotus');
+      mockLotus.plantType = 'plant_luna_lotus';
+      mockLotus.shadowSprite = mockLotusShadow;
+
+      // Day time check
+      window.dayNightTime = 12.0; // Noon
+      window.updatePlantVisualState(mockLotus);
+      results.lunaLotusInDay = {
+        plantKey: mockLotus.texture.key,
+        shadowKey: mockLotusShadow.texture.key
+      };
+
+      // Night time check
+      window.dayNightTime = 23.0; // Night
+      window.updatePlantVisualState(mockLotus);
+      results.lunaLotusAtNight = {
+        plantKey: mockLotus.texture.key,
+        shadowKey: mockLotusShadow.texture.key
+      };
+
+      // Cleanup mock sprites
+      mockShadow.destroy();
+      mockPlant.destroy();
+      mockLotusShadow.destroy();
+      mockLotus.destroy();
+
+      return results;
+    });
+
+    expect(testVisualUpdates.bluebellInSpring.plantKey).toBe('plant_vernal_bluebell_bloom');
+    expect(testVisualUpdates.bluebellInSpring.shadowKey).toBe('plant_vernal_bluebell_bloom');
+
+    expect(testVisualUpdates.bluebellInSummer.plantKey).toBe('plant_vernal_bluebell_bud');
+    expect(testVisualUpdates.bluebellInSummer.shadowKey).toBe('plant_vernal_bluebell_bud');
+
+    expect(testVisualUpdates.lunaLotusInDay.plantKey).toBe('plant_luna_lotus_closed');
+    expect(testVisualUpdates.lunaLotusInDay.shadowKey).toBe('plant_luna_lotus_closed');
+
+    expect(testVisualUpdates.lunaLotusAtNight.plantKey).toBe('plant_luna_lotus_bloom');
+    expect(testVisualUpdates.lunaLotusAtNight.shadowKey).toBe('plant_luna_lotus_bloom');
   });
 });
