@@ -4142,6 +4142,40 @@ window.generateNpcTrainerCoords = function(seed) {
     }
 };
 
+window.isPortalComboActive = function() {
+    if (window.forcePortalActive) return true;
+    const season = window.currentSeason;
+    const weather = window.weatherPattern || 'none';
+    const time = (typeof dayNightTime !== 'undefined') ? dayNightTime : 12.0;
+    const isNight = (time >= 21 || time <= 6);
+    const isSunrise = (time > 6 && time < 7);
+    const isSunset = (time > 20 && time < 21);
+
+    if (season === 'Fall' && weather === 'thunderstorm' && isNight) return true;
+    if (season === 'Winter' && weather === 'thundersnow' && isNight) return true;
+    if (season === 'Spring' && weather === 'light_rain' && isSunrise) return true;
+    if (season === 'Summer' && (weather === 'heavy_rain' || weather === 'thunderstorm') && isSunset) return true;
+    return false;
+};
+
+window.generatePortalCoords = function(seed) {
+    const sRng = window.mulberry32(seed);
+    window.portalCoords = [];
+    let attempts = 0;
+    while (window.portalCoords.length < 3 && attempts < 2000) {
+        attempts++;
+        let r = Math.floor(20 + sRng() * 160);
+        let c = Math.floor(20 + sRng() * 160);
+        const distToHospital = Math.hypot(r - 100, c - 100);
+        if (distToHospital >= 25 && mapData[r] && mapData[r][c] === 'grass') {
+            if (!window.portalCoords.some(coord => coord.r === r && coord.c === c)) {
+                window.portalCoords.push({ r, c });
+                mapData[r][c] = 'portal_tile';
+            }
+        }
+    }
+};
+
 window.p1ActiveChestTile = null;
 window.p2ActiveChestTile = null;
 
@@ -6830,6 +6864,7 @@ function escapeHtml(unsafe) {
                 <p>• <strong>Sanctuary Base:</strong> Once you reach <span style="color:#ff007f; font-weight:bold;">Player Level 10</span>, place your Home. Step inside and select '🎨 Design' on your Action Wheel to change walls, floors, and ambient glows.</p>
                 <p>• <strong>Storage Chest 🧳:</strong> Available at <span style="color:#ff007f; font-weight:bold;">Player Level 6</span>. Purchase for 620 gold and place up to 3 chests to store your extra item stacks (maximum 10 per slot).</p>
                 <p>• <strong>Item Catalog:</strong> Visit the store to buy recovery items, **Creature Licenses** (provides a passive 1.5x capture rate, consumed only on successful catch), and **Jank Juice** (increases shiny spawn rates for 6 minutes).</p>
+                <p>• <strong>Void Rifts & Portals 🌀:</strong> Under specific environmental alignments (Fall Thunderstorms at Night, Winter Thundersnows at Night, Spring Rains at Sunrise, or Summer Storms at Sunset), 3 rare procedurally placed portals materialize across the map. Step through them to access a high-stakes, 40x40 dimension filled with rare, high-level creatures! Step on the center return portal to return to safety.</p>
             </div>
 
             <h3 style="color: #00ffcc; margin-top: 15px;">Type Chart & Natures</h3>
@@ -24227,6 +24262,37 @@ function generateCloudTextures(scene) {
 }
 
 function generateTileTextures(scene) {
+    // Pre-generate Portal texture (pulsing neon/cyber spiral vortex)
+    const portalCanvas = document.createElement('canvas');
+    portalCanvas.width = 100;
+    portalCanvas.height = 100;
+    const portalCtx = portalCanvas.getContext('2d');
+    portalCtx.fillStyle = '#080510';
+    portalCtx.fillRect(0, 0, 100, 100);
+    // Draw glowing concentric rings / spiral
+    portalCtx.strokeStyle = '#bf55ec';
+    portalCtx.lineWidth = 4;
+    portalCtx.shadowBlur = 15;
+    portalCtx.shadowColor = '#00ffd2';
+    portalCtx.beginPath();
+    for (let i = 0; i < 360; i += 10) {
+        let angle = i * Math.PI / 180;
+        let r = 10 + i * 0.1;
+        let x = 50 + Math.cos(angle) * r;
+        let y = 50 + Math.sin(angle) * r;
+        if (i === 0) portalCtx.moveTo(x, y);
+        else portalCtx.lineTo(x, y);
+    }
+    portalCtx.stroke();
+    // Glowing core
+    portalCtx.fillStyle = '#00ffd2';
+    portalCtx.shadowColor = '#00ffd2';
+    portalCtx.shadowBlur = 20;
+    portalCtx.beginPath();
+    portalCtx.arc(50, 50, 15, 0, Math.PI * 2);
+    portalCtx.fill();
+    scene.textures.addCanvas('portal_tile_texture', portalCanvas);
+
     // Pre-generate Hospital Tile texture (Upgraded Cyber Medical Terminal)
     const hospitalCanvas = document.createElement('canvas');
     hospitalCanvas.width = 100;
@@ -25086,6 +25152,68 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             bSprite.isBreedTile = true;
             sprites.push(bSprite);
         }
+    } else if (mapData[r][c] === 'portal_tile') {
+        let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
+        grass.setDepth(-1.1);
+        sprites.push(grass);
+
+        if (window.isPortalComboActive()) {
+            let portal = scene.add.sprite(posX, posY, 'portal_tile_texture');
+            portal.setDepth(-1);
+            // Slowly rotating animation
+            scene.tweens.add({
+                targets: portal,
+                angle: 360,
+                duration: 4000,
+                repeat: -1
+            });
+            sprites.push(portal);
+
+            if (window.portalsGroup) {
+                let pSprite = window.portalsGroup.create(posX, posY, 'portal_tile_texture');
+                pSprite.setVisible(false);
+                pSprite.portalR = r;
+                pSprite.portalC = c;
+                sprites.push(pSprite);
+            }
+        }
+    } else if (mapData[r][c] === 'rift_floor') {
+        let floor = scene.add.sprite(posX, posY, 'floor_matrix');
+        floor.setDepth(-1);
+        sprites.push(floor);
+    } else if (mapData[r][c] === 'rift_wall') {
+        let wall = scene.add.sprite(posX, posY, 'wall_cyber_circuit');
+        wall.setDepth(10);
+        sprites.push(wall);
+
+        if (obstaclesGroup) {
+            let obsSprite = obstaclesGroup.create(posX, posY, 'wall_cyber_circuit');
+            obsSprite.setVisible(false);
+            if (obsSprite.body) {
+                obsSprite.body.updateFromGameObject();
+            }
+            sprites.push(obsSprite);
+        }
+    } else if (mapData[r][c] === 'return_portal') {
+        let floor = scene.add.sprite(posX, posY, 'floor_matrix');
+        floor.setDepth(-1.1);
+        sprites.push(floor);
+
+        let portal = scene.add.sprite(posX, posY, 'portal_tile_texture');
+        portal.setDepth(-1);
+        scene.tweens.add({
+            targets: portal,
+            angle: -360, // Rotate opposite direction
+            duration: 4000,
+            repeat: -1
+        });
+        sprites.push(portal);
+
+        if (window.returnPortalsGroup) {
+            let rpSprite = window.returnPortalsGroup.create(posX, posY, 'portal_tile_texture');
+            rpSprite.setVisible(false);
+            sprites.push(rpSprite);
+        }
     } else if (mapData[r][c] === 'home_floor') {
         let pNum = 1;
         if (c >= 589 && c <= 595) pNum = 2;
@@ -25689,6 +25817,67 @@ window.handleHomeExitOverlap = function(playerNum, pCol, doorSprite) {
     window.showModernNotification("🏠 Leaving your cozy home.", 3000, playerNum);
 };
 
+window.handlePortalOverlap = function(playerNum, portalSprite) {
+    if (window.inBattle) return;
+    if (!window.isPortalComboActive()) return;
+
+    const now = Date.now();
+    const playerObj = playerNum === 2 ? window.player2 : window.player;
+    if (!playerObj) return;
+
+    if (playerObj.lastPortalOverlapTime && now - playerObj.lastPortalOverlapTime < 1500) {
+        return;
+    }
+    playerObj.lastPortalOverlapTime = now;
+
+    // Save previous coordinates for returning
+    window[`p${playerNum}PrePortalPos`] = {
+        x: playerObj.x,
+        y: playerObj.y
+    };
+
+    // Center of Rift World (Row 420, Col 420 -> X=42050, Y=42050)
+    const insideX = 420 * 100 + 50;
+    const insideY = 420 * 100 + 50;
+
+    console.log(`[Portal] Teleporting player to Rift World center at: ${insideX}, ${insideY}`);
+
+    playerObj.setPosition(insideX, insideY);
+    if (playerObj.body) {
+        playerObj.body.reset(insideX, insideY);
+        playerObj.body.updateFromGameObject();
+        console.log(`[Portal] After reset and updateFromGameObject, player body x: ${playerObj.body.x}, y: ${playerObj.body.y}, player sprite x: ${playerObj.x}, y: ${playerObj.y}`);
+    }
+
+    window.showModernNotification("🌀 Transported inside the mysterious Void Rift!", 3000, playerNum);
+};
+
+window.handleReturnPortalOverlap = function(playerNum, rPortalSprite) {
+    if (window.inBattle) return;
+
+    const now = Date.now();
+    const playerObj = playerNum === 2 ? window.player2 : window.player;
+    if (!playerObj) return;
+
+    if (playerObj.lastPortalOverlapTime && now - playerObj.lastPortalOverlapTime < 1500) {
+        return;
+    }
+    playerObj.lastPortalOverlapTime = now;
+
+    // Retrieve previous coordinates, fallback to default (X=10000, Y=10000) if undefined
+    const prePos = window[`p${playerNum}PrePortalPos`] || { x: 10000, y: 10000 };
+
+    console.log(`[Portal] Returning player to pre-portal pos: ${prePos.x}, ${prePos.y}`);
+
+    playerObj.setPosition(prePos.x, prePos.y);
+    if (playerObj.body) {
+        playerObj.body.reset(prePos.x, prePos.y);
+        playerObj.body.updateFromGameObject();
+    }
+
+    window.showModernNotification("🌀 Returned safely to the main world!", 3000, playerNum);
+};
+
 window.spawnMiniTiles = function(scene) {
     if (!scene) return;
     if (window.miniTilesGroup) {
@@ -26105,6 +26294,8 @@ function create() {
     window.homeDoorsGroup = this.physics.add.staticGroup();
     window.questNpcGroup = this.physics.add.staticGroup();
     window.npcTrainersGroup = this.physics.add.group();
+    window.portalsGroup = this.physics.add.staticGroup();
+    window.returnPortalsGroup = this.physics.add.staticGroup();
 
     // Procedural generation
 
@@ -26215,6 +26406,20 @@ function create() {
     }
     mapData[584][592] = 'home_door_p2';
 
+    // Generate separate portal rift world (40x40 area at row 400 to 439, col 400 to 439)
+    // We surround it with wall boundaries
+    for (let r = 399; r <= 440; r++) {
+        for (let c = 399; c <= 440; c++) {
+            if (r === 399 || r === 440 || c === 399 || c === 440) {
+                mapData[r][c] = 'rift_wall';
+            } else {
+                mapData[r][c] = 'rift_floor';
+            }
+        }
+    }
+    // Place a return portal at the center (420, 420)
+    mapData[420][420] = 'return_portal';
+
     // Place all 24 standard NPC trainers dynamically based on stable coordinates
     if (window.npcTrainerCoords) {
         for (let i = 1; i <= 24; i++) {
@@ -26249,6 +26454,9 @@ function create() {
             }
         });
     }
+
+    // Place 3 rare portals procedurally
+    window.generatePortalCoords(stableSeed);
 
     // Calculate water depth distances using 2-pass Manhattan algorithm
     window.waterDist = [];
@@ -26519,6 +26727,16 @@ function create() {
         }
     }
 
+    // Spawn dedicated creatures inside the Void Rift world
+    if (window.baseCreatures && window.baseCreatures.length > 0) {
+        for (let i = 0; i < 5; i++) {
+            let rx = (405 + Math.floor(Math.random() * 30)) * 100 + 50;
+            let ry = (405 + Math.floor(Math.random() * 30)) * 100 + 50;
+            let randCreature = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+            spawnCreature(this, randCreature, rx, ry);
+        }
+    }
+
     // Wind effects, particles, and clouds
     window.windAngle = 0;
     window.targetWindAngle = 0;
@@ -26714,6 +26932,12 @@ function create() {
     window.spawnMiniTiles(this);
 
     // Overlap physics
+    this.physics.add.overlap(player, window.portalsGroup, (pCol, portalSprite) => {
+        window.handlePortalOverlap(1, portalSprite);
+    }, null, this);
+    this.physics.add.overlap(player, window.returnPortalsGroup, (pCol, rPortalSprite) => {
+        window.handleReturnPortalOverlap(1, rPortalSprite);
+    }, null, this);
     this.physics.add.overlap(player, window.homesGroup, (pCol, homeSprite) => {
         window.handleHomeOverlap(1, pCol, homeSprite);
     }, null, this);
@@ -27369,6 +27593,14 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         let wildLevel = Math.floor(sRng() * (maxPossibleLevel - minPossibleLevel + 1)) + minPossibleLevel;
         clonedData.level = Math.max(1, wildLevel);
     }
+
+    // Scale level if inside the Void Rift (Row 400-439, Col 400-439)
+    const isInsideRift = (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000);
+    if (isInsideRift) {
+        clonedData.level = Math.max(clonedData.level + 15, 30);
+        clonedData.name += " [Void]";
+    }
+
     clonedData.xp = 0;
 
     // Deterministic ID for synchronization
@@ -29976,6 +30208,12 @@ window.enableCoop = function(scene) {
     window.p2Colliders = [];
     window.p2Colliders.push(scene.physics.add.collider(window.player2, window.treesGroup));
     window.p2Colliders.push(scene.physics.add.collider(window.player2, obstaclesGroup));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.portalsGroup, (pCol, portalSprite) => {
+        window.handlePortalOverlap(2, portalSprite);
+    }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.returnPortalsGroup, (pCol, rPortalSprite) => {
+        window.handleReturnPortalOverlap(2, rPortalSprite);
+    }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.homesGroup, (pCol, homeSprite) => {
         window.handleHomeOverlap(2, pCol, homeSprite);
     }, null, scene));
