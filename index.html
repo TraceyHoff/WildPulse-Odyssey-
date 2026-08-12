@@ -26311,35 +26311,97 @@ window.handlePortalOverlap = function(playerNum, portalSprite) {
     const playerObj = playerNum === 2 ? window.player2 : window.player;
     if (!playerObj) return;
 
-    if (playerObj.lastPortalOverlapTime && now - playerObj.lastPortalOverlapTime < 1500) {
+    if (playerObj.lastPortalOverlapTime && now - playerObj.lastPortalOverlapTime < 3000) {
         return;
     }
-    playerObj.lastPortalOverlapTime = now;
 
-    // Save previous coordinates for returning
-    window[`p${playerNum}PrePortalPos`] = {
-        x: playerObj.x,
-        y: playerObj.y
-    };
-
-    // Center of Rift World (Row 420, Col 420 -> X=42050, Y=42050)
-    const insideX = 420 * 100 + 50;
-    const insideY = 420 * 100 + 50;
-
-    console.log(`[Portal] Teleporting player to Rift World center at: ${insideX}, ${insideY}`);
-
-    playerObj.setPosition(insideX, insideY);
-    if (playerObj.body) {
-        playerObj.body.reset(insideX, insideY);
-        playerObj.body.updateFromGameObject();
-        console.log(`[Portal] After reset and updateFromGameObject, player body x: ${playerObj.body.x}, y: ${playerObj.body.y}, player sprite x: ${playerObj.x}, y: ${playerObj.y}`);
+    // Guard against showing multiple confirmation prompts simultaneously
+    const confirmModalEl = document.getElementById(`customConfirmModal_p${playerNum}`);
+    if (confirmModalEl && confirmModalEl.style.display === 'flex') {
+        return;
+    }
+    if (playerObj.isConfirmingPortal) {
+        return;
     }
 
-    window.showModernNotification("🌀 Transported inside the mysterious Hidden Grove Portal World!", 3000, playerNum);
+    playerObj.isConfirmingPortal = true;
+
+    // Show a themed in-game confirmation pop-up
+    window.showConfirm(playerNum, "ENTER PORTAL", "Would you like to step through the dimensional portal into the Hidden Grove Portal World?", () => {
+        playerObj.isConfirmingPortal = false;
+        playerObj.lastPortalOverlapTime = Date.now();
+
+        // Save previous coordinates for returning
+        window[`p${playerNum}PrePortalPos`] = {
+            x: playerObj.x,
+            y: playerObj.y
+        };
+
+        // Center of Rift World (Row 420, Col 420 -> X=42050, Y=42050)
+        const insideX = 420 * 100 + 50;
+        const insideY = 420 * 100 + 50;
+
+        console.log(`[Portal] Teleporting player ${playerNum} to Rift World center at: ${insideX}, ${insideY}`);
+
+        playerObj.setPosition(insideX, insideY);
+        if (playerObj.body) {
+            playerObj.body.reset(insideX, insideY);
+            playerObj.body.updateFromGameObject();
+        }
+
+        window.showModernNotification("🌀 Transported inside the mysterious Hidden Grove Portal World!", 3000, playerNum);
+
+        // If co-op is active, invite the other player to join if they aren't already there
+        if (window.coopActive) {
+            const otherPlayerNum = playerNum === 1 ? 2 : 1;
+            const otherPlayerObj = otherPlayerNum === 2 ? window.player2 : window.player;
+            if (otherPlayerObj) {
+                const otherInRift = (otherPlayerObj.x >= 40000 && otherPlayerObj.x <= 44000 && otherPlayerObj.y >= 40000 && otherPlayerObj.y <= 44000);
+                if (!otherInRift) {
+                    otherPlayerObj.isConfirmingPortal = true;
+                    window.showConfirm(otherPlayerNum, "JOIN PORTAL WORLD", `Player ${playerNum} has entered the Hidden Grove! Would you like to join them?`, () => {
+                        otherPlayerObj.isConfirmingPortal = false;
+
+                        // Set fresh overlap cooldowns for both players to prevent immediate back-and-forth teleport loops
+                        window.player.lastPortalOverlapTime = Date.now();
+                        if (window.player2) {
+                            window.player2.lastPortalOverlapTime = Date.now();
+                        }
+
+                        window[`p${otherPlayerNum}PrePortalPos`] = {
+                            x: otherPlayerObj.x,
+                            y: otherPlayerObj.y
+                        };
+                        otherPlayerObj.setPosition(insideX, insideY);
+                        if (otherPlayerObj.body) {
+                            otherPlayerObj.body.reset(insideX, insideY);
+                            otherPlayerObj.body.updateFromGameObject();
+                        }
+                        window.showModernNotification("🌀 Transported inside the mysterious Hidden Grove Portal World!", 3000, otherPlayerNum);
+                    }, () => {
+                        otherPlayerObj.isConfirmingPortal = false;
+
+                        // Set fresh overlap cooldown for Player 1 now that Player 2 has declined
+                        window.player.lastPortalOverlapTime = Date.now();
+
+                        window.showModernNotification("🌀 Declined portal entry. Continue exploring!", 3000, otherPlayerNum);
+                    });
+                }
+            }
+        }
+    }, () => {
+        playerObj.isConfirmingPortal = false;
+        playerObj.lastPortalOverlapTime = Date.now();
+        window.showModernNotification("🌀 Declined portal entry. Continue exploring!", 3000, playerNum);
+    });
 };
 
 window.handleReturnPortalOverlap = function(playerNum, rPortalSprite) {
     if (window.inBattle) return;
+
+    // Do not return if either player is currently confirming portal/join dialogue
+    if (window.player && window.player.isConfirmingPortal) return;
+    if (window.player2 && window.player2.isConfirmingPortal) return;
 
     const now = Date.now();
     const playerObj = playerNum === 2 ? window.player2 : window.player;
