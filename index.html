@@ -25159,25 +25159,37 @@ function generateMiscTextures(scene) {
     jfCanvas.width = 30;
     jfCanvas.height = 30;
     const jfCtx = jfCanvas.getContext('2d');
-    jfCtx.fillStyle = '#1E90FF'; // DodgerBlue
+
+    // Create linear gradient for realistic green-to-white coloring
+    const fishGrad = jfCtx.createLinearGradient(0, -6, 0, 6);
+    fishGrad.addColorStop(0, '#2E8B57'); // SeaGreen back
+    fishGrad.addColorStop(1, '#FFFFFF'); // White belly
+
+    jfCtx.save();
+    jfCtx.translate(15, 15);
+
+    // Top Fin
+    jfCtx.beginPath();
+    jfCtx.moveTo(-4, -5);
+    jfCtx.lineTo(2, -10);
+    jfCtx.lineTo(6, -4);
+    jfCtx.fillStyle = '#2E8B57';
+    jfCtx.fill();
 
     // Body
-    jfCtx.save();
-    jfCtx.translate(15, 15);
-    jfCtx.scale(2, 1);
     jfCtx.beginPath();
-    jfCtx.arc(0, 0, 6, 0, Math.PI * 2);
+    jfCtx.ellipse(0, 0, 12, 6, 0, 0, Math.PI * 2);
+    jfCtx.fillStyle = fishGrad;
     jfCtx.fill();
-    jfCtx.restore();
 
     // Tail
-    jfCtx.save();
-    jfCtx.translate(15, 15);
     jfCtx.beginPath();
     jfCtx.moveTo(-10, 0);
     jfCtx.lineTo(-18, -6);
     jfCtx.lineTo(-18, 6);
+    jfCtx.fillStyle = fishGrad;
     jfCtx.fill();
+
     jfCtx.restore();
 
     scene.textures.addCanvas('jumping_fish_tex', jfCanvas);
@@ -33825,13 +33837,17 @@ function update() {
             fish.setVisible(isVisible);
 
             if (updateAIThisFrame && isVisible) {
-                let distToPlayer = Math.hypot(player.x - fish.x, player.y - fish.y);
+                let distToPlayer = Infinity;
                 let closestPlayer = player;
-                if (window.coopActive && window.player2) {
-                    const distToP2 = Math.hypot(window.player2.x - fish.x, window.player2.y - fish.y);
-                    if (distToP2 < distToPlayer) {
-                        distToPlayer = distToP2;
-                        closestPlayer = window.player2;
+
+                if (window.gameStarted) {
+                    distToPlayer = Math.hypot(player.x - fish.x, player.y - fish.y);
+                    if (window.coopActive && window.player2) {
+                        const distToP2 = Math.hypot(window.player2.x - fish.x, window.player2.y - fish.y);
+                        if (distToP2 < distToPlayer) {
+                            distToPlayer = distToP2;
+                            closestPlayer = window.player2;
+                        }
                     }
                 }
 
