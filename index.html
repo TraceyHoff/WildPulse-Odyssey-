@@ -24606,6 +24606,20 @@ function generateParticleTextures(scene) {
     dustCtx.fillRect(0, 0, 16, 16);
     scene.textures.addCanvas('dust_particle', dustCanvas);
 
+    const footprintCanvas = document.createElement('canvas');
+    footprintCanvas.width = 12;
+    footprintCanvas.height = 12;
+    const footprintCtx = footprintCanvas.getContext('2d');
+    let footprintGrad = footprintCtx.createRadialGradient(6, 6, 0, 6, 6, 6);
+    footprintGrad.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
+    footprintGrad.addColorStop(0.6, 'rgba(0, 0, 0, 0.15)');
+    footprintGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    footprintCtx.fillStyle = footprintGrad;
+    footprintCtx.beginPath();
+    footprintCtx.ellipse(6, 6, 4, 2, 0, 0, Math.PI * 2);
+    footprintCtx.fill();
+    scene.textures.addCanvas('footprint_particle', footprintCanvas);
+
     const starCanvas = document.createElement('canvas');
     starCanvas.width = 40;
     starCanvas.height = 4;
@@ -27480,6 +27494,19 @@ function create() {
         frequency: -1, // manual emit
         scale: { start: 0.5, end: 1.5 },
         alpha: { start: 0.5, end: 0 },
+        emitting: false
+    });
+
+    let footprintParticles = this.add.particles('footprint_particle');
+    footprintParticles.setDepth(0.5); // Just above floor, below player and grass
+    window.footprintEmitter = footprintParticles.createEmitter({
+        speedY: 0,
+        speedX: 0,
+        lifespan: 1500,
+        quantity: 1,
+        frequency: -1, // manual emit
+        scale: { start: 1, end: 1.2 },
+        alpha: { start: 0.4, end: 0 },
         emitting: false
     });
 
@@ -32915,6 +32942,9 @@ function update() {
     if (movedX || movedY) {
         if (window.dustEmitter && window.perfWeatherParticles && Math.random() < 0.1) {
             window.dustEmitter.emitParticleAt(player.x, player.y + 20);
+            if (window.footprintEmitter) {
+                window.footprintEmitter.emitParticleAt(player.x, player.y + 20);
+            }
         }
         let distStep = speed * (1/60);
         window.gameStats.distanceTraveled += distStep; // approx distance based on frame rate
@@ -33087,6 +33117,9 @@ function update() {
                 if (p2MovedX || p2MovedY) {
                     if (window.dustEmitter && window.perfWeatherParticles && Math.random() < 0.1) {
                         window.dustEmitter.emitParticleAt(window.player2.x, window.player2.y + 20);
+                        if (window.footprintEmitter) {
+                            window.footprintEmitter.emitParticleAt(window.player2.x, window.player2.y + 20);
+                        }
                     }
                     window.p2Vx = p2TargetVx;
                     window.p2Vy = p2TargetVy;
