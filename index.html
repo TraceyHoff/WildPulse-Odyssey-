@@ -9513,12 +9513,14 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Healing Juice Jug", icon: "🏺", desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Bundle of Wood", icon: "🪵", price: 150, desc: "Build your own base. Contains various wooden building parts." },
         { name: "Creature Cookie", icon: "🍪", desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
         { name: "Nano-Nurture Serum", icon: "💉", desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
         { name: "DNA Stabilizer", icon: "🧬", desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
         { name: "Storage Chest", icon: "🧳", desc: "A placeable chest with 10 item slots. Step on it to open storage. (Requires Lv 6)" },
+        { name: "Bundle of Wood", icon: "🪵", desc: "Build your own base. Includes foundations, walls, and roofs." },
         { name: "Mini Hospital", icon: "🏥", desc: "A functional smaller version of the Hospital. Place near your home. (Requires Lv 10)" },
         { name: "Mini Store", icon: "🏪", desc: "A functional smaller version of the Store. Place near your home. (Requires Lv 10)" },
         { name: "Mini Trade", icon: "🔄", desc: "A functional smaller version of the Trade center. Place near your home. (Requires Lv 10)" },
@@ -16501,6 +16503,16 @@ if (p2SavedGendersChanged) {
 window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
 window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
 
+
+// Base Building Persistence
+window.p1BaseTiles = JSON.parse(localStorage.getItem('wildpulse_p1_base_tiles')) || [];
+window.p2BaseTiles = JSON.parse(localStorage.getItem('wildpulse_p2_base_tiles')) || [];
+
+window.saveBaseTiles = function() {
+    localStorage.setItem('wildpulse_p1_base_tiles', JSON.stringify(window.p1BaseTiles));
+    localStorage.setItem('wildpulse_p2_base_tiles', JSON.stringify(window.p2BaseTiles));
+};
+
 // Store Stock Initialization
 const defaultStock = {
     "Repellent": 15,
@@ -16521,6 +16533,7 @@ const defaultStock = {
     "Nano-Nurture Serum": 15,
     "DNA Stabilizer": 15,
     "Storage Chest": 15,
+    "Bundle of Wood": 15,
     "NPC Dual Link": 15,
     "Wild Dual Signal": 15
 };
@@ -16873,6 +16886,7 @@ window.updateStoreUI = function() {
         { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", price: 370, desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", price: 295, desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Bundle of Wood", icon: "🪵", price: 150, desc: "Build your own base. Contains various wooden building parts." },
         { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -17221,6 +17235,23 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.updateInventoryUI) window.updateInventoryUI();
         if (window.updateStoreUI) window.updateStoreUI();
     };
+
+    if (item.name === "Bundle of Wood") {
+        if (window.closeInventoryWheel) window.closeInventoryWheel(playerNum);
+        if (window.closeActionWheel) window.closeActionWheel(playerNum);
+        if (window.closeInventoryModal) window.closeInventoryModal();
+
+        window[`p${playerNum}BasePlacementMode`] = true;
+        window[`p${playerNum}BasePlacementType`] = 'base_foundation';
+        window[`p${playerNum}BasePlacementSlotIndex`] = slotIndex;
+
+        const playerObj = playerNum === 2 ? window.player2 : window.player;
+        window[`p${playerNum}BasePreviewX`] = playerObj ? playerObj.x : 0;
+        window[`p${playerNum}BasePreviewY`] = playerObj ? playerObj.y : 0;
+
+        window.showModernNotification("🪵 Base Placement Mode: Press E (PC) or X (Gamepad) to cycle parts. A/Click to place. Y/Right-Click to destroy. B/ESC to cancel.", 8000, playerNum);
+        return; // Wait for placement
+    }
 
     if (item.name === "Repellent") {
         if (playerNum === 2) {
@@ -18419,6 +18450,56 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justDown = currDown && !prev.Down;
     const justLeft = currLeft && !prev.Left;
     const justRight = currRight && !prev.Right;
+
+
+    // Special handling for Base Placement Mode
+    if (window[`p${playerNum}BasePlacementMode`]) {
+        const rx = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
+        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
+        const speed = 12;
+        if (Math.abs(rx) > 0.15) window[`p${playerNum}BasePreviewX`] += rx * speed;
+        if (Math.abs(ry) > 0.15) window[`p${playerNum}BasePreviewY`] += ry * speed;
+
+        // X button cycles parts
+        if (justX) {
+            const parts = ['base_foundation', 'base_wall', 'base_wall_window', 'base_wall_door', 'base_stairs', 'base_ceiling', 'base_roof'];
+            let currentIdx = parts.indexOf(window[`p${playerNum}BasePlacementType`]);
+            let nextIdx = (currentIdx + 1) % parts.length;
+            window[`p${playerNum}BasePlacementType`] = parts[nextIdx];
+
+            if (window[`p${playerNum}BasePreviewSprite`]) {
+                window[`p${playerNum}BasePreviewSprite`].setTexture(window[`p${playerNum}BasePlacementType`]);
+            }
+        }
+
+        const previewSpriteId = `p${playerNum}BasePreviewSprite`;
+        if (window[previewSpriteId]) {
+            let col = Math.floor(window[`p${playerNum}BasePreviewX`] / 50);
+            let row = Math.floor(window[`p${playerNum}BasePreviewY`] / 50);
+            let snappedX = col * 50 + 25;
+            let snappedY = row * 50 + 25;
+            window[previewSpriteId].setPosition(snappedX, snappedY);
+        }
+
+        if (justA) {
+            window.tryPlaceBase(playerNum, window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
+        }
+
+        // Y button destroys piece under cursor
+        if (justY) {
+            window.tryDestroyBase(playerNum, window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
+        }
+
+        if (justB) {
+            window.cancelBasePlacement(playerNum);
+        }
+
+        prev.Y = currY; prev.X = currX; prev.B = currB; prev.A = currA;
+        prev.Start = currStart; prev.Up = currUp; prev.Down = currDown;
+        prev.Left = currLeft; prev.Right = currRight;
+        prev.LB = currLB; prev.RB = currRB;
+        return;
+    }
 
     // Special handling for Mini Tile Placement Mode
     if (window[`p${playerNum}MiniTilePlacementMode`]) {
@@ -26697,6 +26778,194 @@ window.startHomePlacement = function(playerNum) {
     window.showModernNotification("🏠 Home Placement Mode: Move preview with Right Stick (or mouse on PC), press A (or click) to place. Press B (or ESC) to cancel.", 6000, playerNum);
 };
 
+
+window.tryPlaceBase = function(playerNum, x, y) {
+    const itemName = window[`p${playerNum}BasePlacementType`];
+    if (!itemName) return;
+
+    let col = Math.floor(x / 50);
+    let row = Math.floor(y / 50);
+    let snappedX = col * 50 + 25;
+    let snappedY = row * 50 + 25;
+
+    // Boundary check
+    if (snappedX < 100 || snappedX > WORLD_SIZE - 100 || snappedY < 100 || snappedY > WORLD_SIZE - 100) {
+        window.showModernNotification("❌ Out of bounds.", 3000, playerNum);
+        return;
+    }
+
+    const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
+    if (isInside) {
+        window.showModernNotification("❌ Cannot build base inside home.", 3000, playerNum);
+        return;
+    }
+
+    // Check underlying map data (only grass or safe ground)
+    const mapCol = Math.floor(snappedX / 100);
+    const mapRow = Math.floor(snappedY / 100);
+    if (!window.mapData || !window.mapData[mapRow] || window.mapData[mapRow][mapCol] !== 'grass') {
+        window.showModernNotification("❌ Can only build on clear ground.", 3000, playerNum);
+        return;
+    }
+
+    // Water proximity check using mapData
+    for(let r = mapRow - 1; r <= mapRow + 1; r++) {
+        for(let c = mapCol - 1; c <= mapCol + 1; c++) {
+            if(window.mapData[r] && window.mapData[r][c] === 'obs') {
+                window.showModernNotification("❌ Too close to water.", 3000, playerNum);
+                return;
+            }
+        }
+    }
+
+    const baseTiles = playerNum === 2 ? window.p2BaseTiles : window.p1BaseTiles;
+
+    const getTilesAt = (tx, ty) => {
+        return baseTiles.filter(t => t.x === tx && t.y === ty);
+    };
+
+    const existingTiles = getTilesAt(snappedX, snappedY);
+
+    if (itemName === 'base_foundation') {
+        if (existingTiles.length > 0) {
+            window.showModernNotification("❌ Space is already occupied.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName.startsWith('base_wall')) {
+        const hasFoundation = existingTiles.some(t => t.type === 'base_foundation');
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        if (!hasFoundation) {
+            window.showModernNotification("❌ Walls must be placed on a foundation.", 3000, playerNum);
+            return;
+        }
+        if (hasWall) {
+            window.showModernNotification("❌ A wall already exists here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_stairs') {
+        const hasFoundation = existingTiles.some(t => t.type === 'base_foundation');
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        const hasStairs = existingTiles.some(t => t.type === 'base_stairs');
+        if (!hasFoundation && !hasCeiling) {
+            window.showModernNotification("❌ Stairs must be placed on a foundation or ceiling.", 3000, playerNum);
+            return;
+        }
+        if (hasStairs) {
+            window.showModernNotification("❌ Stairs already exist here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_ceiling') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        if (!hasWall) {
+            window.showModernNotification("❌ Ceilings must be placed on top of walls.", 3000, playerNum);
+            return;
+        }
+        if (hasCeiling) {
+            window.showModernNotification("❌ A ceiling already exists here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_roof') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasRoof = existingTiles.some(t => t.type === 'base_roof');
+        if (!hasWall) {
+            window.showModernNotification("❌ Roofs must be placed on top of walls.", 3000, playerNum);
+            return;
+        }
+        if (hasRoof) {
+            window.showModernNotification("❌ A roof already exists here.", 3000, playerNum);
+            return;
+        }
+    }
+
+    const newTile = { type: itemName, x: snappedX, y: snappedY };
+    baseTiles.push(newTile);
+    window.saveBaseTiles();
+    window.spawnSingleBaseTile(newTile, playerNum);
+    window.showModernNotification("✅ Piece placed!", 2000, playerNum, "#00ff96");
+};
+
+window.tryDestroyBase = function(playerNum, x, y) {
+    let col = Math.floor(x / 50);
+    let row = Math.floor(y / 50);
+    let snappedX = col * 50 + 25;
+    let snappedY = row * 50 + 25;
+
+    const baseTiles = playerNum === 2 ? window.p2BaseTiles : window.p1BaseTiles;
+
+    const existingTiles = baseTiles.filter(t => t.x === snappedX && t.y === snappedY);
+    if (existingTiles.length === 0) {
+        window.showModernNotification("❌ Nothing to destroy here.", 2000, playerNum);
+        return;
+    }
+
+    const getPriority = (type) => {
+        if (type === 'base_roof') return 5;
+        if (type === 'base_ceiling') return 4;
+        if (type === 'base_stairs') return 3;
+        if (type.startsWith('base_wall')) return 2;
+        if (type === 'base_foundation') return 1;
+        return 0;
+    };
+
+    existingTiles.sort((a, b) => getPriority(b.type) - getPriority(a.type));
+    const targetTile = existingTiles[0];
+
+    if (targetTile.type === 'base_foundation') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasStairs = existingTiles.some(t => t.type === 'base_stairs');
+        if (hasWall || hasStairs) {
+            window.showModernNotification("❌ Destroy dependent structures first.", 3000, playerNum);
+            return;
+        }
+    }
+    if (targetTile.type.startsWith('base_wall')) {
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        const hasRoof = existingTiles.some(t => t.type === 'base_roof');
+        if (hasCeiling || hasRoof) {
+            window.showModernNotification("❌ Destroy ceilings/roofs first.", 3000, playerNum);
+            return;
+        }
+    }
+
+    const idx = baseTiles.indexOf(targetTile);
+    if (idx !== -1) {
+        baseTiles.splice(idx, 1);
+        window.saveBaseTiles();
+
+        if (targetTile.sprite) {
+            if (targetTile.sprite.body) {
+                targetTile.sprite.body.destroy();
+            }
+            targetTile.sprite.destroy();
+        }
+
+        const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+        let woodItem = inv.find(i => i.name === 'Bundle of Wood');
+        if (woodItem) {
+            if (woodItem.quantity < 10) woodItem.quantity++;
+        } else {
+            inv.push({ name: 'Bundle of Wood', quantity: 1 });
+        }
+        window.saveInventory();
+        if (window.updateInventoryUI) window.updateInventoryUI();
+
+        window.showModernNotification("💥 Structure destroyed. Bundle of Wood refunded.", 2000, playerNum, "#ff3366");
+    }
+};
+
+
+window.cancelBasePlacement = function(playerNum) {
+    window[`p${playerNum}BasePlacementMode`] = false;
+    window[`p${playerNum}BasePlacementType`] = null;
+    const previewSprite = window[`p${playerNum}BasePreviewSprite`];
+    if (previewSprite) {
+        previewSprite.destroy();
+        window[`p${playerNum}BasePreviewSprite`] = null;
+    }
+    window.showModernNotification("❌ Base placement cancelled.", 2000, playerNum);
+};
+
 window.tryPlaceHome = function(playerNum, x, y) {
     let col = Math.floor(x / 100);
     let row = Math.floor(y / 100);
@@ -27274,6 +27543,13 @@ function create() {
     window.localPlayerLabel.setDepth(10);
 
     this.physics.add.collider(player, window.treesGroup);
+
+    window.renderBaseTiles(this);
+    this.physics.add.collider(player, window.baseTilesGroup);
+    if (window.coopActive) {
+        this.physics.add.collider(window.player2, window.baseTilesGroup);
+    }
+
     this.physics.add.collider(player, obstaclesGroup);
 
     // Immediately broadcast identity and position to all open channels and socket so they see us if they were already connected
@@ -27984,6 +28260,21 @@ function create() {
 
     // PC pointer listener for Home Placement
     this.input.on('pointerdown', (pointer) => {
+
+        if (window.p1BasePlacementMode) {
+            let p1WorldX = this.cameras.main.scrollX + pointer.x;
+            let p1WorldY = this.cameras.main.scrollY + pointer.y;
+
+            // Left click to place
+            if (pointer.button === 0) {
+                window.tryPlaceBase(1, p1WorldX, p1WorldY);
+            } else if (pointer.button === 2) {
+                // Right click to destroy
+                window.tryDestroyBase(1, p1WorldX, p1WorldY);
+            }
+            return;
+        }
+
         if (window.p1HomePlacementMode) {
             let p1WorldX = this.cameras.main.scrollX + pointer.x;
             let p1WorldY = this.cameras.main.scrollY + pointer.y;
@@ -31708,6 +31999,21 @@ function update() {
 
     // Update PC controls for Home Placement Mode
     if (activeScene && activeScene.input) {
+
+        if (window.p1BasePlacementMode) {
+            let p1WorldX = this.cameras.main.scrollX + pointer.x;
+            let p1WorldY = this.cameras.main.scrollY + pointer.y;
+
+            // Left click to place
+            if (pointer.button === 0) {
+                window.tryPlaceBase(1, p1WorldX, p1WorldY);
+            } else if (pointer.button === 2) {
+                // Right click to destroy
+                window.tryDestroyBase(1, p1WorldX, p1WorldY);
+            }
+            return;
+        }
+
         if (window.p1HomePlacementMode) {
             const pointer = activeScene.input.activePointer;
             if (activeScene._lastP1PointerX === undefined) {
@@ -32357,6 +32663,7 @@ function update() {
                     "Nano-Nurture Serum": 15,
                     "DNA Stabilizer": 15,
                     "Storage Chest": 15,
+    "Bundle of Wood": 15,
                     "NPC Dual Link": 15,
                     "Wild Dual Signal": 15
                 };
