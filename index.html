@@ -28670,7 +28670,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     let x = forceX;
     let y = forceY;
 
-    const isInsideRift = (x !== undefined && y !== undefined) ? (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000) : false;
+    let isInsideRift = (x !== undefined && y !== undefined) ? (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000) : false;
 
     // Reject legendary spawns if not inside the Rift
     if (creatureData.isLegendary && !isInsideRift) {
@@ -28698,6 +28698,8 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         }
     }
 
+    isInsideRift = (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000);
+
     let clonedData = JSON.parse(JSON.stringify(creatureData));
 
     // Randomize stats with IVs (0-31)
@@ -28709,8 +28711,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     // 0.1% Shiny Chance (increases to 30% if inside Rift Portal World, or 15% if Jank Juice is active)
     let shinyChance = 0.001;
-    const isActuallyInsideRift = (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000);
-    if (isActuallyInsideRift) {
+    if (isInsideRift) {
         shinyChance = 0.30;
     } else if ((window.p1JankJuiceTime && window.p1JankJuiceTime > 0) || (window.p2JankJuiceTime && window.p2JankJuiceTime > 0)) {
         shinyChance = 0.15;
@@ -28791,7 +28792,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     }
 
     // Scale level if inside the Void Rift (Row 400-439, Col 400-439)
-    if (isActuallyInsideRift) {
+    if (isInsideRift) {
         clonedData.level = Math.max(clonedData.level + 15, 30);
         clonedData.name += " [Void]";
     }
