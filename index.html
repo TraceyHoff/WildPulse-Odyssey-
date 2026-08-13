@@ -10625,6 +10625,72 @@ window.baseCreatures = [
         "uniqueFeatureColor": "dark purple"
     },
     {
+        "id": 9901,
+        "name": "Chronosurge",
+        "description": "A mythical, awe-inspiring Cosmic-type entity that transcends normal biology. Its crystalline form pulses with starlight, adorned with shifting nebular runes that represent the fabric of space-time itself. Blazing supernova eyes watch eternity unfold, reflecting cosmic knowledge. It hovers without wings, manipulating gravity effortlessly. For defense, it manifests astral shields. When provoked, it unleashes raw stellar energy that warps reality. A breathtaking comet-like tail leaves a trail of stardust in its wake, maintaining its anchor to this dimension. Most remarkably, it commands a mesmerizing black hole singularity, the ultimate elemental manifestation of its legendary Cosmic lineage.",
+        "features": [
+            "glowing",
+            "floating"
+        ],
+        "type": "Cosmic",
+        "stats": {
+            "health": 95,
+            "attack": 115
+        },
+        "generation": 1,
+        "bodySize": "gargantuan",
+        "bodyType": "ethereal",
+        "uniqueFeature": "black hole",
+        "eyes": "supernova",
+        "skinFurType": "crystalline",
+        "pattern": "nebular runes",
+        "wings": "none",
+        "clawHorn": "none",
+        "teeth": "none",
+        "limbs": "none",
+        "tail": "comet tail",
+        "eyesColor": "white",
+        "skinFurColor": "deep space purple",
+        "wingsColor": "none",
+        "clawHornColor": "none",
+        "tailColor": "starlight silver",
+        "uniqueFeatureColor": "event horizon black",
+        "isLegendary": true
+    },
+    {
+        "id": 9902,
+        "name": "Aethelgard",
+        "description": "An ancient, divine Light-type titan of unparalleled majesty. Its colossal frame is composed of pure solar plasma, adorned with blinding radiant sigils that shift like sun flares. Piercing golden dawn eyes bring illumination to the darkest corners of the world. It dominates the skies with six spectacular glowing angelic wings, moving with impossible grace. For defense, it summons impenetrable walls of solid light. When provoked, it unleashes devastating orbital lasers, warning foes of its absolute supremacy. It navigates reality itself effortlessly, leaving no footprint. A majestic radiant golden halo tail pulses rhythmically behind it, maintaining the balance of dawn and dusk. Most remarkably, it commands an awe-inspiring celestial corona, a breathtaking elemental manifestation of its pure Light lineage.",
+        "features": [
+            "angelic",
+            "glowing"
+        ],
+        "type": "Light",
+        "stats": {
+            "health": 120,
+            "attack": 90
+        },
+        "generation": 1,
+        "bodySize": "behemoth",
+        "bodyType": "divine",
+        "uniqueFeature": "angelic wings",
+        "eyes": "golden dawn",
+        "skinFurType": "plasma",
+        "pattern": "radiant sigils",
+        "wings": "six angelic wings",
+        "clawHorn": "none",
+        "teeth": "none",
+        "limbs": "none",
+        "tail": "halo tail",
+        "eyesColor": "golden",
+        "skinFurColor": "blinding white",
+        "wingsColor": "pure gold",
+        "clawHornColor": "none",
+        "tailColor": "golden",
+        "uniqueFeatureColor": "solar white",
+        "isLegendary": true
+    },
+    {
         "id": 10,
         "name": "Orbittuft",
         "description": "A magnificent medium, graceful Cosmic-type anomaly of nature. Its robust frame is sheathed in starlight white metallic flesh, adorned with mesmerizing geometric stars that seem to shift in the light. Piercing cyan blind eyes reflect an ancient, untamed wilderness. It dominates the skies with its spectacular starlight white majestic energy wings, moving with breathless elegance. It navigates its harsh terrain effortlessly on 4 tentacles. A majestic deep blue massive stardust tail sways rhythmically behind it, maintaining its perfect balance. Most remarkably, it commands an awe-inspiring nebula pink nebula dust, an elemental manifestation of its pure Cosmic lineage.",
@@ -17467,6 +17533,33 @@ window.useInventoryItem = function(playerNum, slotIndex) {
     }
 };
 
+window.getShinyIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #ffd700); margin-left: 5px;">
+        <defs>
+            <radialGradient id="shinyGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="50%" stop-color="#ffd700"/>
+                <stop offset="100%" stop-color="#ffb300"/>
+            </radialGradient>
+        </defs>
+        <path d="M50,10 L60,40 L90,50 L60,60 L50,90 L40,60 L10,50 L40,40 Z" fill="url(#shinyGrad)" stroke="#fff" stroke-width="2"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">✨</span>`;
+};
+
+window.getLegendaryIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #ff00ff); margin-left: 5px;">
+        <defs>
+            <linearGradient id="legGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff00ff"/>
+                <stop offset="50%" stop-color="#00ffd2"/>
+                <stop offset="100%" stop-color="#ffeb3b"/>
+            </linearGradient>
+        </defs>
+        <path d="M20,40 L35,20 L50,30 L65,20 L80,40 L70,80 L30,80 Z" fill="url(#legGrad)" stroke="#fff" stroke-width="3"/>
+        <circle cx="50" cy="55" r="10" fill="#fff" />
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">👑</span>`;
+};
+
 window.getItemIconHTML = function(itemName, size = 24) {
     let svgContent = '';
     let glowColor = '#00ffd2';
@@ -19440,11 +19533,12 @@ window.renderBestiary = function(playerNum = 1) {
                 // DISCOVERED!
                 card.style.borderLeft = (playerNum === 2) ? '4px solid #ff9800' : '4px solid #4caf50';
                 const naturesList = Array.from(discInfo.natures).join(', ') || 'None';
-                const shinyIndicator = discInfo.hasShiny ? '<span style="color:#ffd700; font-weight:bold; margin-left: 5px;">✨ SHINY</span>' : '';
+                const shinyIndicator = discInfo.hasShiny ? window.getShinyIconHTML(16) : '';
+                const legIndicator = baseSpecies.isLegendary ? window.getLegendaryIconHTML(16) : '';
 
                 card.innerHTML = `
                     <div style="font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
-                        <span>${baseSpecies.name} <span style="font-size:11px; color:#aaa; font-weight:normal;">(${baseSpecies.type})</span></span>
+                        <span>${baseSpecies.name} <span style="font-size:11px; color:#aaa; font-weight:normal;">(${baseSpecies.type})</span>${legIndicator}</span>
                         <div>${shinyIndicator}</div>
                     </div>
                     <div style="font-size: 12px; color: #ccc; margin-top: 4px; line-height: 1.3;">
@@ -19488,10 +19582,11 @@ window.renderBestiary = function(playerNum = 1) {
             card.style.background = 'rgba(33, 150, 243, 0.05)';
             card.style.borderLeft = '4px solid #2196F3';
 
-            const shinyIndicator = c.isShiny ? '<span style="color:#ffd700; font-weight:bold; margin-left: 5px;">✨ SHINY</span>' : '';
+            const shinyIndicator = c.isShiny ? window.getShinyIconHTML(16) : '';
+            const legIndicator = c.isLegendary ? window.getLegendaryIconHTML(16) : '';
             card.innerHTML = `
                 <div style="font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
-                    <span>${c.name} <span style="font-size:11px; color:#aaa; font-weight:normal;">(${c.type})</span></span>
+                    <span>${c.name} <span style="font-size:11px; color:#aaa; font-weight:normal;">(${c.type})</span>${legIndicator}</span>
                     <div>${shinyIndicator}</div>
                 </div>
                 <div style="font-size: 12px; color: #ccc; margin-top: 4px; line-height: 1.3;">
@@ -19746,7 +19841,8 @@ window.startChallengeBattle = function() {
 
     activeParty.forEach((playerCreature, idx) => {
         // Pick a random base creature for the challenge
-        const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const basePrototype = availablePool.length > 0 ? availablePool[Math.floor(rng() * availablePool.length)] : window.baseCreatures[0];
         let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
         enemyCreature.level = enemyLevel;
         enemyCreature.xp = 0;
@@ -19936,7 +20032,8 @@ window.startDojoBattle = function() {
 
     activeParty.forEach((playerCreature, idx) => {
         // Pick a random base creature for the Dojo battle
-        const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const basePrototype = availablePool.length > 0 ? availablePool[Math.floor(rng() * availablePool.length)] : window.baseCreatures[0];
         let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
 
         enemyCreature.level = enemyLevel;
@@ -20320,7 +20417,8 @@ function renderPartyForPlayer(playerNum = 1) {
             abilityHtml = '<p>Ability: None</p>';
         }
 
-        let shinyPrefix = c.isShiny ? '<span class="shiny-star">⭐</span>' : '';
+        let shinyPrefix = c.isShiny ? window.getShinyIconHTML(16) : '';
+        let legPrefix = c.isLegendary ? window.getLegendaryIconHTML(16) : '';
         const lvlColor = isDarkText ? '#0d47a1' : '#2196F3';
         const friendLvlColor = isDarkText ? '#c2185b' : '#ff4081';
         const friendXpColor = isDarkText ? '#880e4f' : '#ff80ab';
@@ -20338,7 +20436,7 @@ function renderPartyForPlayer(playerNum = 1) {
             <div>
                 <h3 style="font-size: 1.2em; border-bottom: 1px solid #87CEEB; padding-bottom: 5px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
                     <span style="display: flex; align-items: center; gap: 5px;">
-                        ${shinyPrefix}
+                        ${shinyPrefix}${legPrefix}
                         <input class="creature-name" aria-label="Creature Name" value="${c.nickname || c.name}" maxlength="20">
                         <button class="save-name-btn" onclick="window.saveName(this, ${index}, ${playerNum})">Save</button>
                         ${genderHtml}
@@ -20502,9 +20600,12 @@ function renderStorageForPlayer(playerNum = 1) {
             genderHtml = `<span style="color: #00e5ff; font-weight: bold; font-size: 1.1em; margin-left: 5px;" title="Male">♂</span>`;
         }
 
+        let shinyPrefix = c.isShiny ? window.getShinyIconHTML(16) : '';
+        let legPrefix = c.isLegendary ? window.getLegendaryIconHTML(16) : '';
+
         const nameHtml = `
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
-                <h4 style="margin: 0; display: flex; align-items: center; gap: 3px;">${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''} ${genderHtml}</h4>
+                <h4 style="margin: 0; display: flex; align-items: center; gap: 3px;">${shinyPrefix}${legPrefix}${escapeHtml(c.name)} ${c.nickname ? `("${escapeHtml(c.nickname)}")` : ''} ${genderHtml}</h4>
                 <button class="favorite-btn" onclick="window.toggleFavorite(${index}, ${playerNum})" title="${heartTitle}" style="background: none; border: none; cursor: pointer; font-size: 1.2em; outline: none; padding: 0; line-height: 1; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1.0)'">${heartChar}</button>
             </div>
         `;
@@ -22166,6 +22267,11 @@ window.doBreed = function(playerNum = 1) {
             return;
         }
 
+        if (p1.isLegendary || p2.isLegendary) {
+            if (resEl) resEl.innerText = 'Legendary creatures cannot be bred.';
+            return;
+        }
+
         const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
         let playerLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
         if (isAutomation) {
@@ -23009,7 +23115,8 @@ window.startDualBattle = function(playerCollider, creatureSprite) {
     currentEnemy = window.currentEnemy;
 
     // Generate Wild Enemy 2
-    const basePrototype = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+    const availablePool2 = window.baseCreatures.filter(c => !c.isLegendary);
+    const basePrototype = availablePool2.length > 0 ? availablePool2[Math.floor(Math.random() * availablePool2.length)] : window.baseCreatures[0];
     window.currentEnemy2 = JSON.parse(JSON.stringify(basePrototype));
     window.currentEnemy2.level = window.currentEnemy.level || 1;
     if (window.currentEnemy2.stats) {
@@ -23117,7 +23224,8 @@ window.startNpcDualBattle = function(playerCollider, trainerId, trainerName) {
 
     // Helper to generate matching enemy creature
     const generateEnemy = (playerCreature, idx) => {
-        const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const basePrototype = availablePool.length > 0 ? availablePool[Math.floor(rng() * availablePool.length)] : window.baseCreatures[0];
         let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
 
         enemyCreature.level = playerCreature.level || 1;
@@ -27477,21 +27585,35 @@ function create() {
     }
     if (menuShoreTiles.length > 0 && window.baseCreatures && window.baseCreatures.length > 0) {
         let numMenuCreatures = Math.floor(Math.random() * 2) + 1;
-        for (let i = 0; i < numMenuCreatures; i++) {
-            let randTile = menuShoreTiles[Math.floor(Math.random() * menuShoreTiles.length)];
-            let randCreature = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
-            let px = randTile.c * 100 + 50;
-            let py = randTile.r * 100 + 50;
-            spawnCreature(this, randCreature, px, py);
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        if (availablePool.length > 0) {
+            for (let i = 0; i < numMenuCreatures; i++) {
+                let randTile = menuShoreTiles[Math.floor(Math.random() * menuShoreTiles.length)];
+                let randCreature = availablePool[Math.floor(Math.random() * availablePool.length)];
+                let px = randTile.c * 100 + 50;
+                let py = randTile.r * 100 + 50;
+                spawnCreature(this, randCreature, px, py);
+            }
         }
     }
 
     // Spawn dedicated creatures inside the Void Rift world
     if (window.baseCreatures && window.baseCreatures.length > 0) {
+        // Boost legendary spawn rate inside the Rift Portal World (e.g., 10% chance)
+        const legendaryPool = window.baseCreatures.filter(c => c.isLegendary);
+        const normalPool = window.baseCreatures.filter(c => !c.isLegendary);
+
         for (let i = 0; i < 5; i++) {
             let rx = (405 + Math.floor(Math.random() * 30)) * 100 + 50;
             let ry = (405 + Math.floor(Math.random() * 30)) * 100 + 50;
-            let randCreature = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+
+            let randCreature;
+            if (legendaryPool.length > 0 && Math.random() < 0.1) {
+                randCreature = legendaryPool[Math.floor(Math.random() * legendaryPool.length)];
+            } else {
+                randCreature = normalPool.length > 0 ? normalPool[Math.floor(Math.random() * normalPool.length)] : window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+            }
+
             spawnCreature(this, randCreature, rx, ry);
         }
     }
@@ -28416,7 +28538,8 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
     const rng = Math.random;
     activeParty.forEach((playerCreature, idx) => {
         // Choose a random base creature
-        const basePrototype = window.baseCreatures[Math.floor(rng() * window.baseCreatures.length)];
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const basePrototype = availablePool.length > 0 ? availablePool[Math.floor(rng() * availablePool.length)] : window.baseCreatures[0];
         let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
 
         // Same level
@@ -28528,6 +28651,14 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     let x = forceX;
     let y = forceY;
+
+    const isInsideRift = (x !== undefined && y !== undefined) ? (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000) : false;
+
+    // Reject legendary spawns if not inside the Rift
+    if (creatureData.isLegendary && !isInsideRift) {
+        return;
+    }
+
     let found = false;
     let attempts = 0;
     if (x === undefined || y === undefined) {
@@ -28560,8 +28691,8 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     // 0.1% Shiny Chance (increases to 30% if inside Rift Portal World, or 15% if Jank Juice is active)
     let shinyChance = 0.001;
-    const isInsideRift = (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000);
-    if (isInsideRift) {
+    const isActuallyInsideRift = (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000);
+    if (isActuallyInsideRift) {
         shinyChance = 0.30;
     } else if ((window.p1JankJuiceTime && window.p1JankJuiceTime > 0) || (window.p2JankJuiceTime && window.p2JankJuiceTime > 0)) {
         shinyChance = 0.15;
@@ -28642,7 +28773,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     }
 
     // Scale level if inside the Void Rift (Row 400-439, Col 400-439)
-    if (isInsideRift) {
+    if (isActuallyInsideRift) {
         clonedData.level = Math.max(clonedData.level + 15, 30);
         clonedData.name += " [Void]";
     }
@@ -28664,6 +28795,22 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         } else {
             window.pendingShinyNotifications = window.pendingShinyNotifications || [];
             window.pendingShinyNotifications.push(clonedData.name);
+        }
+    }
+
+    if (clonedData.isLegendary) {
+        if (window.gameStarted) {
+            if (window.showModernNotification) {
+                window.showModernNotification(`👑 A Legendary ${clonedData.name} has spawned in the Hidden Grove! 👑`, 6000, 1, '#ffeb3b');
+                if (window.coopActive) {
+                    window.showModernNotification(`👑 A Legendary ${clonedData.name} has spawned in the Hidden Grove! 👑`, 6000, 2, '#ffeb3b');
+                }
+            } else {
+                console.log(`👑 A Legendary ${clonedData.name} has spawned in the Hidden Grove! 👑`);
+            }
+        } else {
+            window.pendingShinyNotifications = window.pendingShinyNotifications || [];
+            window.pendingShinyNotifications.push(`Legendary ${clonedData.name}`);
         }
     }
 
@@ -31465,14 +31612,16 @@ function respawnEnemyBase() {
         const currentName = currentEnemy.name;
         const availablePool = window.baseCreatures.filter(c => {
             const isSame = (c.id === currentBaseId) || (c.name === currentName);
-            return !isSame;
+            const isLegendary = c.isLegendary;
+            return !isSame && !isLegendary;
         });
         if (availablePool.length > 0) {
             basePrototype = availablePool[Math.floor(Math.random() * availablePool.length)];
         }
     }
     if (!basePrototype) {
-        basePrototype = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        basePrototype = availablePool[Math.floor(Math.random() * availablePool.length)];
     }
     let rx, ry, d, col, row;
     do {
