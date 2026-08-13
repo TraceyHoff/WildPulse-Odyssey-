@@ -8680,6 +8680,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         window.gameStarted = true;
+
+        if (window.pendingShinyNotifications && window.pendingShinyNotifications.length > 0) {
+            window.pendingShinyNotifications.forEach(name => {
+                if (window.showModernNotification) {
+                    window.showModernNotification(`✨ A wild Shiny ${name} has spawned in the world! ✨`, 6000);
+                } else {
+                    console.log(`✨ A wild Shiny ${name} has spawned in the world! ✨`);
+                }
+            });
+            window.pendingShinyNotifications = [];
+        }
     };
 
     document.getElementById('startGameBtn').addEventListener('click', () => {
@@ -28644,10 +28655,15 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     if (!clonedData.color) clonedData.color = window.getCreatureColor(clonedData);
 
     if (clonedData.isShiny) {
-        if (window.showModernNotification) {
-            window.showModernNotification(`✨ A wild Shiny ${clonedData.name} has spawned in the world! ✨`, 6000);
+        if (window.gameStarted) {
+            if (window.showModernNotification) {
+                window.showModernNotification(`✨ A wild Shiny ${clonedData.name} has spawned in the world! ✨`, 6000);
+            } else {
+                console.log(`✨ A wild Shiny ${clonedData.name} has spawned in the world! ✨`);
+            }
         } else {
-            console.log(`✨ A wild Shiny ${clonedData.name} has spawned in the world! ✨`);
+            window.pendingShinyNotifications = window.pendingShinyNotifications || [];
+            window.pendingShinyNotifications.push(clonedData.name);
         }
     }
 
