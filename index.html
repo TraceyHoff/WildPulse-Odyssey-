@@ -34323,6 +34323,15 @@ function update() {
             else targetSnow = snowCount;
         }
 
+        if (window.activeRandomEvent !== 'Gusty Winds') {
+            targetPollen = 0;
+            targetLeafRed = 0;
+            targetLeafYellow = 0;
+            targetLeafMixed = 0;
+            targetLeafGreen1 = 0;
+            targetLeafGreen2 = 0;
+        }
+
         // Apply quantities with smooth lerping
         const lerpQuantity = (emitter, target) => {
             if (!emitter) return;
