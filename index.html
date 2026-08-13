@@ -27686,9 +27686,13 @@ function create() {
 
             const cam = this.scene.cameras.main;
 
+            let p1HasButterfly = this.sprites.some(s => s.target === (typeof player !== 'undefined' ? player : null) && (s.bState === 'seeking_player' || s.bState === 'landing_player'));
+            let p2HasButterfly = this.sprites.some(s => s.target === (typeof window.player2 !== 'undefined' ? window.player2 : null) && (s.bState === 'seeking_player' || s.bState === 'landing_player'));
+
             // Check player stationary
             let playerStationary = false;
-            if (typeof player !== 'undefined' && player && player.body && player.body.velocity.x === 0 && player.body.velocity.y === 0) {
+            let p1Moving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0));
+            if (typeof player !== 'undefined' && player && player.body && player.body.velocity.x === 0 && player.body.velocity.y === 0 && !p1Moving && !p1HasButterfly) {
                 if (!this.playerStillTime) this.playerStillTime = 0;
                 this.playerStillTime += dt || 16;
                 if (this.playerStillTime > 2000) playerStationary = true;
@@ -27697,7 +27701,8 @@ function create() {
             }
 
             let p2Stationary = false;
-            if (typeof window.player2 !== 'undefined' && window.player2 && window.player2.body && window.player2.body.velocity.x === 0 && window.player2.body.velocity.y === 0) {
+            let p2Moving = (typeof window.p2Vx !== 'undefined' && (window.p2Vx !== 0 || window.p2Vy !== 0));
+            if (typeof window.player2 !== 'undefined' && window.player2 && window.player2.body && window.player2.body.velocity.x === 0 && window.player2.body.velocity.y === 0 && !p2Moving && !p2HasButterfly) {
                 if (!this.p2StillTime) this.p2StillTime = 0;
                 this.p2StillTime += dt || 16;
                 if (this.p2StillTime > 2000) p2Stationary = true;
@@ -27765,19 +27770,29 @@ function create() {
                     // Decision time
                     if (sprite.timer > 3000 && Math.random() < 0.05) {
                         sprite.timer = 0;
-                        if (playerStationary && Math.random() < 0.3) {
+                        if (playerStationary && !p1HasButterfly && Math.random() < 0.3) {
                             sprite.bState = 'seeking_player';
                             sprite.target = player;
-                        } else if (p2Stationary && Math.random() < 0.3) {
+                            p1HasButterfly = true; // Update local state so another butterfly doesn't target the player in the same frame
+                        } else if (p2Stationary && !p2HasButterfly && Math.random() < 0.3) {
                             sprite.bState = 'seeking_player';
                             sprite.target = window.player2;
+                            p2HasButterfly = true; // Update local state
                         } else if (activeFlowers.length > 0 && Math.random() < 0.5) {
                             sprite.bState = 'seeking_flower';
                             sprite.target = activeFlowers[Math.floor(Math.random() * activeFlowers.length)];
                         }
                     }
                 } else if (sprite.bState === 'seeking_flower' || sprite.bState === 'seeking_player') {
-                    if (!sprite.target || !sprite.target.active || (sprite.bState === 'seeking_player' && sprite.target.body && (sprite.target.body.velocity.x !== 0 || sprite.target.body.velocity.y !== 0))) {
+                    let isPlayerMoving = false;
+                    if (sprite.bState === 'seeking_player' && sprite.target) {
+                        if (sprite.target === (typeof player !== 'undefined' ? player : null)) {
+                            isPlayerMoving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0)) || (sprite.target.body && (sprite.target.body.velocity.x !== 0 || sprite.target.body.velocity.y !== 0));
+                        } else if (sprite.target === (typeof window.player2 !== 'undefined' ? window.player2 : null)) {
+                            isPlayerMoving = (typeof window.p2Vx !== 'undefined' && (window.p2Vx !== 0 || window.p2Vy !== 0)) || (sprite.target.body && (sprite.target.body.velocity.x !== 0 || sprite.target.body.velocity.y !== 0));
+                        }
+                    }
+                    if (!sprite.target || !sprite.target.active || isPlayerMoving) {
                         sprite.bState = 'wandering';
                         sprite.target = null;
                         continue;
@@ -27804,7 +27819,15 @@ function create() {
                         sprite.rotation = Math.atan2(sprite.vy, sprite.vx) + Math.PI/2;
                     }
                 } else if (sprite.bState === 'landing_flower' || sprite.bState === 'landing_player') {
-                    if (!sprite.target || !sprite.target.active || (sprite.bState === 'landing_player' && sprite.target.body && (sprite.target.body.velocity.x !== 0 || sprite.target.body.velocity.y !== 0))) {
+                    let isPlayerMoving = false;
+                    if (sprite.bState === 'landing_player' && sprite.target) {
+                        if (sprite.target === (typeof player !== 'undefined' ? player : null)) {
+                            isPlayerMoving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0)) || (sprite.target.body && (sprite.target.body.velocity.x !== 0 || sprite.target.body.velocity.y !== 0));
+                        } else if (sprite.target === (typeof window.player2 !== 'undefined' ? window.player2 : null)) {
+                            isPlayerMoving = (typeof window.p2Vx !== 'undefined' && (window.p2Vx !== 0 || window.p2Vy !== 0)) || (sprite.target.body && (sprite.target.body.velocity.x !== 0 || sprite.target.body.velocity.y !== 0));
+                        }
+                    }
+                    if (!sprite.target || !sprite.target.active || isPlayerMoving) {
                         sprite.bState = 'wandering';
                         sprite.target = null;
                         sprite.timer = 0;
