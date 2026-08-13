@@ -16302,7 +16302,8 @@ window.gainXp = function(creature, amount) {
             creature.growthSpurtThisLevel = true;
             creature.lastLeveledStats = []; // Reset restrictions after growth spurt
         } else {
-            let avail = allStats.filter(s => !creature.lastLeveledStats.includes(s));
+            let lastLeveledStatsSet = new Set(creature.lastLeveledStats);
+            let avail = allStats.filter(s => !lastLeveledStatsSet.has(s));
             if (avail.length < 2) avail = [...allStats]; // Fallback
 
             let idx1 = Math.floor(Math.random() * avail.length);
