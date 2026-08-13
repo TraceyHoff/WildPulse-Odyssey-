@@ -24563,6 +24563,59 @@ function generateParticleTextures(scene) {
     pollenCtx.fillStyle = pollenGrad;
     pollenCtx.fillRect(0, 0, 8, 8);
     scene.textures.addCanvas('pollen_particle', pollenCanvas);
+
+    // Micro-detail textures
+    const fireflyCanvas = document.createElement('canvas');
+    fireflyCanvas.width = 8;
+    fireflyCanvas.height = 8;
+    const fireflyCtx = fireflyCanvas.getContext('2d');
+    let fireflyGrad = fireflyCtx.createRadialGradient(4, 4, 0, 4, 4, 4);
+    fireflyGrad.addColorStop(0, 'rgba(200, 255, 100, 1)');
+    fireflyGrad.addColorStop(0.3, 'rgba(150, 255, 50, 0.8)');
+    fireflyGrad.addColorStop(1, 'rgba(50, 150, 0, 0)');
+    fireflyCtx.fillStyle = fireflyGrad;
+    fireflyCtx.fillRect(0, 0, 8, 8);
+    scene.textures.addCanvas('firefly_particle', fireflyCanvas);
+
+    const butterflyCanvas = document.createElement('canvas');
+    butterflyCanvas.width = 12;
+    butterflyCanvas.height = 12;
+    const butterflyCtx = butterflyCanvas.getContext('2d');
+    butterflyCtx.fillStyle = 'rgba(255, 150, 200, 0.8)';
+    butterflyCtx.beginPath();
+    butterflyCtx.moveTo(6, 6);
+    butterflyCtx.lineTo(0, 0);
+    butterflyCtx.lineTo(0, 12);
+    butterflyCtx.fill();
+    butterflyCtx.fillStyle = 'rgba(150, 200, 255, 0.8)';
+    butterflyCtx.beginPath();
+    butterflyCtx.moveTo(6, 6);
+    butterflyCtx.lineTo(12, 0);
+    butterflyCtx.lineTo(12, 12);
+    butterflyCtx.fill();
+    scene.textures.addCanvas('butterfly_particle', butterflyCanvas);
+
+    const dustCanvas = document.createElement('canvas');
+    dustCanvas.width = 16;
+    dustCanvas.height = 16;
+    const dustCtx = dustCanvas.getContext('2d');
+    let dustGrad = dustCtx.createRadialGradient(8, 8, 0, 8, 8, 8);
+    dustGrad.addColorStop(0, 'rgba(180, 160, 140, 0.4)');
+    dustGrad.addColorStop(1, 'rgba(180, 160, 140, 0)');
+    dustCtx.fillStyle = dustGrad;
+    dustCtx.fillRect(0, 0, 16, 16);
+    scene.textures.addCanvas('dust_particle', dustCanvas);
+
+    const starCanvas = document.createElement('canvas');
+    starCanvas.width = 40;
+    starCanvas.height = 4;
+    const starCtx = starCanvas.getContext('2d');
+    let starGrad = starCtx.createLinearGradient(0, 2, 40, 2);
+    starGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    starGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    starCtx.fillStyle = starGrad;
+    starCtx.fillRect(0, 0, 40, 4);
+    scene.textures.addCanvas('shooting_star_particle', starCanvas);
 }
 
 function generateCloudTextures(scene) {
@@ -27388,6 +27441,71 @@ function create() {
         frequency: -1,
         scale: { start: 0.05, end: 0.4 },
         alpha: { start: 0.4, end: 0 },
+        emitting: false
+    });
+
+    let fireflyParticles = this.add.particles('firefly_particle');
+    fireflyParticles.setDepth(3000);
+    window.fireflyEmitter = fireflyParticles.createEmitter({
+        speedX: { min: -10, max: 10 },
+        speedY: { min: -10, max: 10 },
+        lifespan: 3000,
+        quantity: 0,
+        frequency: 200,
+        scale: { start: 0, end: 1, yoyo: true },
+        alpha: { start: 0, end: 1, yoyo: true },
+        emitZone: window.sharedEmitZone
+    });
+
+    let butterflyParticles = this.add.particles('butterfly_particle');
+    butterflyParticles.setDepth(3000);
+    window.butterflyEmitter = butterflyParticles.createEmitter({
+        speedX: { min: -20, max: 20 },
+        speedY: { min: -20, max: 20 },
+        lifespan: 4000,
+        quantity: 0,
+        frequency: 400,
+        scale: { start: 0, end: 1, yoyo: true },
+        rotate: { min: -45, max: 45 },
+        emitZone: window.sharedEmitZone
+    });
+
+    let dustParticles = this.add.particles('dust_particle');
+    dustParticles.setDepth(2000);
+    window.dustEmitter = dustParticles.createEmitter({
+        speedY: { min: -5, max: -15 },
+        speedX: { min: -5, max: 5 },
+        lifespan: 500,
+        quantity: 1,
+        frequency: -1, // manual emit
+        scale: { start: 0.5, end: 1.5 },
+        alpha: { start: 0.5, end: 0 },
+        emitting: false
+    });
+
+    let shootingStarParticles = this.add.particles('shooting_star_particle');
+    shootingStarParticles.setDepth(4000);
+    window.shootingStarEmitter = shootingStarParticles.createEmitter({
+        speedX: { min: -400, max: -600 },
+        speedY: { min: 200, max: 300 },
+        lifespan: 1000,
+        quantity: 1,
+        frequency: -1, // manual emit
+        rotate: 153.4, // atan2(250, -500) in degrees roughly
+        scale: { start: 1, end: 0 },
+        alpha: { start: 1, end: 0 },
+        emitting: false
+    });
+
+    let fishSplashParticles = this.add.particles('ripple_tex');
+    fishSplashParticles.setDepth(0.05); // Above water
+    window.fishSplashEmitter = fishSplashParticles.createEmitter({
+        speed: 0,
+        lifespan: 800,
+        quantity: 1,
+        frequency: -1,
+        scale: { start: 0.1, end: 0.8 },
+        alpha: { start: 0.5, end: 0 },
         emitting: false
     });
 
@@ -32795,6 +32913,9 @@ function update() {
 
     // Track distance
     if (movedX || movedY) {
+        if (window.dustEmitter && window.perfWeatherParticles && Math.random() < 0.1) {
+            window.dustEmitter.emitParticleAt(player.x, player.y + 20);
+        }
         let distStep = speed * (1/60);
         window.gameStats.distanceTraveled += distStep; // approx distance based on frame rate
         if (Math.random() < 0.05) window.saveStats(); // Save periodically while moving
@@ -32964,6 +33085,9 @@ function update() {
                 }
             } else {
                 if (p2MovedX || p2MovedY) {
+                    if (window.dustEmitter && window.perfWeatherParticles && Math.random() < 0.1) {
+                        window.dustEmitter.emitParticleAt(window.player2.x, window.player2.y + 20);
+                    }
                     window.p2Vx = p2TargetVx;
                     window.p2Vy = p2TargetVy;
                     if (window.player2.body) window.player2.body.setVelocity(p2TargetVx, p2TargetVy);
@@ -33763,23 +33887,32 @@ function update() {
 
         let targetLeafRed = 0, targetLeafYellow = 0, targetLeafMixed = 0;
         let targetLeafGreen1 = 0, targetLeafGreen2 = 0, targetPollen = 0, targetRain = 0, targetSnow = 0;
+        let targetFireflies = 0, targetButterflies = 0;
+
+        const isNight = (dayNightTime >= 19 || dayNightTime < 5);
+        const isClearNight = isNight && window.weatherPattern === 'none';
 
         if (window.currentSeason === 'Spring') {
             let springCount = 1 + Math.floor(timeOscillation * 2);
             targetLeafGreen1 = springCount;
             targetLeafGreen2 = springCount;
             targetPollen = 4 + Math.floor(timeOscillation * 8);
+            targetButterflies = (!isNight && window.weatherPattern === 'none') ? 2 : 0;
+            targetFireflies = (isNight && window.weatherPattern === 'none') ? 4 : 0;
         } else if (window.currentSeason === 'Summer') {
             let greenCount = 1 + Math.floor(timeOscillation * 2);
             targetLeafGreen1 = greenCount;
             targetLeafGreen2 = greenCount;
             targetPollen = 2 + Math.floor(timeOscillation * 4);
+            targetButterflies = (!isNight && window.weatherPattern === 'none') ? 3 : 0;
+            targetFireflies = (isNight && window.weatherPattern === 'none') ? 6 : 0;
         } else if (window.currentSeason === 'Fall') {
             let fallCount = 1 + Math.floor(timeOscillation * 2);
             targetLeafRed = fallCount;
             targetLeafYellow = fallCount;
             targetLeafMixed = fallCount;
             targetPollen = 2 + Math.floor(timeOscillation * 4);
+            targetFireflies = (isNight && window.weatherPattern === 'none') ? 2 : 0;
         }
 
         if (window.weatherPattern.includes('rain') || window.weatherPattern.includes('storm')) {
@@ -33834,6 +33967,8 @@ function update() {
         lerpQuantity(window.pollenEmitter, targetPollen);
         lerpQuantity(window.rainEmitter, targetRain);
         lerpQuantity(window.snowflakeEmitter, targetSnow);
+        lerpQuantity(window.fireflyEmitter, targetFireflies);
+        lerpQuantity(window.butterflyEmitter, targetButterflies);
 
         let targetWind = (window.weatherPattern !== 'none') ? 5 * window.weatherIntensity : 0;
         lerpQuantity(window.windEmitter, targetWind);
@@ -33868,6 +34003,33 @@ function update() {
                 }
             }
         }
+
+        // Trigger fish splashes periodically on clear/fair weather (every ~500ms chance)
+        if (window.fishSplashEmitter && window.perfWeatherParticles && Math.random() < 0.05) {
+            const activeCams = [this.cameras.main];
+            if (window.coopActive && window.camera2) activeCams.push(window.camera2);
+            for (const activeCam of activeCams) {
+                const rx = activeCam.scrollX + Math.random() * activeCam.width;
+                const ry = activeCam.scrollY + Math.random() * activeCam.height;
+                const col = Math.floor(rx / 100);
+                const row = Math.floor(ry / 100);
+                if (mapData[row] && mapData[row][col] === 'obs') {
+                    window.fishSplashEmitter.emitParticleAt(rx, ry);
+                }
+            }
+        }
+
+        // Trigger shooting stars randomly on clear nights
+        if (window.shootingStarEmitter && window.perfWeatherParticles && isClearNight && Math.random() < 0.005) {
+            const activeCams = [this.cameras.main];
+            if (window.coopActive && window.camera2) activeCams.push(window.camera2);
+            for (const activeCam of activeCams) {
+                const rx = activeCam.scrollX + activeCam.width + 100;
+                const ry = activeCam.scrollY - 100;
+                window.shootingStarEmitter.emitParticleAt(rx, ry);
+            }
+        }
+
         if (window.windEmitter) {
             window.windEmitter.setSpeedX(windVx);
             window.windEmitter.setSpeedY(windVy);
