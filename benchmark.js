@@ -1,29 +1,64 @@
 const { performance } = require('perf_hooks');
 
-let allStats = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'];
-let lastLeveledStats = ['health', 'speed'];
+const iterations = 5000000;
 
-function before() {
-    return allStats.filter(s => !lastLeveledStats.includes(s));
+const allStats = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'];
+let creature = {
+    friendLevel: 1,
+    lastLeveledFriendStats: ['health', 'attack'],
+    friendBonusStats: {
+        health: 0,
+        attack: 0,
+        defense: 0,
+        speed: 0,
+        specialAttack: 0,
+        specialDefense: 0
+    }
+};
+
+function runBenchmark(name, func) {
+    const start = performance.now();
+    for (let i = 0; i < iterations; i++) {
+        func();
+    }
+    const end = performance.now();
+    console.log(`${name}: ${end - start} ms`);
 }
 
-function after() {
-    let lastLeveledStatsSet = new Set(lastLeveledStats);
-    return allStats.filter(s => !lastLeveledStatsSet.has(s));
-}
+runBenchmark('Baseline (includes)', () => {
+    // Reset state slightly to keep the function working
+    creature.friendLevel = 1;
+    creature.lastLeveledFriendStats = ['health', 'attack'];
 
-let N = 1000000;
+    let avail = allStats.filter(s => !creature.lastLeveledFriendStats.includes(s));
+    if (avail.length < 2) avail = [...allStats];
 
-let start = performance.now();
-for (let i = 0; i < N; i++) {
-    before();
-}
-let end = performance.now();
-console.log('Before:', end - start, 'ms');
+    let idx1 = Math.floor(Math.random() * avail.length);
+    let p1 = avail.splice(idx1, 1)[0];
 
-start = performance.now();
-for (let i = 0; i < N; i++) {
-    after();
-}
-end = performance.now();
-console.log('After:', end - start, 'ms');
+    let idx2 = Math.floor(Math.random() * avail.length);
+    let p2 = avail.splice(idx2, 1)[0];
+
+    creature.friendBonusStats[p1] += 2;
+    creature.friendBonusStats[p2] += 2;
+    creature.lastLeveledFriendStats = [p1, p2];
+});
+
+runBenchmark('Optimized (Set)', () => {
+    creature.friendLevel = 1;
+    creature.lastLeveledFriendStats = ['health', 'attack'];
+
+    const lastStatsSet = new Set(creature.lastLeveledFriendStats);
+    let avail = allStats.filter(s => !lastStatsSet.has(s));
+    if (avail.length < 2) avail = [...allStats];
+
+    let idx1 = Math.floor(Math.random() * avail.length);
+    let p1 = avail.splice(idx1, 1)[0];
+
+    let idx2 = Math.floor(Math.random() * avail.length);
+    let p2 = avail.splice(idx2, 1)[0];
+
+    creature.friendBonusStats[p1] += 2;
+    creature.friendBonusStats[p2] += 2;
+    creature.lastLeveledFriendStats = [p1, p2];
+});

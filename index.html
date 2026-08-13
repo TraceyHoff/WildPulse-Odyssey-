@@ -15751,7 +15751,8 @@ window.increaseFriendLevel = function(creature) {
         allStats.forEach(s => creature.friendBonusStats[s] += 2);
         creature.lastLeveledFriendStats = [];
     } else {
-        let avail = allStats.filter(s => !creature.lastLeveledFriendStats.includes(s));
+        const lastStatsSet = new Set(creature.lastLeveledFriendStats);
+        let avail = allStats.filter(s => !lastStatsSet.has(s));
         if (avail.length < 2) avail = [...allStats];
 
         let idx1 = Math.floor(Math.random() * avail.length);
