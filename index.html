@@ -16147,27 +16147,40 @@ window.typeChart = {
 
     const allTypes = Object.keys(window.typeChart);
 
-    // Calculate modifiers
-    for (const attacker of baseTypes) {
-        const baseTypes = allTypes.filter(t => !t.includes('-'));
-    for (const defender of baseTypes) {
-            let mod = 1;
+    // Optimize: Precompute base type modifiers to avoid nested undefined checks
+    const typeMods = {};
+    for (const a of baseTypes) {
+        typeMods[a] = {};
+        for (const d of baseTypes) {
+            typeMods[a][d] = (window.typeChart[a] && window.typeChart[a][d] !== undefined)
+                ? window.typeChart[a][d] : 1;
+        }
+    }
 
-            const attackerTypes = attacker.split('-');
-            const defenderTypes = defender.split('-');
+    // Optimize: Pre-parse strings outside the N^2 loops
+    const parsedTypes = {};
+    for (const type of allTypes) {
+        parsedTypes[type] = type.split('-');
+    }
+
+    // Calculate modifiers
+    for (const attacker of allTypes) {
+        const attackerTypes = parsedTypes[attacker];
+        for (const defender of allTypes) {
+            const defenderTypes = parsedTypes[defender];
 
             // Attack logic: take the max modifier of the attacker's component types
             let maxMod = 0;
-            for (const aType of attackerTypes) {
+            for (let a = 0; a < attackerTypes.length; a++) {
+                const aType = attackerTypes[a];
+
                 // Defense logic: multiply the attacker's modifier against each defending component type
                 let defMod = 1;
-                for (const dType of defenderTypes) {
-                    let singleMod = 1;
-                    if (window.typeChart[aType] && window.typeChart[aType][dType] !== undefined) {
-                        singleMod = window.typeChart[aType][dType];
-                    }
-                    defMod *= singleMod;
+                for (let d = 0; d < defenderTypes.length; d++) {
+                    const dType = defenderTypes[d];
+                    defMod *= typeMods[aType][dType];
                 }
+
                 if (defMod > maxMod) {
                     maxMod = defMod;
                 }
