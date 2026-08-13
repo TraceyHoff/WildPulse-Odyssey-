@@ -19385,16 +19385,6 @@ window.lastUiUpdate = 0;
 window.lastShadowDayNightTime = 0;
 window.shadowParams = null;
 
-window.copyWorldCode = function() {
-    const ownCode = localStorage.getItem('wildpulse_own_world_code');
-    if (!ownCode) return;
-    navigator.clipboard.writeText(ownCode).then(() => {
-        window.showModernNotification("World Code copied to clipboard!");
-    }).catch(err => {
-        console.error('Failed to copy text: ', err);
-    });
-};
-
 window.returnToOwnWorld = function() {
     const ownCode = (localStorage.getItem('wildpulse_own_world_code') || "").toUpperCase();
     if (!ownCode) {
