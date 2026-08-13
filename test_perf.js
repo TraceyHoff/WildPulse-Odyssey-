@@ -1,34 +1,25 @@
-const { performance } = require('perf_hooks');
+const fs = require('fs');
 
-const runs = 10;
-let queryTotal = 0;
-let cachedTotal = 0;
+const code = fs.readFileSync('index.html', 'utf8');
 
-for (let j = 0; j < runs; j++) {
-    // Mock the DOM query
-    const mockDocument = {
-        getElementById: () => ({ innerText: '' })
-    };
-
-    let start = performance.now();
-    for (let i = 0; i < 1000000; i++) {
-        const p1 = mockDocument.getElementById('p1ActiveBuffs');
-        const p2 = mockDocument.getElementById('p2ActiveBuffs');
-    }
-    let end = performance.now();
-    queryTotal += (end - start);
-
-    const cachedP1 = mockDocument.getElementById('p1ActiveBuffs');
-    const cachedP2 = mockDocument.getElementById('p2ActiveBuffs');
-
-    start = performance.now();
-    for (let i = 0; i < 1000000; i++) {
-        const p1 = cachedP1;
-        const p2 = cachedP2;
-    }
-    end = performance.now();
-    cachedTotal += (end - start);
+const regex1 = /window\.updateActiveBuffsHUD = function\(\) \{[\s\S]*?\};/;
+const match1 = code.match(regex1);
+if (!match1) {
+  console.log("Could not find updateActiveBuffsHUD");
+  process.exit(1);
 }
 
-console.log(`Average Query Time: ${queryTotal / runs}ms`);
-console.log(`Average Cached Time: ${cachedTotal / runs}ms`);
+const originalFunction = match1[0];
+
+const newFunction = originalFunction.replace(
+  "const p1Buffs = document.getElementById('p1ActiveBuffs');",
+  "if (!window.p1BuffsCache) window.p1BuffsCache = document.getElementById('p1ActiveBuffs');\n    const p1Buffs = window.p1BuffsCache;"
+).replace(
+  "const p2Buffs = document.getElementById('p2ActiveBuffs');",
+  "if (!window.p2BuffsCache) window.p2BuffsCache = document.getElementById('p2ActiveBuffs');\n    const p2Buffs = window.p2BuffsCache;"
+);
+
+console.log("Original function:");
+console.log(originalFunction.substring(0, 200) + '...');
+console.log("\nNew function:");
+console.log(newFunction.substring(0, 200) + '...');
