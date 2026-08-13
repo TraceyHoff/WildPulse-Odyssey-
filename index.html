@@ -6944,42 +6944,6 @@ window.updateCharacterPreview = function(playerNum = 1, forceP1 = false) {
     ctx.shadowOffsetY = 0;
 };
 
-window.updateRemotePlayerState = function(userId, data) {
-    if (!userId || !data) return;
-
-    if (!window.remotePlayerState[userId]) {
-        window.remotePlayerState[userId] = {
-            x: 10050, // Default start coord
-            y: 10050,
-            vx: 0,
-            vy: 0,
-            lastUpdate: Date.now()
-        };
-    }
-
-    // Only update position if values are valid numbers
-    if (data.type === 'pos' || data.type === 'position') {
-        if (typeof data.x === 'number' && !isNaN(data.x)) window.remotePlayerState[userId].x = data.x;
-        if (typeof data.y === 'number' && !isNaN(data.y)) window.remotePlayerState[userId].y = data.y;
-        if (typeof data.vx === 'number' && !isNaN(data.vx)) window.remotePlayerState[userId].vx = data.vx;
-        if (typeof data.vy === 'number' && !isNaN(data.vy)) window.remotePlayerState[userId].vy = data.vy;
-        if (data.level !== undefined) window.remotePlayerState[userId].level = data.level;
-        if (data.battle !== undefined) window.remotePlayerState[userId].battle = data.battle;
-        window.remotePlayerState[userId].lastUpdate = Date.now();
-    }
-
-    if (data.type === 'identity') {
-        window.remotePlayerIdentities[userId] = {
-            name: data.name || window.remotePlayerIdentities[userId]?.name,
-            color: data.color || window.remotePlayerIdentities[userId]?.color,
-            auraColor: data.auraColor || window.remotePlayerIdentities[userId]?.auraColor,
-            pattern: data.pattern || window.remotePlayerIdentities[userId]?.pattern,
-            patternColor: data.patternColor || window.remotePlayerIdentities[userId]?.patternColor
-        };
-        if (window.updateSocialUI) window.updateSocialUI();
-    }
-};
-
 // Deterministic Random Seed for Multiplayer
 window.gameSeed = undefined;
 window.originalRandom = Math.random;
