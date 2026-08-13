@@ -31583,7 +31583,8 @@ function update() {
     }
 
     // Update Buff Indicator displays inside HUD
-    const p1Buffs = document.getElementById('p1ActiveBuffs');
+    if (!window.p1BuffsCache) window.p1BuffsCache = document.getElementById('p1ActiveBuffs');
+    const p1Buffs = window.p1BuffsCache;
     if (p1Buffs) {
         let txts = [];
         if (window.p1RepellentTime && window.p1RepellentTime > 0) {
@@ -31611,7 +31612,8 @@ function update() {
         }
     }
 
-    const p2Buffs = document.getElementById('p2ActiveBuffs');
+    if (!window.p2BuffsCache) window.p2BuffsCache = document.getElementById('p2ActiveBuffs');
+    const p2Buffs = window.p2BuffsCache;
     if (p2Buffs) {
         let txts = [];
         if (window.p2RepellentTime && window.p2RepellentTime > 0) {

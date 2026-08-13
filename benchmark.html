@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div id="p1ActiveBuffs"></div>
+<div id="p2ActiveBuffs"></div>
+<script>
+console.time("DOM Query in loop (1,000,000 iterations)");
+for (let i = 0; i < 1000000; i++) {
+  const p1Buffs = document.getElementById('p1ActiveBuffs');
+  const p2Buffs = document.getElementById('p2ActiveBuffs');
+}
+console.timeEnd("DOM Query in loop (1,000,000 iterations)");
+
+let c1 = document.getElementById('p1ActiveBuffs');
+let c2 = document.getElementById('p2ActiveBuffs');
+console.time("Cached DOM Query (1,000,000 iterations)");
+for (let i = 0; i < 1000000; i++) {
+  const p1Buffs = c1;
+  const p2Buffs = c2;
+}
+console.timeEnd("Cached DOM Query (1,000,000 iterations)");
+</script>
+</body>
+</html>
