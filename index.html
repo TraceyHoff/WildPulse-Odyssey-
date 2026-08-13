@@ -12199,54 +12199,63 @@ const isValidColor = (str) => {
     return valid;
 };
 
+const FANTASY_COLOR_MAPPING = {
+    ruby: '#e0115f',
+    crimson: '#dc143c',
+    emerald: '#50c878',
+    sapphire: '#0f52ba',
+    gold: '#ffd700',
+    azure: '#007fff',
+    violet: '#8f00ff',
+    onyx: '#353839',
+    obsidian: '#151515',
+    turquoise: '#30d5c8',
+    teal: '#008080',
+    amber: '#ffbf00',
+    amethyst: '#9966cc',
+    quartz: '#e6e6fa',
+    pearl: '#eae0c8',
+    silver: '#c0c0c0',
+    bronze: '#cd7f32',
+    copper: '#b87333',
+    coral: '#ff7f50',
+    frost: '#a5f2f3',
+    snow: '#fafaff',
+    lava: '#cf1020',
+    shadow: '#2a2a2a',
+    void: '#120a2a',
+    storm: '#4f738e',
+    plasma: '#b500ff',
+    magma: '#ff3300',
+    moss: '#8a9a86',
+    leaf: '#4caf50',
+    flora: '#ff69b4',
+    bloom: '#ff85a2',
+    cinder: '#4b3621'
+};
+
+const FANTASY_COLOR_KEYS = Object.keys(FANTASY_COLOR_MAPPING);
+const FANTASY_COLOR_REGEX = new RegExp(FANTASY_COLOR_KEYS.join('|'));
+
 // Fantasy color mapping helper
 const mapFantasyColor = (colStr, defaultCol = '#ffffff') => {
     if (!colStr) return defaultCol.replace(/\s+/g, '');
     const cleanCol = colStr.replace(/\s+/g, '');
     if (cleanCol.startsWith('#') || cleanCol.startsWith('rgb')) return cleanCol;
     const lower = cleanCol.toLowerCase();
-    const mapping = {
-        ruby: '#e0115f',
-        crimson: '#dc143c',
-        emerald: '#50c878',
-        sapphire: '#0f52ba',
-        gold: '#ffd700',
-        azure: '#007fff',
-        violet: '#8f00ff',
-        onyx: '#353839',
-        obsidian: '#151515',
-        turquoise: '#30d5c8',
-        teal: '#008080',
-        amber: '#ffbf00',
-        amethyst: '#9966cc',
-        quartz: '#e6e6fa',
-        pearl: '#eae0c8',
-        silver: '#c0c0c0',
-        bronze: '#cd7f32',
-        copper: '#b87333',
-        coral: '#ff7f50',
-        frost: '#a5f2f3',
-        snow: '#fafaff',
-        lava: '#cf1020',
-        shadow: '#2a2a2a',
-        void: '#120a2a',
-        storm: '#4f738e',
-        plasma: '#b500ff',
-        magma: '#ff3300',
-        moss: '#8a9a86',
-        leaf: '#4caf50',
-        flora: '#ff69b4',
-        bloom: '#ff85a2',
-        cinder: '#4b3621'
-    };
-    let result = cleanCol;
-    for (let key in mapping) {
-        if (lower.includes(key)) {
-            result = mapping[key];
-            break;
-        }
+
+    // O(1) exact match lookup first (protected against prototype properties)
+    if (Object.hasOwn(FANTASY_COLOR_MAPPING, lower)) {
+        return FANTASY_COLOR_MAPPING[lower];
     }
-    return result;
+
+    // O(1) DFA fallback lookup
+    const match = lower.match(FANTASY_COLOR_REGEX);
+    if (match) {
+        return FANTASY_COLOR_MAPPING[match[0]];
+    }
+
+    return cleanCol;
 };
 
 window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackground = false) {
