@@ -32725,8 +32725,9 @@ function update() {
         if (window.pointerTarget) {
             const dx = window.pointerTarget.x - player.x;
             const dy = window.pointerTarget.y - player.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance > 10) {
+            const distSq = dx * dx + dy * dy;
+            if (distSq > 100) { // distance > 10
+                const distance = Math.sqrt(distSq);
                 targetVx = (dx / distance) * moveSpeed;
                 targetVy = (dy / distance) * moveSpeed;
                 movedX = true;
@@ -32908,8 +32909,9 @@ function update() {
             if (window.pointer2Target) {
                 const dx = window.pointer2Target.x - window.player2.x;
                 const dy = window.pointer2Target.y - window.player2.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > 10) {
+                const distSq = dx * dx + dy * dy;
+                if (distSq > 100) { // distance > 10
+                    const distance = Math.sqrt(distSq);
                     p2TargetVx = (dx / distance) * p2Speed;
                     p2TargetVy = (dy / distance) * p2Speed;
                     p2MovedX = true;
