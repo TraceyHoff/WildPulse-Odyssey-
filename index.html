@@ -19584,7 +19584,8 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
         { id: 'challengeModal', close: (p) => { if (window.closeChallengeModal) window.closeChallengeModal(p); } },
         { id: 'dojoModal', close: (p) => { if (window.closeDojoModal) window.closeDojoModal(p); } },
         { id: 'customizationModal', close: (p) => { if (window.closeCustomizationModal) window.closeCustomizationModal(p); } },
-        { id: 'inventoryWheelModal', close: (p) => { if (window.closeInventoryWheel) window.closeInventoryWheel(p); } }
+        { id: 'inventoryWheelModal', close: (p) => { if (window.closeInventoryWheel) window.closeInventoryWheel(p); } },
+        { id: `questModal_p${playerNum}`, close: (p) => { if (window.closeQuestModal) window.closeQuestModal(p); } }
     ];
 
     modals.forEach(m => {
@@ -19628,7 +19629,9 @@ window.closeAllModals = function(exceptId) {
         { id: 'battleSwapModal', close: () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); } },
         { id: 'tradeModal', close: () => { if (window.closeTradeModal) window.closeTradeModal(); } },
         { id: 'pvpModal', close: () => { if (window.closePvpModal) window.closePvpModal(); } },
-        { id: 'inventoryWheelModal', close: () => { if (window.closeInventoryWheel) window.closeInventoryWheel(); } }
+        { id: 'inventoryWheelModal', close: () => { if (window.closeInventoryWheel) window.closeInventoryWheel(); } },
+        { id: 'questModal_p1', close: () => { if (window.closeQuestModal) window.closeQuestModal(1); } },
+        { id: 'questModal_p2', close: () => { if (window.closeQuestModal) window.closeQuestModal(2); } }
     ];
     if (exceptId !== 'customizationModal') {
         let el = document.getElementById('customizationModal');
