@@ -4451,7 +4451,7 @@ window.questNpcList = [
 window.getQuestNpcPos = function(npc) {
     let r = npc.r;
     let c = npc.c;
-    if (window.mapData && window.mapData[r] && window.mapData[r][c] !== 'grass') {
+    if (window.mapData && window.mapData[r] && window.mapData[r][c] !== 'grass' && !window.mapData[r][c].startsWith('quest_npc')) {
         let found = false;
         for (let dist = 1; dist < 20; dist++) {
             for (let dr = -dist; dr <= dist; dr++) {
@@ -4765,9 +4765,9 @@ window.openQuestModal = function(playerNum, npcId) {
 
             detailContainer.innerHTML = `
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                    <button class="btn" id="questPrevBtn_p${playerNum}" style="padding: 6px 15px; font-size: 14px; background: rgba(255,255,255,0.05); border: 2px solid ${accentColor}; color: ${accentColor}; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Courier New', monospace; transition: all 0.2s;">◀ PREV</button>
+                    <button class="btn" id="questPrevBtn_p${playerNum}" style="padding: 6px 15px; font-size: 14px; background: rgba(255,255,255,0.05); border: 2px solid ${accentColor}; color: ${accentColor}; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Courier New', monospace; transition: all 0.2s; animation: none !important;">◀ PREV</button>
                     <div style="font-weight: bold; color: #ffeb3b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">AVAILABLE QUEST</div>
-                    <button class="btn" id="questNextBtn_p${playerNum}" style="padding: 6px 15px; font-size: 14px; background: rgba(255,255,255,0.05); border: 2px solid ${accentColor}; color: ${accentColor}; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Courier New', monospace; transition: all 0.2s;">NEXT ▶</button>
+                    <button class="btn" id="questNextBtn_p${playerNum}" style="padding: 6px 15px; font-size: 14px; background: rgba(255,255,255,0.05); border: 2px solid ${accentColor}; color: ${accentColor}; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Courier New', monospace; transition: all 0.2s; animation: none !important;">NEXT ▶</button>
                 </div>
                 <div style="font-size: 15px; color: ${accentColor}; font-weight: bold; margin-bottom: 5px;">${potentialQuest.title}</div>
                 <div style="font-size: 13px; color: #ddd; margin-bottom: 15px; line-height: 1.4;">${potentialQuest.description}</div>
