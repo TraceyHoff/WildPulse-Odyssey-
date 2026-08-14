@@ -27762,6 +27762,8 @@ function create() {
 
     this.physics.add.collider(player, window.treesGroup);
 
+    if (!window.baseTilesGroup) window.baseTilesGroup = this.physics.add.staticGroup();
+    if (!window.renderBaseTiles) window.renderBaseTiles = function(scene) {};
     window.renderBaseTiles(this);
     this.physics.add.collider(player, window.baseTilesGroup);
     if (window.coopActive) {
