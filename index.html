@@ -9574,6 +9574,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "ExPALL", icon: "✨", desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", desc: "Boosts wild capture success rate. Consumed only on success." },
         { name: "Bundle of Wood", icon: "🪵", price: 150, desc: "Build your own base. Contains various wooden building parts." },
+        { name: "Furniture Package", icon: "🛋️", price: 250, desc: "Decorate your home with a variety of furniture pieces." },
         { name: "Creature Cookie", icon: "🍪", desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -9581,6 +9582,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "DNA Stabilizer", icon: "🧬", desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
         { name: "Storage Chest", icon: "🧳", desc: "A placeable chest with 10 item slots. Step on it to open storage. (Requires Lv 6)" },
         { name: "Bundle of Wood", icon: "🪵", desc: "Build your own base. Includes foundations, walls, and roofs." },
+        { name: "Furniture Package", icon: "🛋️", desc: "Decorate your home with a variety of furniture pieces." },
         { name: "Mini Hospital", icon: "🏥", desc: "A functional smaller version of the Hospital. Place near your home. (Requires Lv 10)" },
         { name: "Mini Store", icon: "🏪", desc: "A functional smaller version of the Store. Place near your home. (Requires Lv 10)" },
         { name: "Mini Trade", icon: "🔄", desc: "A functional smaller version of the Trade center. Place near your home. (Requires Lv 10)" },
@@ -16660,6 +16662,7 @@ const defaultStock = {
     "DNA Stabilizer": 15,
     "Storage Chest": 15,
     "Bundle of Wood": 15,
+    "Furniture Package": 15,
     "NPC Dual Link": 15,
     "Wild Dual Signal": 15
 };
@@ -17013,6 +17016,7 @@ window.updateStoreUI = function() {
         { name: "ExPALL", icon: "✨", price: 370, desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", price: 295, desc: "Boosts wild capture success rate. Consumed only on success." },
         { name: "Bundle of Wood", icon: "🪵", price: 150, desc: "Build your own base. Contains various wooden building parts." },
+        { name: "Furniture Package", icon: "🛋️", price: 250, desc: "Decorate your home with a variety of furniture pieces." },
         { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -17376,6 +17380,23 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         window[`p${playerNum}BasePreviewY`] = playerObj ? playerObj.y : 0;
 
         window.showModernNotification("🪵 Base Placement Mode: Press E (PC) or X (Gamepad) to cycle parts. A/Click to place. Y/Right-Click to destroy. B/ESC to cancel.", 8000, playerNum);
+        return; // Wait for placement
+    }
+
+    if (item.name === "Furniture Package") {
+        if (window.closeInventoryWheel) window.closeInventoryWheel(playerNum);
+        if (window.closeActionWheel) window.closeActionWheel(playerNum);
+        if (window.closeInventoryModal) window.closeInventoryModal();
+
+        window[`p${playerNum}BasePlacementMode`] = true;
+        window[`p${playerNum}BasePlacementType`] = 'furniture_bed';
+        window[`p${playerNum}BasePlacementSlotIndex`] = slotIndex;
+
+        const playerObj = playerNum === 2 ? window.player2 : window.player;
+        window[`p${playerNum}BasePreviewX`] = playerObj ? playerObj.x : 0;
+        window[`p${playerNum}BasePreviewY`] = playerObj ? playerObj.y : 0;
+
+        window.showModernNotification("🛋️ Furniture Placement Mode: Press E (PC) or X (Gamepad) to cycle parts. A/Click to place. Y/Right-Click to destroy. B/ESC to cancel.", 8000, playerNum);
         return; // Wait for placement
     }
 
@@ -18615,7 +18636,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
 
         // X button cycles parts
         if (justX) {
-            const parts = ['base_foundation', 'base_wall', 'base_wall_window', 'base_wall_door', 'base_stairs', 'base_ceiling', 'base_roof'];
+            const parts = window[`p${playerNum}BasePlacementType`] && window[`p${playerNum}BasePlacementType`].startsWith('furniture_') ? ['furniture_bed', 'furniture_chair', 'furniture_table', 'furniture_lamp', 'furniture_cabinet'] : ['base_foundation', 'base_wall', 'base_wall_window', 'base_wall_door', 'base_stairs', 'base_ceiling', 'base_roof'];
             let currentIdx = parts.indexOf(window[`p${playerNum}BasePlacementType`]);
             let nextIdx = (currentIdx + 1) % parts.length;
             window[`p${playerNum}BasePlacementType`] = parts[nextIdx];
@@ -25781,6 +25802,38 @@ function generateMiscTextures(scene) {
     auraCtx.fillStyle = auraGrad;
     auraCtx.fillRect(0, 0, 256, 256);
     scene.textures.addCanvas('aura_tex', auraCanvas);
+
+    // Furniture Textures
+    const fBed = document.createElement('canvas'); fBed.width = 50; fBed.height = 50; const fbCtx = fBed.getContext('2d');
+    fbCtx.fillStyle = '#1e3d59'; fbCtx.fillRect(5, 5, 40, 40); // Base
+    fbCtx.fillStyle = '#f4e0c8'; fbCtx.fillRect(5, 5, 40, 15); // Pillow area
+    fbCtx.fillStyle = '#ff7f00'; fbCtx.fillRect(5, 20, 40, 25); // Blanket
+    fbCtx.strokeStyle = '#0a192f'; fbCtx.lineWidth = 2; fbCtx.strokeRect(5, 5, 40, 40);
+    scene.textures.addCanvas('furniture_bed', fBed);
+
+    const fChair = document.createElement('canvas'); fChair.width = 50; fChair.height = 50; const fcCtx = fChair.getContext('2d');
+    fcCtx.fillStyle = '#b0703c'; fcCtx.fillRect(15, 15, 20, 20); // Seat
+    fcCtx.fillStyle = '#8b5a2b'; fcCtx.fillRect(15, 10, 20, 5); // Backrest
+    fcCtx.strokeStyle = '#5c3a21'; fcCtx.strokeRect(15, 15, 20, 20);
+    scene.textures.addCanvas('furniture_chair', fChair);
+
+    const fTable = document.createElement('canvas'); fTable.width = 50; fTable.height = 50; const ftCtx = fTable.getContext('2d');
+    ftCtx.fillStyle = '#b0703c'; ftCtx.fillRect(5, 10, 40, 30); // Tabletop
+    ftCtx.fillStyle = '#8b5a2b'; ftCtx.fillRect(10, 15, 30, 20); // Inner detail
+    scene.textures.addCanvas('furniture_table', fTable);
+
+    const fLamp = document.createElement('canvas'); fLamp.width = 50; fLamp.height = 50; const flCtx = fLamp.getContext('2d');
+    flCtx.fillStyle = '#ffcc00'; flCtx.beginPath(); flCtx.arc(25, 25, 10, 0, Math.PI*2); flCtx.fill(); // Shade
+    flCtx.fillStyle = '#5c3a21'; flCtx.fillRect(23, 35, 4, 10); // Stand
+    scene.textures.addCanvas('furniture_lamp', fLamp);
+
+    const fCabinet = document.createElement('canvas'); fCabinet.width = 50; fCabinet.height = 50; const fcbCtx = fCabinet.getContext('2d');
+    fcbCtx.fillStyle = '#8b5a2b'; fcbCtx.fillRect(10, 5, 30, 40); // Body
+    fcbCtx.strokeStyle = '#5c3a21'; fcbCtx.lineWidth = 2; fcbCtx.strokeRect(10, 5, 30, 40);
+    fcbCtx.beginPath(); fcbCtx.moveTo(25, 5); fcbCtx.lineTo(25, 45); fcbCtx.stroke(); // Doors
+    fcbCtx.fillStyle = '#ffd700'; fcbCtx.fillRect(20, 25, 3, 5); fcbCtx.fillRect(27, 25, 3, 5); // Handles
+    scene.textures.addCanvas('furniture_cabinet', fCabinet);
+
 }
 
 function preload() {
@@ -27043,31 +27096,40 @@ window.tryPlaceBase = function(playerNum, x, y) {
         return;
     }
 
-    const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
-    if (isInside) {
-        window.showModernNotification("❌ Cannot build base inside home.", 3000, playerNum);
-        return;
-    }
+        const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
+    const isFurniture = itemName.startsWith('furniture_');
 
-    // Check underlying map data (only grass or safe ground)
-    const mapCol = Math.floor(snappedX / 100);
-    const mapRow = Math.floor(snappedY / 100);
-    if (!window.mapData || !window.mapData[mapRow] || window.mapData[mapRow][mapCol] !== 'grass') {
-        window.showModernNotification("❌ Can only build on clear ground.", 3000, playerNum);
-        return;
-    }
+    if (isFurniture) {
+        if (!isInside) {
+            window.showModernNotification("❌ Furniture can only be placed inside your home.", 3000, playerNum);
+            return;
+        }
+    } else {
+        if (isInside) {
+            window.showModernNotification("❌ Cannot build base inside home.", 3000, playerNum);
+            return;
+        }
 
-    // Water proximity check using mapData
-    for(let r = mapRow - 1; r <= mapRow + 1; r++) {
-        for(let c = mapCol - 1; c <= mapCol + 1; c++) {
-            if(window.mapData[r] && window.mapData[r][c] === 'obs') {
-                window.showModernNotification("❌ Too close to water.", 3000, playerNum);
-                return;
+        // Check underlying map data (only grass or safe ground)
+        const mapCol = Math.floor(snappedX / 100);
+        const mapRow = Math.floor(snappedY / 100);
+        if (!window.mapData || !window.mapData[mapRow] || window.mapData[mapRow][mapCol] !== 'grass') {
+            window.showModernNotification("❌ Can only build on clear ground.", 3000, playerNum);
+            return;
+        }
+
+        // Water proximity check using mapData
+        for(let r = mapRow - 1; r <= mapRow + 1; r++) {
+            for(let c = mapCol - 1; c <= mapCol + 1; c++) {
+                if(window.mapData[r] && window.mapData[r][c] === 'obs') {
+                    window.showModernNotification("❌ Too close to water.", 3000, playerNum);
+                    return;
+                }
             }
         }
     }
 
-    const baseTiles = playerNum === 2 ? window.p2BaseTiles : window.p1BaseTiles;
+        const baseTiles = playerNum === 2 ? window.p2BaseTiles : window.p1BaseTiles;
 
     const getTilesAt = (tx, ty) => {
         return baseTiles.filter(t => t.x === tx && t.y === ty);
@@ -27078,6 +27140,12 @@ window.tryPlaceBase = function(playerNum, x, y) {
     if (itemName === 'base_foundation') {
         if (existingTiles.length > 0) {
             window.showModernNotification("❌ Space is already occupied.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName.startsWith('furniture_')) {
+        const existingFurniture = existingTiles.some(t => t.type.startsWith('furniture_'));
+        if (existingFurniture) {
+            window.showModernNotification("❌ Furniture already exists here.", 3000, playerNum);
             return;
         }
     } else if (itemName.startsWith('base_wall')) {
@@ -27183,6 +27251,7 @@ window.tryDestroyBase = function(playerNum, x, y) {
         window.saveBaseTiles();
 
         if (targetTile.sprite) {
+            if (targetTile.sprite.associatedLight) targetTile.sprite.associatedLight.destroy();
             if (targetTile.sprite.body) {
                 targetTile.sprite.body.destroy();
             }
@@ -27794,7 +27863,65 @@ function create() {
     this.physics.add.collider(player, window.treesGroup);
 
     if (!window.baseTilesGroup) window.baseTilesGroup = this.physics.add.staticGroup();
-    if (!window.renderBaseTiles) window.renderBaseTiles = function(scene) {};
+    window.spawnSingleBaseTile = function(tile, playerNum) {
+    if (!window.game || !window.game.scene || !window.game.scene.scenes[0]) return;
+    const scene = window.game.scene.scenes[0];
+
+    if (!window.baseTilesGroup) window.baseTilesGroup = scene.physics.add.staticGroup();
+
+    let sprite = window.baseTilesGroup.create(tile.x, tile.y, tile.type);
+
+    // Set depth based on type
+    if (tile.type === 'base_foundation') sprite.setDepth(1);
+    else if (tile.type.startsWith('base_wall')) sprite.setDepth(15);
+    else if (tile.type === 'base_stairs') sprite.setDepth(16);
+    else if (tile.type === 'base_ceiling') sprite.setDepth(25);
+    else if (tile.type === 'base_roof') sprite.setDepth(26);
+    else if (tile.type.startsWith('furniture_')) sprite.setDepth(9.5);
+
+    if (tile.type === 'furniture_lamp') {
+        const light = scene.add.pointlight(tile.x, tile.y, 0xffcc00, 150, 0.5);
+        light.setDepth(20);
+        sprite.associatedLight = light;
+    }
+
+    if (sprite.body) {
+        if (tile.type === 'base_foundation' || tile.type === 'base_ceiling' || tile.type === 'base_roof' || tile.type.startsWith('furniture_')) {
+            // No collision or specific small collision
+            if (tile.type.startsWith('furniture_')) {
+               sprite.body.setSize(40, 40);
+            } else {
+               scene.physics.world.remove(sprite.body);
+               sprite.body.enable = false;
+            }
+        } else {
+            sprite.body.setSize(50, 50);
+        }
+        sprite.body.updateFromGameObject();
+    }
+
+    tile.sprite = sprite;
+};
+
+window.renderBaseTiles = function(scene) {
+    if (!window.baseTilesGroup) window.baseTilesGroup = scene.physics.add.staticGroup();
+    window.baseTilesGroup.clear(true, true);
+
+    // Clean up existing lights if any
+    if (window.p1BaseTiles) {
+       window.p1BaseTiles.forEach(t => { if (t.sprite && t.sprite.associatedLight) t.sprite.associatedLight.destroy(); });
+    }
+    if (window.p2BaseTiles) {
+       window.p2BaseTiles.forEach(t => { if (t.sprite && t.sprite.associatedLight) t.sprite.associatedLight.destroy(); });
+    }
+
+    if (window.p1BaseTiles) {
+        window.p1BaseTiles.forEach(tile => window.spawnSingleBaseTile(tile, 1));
+    }
+    if (window.p2BaseTiles && window.coopActive) {
+        window.p2BaseTiles.forEach(tile => window.spawnSingleBaseTile(tile, 2));
+    }
+};
     window.renderBaseTiles(this);
     this.physics.add.collider(player, window.baseTilesGroup);
     if (window.coopActive) {
@@ -32986,6 +33113,7 @@ function update() {
                     "DNA Stabilizer": 15,
                     "Storage Chest": 15,
     "Bundle of Wood": 15,
+    "Furniture Package": 15,
                     "NPC Dual Link": 15,
                     "Wild Dual Signal": 15
                 };
