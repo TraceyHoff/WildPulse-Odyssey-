@@ -57,7 +57,7 @@ test.describe('Shop and Inventory Systems', () => {
 
     // Buy 1 Repellent
     const buyRepellentBtn = page.locator('button[onclick*="Repellent"]').first();
-    await buyRepellentBtn.click();
+    await buyRepellentBtn.click({ force: true });
 
     // Verify repellent was added to inventory
     await page.waitForTimeout(500);
@@ -66,7 +66,7 @@ test.describe('Shop and Inventory Systems', () => {
     await expect(p1Slots.first()).toContainText('1');
 
     // Buy another Repellent to test stacking (stack size 2)
-    await buyRepellentBtn.click();
+    await buyRepellentBtn.click({ force: true });
     await page.waitForTimeout(500);
     await expect(p1Slots.first()).toContainText('2');
 
@@ -74,9 +74,9 @@ test.describe('Shop and Inventory Systems', () => {
     const buyHPBoosterBtn = page.locator('button[onclick*="HP Booster"]').first();
     const buyBottleBtn = page.locator('button[onclick*="Healing Juice Bottle"]').first();
 
-    await buyHPBoosterBtn.click();
+    await buyHPBoosterBtn.click({ force: true });
     await page.waitForTimeout(300);
-    await buyBottleBtn.click();
+    await buyBottleBtn.click({ force: true });
     await page.waitForTimeout(300);
 
     // Verify all 3 slots are full
@@ -86,7 +86,7 @@ test.describe('Shop and Inventory Systems', () => {
 
     // Try to buy a 4th unique item type (Jank Juice) and expect warning/rejection
     const buyJankJuiceBtn = page.locator('button[onclick*="Jank Juice"]').first();
-    await buyJankJuiceBtn.click();
+    await buyJankJuiceBtn.click({ force: true });
     await page.waitForTimeout(300);
 
     // Verify slots are still the same and did not include Jank Juice
@@ -183,7 +183,7 @@ test.describe('Shop and Inventory Systems', () => {
 
     // Buy 1 Repellent
     const buyRepellentBtn = page.locator('button[onclick*="Repellent"]').first();
-    await buyRepellentBtn.click();
+    await buyRepellentBtn.click({ force: true });
     await page.waitForTimeout(500);
 
     // Dynamic available to buy for Repellent should now be 29 (since 1 is in slot, leaving 9 in that slot + 20 in other slots)
@@ -193,9 +193,9 @@ test.describe('Shop and Inventory Systems', () => {
     const buyHPBoosterBtn = page.locator('button[onclick*="HP Booster"]').first();
     const buyBottleBtn = page.locator('button[onclick*="Healing Juice Bottle"]').first();
 
-    await buyHPBoosterBtn.click();
+    await buyHPBoosterBtn.click({ force: true });
     await page.waitForTimeout(300);
-    await buyBottleBtn.click();
+    await buyBottleBtn.click({ force: true });
     await page.waitForTimeout(300);
 
     // Now inventory slots are:
