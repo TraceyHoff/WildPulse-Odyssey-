@@ -4833,6 +4833,8 @@ window.openQuestModal = function(playerNum, npcId) {
             }
 
             acceptBtn.onclick = () => {
+                if (activeQuest) return;
+                acceptBtn.disabled = true;
                 quests.push(potentialQuest);
                 window.saveQuests();
                 activeQuest = potentialQuest;
@@ -19967,17 +19969,17 @@ window.renderQuestsList = function(playerNum = 1) {
 
         let targetText = '';
         if (quest.type === 'catch') {
-            const speciesObj = window.baseCreatures.find(c => c.id === quest.targetSpecies);
-            targetText = `Target: Catch ${quest.targetAmount} ${speciesObj ? speciesObj.name : quest.targetSpecies}`;
+            const speciesObj = window.baseCreatures.find(c => c.id === quest.target);
+            targetText = `Target: Catch ${quest.targetCount} ${speciesObj ? speciesObj.name : quest.target}`;
         } else if (quest.type === 'breed') {
-            targetText = `Target: Breed ${quest.targetAmount} creature(s)`;
+            targetText = `Target: Breed ${quest.targetCount} creature(s)`;
         } else if (quest.type === 'battle') {
-            targetText = `Target: Win ${quest.targetAmount} battles`;
+            targetText = `Target: Win ${quest.targetCount} battles`;
         } else if (quest.type === 'level') {
-            targetText = `Target: Level up ${quest.targetAmount} times`;
+            targetText = `Target: Level up ${quest.targetCount} times`;
         }
 
-        const progressText = quest.status === 'completed' ? 'COMPLETED' : `Progress: ${quest.progress || 0} / ${quest.targetAmount}`;
+        const progressText = quest.status === 'completed' ? 'COMPLETED' : `Progress: ${quest.progress || 0} / ${quest.targetCount}`;
         const trackBtnText = quest.tracked ? 'Untrack' : 'Track';
         const trackSpan = quest.tracked ? `<span style="color: ${playerNum === 2 ? '#ff9800' : '#4caf50'}; font-weight: bold; margin-left: 10px;">[TRACKED]</span>` : '';
 
@@ -19997,7 +19999,7 @@ window.renderQuestsList = function(playerNum = 1) {
             <p style="margin: 2px 0; font-size: 14px; color: #ccc;">Given By: ${npcName}</p>
             <p style="margin: 2px 0; font-size: 14px; color: #ccc;">${targetText}</p>
             <p style="margin: 2px 0; font-size: 14px; color: ${quest.status === 'completed' ? '#4caf50' : '#ccc'};">${progressText}</p>
-            <p style="margin: 2px 0; font-size: 14px; color: #ffd700;">Reward: ${quest.rewardAmount} ${quest.rewardType === 'coins' ? 'Coins' : quest.rewardType}</p>
+            <p style="margin: 2px 0; font-size: 14px; color: #ffd700;">Reward: ${quest.rewards ? `${quest.rewards.coins} Coins, ${quest.rewards.xp} XP${quest.rewards.item ? ', ' + quest.rewards.item : ''}` : 'Unknown'}</p>
         `;
 
         if (quest.status !== 'completed') {
