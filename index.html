@@ -4671,16 +4671,21 @@ window.evaluateActiveQuests = function(playerNum = 1) {
 
 window.getRandomLore = function() {
     const lore = [
-        "The grid never sleeps... it just waits.",
-        "They say the Hidden Grove wasn't built, it was compiled.",
-        "Keep your frequency stable, or the glitches will find you.",
-        "DNA splicing isn't just science, it's an art form out here.",
-        "Every signal you catch is a piece of a larger broadcast.",
-        "Watch your back in the outer sectors; the firewall is weak there.",
-        "Some creatures remember the old world, before the pulse.",
-        "Trust your instruments, but trust your companion more.",
-        "I've seen data streams that would melt a standard processor.",
-        "The Neon Syndicate is always watching the trade routes."
+        "The grid never sleeps... it just waits in the shadows. We've seen <span style='color: #00ffcc;'>Neon Syndicate</span> runners mapping the outer sectors, looking for unsecured <span style='color: #ff3366;'>network nodes</span>.",
+        "They say the <span style='color: #aaddff;'>Hidden Grove</span> wasn't built, it was compiled. I once found an <span style='color: #ffeb3b;'>Astral Bloom</span> out there—its petals pulsed with pure data.",
+        "Keep your frequency stable, or the glitches will find you. If you hear thunder without clouds, you've likely wandered too close to a <span style='color: #ff3366;'>Void Rift</span>.",
+        "<span style='color: #00ffcc;'>DNA splicing</span> isn't just science, it's an art form out here. Taking two base codes and creating a perfect <span style='color: #ff9800;'>Gen 2 hybrid</span> requires immense precision.",
+        "Every signal you catch is a piece of a larger broadcast. If you ever find a <span style='color: #ffeb3b;'>Creature License</span>, hold onto it—the 1.5x success multiplier is invaluable.",
+        "Watch your back in the outer sectors; the firewall is weak there. A <span style='color: #aaddff;'>Wild Dual Signal</span> can turn a simple patrol into a chaotic 2v2 skirmish.",
+        "Some creatures remember the old world, before the pulse. You can see it in their eyes when the <span style='color: #ff9800;'>Autumn leaves</span> start to fall and wither.",
+        "Trust your instruments, but trust your companion more. I built my first shelter using simple <span style='color: #ffeb3b;'>Wood Foundations</span>; it kept the midnight storms at bay.",
+        "I've seen data streams that would melt a standard processor. Taking on the <span style='color: #ff3366;'>Crown Challenge</span> tests not just your code, but your very spirit.",
+        "The <span style='color: #00ffcc;'>Neon Syndicate</span> is always watching the trade routes. If you stockpile items in a <span style='color: #ff9800;'>Storage Chest</span>, ensure it's securely encrypted.",
+        "The seasons shift faster than a system reboot. One moment the <span style='color: #aaddff;'>Vernal Bluebells</span> are blooming, the next, the code freezes over into a desolate winter.",
+        "They say those who master the <span style='color: #ffeb3b;'>D-pad</span> navigation move through the grid with impossible speed, never misclicking under pressure.",
+        "If you see a <span style='color: #ff3366;'>Glowing Portal</span> crackling in the rain, steel your nerves. The creatures inside are boosted by 15 levels and demand respect.",
+        "Catching a glimpse of a <span style='color: #ff9800;'>Golden Butterfly</span> near a Luna Lotus is considered a sign of high fortune among the wandering coders.",
+        "Never underestimate a <span style='color: #aaddff;'>Co-op Dual Battle</span>. When two signals sync perfectly, their combined output can shatter any defense."
     ];
     return lore[Math.floor(Math.random() * lore.length)];
 };
@@ -4727,7 +4732,7 @@ window.openQuestModal = function(playerNum, npcId) {
     if (talkBtn) {
         talkBtn.onclick = () => {
             if (descEl && window.getRandomLore) {
-                descEl.innerText = '"' + window.getRandomLore() + '"';
+                descEl.innerHTML = DOMPurify.sanitize('&quot;' + window.getRandomLore() + '&quot;');
                 descEl.style.color = playerNum === 2 ? '#ff9800' : '#00ffcc';
                 window[`questLoreActive_p${playerNum}`] = true;
             }
