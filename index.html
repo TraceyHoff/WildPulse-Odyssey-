@@ -2669,6 +2669,66 @@
         }
     }
 
+
+    /* Tutorial System Styles */
+    #tutorialBox {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95));
+        border: 2px solid #00ffcc;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.5), inset 0 0 10px rgba(0, 255, 204, 0.2);
+        padding: 15px 25px;
+        color: #fff;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        z-index: 300000;
+        pointer-events: none;
+        display: none;
+        animation: neonBorderPulsate 4s ease-in-out infinite, slideUp 0.3s ease-out forwards;
+        max-width: 80%;
+    }
+
+    body.coop-active-layout #tutorialBox {
+        left: 25%;
+        max-width: 45%;
+    }
+    body.coop-active-layout #tutorialBox_p2 {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 75%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, rgba(40, 10, 40, 0.95), rgba(20, 0, 20, 0.95));
+        border: 2px solid #ff00ff;
+        border-radius: 12px;
+        box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), inset 0 0 10px rgba(255, 0, 255, 0.2);
+        padding: 15px 25px;
+        color: #fff;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        z-index: 300000;
+        pointer-events: none;
+        animation: slideUp 0.3s ease-out forwards;
+        max-width: 45%;
+    }
+
+    @keyframes slideUp {
+        from { transform: translate(-50%, 50px); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    .tutorial-highlight {
+        color: #ffd700;
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    }
+
 </style>
 
 </head>
@@ -35546,6 +35606,192 @@ document.addEventListener('mouseout', (e) => {
         tooltip.style.display = 'none';
     }
 });
+
+    // ==================== TUTORIAL SYSTEM ====================
+    window.TutorialManager = {
+        p1: {
+            menuStep: parseInt(localStorage.getItem('wildpulse_p1_menu_tutorial')) || 0, // 0: Start, 1: Open Menu, 2: Open Party, 3: Stats Tab, 4: Close Party, 5: Open Storage, 6: Complete
+            battleStep: parseInt(localStorage.getItem('wildpulse_p1_battle_tutorial')) || 0, // 0: Start, 1: Complete
+            box: null,
+            timer: null
+        },
+        p2: {
+            menuStep: parseInt(localStorage.getItem('wildpulse_p2_menu_tutorial')) || 0,
+            battleStep: parseInt(localStorage.getItem('wildpulse_p2_battle_tutorial')) || 0,
+            box: null,
+            timer: null
+        },
+        init: function() {
+            this.p1.box = document.getElementById('tutorialBox');
+            this.p2.box = document.getElementById('tutorialBox_p2');
+
+            // Start checking for tutorial triggers
+            setInterval(() => this.checkStates(), 500);
+        },
+        show: function(playerNum, text, duration = 0) {
+            const state = playerNum === 1 ? this.p1 : this.p2;
+            if (!state.box) return;
+
+            state.box.innerHTML = text;
+            state.box.style.display = 'block';
+
+            if (state.timer) clearTimeout(state.timer);
+
+            if (duration > 0) {
+                state.timer = setTimeout(() => {
+                    this.hide(playerNum);
+                }, duration);
+            }
+        },
+        hide: function(playerNum) {
+            const state = playerNum === 1 ? this.p1 : this.p2;
+            if (state.box) state.box.style.display = 'none';
+        },
+        save: function(playerNum, type, step) {
+            const state = playerNum === 1 ? this.p1 : this.p2;
+            state[type + 'Step'] = step;
+            localStorage.setItem('wildpulse_p' + playerNum + '_' + type + '_tutorial', step);
+        },
+        checkStates: function() {
+            if (!window.gameStarted) return;
+
+            this.processMenuTutorial(1);
+            this.processBattleTutorial(1);
+
+            if (window.coopActive && window.player2) {
+                this.processMenuTutorial(2);
+                this.processBattleTutorial(2);
+            }
+        },
+        processMenuTutorial: function(pNum) {
+            const state = pNum === 1 ? this.p1 : this.p2;
+            if (state.menuStep >= 7) return; // Complete
+
+            // Check if player has customized. If they haven't finished onboarding, don't show.
+            const setupComplete = pNum === 1 ? window.p1SetupComplete : window.p2SetupComplete;
+            if (!setupComplete) return;
+
+            // Delay start slightly so they have time to breathe after customization
+            if (window.totalElapsedMs < 2000) return;
+
+            // In battle, don't show menu tutorial
+            const isBattling = window.inBattle && (window.activeBattlePlayer === pNum || window.isLocalPvp || window.isDualBattle);
+            if (isBattling) {
+                this.hide(pNum);
+                return;
+            }
+
+            const menuModal = window.getCachedElement('menuModal');
+            const partyModal = window.getCachedElement('partyModal');
+            const storageModal = window.getCachedElement('storageModal');
+
+            const isMenuOpen = window['p' + pNum + 'ActiveModal'] === 'menuModal' || (pNum === 1 && !window.coopActive && menuModal && menuModal.style.display === 'block');
+            const isPartyOpen = window['p' + pNum + 'ActiveModal'] === 'partyModal' || (pNum === 1 && !window.coopActive && partyModal && partyModal.style.display === 'block');
+            const isStorageOpen = window['p' + pNum + 'ActiveModal'] === 'storageModal' || (pNum === 1 && !window.coopActive && storageModal && storageModal.style.display === 'block');
+
+            const tabParty = document.getElementById(pNum === 1 ? 'tabParty_P1' : 'tabParty_P2');
+            const tabStats = document.getElementById(pNum === 1 ? 'tabStats_P1' : 'tabStats_P2');
+            const isStatsTabOpen = tabStats && tabStats.style.color !== 'rgb(136, 136, 136)' && tabStats.style.color !== '#888';
+
+            // State Machine
+            if (state.menuStep === 0) {
+                if (isMenuOpen) {
+                    this.save(pNum, 'menu', 1);
+                } else {
+                    this.show(pNum, 'Welcome! Let\'s learn the controls.<br>Open your <span class="tutorial-highlight">Menu</span> (Press ESC, M, Start, or the on-screen button).');
+                }
+            } else if (state.menuStep === 1) {
+                if (!isMenuOpen && !isPartyOpen) {
+                    // Went backwards
+                    this.save(pNum, 'menu', 0);
+                } else if (isPartyOpen) {
+                    this.save(pNum, 'menu', 2);
+                } else {
+                    this.show(pNum, 'Great! Now click <span class="tutorial-highlight">Party</span> to view your active creatures.');
+                }
+            } else if (state.menuStep === 2) {
+                if (!isPartyOpen) {
+                    this.save(pNum, 'menu', 1); // Go back if they closed it
+                } else if (isStatsTabOpen) {
+                    this.save(pNum, 'menu', 3);
+                } else {
+                    this.show(pNum, 'Here is your party! Switch to the <span class="tutorial-highlight">Stats Tab</span> to see their detailed stats.');
+                }
+            } else if (state.menuStep === 3) {
+                if (!isPartyOpen) {
+                    this.save(pNum, 'menu', 1); // Go back
+                } else if (!isStatsTabOpen) {
+                    this.save(pNum, 'menu', 2); // Go back
+                } else {
+                    const largeCreatureOpen = document.getElementById(pNum === 1 ? 'fullSizeImageModal' : 'fullSizeImageModal_p2')?.style.display === 'flex';
+                    if (largeCreatureOpen) {
+                        this.save(pNum, 'menu', 4);
+                    } else {
+                        this.show(pNum, 'Click on a <span class="tutorial-highlight">Creature Sprite</span> to view its full details and large portrait.');
+                    }
+                }
+            } else if (state.menuStep === 4) {
+                if (!isPartyOpen) {
+                    this.save(pNum, 'menu', 5);
+                } else {
+                    const largeCreatureOpen = document.getElementById(pNum === 1 ? 'fullSizeImageModal' : 'fullSizeImageModal_p2')?.style.display === 'flex';
+                    if (largeCreatureOpen) {
+                        this.show(pNum, 'Awesome! Close this, then <span class="tutorial-highlight">Close your Party</span>.');
+                    } else {
+                        this.show(pNum, 'Now <span class="tutorial-highlight">Close your Party</span> using the X button or by pressing B/ESC.');
+                    }
+                }
+            } else if (state.menuStep === 5) {
+                if (isStorageOpen) {
+                    this.save(pNum, 'menu', 6);
+                } else if (isMenuOpen) {
+                    this.show(pNum, 'Now open your <span class="tutorial-highlight">Storage Box</span> from the menu.');
+                } else {
+                    this.show(pNum, 'Open your Menu again, then open your <span class="tutorial-highlight">Storage Box</span>.');
+                }
+            } else if (state.menuStep === 6) {
+                if (!isStorageOpen) {
+                    this.save(pNum, 'menu', 7);
+                    this.show(pNum, 'Tutorial Complete! Explore the WildPulse!', 4000);
+                } else {
+                    this.show(pNum, 'This is Storage where extra caught creatures go. <span class="tutorial-highlight">Close the Storage Box</span> to finish the tutorial.');
+                }
+            }
+        },
+        processBattleTutorial: function(pNum) {
+            const state = pNum === 1 ? this.p1 : this.p2;
+            if (state.battleStep >= 1) return; // Complete
+
+            const isBattling = window.inBattle && (window.activeBattlePlayer === pNum || window.isLocalPvp || window.isDualBattle);
+            if (!isBattling) {
+                // If not in a battle and we haven't completed it, just make sure box is hidden
+                if (state.menuStep >= 7) {
+                    // Only hide if menu tutorial isn't currently using the box
+                    this.hide(pNum);
+                }
+                return;
+            }
+
+            // We are in our first battle!
+            if (window.isActionRunning) {
+                // They took an action, tutorial complete!
+                this.save(pNum, 'battle', 1);
+                this.hide(pNum);
+            } else {
+                this.show(pNum, 'First Battle! <span class="tutorial-highlight">Attack</span> to deal damage.<br><span class="tutorial-highlight">Catch</span> attempts to capture them (lower their HP first!).<br><span class="tutorial-highlight">Swap</span> changes your active creature. <span class="tutorial-highlight">Run</span> escapes.');
+            }
+        }
+    };
+
+    // Initialize after DOM is fully loaded and ready
+    document.addEventListener('DOMContentLoaded', () => {
+        window.TutorialManager.init();
+    });
+
 </script>
+
+<div id="tutorialBox"></div>
+<div id="tutorialBox_p2"></div>
+
 </body>
 </html>
