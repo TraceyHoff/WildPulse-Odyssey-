@@ -4668,6 +4668,22 @@ window.evaluateActiveQuests = function(playerNum = 1) {
     }
 };
 
+window.getRandomLore = function() {
+    const lore = [
+        "The grid never sleeps... it just waits.",
+        "They say the Hidden Grove wasn't built, it was compiled.",
+        "Keep your frequency stable, or the glitches will find you.",
+        "DNA splicing isn't just science, it's an art form out here.",
+        "Every signal you catch is a piece of a larger broadcast.",
+        "Watch your back in the outer sectors; the firewall is weak there.",
+        "Some creatures remember the old world, before the pulse.",
+        "Trust your instruments, but trust your companion more.",
+        "I've seen data streams that would melt a standard processor.",
+        "The Neon Syndicate is always watching the trade routes."
+    ];
+    return lore[Math.floor(Math.random() * lore.length)];
+};
+
 window.openQuestModal = function(playerNum, npcId) {
     window.closeAllModalsForPlayer(playerNum);
     const modalId = `questModal_p${playerNum}`;
