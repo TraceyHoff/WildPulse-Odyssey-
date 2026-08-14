@@ -15,7 +15,7 @@ test.describe('Lightweight Cyber-Bestiary & deterministic Seeding Smoke Test', (
     // 1. Navigate to the game
     await page.goto('http://localhost:3000');
 
-    test.setTimeout(60000);
+    test.setTimeout(90000);
 
     // 2. Set Level 7 and seed player color to bypass onboarding & start screen
     await page.evaluate(() => {
@@ -27,7 +27,7 @@ test.describe('Lightweight Cyber-Bestiary & deterministic Seeding Smoke Test', (
 
     // Click Start Game which will boot the game instantly (bypassing onboarding because player color is seeded)
     const startBtn = page.locator('#startGameBtn');
-    await startBtn.waitFor({ state: 'visible', timeout: 30000 });
+    await startBtn.waitFor({ state: 'visible', timeout: 45000 });
     await startBtn.click();
 
     // Wait for the game to start

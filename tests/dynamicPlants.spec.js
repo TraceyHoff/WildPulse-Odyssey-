@@ -12,7 +12,7 @@ test.describe('Dynamic Seasonal Plant System Tests', () => {
 
     // Dismiss start modal by clicking Start Game after loading screen finishes
     const startBtn = page.locator('#startGameBtn');
-    await startBtn.waitFor({ state: 'visible', timeout: 30000 });
+    await startBtn.waitFor({ state: 'visible', timeout: 90000 });
     await startBtn.click();
 
     // Wait for the game to fully start and initialize

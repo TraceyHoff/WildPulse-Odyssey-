@@ -350,6 +350,11 @@ The in-game store automatically sorts items from cheapest to most expensive, uti
 ### 11. Narrative & Lore Framework (for Story Generation)
 WildPulse Odyssey features a deep cyberpunk/bio-digital narrative context, which AI models can leverage for generating in-world stories.
 
+#### Progressive Narrative Unlock System
+- **Narrative Data Packets:** As players achieve specific milestones (Player Level 7, hatching their first Mysterious Egg, defeating all 24 NPC Trainers, and reaching Crown Challenge Tiers 5, 10, and 15), they receive push notifications and unlock subsequent hidden lore packets. These are stored within `wildpulse_narrative_progress` in localStorage and can be read inside the new 'Data' tab of the player's Journal modal.
+- **Narrative Quests:** Integrated securely into the Star Sprite procedurally generated quest framework, there is a 25% chance for players to receive specific, one-time narrative quests (e.g., 'Clearance Level 7' or 'Attune the First Echo') to guide players towards unlocking these exact lore logs.
+- **Dynamic Lore Flavor:** In-game hints provided by Quest NPCs dynamically react (with a 15% appearance rate) to the current narrative progression of the player, referencing recently unlocked logs.
+
 #### Key Figures & Characters
 - **Dr. Aris Vance, Chief Biological Architect**: A prominent DNA specialist studying bio-neon structures and the driving force behind the cybernetic expedition. Players find his decrypted audio logs outlining the game's core mechanics (DNA Breeding, HUD navigation).
 - **Quest NPCs (Golden Star Sprites)**: Spread across the map offering procedurally generated quests.
