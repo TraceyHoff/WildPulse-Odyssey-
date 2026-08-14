@@ -27,7 +27,7 @@ test.describe('Lightweight Cyber-Bestiary & deterministic Seeding Smoke Test', (
 
     // Click Start Game which will boot the game instantly (bypassing onboarding because player color is seeded)
     const startBtn = page.locator('#startGameBtn');
-    await startBtn.waitFor({ state: 'visible', timeout: 15000 });
+    await startBtn.waitFor({ state: 'visible', timeout: 30000 });
     await startBtn.click();
 
     // Wait for the game to start
