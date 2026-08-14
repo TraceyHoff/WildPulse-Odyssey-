@@ -4233,6 +4233,7 @@ window.openStorageChestModal = function(playerNum, tileSprite) {
 };
 
 window.closeStorageChestModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     if (window.coopActive) {
         if (playerNum === 2) {
             window.p2ActiveModal = null;
@@ -9496,6 +9497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.closeCustomizationModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
         if (playerNum === 2) {
             const modal = document.getElementById('customizationModal_p2');
             if (modal) modal.style.display = 'none';
@@ -9746,6 +9748,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.closeIntroModal = function(playerNum = 1, proceedToCustomize = false) {
+    window.lastModalCloseTime = Date.now();
         const suffix = (playerNum === 2) ? '_p2' : '';
         const introModal = document.getElementById('introModal' + suffix);
         if (introModal) introModal.style.display = 'none';
@@ -19277,6 +19280,8 @@ window.canOpenWheels = function() {
 
     if (window.isAnyOtherModalOpen && window.isAnyOtherModalOpen()) return false;
 
+    if (window.lastModalCloseTime && Date.now() - window.lastModalCloseTime < 2000) return false;
+
     return true;
 };
 
@@ -19407,6 +19412,7 @@ window.updateModalVisibility = function() {
 };
 
 window.closeAllModalsForPlayer = function(playerNum, exceptId) {
+    window.lastModalCloseTime = Date.now();
     const confirmModalEl = document.getElementById(`customConfirmModal_p${playerNum}`);
     if (confirmModalEl && confirmModalEl.style.display !== 'none') {
         confirmModalEl.style.display = 'none';
@@ -19453,6 +19459,7 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
 };
 
 window.closeAllModals = function(exceptId) {
+    window.lastModalCloseTime = Date.now();
     const confirmP1 = document.getElementById('customConfirmModal_p1');
     if (confirmP1) confirmP1.style.display = 'none';
     const confirmP2 = document.getElementById('customConfirmModal_p2');
@@ -19542,6 +19549,7 @@ window.openMenuModal = function(playerNum = 1) {
     }
 };
 window.closeMenuModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     if (window.coopActive) {
         if (playerNum === 2) window.p2ActiveModal = null;
         else window.p1ActiveModal = null;
@@ -19798,6 +19806,7 @@ window.openJournalModal = function(playerNum = 1) {
 };
 
 window.closeJournalModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     if (window.coopActive) {
         if (playerNum === 2) window.p2ActiveModal = null;
         else window.p1ActiveModal = null;
@@ -19926,6 +19935,7 @@ window.openChallengeModal = function(playerCollider) {
 };
 
 window.closeChallengeModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     window.challengeModalClosedFlag = true;
     if (window.coopActive) {
         if (playerNum === 2) {
@@ -20092,6 +20102,7 @@ window.openDojoModal = function(playerCollider, playerNum = 1) {
 };
 
 window.closeDojoModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     window.dojoModalClosedFlag = true;
     if (window.coopActive) {
         if (playerNum === 2) {
@@ -20284,6 +20295,7 @@ window.openHelpModal = function(playerNum = 1) {
 };
 
 window.closeHelpModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     if (window.coopActive) {
         if (playerNum === 2) window.p2ActiveModal = null;
         else window.p1ActiveModal = null;
@@ -20338,6 +20350,7 @@ window.openStorageModal = function(playerNum = 1) {
 };
 
 window.closeStorageModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     const fullSizeModalId = (window.coopActive && playerNum === 2) ? 'fullSizeImageModal_p2' : 'fullSizeImageModal';
     const fullSizeModal = document.getElementById(fullSizeModalId);
     if (fullSizeModal) fullSizeModal.style.display = 'none';
@@ -20359,6 +20372,7 @@ window.closeStorageModal = function(playerNum = 1) {
 };
 
 window.closePartyModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     const fullSizeModalId = (window.coopActive && playerNum === 2) ? 'fullSizeImageModal_p2' : 'fullSizeImageModal';
     const fullSizeModal = document.getElementById(fullSizeModalId);
     if (fullSizeModal) fullSizeModal.style.display = 'none';
@@ -20920,6 +20934,7 @@ window.handleVirtualKeyboardKeyPress = function(playerNum, key) {
 };
 
 window.closeVirtualKeyboard = function(playerNum) {
+    window.lastModalCloseTime = Date.now();
     const kbId = `virtualKeyboardModal_p${playerNum}`;
     const kbEl = document.getElementById(kbId);
     if (kbEl) {
@@ -22324,6 +22339,7 @@ window.openBreedingModal = function(playerCollider) {
 };
 
 window.closeBreedingModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     if (window.coopActive) {
         if (playerNum === 2) {
             window.p2ActiveModal = null;
@@ -22347,6 +22363,7 @@ window.closeBreedingModal = function(playerNum = 1) {
 };
 
 window.closeLevelUpModal = function() {
+    window.lastModalCloseTime = Date.now();
     let _m_levelUpModal = document.getElementById('levelUpModal');
     _m_levelUpModal.children[0].classList.add('modal-fade-out');
     setTimeout(() => {
@@ -22586,6 +22603,7 @@ window.openTradeModal = function(playerCollider) {
 };
 
 window.closeTradeModal = function() {
+    window.lastModalCloseTime = Date.now();
     window.tradeModalClosedFlag = true;
     window.p1TradeClosedWhileOverlapping = true;
     window.p2TradeClosedWhileOverlapping = true;
@@ -22691,6 +22709,7 @@ window.openStoreModal = function(playerCollider) {
 };
 
 window.closeStoreModal = function(playerNum = 1) {
+    window.lastModalCloseTime = Date.now();
     window.storeModalClosedFlag = true;
     if (window.coopActive) {
         if (playerNum === 2) {
@@ -22781,6 +22800,7 @@ window.openPvpModal = function(playerCollider) {
 };
 
 window.closePvpModal = function() {
+    window.lastModalCloseTime = Date.now();
     window.isLocalPvp = false;
     window.p1PvpClosedWhileOverlapping = true;
     window.p2PvpClosedWhileOverlapping = true;
@@ -28712,6 +28732,7 @@ window.registerTileOverlap = function(playerNum, tileType, callback) {
 
     if (playerObj.lastTileOverlapType !== tileType) {
         playerObj.lastTileOverlapType = tileType;
+        playerObj.lastTileOverlapPos = { x: playerObj.x, y: playerObj.y };
         if (callback) {
             callback();
         }
@@ -30270,6 +30291,7 @@ window.openBattleSwapModal = function() {
 };
 
 window.closeBattleSwapModal = function() {
+    window.lastModalCloseTime = Date.now();
     document.getElementById('battleSwapModal').style.display = 'none';
 };
 
@@ -32293,7 +32315,15 @@ function update() {
         if (pObj && pObj.lastTileOverlapTime) {
             if (Date.now() - pObj.lastTileOverlapTime > 200) {
                 pObj.currentTileOverlap = null;
-                pObj.lastTileOverlapType = null;
+                if (pObj.lastTileOverlapPos) {
+                    const dist = Phaser.Math.Distance.Between(pObj.x, pObj.y, pObj.lastTileOverlapPos.x, pObj.lastTileOverlapPos.y);
+                    if (dist > 150) {
+                        pObj.lastTileOverlapType = null;
+                        pObj.lastTileOverlapPos = null;
+                    }
+                } else {
+                    pObj.lastTileOverlapType = null;
+                }
             }
         }
     });
