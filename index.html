@@ -4716,15 +4716,20 @@ window.openQuestModal = function(playerNum, npcId) {
 
     // Reset description and color on open
     if (descEl) {
-        descEl.innerText = npcObj.desc;
-        descEl.style.color = '#aaa';
+        const prevNpc = window[`questCurrentNpc_p${playerNum}`];
+        if (!window[`questLoreActive_p${playerNum}`] || prevNpc !== npcId) {
+            descEl.innerText = npcObj.desc;
+            descEl.style.color = '#aaa';
+        }
     }
+    window[`questCurrentNpc_p${playerNum}`] = npcId;
 
     if (talkBtn) {
         talkBtn.onclick = () => {
             if (descEl && window.getRandomLore) {
                 descEl.innerText = '"' + window.getRandomLore() + '"';
                 descEl.style.color = playerNum === 2 ? '#ff9800' : '#00ffcc';
+                window[`questLoreActive_p${playerNum}`] = true;
             }
         };
     }
@@ -4937,6 +4942,8 @@ window.closeQuestModal = function(playerNum) {
     const modalId = `questModal_p${playerNum}`;
     const modal = document.getElementById(modalId);
     if (modal) modal.style.display = 'none';
+
+    window[`questLoreActive_p${playerNum}`] = false;
 
     if (playerNum === 2) window.p2ActiveModal = null;
     else window.p1ActiveModal = null;
