@@ -346,3 +346,38 @@ The in-game store automatically sorts items from cheapest to most expensive, uti
 - **Level 10**: Unlocks the placement of a customizable **Home Interior** 5x5 room (`r: 580-584, c: 580-584` / `r: 580-584, c: 590-594`) equipped with 8 distinct wall styles, 8 floor styles, and 6 glowing ambient overlays. Step-on exit doors teleport players back outside to the origin physical home sprite coordinate.
 - **Dojo Tile / Dojo Modal Challenge**: Purchasing a placeable Dojo Tile (920 gold) is strictly locked until the player has defeated all 24 NPC trainers. Attempts to enter Dojo battles in split-screen co-op check and enforce this prerequisite for both players.
 - **Character Geometry Shapes Customization**: The character designer starts with the default "Square" geometry at Tier 1. Higher-fidelity body shapes (Triangle, Horizontal Diamond, Vertical Diamond, Rectangle, Octagon, Hexagon, Star, Circle, Heart, Crescent, Pentagon) unlock sequentially as players advance through higher tiers of the Crown Challenge gauntlet (e.g. Triangle at Tier 3, Star at Tier 15, Pentagon at Tier 23).
+
+### 11. Narrative & Lore Framework (for Story Generation)
+WildPulse Odyssey features a deep cyberpunk/bio-digital narrative context, which AI models can leverage for generating in-world stories.
+
+#### Key Figures & Characters
+- **Dr. Aris Vance, Chief Biological Architect**: A prominent DNA specialist studying bio-neon structures and the driving force behind the cybernetic expedition. Players find his decrypted audio logs outlining the game's core mechanics (DNA Breeding, HUD navigation).
+- **Quest NPCs (Golden Star Sprites)**: Spread across the map offering procedurally generated quests.
+  - **Scout Lyra**: A seasoned field scout analyzing local fauna.
+  - **Architect Vance**: A DNA specialist studying bio-neon structures.
+  - **Agent Kael**: An operative investigating dimensional rifts.
+  - **Specialist Iris**: A researcher tracking mutant strains.
+  - **Hacker Jax**: A rogue coder seeking neural energy logs.
+  - **Operative Nomi**: A field agent securing sector dominance.
+  - **Sentinel Dax**: A heavy sentinel testing creature battle limits.
+  - **Chief Sarah**: The chief of bio-engineering operations.
+
+#### Standard NPC Trainers
+24 distinct roaming standard NPC trainers bearing cyberpunk-themed deterministic names:
+*Neo, Trinity, Morpheus, V, Jackie, Johnny, Rogue, Alt, Panam, Judy, Kerry, River, Major, Batou, Tachikoma, Case, Molly, Hiro, Y.T., Armitage, Wintermute, Gibson, Smasher, Deus*. Defeating all 24 unlocks the elite **Dojo Tile**.
+
+#### Decrypted Random Lore & Worldbuilding Elements
+When players speak to Quest NPCs, they share random, context-rich lore emphasizing the bio-digital frontier:
+- *"The grid never sleeps... it just waits in the shadows. We've seen Neon Syndicate runners mapping the outer sectors, looking for unsecured network nodes."*
+- *"They say the Hidden Grove wasn't built, it was compiled. I once found an Astral Bloom out there—its petals pulsed with pure data."*
+- *"Keep your frequency stable, or the glitches will find you. If you hear thunder without clouds, you've likely wandered too close to a Void Rift."*
+- *"DNA splicing isn't just science, it's an art form out here. Taking two base codes and creating a perfect Gen 2 hybrid requires immense precision."*
+- *"Every signal you catch is a piece of a larger broadcast. If you ever find a Creature License, hold onto it—the 1.5x success multiplier is invaluable."*
+- *"Watch your back in the outer sectors; the firewall is weak there. A Wild Dual Signal can turn a simple patrol into a chaotic 2v2 skirmish."*
+- *"Some creatures remember the old world, before the pulse. You can see it in their eyes when the Autumn leaves start to fall and wither."*
+- *"Trust your instruments, but trust your companion more. I built my first shelter using simple Wood Foundations; it kept the midnight storms at bay."*
+- *"I've seen data streams that would melt a standard processor. Taking on the Crown Challenge tests not just your code, but your very spirit."*
+
+#### Dynamic World Events
+The game operates on a persistent 10-minute active / 10-minute cooldown cycle for procedural dynamic events that visibly alter gameplay dynamics and display via a top-HUD badge:
+- **Daytime Radiance**, **Nighttime Eclipse**, **Heat Wave**, **Aurora**, **Gusty Winds**, **Earthquake**, **Bountiful Bloom**, and **Dual Battle** (Co-Op only). These events temporarily buff creature types matching the event's elemental affinity (e.g. Earthquakes buff Earth types) and trigger global notifications (`window.showModernNotification`).
