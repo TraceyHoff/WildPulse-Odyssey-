@@ -26118,11 +26118,15 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         }
     } else if (mapData[r][c] === 'rift_wall') {
         let wall = scene.add.sprite(posX, posY, 'wall_cyber_circuit');
+        wall.setScale(1.0, 0.2);
+        wall.setOrigin(0.5, 0.5);
         wall.setDepth(10);
         sprites.push(wall);
 
         if (obstaclesGroup) {
             let obsSprite = obstaclesGroup.create(posX, posY, 'wall_cyber_circuit');
+            obsSprite.setScale(1.0, 0.2);
+            obsSprite.setOrigin(0.5, 0.5);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
                 obsSprite.body.updateFromGameObject();
@@ -26163,11 +26167,15 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         const style = localStorage.getItem(`wildpulse_p${pNum}_home_wall_style`) || 'cyber_circuit';
         const textureKey = `wall_${style}`;
         let wall = scene.add.sprite(posX, posY, textureKey);
+        wall.setScale(1.0, 0.2);
+        wall.setOrigin(0.5, 0.5);
         wall.setDepth(10);
         sprites.push(wall);
 
         if (obstaclesGroup) {
             let obsSprite = obstaclesGroup.create(posX, posY, textureKey);
+            obsSprite.setScale(1.0, 0.2);
+            obsSprite.setOrigin(0.5, 0.5);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
                 obsSprite.body.updateFromGameObject();
