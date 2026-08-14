@@ -8051,7 +8051,10 @@ window.WildPulseMusic = {
         }
         if (this.initialized) return;
         try {
-            Tone.setContext(new Tone.Context({ latencyHint: "playback" }));
+            if (Tone.context) {
+                Tone.getContext().lookAhead = 0.5;
+                Tone.getContext().updateInterval = 0.05;
+            }
             await Tone.start();
             this.initialized = true;
 
