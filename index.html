@@ -3513,7 +3513,7 @@
 <div id="p2Timers" class="player-timers-container"></div>
 
 <!-- Glowing Active Event HUD Badge -->
-<div id="activeEventBadge" style="position: fixed; top: 110px; left: 50%; transform: translate(-50%, 0); z-index: 10000; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); padding: 6px 16px; border: 2px solid #00ffcc; border-radius: 20px; color: #00ffcc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; display: none; align-items: center; gap: 8px; box-shadow: 0 0 10px rgba(0,255,204,0.5); pointer-events: none;"></div>
+<div id="activeEventBadge" style="position: fixed; top: 20px; left: 25%; transform: translate(-50%, 0); z-index: 10000; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); padding: 6px 16px; border: 2px solid #00ffcc; border-radius: 20px; color: #00ffcc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; display: none; align-items: center; gap: 8px; box-shadow: 0 0 10px rgba(0,255,204,0.5); pointer-events: none;"></div>
 
 <!-- Hospital Directional Arrows Overlay -->
 <div id="p1HospitalArrow" style="position: fixed; top: 20px; left: 50%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
@@ -3854,7 +3854,13 @@ window.getEventBoostedType = function(event) {
 };
 
 window.rollRandomEvent = function() {
-    const activeEvents = ['Daytime Radiance', 'Nighttime Eclipse', 'Heat Wave', 'Aurora', 'Gusty Winds', 'Earthquake', 'Bountiful Bloom'];
+    const activeEvents = ['Heat Wave', 'Aurora', 'Gusty Winds', 'Earthquake', 'Bountiful Bloom'];
+    const time = (typeof dayNightTime !== 'undefined') ? dayNightTime : 12.0;
+    if (time >= 6 && time < 20) {
+        activeEvents.push('Daytime Radiance');
+    } else {
+        activeEvents.push('Nighttime Eclipse');
+    }
     if (window.coopActive) {
         activeEvents.push('Dual Battle');
     }
