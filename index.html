@@ -10199,7 +10199,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (current === modal) break;
                     current = current.parentElement;
                 }
-                // If no scrollable parent in direct hierarchy, fallback to the modal container itself
+                // If no scrollable parent in direct hierarchy, search for the largest scrollable child in the modal
+                if (!scrollableEl) {
+                    const possibleScrollables = modal.querySelectorAll('*');
+                    let maxArea = 0;
+                    for (let j = 0; j < possibleScrollables.length; j++) {
+                        const el = possibleScrollables[j];
+                        const style = window.getComputedStyle(el);
+                        const isScrollable = style.overflowY === 'auto' || style.overflowY === 'scroll';
+                        if (isScrollable && el.scrollHeight > el.clientHeight) {
+                            const area = el.clientWidth * el.clientHeight;
+                            if (area > maxArea) {
+                                maxArea = area;
+                                scrollableEl = el;
+                            }
+                        }
+                    }
+                }
+                // Fallback to modal itself if absolutely no scrollable children
                 if (!scrollableEl) {
                     scrollableEl = modal;
                 }
