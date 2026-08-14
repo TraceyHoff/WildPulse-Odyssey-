@@ -4705,7 +4705,12 @@ window.openQuestModal = function(playerNum, npcId) {
     const nameEl = document.getElementById(`questNpcName_p${playerNum}`);
     const descEl = document.getElementById(`questNpcDesc_p${playerNum}`);
     if (nameEl) nameEl.innerText = `📜 ${npcObj.name}`;
-    if (descEl) descEl.innerText = npcObj.desc;
+
+    const prevNpc = window[`questCurrentNpc_p${playerNum}`];
+    if (descEl && (!window[`questLoreActive_p${playerNum}`] || prevNpc !== npcId)) {
+        descEl.innerText = npcObj.desc;
+        descEl.style.color = '#aaa';
+    }
 
     // Retrieve player quests list
     const quests = playerNum === 2 ? window.p2Quests : window.p1Quests;
@@ -4719,14 +4724,6 @@ window.openQuestModal = function(playerNum, npcId) {
     const closeBtn = document.getElementById(`questCloseBtn_p${playerNum}`);
     const talkBtn = document.getElementById(`questTalkBtn_p${playerNum}`);
 
-    // Reset description and color on open
-    if (descEl) {
-        const prevNpc = window[`questCurrentNpc_p${playerNum}`];
-        if (!window[`questLoreActive_p${playerNum}`] || prevNpc !== npcId) {
-            descEl.innerText = npcObj.desc;
-            descEl.style.color = '#aaa';
-        }
-    }
     window[`questCurrentNpc_p${playerNum}`] = npcId;
 
     if (talkBtn) {
