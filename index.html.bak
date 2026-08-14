@@ -4543,104 +4543,6 @@ window.generateQuestNpcTexture = function(scene, textureKey) {
     scene.textures.addCanvas(textureKey, canvas);
 };
 
-
-window.narrativeProgress = JSON.parse(localStorage.getItem('wildpulse_narrative_progress')) || {
-    unlockedTransmissions: [],
-    completedQuests: [],
-    journalEntries: [],
-    sectorCleared: false,
-    firstHatchDone: false
-};
-
-window.saveNarrativeProgress = function() {
-    localStorage.setItem('wildpulse_narrative_progress', JSON.stringify(window.narrativeProgress));
-};
-
-window.NARRATIVE_TRANSMISSIONS = {
-    "vance_level7": {
-        id: "vance_level7",
-        title: "*** [ TRANSMISSION DECRYPTED: DNA RESONANCE PROTOCOL ] ***",
-        body: "\"Operative, Level 7 clearance confirmed. The DNA Breeding Program is now online. Combine male and female specimens at the Breeding Center. Walk the resulting Mysterious Egg 1,000 steps so its structure can attune to the Pulse. Stored eggs remain dormant.\""
-    },
-    "vance_first_hatch": {
-        id: "vance_first_hatch",
-        title: "*** [ TRANSMISSION DECRYPTED: THE FIRST ECHO ] ***",
-        body: "\"Remarkable... the structural integrity of the genome holds. The pulse anomaly didn't reject the hybridization. Keep nurturing these lifeforms. Their mutations may hold the key to stabilizing the grid.\""
-    },
-    "vance_all_trainers": {
-        id: "vance_all_trainers",
-        title: "*** [ TRANSMISSION DECRYPTED: SECTOR SECURED ] ***",
-        body: "\"All rogue trainers in this sector have been neutralized. The grid is stabilizing. The Dojo Leader has now authorized a direct channel to you. Prepare yourself.\""
-    },
-    "vance_crown_tier_5": {
-        id: "vance_crown_tier_5",
-        title: "*** [ TRANSMISSION DECRYPTED: CROWN ELEVATION ] ***",
-        body: "\"Tier 5 achieved. The Crown Challenge simulation is adapting to your neural patterns. Expect higher resistance protocols going forward.\""
-    },
-    "vance_crown_tier_10": {
-        id: "vance_crown_tier_10",
-        title: "*** [ TRANSMISSION DECRYPTED: CROWN RESONANCE ] ***",
-        body: "\"Tier 10. Fascinating. Your creatures are exhibiting combat synchronicity I've only theorized. The simulation algorithms are struggling to predict your maneuvers.\""
-    },
-    "vance_crown_tier_15": {
-        id: "vance_crown_tier_15",
-        title: "*** [ TRANSMISSION DECRYPTED: CROWN ASCENSION ] ***",
-        body: "\"Tier 15... The anomaly is reacting directly to your victories. Proceed with extreme caution, operative. The simulation parameters are off the charts.\""
-    }
-};
-
-window.NARRATIVE_QUESTS = [
-    {
-        id: "quest_hatch_egg",
-        type: "narrative",
-        title: "Attune the First Echo",
-        description: "Synthesize and hatch one Mysterious Egg.",
-        condition: () => window.narrativeProgress.firstHatchDone,
-        rewardCoins: 50,
-        rewardXp: 150
-    },
-    {
-        id: "quest_level7",
-        type: "narrative",
-        title: "Clearance Level 7",
-        description: "Reach Player Level 7 to unlock the DNA Breeding Program.",
-        condition: (pNum) => {
-            const pLevel = pNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
-            return pLevel >= 7;
-        },
-        rewardCoins: 100,
-        rewardXp: 200
-    },
-    {
-        id: "quest_crown_tier_5",
-        type: "narrative",
-        title: "Simulation Adaptability",
-        description: "Reach Crown Challenge Tier 5.",
-        condition: () => (window.challengeTier || 1) >= 5,
-        rewardCoins: 150,
-        rewardXp: 250
-    }
-];
-
-window.unlockTransmission = function(id, playerNum = 1) {
-    if (!window.narrativeProgress.unlockedTransmissions.includes(id)) {
-        window.narrativeProgress.unlockedTransmissions.push(id);
-        const trans = window.NARRATIVE_TRANSMISSIONS[id];
-        if (trans) {
-            window.narrativeProgress.journalEntries.push({
-                id: trans.id,
-                title: trans.title,
-                body: trans.body,
-                timestamp: new Date().toISOString()
-            });
-        }
-        window.saveNarrativeProgress();
-        if (window.showModernNotification) {
-            window.showModernNotification(`📡 New data packet received – check Journal`, 5000, playerNum, "#00ffcc");
-        }
-    }
-};
-
 window.p1Quests = JSON.parse(localStorage.getItem('wildpulse_p1_quests')) || [];
 window.p2Quests = JSON.parse(localStorage.getItem('wildpulse_p2_quests')) || [];
 
@@ -4673,32 +4575,6 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
             availableTypes = types; // complete fallback if all types are somehow taken
         }
     }
-    // Narrative Quests Integration
-    if (Math.random() < 0.25) {
-        const availableNarrativeQuests = window.NARRATIVE_QUESTS.filter(nq => {
-            const isCompleted = window.narrativeProgress.completedQuests.includes(nq.id);
-            const isActive = activeQuests.some(q => q.id === nq.id);
-            const isConditionMet = nq.condition(playerNum);
-            return !isCompleted && !isActive && !isConditionMet; // offer if they can STILL do it (not completed/active/already done condition)
-        });
-
-        if (availableNarrativeQuests.length > 0) {
-            const nq = availableNarrativeQuests[Math.floor(Math.random() * availableNarrativeQuests.length)];
-            return {
-                id: nq.id,
-                npcId: npcId,
-                type: 'narrative',
-                title: nq.title,
-                description: nq.description,
-                target: 1,
-                progress: 0,
-                rewardCoins: nq.rewardCoins,
-                rewardXp: nq.rewardXp,
-                status: 'active'
-            };
-        }
-    }
-
     const questType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
 
     let title = "";
@@ -4804,23 +4680,11 @@ window.evaluateActiveQuests = function(playerNum = 1) {
                 window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, playerNum);
             }
         } else if (q.type === 'creature_level') {
-            if (maxCreatureLvl >= q.target) {
-                q.status = 'completed';
+            const target = parseInt(q.target);
+            if (maxCreatureLvl >= target && q.progress < q.targetCount) {
+                q.progress = q.targetCount;
                 changed = true;
-                if (window.showModernNotification) window.showModernNotification(`🏆 Quest Completed: ${q.title}!`, 5000, playerNum);
-                awardQuestReward(q, playerNum);
-            }
-        } else if (q.type === 'narrative') {
-            const nq = window.NARRATIVE_QUESTS.find(n => n.id === q.id);
-            if (nq && nq.condition(playerNum)) {
-                q.status = 'completed';
-                changed = true;
-                if (!window.narrativeProgress.completedQuests.includes(q.id)) {
-                    window.narrativeProgress.completedQuests.push(q.id);
-                    window.saveNarrativeProgress();
-                }
-                if (window.showModernNotification) window.showModernNotification(`🏆 Data Objective Met: ${q.title}!`, 5000, playerNum, "#00ffcc");
-                awardQuestReward(q, playerNum);
+                window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, playerNum);
             }
         }
     });
@@ -4848,28 +4712,6 @@ window.getRandomLore = function() {
         "Catching a glimpse of a <span style='color: #ff9800;'>Golden Butterfly</span> near a Luna Lotus is considered a sign of high fortune among the wandering coders.",
         "Never underestimate a <span style='color: #aaddff;'>Co-op Dual Battle</span>. When two signals sync perfectly, their combined output can shatter any defense."
     ];
-
-    // Narrative Hooks
-    if (Math.random() < 0.15 && window.narrativeProgress) {
-        const unlocked = window.narrativeProgress.unlockedTransmissions;
-        const possibleLore = [];
-        if (unlocked.includes('vance_level7')) {
-            possibleLore.push("I heard an audio log recently... Dr. Vance mentioned the DNA Breeding Program. Is that why you're here?");
-        }
-        if (unlocked.includes('vance_first_hatch')) {
-            possibleLore.push("The grid has felt different since that first egg hatched. A strange resonance, they call it 'The First Echo'.");
-        }
-        if (unlocked.includes('vance_all_trainers')) {
-            possibleLore.push("All the trainers in this sector were defeated by someone. The Dojo Leader is finally looking for a real challenge.");
-        }
-        if (unlocked.includes('vance_crown_tier_5')) {
-            possibleLore.push("They say the Crown Challenge isn't just a test. It's a simulation that learns from you. It's adapting.");
-        }
-        if (possibleLore.length > 0) {
-            return "<span style='color: #ff3366;'><em>" + possibleLore[Math.floor(Math.random() * possibleLore.length)] + "</em></span>";
-        }
-    }
-
     return lore[Math.floor(Math.random() * lore.length)];
 };
 
@@ -5098,9 +4940,9 @@ window.openQuestModal = function(playerNum, npcId) {
                     }
                 }
 
-                // Mark completed
+                // Mark completed and remove
                 const idx = quests.indexOf(activeQuest);
-                if (idx > -1) quests[idx].status = 'completed';
+                if (idx > -1) quests.splice(idx, 1); // Remove from active tracking or set status: 'completed'
                 window.saveQuests();
 
                 if (window.WildPulseMusic && window.WildPulseMusic.synth) {
@@ -7560,8 +7402,7 @@ function escapeHtml(unsafe) {
             <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 10px;">Player 1 Journal</h2>
             <div class="journal-tabs" style="display: flex; justify-content: center; margin-bottom: 10px;">
                 <button class="journal-tab journal-tab-bestiary active" onclick="window.switchJournalTab(1, 'bestiary')" style="flex: 1; padding: 8px; background: rgba(76,175,80,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 4px 0 0 4px;">Bestiary</button>
-                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(1, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer;">Quests</button>
-                <button class="journal-tab journal-tab-data" onclick="window.switchJournalTab(1, 'data')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Data</button>
+                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(1, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Quests</button>
             </div>
             <div id="journalContent_Bestiary_P1">
                 <div id="journalStats" style="font-size: 14px; margin: 5px 0; color: #aaa;">
@@ -7576,16 +7417,6 @@ function escapeHtml(unsafe) {
                     <!-- Dynamically populated -->
                 </div>
             </div>
-            <div id="journalContent_Data_P1" style="display: none;">
-                <div id="dataList_P1" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #4caf50;">
-                    <!-- Dynamically populated -->
-                </div>
-            </div>
-            <div id="journalContent_Data_P2" style="display: none;">
-                <div id="dataList_P2" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #ff9800;">
-                    <!-- Dynamically populated -->
-                </div>
-            </div>
         </div>
 
         <!-- Player 2 Column -->
@@ -7594,8 +7425,7 @@ function escapeHtml(unsafe) {
             <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 10px;">Player 2 Journal</h2>
             <div class="journal-tabs" style="display: flex; justify-content: center; margin-bottom: 10px;">
                 <button class="journal-tab journal-tab-bestiary active" onclick="window.switchJournalTab(2, 'bestiary')" style="flex: 1; padding: 8px; background: rgba(255,152,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 4px 0 0 4px;">Bestiary</button>
-                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(2, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer;">Quests</button>
-                <button class="journal-tab journal-tab-data" onclick="window.switchJournalTab(2, 'data')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Data</button>
+                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(2, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Quests</button>
             </div>
             <div id="journalContent_Bestiary_P2">
                 <div id="journalStats_P2" style="font-size: 14px; margin: 5px 0; color: #aaa;">
@@ -8051,10 +7881,7 @@ window.WildPulseMusic = {
         }
         if (this.initialized) return;
         try {
-            if (Tone.context) {
-                Tone.getContext().lookAhead = 0.5;
-                Tone.getContext().updateInterval = 0.05;
-            }
+            Tone.setContext(new Tone.Context({ latencyHint: "playback" }));
             await Tone.start();
             this.initialized = true;
 
@@ -9858,6 +9685,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Healing Juice Jug", icon: "🏺", desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Bundle of Wood", icon: "🪵", price: 150, desc: "Build your own base. Contains various wooden building parts." },
         { name: "Creature Cookie", icon: "🍪", desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -16871,7 +16699,6 @@ window.gainPlayerXp = function(playerNum, amount) {
             if (window.updatePlayerLabels) window.updatePlayerLabels();
         }
         if (window.evaluateActiveQuests) window.evaluateActiveQuests(2);
-        if (window.p2Level >= 7) window.unlockTransmission('vance_level7', 2);
         return leveledUp;
     } else {
         window.p1Xp = (window.p1Xp || 0) + amount;
@@ -16889,7 +16716,6 @@ window.gainPlayerXp = function(playerNum, amount) {
             if (window.updatePlayerLabels) window.updatePlayerLabels();
         }
         if (window.evaluateActiveQuests) window.evaluateActiveQuests(1);
-        if (window.p1Level >= 7) window.unlockTransmission('vance_level7', 1);
         return leveledUp;
     }
 };
@@ -16933,6 +16759,15 @@ window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || 
 window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
 
 
+// Base Building Persistence
+window.p1BaseTiles = JSON.parse(localStorage.getItem('wildpulse_p1_base_tiles')) || [];
+window.p2BaseTiles = JSON.parse(localStorage.getItem('wildpulse_p2_base_tiles')) || [];
+
+window.saveBaseTiles = function() {
+    localStorage.setItem('wildpulse_p1_base_tiles', JSON.stringify(window.p1BaseTiles));
+    localStorage.setItem('wildpulse_p2_base_tiles', JSON.stringify(window.p2BaseTiles));
+};
+
 // Store Stock Initialization
 const defaultStock = {
     "Repellent": 15,
@@ -16953,6 +16788,7 @@ const defaultStock = {
     "Nano-Nurture Serum": 15,
     "DNA Stabilizer": 15,
     "Storage Chest": 15,
+    "Bundle of Wood": 15,
     "NPC Dual Link": 15,
     "Wild Dual Signal": 15
 };
@@ -17238,78 +17074,6 @@ window.calculateCreatureSellPrice = function(c) {
     return Math.max(1, finalPrice);
 };
 
-
-window.getItemSellPrice = function(itemName) {
-    const prices = {
-        "Repellent": 170,
-        "HP Booster": 270,
-        "Attack Booster": 240,
-        "Defense Booster": 240,
-        "Speed Booster": 240,
-        "Sp. Atk Booster": 240,
-        "Sp. Def Booster": 240,
-        "Jank Juice": 270,
-        "Healing Juice Bottle": 160,
-        "Healing Juice Jug": 240,
-        "ExPALL": 370,
-        "Creature License": 295,
-        "Bundle of Wood": 150,
-        "Creature Cookie": 150,
-        "Pedometer": 220,
-        "Cyber-Core Upgrade": 320,
-        "Nano-Nurture Serum": 450,
-        "DNA Stabilizer": 420,
-        "NPC Dual Link": 400,
-        "Wild Dual Signal": 400,
-        "Storage Chest": 620,
-        "Mini Hospital": 770,
-        "Mini Store": 770,
-        "Mini Trade": 770,
-        "Mini PvP": 770,
-        "Mini Breeding Center": 770,
-        "Mini Challenge": 770,
-        "Dojo Tile": 920
-    };
-    return Math.floor((prices[itemName] || 100) / 2);
-};
-
-window.sellItem = function(playerNum) {
-    const selectEl = document.getElementById(`sellItemSelect_P${playerNum}`);
-    if (!selectEl || selectEl.value === '') return;
-
-    const itemName = selectEl.value;
-    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
-    const invKey = playerNum === 2 ? 'wildpulse_p2_inventory' : 'wildpulse_inventory';
-    const stats = playerNum === 2 ? (window.gameStats2 || window.gameStats) : window.gameStats;
-    const statsKey = playerNum === 2 ? 'wildpulse_stats2' : 'wildpulse_stats';
-
-    const itemIndex = inv.findIndex(i => i.name === itemName);
-    if (itemIndex === -1) return;
-
-    const price = window.getItemSellPrice(itemName);
-
-    window.safeConfirm(playerNum, "SELL ITEM", `Are you sure you want to sell 1x ${itemName} for 🪙 ${price} coins?`, () => {
-        inv[itemIndex].quantity -= 1;
-        if (inv[itemIndex].quantity <= 0) {
-            inv.splice(itemIndex, 1);
-        }
-        localStorage.setItem(invKey, JSON.stringify(inv));
-
-        stats.coins = (stats.coins || 0) + price;
-        localStorage.setItem(statsKey, JSON.stringify(stats));
-
-        if (window.showModernNotification) {
-            window.showModernNotification(`✅ Sold 1x ${itemName} for 🪙 ${price}!`, "#4caf50", playerNum);
-        }
-
-        if (window.updateStoreUI) window.updateStoreUI();
-        if (window.updatePlayerSlots) {
-            const containerId = playerNum === 2 ? 'p2InventorySlots' : 'p1InventorySlots';
-            window.updatePlayerSlots(playerNum, containerId);
-        }
-    });
-};
-
 window.sellCreature = function(playerNum) {
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
@@ -17377,6 +17141,7 @@ window.updateStoreUI = function() {
         { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", price: 370, desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", price: 295, desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Bundle of Wood", icon: "🪵", price: 150, desc: "Build your own base. Contains various wooden building parts." },
         { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -17503,32 +17268,6 @@ window.updateStoreUI = function() {
                         ${selectHtml}
                     </select>
                     <button class="sell-btn" onclick="window.sellCreature(${playerNum})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #e91e63, #c2185b); border: 1px solid #f48fb1; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
-                        Sell
-                    </button>
-                </div>
-            </div>
-        `;
-
-        // Sell Items section
-        const inv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
-        let sellItemSelectHtml = '';
-        if (inv.length === 0) {
-            sellItemSelectHtml = '<option value="">No items to sell</option>';
-        } else {
-            inv.forEach((item) => {
-                let price = window.getItemSellPrice(item.name);
-                sellItemSelectHtml += `<option value="${item.name}">${item.name} (x${item.quantity}) - 🪙${price} ea</option>`;
-            });
-        }
-
-        html += `
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 15px; padding-top: 15px; text-align: left; padding-bottom: 15px;">
-                <h3 style="color: #ffd700; margin-top: 0; font-size: 14px; margin-bottom: 8px;">Sell Items</h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <select id="sellItemSelect_P${playerNum}" style="flex: 1; padding: 6px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 12px; height: 32px;">
-                        ${sellItemSelectHtml}
-                    </select>
-                    <button class="sell-item-btn" onclick="window.sellItem(${playerNum})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #ff9800, #f57c00); border: 1px solid #ffcc80; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
                         Sell
                     </button>
                 </div>
@@ -17751,6 +17490,23 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.updateInventoryUI) window.updateInventoryUI();
         if (window.updateStoreUI) window.updateStoreUI();
     };
+
+    if (item.name === "Bundle of Wood") {
+        if (window.closeInventoryWheel) window.closeInventoryWheel(playerNum);
+        if (window.closeActionWheel) window.closeActionWheel(playerNum);
+        if (window.closeInventoryModal) window.closeInventoryModal();
+
+        window[`p${playerNum}BasePlacementMode`] = true;
+        window[`p${playerNum}BasePlacementType`] = 'base_foundation';
+        window[`p${playerNum}BasePlacementSlotIndex`] = slotIndex;
+
+        const playerObj = playerNum === 2 ? window.player2 : window.player;
+        window[`p${playerNum}BasePreviewX`] = playerObj ? playerObj.x : 0;
+        window[`p${playerNum}BasePreviewY`] = playerObj ? playerObj.y : 0;
+
+        window.showModernNotification("🪵 Base Placement Mode: Press E (PC) or X (Gamepad) to cycle parts. A/Click to place. Y/Right-Click to destroy. B/ESC to cancel.", 8000, playerNum);
+        return; // Wait for placement
+    }
 
     if (item.name === "Repellent") {
         if (playerNum === 2) {
@@ -18977,6 +18733,55 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justLeft = currLeft && !prev.Left;
     const justRight = currRight && !prev.Right;
 
+
+    // Special handling for Base Placement Mode
+    if (window[`p${playerNum}BasePlacementMode`]) {
+        const rx = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
+        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
+        const speed = 12;
+        if (Math.abs(rx) > 0.15) window[`p${playerNum}BasePreviewX`] += rx * speed;
+        if (Math.abs(ry) > 0.15) window[`p${playerNum}BasePreviewY`] += ry * speed;
+
+        // X button cycles parts
+        if (justX) {
+            const parts = ['base_foundation', 'base_wall', 'base_wall_window', 'base_wall_door', 'base_stairs', 'base_ceiling', 'base_roof'];
+            let currentIdx = parts.indexOf(window[`p${playerNum}BasePlacementType`]);
+            let nextIdx = (currentIdx + 1) % parts.length;
+            window[`p${playerNum}BasePlacementType`] = parts[nextIdx];
+
+            if (window[`p${playerNum}BasePreviewSprite`]) {
+                window[`p${playerNum}BasePreviewSprite`].setTexture(window[`p${playerNum}BasePlacementType`]);
+            }
+        }
+
+        const previewSpriteId = `p${playerNum}BasePreviewSprite`;
+        if (window[previewSpriteId]) {
+            let col = Math.floor(window[`p${playerNum}BasePreviewX`] / 50);
+            let row = Math.floor(window[`p${playerNum}BasePreviewY`] / 50);
+            let snappedX = col * 50 + 25;
+            let snappedY = row * 50 + 25;
+            window[previewSpriteId].setPosition(snappedX, snappedY);
+        }
+
+        if (justA) {
+            window.tryPlaceBase(playerNum, window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
+        }
+
+        // Y button destroys piece under cursor
+        if (justY) {
+            window.tryDestroyBase(playerNum, window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
+        }
+
+        if (justB) {
+            window.cancelBasePlacement(playerNum);
+        }
+
+        prev.Y = currY; prev.X = currX; prev.B = currB; prev.A = currA;
+        prev.Start = currStart; prev.Up = currUp; prev.Down = currDown;
+        prev.Left = currLeft; prev.Right = currRight;
+        prev.LB = currLB; prev.RB = currRB;
+        return;
+    }
 
     // Special handling for Mini Tile Placement Mode
     if (window[`p${playerNum}MiniTilePlacementMode`]) {
@@ -20262,67 +20067,24 @@ window.switchJournalTab = function(playerNum, tabName) {
 
     const bestiaryTab = container.querySelector('.journal-tab-bestiary');
     const questsTab = container.querySelector('.journal-tab-quests');
-    const dataTab = container.querySelector('.journal-tab-data');
     const bestiaryContent = container.querySelector('#journalContent_Bestiary_P' + playerNum);
     const questsContent = container.querySelector('#journalContent_Quests_P' + playerNum);
-    const dataContent = container.querySelector('#journalContent_Data_P' + playerNum);
 
     const baseColor = playerNum === 2 ? '#ff9800' : '#4caf50';
 
     if (tabName === 'bestiary') {
         if (bestiaryTab) { bestiaryTab.classList.add('active'); bestiaryTab.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.5)`; }
         if (questsTab) { questsTab.classList.remove('active'); questsTab.style.background = 'rgba(0,0,0,0.5)'; }
-        if (dataTab) { dataTab.classList.remove('active'); dataTab.style.background = 'rgba(0,0,0,0.5)'; }
         if (bestiaryContent) bestiaryContent.style.display = 'block';
         if (questsContent) questsContent.style.display = 'none';
-        if (dataContent) dataContent.style.display = 'none';
     } else if (tabName === 'quests') {
         if (bestiaryTab) { bestiaryTab.classList.remove('active'); bestiaryTab.style.background = 'rgba(0,0,0,0.5)'; }
         if (questsTab) { questsTab.classList.add('active'); questsTab.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.5)`; }
-        if (dataTab) { dataTab.classList.remove('active'); dataTab.style.background = 'rgba(0,0,0,0.5)'; }
         if (bestiaryContent) bestiaryContent.style.display = 'none';
         if (questsContent) questsContent.style.display = 'block';
-        if (dataContent) dataContent.style.display = 'none';
         if (window.renderQuestsList) window.renderQuestsList(playerNum);
-    } else if (tabName === 'data') {
-        if (bestiaryTab) { bestiaryTab.classList.remove('active'); bestiaryTab.style.background = 'rgba(0,0,0,0.5)'; }
-        if (questsTab) { questsTab.classList.remove('active'); questsTab.style.background = 'rgba(0,0,0,0.5)'; }
-        if (dataTab) { dataTab.classList.add('active'); dataTab.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.5)`; }
-        if (bestiaryContent) bestiaryContent.style.display = 'none';
-        if (questsContent) questsContent.style.display = 'none';
-        if (dataContent) dataContent.style.display = 'block';
-        if (window.renderTransmissionsList) window.renderTransmissionsList(playerNum);
     }
 };
-
-window.renderTransmissionsList = function(playerNum) {
-    const listEl = document.getElementById('dataList_P' + playerNum);
-    if (!listEl) return;
-    listEl.innerHTML = '';
-
-    const entries = window.narrativeProgress.journalEntries || [];
-    if (entries.length === 0) {
-        listEl.innerHTML = '<p style="color:#aaa; font-style:italic; text-align:center;">No data packets decrypted yet.</p>';
-        return;
-    }
-
-    entries.slice().reverse().forEach(entry => {
-        const div = document.createElement('div');
-        div.style.background = 'rgba(0,0,0,0.6)';
-        div.style.border = `1px solid ${playerNum === 2 ? '#ff9800' : '#4caf50'}`;
-        div.style.borderRadius = '5px';
-        div.style.padding = '10px';
-        div.style.marginBottom = '10px';
-        div.style.fontFamily = "'Courier New', Courier, monospace";
-
-        div.innerHTML = `
-            <h4 style="color: #00ffcc; margin: 0 0 8px 0; font-size: 14px;">${entry.title}</h4>
-            <p style="color: #ddd; font-size: 12px; margin: 0; line-height: 1.4;"><em>${entry.body}</em></p>
-        `;
-        listEl.appendChild(div);
-    });
-};
-
 
 window.closeJournalModal = function(playerNum = 1) {
     window.lastModalCloseTime = Date.now();
@@ -22118,7 +21880,6 @@ window.deleteProgress = function(playerNum = 1) {
             localStorage.removeItem('wildpulse_p2NpcDualTime');
             localStorage.removeItem('wildpulse_p1WildDualTime');
             localStorage.removeItem('wildpulse_p2WildDualTime');
-            localStorage.removeItem('wildpulse_narrative_progress');
             localStorage.removeItem('wildpulse_p1RepellentTime');
             localStorage.removeItem('wildpulse_p2RepellentTime');
             localStorage.removeItem('wildpulse_p1JankJuiceTime');
@@ -22788,11 +22549,6 @@ window.hatchEgg = function(egg, playerNum = 1) {
 
             const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
             const notificationMsg = `✨ ${playerName}'s Mysterious Egg successfully hatched into ${egg.name} (Gen ${egg.generation})! ✨`;
-            if (!window.narrativeProgress.firstHatchDone) {
-                window.narrativeProgress.firstHatchDone = true;
-                window.saveNarrativeProgress();
-                window.unlockTransmission('vance_first_hatch', playerNum);
-            }
             window.showModernNotification(notificationMsg, 7000);
         });
 
@@ -24233,23 +23989,6 @@ window.checkDualBattleFaintsOrEnd = function(callback) {
 
             window.saveNpcTrainerData(trainerId, trainerData);
             window.logBattle(`<span style="color:#ffd700; font-weight:bold;">Cooperative victory credit recorded for BOTH players!</span>`);
-
-            if (window.hasDefeatedAllTrainers) {
-                if (window.hasDefeatedAllTrainers(1)) {
-                    if (!window.narrativeProgress.sectorCleared) {
-                        window.narrativeProgress.sectorCleared = true;
-                        window.saveNarrativeProgress();
-                    }
-                    window.unlockTransmission('vance_all_trainers', 1);
-                }
-                if (window.hasDefeatedAllTrainers(2)) {
-                    if (!window.narrativeProgress.sectorCleared) {
-                        window.narrativeProgress.sectorCleared = true;
-                        window.saveNarrativeProgress();
-                    }
-                    window.unlockTransmission('vance_all_trainers', 2);
-                }
-            }
         } else {
             window.logBattle(`<span style="color:#55ff55; font-weight:bold;">VICTORY! Both wild creatures have been defeated cooperatively!</span>`);
         }
@@ -27601,6 +27340,192 @@ window.startHomePlacement = function(playerNum) {
 };
 
 
+window.tryPlaceBase = function(playerNum, x, y) {
+    const itemName = window[`p${playerNum}BasePlacementType`];
+    if (!itemName) return;
+
+    let col = Math.floor(x / 50);
+    let row = Math.floor(y / 50);
+    let snappedX = col * 50 + 25;
+    let snappedY = row * 50 + 25;
+
+    // Boundary check
+    if (snappedX < 100 || snappedX > WORLD_SIZE - 100 || snappedY < 100 || snappedY > WORLD_SIZE - 100) {
+        window.showModernNotification("❌ Out of bounds.", 3000, playerNum);
+        return;
+    }
+
+    const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
+    if (isInside) {
+        window.showModernNotification("❌ Cannot build base inside home.", 3000, playerNum);
+        return;
+    }
+
+    // Check underlying map data (only grass or safe ground)
+    const mapCol = Math.floor(snappedX / 100);
+    const mapRow = Math.floor(snappedY / 100);
+    if (!window.mapData || !window.mapData[mapRow] || window.mapData[mapRow][mapCol] !== 'grass') {
+        window.showModernNotification("❌ Can only build on clear ground.", 3000, playerNum);
+        return;
+    }
+
+    // Water proximity check using mapData
+    for(let r = mapRow - 1; r <= mapRow + 1; r++) {
+        for(let c = mapCol - 1; c <= mapCol + 1; c++) {
+            if(window.mapData[r] && window.mapData[r][c] === 'obs') {
+                window.showModernNotification("❌ Too close to water.", 3000, playerNum);
+                return;
+            }
+        }
+    }
+
+    const baseTiles = playerNum === 2 ? window.p2BaseTiles : window.p1BaseTiles;
+
+    const getTilesAt = (tx, ty) => {
+        return baseTiles.filter(t => t.x === tx && t.y === ty);
+    };
+
+    const existingTiles = getTilesAt(snappedX, snappedY);
+
+    if (itemName === 'base_foundation') {
+        if (existingTiles.length > 0) {
+            window.showModernNotification("❌ Space is already occupied.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName.startsWith('base_wall')) {
+        const hasFoundation = existingTiles.some(t => t.type === 'base_foundation');
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        if (!hasFoundation) {
+            window.showModernNotification("❌ Walls must be placed on a foundation.", 3000, playerNum);
+            return;
+        }
+        if (hasWall) {
+            window.showModernNotification("❌ A wall already exists here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_stairs') {
+        const hasFoundation = existingTiles.some(t => t.type === 'base_foundation');
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        const hasStairs = existingTiles.some(t => t.type === 'base_stairs');
+        if (!hasFoundation && !hasCeiling) {
+            window.showModernNotification("❌ Stairs must be placed on a foundation or ceiling.", 3000, playerNum);
+            return;
+        }
+        if (hasStairs) {
+            window.showModernNotification("❌ Stairs already exist here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_ceiling') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        if (!hasWall) {
+            window.showModernNotification("❌ Ceilings must be placed on top of walls.", 3000, playerNum);
+            return;
+        }
+        if (hasCeiling) {
+            window.showModernNotification("❌ A ceiling already exists here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_roof') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasRoof = existingTiles.some(t => t.type === 'base_roof');
+        if (!hasWall) {
+            window.showModernNotification("❌ Roofs must be placed on top of walls.", 3000, playerNum);
+            return;
+        }
+        if (hasRoof) {
+            window.showModernNotification("❌ A roof already exists here.", 3000, playerNum);
+            return;
+        }
+    }
+
+    const newTile = { type: itemName, x: snappedX, y: snappedY };
+    baseTiles.push(newTile);
+    window.saveBaseTiles();
+    window.spawnSingleBaseTile(newTile, playerNum);
+    window.showModernNotification("✅ Piece placed!", 2000, playerNum, "#00ff96");
+};
+
+window.tryDestroyBase = function(playerNum, x, y) {
+    let col = Math.floor(x / 50);
+    let row = Math.floor(y / 50);
+    let snappedX = col * 50 + 25;
+    let snappedY = row * 50 + 25;
+
+    const baseTiles = playerNum === 2 ? window.p2BaseTiles : window.p1BaseTiles;
+
+    const existingTiles = baseTiles.filter(t => t.x === snappedX && t.y === snappedY);
+    if (existingTiles.length === 0) {
+        window.showModernNotification("❌ Nothing to destroy here.", 2000, playerNum);
+        return;
+    }
+
+    const getPriority = (type) => {
+        if (type === 'base_roof') return 5;
+        if (type === 'base_ceiling') return 4;
+        if (type === 'base_stairs') return 3;
+        if (type.startsWith('base_wall')) return 2;
+        if (type === 'base_foundation') return 1;
+        return 0;
+    };
+
+    existingTiles.sort((a, b) => getPriority(b.type) - getPriority(a.type));
+    const targetTile = existingTiles[0];
+
+    if (targetTile.type === 'base_foundation') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasStairs = existingTiles.some(t => t.type === 'base_stairs');
+        if (hasWall || hasStairs) {
+            window.showModernNotification("❌ Destroy dependent structures first.", 3000, playerNum);
+            return;
+        }
+    }
+    if (targetTile.type.startsWith('base_wall')) {
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        const hasRoof = existingTiles.some(t => t.type === 'base_roof');
+        if (hasCeiling || hasRoof) {
+            window.showModernNotification("❌ Destroy ceilings/roofs first.", 3000, playerNum);
+            return;
+        }
+    }
+
+    const idx = baseTiles.indexOf(targetTile);
+    if (idx !== -1) {
+        baseTiles.splice(idx, 1);
+        window.saveBaseTiles();
+
+        if (targetTile.sprite) {
+            if (targetTile.sprite.body) {
+                targetTile.sprite.body.destroy();
+            }
+            targetTile.sprite.destroy();
+        }
+
+        const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+        let woodItem = inv.find(i => i.name === 'Bundle of Wood');
+        if (woodItem) {
+            if (woodItem.quantity < 10) woodItem.quantity++;
+        } else {
+            inv.push({ name: 'Bundle of Wood', quantity: 1 });
+        }
+        window.saveInventory();
+        if (window.updateInventoryUI) window.updateInventoryUI();
+
+        window.showModernNotification("💥 Structure destroyed. Bundle of Wood refunded.", 2000, playerNum, "#ff3366");
+    }
+};
+
+
+window.cancelBasePlacement = function(playerNum) {
+    window[`p${playerNum}BasePlacementMode`] = false;
+    window[`p${playerNum}BasePlacementType`] = null;
+    const previewSprite = window[`p${playerNum}BasePreviewSprite`];
+    if (previewSprite) {
+        previewSprite.destroy();
+        window[`p${playerNum}BasePreviewSprite`] = null;
+    }
+    window.showModernNotification("❌ Base placement cancelled.", 2000, playerNum);
+};
 
 window.tryPlaceHome = function(playerNum, x, y) {
     let col = Math.floor(x / 100);
@@ -28179,6 +28104,14 @@ function create() {
     window.localPlayerLabel.setDepth(10);
 
     this.physics.add.collider(player, window.treesGroup);
+
+    if (!window.baseTilesGroup) window.baseTilesGroup = this.physics.add.staticGroup();
+    if (!window.renderBaseTiles) window.renderBaseTiles = function(scene) {};
+    window.renderBaseTiles(this);
+    this.physics.add.collider(player, window.baseTilesGroup);
+    if (window.coopActive) {
+        this.physics.add.collider(window.player2, window.baseTilesGroup);
+    }
 
     this.physics.add.collider(player, obstaclesGroup);
 
@@ -28928,6 +28861,21 @@ function create() {
 
     // PC pointer listener for Home Placement
     this.input.on('pointerdown', (pointer) => {
+
+        if (window.p1BasePlacementMode) {
+            let p1WorldX = this.cameras.main.scrollX + pointer.x;
+            let p1WorldY = this.cameras.main.scrollY + pointer.y;
+
+            // Left click to place
+            if (pointer.button === 0) {
+                window.tryPlaceBase(1, p1WorldX, p1WorldY);
+            } else if (pointer.button === 2) {
+                // Right click to destroy
+                window.tryDestroyBase(1, p1WorldX, p1WorldY);
+            }
+            return;
+        }
+
         if (window.p1HomePlacementMode) {
             let p1WorldX = this.cameras.main.scrollX + pointer.x;
             let p1WorldY = this.cameras.main.scrollY + pointer.y;
@@ -31511,10 +31459,6 @@ window.closeBattleModal = function() {
             localStorage.setItem('wildpulse_challenge_tier', window.challengeTier.toString());
             const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
 
-            if (window.challengeTier === 5) window.unlockTransmission('vance_crown_tier_5', pNum);
-            if (window.challengeTier === 10) window.unlockTransmission('vance_crown_tier_10', pNum);
-            if (window.challengeTier === 15) window.unlockTransmission('vance_crown_tier_15', pNum);
-
             // Trigger customized notification for unlocking shape or skin/pattern
             if (window.challengeTier % 2 === 0) {
                 // Even tier: Unlocked a pattern/skin
@@ -31765,13 +31709,6 @@ window.endBattle = function(result) {
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
                         window.showModernNotification(`🪙 ${window.getP2Name()} won ${rawRew} coins!`);
-                        if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(2)) {
-                            if (!window.narrativeProgress.sectorCleared) {
-                                window.narrativeProgress.sectorCleared = true;
-                                window.saveNarrativeProgress();
-                            }
-                            window.unlockTransmission('vance_all_trainers', 2);
-                        }
                     } else {
                         window.gameStats.battlesWon++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
@@ -31779,13 +31716,6 @@ window.endBattle = function(result) {
                         window.gameStats.coins += rawRew;
                         window.saveStats();
                         window.showModernNotification(`🪙 ${window.getP1Name()} won ${rawRew} coins!`);
-                        if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(1)) {
-                            if (!window.narrativeProgress.sectorCleared) {
-                                window.narrativeProgress.sectorCleared = true;
-                                window.saveNarrativeProgress();
-                            }
-                            window.unlockTransmission('vance_all_trainers', 1);
-                        }
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 } else if (result === 'loss') {
@@ -31908,7 +31838,7 @@ window.endBattle = function(result) {
             }
 
             let xpMultiplier = window.inChallengeBattle ? (1 + window.challengeTier * 0.1) : 1.0;
-            let xpGained = Math.floor(currentEnemy.level * 12.5 * xpMultiplier);
+            let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
             // Award Player XP
@@ -32718,6 +32648,21 @@ function update() {
 
     // Update PC controls for Home Placement Mode
     if (activeScene && activeScene.input) {
+
+        if (window.p1BasePlacementMode) {
+            let p1WorldX = this.cameras.main.scrollX + pointer.x;
+            let p1WorldY = this.cameras.main.scrollY + pointer.y;
+
+            // Left click to place
+            if (pointer.button === 0) {
+                window.tryPlaceBase(1, p1WorldX, p1WorldY);
+            } else if (pointer.button === 2) {
+                // Right click to destroy
+                window.tryDestroyBase(1, p1WorldX, p1WorldY);
+            }
+            return;
+        }
+
         if (window.p1HomePlacementMode) {
             const pointer = activeScene.input.activePointer;
             if (activeScene._lastP1PointerX === undefined) {
@@ -33367,6 +33312,7 @@ function update() {
                     "Nano-Nurture Serum": 15,
                     "DNA Stabilizer": 15,
                     "Storage Chest": 15,
+    "Bundle of Wood": 15,
                     "NPC Dual Link": 15,
                     "Wild Dual Signal": 15
                 };
