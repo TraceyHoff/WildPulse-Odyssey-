@@ -1,16 +1,12 @@
-1. **Fix Quest Modal Triggering Instantly After Close**:
-   - The issue occurs because the `playerCollider.hasQuestModalOpened[questNpcId]` flag is unset when the player's distance to the NPC is `> 150`.
-   - The function `window.getQuestNpcPixelPos(npcId)` returns the top-left coordinate `x: pos.c * 100 + 50`, `y: pos.r * 100 + 50` for the NPC, where `pos.c` and `pos.r` come from `window.getQuestNpcPos(npc)`.
-   - If the tile is not a grass tile (but maybe a `quest_npc_1` tile, which it becomes after generation), `window.getQuestNpcPos` searches for a nearby grass tile and returns *that* tile's coords. This causes `window.getQuestNpcPixelPos` to return the wrong coordinate (e.g. 400, 400 instead of 500, 500), so the distance is calculated incorrectly.
-   - When the distance is calculated incorrectly, the player is immediately considered "far away" from the NPC as soon as the modal is closed, unsetting the `hasQuestModalOpened` flag, which allows the modal to reopen immediately on the very next frame due to the overlap.
-   - Fix `window.getQuestNpcPos(npc)`: The condition `window.mapData[r][c] !== 'grass'` should also check if it is not a `quest_npc` tile (`&& !window.mapData[r][c].startsWith('quest_npc')`). If it's already a quest NPC tile, then its current coordinates are correct!
-
-2. **Fix Quest Modal Prev/Next Buttons Blinking Blue**:
-   - The `button` tag has a global CSS rule `animation: neonBorderPulsate 4s ease-in-out infinite !important;` which causes the border to cycle colors (including blue).
-   - In `index.html` where `questPrevBtn_p1`/`p2` and `questNextBtn_p1`/`p2` are generated dynamically, we can override the `animation` property to `none !important;` inline: `animation: none !important;` inside the inline `style=""` for those specific buttons.
-
-3. **Pre Commit Steps**:
-   - Follow instructions from `pre_commit_instructions` tool to perform required tests/checks.
-
-4. **Submit**:
-   - Request review and submit the changes.
+1. **Understand the problem**: Pressing 'B' on a gamepad should close the quest modal, just like it closes other modals.
+2. **Examine the code**:
+   - `handleGamepadInput` checks `justB` and when it is true, it processes the modal closure. If it's not a confirmation or creature select modal, it calls `window.closeAllModalsForPlayer(playerNum)`.
+   - `window.closeAllModalsForPlayer` and `window.closeAllModals` maintain an explicit array of modal config objects (with `id` and `close` function callback).
+   - Currently, `questModal_p1` and `questModal_p2` are missing from these arrays.
+3. **Plan the changes**:
+   - Update `window.closeAllModalsForPlayer` in `index.html`:
+     - Add `{ id: 'questModal_p' + playerNum, close: (p) => { if (window.closeQuestModal) window.closeQuestModal(p); } }` to the `modals` array.
+   - Update `window.closeAllModals` in `index.html`:
+     - Add `{ id: 'questModal_p1', close: () => { if (window.closeQuestModal) window.closeQuestModal(1); } }` and `{ id: 'questModal_p2', close: () => { if (window.closeQuestModal) window.closeQuestModal(2); } }` to its `modals` array.
+4. **Implementation details**:
+   - Need to use `replace_with_git_merge_diff` on `index.html` for both functions.
