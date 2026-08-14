@@ -4940,9 +4940,9 @@ window.openQuestModal = function(playerNum, npcId) {
                     }
                 }
 
-                // Mark completed and remove
+                // Mark completed
                 const idx = quests.indexOf(activeQuest);
-                if (idx > -1) quests.splice(idx, 1); // Remove from active tracking or set status: 'completed'
+                if (idx > -1) quests[idx].status = 'completed';
                 window.saveQuests();
 
                 if (window.WildPulseMusic && window.WildPulseMusic.synth) {
