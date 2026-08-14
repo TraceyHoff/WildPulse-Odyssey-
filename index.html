@@ -21651,6 +21651,8 @@ window.deleteProgress = function(playerNum = 1) {
             localStorage.removeItem('wildpulse_p2_home_y');
             localStorage.removeItem('wildpulse_p1_mini_tiles');
             localStorage.removeItem('wildpulse_p2_mini_tiles');
+            localStorage.removeItem('wildpulse_p1_quests');
+            localStorage.removeItem('wildpulse_p2_quests');
 
             if (window.spawnPlayerHomes) {
                 window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
@@ -21698,6 +21700,7 @@ window.deleteProgress = function(playerNum = 1) {
             localStorage.removeItem('wildpulse_p1_home_x');
             localStorage.removeItem('wildpulse_p1_home_y');
             localStorage.removeItem('wildpulse_p1_mini_tiles');
+            localStorage.removeItem('wildpulse_p1_quests');
 
             // Reset customization settings for player 1
             localStorage.removeItem('wildpulse_player_name');
