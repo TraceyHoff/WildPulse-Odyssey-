@@ -4548,9 +4548,28 @@ window.saveQuests = function() {
 window.generateProceduralQuest = function(npcId, playerNum = 1) {
     const pLevel = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
 
-    // Choose quest type randomly
+    // Retrieve player active quests to check for existing quest types
+    const activeQuests = playerNum === 2 ? window.p2Quests : window.p1Quests;
+    const activeQuestTypes = new Set((activeQuests || []).filter(q => q.status === 'active').map(q => q.type));
+
+    // Also consider quests that are currently generated in the quest session state for this NPC
+    const sessionKey = `p${playerNum}_${npcId}`;
+    const sessionState = window.questSessionState ? window.questSessionState[sessionKey] : null;
+    const sessionQuestTypes = new Set((sessionState && sessionState.quests) ? sessionState.quests.map(q => q.type) : []);
+
+    // Choose quest type randomly, trying to avoid active quest types and recently generated types for this NPC if possible
     const types = ['catch', 'breed', 'defeat_trainer', 'challenge_tier', 'player_level', 'creature_level'];
-    const questType = types[Math.floor(Math.random() * types.length)];
+    let availableTypes = types.filter(t => !activeQuestTypes.has(t) && !sessionQuestTypes.has(t));
+
+    if (availableTypes.length === 0) {
+        // Fallback: Prioritize avoiding duplicates in the current session over avoiding active quests.
+        // It's better to offer a duplicate active quest than a duplicate session choice.
+        availableTypes = types.filter(t => !sessionQuestTypes.has(t));
+        if (availableTypes.length === 0) {
+            availableTypes = types; // complete fallback if all types are somehow taken
+        }
+    }
+    const questType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
 
     let title = "";
     let description = "";
