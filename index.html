@@ -7870,6 +7870,7 @@ window.WildPulseMusic = {
         }
         if (this.initialized) return;
         try {
+            Tone.setContext(new Tone.Context({ latencyHint: "playback" }));
             await Tone.start();
             this.initialized = true;
 
