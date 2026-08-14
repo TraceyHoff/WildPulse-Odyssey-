@@ -31838,7 +31838,7 @@ window.endBattle = function(result) {
             }
 
             let xpMultiplier = window.inChallengeBattle ? (1 + window.challengeTier * 0.1) : 1.0;
-            let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
+            let xpGained = Math.floor(currentEnemy.level * 12.5 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
             // Award Player XP
