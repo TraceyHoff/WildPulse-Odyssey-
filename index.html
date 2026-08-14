@@ -19273,7 +19273,15 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             if (cursorTarget && window[`p${playerNum}CursorVisible`]) {
                 window.isExecutingGamepadClick = playerNum;
                 try {
-                    cursorTarget.click();
+                    if (cursorTarget.tagName === 'SELECT' && typeof cursorTarget.showPicker === 'function') {
+                        try {
+                            cursorTarget.showPicker();
+                        } catch (e) {
+                            cursorTarget.click();
+                        }
+                    } else {
+                        cursorTarget.click();
+                    }
                 } finally {
                     window.isExecutingGamepadClick = null;
                 }
@@ -19282,7 +19290,15 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                 if (focusedEl) {
                     window.isExecutingGamepadClick = playerNum;
                     try {
-                        focusedEl.click();
+                        if (focusedEl.tagName === 'SELECT' && typeof focusedEl.showPicker === 'function') {
+                            try {
+                                focusedEl.showPicker();
+                            } catch (e) {
+                                focusedEl.click();
+                            }
+                        } else {
+                            focusedEl.click();
+                        }
                     } finally {
                         window.isExecutingGamepadClick = null;
                     }
