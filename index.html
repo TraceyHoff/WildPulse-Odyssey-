@@ -3731,7 +3731,7 @@
             <button id="menuPartyBtn" style="width: 100%; margin: 8px 0;">Party</button>
             <button id="menuStorageBtn" style="width: 100%; margin: 8px 0;">Storage Box</button>
             <button id="breedBtn" style="width: 100%; margin: 8px 0; display: none;">Breeding Center</button>
-            <button id="menuJournalBtn" style="width: 100%; margin: 8px 0;">Creature Journal</button>
+            <button id="menuJournalBtn" style="width: 100%; margin: 8px 0;">Journal</button>
             <button id="menuCustomizeBtn" style="width: 100%; margin: 8px 0;">Customize Character</button>
             <button id="menuHelpBtn" style="width: 100%; margin: 8px 0;">Help</button>
             <button id="menuMusicBtn" style="width: 100%; margin: 8px 0;">Music: ON</button>
@@ -3761,7 +3761,7 @@
             <button id="menuPartyBtn_P2" style="width: 100%; margin: 8px 0;">Party</button>
             <button id="menuStorageBtn_P2" style="width: 100%; margin: 8px 0;">Storage Box</button>
             <button id="breedBtn_P2" style="width: 100%; margin: 8px 0; display: none;">Breeding Center</button>
-            <button id="menuJournalBtn_P2" style="width: 100%; margin: 8px 0;">Creature Journal</button>
+            <button id="menuJournalBtn_P2" style="width: 100%; margin: 8px 0;">Journal</button>
             <button id="menuCustomizeBtn_P2" style="width: 100%; margin: 8px 0;">Customize Character</button>
             <button id="menuHelpBtn_P2" style="width: 100%; margin: 8px 0;">Help</button>
         </div>
@@ -7369,24 +7369,46 @@ function escapeHtml(unsafe) {
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
             <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
-            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 10px;">Player 1 Bestiary</h2>
-            <div id="journalStats" style="font-size: 14px; margin: 5px 0; color: #aaa;">
-                <p>Gen 1 Discovered: <span id="journalGen1Count" style="color:#4caf50; font-weight: bold;">0 / 50</span> | Gen 2: <span id="journalGen2Count" style="color:#2196F3; font-weight: bold;">0</span></p>
+            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 10px;">Player 1 Journal</h2>
+            <div class="journal-tabs" style="display: flex; justify-content: center; margin-bottom: 10px;">
+                <button class="journal-tab journal-tab-bestiary active" onclick="window.switchJournalTab(1, 'bestiary')" style="flex: 1; padding: 8px; background: rgba(76,175,80,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 4px 0 0 4px;">Bestiary</button>
+                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(1, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Quests</button>
             </div>
-            <div id="bestiaryList_P1" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #4caf50;">
-                <!-- Dynamically populated -->
+            <div id="journalContent_Bestiary_P1">
+                <div id="journalStats" style="font-size: 14px; margin: 5px 0; color: #aaa;">
+                    <p>Gen 1 Discovered: <span id="journalGen1Count" style="color:#4caf50; font-weight: bold;">0 / 50</span> | Gen 2: <span id="journalGen2Count" style="color:#2196F3; font-weight: bold;">0</span></p>
+                </div>
+                <div id="bestiaryList_P1" style="max-height: 380px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #4caf50;">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+            <div id="journalContent_Quests_P1" style="display: none;">
+                <div id="questList_P1" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #4caf50;">
+                    <!-- Dynamically populated -->
+                </div>
             </div>
         </div>
 
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
             <button class="close-btn close-journal-btn" aria-label="Close Journal">X</button>
-            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 10px;">Player 2 Bestiary</h2>
-            <div id="journalStats_P2" style="font-size: 14px; margin: 5px 0; color: #aaa;">
-                <p>Gen 1 Discovered: <span id="journalGen1Count_P2" style="color:#ff9800; font-weight: bold;">0 / 50</span> | Gen 2: <span id="journalGen2Count_P2" style="color:#2196F3; font-weight: bold;">0</span></p>
+            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 10px;">Player 2 Journal</h2>
+            <div class="journal-tabs" style="display: flex; justify-content: center; margin-bottom: 10px;">
+                <button class="journal-tab journal-tab-bestiary active" onclick="window.switchJournalTab(2, 'bestiary')" style="flex: 1; padding: 8px; background: rgba(255,152,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 4px 0 0 4px;">Bestiary</button>
+                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(2, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Quests</button>
             </div>
-            <div id="bestiaryList_P2" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #ff9800;">
-                <!-- Dynamically populated -->
+            <div id="journalContent_Bestiary_P2">
+                <div id="journalStats_P2" style="font-size: 14px; margin: 5px 0; color: #aaa;">
+                    <p>Gen 1 Discovered: <span id="journalGen1Count_P2" style="color:#ff9800; font-weight: bold;">0 / 50</span> | Gen 2: <span id="journalGen2Count_P2" style="color:#2196F3; font-weight: bold;">0</span></p>
+                </div>
+                <div id="bestiaryList_P2" style="max-height: 380px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #ff9800;">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+            <div id="journalContent_Quests_P2" style="display: none;">
+                <div id="questList_P2" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #ff9800;">
+                    <!-- Dynamically populated -->
+                </div>
             </div>
         </div>
     </div>
@@ -19074,7 +19096,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         let selectBypass = false;
 
         // Custom gamepad D-pad modal tab navigation for Party/Stats tab
-        if (container && (container.id === 'partyModal' || container.classList.contains('p1-col') || container.classList.contains('p2-col') || container.closest('#partyModal'))) {
+        if (container && (container.id === 'partyModal' || (container.closest('#partyModal') && (container.classList.contains('p1-col') || container.classList.contains('p2-col'))))) {
             if (justLeft) {
                 window.switchPartyTab('party', playerNum);
                 const tabHeader = document.getElementById(`tabParty_P${playerNum}`) || document.getElementById('tabParty');
@@ -19087,6 +19109,29 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             } else if (justRight) {
                 window.switchPartyTab('stats', playerNum);
                 const tabHeader = document.getElementById(`tabStats_P${playerNum}`) || document.getElementById('tabStats');
+                if (tabHeader) {
+                    container.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => el.classList.remove(`gamepad-focused-p${playerNum}`));
+                    tabHeader.classList.add(`gamepad-focused-p${playerNum}`);
+                    try { tabHeader.focus(); } catch(e) {}
+                }
+                selectBypass = true;
+            }
+        }
+
+        // Custom gamepad D-pad modal tab navigation for Journal tabs
+        if (container && (container.id === 'journalModal' || container.closest('#journalModal'))) {
+            if (justLeft) {
+                window.switchJournalTab(playerNum, 'bestiary');
+                const tabHeader = container.querySelector('.journal-tab-bestiary');
+                if (tabHeader) {
+                    container.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => el.classList.remove(`gamepad-focused-p${playerNum}`));
+                    tabHeader.classList.add(`gamepad-focused-p${playerNum}`);
+                    try { tabHeader.focus(); } catch(e) {}
+                }
+                selectBypass = true;
+            } else if (justRight) {
+                window.switchJournalTab(playerNum, 'quests');
+                const tabHeader = container.querySelector('.journal-tab-quests');
                 if (tabHeader) {
                     container.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => el.classList.remove(`gamepad-focused-p${playerNum}`));
                     tabHeader.classList.add(`gamepad-focused-p${playerNum}`);
@@ -19821,6 +19866,7 @@ window.openJournalModal = function(playerNum = 1) {
         // Populate dynamic Bestiary
         window.renderBestiary(1);
         window.renderBestiary(2);
+        if(window.renderQuestsList) { window.renderQuestsList(1); window.renderQuestsList(2); }
 
         window.updateModalVisibility();
     } else {
@@ -19841,8 +19887,120 @@ window.openJournalModal = function(playerNum = 1) {
 
         // Populate dynamic Bestiary
         window.renderBestiary(1);
+        if(window.renderQuestsList) { window.renderQuestsList(1); }
 
         document.getElementById('journalModal').style.display = 'block';
+    }
+};
+
+window.renderQuestsList = function(playerNum = 1) {
+    const listEl = document.getElementById(playerNum === 2 ? 'questList_P2' : 'questList_P1');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+
+    const quests = playerNum === 2 ? window.p2Quests : window.p1Quests;
+    if (!quests || quests.length === 0) {
+        listEl.innerHTML = '<p style="text-align:center; color:#aaa; margin-top:20px;">No quests available. Explore the Wildlands to find Quest NPCs!</p>';
+        return;
+    }
+
+    quests.forEach((quest, index) => {
+        const questCard = document.createElement('div');
+        questCard.className = playerNum === 2 ? 'bestiary-card-g2' : 'bestiary-card';
+        questCard.style.position = 'relative';
+        questCard.style.padding = '10px';
+        questCard.style.marginBottom = '10px';
+        questCard.style.background = 'rgba(0,0,0,0.6)';
+        questCard.style.border = `1px solid ${playerNum === 2 ? '#ff9800' : '#4caf50'}`;
+        questCard.style.borderRadius = '5px';
+
+        let targetText = '';
+        if (quest.type === 'catch') {
+            const speciesObj = window.baseCreatures.find(c => c.id === quest.targetSpecies);
+            targetText = `Target: Catch ${quest.targetAmount} ${speciesObj ? speciesObj.name : quest.targetSpecies}`;
+        } else if (quest.type === 'breed') {
+            targetText = `Target: Breed ${quest.targetAmount} creature(s)`;
+        } else if (quest.type === 'battle') {
+            targetText = `Target: Win ${quest.targetAmount} battles`;
+        } else if (quest.type === 'level') {
+            targetText = `Target: Level up ${quest.targetAmount} times`;
+        }
+
+        const progressText = quest.status === 'completed' ? 'COMPLETED' : `Progress: ${quest.progress || 0} / ${quest.targetAmount}`;
+        const trackBtnText = quest.tracked ? 'Untrack' : 'Track';
+        const trackSpan = quest.tracked ? `<span style="color: ${playerNum === 2 ? '#ff9800' : '#4caf50'}; font-weight: bold; margin-left: 10px;">[TRACKED]</span>` : '';
+
+        let npcName = 'Unknown NPC';
+        if (quest.npcId) {
+            const npcDef = window.questNpcs && window.questNpcs.find(n => n.id === quest.npcId);
+            if (npcDef && npcDef.name) {
+                npcName = npcDef.name;
+            } else {
+                const num = quest.npcId.replace('quest_npc_', '');
+                npcName = 'NPC ' + num;
+            }
+        }
+
+        questCard.innerHTML = `
+            <h3 style="margin: 0 0 5px 0; color: #fff;">${quest.description} ${trackSpan}</h3>
+            <p style="margin: 2px 0; font-size: 14px; color: #ccc;">Given By: ${npcName}</p>
+            <p style="margin: 2px 0; font-size: 14px; color: #ccc;">${targetText}</p>
+            <p style="margin: 2px 0; font-size: 14px; color: ${quest.status === 'completed' ? '#4caf50' : '#ccc'};">${progressText}</p>
+            <p style="margin: 2px 0; font-size: 14px; color: #ffd700;">Reward: ${quest.rewardAmount} ${quest.rewardType === 'coins' ? 'Coins' : quest.rewardType}</p>
+        `;
+
+        if (quest.status !== 'completed') {
+            const trackBtn = document.createElement('button');
+            trackBtn.className = 'quest-track-btn';
+            trackBtn.innerText = trackBtnText;
+            trackBtn.style.position = 'absolute';
+            trackBtn.style.top = '10px';
+            trackBtn.style.right = '10px';
+            trackBtn.style.padding = '5px 10px';
+            trackBtn.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.2)`;
+            trackBtn.style.color = '#fff';
+            trackBtn.style.border = `1px solid ${playerNum === 2 ? '#ff9800' : '#4caf50'}`;
+            trackBtn.style.borderRadius = '3px';
+            trackBtn.style.cursor = 'pointer';
+
+            trackBtn.onclick = () => {
+                quest.tracked = !quest.tracked;
+                window.saveQuests();
+                window.renderQuestsList(playerNum);
+            };
+
+            questCard.appendChild(trackBtn);
+        }
+
+        listEl.appendChild(questCard);
+    });
+};
+
+window.switchJournalTab = function(playerNum, tabName) {
+    const colClass = playerNum === 2 ? '.p2-col' : '.p1-col';
+    const modalEl = document.getElementById('journalModal');
+    if (!modalEl) return;
+    const container = modalEl.querySelector(colClass);
+    if (!container) return;
+
+    const bestiaryTab = container.querySelector('.journal-tab-bestiary');
+    const questsTab = container.querySelector('.journal-tab-quests');
+    const bestiaryContent = container.querySelector('#journalContent_Bestiary_P' + playerNum);
+    const questsContent = container.querySelector('#journalContent_Quests_P' + playerNum);
+
+    const baseColor = playerNum === 2 ? '#ff9800' : '#4caf50';
+
+    if (tabName === 'bestiary') {
+        if (bestiaryTab) { bestiaryTab.classList.add('active'); bestiaryTab.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.5)`; }
+        if (questsTab) { questsTab.classList.remove('active'); questsTab.style.background = 'rgba(0,0,0,0.5)'; }
+        if (bestiaryContent) bestiaryContent.style.display = 'block';
+        if (questsContent) questsContent.style.display = 'none';
+    } else if (tabName === 'quests') {
+        if (bestiaryTab) { bestiaryTab.classList.remove('active'); bestiaryTab.style.background = 'rgba(0,0,0,0.5)'; }
+        if (questsTab) { questsTab.classList.add('active'); questsTab.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.5)`; }
+        if (bestiaryContent) bestiaryContent.style.display = 'none';
+        if (questsContent) questsContent.style.display = 'block';
+        if (window.renderQuestsList) window.renderQuestsList(playerNum);
     }
 };
 
