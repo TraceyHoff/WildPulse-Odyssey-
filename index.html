@@ -5666,6 +5666,29 @@ window.generateBreedTile = function(scene) {
 };
 
 window.generateHomeInteriorTextures = function(scene) {
+    // Helper function to add 3D depth to tiles (isometric-style bevel)
+    const add3DDepth = (ctx, depth) => {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Top highlight
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(100, 0); ctx.lineTo(100 - depth, depth); ctx.lineTo(depth, depth);
+        ctx.closePath(); ctx.fill();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; // Left highlight
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(depth, depth); ctx.lineTo(depth, 100 - depth); ctx.lineTo(0, 100);
+        ctx.closePath(); ctx.fill();
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'; // Right shadow
+        ctx.beginPath();
+        ctx.moveTo(100, 0); ctx.lineTo(100, 100); ctx.lineTo(100 - depth, 100 - depth); ctx.lineTo(100 - depth, depth);
+        ctx.closePath(); ctx.fill();
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Bottom shadow
+        ctx.beginPath();
+        ctx.moveTo(0, 100); ctx.lineTo(depth, 100 - depth); ctx.lineTo(100 - depth, 100 - depth); ctx.lineTo(100, 100);
+        ctx.closePath(); ctx.fill();
+    };
+
     // PRE-GENERATE ALL 8 WALL STYLES
     const wallStyles = {
         'cyber_circuit': function(ctx) {
@@ -5763,12 +5786,16 @@ window.generateHomeInteriorTextures = function(scene) {
     // Generate Wall Canvas textures
     for (const [key, drawFunc] of Object.entries(wallStyles)) {
         const c = document.createElement('canvas'); c.width = 100; c.height = 100;
-        drawFunc(c.getContext('2d'));
+        const ctx = c.getContext('2d');
+        drawFunc(ctx);
+        add3DDepth(ctx, 12); // Add blocky 3D depth to walls
         scene.textures.addCanvas(`wall_${key}`, c);
     }
     // Backward compatibility: home_wall_tile maps to wall_cyber_circuit
     const wallDefault = document.createElement('canvas'); wallDefault.width = 100; wallDefault.height = 100;
-    wallStyles['cyber_circuit'](wallDefault.getContext('2d'));
+    const wallDefaultCtx = wallDefault.getContext('2d');
+    wallStyles['cyber_circuit'](wallDefaultCtx);
+    add3DDepth(wallDefaultCtx, 12);
     scene.textures.addCanvas('home_wall_tile', wallDefault);
 
     // PRE-GENERATE ALL 8 FLOOR STYLES
@@ -5848,12 +5875,16 @@ window.generateHomeInteriorTextures = function(scene) {
     // Generate Floor Canvas textures
     for (const [key, drawFunc] of Object.entries(floorStyles)) {
         const c = document.createElement('canvas'); c.width = 100; c.height = 100;
-        drawFunc(c.getContext('2d'));
+        const ctx = c.getContext('2d');
+        drawFunc(ctx);
+        add3DDepth(ctx, 6); // Add subtle tile-like 3D depth to floors
         scene.textures.addCanvas(`floor_${key}`, c);
     }
     // Backward compatibility: home_floor_tile maps to floor_cyber_neon
     const floorDefault = document.createElement('canvas'); floorDefault.width = 100; floorDefault.height = 100;
-    floorStyles['cyber_neon'](floorDefault.getContext('2d'));
+    const floorDefaultCtx = floorDefault.getContext('2d');
+    floorStyles['cyber_neon'](floorDefaultCtx);
+    add3DDepth(floorDefaultCtx, 6);
     scene.textures.addCanvas('home_floor_tile', floorDefault);
 
     // 3. Exit Door/Rug Tile (matching the outside's door: cyan filled with purple trim)
