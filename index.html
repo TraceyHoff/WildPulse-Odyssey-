@@ -17074,6 +17074,78 @@ window.calculateCreatureSellPrice = function(c) {
     return Math.max(1, finalPrice);
 };
 
+
+window.getItemSellPrice = function(itemName) {
+    const prices = {
+        "Repellent": 170,
+        "HP Booster": 270,
+        "Attack Booster": 240,
+        "Defense Booster": 240,
+        "Speed Booster": 240,
+        "Sp. Atk Booster": 240,
+        "Sp. Def Booster": 240,
+        "Jank Juice": 270,
+        "Healing Juice Bottle": 160,
+        "Healing Juice Jug": 240,
+        "ExPALL": 370,
+        "Creature License": 295,
+        "Bundle of Wood": 150,
+        "Creature Cookie": 150,
+        "Pedometer": 220,
+        "Cyber-Core Upgrade": 320,
+        "Nano-Nurture Serum": 450,
+        "DNA Stabilizer": 420,
+        "NPC Dual Link": 400,
+        "Wild Dual Signal": 400,
+        "Storage Chest": 620,
+        "Mini Hospital": 770,
+        "Mini Store": 770,
+        "Mini Trade": 770,
+        "Mini PvP": 770,
+        "Mini Breeding Center": 770,
+        "Mini Challenge": 770,
+        "Dojo Tile": 920
+    };
+    return Math.floor((prices[itemName] || 100) / 2);
+};
+
+window.sellItem = function(playerNum) {
+    const selectEl = document.getElementById(`sellItemSelect_P${playerNum}`);
+    if (!selectEl || selectEl.value === '') return;
+
+    const itemName = selectEl.value;
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const invKey = playerNum === 2 ? 'wildpulse_p2_inventory' : 'wildpulse_inventory';
+    const stats = playerNum === 2 ? (window.gameStats2 || window.gameStats) : window.gameStats;
+    const statsKey = playerNum === 2 ? 'wildpulse_stats2' : 'wildpulse_stats';
+
+    const itemIndex = inv.findIndex(i => i.name === itemName);
+    if (itemIndex === -1) return;
+
+    const price = window.getItemSellPrice(itemName);
+
+    window.safeConfirm(playerNum, "SELL ITEM", `Are you sure you want to sell 1x ${itemName} for 🪙 ${price} coins?`, () => {
+        inv[itemIndex].quantity -= 1;
+        if (inv[itemIndex].quantity <= 0) {
+            inv.splice(itemIndex, 1);
+        }
+        localStorage.setItem(invKey, JSON.stringify(inv));
+
+        stats.coins = (stats.coins || 0) + price;
+        localStorage.setItem(statsKey, JSON.stringify(stats));
+
+        if (window.showModernNotification) {
+            window.showModernNotification(`✅ Sold 1x ${itemName} for 🪙 ${price}!`, "#4caf50", playerNum);
+        }
+
+        if (window.updateStoreUI) window.updateStoreUI();
+        if (window.updatePlayerSlots) {
+            const containerId = playerNum === 2 ? 'p2InventorySlots' : 'p1InventorySlots';
+            window.updatePlayerSlots(playerNum, containerId);
+        }
+    });
+};
+
 window.sellCreature = function(playerNum) {
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
@@ -17268,6 +17340,32 @@ window.updateStoreUI = function() {
                         ${selectHtml}
                     </select>
                     <button class="sell-btn" onclick="window.sellCreature(${playerNum})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #e91e63, #c2185b); border: 1px solid #f48fb1; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
+                        Sell
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Sell Items section
+        const inv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
+        let sellItemSelectHtml = '';
+        if (inv.length === 0) {
+            sellItemSelectHtml = '<option value="">No items to sell</option>';
+        } else {
+            inv.forEach((item) => {
+                let price = window.getItemSellPrice(item.name);
+                sellItemSelectHtml += `<option value="${item.name}">${item.name} (x${item.quantity}) - 🪙${price} ea</option>`;
+            });
+        }
+
+        html += `
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 15px; padding-top: 15px; text-align: left; padding-bottom: 15px;">
+                <h3 style="color: #ffd700; margin-top: 0; font-size: 14px; margin-bottom: 8px;">Sell Items</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select id="sellItemSelect_P${playerNum}" style="flex: 1; padding: 6px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 12px; height: 32px;">
+                        ${sellItemSelectHtml}
+                    </select>
+                    <button class="sell-item-btn" onclick="window.sellItem(${playerNum})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #ff9800, #f57c00); border: 1px solid #ffcc80; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
                         Sell
                     </button>
                 </div>
