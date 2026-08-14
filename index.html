@@ -8008,7 +8008,7 @@ window.WildPulseMusic = {
             }
 
             const beatsPerChord = 4;
-            const totalBeats = time * (this.bpm / 60);
+            const totalBeats = Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ;
             const index = Math.floor(totalBeats / beatsPerChord) % prog.length;
             const targetChord = prog[index];
 
@@ -8032,25 +8032,25 @@ window.WildPulseMusic = {
 
             if (this.state === 'BATTLE' || this.state === 'PVP') {
                 // Energetic syncopated techno bass
-                const step = Math.round(time * (this.bpm / 30)) % 8;
+                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
                 if (step === 0 || step === 2 || step === 3 || step === 5 || step === 6) {
                     this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.6);
                 }
             } else if (this.state === 'TRADE') {
                 // Chill lounge bass - shorter duration to avoid overlap warnings
-                const step = Math.round(time * (this.bpm / 60)) % 4;
+                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ)) % 4;
                 if (step === 0) {
                     this.synths.bass.triggerAttackRelease(bassNote, "8n", time, 0.4);
                 }
             } else if (this.state === 'MENU') {
                 // Menu slow pulse
-                const step = Math.round(time * (this.bpm / 60)) % 4;
+                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ)) % 4;
                 if (step === 0 || step === 2) {
                     this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.45);
                 }
             } else {
                 // Exploring bass - playful, galloping adventure bassline!
-                const step = Math.round(time * (this.bpm / 30)) % 8;
+                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
                 const note = (step === 3 || step === 7) ? rootNote.replace(/\d/, '3') : bassNote;
                 if (step === 0 || step === 2 || step === 3 || step === 4 || step === 6 || step === 7) {
                     this.synths.bass.triggerAttackRelease(note, "16n", time, 0.55);
@@ -8063,7 +8063,7 @@ window.WildPulseMusic = {
             if (!this.currentChord || this.currentChord.length === 0) return;
             if (this.state === 'TRADE') return;
 
-            const step = Math.round(time * (this.bpm / 15)) % 16;
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 4) % 16;
 
             if (this.state === 'BATTLE' || this.state === 'PVP') {
                 const noteIndex = step % this.currentChord.length;
@@ -8106,7 +8106,7 @@ window.WildPulseMusic = {
         this.loops.push(new Tone.Loop(time => {
             if (!this.currentChord || this.currentChord.length === 0) return;
 
-            const step = Math.round(time * (this.bpm / 30)) % 16; // 16-step cycle
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 16; // 16-step cycle
             let shouldPlay = false;
             let noteOffset = 0;
             let noteLength = "8n";
@@ -8152,7 +8152,7 @@ window.WildPulseMusic = {
 
         // Drums: Kick Drum Loop (8n interval for syncopated adventure drum beats!)
         this.loops.push(new Tone.Loop(time => {
-            const step = Math.round(time * (this.bpm / 30)) % 8;
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
             let shouldPlay = false;
             let vol = 0.5;
 
@@ -8177,7 +8177,7 @@ window.WildPulseMusic = {
 
         // Drums: Snare Drum Loop (8n interval for active backbeats and ghost notes!)
         this.loops.push(new Tone.Loop(time => {
-            const step = Math.round(time * (this.bpm / 30)) % 8;
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
             let shouldPlay = false;
             let vol = 0.5;
 
@@ -8199,7 +8199,7 @@ window.WildPulseMusic = {
 
         // Drums: Hi-hat Loop (16n interval for energetic sixteenth-note adventure grooves!)
         this.loops.push(new Tone.Loop(time => {
-            const step = Math.round(time * (this.bpm / 15)) % 16;
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 4) % 16;
             let shouldPlay = false;
             let vol = 0.15;
 
