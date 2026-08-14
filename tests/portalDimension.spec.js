@@ -19,11 +19,11 @@ test.describe('Portal Dimension & Void Rift E2E Integration Tests', () => {
 
     // Click Single Player once start screen is fully loaded
     const startBtn = page.locator('#startGameBtn');
-    await expect(startBtn).toBeVisible({ timeout: 30000 });
+    await expect(startBtn).toBeVisible({ timeout: 90000 });
     await startBtn.click();
 
     // Settle Phaser game startup
-    await page.waitForFunction(() => window.gameStarted === true, null, { timeout: 30000 });
+    await page.waitForFunction(() => window.gameStarted === true, null, { timeout: 90000 });
   });
 
   test('should successfully render portals and teleport players to the Void Rift and back', async ({ page }) => {

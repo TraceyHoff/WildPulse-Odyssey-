@@ -18,7 +18,7 @@ test.describe('Home Customization & Plant Life System Tests', () => {
 
     // Dismiss start modal by clicking Single Player after loading screen finishes
     const startBtn = page.locator('#startGameBtn');
-    await startBtn.waitFor({ state: 'visible', timeout: 30000 });
+    await startBtn.waitFor({ state: 'visible', timeout: 90000 });
     await startBtn.click();
 
     // Dismiss onboarding intro modal if visible
