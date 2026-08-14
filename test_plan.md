@@ -1,12 +1,17 @@
-1. **Understand the problem**: Pressing 'B' on a gamepad should close the quest modal, just like it closes other modals.
-2. **Examine the code**:
-   - `handleGamepadInput` checks `justB` and when it is true, it processes the modal closure. If it's not a confirmation or creature select modal, it calls `window.closeAllModalsForPlayer(playerNum)`.
-   - `window.closeAllModalsForPlayer` and `window.closeAllModals` maintain an explicit array of modal config objects (with `id` and `close` function callback).
-   - Currently, `questModal_p1` and `questModal_p2` are missing from these arrays.
-3. **Plan the changes**:
-   - Update `window.closeAllModalsForPlayer` in `index.html`:
-     - Add `{ id: 'questModal_p' + playerNum, close: (p) => { if (window.closeQuestModal) window.closeQuestModal(p); } }` to the `modals` array.
-   - Update `window.closeAllModals` in `index.html`:
-     - Add `{ id: 'questModal_p1', close: () => { if (window.closeQuestModal) window.closeQuestModal(1); } }` and `{ id: 'questModal_p2', close: () => { if (window.closeQuestModal) window.closeQuestModal(2); } }` to its `modals` array.
-4. **Implementation details**:
-   - Need to use `replace_with_git_merge_diff` on `index.html` for both functions.
+1. **Fix Tutorial Order (Creature Sprite -> Creature Stats Tab)**
+   - In `index.html`, modify `processMenuTutorial` logic.
+   - Currently, it asks the user to switch to the "Stats Tab" (Step 2) and then click on a "Creature Sprite" (Step 3).
+   - Change Step 2 to ask the user to click on a "Creature Sprite".
+   - Change Step 3 to ask the user to switch to the "Creature Stats Tab".
+   - Update string references from "Stats Tab" to "Creature Stats Tab".
+   - Update the step tracking logic to ensure state progresses correctly (e.g., `largeCreatureOpen` before `isStatsTabOpen`).
+
+2. **Make Tutorial Box More Noticeable**
+   - In the CSS for `#tutorialBox` (around line 2674), adjust styles to make it pop more.
+   - Increase `border-width` slightly, make background slightly more opaque or change colors. Increase `box-shadow`, font size, or animation intensity.
+
+3. **Contextual Controls in Tutorial**
+   - The user requested that the tutorial display only the controls relevant to the player's current device (Touch, PC/M&K, or Gamepad).
+   - We will utilize `window.hasTouchControls()`, `window.isGamepadConnected()`, or similar checks from `index.html`.
+   - Update `state.menuStep === 0` tutorial text to show specific text based on device.
+   - We will need to check the exact variable name to determine if the player is using gamepad, touch, or keyboard. Based on earlier searches, there is a `const isTouch` and `const isGamepad` check inside an `isMobile` check, but no global state. Wait, is there a global state? Let's check `lastInputDevice` or similar. If not, I can calculate `isTouch` and `isGamepad` inline or store them globally when checking. Let me inspect how the game tracks input.
