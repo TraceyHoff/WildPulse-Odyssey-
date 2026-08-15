@@ -9478,8 +9478,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 listDiv.innerHTML = interiorTiles.map(t => {
                     let col = Math.floor(t.x / 100);
                     let row = Math.floor(t.y / 100);
-                    return `• ${prettyNames[t.type] || t.type} (Row ${row}, Col ${col})`;
-                }).join("<br>");
+                    let name = prettyNames[t.type] || t.type;
+                    let colorInput = "";
+                    if (t.type.startsWith('furniture_')) {
+                        let originalIndex = miniTiles.indexOf(t);
+                        let tint = t.tint || '#ffffff';
+                        colorInput = `<input type="color" value="${tint}" onchange="window.updateMiniTileColor(${playerNum}, ${originalIndex}, this.value)" style="margin-left: 10px; cursor: pointer; height: 20px; width: 25px; padding: 0; border: none; background: transparent; vertical-align: middle;">`;
+                    }
+                    return `<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                                <span>• ${name} (Row ${row}, Col ${col})</span>
+                                ${colorInput}
+                            </div>`;
+                }).join("");
+            }
+        }
+    };
+
+    window.updateMiniTileColor = function(playerNum, index, color) {
+        const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
+        let miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+        if (miniTiles[index]) {
+            miniTiles[index].tint = color;
+            localStorage.setItem(miniTilesKey, JSON.stringify(miniTiles));
+            if (game && game.scene && game.scene.scenes[0]) {
+                window.spawnMiniTiles(game.scene.scenes[0]);
             }
         }
     };
@@ -27916,6 +27938,15 @@ window.spawnMiniTiles = function(scene) {
                 mSprite.miniTileType = tile.type;
                 mSprite.playerNum = pNum;
                 mSprite.setAngle(tile.rotation || 0);
+
+                if (tile.type.startsWith('furniture_')) {
+                    if (tile.tint && tile.tint !== '#ffffff') {
+                        mSprite.setTint(parseInt(tile.tint.replace('#', '0x')));
+                    } else {
+                        mSprite.clearTint();
+                    }
+                }
+
                 if (mSprite.body) {
                     mSprite.body.setSize(50, 50);
                     mSprite.body.updateFromGameObject();
