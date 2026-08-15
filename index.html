@@ -19580,17 +19580,114 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                 let focusIndex = selectables.findIndex(el => el.classList.contains(`gamepad-focused-p${playerNum}`) || el === document.activeElement);
                 const oldEl = focusIndex !== -1 ? selectables[focusIndex] : null;
 
-                if (focusIndex === -1) {
-                    if (justUp || justLeft) {
-                        focusIndex = selectables.length - 1;
+                const isKeyboardModal = container.id === 'virtualKeyboardModal_p1' || container.id === 'virtualKeyboardModal_p2';
+
+                if (isKeyboardModal && oldEl && (justUp || justDown)) {
+                    let bestIndex = -1;
+                    let bestDist = Infinity;
+                    const currentRect = oldEl.getBoundingClientRect();
+                    const currentCenter = currentRect.left + currentRect.width / 2;
+
+                    let targetY = null;
+                    if (justUp) {
+                        let maxBottom = -Infinity;
+                        for (let i = 0; i < selectables.length; i++) {
+                            const rect = selectables[i].getBoundingClientRect();
+                            if (rect.bottom <= currentRect.top + 5 && rect.bottom > maxBottom) {
+                                maxBottom = rect.bottom;
+                            }
+                        }
+                        targetY = maxBottom;
+                    } else if (justDown) {
+                        let minTop = Infinity;
+                        for (let i = 0; i < selectables.length; i++) {
+                            const rect = selectables[i].getBoundingClientRect();
+                            if (rect.top >= currentRect.bottom - 5 && rect.top < minTop) {
+                                minTop = rect.top;
+                            }
+                        }
+                        targetY = minTop;
+                    }
+
+                    if (targetY !== null && targetY !== -Infinity && targetY !== Infinity) {
+                        for (let i = 0; i < selectables.length; i++) {
+                            const rect = selectables[i].getBoundingClientRect();
+                            if ((justUp && Math.abs(rect.bottom - targetY) < 10) ||
+                                (justDown && Math.abs(rect.top - targetY) < 10)) {
+                                const center = rect.left + rect.width / 2;
+                                const dist = Math.abs(center - currentCenter);
+                                if (dist < bestDist) {
+                                    bestDist = dist;
+                                    bestIndex = i;
+                                }
+                            }
+                        }
+                    }
+
+                    if (bestIndex !== -1) {
+                        focusIndex = bestIndex;
                     } else {
-                        focusIndex = 0;
+                        // Implement column wrap-around if no row above/below
+                        let wrapTargetY = null;
+                        if (justUp) {
+                            // Find the bottom-most row
+                            let maxBottom = -Infinity;
+                            for (let i = 0; i < selectables.length; i++) {
+                                const rect = selectables[i].getBoundingClientRect();
+                                if (rect.bottom > maxBottom) {
+                                    maxBottom = rect.bottom;
+                                }
+                            }
+                            wrapTargetY = maxBottom;
+                        } else if (justDown) {
+                            // Find the top-most row
+                            let minTop = Infinity;
+                            for (let i = 0; i < selectables.length; i++) {
+                                const rect = selectables[i].getBoundingClientRect();
+                                if (rect.top < minTop) {
+                                    minTop = rect.top;
+                                }
+                            }
+                            wrapTargetY = minTop;
+                        }
+
+                        let wrapBestIndex = -1;
+                        let wrapBestDist = Infinity;
+                        if (wrapTargetY !== null && wrapTargetY !== -Infinity && wrapTargetY !== Infinity) {
+                            for (let i = 0; i < selectables.length; i++) {
+                                const rect = selectables[i].getBoundingClientRect();
+                                if ((justUp && Math.abs(rect.bottom - wrapTargetY) < 10) ||
+                                    (justDown && Math.abs(rect.top - wrapTargetY) < 10)) {
+                                    const center = rect.left + rect.width / 2;
+                                    const dist = Math.abs(center - currentCenter);
+                                    if (dist < wrapBestDist) {
+                                        wrapBestDist = dist;
+                                        wrapBestIndex = i;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (wrapBestIndex !== -1) {
+                            focusIndex = wrapBestIndex;
+                        } else {
+                            if (justUp) focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
+                            if (justDown) focusIndex = (focusIndex + 1) % selectables.length;
+                        }
                     }
                 } else {
-                    if (justUp || justLeft) {
-                        focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
-                    } else if (justDown || justRight) {
-                        focusIndex = (focusIndex + 1) % selectables.length;
+                    if (focusIndex === -1) {
+                        if (justUp || justLeft) {
+                            focusIndex = selectables.length - 1;
+                        } else {
+                            focusIndex = 0;
+                        }
+                    } else {
+                        if (justUp || justLeft) {
+                            focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
+                        } else if (justDown || justRight) {
+                            focusIndex = (focusIndex + 1) % selectables.length;
+                        }
                     }
                 }
 
