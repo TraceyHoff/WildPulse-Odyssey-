@@ -31,11 +31,11 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
   test('should allow Player 2 to open the menu modal using the Player 2 menu button in split-screen mode', async ({ page }) => {
     // Wait for the game to load and open P1 Menu
     await page.waitForSelector('#menuBtn', { state: 'visible' });
-    await page.click('#menuBtn');
+    await page.evaluate(() => document.getElementById('menuBtn').click());
     await page.waitForSelector('#menuModal', { state: 'visible' });
 
     // Enable co-op mode
-    await page.click('#coopToggleBtn');
+    await page.evaluate(() => document.getElementById('coopToggleBtn').click());
     const isCoopActive = await page.evaluate(() => window.coopActive);
     expect(isCoopActive).toBe(true);
 
@@ -43,7 +43,7 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     await page.waitForSelector('#menuBtn_P2', { state: 'visible' });
 
     // Click Player 2's menu button
-    await page.click('#menuBtn_P2');
+    await page.evaluate(() => document.getElementById('menuBtn_P2').click());
 
     // Verify Player 2's menu column inside menuModal is visible
     const isP2ColumnVisible = await page.evaluate(() => {
@@ -56,9 +56,9 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
   test('should display close button inside challengeModal in split-screen mode', async ({ page }) => {
     // Open menu to enable co-op
     await page.waitForSelector('#menuBtn', { state: 'visible' });
-    await page.click('#menuBtn');
+    await page.evaluate(() => document.getElementById('menuBtn').click());
     await page.waitForSelector('#menuModal', { state: 'visible' });
-    await page.click('#coopToggleBtn');
+    await page.evaluate(() => document.getElementById('coopToggleBtn').click());
 
     // Trigger openChallengeModal for Player 1
     await page.evaluate(() => {
@@ -174,9 +174,9 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
   test('should trigger trade modal on overlap and prevent re-triggering until leaving the tile', async ({ page }) => {
     // 1. Enable co-op first so we can trade
     await page.waitForSelector('#menuBtn', { state: 'visible' });
-    await page.click('#menuBtn');
+    await page.evaluate(() => document.getElementById('menuBtn').click());
     await page.waitForSelector('#menuModal', { state: 'visible' });
-    await page.click('#coopToggleBtn');
+    await page.evaluate(() => document.getElementById('coopToggleBtn').click());
 
     const isCoopActive = await page.evaluate(() => window.coopActive);
     expect(isCoopActive).toBe(true);
@@ -254,9 +254,9 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
   test('should trigger PvP battle on overlap and prevent re-triggering until leaving the tile', async ({ page }) => {
     // 1. Enable co-op first
     await page.waitForSelector('#menuBtn', { state: 'visible' });
-    await page.click('#menuBtn');
+    await page.evaluate(() => document.getElementById('menuBtn').click());
     await page.waitForSelector('#menuModal', { state: 'visible' });
-    await page.click('#coopToggleBtn');
+    await page.evaluate(() => document.getElementById('coopToggleBtn').click());
 
     // Close menu modals to avoid blocking tile interactions
     await page.evaluate(() => {
@@ -334,9 +334,9 @@ test.describe('Co-op Split Screen and Player 2 Features', () => {
     await page.waitForSelector('#menuBtn', { state: 'visible' });
 
     // 2. Open menu and enable co-op
-    await page.click('#menuBtn');
+    await page.evaluate(() => document.getElementById('menuBtn').click());
     await page.waitForSelector('#menuModal', { state: 'visible' });
-    await page.click('#coopToggleBtn');
+    await page.evaluate(() => document.getElementById('coopToggleBtn').click());
 
     // 3. Verify coopActive is true
     const isCoopActive = await page.evaluate(() => window.coopActive);

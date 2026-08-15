@@ -168,7 +168,7 @@
         }
 
         #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal, #battleSwapModal, #storeModal, #battleModal, #customizationModal, #challengeModal > div, #introModal > div {
-            animation: modalFadeIn 0.2s ease-out, neonBorderPulsate 4s ease-in-out infinite !important;
+            animation: modalFadeIn 0.2s ease-out !important;
         }
 
         body:not(.modal-open), body:not(.modal-open) * {
@@ -2727,6 +2727,16 @@
     .tutorial-highlight {
         color: #ffff00;
         text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
+    }
+
+    .tutorial-button-highlight {
+        animation: tutorialPulsate 1.5s infinite !important;
+        z-index: 999999;
+    }
+    @keyframes tutorialPulsate {
+        0% { box-shadow: 0 0 10px #ffff00, inset 0 0 5px rgba(255,255,0,0.3); border-color: #ffff00 !important; }
+        50% { box-shadow: 0 0 25px #ffff00, inset 0 0 15px rgba(255,255,0,0.7); border-color: #ffff00 !important; }
+        100% { box-shadow: 0 0 10px #ffff00, inset 0 0 5px rgba(255,255,0,0.3); border-color: #ffff00 !important; }
     }
 
 </style>
@@ -36185,9 +36195,23 @@ document.addEventListener('mouseout', (e) => {
                 }, duration);
             }
         },
+        clearHighlights: function(pNum) {
+            document.querySelectorAll('.tutorial-button-highlight-p' + pNum).forEach(el => {
+                el.classList.remove('tutorial-button-highlight', 'tutorial-button-highlight-p' + pNum);
+            });
+        },
+        highlight: function(pNum, selector) {
+            this.clearHighlights(pNum);
+            if (selector) {
+                document.querySelectorAll(selector).forEach(el => {
+                    el.classList.add('tutorial-button-highlight', 'tutorial-button-highlight-p' + pNum);
+                });
+            }
+        },
         hide: function(playerNum) {
             const state = playerNum === 1 ? this.p1 : this.p2;
             if (state.box) state.box.style.display = 'none';
+            this.clearHighlights(playerNum);
         },
         save: function(playerNum, type, step) {
             const state = playerNum === 1 ? this.p1 : this.p2;
@@ -36248,6 +36272,7 @@ document.addEventListener('mouseout', (e) => {
                     else if (isGamepad) controlText = 'Press Start';
 
                     this.show(pNum, `Welcome! Let's learn the controls.<br>Open your <span class="tutorial-highlight">Menu</span> (${controlText}).`);
+                    this.highlight(pNum, pNum === 1 ? '#menuBtn' : '#menuBtn_P2');
                 }
             } else if (state.menuStep === 1) {
                 if (!isMenuOpen && !isPartyOpen) {
@@ -36257,6 +36282,7 @@ document.addEventListener('mouseout', (e) => {
                     this.save(pNum, 'menu', 2);
                 } else {
                     this.show(pNum, 'Great! Now click <span class="tutorial-highlight">Party</span> to view your active creatures.');
+                    this.highlight(pNum, pNum === 1 ? '#menuPartyBtn' : '#menuPartyBtn_P2');
                 }
             } else if (state.menuStep === 2) {
                 if (!isPartyOpen) {
@@ -36267,6 +36293,7 @@ document.addEventListener('mouseout', (e) => {
                         this.save(pNum, 'menu', 3);
                     } else {
                         this.show(pNum, 'Here is your party! Click on a <span class="tutorial-highlight">Creature Image</span> to view its full details and large portrait.');
+                        this.highlight(pNum, pNum === 1 ? '#partyList .party-card' : '#partyList_P2 .party-card');
                     }
                 }
             } else if (state.menuStep === 3) {
@@ -36278,6 +36305,7 @@ document.addEventListener('mouseout', (e) => {
                         this.save(pNum, 'menu', 4);
                     } else {
                         this.show(pNum, 'Great job! Now use the stats tab to view your personal Trainer stats!');
+                        this.highlight(pNum, pNum === 1 ? '#tabStats_P1' : '#tabStats_P2');
                     }
                 }
             } else if (state.menuStep === 4) {
@@ -36285,21 +36313,26 @@ document.addEventListener('mouseout', (e) => {
                     this.save(pNum, 'menu', 5);
                 } else {
                     this.show(pNum, 'Here are your detailed stats! Now <span class="tutorial-highlight">Close your Party</span> using the X button or by pressing B/ESC.');
+                    this.highlight(pNum, pNum === 1 ? '#partyModal .p1-col .close-party-btn' : '#partyModal .p2-col .close-party-btn');
                 }
             } else if (state.menuStep === 5) {
                 if (isStorageOpen) {
                     this.save(pNum, 'menu', 6);
                 } else if (isMenuOpen) {
                     this.show(pNum, 'Now open your <span class="tutorial-highlight">Storage Box</span> from the menu.');
+                    this.highlight(pNum, pNum === 1 ? '#menuStorageBtn' : '#menuStorageBtn_P2');
                 } else {
                     this.show(pNum, 'Open your Menu again, then open your <span class="tutorial-highlight">Storage Box</span>.');
+                    this.highlight(pNum, pNum === 1 ? '#menuBtn' : '#menuBtn_P2');
                 }
             } else if (state.menuStep === 6) {
                 if (!isStorageOpen) {
                     this.save(pNum, 'menu', 7);
                     this.show(pNum, 'Tutorial Complete! Explore the WildPulse!', 4000);
+                    this.clearHighlights(pNum);
                 } else {
                     this.show(pNum, 'This is Storage where extra caught creatures go. <span class="tutorial-highlight">Close the Storage Box</span> to finish the tutorial.');
+                    this.highlight(pNum, pNum === 1 ? '#storageModal .p1-col .close-storage-btn' : '#storageModal .p2-col .close-storage-btn');
                 }
             }
         },
@@ -36324,6 +36357,7 @@ document.addEventListener('mouseout', (e) => {
                 this.hide(pNum);
             } else {
                 this.show(pNum, 'First Battle! <span class="tutorial-highlight">Attack</span> to deal damage.<br><span class="tutorial-highlight">Catch</span> attempts to capture them (lower their HP first!).<br><span class="tutorial-highlight">Swap</span> changes your active creature. <span class="tutorial-highlight">Run</span> escapes.');
+                this.highlight(pNum, pNum === 1 ? '#battleControls button' : '#battleControls_p2 button');
             }
         }
     };
