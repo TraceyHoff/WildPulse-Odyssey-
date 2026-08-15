@@ -27379,7 +27379,7 @@ window.isPlayerInsideHome = function(playerNum) {
     if (playerNum === 1) {
         return p.x >= 57900 && p.x <= 58500 && p.y >= 57900 && p.y <= 58500;
     } else {
-        return p.x >= 58900 && p.x <= 59500 && p.y >= 57900 && p.y <= 58500;
+        return p.x >= 58900 && p.x <= 59500 && p.y >= 53900 && p.y <= 54500;
     }
 };
 
@@ -27387,7 +27387,8 @@ window.rebuildHomeInteriorTiles = function(playerNum) {
     const scene = game.scene.scenes[0];
     if (!scene) return;
 
-    const minR = 579, maxR = 585;
+    const minR = playerNum === 2 ? 539 : 579;
+    const maxR = playerNum === 2 ? 545 : 585;
     const minC = playerNum === 2 ? 589 : 579;
     const maxC = playerNum === 2 ? 595 : 585;
 
@@ -27441,7 +27442,7 @@ window.updateHomeAmbientOverlay = function(playerNum) {
     const alpha = style === 'obsidian' ? 0.35 : 0.15;
 
     const startX = playerNum === 2 ? 58900 : 57900;
-    const startY = 57900;
+    const startY = playerNum === 2 ? 53900 : 57900;
     const width = 700;
     const height = 700;
 
@@ -27473,9 +27474,9 @@ window.handleHomeOverlap = function(playerNum, pCol, homeSprite) {
     };
 
     // Player 1 room center: (col 582, row 582) -> X = 582 * 100 + 50, Y = 582 * 100 + 50
-    // Player 2 room center: (col 592, row 582) -> X = 592 * 100 + 50, Y = 582 * 100 + 50
+    // Player 2 room center: (col 592, row 542) -> X = 592 * 100 + 50, Y = 542 * 100 + 50
     const insideX = playerNum === 2 ? (592 * 100 + 50) : (582 * 100 + 50);
-    const insideY = 582 * 100 + 50;
+    const insideY = playerNum === 2 ? (542 * 100 + 50) : (582 * 100 + 50);
 
     playerObj.setPosition(insideX, insideY);
     if (playerObj.body) {
@@ -28425,17 +28426,17 @@ function create() {
     }
     mapData[584][582] = 'home_door_p1';
 
-    // Player 2 room: Walkable 5x5 at row 580 to 584, col 590 to 594
-    for (let r = 579; r <= 585; r++) {
+    // Player 2 room: Walkable 5x5 at row 540 to 544, col 590 to 594
+    for (let r = 539; r <= 545; r++) {
         for (let c = 589; c <= 595; c++) {
-            if (r === 579 || r === 585 || c === 589 || c === 595) {
+            if (r === 539 || r === 545 || c === 589 || c === 595) {
                 mapData[r][c] = 'home_wall';
             } else {
                 mapData[r][c] = 'home_floor';
             }
         }
     }
-    mapData[584][592] = 'home_door_p2';
+    mapData[544][592] = 'home_door_p2';
 
     // Generate separate portal rift world (40x40 area at row 400 to 439, col 400 to 439)
     // We surround it with wall boundaries
