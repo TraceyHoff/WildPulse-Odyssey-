@@ -5758,6 +5758,29 @@ window.generateBreedTile = function(scene) {
     scene.textures.addCanvas('breed_tile', canvas);
 };
 
+window.add3DDepth = (ctx, dx, dy, w, h) => {
+    const depth = 6;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Top highlight
+    ctx.beginPath();
+    ctx.moveTo(dx, dy); ctx.lineTo(dx+w, dy); ctx.lineTo(dx+w - depth, dy+depth); ctx.lineTo(dx+depth, dy+depth);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; // Left highlight
+    ctx.beginPath();
+    ctx.moveTo(dx, dy); ctx.lineTo(dx+depth, dy+depth); ctx.lineTo(dx+depth, dy+h - depth); ctx.lineTo(dx, dy+h);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)'; // Right shadow
+    ctx.beginPath();
+    ctx.moveTo(dx+w, dy); ctx.lineTo(dx+w, dy+h); ctx.lineTo(dx+w - depth, dy+h - depth); ctx.lineTo(dx+w - depth, dy+depth);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Bottom shadow
+    ctx.beginPath();
+    ctx.moveTo(dx, dy+h); ctx.lineTo(dx+depth, dy+h - depth); ctx.lineTo(dx+w - depth, dy+h - depth); ctx.lineTo(dx+w, dy+h);
+    ctx.closePath(); ctx.fill();
+};
+
 window.generateHomeInteriorTextures = function(scene) {
     // Helper function to add 3D depth to tiles (isometric-style bevel)
     const add3DDepth = (ctx, depth) => {
@@ -8888,10 +8911,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (window.pendingShinyNotifications && window.pendingShinyNotifications.length > 0) {
             window.pendingShinyNotifications.forEach(name => {
+                const shinyIcon = window.getShinyIconHTML ? window.getShinyIconHTML(16) : '✨';
                 if (window.showModernNotification) {
-                    window.showModernNotification(`✨ A wild Shiny ${name} has spawned in the world! ✨`, 6000);
+                    window.showModernNotification(`${shinyIcon} A wild Shiny ${name} has spawned in the world! ${shinyIcon}`, 6000);
                 } else {
-                    console.log(`✨ A wild Shiny ${name} has spawned in the world! ✨`);
+                    console.log(`${shinyIcon} A wild Shiny ${name} has spawned in the world! ${shinyIcon}`);
                 }
             });
             window.pendingShinyNotifications = [];
@@ -31295,10 +31319,11 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     if (clonedData.isShiny) {
         if (window.gameStarted) {
+            const shinyIcon = window.getShinyIconHTML ? window.getShinyIconHTML(16) : '✨';
             if (window.showModernNotification) {
-                window.showModernNotification(`✨ A wild Shiny ${clonedData.name} has spawned in the world! ✨`, 6000);
+                window.showModernNotification(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`, 6000);
             } else {
-                console.log(`✨ A wild Shiny ${clonedData.name} has spawned in the world! ✨`);
+                console.log(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`);
             }
         } else {
             window.pendingShinyNotifications = window.pendingShinyNotifications || [];

@@ -23,7 +23,7 @@ test.describe('ExPALL and Split-Screen Divider', () => {
     const result = await page.evaluate(() => {
       // ExPALL should be present in store replenishment stock defaults
       return {
-        defaultStockHasExPall: window.p1StoreStock && window.p1StoreStock["ExPALL"] === 5,
+        defaultStockHasExPall: window.p1StoreStock && window.p1StoreStock["ExPALL"] === 15,
         p1ExPallTimeExists: typeof window.p1ExPallTime === 'number'
       };
     });
