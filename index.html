@@ -18933,6 +18933,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         if (justB) {
             window.cancelMiniTilePlacement(playerNum);
         }
+        if (justX) {
+            window[`p${playerNum}MiniTileRotation`] = (window[`p${playerNum}MiniTileRotation`] + 90) % 360;
+            if (window[previewSpriteId]) {
+                window[previewSpriteId].setAngle(window[`p${playerNum}MiniTileRotation`]);
+            }
+        }
 
         prev.Y = currY;
         prev.X = currX;
@@ -27773,8 +27779,9 @@ window.spawnMiniTiles = function(scene) {
                 mSprite.isMiniTile = true;
                 mSprite.miniTileType = tile.type;
                 mSprite.playerNum = pNum;
+                mSprite.setAngle(tile.rotation || 0);
                 if (mSprite.body) {
-                    mSprite.body.setSize(60, 60);
+                    mSprite.body.setSize(50, 50);
                     mSprite.body.updateFromGameObject();
                 }
             }
@@ -27879,9 +27886,11 @@ window.startHomePlacement = function(playerNum) {
         window[previewSpriteId] = scene.add.sprite(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`], 'home_tile');
         window[previewSpriteId].setAlpha(0.6);
         window[previewSpriteId].setDepth(100);
+        window[previewSpriteId].setAngle(0);
     } else {
         window[previewSpriteId].setPosition(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`]);
         window[previewSpriteId].setVisible(true);
+        window[previewSpriteId].setAngle(0);
     }
 
     // Setup camera ignore for split screen
@@ -28138,20 +28147,31 @@ window.cancelHomePlacement = function(playerNum) {
     window.showModernNotification("🏠 Home placement canceled.", 3000, playerNum);
 };
 
-window.isValidMiniTileLocation = function(row, col, playerNum) {
+window.isValidMiniTileLocation = function(x, y, playerNum) {
+    let col = Math.floor(x / 100);
+    let row = Math.floor(y / 100);
     if (!mapData || !mapData[row] || col < 0 || col >= mapData[0].length) return false;
 
     const tileType = mapData[row][col];
     const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
 
+    const HALF_SIZE = 25;
+    const tileRect = { left: x - HALF_SIZE, right: x + HALF_SIZE, top: y - HALF_SIZE, bottom: y + HALF_SIZE };
+
     if (isInside) {
-        // Must be placed on home_floor tile
-        if (tileType !== 'home_floor') return false;
-        // Check player boundaries
+        // Must be placed on home_floor tile bounds exactly
         const minR = 580, maxR = 584;
         const minC = playerNum === 2 ? 590 : 580;
         const maxC = playerNum === 2 ? 594 : 584;
-        if (row < minR || row > maxR || col < minC || col > maxC) return false;
+
+        const homeMinX = minC * 100;
+        const homeMaxX = (maxC + 1) * 100;
+        const homeMinY = minR * 100;
+        const homeMaxY = (maxR + 1) * 100;
+
+        if (tileRect.left < homeMinX || tileRect.right > homeMaxX || tileRect.top < homeMinY || tileRect.bottom > homeMaxY) {
+            return false;
+        }
     } else {
         // Check if tile is grass
         if (tileType !== 'grass') return false;
@@ -28162,7 +28182,7 @@ window.isValidMiniTileLocation = function(row, col, playerNum) {
         if (hash < 12 && !isAboveHospital) return false;
     }
 
-    // Check other homes/structures
+    // Check other homes/structures and other mini tiles
     for (let pNum of [1, 2]) {
         // check home
         const hx = localStorage.getItem(`wildpulse_p${pNum}_home_x`);
@@ -28172,13 +28192,15 @@ window.isValidMiniTileLocation = function(row, col, playerNum) {
             let hCol = Math.floor(parseFloat(hx) / 100);
             if (hRow === row && hCol === col) return false;
         }
-        // check existing mini tiles for this player
+        // check existing mini tiles for overlaps
         const miniTilesKey = `wildpulse_p${pNum}_mini_tiles`;
         const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
         for (let tile of miniTiles) {
-            let tRow = Math.floor(tile.y / 100);
-            let tCol = Math.floor(tile.x / 100);
-            if (tRow === row && tCol === col) return false;
+            const otherRect = { left: tile.x - HALF_SIZE, right: tile.x + HALF_SIZE, top: tile.y - HALF_SIZE, bottom: tile.y + HALF_SIZE };
+            if (tileRect.left < otherRect.right && tileRect.right > otherRect.left &&
+                tileRect.top < otherRect.bottom && tileRect.bottom > otherRect.top) {
+                return false; // overlapping
+            }
         }
     }
     return true;
@@ -28195,6 +28217,7 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
 
     window[`p${playerNum}MiniTilePlacementMode`] = itemName;
     window[`p${playerNum}MiniTileSlotIndex`] = slotIndex;
+    window[`p${playerNum}MiniTileRotation`] = 0;
 
     const playerSprite = playerNum === 2 ? window.player2 : window.player;
     if (!playerSprite) return;
@@ -28238,10 +28261,12 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         window[previewSpriteId].setAlpha(0.6);
         window[previewSpriteId].setScale(0.6);
         window[previewSpriteId].setDepth(100);
+        window[previewSpriteId].setAngle(0);
     } else {
         window[previewSpriteId].setTexture(textureKey);
         window[previewSpriteId].setPosition(window[`p${playerNum}MiniTilePreviewX`], window[`p${playerNum}MiniTilePreviewY`]);
         window[previewSpriteId].setVisible(true);
+        window[previewSpriteId].setAngle(0);
     }
 
     // Camera ignore setup for split-screen co-op
@@ -28253,7 +28278,7 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         }
     }
 
-    window.showModernNotification(`🛠️ Mini Tile Placement: Move preview, press A (or click) to place close to your Home. Press B (or ESC) to cancel.`, 6000, playerNum);
+    window.showModernNotification(`🛠️ Mini Tile Placement: Move preview, press A (or click) to place close to your Home. Press X (or R key) to rotate. Press B (or ESC) to cancel.`, 6000, playerNum);
 };
 
 window.tryPlaceMiniTile = function(playerNum, x, y) {
@@ -28261,10 +28286,10 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
     const slotIndex = window[`p${playerNum}MiniTileSlotIndex`];
     if (!itemName) return;
 
+    let snappedX = x;
+    let snappedY = y;
     let col = Math.floor(x / 100);
     let row = Math.floor(y / 100);
-    let snappedX = col * 100 + 50;
-    let snappedY = row * 100 + 50;
 
     const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
 
@@ -28280,7 +28305,7 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
     }
 
     // 2. Validate location
-    if (!window.isValidMiniTileLocation(row, col, playerNum)) {
+    if (!window.isValidMiniTileLocation(x, y, playerNum)) {
         window.showModernNotification("❌ Invalid location! Cannot place on water, trees, walls, or existing structures.", 3000, playerNum);
         return;
     }
@@ -28318,7 +28343,7 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
     };
     const tileType = typeMap[itemName];
 
-    miniTiles.push({ type: tileType, x: snappedX, y: snappedY });
+    miniTiles.push({ type: tileType, x: snappedX, y: snappedY, rotation: window[`p${playerNum}MiniTileRotation`] });
     localStorage.setItem(miniTilesKey, JSON.stringify(miniTiles));
 
     // Consume the item from inventory!
@@ -29469,6 +29494,31 @@ function create() {
             let p1WorldX = this.cameras.main.scrollX + pointer.x;
             let p1WorldY = this.cameras.main.scrollY + pointer.y;
             window.tryPlaceHome(1, p1WorldX, p1WorldY);
+        }
+        if (window.p1MiniTilePlacementMode) {
+            let p1WorldX = this.cameras.main.scrollX + pointer.x;
+            let p1WorldY = this.cameras.main.scrollY + pointer.y;
+            // Left click to place
+            if (pointer.button === 0) {
+                window.tryPlaceMiniTile(1, p1WorldX, p1WorldY);
+            } else if (pointer.button === 2) {
+                // Right click to cancel
+                window.cancelMiniTilePlacement(1);
+            }
+            return;
+        }
+
+        if (window.p2MiniTilePlacementMode) {
+            const cam = (window.coopActive && window.camera2) ? window.camera2 : this.cameras.main;
+            const wp = cam.getWorldPoint(pointer.x, pointer.y);
+            // Left click to place
+            if (pointer.button === 0) {
+                window.tryPlaceMiniTile(2, wp.x, wp.y);
+            } else if (pointer.button === 2) {
+                // Right click to cancel
+                window.cancelMiniTilePlacement(2);
+            }
+            return;
         }
     });
 
@@ -33320,6 +33370,76 @@ function update() {
             const cKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
             if (Phaser.Input.Keyboard.JustDown(escKey) || Phaser.Input.Keyboard.JustDown(cKey)) {
                 window.cancelHomePlacement(1);
+            }
+        }
+
+        if (window.p1MiniTilePlacementMode) {
+            const pointer = activeScene.input.activePointer;
+            if (activeScene._lastP1MiniPointerX === undefined) {
+                activeScene._lastP1MiniPointerX = pointer.x;
+                activeScene._lastP1MiniPointerY = pointer.y;
+            }
+            if (pointer.x !== activeScene._lastP1MiniPointerX || pointer.y !== activeScene._lastP1MiniPointerY) {
+                const cam = activeScene.cameras.main;
+                const wp = cam.getWorldPoint(pointer.x, pointer.y);
+                window.p1MiniTilePreviewX = wp.x;
+                window.p1MiniTilePreviewY = wp.y;
+                activeScene._lastP1MiniPointerX = pointer.x;
+                activeScene._lastP1MiniPointerY = pointer.y;
+            }
+
+            if (window.p1MiniTilePreviewSprite) {
+                window.p1MiniTilePreviewSprite.setPosition(window.p1MiniTilePreviewX, window.p1MiniTilePreviewY);
+            }
+
+            // Check for cancel and rotate keys
+            const escKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+            const cKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+            const rKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+
+            if (Phaser.Input.Keyboard.JustDown(escKey) || Phaser.Input.Keyboard.JustDown(cKey)) {
+                window.cancelMiniTilePlacement(1);
+            }
+            if (Phaser.Input.Keyboard.JustDown(rKey)) {
+                window.p1MiniTileRotation = (window.p1MiniTileRotation + 90) % 360;
+                if (window.p1MiniTilePreviewSprite) {
+                    window.p1MiniTilePreviewSprite.setAngle(window.p1MiniTileRotation);
+                }
+            }
+        }
+
+        if (window.p2MiniTilePlacementMode) {
+            const pointer = activeScene.input.activePointer;
+            if (activeScene._lastP2MiniPointerX === undefined) {
+                activeScene._lastP2MiniPointerX = pointer.x;
+                activeScene._lastP2MiniPointerY = pointer.y;
+            }
+            if (pointer.x !== activeScene._lastP2MiniPointerX || pointer.y !== activeScene._lastP2MiniPointerY) {
+                const cam = (window.coopActive && window.camera2) ? window.camera2 : activeScene.cameras.main;
+                const wp = cam.getWorldPoint(pointer.x, pointer.y);
+                window.p2MiniTilePreviewX = wp.x;
+                window.p2MiniTilePreviewY = wp.y;
+                activeScene._lastP2MiniPointerX = pointer.x;
+                activeScene._lastP2MiniPointerY = pointer.y;
+            }
+
+            if (window.p2MiniTilePreviewSprite) {
+                window.p2MiniTilePreviewSprite.setPosition(window.p2MiniTilePreviewX, window.p2MiniTilePreviewY);
+            }
+
+            // Check for cancel and rotate keys
+            const escKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+            const cKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+            const rKey = activeScene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+
+            if (Phaser.Input.Keyboard.JustDown(escKey) || Phaser.Input.Keyboard.JustDown(cKey)) {
+                window.cancelMiniTilePlacement(2);
+            }
+            if (Phaser.Input.Keyboard.JustDown(rKey)) {
+                window.p2MiniTileRotation = (window.p2MiniTileRotation + 90) % 360;
+                if (window.p2MiniTilePreviewSprite) {
+                    window.p2MiniTilePreviewSprite.setAngle(window.p2MiniTileRotation);
+                }
             }
         }
 
