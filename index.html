@@ -31147,6 +31147,31 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
     window.updateBattleUI();
 };
 
+window.adjustWildCreatureLevels = function() {
+    let p1Party = (window.collectedCreatures || []).filter(c => !c.stored);
+    let p2Party = (window.collectedCreatures2 || []).filter(c => !c.stored);
+    let allParty = p1Party.concat(p2Party);
+    let maxPossibleLevel = allParty.length > 0 ? Math.max(...allParty.map(c => c.level || 1)) : 1;
+
+    if (typeof creaturesGroup !== 'undefined' && creaturesGroup) {
+        creaturesGroup.getChildren().forEach(sprite => {
+            let data = sprite.getData('creatureData');
+            if (data) {
+                let isInsideRift = (sprite.x >= 40000 && sprite.x <= 44000 && sprite.y >= 40000 && sprite.y <= 44000);
+                let targetLevel = maxPossibleLevel;
+                if (isInsideRift) {
+                    targetLevel = Math.max(targetLevel + 15, 30);
+                }
+
+                if (data.level !== targetLevel) {
+                    data.level = targetLevel;
+                    sprite.setData('creatureData', data);
+                }
+            }
+        });
+    }
+};
+
 function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     const maxSpawns = window.perfLowerSpawns ? 20 : 50;
     if (creaturesGroup && creaturesGroup.getChildren().length >= maxSpawns) return;
@@ -31270,24 +31295,17 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     // Assign Ability Deterministically
     window.assignAbility(clonedData, sRng);
 
-    let minPossibleLevel = collectedCreatures.length > 0 ? Math.min(...collectedCreatures.map(c => c.level || 1)) : 1;
-    let maxPossibleLevel = collectedCreatures.length > 0 ? Math.max(...collectedCreatures.map(c => c.level || 1)) : 1;
-    if (maxPossibleLevel === 1 && minPossibleLevel === 1) {
-        clonedData.level = 1;
-    } else {
-        let wildLevel = Math.floor(sRng() * (maxPossibleLevel - minPossibleLevel + 1)) + minPossibleLevel;
-        clonedData.level = Math.max(1, wildLevel);
-    }
+    let p1Party = (window.collectedCreatures || []).filter(c => !c.stored);
+    let p2Party = (window.collectedCreatures2 || []).filter(c => !c.stored);
+    let allParty = p1Party.concat(p2Party);
+    let maxPossibleLevel = allParty.length > 0 ? Math.max(...allParty.map(c => c.level || 1)) : 1;
+
+    clonedData.level = maxPossibleLevel;
 
     // Scale level if inside the Void Rift (Row 400-439, Col 400-439)
     if (isInsideRift) {
         clonedData.level = Math.max(clonedData.level + 15, 30);
         clonedData.name += " [Void]";
-    }
-
-    // Force shiny creatures to match the player's highest level creature
-    if (clonedData.isShiny) {
-        clonedData.level = maxPossibleLevel;
     }
 
     clonedData.xp = 0;
@@ -34355,6 +34373,15 @@ function updateFurnitureDetails() {
 
 function update() {
     updateFurnitureDetails();
+
+    window.framesSinceWildAdjust = (window.framesSinceWildAdjust || 0) + 1;
+    if (window.framesSinceWildAdjust > 30) {
+        if (window.gameStarted && typeof window.adjustWildCreatureLevels === 'function') {
+            window.adjustWildCreatureLevels();
+        }
+        window.framesSinceWildAdjust = 0;
+    }
+
     if (!window.gameStarted) {
         // Stop camera follow and lock to center so static start screen has stable background
         const cam = this.cameras.main;
