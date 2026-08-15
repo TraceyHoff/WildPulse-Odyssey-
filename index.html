@@ -25809,6 +25809,11 @@ function generateTileTextures(scene) {
     couchCtx.shadowColor = '#00ffd2';
     couchCtx.strokeRect(10, 30, 80, 50);
     couchCtx.strokeRect(5, 20, 90, 20);
+    // Throw pillows
+    couchCtx.fillStyle = '#ff0055';
+    couchCtx.fillRect(15, 35, 15, 15);
+    couchCtx.fillStyle = '#ffaa00';
+    couchCtx.fillRect(70, 35, 15, 15);
     if (window.add3DDepth) window.add3DDepth(couchCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_couch_tile', couchCanvas);
 
@@ -25835,6 +25840,13 @@ function generateTileTextures(scene) {
     deskCtx.fillStyle = '#00ffd2';
     deskCtx.shadowColor = '#00ffd2';
     deskCtx.fillRect(30, 50, 40, 10);
+    // Gadgets/Clutter
+    deskCtx.fillStyle = '#ff0055';
+    deskCtx.fillRect(10, 45, 8, 12);
+    deskCtx.fillStyle = '#00ffcc';
+    deskCtx.beginPath(); deskCtx.arc(80, 50, 5, 0, Math.PI*2); deskCtx.fill();
+    deskCtx.fillStyle = '#fff';
+    deskCtx.fillRect(15, 60, 10, 15);
     if (window.add3DDepth) window.add3DDepth(deskCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_desk_tile', deskCanvas);
 
@@ -25881,6 +25893,11 @@ function generateTileTextures(scene) {
     bedCtx.shadowBlur = 5;
     bedCtx.shadowColor = '#fff';
     bedCtx.fillRect(20, 15, 60, 15);
+    // Blanket pattern
+    bedCtx.strokeStyle = '#00ffd2';
+    bedCtx.lineWidth = 2;
+    bedCtx.strokeRect(25, 40, 50, 40);
+    bedCtx.beginPath(); bedCtx.moveTo(25, 40); bedCtx.lineTo(75, 80); bedCtx.stroke();
     // Futuristic glowing nodes
     bedCtx.fillStyle = '#ff00ff';
     bedCtx.shadowBlur = 10;
@@ -25960,6 +25977,37 @@ function generateTileTextures(scene) {
     lampCtx.fill();
     scene.textures.addCanvas('furniture_lamp_tile', lampCanvas);
 
+    // Neon Lamp Off
+    const lampOffCanvas = document.createElement('canvas');
+    lampOffCanvas.width = 100;
+    lampOffCanvas.height = 100;
+    const lampOffCtx = lampOffCanvas.getContext('2d');
+    lampOffCtx.fillStyle = '#222';
+    lampOffCtx.fillRect(45, 20, 10, 70); // pole
+    lampOffCtx.fillRect(35, 80, 30, 10); // base
+    lampOffCtx.fillStyle = '#555';
+    lampOffCtx.beginPath();
+    lampOffCtx.arc(50, 20, 15, 0, Math.PI * 2);
+    lampOffCtx.fill();
+    scene.textures.addCanvas('furniture_lamp_off_tile', lampOffCanvas);
+
+    // Neon Lamp On
+    const lampOnCanvas = document.createElement('canvas');
+    lampOnCanvas.width = 100;
+    lampOnCanvas.height = 100;
+    const lampOnCtx = lampOnCanvas.getContext('2d');
+    lampOnCtx.fillStyle = '#222';
+    lampOnCtx.fillRect(45, 20, 10, 70); // pole
+    lampOnCtx.fillRect(35, 80, 30, 10); // base
+    lampOnCtx.fillStyle = '#ffff00';
+    lampOnCtx.shadowBlur = 20;
+    lampOnCtx.shadowColor = '#ffff00';
+    lampOnCtx.beginPath();
+    lampOnCtx.arc(50, 20, 15, 0, Math.PI * 2);
+    lampOnCtx.fill();
+    scene.textures.addCanvas('furniture_lamp_on_tile', lampOnCanvas);
+
+
     // Server Rack
     const serverCanvas = document.createElement('canvas');
     serverCanvas.width = 100;
@@ -25974,6 +26022,14 @@ function generateTileTextures(scene) {
         serverCtx.fillRect(25, i, 10, 5);
         serverCtx.fillRect(40, i, 5, 5);
         serverCtx.fillRect(50, i, 25, 5);
+        // Blinking lights
+        if (i % 30 === 20) {
+            serverCtx.fillStyle = '#ff0055';
+            serverCtx.fillRect(55, i+1, 3, 3);
+            serverCtx.fillStyle = '#ffff00';
+            serverCtx.fillRect(65, i+1, 3, 3);
+            serverCtx.fillStyle = '#00ff00';
+        }
     }
     if (window.add3DDepth) window.add3DDepth(serverCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_server_tile', serverCanvas);
@@ -25992,6 +26048,11 @@ function generateTileTextures(scene) {
     arcadeCtx.shadowBlur = 10;
     arcadeCtx.shadowColor = '#ff0055';
     arcadeCtx.strokeRect(30, 20, 40, 30);
+    // Screen contents
+    arcadeCtx.fillStyle = '#00ffcc';
+    arcadeCtx.font = '10px monospace';
+    arcadeCtx.fillText('INSERT', 32, 35);
+    arcadeCtx.fillText('COIN', 38, 45);
     arcadeCtx.fillStyle = '#ff0055';
     arcadeCtx.fillRect(45, 60, 10, 10); // joystick
     if (window.add3DDepth) window.add3DDepth(arcadeCtx, 0, 0, 100, 100);
@@ -26009,6 +26070,14 @@ function generateTileTextures(scene) {
     tvCtx.shadowBlur = 10;
     tvCtx.shadowColor = '#00ffff';
     tvCtx.strokeRect(10, 20, 80, 50);
+    // Screen contents
+    tvCtx.fillStyle = '#00ffcc';
+    tvCtx.fillRect(15, 25, 20, 15);
+    tvCtx.fillStyle = '#ff0055';
+    tvCtx.fillRect(40, 25, 45, 5);
+    tvCtx.fillRect(40, 35, 30, 5);
+    tvCtx.fillStyle = '#fff';
+    tvCtx.fillRect(15, 45, 70, 20);
     tvCtx.fillStyle = '#333';
     tvCtx.fillRect(40, 70, 20, 20); // stand
     tvCtx.fillRect(20, 85, 60, 5); // base
@@ -26050,6 +26119,11 @@ function generateTileTextures(scene) {
     binCtx.moveTo(40, 50);
     binCtx.lineTo(60, 50);
     binCtx.stroke();
+    // Glowing trash inside
+    binCtx.fillStyle = '#00ffcc';
+    binCtx.fillRect(40, 25, 5, 5);
+    binCtx.fillStyle = '#ff00ff';
+    binCtx.fillRect(55, 27, 4, 4);
     scene.textures.addCanvas('furniture_bin_tile', binCanvas);
 
     // Neon Wardrobe
@@ -26087,7 +26161,17 @@ function generateTileTextures(scene) {
     fridgeCtx.shadowBlur = 5;
     fridgeCtx.shadowColor = '#00aaff';
     fridgeCtx.fillRect(35, 20, 5, 20); // top handle
-    fridgeCtx.fillRect(35, 55, 5, 20); // bottom handle
+    fridgeCtx.fillRect(35, 55, 5, 20);
+    // Sticky note
+    fridgeCtx.fillStyle = '#ffff00';
+    fridgeCtx.fillRect(45, 25, 15, 15);
+    // Little text on sticky note
+    fridgeCtx.fillStyle = '#000';
+    fridgeCtx.fillRect(47, 28, 10, 2);
+    fridgeCtx.fillRect(47, 32, 8, 2);
+    // Digital display
+    fridgeCtx.fillStyle = '#00ffcc';
+    fridgeCtx.fillRect(45, 12, 20, 10); // bottom handle
     if (window.add3DDepth) window.add3DDepth(fridgeCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_fridge_tile', fridgeCanvas);
 
@@ -32964,7 +33048,51 @@ window.getParticleScale = function() {
     return 1.0;
 };
 
+
+function updateFurnitureDetails() {
+    if (!window.gameStarted || !window.miniTilesGroup) return;
+
+    const now = Date.now();
+    const players = [player];
+    if (window.coopActive && window.player2) {
+        players.push(window.player2);
+    }
+
+    window.miniTilesGroup.getChildren().forEach(tile => {
+        if (tile.miniTileType === 'furniture_lamp') {
+            let isClose = false;
+            for (let p of players) {
+                if (p && p.active) {
+                    const distSq = (p.x - tile.x) * (p.x - tile.x) + (p.y - tile.y) * (p.y - tile.y);
+                    if (distSq < 150 * 150) { // 150px radius
+                        isClose = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isClose) {
+                if (tile.texture.key !== 'furniture_lamp_on_tile') {
+                    tile.setTexture('furniture_lamp_on_tile');
+                }
+                tile.lastCloseTime = now;
+            } else {
+                if (tile.lastCloseTime && (now - tile.lastCloseTime) > 3000) { // 3 seconds after leaving
+                    if (tile.texture.key !== 'furniture_lamp_off_tile') {
+                        tile.setTexture('furniture_lamp_off_tile');
+                    }
+                } else if (!tile.lastCloseTime) {
+                    if (tile.texture.key !== 'furniture_lamp_off_tile') {
+                        tile.setTexture('furniture_lamp_off_tile');
+                    }
+                }
+            }
+        }
+    });
+}
+
 function update() {
+    updateFurnitureDetails();
     if (!window.gameStarted) {
         // Stop camera follow and lock to center so static start screen has stable background
         const cam = this.cameras.main;
