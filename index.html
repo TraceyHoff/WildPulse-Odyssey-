@@ -3724,7 +3724,7 @@
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
             <div id="p1CoinsContainer" style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 12px; border: 1px solid #ffd700; color: #ffd700; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 4px; pointer-events: none; z-index: 1001;">
-                🪙 <span id="p1CoinsCount">0</span>
+                <span class="coin-icon-wrapper"></span> <span id="p1CoinsCount">0</span>
             </div>
             <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
             <h2 style="color: #4caf50; text-align: center; margin-top: 0;">Player 1 Menu</h2>
@@ -3754,7 +3754,7 @@
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
             <div id="p2CoinsContainer" style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 12px; border: 1px solid #ffd700; color: #ffd700; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 4px; pointer-events: none; z-index: 1001;">
-                🪙 <span id="p2CoinsCount">0</span>
+                <span class="coin-icon-wrapper"></span> <span id="p2CoinsCount">0</span>
             </div>
             <button class="close-btn close-menu-btn" aria-label="Close Menu">X</button>
             <h2 style="color: #ff9800; text-align: center; margin-top: 0;">Player 2 Menu</h2>
@@ -4841,7 +4841,7 @@ window.openQuestModal = function(playerNum, npcId) {
                 <div style="font-size: 13px; color: #ddd; margin-bottom: 15px; line-height: 1.4;">${potentialQuest.description}</div>
                 <div style="font-size: 12px; color: #aaa; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                     <strong style="color: #ffeb3b;">Rewards:</strong>
-                    <div style="margin-top: 4px;">🪙 ${potentialQuest.rewards.coins} Coins</div>
+                    <div style="margin-top: 4px;">${window.getCoinIconHTML(16)} ${potentialQuest.rewards.coins} Coins</div>
                     <div>⚡ ${potentialQuest.rewards.xp} Player XP</div>
                     ${potentialQuest.rewards.item ? `<div>🎁 ${potentialQuest.rewards.item}</div>` : ''}
                 </div>
@@ -4911,7 +4911,7 @@ window.openQuestModal = function(playerNum, npcId) {
                 </div>
                 <div style="font-size: 12px; color: #aaa; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                     <strong style="color: #ffeb3b;">Rewards:</strong>
-                    <div style="margin-top: 4px;">🪙 ${activeQuest.rewards.coins} Coins</div>
+                    <div style="margin-top: 4px;">${window.getCoinIconHTML(16)} ${activeQuest.rewards.coins} Coins</div>
                     <div>⚡ ${activeQuest.rewards.xp} Player XP</div>
                     ${activeQuest.rewards.item ? `<div>🎁 ${activeQuest.rewards.item}</div>` : ''}
                 </div>
@@ -17088,7 +17088,7 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     }
 
     if (coins < finalPrice) {
-        window.showModernNotification("🪙 Not enough coins!", 3000, playerNum);
+        window.showModernNotification(`${window.getCoinIconHTML(20)}` + " Not enough coins!", 3000, playerNum);
         return;
     }
 
@@ -17187,7 +17187,7 @@ window.sellCreature = function(playerNum) {
     }
 
     const price = window.calculateCreatureSellPrice(target);
-    window.safeConfirm(playerNum, "SELL CREATURE", `Are you sure you want to sell ${target.nickname || target.name} for 🪙 ${price} coins?`, () => {
+    window.safeConfirm(playerNum, "SELL CREATURE", `Are you sure you want to sell ${target.nickname || target.name} for ${window.getCoinIconHTML(16)} ${price} coins?`, () => {
         idSet.delete(target.id);
         list.splice(idx, 1);
         localStorage.setItem(key, JSON.stringify(list));
@@ -17200,7 +17200,7 @@ window.sellCreature = function(playerNum) {
         }
 
         if (window.showModernNotification) {
-            window.showModernNotification(`🪙 Sold ${target.nickname || target.name} for ${price} coins!`, 3000, playerNum);
+            window.showModernNotification(`${window.getCoinIconHTML(20)}  Sold ${target.nickname || target.name} for ${price} coins!`, 3000, playerNum);
         } else {
             alert(`Sold ${target.nickname || target.name} for ${price} coins!`);
         }
@@ -17348,7 +17348,7 @@ window.updateStoreUI = function() {
 
         let html = `
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
-                🪙 Coins: <span style="font-size: 18px;">${coins}</span>
+                ${window.getCoinIconHTML(20)} Coins: <span style="font-size: 18px;">${coins}</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 280px); overflow-y: auto; padding-right: 5px;">
         `;
@@ -17409,7 +17409,7 @@ window.updateStoreUI = function() {
                         <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available} | Stock: ${stock}</div>
                     </div>
                     <div style="text-align: right; min-width: 80px;">
-                        <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">🪙 ${displayedPrice}</div>
+                        <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">${window.getCoinIconHTML(16)} ${displayedPrice}</div>
                         <button class="buy-item-btn" onclick="window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}">
                             ${btnText}
                         </button>
@@ -17944,6 +17944,29 @@ window.getLegendaryIconHTML = function(size = 16) {
         <circle cx="50" cy="55" r="10" fill="#fff" />
     </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">👑</span>`;
 };
+
+window.getCoinIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 2px #ffd700); margin: 0 2px;">
+        <defs>
+            <radialGradient id="coinGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fff9c4"/>
+                <stop offset="50%" stop-color="#ffd700"/>
+                <stop offset="100%" stop-color="#f57f17"/>
+            </radialGradient>
+        </defs>
+        <circle cx="50" cy="50" r="45" fill="url(#coinGrad)" stroke="#b8860b" stroke-width="5"/>
+        <circle cx="50" cy="50" r="30" fill="none" stroke="#fff9c4" stroke-width="2" opacity="0.5"/>
+        <text x="50" y="65" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="#b8860b" text-anchor="middle" style="text-shadow: 1px 1px 0px #fff9c4;">C</text>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🪙</span>`;
+};
+
+window.getCheckmarkIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #00ff96); margin: 0 4px;">
+        <circle cx="50" cy="50" r="45" fill="#00ff96" opacity="0.2" stroke="#00ff96" stroke-width="5"/>
+        <path d="M25 50 L45 70 L75 30" fill="none" stroke="#00ff96" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">✅</span>`;
+};
+
 
 window.getItemIconHTML = function(itemName, size = 24) {
     let svgContent = '';
@@ -28867,7 +28890,7 @@ window.tryPlaceBase = function(playerNum, x, y) {
     baseTiles.push(newTile);
     window.saveBaseTiles();
     window.spawnSingleBaseTile(newTile, playerNum);
-    window.showModernNotification("✅ Piece placed!", 2000, playerNum, "#00ff96");
+    window.showModernNotification(`${window.getCheckmarkIconHTML(16)} Piece placed!`, 2000, playerNum, "#00ff96");
 };
 
 window.tryDestroyBase = function(playerNum, x, y) {
@@ -29272,9 +29295,9 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
     // Exit placement mode
     window.exitMiniTilePlacementMode(playerNum);
     if (isInside) {
-        window.showModernNotification(`✅ Placed ${itemName} inside your Home!`, 4000, playerNum);
+        window.showModernNotification(`${window.getCheckmarkIconHTML(16)} Placed ${itemName} inside your Home!`, 4000, playerNum);
     } else {
-        window.showModernNotification(`✅ Placed ${itemName} successfully!`, 4000, playerNum);
+        window.showModernNotification(`${window.getCheckmarkIconHTML(16)} Placed ${itemName} successfully!`, 4000, playerNum);
     }
 };
 
@@ -33207,7 +33230,7 @@ window.endBattle = function(result) {
                 window.gameStats2.coins += c2;
                 localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                 window.saveStats();
-                window.showModernNotification(`🪙 ${window.getP1Name()} won ${c1} coins! ${window.getP2Name()} received ${c2} coins!`);
+                window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} won ${c1} coins! ${window.getP2Name()} received ${c2} coins!`);
             } else if (result === 'loss') {
                 // Player 2 wins (+3 happiness), Player 1 loses (-5 happiness)
                 window.collectedCreatures2.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, 3, 2));
@@ -33223,7 +33246,7 @@ window.endBattle = function(result) {
                 let c1 = Math.floor(2 * window.getPassiveGoldMultiplier(1));
                 window.gameStats.coins += c1;
                 window.saveStats();
-                window.showModernNotification(`🪙 ${window.getP2Name()} won ${c2} coins! ${window.getP1Name()} received ${c1} coins!`);
+                window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP2Name()} won ${c2} coins! ${window.getP1Name()} received ${c1} coins!`);
             }
             if (window.updateMenuCoins) window.updateMenuCoins();
 
@@ -33253,14 +33276,14 @@ window.endBattle = function(result) {
                         window.gameStats2.coins += rawRew;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} won ${rawRew} coins!`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP2Name()} won ${rawRew} coins!`);
                     } else {
                         window.gameStats.battlesWon++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
                         let rawRew = Math.floor(100 * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += rawRew;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} won ${rawRew} coins!`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} won ${rawRew} coins!`);
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 } else if (result === 'loss') {
@@ -33272,14 +33295,14 @@ window.endBattle = function(result) {
                         window.gameStats2.coins += rawRew;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} received ${rawRew} coins on loss.`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP2Name()} received ${rawRew} coins on loss.`);
                     } else {
                         window.gameStats.battlesLost++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
                         let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += rawRew;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} received ${rawRew} coins on loss.`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} received ${rawRew} coins on loss.`);
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 }
@@ -33292,7 +33315,7 @@ window.endBattle = function(result) {
                         let rawRew = Math.floor(80 * window.getPassiveGoldMultiplier(2));
                         window.gameStats2.coins += rawRew;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} won ${rawRew} coins!`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP2Name()} won ${rawRew} coins!`);
                     } else if (result === 'loss') {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.pvpBattlesLost = (window.gameStats2.pvpBattlesLost || 0) + 1;
@@ -33300,7 +33323,7 @@ window.endBattle = function(result) {
                         let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(2));
                         window.gameStats2.coins += rawRew;
                         window.saveStats();
-                        window.showModernNotification(`🪙 Received ${rawRew} coins on loss!`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  Received ${rawRew} coins on loss!`);
                     }
                 } else {
                     if (result === 'win') {
@@ -33309,14 +33332,14 @@ window.endBattle = function(result) {
                         let rawRew = Math.floor(80 * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += rawRew;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} won ${rawRew} coins!`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} won ${rawRew} coins!`);
                     } else if (result === 'loss') {
                         window.gameStats.pvpBattlesLost = (window.gameStats.pvpBattlesLost || 0) + 1;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
                         let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += rawRew;
                         window.saveStats();
-                        window.showModernNotification(`🪙 Received ${rawRew} coins on loss!`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  Received ${rawRew} coins on loss!`);
                     }
                 }
                 if (window.updateMenuCoins) window.updateMenuCoins();
@@ -33335,14 +33358,14 @@ window.endBattle = function(result) {
                         window.gameStats2.coins += coinReward;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} earned ${coinReward} coins!`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP2Name()} earned ${coinReward} coins!`);
                     } else {
                         window.gameStats.battlesWon++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
                         let coinReward = Math.floor(baseReward * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += coinReward;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} earned ${coinReward} coins!`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} earned ${coinReward} coins!`);
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 } else if (result === 'loss') {
@@ -33354,14 +33377,14 @@ window.endBattle = function(result) {
                         window.gameStats2.coins += coinReward;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP2Name()} received ${coinReward} coins on loss.`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP2Name()} received ${coinReward} coins on loss.`);
                     } else {
                         window.gameStats.battlesLost++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
                         let coinReward = Math.floor(2 * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += coinReward;
                         window.saveStats();
-                        window.showModernNotification(`🪙 ${window.getP1Name()} received ${coinReward} coins on loss.`);
+                        window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} received ${coinReward} coins on loss.`);
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 }
@@ -35871,7 +35894,7 @@ function update() {
                     window.gameStats.coins += foundGold;
                     window.saveStats();
                     if (window.updateMenuCoins) window.updateMenuCoins();
-                    window.showModernNotification(`🧲 Metal Sweep: Your Magnetic Pulse mutant found 🪙 ${foundGold} gold coins on the ground!`);
+                    window.showModernNotification(`🧲 Metal Sweep: Your Magnetic Pulse mutant found ${window.getCoinIconHTML(16)} ${foundGold} gold coins on the ground!`);
                 }
             }
         }
@@ -36027,7 +36050,7 @@ function update() {
                                 localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                                 window.saveStats();
                                 if (window.updateMenuCoins) window.updateMenuCoins();
-                                window.showModernNotification(`🧲 Metal Sweep: Player 2's Magnetic Pulse mutant found 🪙 ${foundGold} gold coins on the ground!`);
+                                window.showModernNotification(`🧲 Metal Sweep: Player 2's Magnetic Pulse mutant found ${window.getCoinIconHTML(16)} ${foundGold} gold coins on the ground!`);
                             }
                         }
                     }
@@ -37152,5 +37175,12 @@ document.addEventListener('mouseout', (e) => {
     }
 });
 </script>
+
+<script>
+    document.querySelectorAll('.coin-icon-wrapper').forEach(el => {
+        if(window.getCoinIconHTML) el.innerHTML = window.getCoinIconHTML(20);
+    });
+</script>
 </body>
+
 </html>
