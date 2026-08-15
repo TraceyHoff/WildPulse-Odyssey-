@@ -17230,37 +17230,33 @@ window.updateStoreUI = function() {
         const pLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
         const activeItems = [...items];
         const homeItems = [];
-        if (pLvl >= 6) {
-            homeItems.push(
-                { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage." }
-            );
-        }
-        if (pLvl >= 10) {
-            homeItems.push(
-                { name: "Mini Hospital", icon: "🏥", price: 770, desc: "A functional smaller version of the Hospital. Place near your home." },
-                { name: "Mini Store", icon: "🏪", price: 770, desc: "A functional smaller version of the Store. Place near your home." },
-                { name: "Mini Trade", icon: "🔄", price: 770, desc: "A functional smaller version of the Trade center. Place near your home." },
-                { name: "Mini PvP", icon: "⚔️", price: 770, desc: "A functional smaller version of the PvP arena. Place near your home." },
-                { name: "Mini Breeding Center", icon: "🥚", price: 770, desc: "A functional smaller version of the Breeding Center. Place near your home." },
-                { name: "Mini Challenge", icon: "👑", price: 770, desc: "A functional smaller version of the Challenge area. Place near your home." },
-                { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place inside using mini-tile placement." },
-                { name: "Cyber Desk", icon: "🖥️", price: 550, desc: "A high-tech cyber desk for your home. Place inside using mini-tile placement." },
-                { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place inside using mini-tile placement." },
-                { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place inside using mini-tile placement." },
-                { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place inside using mini-tile placement." },
-                { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place inside." },
-                { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place inside." },
-                { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place inside." },
-                { name: "Server Rack", icon: "🗄️", price: 800, desc: "A glowing cybernetic data server. Place inside." },
-                { name: "Arcade Machine", icon: "🕹️", price: 1000, desc: "A retro-futuristic arcade cabinet. Place inside." },
-                { name: "Cyber TV", icon: "📺", price: 700, desc: "A massive flat-screen cyber display. Place inside." },
-                { name: "Neon Shelf", icon: "📚", price: 250, desc: "A wall-leaning shelf with neon edges. Place inside." },
-                { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place inside." },
-                { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place inside." },
-                { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place inside." },
-                { name: "Holo Display", icon: "🖼️", price: 550, desc: "A holographic art projection base. Place inside." }
-            );
-        }
+
+        homeItems.push(
+            { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage.", reqLevel: 6 },
+            { name: "Mini Hospital", icon: "🏥", price: 770, desc: "A functional smaller version of the Hospital. Place near your home.", reqLevel: 10 },
+            { name: "Mini Store", icon: "🏪", price: 770, desc: "A functional smaller version of the Store. Place near your home.", reqLevel: 10 },
+            { name: "Mini Trade", icon: "🔄", price: 770, desc: "A functional smaller version of the Trade center. Place near your home.", reqLevel: 10 },
+            { name: "Mini PvP", icon: "⚔️", price: 770, desc: "A functional smaller version of the PvP arena. Place near your home.", reqLevel: 10 },
+            { name: "Mini Breeding Center", icon: "🥚", price: 770, desc: "A functional smaller version of the Breeding Center. Place near your home.", reqLevel: 10 },
+            { name: "Mini Challenge", icon: "👑", price: 770, desc: "A functional smaller version of the Challenge area. Place near your home.", reqLevel: 10 },
+            { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place inside using mini-tile placement.", reqLevel: 10 },
+            { name: "Cyber Desk", icon: "🖥️", price: 550, desc: "A high-tech cyber desk for your home. Place inside using mini-tile placement.", reqLevel: 10 },
+            { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place inside using mini-tile placement.", reqLevel: 10 },
+            { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place inside using mini-tile placement.", reqLevel: 10 },
+            { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place inside using mini-tile placement.", reqLevel: 10 },
+            { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place inside.", reqLevel: 10 },
+            { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place inside.", reqLevel: 10 },
+            { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place inside.", reqLevel: 10 },
+            { name: "Server Rack", icon: "🗄️", price: 800, desc: "A glowing cybernetic data server. Place inside.", reqLevel: 10 },
+            { name: "Arcade Machine", icon: "🕹️", price: 1000, desc: "A retro-futuristic arcade cabinet. Place inside.", reqLevel: 10 },
+            { name: "Cyber TV", icon: "📺", price: 700, desc: "A massive flat-screen cyber display. Place inside.", reqLevel: 10 },
+            { name: "Neon Shelf", icon: "📚", price: 250, desc: "A wall-leaning shelf with neon edges. Place inside.", reqLevel: 10 },
+            { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place inside.", reqLevel: 10 },
+            { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place inside.", reqLevel: 10 },
+            { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place inside.", reqLevel: 10 },
+            { name: "Holo Display", icon: "🖼️", price: 550, desc: "A holographic art projection base. Place inside.", reqLevel: 10 }
+        );
+
         if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
             homeItems.push(
                 { name: "Dojo Tile", icon: "⛩️", price: 920, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." }
@@ -17303,16 +17299,28 @@ window.updateStoreUI = function() {
             const canAfford = coins >= displayedPrice;
             const hasSpace = available > 0;
             const hasStock = stock > 0;
-            const canBuy = canAfford && hasSpace && hasStock;
+
+            let meetsLevel = true;
+            let reqText = '';
+            if (item.reqLevel && pLvl < item.reqLevel) {
+                meetsLevel = false;
+                reqText = `Req. Lv ${item.reqLevel}`;
+            }
+
+            const canBuy = canAfford && hasSpace && hasStock && meetsLevel;
             const btnStyle = canBuy
                 ? "background: linear-gradient(180deg, #4caf50, #2e7d32); border: 1px solid #a5d6a7; cursor: pointer;"
                 : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
 
             let btnText = "Buy";
-            if (!hasSpace) {
+            if (!meetsLevel) {
+                btnText = reqText;
+            } else if (!hasSpace) {
                 btnText = "Full";
             } else if (!hasStock) {
                 btnText = "Sold Out";
+            } else if (!canAfford) {
+                btnText = "Too Expensive";
             }
 
             html += `
@@ -17895,6 +17903,53 @@ window.getItemIconHTML = function(itemName, size = 24) {
         else if (itemName === "Dojo Tile") glowColor = '#ffd700';
     }
 
+    const emojiMap = {
+        "Mini Hospital": "🏥",
+        "Mini Store": "🏪",
+        "Mini Trade": "🔄",
+        "Mini PvP": "⚔️",
+        "Mini Breeding Center": "🥚",
+        "Mini Challenge": "👑",
+        "Neon Couch": "🛋️",
+        "Cyber Desk": "🖥️",
+        "Glow Carpet": "🔲",
+        "Holo Bed": "🛏️",
+        "Neon Chair": "🪑",
+        "Holo Table": "🪵",
+        "Cyber Plant": "🪴",
+        "Neon Lamp": "💡",
+        "Server Rack": "🗄️",
+        "Arcade Machine": "🕹️",
+        "Cyber TV": "📺",
+        "Neon Shelf": "📚",
+        "Tech Bin": "🗑️",
+        "Neon Wardrobe": "🚪",
+        "Cyber Fridge": "🧊",
+        "Holo Display": "🖼️",
+        "Dojo Tile": "⛩️",
+        "Storage Chest": "🧳",
+        "Repellent": "🧴",
+        "HP Booster": "💚",
+        "Attack Booster": "⚔️",
+        "Defense Booster": "🛡️",
+        "Speed Booster": "⚡",
+        "Sp. Atk Booster": "🔮",
+        "Sp. Def Booster": "🧿",
+        "Jank Juice": "🧃",
+        "Healing Juice Bottle": "🧪",
+        "Healing Juice Jug": "🏺",
+        "ExPALL": "✨",
+        "Creature License": "🎫",
+        "Creature Cookie": "🍪",
+        "Pedometer": "👣",
+        "Cyber-Core Upgrade": "🔘",
+        "Nano-Nurture Serum": "💉",
+        "DNA Stabilizer": "🧬",
+        "NPC Dual Link": "📡",
+        "Wild Dual Signal": "📶"
+    };
+    const emoji = emojiMap[itemName] || "📦";
+
     switch (itemName) {
         case "NPC Dual Link":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
@@ -18161,6 +18216,49 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <circle cx="25" cy="20" r="4" fill="#00ffd2" filter="url(#glow)"/>
                 <circle cx="75" cy="20" r="4" fill="#00ffd2" filter="url(#glow)"/>`;
             break;
+
+        case "Storage Chest":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff7f00" stroke-width="4"/>
+                <rect x="25" y="35" width="50" height="40" rx="5" fill="#152238" stroke="#ff7f00" stroke-width="2" />
+                <path d="M25,50 C25,40 75,40 75,50 Z" fill="rgba(255, 127, 0, 0.2)" stroke="#ff7f00" stroke-width="2" />
+                <rect x="45" y="45" width="10" height="10" rx="2" fill="#ff007f" />
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Storage Chest"]}</span>`;
+            break;
+        case "Mini Hospital":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="30" y="30" width="40" height="40" rx="5" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <rect x="45" y="40" width="10" height="20" fill="#00ff66" />
+                <rect x="40" y="45" width="20" height="10" fill="#00ff66" />
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini Hospital"]}</span>`;
+            break;
+        case "Mini Store":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="25" y="35" width="50" height="35" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <path d="M20,35 L80,35 L75,25 L25,25 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="1" />
+                <rect x="35" y="45" width="30" height="15" fill="rgba(0, 255, 210, 0.2)" stroke="#00ffd2" stroke-width="1" />
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini Store"]}</span>`;
+            break;
+        case "Mini Trade":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <circle cx="50" cy="50" r="25" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <path d="M40,35 L60,35 L55,45 L45,45 Z" fill="#ff007f" />
+                <path d="M40,65 L60,65 L55,55 L45,55 Z" fill="#00ff66" />
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini Trade"]}</span>`;
+            break;
+        case "Mini PvP":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M30,30 L70,70" stroke="#ff007f" stroke-width="4" />
+                <path d="M30,70 L70,30" stroke="#ff007f" stroke-width="4" />
+                <circle cx="50" cy="50" r="10" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini PvP"]}</span>`;
+            break;
+        case "Mini Breeding Center":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <ellipse cx="50" cy="55" rx="15" ry="20" fill="#152238" stroke="#ff007f" stroke-width="2" />
+                <circle cx="50" cy="55" r="5" fill="#00ffd2" />
+                <path d="M30,70 L70,70" stroke="#00ffd2" stroke-width="2" />
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini Breeding Center"]}</span>`;
+            break;
         case "Mini Challenge":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#bf55ec" stroke-width="4"/>
                 <path d="M30,75 L70,75 L60,55 L40,55 Z" fill="#333" stroke="#bf55ec" stroke-width="2" />
@@ -18173,46 +18271,163 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <rect x="34" y="32" width="6" height="48" fill="#ff3300" stroke="#ffd700" stroke-width="1" />
                 <rect x="60" y="32" width="6" height="48" fill="#ff3300" stroke="#ffd700" stroke-width="1" />`;
             break;
+        case "Neon Couch":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M20,60 L20,40 C20,35 25,30 30,30 L70,30 C75,30 80,35 80,40 L80,60 L85,60 C87.76,60 90,62.24 90,65 L90,75 C90,77.76 87.76,80 85,80 L15,80 C12.24,80 10,77.76 10,75 L10,65 C10,62.24 12.24,60 15,60 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="2" />
+                <rect x="25" y="60" width="50" height="10" fill="#00ffd2" opacity="0.8" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Couch"]}</span>`;
+            break;
+        case "Cyber Desk":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M15,70 L85,70 L80,85 L20,85 Z" fill="#333" stroke="#00ffd2" stroke-width="2" />
+                <rect x="35" y="25" width="30" height="20" rx="2" fill="#0b1424" stroke="#00ffd2" stroke-width="2" />
+                <rect x="48" y="45" width="4" height="25" fill="#00ffd2" />
+                <line x1="38" y1="35" x2="62" y2="35" stroke="#00ffd2" stroke-width="2" opacity="0.5" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Desk"]}</span>`;
+            break;
+        case "Glow Carpet":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="15" y="40" width="70" height="40" rx="5" fill="#182d4d" stroke="#00ffd2" stroke-width="3" transform="skewX(-20)" />
+                <line x1="25" y1="50" x2="75" y2="50" stroke="#00ffd2" stroke-width="1.5" opacity="0.6" transform="skewX(-20)" />
+                <line x1="20" y1="65" x2="80" y2="65" stroke="#00ffd2" stroke-width="1.5" opacity="0.6" transform="skewX(-20)" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Glow Carpet"]}</span>`;
+            break;
+        case "Holo Bed":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="20" y="55" width="60" height="20" rx="3" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <path d="M20,55 L80,55 L80,45 C80,35 20,35 20,45 Z" fill="rgba(0, 255, 210, 0.3)" />
+                <rect x="25" y="45" width="20" height="10" rx="5" fill="#ff007f" opacity="0.8" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Bed"]}</span>`;
+            break;
+        case "Neon Chair":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M35,35 L65,35 L65,55 L35,55 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="2" />
+                <rect x="35" y="55" width="30" height="10" rx="3" fill="#00ffd2" />
+                <line x1="40" y1="65" x2="35" y2="85" stroke="#00ffd2" stroke-width="3" />
+                <line x1="60" y1="65" x2="65" y2="85" stroke="#00ffd2" stroke-width="3" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Chair"]}</span>`;
+            break;
+        case "Holo Table":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <ellipse cx="50" cy="45" rx="35" ry="15" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <ellipse cx="50" cy="40" rx="30" ry="10" fill="rgba(0, 255, 210, 0.4)" />
+                <line x1="30" y1="55" x2="30" y2="80" stroke="#00ffd2" stroke-width="3" />
+                <line x1="70" y1="55" x2="70" y2="80" stroke="#00ffd2" stroke-width="3" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Table"]}</span>`;
+            break;
+        case "Cyber Plant":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M40,65 L60,65 L55,85 L45,85 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="2" />
+                <path d="M50,65 C40,45 25,35 45,25 C45,45 50,55 50,65 Z" fill="#00ff66" opacity="0.8" />
+                <path d="M50,65 C60,45 75,35 55,25 C55,45 50,55 50,65 Z" fill="#00ff66" opacity="0.8" />
+                <path d="M50,65 C50,40 50,20 50,15 C45,20 55,20 50,65 Z" fill="#00ff66" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Plant"]}</span>`;
+            break;
+        case "Neon Lamp":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M35,80 L65,80 L60,75 L40,75 Z" fill="#333" stroke="#00ffd2" stroke-width="1.5" />
+                <line x1="50" y1="75" x2="50" y2="30" stroke="#00ffd2" stroke-width="3" />
+                <circle cx="50" cy="20" r="10" fill="#fff" filter="url(#glow)" />
+                <path d="M40,25 L60,25 L55,10 L45,10 Z" fill="none" stroke="#ff007f" stroke-width="2" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Lamp"]}</span>`;
+            break;
+        case "Server Rack":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="30" y="20" width="40" height="65" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <line x1="35" y1="30" x2="65" y2="30" stroke="#ff007f" stroke-width="3" stroke-dasharray="4 2" />
+                <line x1="35" y1="45" x2="65" y2="45" stroke="#00ff66" stroke-width="3" stroke-dasharray="2 4 6 2" />
+                <line x1="35" y1="60" x2="65" y2="60" stroke="#00ffd2" stroke-width="3" stroke-dasharray="5 2 2 2" />
+                <line x1="35" y1="75" x2="65" y2="75" stroke="#ff007f" stroke-width="3" stroke-dasharray="1 1 1 5" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Server Rack"]}</span>`;
+            break;
+        case "Arcade Machine":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M35,20 L65,20 L65,40 L70,45 L70,85 L30,85 L30,45 L35,40 Z" fill="#333" stroke="#00ffd2" stroke-width="2" />
+                <rect x="40" y="25" width="20" height="15" fill="#0b1424" stroke="#ff007f" stroke-width="1.5" />
+                <circle cx="45" cy="42" r="2" fill="#ff007f" />
+                <rect x="52" y="41" width="8" height="3" fill="#00ff66" />
+                <rect x="35" y="55" width="30" height="25" fill="#152238" stroke="#00ffd2" stroke-width="1" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Arcade Machine"]}</span>`;
+            break;
+        case "Cyber TV":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="15" y="25" width="70" height="40" rx="2" fill="#0b1424" stroke="#00ffd2" stroke-width="2" />
+                <rect x="20" y="30" width="60" height="30" fill="rgba(0, 255, 210, 0.2)" />
+                <path d="M25,45 Q50,25 75,45 T75,45 Q50,65 25,45 Z" fill="none" stroke="#ff007f" stroke-width="1.5" opacity="0.8" />
+                <line x1="45" y1="65" x2="45" y2="80" stroke="#00ffd2" stroke-width="3" />
+                <line x1="55" y1="65" x2="55" y2="80" stroke="#00ffd2" stroke-width="3" />
+                <line x1="35" y1="80" x2="65" y2="80" stroke="#00ffd2" stroke-width="2" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber TV"]}</span>`;
+            break;
+        case "Neon Shelf":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="25" y="15" width="50" height="70" rx="2" fill="none" stroke="#00ffd2" stroke-width="2" />
+                <line x1="25" y1="35" x2="75" y2="35" stroke="#ff007f" stroke-width="2" />
+                <line x1="25" y1="55" x2="75" y2="55" stroke="#00ff66" stroke-width="2" />
+                <line x1="25" y1="75" x2="75" y2="75" stroke="#00ffd2" stroke-width="2" />
+                <rect x="30" y="20" width="10" height="15" fill="#ff007f" opacity="0.6" />
+                <rect x="45" y="40" width="15" height="15" fill="#00ff66" opacity="0.6" />
+                <rect x="60" y="60" width="8" height="15" fill="#00ffd2" opacity="0.6" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Shelf"]}</span>`;
+            break;
+        case "Tech Bin":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M35,25 L65,25 L60,80 L40,80 Z" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <path d="M30,25 L70,25 L70,30 L30,30 Z" fill="#ff007f" />
+                <line x1="45" y1="40" x2="45" y2="70" stroke="#00ffd2" stroke-width="1.5" stroke-dasharray="4 2" />
+                <line x1="55" y1="40" x2="55" y2="70" stroke="#00ffd2" stroke-width="1.5" stroke-dasharray="4 2" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Tech Bin"]}</span>`;
+            break;
+        case "Neon Wardrobe":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="25" y="20" width="50" height="65" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <line x1="50" y1="20" x2="50" y2="85" stroke="#00ffd2" stroke-width="2" />
+                <rect x="40" y="50" width="5" height="15" fill="#ff007f" rx="1" />
+                <rect x="55" y="50" width="5" height="15" fill="#ff007f" rx="1" />
+                <line x1="25" y1="30" x2="75" y2="30" stroke="#00ffd2" stroke-width="1" opacity="0.5" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Wardrobe"]}</span>`;
+            break;
+        case "Cyber Fridge":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="30" y="15" width="40" height="70" rx="3" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <line x1="30" y1="45" x2="70" y2="45" stroke="#00ffd2" stroke-width="2" />
+                <rect x="35" y="25" width="4" height="15" fill="#00ff66" rx="1" />
+                <rect x="35" y="55" width="4" height="20" fill="#00ff66" rx="1" />
+                <rect x="50" y="25" width="15" height="10" fill="none" stroke="#ff007f" stroke-width="1.5" opacity="0.8" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Fridge"]}</span>`;
+            break;
+        case "Holo Display":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M30,85 L70,85 L65,75 L35,75 Z" fill="#333" stroke="#00ffd2" stroke-width="2" />
+                <path d="M20,25 L80,25 L65,75 L35,75 Z" fill="rgba(0, 255, 210, 0.15)" stroke="rgba(0, 255, 210, 0.5)" stroke-width="1" stroke-dasharray="3 3" />
+                <circle cx="50" cy="45" r="15" fill="none" stroke="#ff007f" stroke-width="2" opacity="0.8" />
+                <circle cx="50" cy="45" r="5" fill="#00ffd2" />
+                <line x1="35" y1="45" x2="65" y2="45" stroke="#00ff66" stroke-width="1" opacity="0.8" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Display"]}</span>`;
+            break;
         default:
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
                 <text x="50" y="55" font-family="'Courier New', monospace" font-size="40" fill="#00ffd2" text-anchor="middle">📦</text>`;
             break;
     }
 
-    const emojiMap = {
-        "Mini Hospital": "🏥",
-        "Mini Store": "🏪",
-        "Mini Trade": "🔄",
-        "Mini PvP": "⚔️",
-        "Mini Breeding Center": "🥚",
-        "Mini Challenge": "👑",
-        "Neon Couch": "🛋️",
-        "Cyber Desk": "🖥️",
-        "Glow Carpet": "🔲",
-        "Holo Bed": "🛏️",
-        "Dojo Tile": "⛩️",
-        "Storage Chest": "🧳",
-        "Repellent": "🧴",
-        "HP Booster": "💚",
-        "Attack Booster": "⚔️",
-        "Defense Booster": "🛡️",
-        "Speed Booster": "⚡",
-        "Sp. Atk Booster": "🔮",
-        "Sp. Def Booster": "🧿",
-        "Jank Juice": "🧃",
-        "Healing Juice Bottle": "🧪",
-        "Healing Juice Jug": "🏺",
-        "ExPALL": "✨",
-        "Creature License": "🎫",
-        "Creature Cookie": "🍪",
-        "Pedometer": "👣",
-        "Cyber-Core Upgrade": "🔘",
-        "Nano-Nurture Serum": "💉",
-        "DNA Stabilizer": "🧬",
-        "NPC Dual Link": "📡",
-        "Wild Dual Signal": "📶"
-    };
-    const emoji = emojiMap[itemName] || "📦";
+
 
     return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px ${glowColor});">
         <defs>
