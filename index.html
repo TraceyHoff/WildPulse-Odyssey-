@@ -2676,14 +2676,14 @@
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95));
-        border: 2px solid #00ffcc;
+        background: linear-gradient(135deg, rgba(15, 45, 25, 0.98), rgba(5, 25, 45, 0.98));
+        border: 3px solid #00ffcc;
         border-radius: 12px;
-        box-shadow: 0 0 20px rgba(0, 255, 204, 0.5), inset 0 0 10px rgba(0, 255, 204, 0.2);
-        padding: 15px 25px;
+        box-shadow: 0 0 30px rgba(0, 255, 204, 0.8), inset 0 0 15px rgba(0, 255, 204, 0.4);
+        padding: 20px 30px;
         color: #fff;
         font-family: 'Courier New', Courier, monospace;
-        font-size: 16px;
+        font-size: 20px;
         font-weight: bold;
         text-align: center;
         z-index: 300000;
@@ -2703,19 +2703,19 @@
         bottom: 20px;
         left: 75%;
         transform: translateX(-50%);
-        background: linear-gradient(135deg, rgba(40, 10, 40, 0.95), rgba(20, 0, 20, 0.95));
-        border: 2px solid #ff00ff;
+        background: linear-gradient(135deg, rgba(45, 25, 15, 0.98), rgba(45, 5, 25, 0.98));
+        border: 3px solid #ff007f;
         border-radius: 12px;
-        box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), inset 0 0 10px rgba(255, 0, 255, 0.2);
-        padding: 15px 25px;
+        box-shadow: 0 0 30px rgba(255, 0, 127, 0.8), inset 0 0 15px rgba(255, 0, 127, 0.4);
+        padding: 20px 30px;
         color: #fff;
         font-family: 'Courier New', Courier, monospace;
-        font-size: 16px;
+        font-size: 20px;
         font-weight: bold;
         text-align: center;
         z-index: 300000;
         pointer-events: none;
-        animation: slideUp 0.3s ease-out forwards;
+        animation: neonBorderPulsate 4s ease-in-out infinite, slideUp 0.3s ease-out forwards;
         max-width: 45%;
     }
 
@@ -2725,8 +2725,8 @@
     }
 
     .tutorial-highlight {
-        color: #ffd700;
-        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        color: #ffff00;
+        text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
     }
 
 </style>
@@ -35698,7 +35698,14 @@ document.addEventListener('mouseout', (e) => {
                 if (isMenuOpen) {
                     this.save(pNum, 'menu', 1);
                 } else {
-                    this.show(pNum, 'Welcome! Let\'s learn the controls.<br>Open your <span class="tutorial-highlight">Menu</span> (Press ESC, M, Start, or the on-screen button).');
+                    const isTouch = (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
+                    const isGamepad = (navigator.getGamepads && Array.from(navigator.getGamepads()).some(gp => gp !== null));
+
+                    let controlText = 'Press ESC or M';
+                    if (isTouch) controlText = 'Tap the on-screen menu button';
+                    else if (isGamepad) controlText = 'Press Start';
+
+                    this.show(pNum, `Welcome! Let's learn the controls.<br>Open your <span class="tutorial-highlight">Menu</span> (${controlText}).`);
                 }
             } else if (state.menuStep === 1) {
                 if (!isMenuOpen && !isPartyOpen) {
@@ -35712,34 +35719,30 @@ document.addEventListener('mouseout', (e) => {
             } else if (state.menuStep === 2) {
                 if (!isPartyOpen) {
                     this.save(pNum, 'menu', 1); // Go back if they closed it
-                } else if (isStatsTabOpen) {
-                    this.save(pNum, 'menu', 3);
                 } else {
-                    this.show(pNum, 'Here is your party! Switch to the <span class="tutorial-highlight">Stats Tab</span> to see their detailed stats.');
+                    const largeCreatureOpen = document.getElementById(pNum === 1 ? 'fullSizeImageModal' : 'fullSizeImageModal_p2')?.style.display === 'flex';
+                    if (largeCreatureOpen) {
+                        this.save(pNum, 'menu', 3);
+                    } else {
+                        this.show(pNum, 'Here is your party! Click on a <span class="tutorial-highlight">Creature Sprite</span> to view its full details and large portrait.');
+                    }
                 }
             } else if (state.menuStep === 3) {
                 if (!isPartyOpen) {
                     this.save(pNum, 'menu', 1); // Go back
-                } else if (!isStatsTabOpen) {
-                    this.save(pNum, 'menu', 2); // Go back
                 } else {
                     const largeCreatureOpen = document.getElementById(pNum === 1 ? 'fullSizeImageModal' : 'fullSizeImageModal_p2')?.style.display === 'flex';
-                    if (largeCreatureOpen) {
+                    if (isStatsTabOpen && !largeCreatureOpen) {
                         this.save(pNum, 'menu', 4);
                     } else {
-                        this.show(pNum, 'Click on a <span class="tutorial-highlight">Creature Sprite</span> to view its full details and large portrait.');
+                        this.show(pNum, 'Awesome! Now close the preview and switch to the <span class="tutorial-highlight">Creature Stats Tab</span>.');
                     }
                 }
             } else if (state.menuStep === 4) {
                 if (!isPartyOpen) {
                     this.save(pNum, 'menu', 5);
                 } else {
-                    const largeCreatureOpen = document.getElementById(pNum === 1 ? 'fullSizeImageModal' : 'fullSizeImageModal_p2')?.style.display === 'flex';
-                    if (largeCreatureOpen) {
-                        this.show(pNum, 'Awesome! Close this, then <span class="tutorial-highlight">Close your Party</span>.');
-                    } else {
-                        this.show(pNum, 'Now <span class="tutorial-highlight">Close your Party</span> using the X button or by pressing B/ESC.');
-                    }
+                    this.show(pNum, 'Here are your detailed stats! Now <span class="tutorial-highlight">Close your Party</span> using the X button or by pressing B/ESC.');
                 }
             } else if (state.menuStep === 5) {
                 if (isStorageOpen) {
