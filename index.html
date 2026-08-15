@@ -4367,6 +4367,12 @@ window.updateStorageChestUI = function(playerNum) {
         "Neon Wardrobe": "🚪",
         "Cyber Fridge": "🧊",
         "Holo Display": "🖼️",
+        "Lava Lamp": "🌋",
+        "Plasma Globe": "🔮",
+        "Cyber Poster": "📜",
+        "Neon Sign": "🪧",
+        "Gaming PC": "💻",
+        "Smart Mirror": "🪞",
         "Repellent": "🧴",
         "HP Booster": "💚",
         "Attack Booster": "⚔️",
@@ -17276,7 +17282,13 @@ window.updateStoreUI = function() {
             { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place inside.", reqLevel: 10 },
             { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place inside.", reqLevel: 10 },
             { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place inside.", reqLevel: 10 },
-            { name: "Holo Display", icon: "🖼️", price: 550, desc: "A holographic art projection base. Place inside.", reqLevel: 10 }
+            { name: "Holo Display", icon: "🖼️", price: 1200, desc: "A floating holographic art display. Place inside.", reqLevel: 10 },
+            { name: "Lava Lamp", icon: "🌋", price: 350, desc: "A retro-futuristic glowing lava lamp. Place inside.", reqLevel: 10 },
+            { name: "Plasma Globe", icon: "🔮", price: 450, desc: "A sphere of crackling plasma energy. Place inside.", reqLevel: 10 },
+            { name: "Cyber Poster", icon: "📜", price: 250, desc: "A digital neon poster for your wall. Place inside.", reqLevel: 10 },
+            { name: "Neon Sign", icon: "🪧", price: 650, desc: "A bright, buzzing neon sign. Place inside.", reqLevel: 10 },
+            { name: "Gaming PC", icon: "💻", price: 1500, desc: "A high-end RGB gaming rig. Place inside.", reqLevel: 10 },
+            { name: "Smart Mirror", icon: "🪞", price: 850, desc: "A high-tech interactive mirror. Place inside.", reqLevel: 10 }
         );
 
         if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
@@ -17948,6 +17960,12 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "Neon Wardrobe": "🚪",
         "Cyber Fridge": "🧊",
         "Holo Display": "🖼️",
+        "Lava Lamp": "🌋",
+        "Plasma Globe": "🔮",
+        "Cyber Poster": "📜",
+        "Neon Sign": "🪧",
+        "Gaming PC": "💻",
+        "Smart Mirror": "🪞",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
         "Repellent": "🧴",
@@ -18443,6 +18461,63 @@ window.getItemIconHTML = function(itemName, size = 24) {
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Display"]}</span>`;
             break;
+        case "Lava Lamp":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <path d="M30,80 L70,80 L60,20 L40,20 Z" fill="rgba(255,0,0,0.2)" stroke="#ff0055" stroke-width="2" />
+                <rect x="25" y="80" width="50" height="10" fill="#333" />
+                <rect x="35" y="10" width="30" height="10" fill="#333" />
+                <circle cx="50" cy="65" r="8" fill="#ff0055" filter="url(#glow)" />
+                <circle cx="45" cy="45" r="5" fill="#ff0055" filter="url(#glow)" />
+                <circle cx="55" cy="30" r="4" fill="#ff0055" filter="url(#glow)" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Lava Lamp"]}</span>`;
+            break;
+        case "Plasma Globe":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="35" y="75" width="30" height="15" fill="#222" stroke="#00ffd2" stroke-width="2" />
+                <circle cx="50" cy="45" r="30" fill="rgba(200, 0, 255, 0.1)" stroke="#d400ff" stroke-width="2" />
+                <circle cx="50" cy="45" r="5" fill="#fff" filter="url(#glow)" />
+                <path d="M50,45 L35,25 M50,45 L65,25 M50,45 L25,50 M50,45 L75,50 M50,45 L35,65 M50,45 L65,65" stroke="#d400ff" stroke-width="2" stroke-dasharray="2 2" filter="url(#glow)" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Plasma Globe"]}</span>`;
+            break;
+        case "Cyber Poster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="25" y="15" width="50" height="70" fill="#111" stroke="#ff00ff" stroke-width="2" />
+                <path d="M25,15 L75,15 L75,35 L25,35 Z" fill="#ff00ff" opacity="0.3" />
+                <circle cx="50" cy="50" r="10" fill="none" stroke="#00ffd2" stroke-width="2" />
+                <line x1="35" y1="70" x2="65" y2="70" stroke="#00ffd2" stroke-width="2" stroke-dasharray="4 2" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Poster"]}</span>`;
+            break;
+        case "Neon Sign":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="15" y="35" width="70" height="30" rx="5" fill="#111" stroke="#ff00aa" stroke-width="2" />
+                <path d="M25,50 C35,30 45,70 55,50 C60,40 70,60 75,50" fill="none" stroke="#00ffd2" stroke-width="3" filter="url(#glow)" />
+                <line x1="30" y1="35" x2="30" y2="25" stroke="#555" stroke-width="2" />
+                <line x1="70" y1="35" x2="70" y2="25" stroke="#555" stroke-width="2" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Sign"]}</span>`;
+            break;
+        case "Gaming PC":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="30" y="20" width="40" height="60" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <rect x="35" y="25" width="30" height="50" fill="#000" />
+                <circle cx="50" cy="40" r="8" fill="none" stroke="#ff0055" stroke-width="2" filter="url(#glow)" />
+                <circle cx="50" cy="60" r="8" fill="none" stroke="#00ff55" stroke-width="2" filter="url(#glow)" />
+                <rect x="35" y="25" width="5" height="50" fill="#00ffd2" opacity="0.5" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Gaming PC"]}</span>`;
+            break;
+        case "Smart Mirror":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="25" y="15" width="50" height="70" rx="25" fill="#aaccff" stroke="#00ffd2" stroke-width="3" opacity="0.8" />
+                <line x1="35" y1="25" x2="65" y2="25" stroke="#fff" stroke-width="2" />
+                <circle cx="50" cy="75" r="3" fill="#ff00ff" filter="url(#glow)" />
+                <path d="M30,40 L45,25 M30,55 L55,30" stroke="#fff" stroke-width="2" opacity="0.5" />
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Smart Mirror"]}</span>`;
+            break;
         default:
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
                 <text x="50" y="55" font-family="'Courier New', monospace" font-size="40" fill="#00ffd2" text-anchor="middle">📦</text>`;
@@ -18485,6 +18560,12 @@ window.updateInventoryUI = function() {
         "Holo Bed": "🛏️",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
+        "Lava Lamp": "🌋",
+        "Plasma Globe": "🔮",
+        "Cyber Poster": "📜",
+        "Neon Sign": "🪧",
+        "Gaming PC": "💻",
+        "Smart Mirror": "🪞",
         "Repellent": "🧴",
         "HP Booster": "💚",
         "Attack Booster": "⚔️",
@@ -22152,6 +22233,12 @@ window.updateInventoryWheelUI = function(playerNum) {
         "Holo Bed": "🛏️",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
+        "Lava Lamp": "🌋",
+        "Plasma Globe": "🔮",
+        "Cyber Poster": "📜",
+        "Neon Sign": "🪧",
+        "Gaming PC": "💻",
+        "Smart Mirror": "🪞",
         "Repellent": "🧴",
         "HP Booster": "💚",
         "Attack Booster": "⚔️",
@@ -26357,6 +26444,156 @@ function generateTileTextures(scene) {
     if (window.add3DDepth) window.add3DDepth(displayCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_display_tile', displayCanvas);
 
+    // Lava Lamp
+    const lavaLampCanvas = document.createElement('canvas');
+    lavaLampCanvas.width = 100;
+    lavaLampCanvas.height = 100;
+    const lavaLampCtx = lavaLampCanvas.getContext('2d');
+    lavaLampCtx.fillStyle = '#333';
+    lavaLampCtx.fillRect(35, 75, 30, 15); // Base
+    lavaLampCtx.fillRect(40, 10, 20, 10); // Top cap
+    lavaLampCtx.fillStyle = 'rgba(255, 0, 85, 0.3)';
+    lavaLampCtx.beginPath();
+    lavaLampCtx.moveTo(40, 20);
+    lavaLampCtx.lineTo(60, 20);
+    lavaLampCtx.lineTo(65, 75);
+    lavaLampCtx.lineTo(35, 75);
+    lavaLampCtx.closePath();
+    lavaLampCtx.fill();
+    lavaLampCtx.fillStyle = '#ff0055';
+    lavaLampCtx.shadowBlur = 10;
+    lavaLampCtx.shadowColor = '#ff0055';
+    lavaLampCtx.beginPath(); lavaLampCtx.arc(50, 65, 8, 0, Math.PI*2); lavaLampCtx.fill();
+    lavaLampCtx.beginPath(); lavaLampCtx.arc(45, 45, 5, 0, Math.PI*2); lavaLampCtx.fill();
+    lavaLampCtx.beginPath(); lavaLampCtx.arc(55, 30, 4, 0, Math.PI*2); lavaLampCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(lavaLampCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_lavalamp_tile', lavaLampCanvas);
+
+    // Plasma Globe
+    const plasmaGlobeCanvas = document.createElement('canvas');
+    plasmaGlobeCanvas.width = 100;
+    plasmaGlobeCanvas.height = 100;
+    const plasmaGlobeCtx = plasmaGlobeCanvas.getContext('2d');
+    plasmaGlobeCtx.fillStyle = '#222';
+    plasmaGlobeCtx.fillRect(35, 70, 30, 20); // Base
+    plasmaGlobeCtx.fillStyle = 'rgba(200, 0, 255, 0.2)';
+    plasmaGlobeCtx.shadowBlur = 15;
+    plasmaGlobeCtx.shadowColor = '#d400ff';
+    plasmaGlobeCtx.beginPath();
+    plasmaGlobeCtx.arc(50, 40, 30, 0, Math.PI*2);
+    plasmaGlobeCtx.fill();
+    plasmaGlobeCtx.strokeStyle = '#d400ff';
+    plasmaGlobeCtx.lineWidth = 2;
+    plasmaGlobeCtx.stroke();
+    plasmaGlobeCtx.fillStyle = '#fff';
+    plasmaGlobeCtx.beginPath();
+    plasmaGlobeCtx.arc(50, 40, 5, 0, Math.PI*2);
+    plasmaGlobeCtx.fill();
+    // Lightning bolts
+    plasmaGlobeCtx.beginPath();
+    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(35, 20);
+    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(65, 20);
+    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(25, 45);
+    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(75, 45);
+    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(40, 65);
+    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(60, 65);
+    plasmaGlobeCtx.stroke();
+    if (window.add3DDepth) window.add3DDepth(plasmaGlobeCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_plasmaglobe_tile', plasmaGlobeCanvas);
+
+    // Cyber Poster
+    const cyberPosterCanvas = document.createElement('canvas');
+    cyberPosterCanvas.width = 100;
+    cyberPosterCanvas.height = 100;
+    const cyberPosterCtx = cyberPosterCanvas.getContext('2d');
+    cyberPosterCtx.fillStyle = '#111';
+    cyberPosterCtx.fillRect(25, 10, 50, 80);
+    cyberPosterCtx.strokeStyle = '#ff00ff';
+    cyberPosterCtx.lineWidth = 3;
+    cyberPosterCtx.strokeRect(25, 10, 50, 80);
+    cyberPosterCtx.fillStyle = 'rgba(255, 0, 255, 0.4)';
+    cyberPosterCtx.beginPath();
+    cyberPosterCtx.moveTo(25, 10); cyberPosterCtx.lineTo(75, 10); cyberPosterCtx.lineTo(75, 30); cyberPosterCtx.lineTo(25, 30);
+    cyberPosterCtx.fill();
+    cyberPosterCtx.strokeStyle = '#00ffd2';
+    cyberPosterCtx.shadowBlur = 10;
+    cyberPosterCtx.shadowColor = '#00ffd2';
+    cyberPosterCtx.beginPath(); cyberPosterCtx.arc(50, 50, 15, 0, Math.PI*2); cyberPosterCtx.stroke();
+    cyberPosterCtx.beginPath();
+    cyberPosterCtx.moveTo(35, 75); cyberPosterCtx.lineTo(65, 75);
+    cyberPosterCtx.stroke();
+    if (window.add3DDepth) window.add3DDepth(cyberPosterCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_cyberposter_tile', cyberPosterCanvas);
+
+    // Neon Sign
+    const neonSignCanvas = document.createElement('canvas');
+    neonSignCanvas.width = 100;
+    neonSignCanvas.height = 100;
+    const neonSignCtx = neonSignCanvas.getContext('2d');
+    neonSignCtx.fillStyle = '#111';
+    neonSignCtx.fillRect(10, 30, 80, 40);
+    neonSignCtx.strokeStyle = '#ff00aa';
+    neonSignCtx.lineWidth = 2;
+    neonSignCtx.strokeRect(10, 30, 80, 40);
+    neonSignCtx.strokeStyle = '#00ffd2';
+    neonSignCtx.lineWidth = 4;
+    neonSignCtx.shadowBlur = 12;
+    neonSignCtx.shadowColor = '#00ffd2';
+    neonSignCtx.beginPath();
+    neonSignCtx.moveTo(20, 50);
+    neonSignCtx.bezierCurveTo(35, 20, 45, 80, 60, 50);
+    neonSignCtx.bezierCurveTo(65, 40, 75, 70, 80, 50);
+    neonSignCtx.stroke();
+    if (window.add3DDepth) window.add3DDepth(neonSignCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_neonsign_tile', neonSignCanvas);
+
+    // Gaming PC
+    const gamingPcCanvas = document.createElement('canvas');
+    gamingPcCanvas.width = 100;
+    gamingPcCanvas.height = 100;
+    const gamingPcCtx = gamingPcCanvas.getContext('2d');
+    gamingPcCtx.fillStyle = '#152238';
+    gamingPcCtx.fillRect(25, 20, 50, 60);
+    gamingPcCtx.strokeStyle = '#00ffd2';
+    gamingPcCtx.lineWidth = 2;
+    gamingPcCtx.strokeRect(25, 20, 50, 60);
+    gamingPcCtx.fillStyle = '#000';
+    gamingPcCtx.fillRect(30, 25, 40, 50); // Glass panel
+    gamingPcCtx.strokeStyle = '#ff0055';
+    gamingPcCtx.shadowBlur = 8;
+    gamingPcCtx.shadowColor = '#ff0055';
+    gamingPcCtx.beginPath(); gamingPcCtx.arc(50, 40, 10, 0, Math.PI*2); gamingPcCtx.stroke();
+    gamingPcCtx.strokeStyle = '#00ff55';
+    gamingPcCtx.shadowColor = '#00ff55';
+    gamingPcCtx.beginPath(); gamingPcCtx.arc(50, 65, 10, 0, Math.PI*2); gamingPcCtx.stroke();
+    gamingPcCtx.fillStyle = 'rgba(0, 255, 210, 0.5)';
+    gamingPcCtx.fillRect(30, 25, 5, 50); // RAM glow
+    if (window.add3DDepth) window.add3DDepth(gamingPcCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_gamingpc_tile', gamingPcCanvas);
+
+    // Smart Mirror
+    const smartMirrorCanvas = document.createElement('canvas');
+    smartMirrorCanvas.width = 100;
+    smartMirrorCanvas.height = 100;
+    const smartMirrorCtx = smartMirrorCanvas.getContext('2d');
+    smartMirrorCtx.fillStyle = 'rgba(170, 204, 255, 0.8)';
+    smartMirrorCtx.beginPath();
+    smartMirrorCtx.roundRect(25, 10, 50, 80, 25);
+    smartMirrorCtx.fill();
+    smartMirrorCtx.strokeStyle = '#00ffd2';
+    smartMirrorCtx.lineWidth = 3;
+    smartMirrorCtx.stroke();
+    smartMirrorCtx.strokeStyle = '#fff';
+    smartMirrorCtx.lineWidth = 2;
+    smartMirrorCtx.beginPath();
+    smartMirrorCtx.moveTo(40, 20); smartMirrorCtx.lineTo(60, 20);
+    smartMirrorCtx.stroke();
+    smartMirrorCtx.fillStyle = '#ff00ff';
+    smartMirrorCtx.shadowBlur = 10;
+    smartMirrorCtx.shadowColor = '#ff00ff';
+    smartMirrorCtx.beginPath(); smartMirrorCtx.arc(50, 80, 4, 0, Math.PI*2); smartMirrorCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(smartMirrorCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_smartmirror_tile', smartMirrorCanvas);
 
 }
 
@@ -27928,6 +28165,12 @@ window.spawnMiniTiles = function(scene) {
             else if (tile.type === 'furniture_wardrobe') textureKey = 'furniture_wardrobe_tile';
             else if (tile.type === 'furniture_fridge') textureKey = 'furniture_fridge_tile';
             else if (tile.type === 'furniture_display') textureKey = 'furniture_display_tile';
+            else if (tile.type === 'furniture_lavalamp') textureKey = 'furniture_lavalamp_tile';
+            else if (tile.type === 'furniture_plasmaglobe') textureKey = 'furniture_plasmaglobe_tile';
+            else if (tile.type === 'furniture_cyberposter') textureKey = 'furniture_cyberposter_tile';
+            else if (tile.type === 'furniture_neonsign') textureKey = 'furniture_neonsign_tile';
+            else if (tile.type === 'furniture_gamingpc') textureKey = 'furniture_gamingpc_tile';
+            else if (tile.type === 'furniture_smartmirror') textureKey = 'furniture_smartmirror_tile';
 
 
             if (textureKey) {
@@ -28419,7 +28662,13 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         "Tech Bin": "furniture_bin_tile",
         "Neon Wardrobe": "furniture_wardrobe_tile",
         "Cyber Fridge": "furniture_fridge_tile",
-        "Holo Display": "furniture_display_tile"
+        "Holo Display": "furniture_display_tile",
+        "Lava Lamp": "furniture_lavalamp_tile",
+        "Plasma Globe": "furniture_plasmaglobe_tile",
+        "Cyber Poster": "furniture_cyberposter_tile",
+        "Neon Sign": "furniture_neonsign_tile",
+        "Gaming PC": "furniture_gamingpc_tile",
+        "Smart Mirror": "furniture_smartmirror_tile"
     };
     const textureKey = textureMap[itemName] || 'home_tile';
 
@@ -28506,7 +28755,13 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
         "Tech Bin": "furniture_bin",
         "Neon Wardrobe": "furniture_wardrobe",
         "Cyber Fridge": "furniture_fridge",
-        "Holo Display": "furniture_display"
+        "Holo Display": "furniture_display",
+        "Lava Lamp": "furniture_lavalamp",
+        "Plasma Globe": "furniture_plasmaglobe",
+        "Cyber Poster": "furniture_cyberposter",
+        "Neon Sign": "furniture_neonsign",
+        "Gaming PC": "furniture_gamingpc",
+        "Smart Mirror": "furniture_smartmirror"
     };
     const tileType = typeMap[itemName];
 
