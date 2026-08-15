@@ -19837,11 +19837,10 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             if (cursorTarget && window[`p${playerNum}CursorVisible`]) {
                 window.isExecutingGamepadClick = playerNum;
                 try {
-                    if (cursorTarget.tagName === 'SELECT' && typeof cursorTarget.showPicker === 'function') {
-                        try {
-                            cursorTarget.showPicker();
-                        } catch (e) {
-                            cursorTarget.click();
+                    if (cursorTarget.tagName === 'SELECT') {
+                        if (cursorTarget.options && cursorTarget.options.length > 0) {
+                            cursorTarget.selectedIndex = (cursorTarget.selectedIndex + 1) % cursorTarget.options.length;
+                            cursorTarget.dispatchEvent(new Event('change', { bubbles: true }));
                         }
                     } else {
                         cursorTarget.click();
@@ -19854,11 +19853,10 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                 if (focusedEl) {
                     window.isExecutingGamepadClick = playerNum;
                     try {
-                        if (focusedEl.tagName === 'SELECT' && typeof focusedEl.showPicker === 'function') {
-                            try {
-                                focusedEl.showPicker();
-                            } catch (e) {
-                                focusedEl.click();
+                        if (focusedEl.tagName === 'SELECT') {
+                            if (focusedEl.options && focusedEl.options.length > 0) {
+                                focusedEl.selectedIndex = (focusedEl.selectedIndex + 1) % focusedEl.options.length;
+                                focusedEl.dispatchEvent(new Event('change', { bubbles: true }));
                             }
                         } else {
                             focusedEl.click();
