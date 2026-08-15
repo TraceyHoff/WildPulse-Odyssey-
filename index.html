@@ -2221,7 +2221,8 @@
         height: 80px !important;
         background: linear-gradient(180deg, #ff1744 0%, #ff5252 50%, #ffffff 100%) !important;
         box-shadow: 0 0 12px #ff1744, 0 0 4px #ffffff !important;
-        border-radius: 4px !important;
+        border-radius: 0 !important;
+        clip-path: polygon(10% 0%, 30% 20%, 15% 40%, 40% 60%, 20% 80%, 50% 100%, 70% 80%, 90% 60%, 65% 40%, 85% 20%, 60% 0%) !important;
         transform-origin: top !important;
         animation: clawSlash 0.3s cubic-bezier(0.15, 0.85, 0.35, 1) forwards !important;
     }
@@ -2503,7 +2504,7 @@
 
     #cyberTransitionOverlay.active {
         display: flex;
-        animation: cyberFlashGlitch 0.5s ease-out forwards;
+        animation: cyberFlashGlitch 1.5s ease-out forwards;
     }
 
     .cyber-grid-background {
@@ -2562,20 +2563,20 @@
             opacity: 0;
             background: rgba(0, 255, 210, 0.8);
         }
-        10% {
+        3% {
             opacity: 1;
             background: rgba(255, 51, 102, 0.5);
         }
-        20% {
+        6% {
             background: rgba(0, 0, 0, 0.95);
         }
-        30% {
+        10% {
             transform: skewX(-5deg) translate3d(0, 0, 0);
         }
-        35% {
+        15% {
             transform: skewX(5deg) translate3d(0, 0, 0);
         }
-        40% {
+        20% {
             transform: translate3d(0, 0, 0);
         }
         100% {
@@ -5423,12 +5424,14 @@ window.updateShapeSelect = function(playerNum) {
     shapes.forEach(sh => {
         const opt = document.createElement('option');
         opt.value = sh.id;
-        const currentTier = window.challengeTier || 1;
-        if (sh.tier <= currentTier) {
+        const playerLevel = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
+        const reqLevel = sh.tier === 1 ? 1 : ((sh.tier - 1) / 2) * 15;
+
+        if (playerLevel >= reqLevel) {
             opt.textContent = sh.name;
             opt.disabled = false;
         } else {
-            opt.textContent = `${sh.name} (Locked - Tier ${sh.tier})`;
+            opt.textContent = `${sh.name} (Lv. ${reqLevel})`;
             opt.disabled = true;
         }
         shapeSelect.appendChild(opt);
@@ -8898,12 +8901,29 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => {
                                 // Fade in battle modal content after transition flash peak
                                 battleModalEl.style.opacity = '1';
-                            }, 200);
+
+                                // Set gamepad focus to Attack buttons
+                                const p1Attack = document.querySelector('#battleControls .btn-attack');
+                                if (p1Attack) {
+                                    document.querySelectorAll('#battleControls .gamepad-focused-p1').forEach(el => el.classList.remove('gamepad-focused-p1'));
+                                    p1Attack.classList.add('gamepad-focused-p1');
+                                    try { p1Attack.focus(); } catch(e){}
+                                }
+                                const ctrlP2 = document.getElementById('battleControls_p2');
+                                if (ctrlP2 && ctrlP2.style.display !== 'none') {
+                                    const p2Attack = document.querySelector('#battleControls_p2 .btn-attack');
+                                    if (p2Attack) {
+                                        document.querySelectorAll('#battleControls_p2 .gamepad-focused-p2').forEach(el => el.classList.remove('gamepad-focused-p2'));
+                                        p2Attack.classList.add('gamepad-focused-p2');
+                                        try { p2Attack.focus(); } catch(e){}
+                                    }
+                                }
+                            }, 1000);
 
                             setTimeout(() => {
                                 overlay.classList.remove('active');
                                 overlay.style.display = 'none';
-                            }, 500);
+                            }, 1500);
                         } else if (currentDisplay === 'none' && (previousDisplay === 'block' || previousDisplay === '')) {
                             // Battle exited! Play exit glitch fade-out
                             overlay.style.display = 'flex';
@@ -8914,12 +8934,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => {
                                 overlay.style.transition = 'opacity 0.2s ease';
                                 overlay.style.opacity = '0';
-                            }, 200);
+                            }, 800);
 
                             setTimeout(() => {
                                 overlay.style.display = 'none';
                                 overlay.style.opacity = '1'; // reset for next time
-                            }, 400);
+                            }, 1000);
                         }
                         previousDisplay = currentDisplay;
                     }
@@ -16941,6 +16961,11 @@ window.gainPlayerXp = function(playerNum, amount) {
         if (leveledUp) {
             if (window.showModernNotification) {
                 window.showModernNotification(`🎉 Player 2 leveled up to Level ${window.p2Level}! 🎉`, "#ffeb3b");
+                if (window.p2Level % 15 === 0) {
+                    const shapesList = ['Square', 'Triangle', 'Horizontal Diamond', 'Vertical Diamond', 'Rectangle', 'Octagon', 'Hexagon', 'Star', 'Circle', 'Heart', 'Crescent', 'Pentagon'];
+                    const shapeIndex = Math.min(window.p2Level / 15, shapesList.length - 1);
+                    window.showModernNotification(`🏆 New Body Shape Unlocked: ${shapesList[shapeIndex]}! 🏆`, 5000, 2);
+                }
             }
             if (window.updatePlayerLabels) window.updatePlayerLabels();
         }
@@ -16959,6 +16984,11 @@ window.gainPlayerXp = function(playerNum, amount) {
         if (leveledUp) {
             if (window.showModernNotification) {
                 window.showModernNotification(`🎉 Player 1 leveled up to Level ${window.p1Level}! 🎉`, "#ffeb3b");
+                if (window.p1Level % 15 === 0) {
+                    const shapesList = ['Square', 'Triangle', 'Horizontal Diamond', 'Vertical Diamond', 'Rectangle', 'Octagon', 'Hexagon', 'Star', 'Circle', 'Heart', 'Crescent', 'Pentagon'];
+                    const shapeIndex = Math.min(window.p1Level / 15, shapesList.length - 1);
+                    window.showModernNotification(`🏆 New Body Shape Unlocked: ${shapesList[shapeIndex]}! 🏆`, 5000, 1);
+                }
             }
             if (window.updatePlayerLabels) window.updatePlayerLabels();
         }
@@ -32183,19 +32213,6 @@ window.closeBattleModal = function() {
                     const unlockedPattern = patternsList[patternIdx];
                     if (window.showModernNotification) {
                         window.showModernNotification(`🎨 Crown Challenge: New Skin Pattern Unlocked: ${unlockedPattern}! 🎨`, 5000, pNum);
-                    }
-                }
-            } else {
-                // Odd tier: Unlocked a shape
-                const shapesList = [
-                    'Square', 'Triangle', 'Horizontal Diamond', 'Vertical Diamond', 'Rectangle', 'Octagon',
-                    'Hexagon', 'Star', 'Circle', 'Heart', 'Crescent', 'Pentagon'
-                ];
-                const shapeIdx = Math.floor((window.challengeTier - 1) / 2);
-                if (shapeIdx >= 0 && shapeIdx < shapesList.length) {
-                    const unlockedShape = shapesList[shapeIdx];
-                    if (window.showModernNotification) {
-                        window.showModernNotification(`🏆 Crown Challenge: New Body Shape Unlocked: ${unlockedShape}! 🏆`, 5000, pNum);
                     }
                 }
             }
