@@ -3039,39 +3039,11 @@
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Body Shape:</label>
-            <select id="playerShapeSelect" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer;">
-                <option value="Square">Square</option>
-            </select>
+            <button id="playerShapeSelect" data-value="Square" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer; text-align: left;">Square</button>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Skin Pattern:</label>
-            <select id="playerPatternSelect" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer;">
-                <option value="None">None</option>
-                <option value="Dots">Dots</option>
-                <option value="Stripes">Stripes</option>
-                <option value="Checkerboard">Checkerboard</option>
-                <option value="Camo">Camo</option>
-                <option value="Stars">Stars</option>
-                <option value="Hearts">Hearts</option>
-                <option value="Waves">Waves</option>
-                <option value="Bricks">Bricks</option>
-                <option value="Honeycomb">Honeycomb</option>
-                <option value="Leopard">Leopard</option>
-                <option value="Zebra">Zebra</option>
-                <option value="Tiger">Tiger</option>
-                <option value="Circuit">Circuit</option>
-                <option value="Scales">Scales</option>
-                <option value="Flame">Flame</option>
-                <option value="Galaxy">Galaxy</option>
-                <option value="Lightning">Lightning</option>
-                <option value="Spirit">Spirit</option>
-                <option value="Crystal">Crystal</option>
-                <option value="Dragon">Dragon</option>
-                <option value="Panda">Panda</option>
-                <option value="Skull">Skull</option>
-                <option value="Cross">Cross</option>
-                <option value="Moon">Moon</option>
-            </select>
+            <button id="playerPatternSelect" data-value="None" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer; text-align: left;">None</button>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Pattern Color:</label>
@@ -3123,42 +3095,17 @@
 
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Wall Style:</label>
-            <select id="homeWallStyleSelect_p1" onchange="window.onHomeStyleChange(1)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
-                <option value="cyber_circuit">Cyber Circuit (Default)</option>
-                <option value="wooden_log">Cozy Redwood Log</option>
-                <option value="hollow_matrix">Cyber green Matrix Waterfall</option>
-                <option value="glowing_vines">Bio-Neon Glowing Vines</option>
-                <option value="industrial_plate">Industrial Metallic Plating</option>
-                <option value="galaxy_projection">Deep Space Galaxy Projection</option>
-                <option value="aurora_wave">Cosmic Aurora Waves</option>
-                <option value="crimson_fortress">Crimson Ruby Crystal Fortress</option>
-            </select>
+            <button id="homeWallStyleSelect_p1" data-value="cyber_circuit" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace; text-align: left;">Cyber Circuit (Default)</button>
         </div>
 
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Floor Style:</label>
-            <select id="homeFloorStyleSelect_p1" onchange="window.onHomeStyleChange(1)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
-                <option value="cyber_neon">Cyber Neon Grid (Default)</option>
-                <option value="retro_wood">Retro Synthwave Parquet</option>
-                <option value="obsidian_tech">Hexagonal Obsidian Tech</option>
-                <option value="pink_velvet">Pink Velvet & Gold Circuit</option>
-                <option value="blue_circuit">Ocean Blue Plated Circuit</option>
-                <option value="royal_marble">White Marble & Digital Gold</option>
-                <option value="solar_dust">Solar Golden Sparkle panels</option>
-                <option value="emerald_weave">Carbon Emerald Green Weave</option>
-            </select>
+            <button id="homeFloorStyleSelect_p1" data-value="cyber_neon" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace; text-align: left;">Cyber Neon Grid (Default)</button>
         </div>
 
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Ambient Glow:</label>
-            <select id="homeLightStyleSelect_p1" onchange="window.onHomeStyleChange(1)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
-                <option value="cyan">Cyber Cyan Glow</option>
-                <option value="pink">Neon Pink Glow</option>
-                <option value="green">Toxic Green Glow</option>
-                <option value="gold">Solar Golden Glow</option>
-                <option value="purple">Cosmic Purple Glow</option>
-                <option value="obsidian">Shadow Obsidian Dim</option>
-            </select>
+            <button id="homeLightStyleSelect_p1" data-value="cyan" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace; text-align: left;">Cyber Cyan Glow</button>
         </div>
 
         <div style="margin-bottom: 20px; text-align: left; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(191,85,236,0.2);">
@@ -3245,39 +3192,11 @@
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Body Shape:</label>
-            <select id="playerShapeSelect_p2" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer;">
-                <option value="Square">Square</option>
-            </select>
+            <button id="playerShapeSelect_p2" data-value="Square" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer; text-align: left;">Square</button>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Skin Pattern:</label>
-            <select id="playerPatternSelect_p2" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer;">
-                <option value="None">None</option>
-                <option value="Dots">Dots</option>
-                <option value="Stripes">Stripes</option>
-                <option value="Checkerboard">Checkerboard</option>
-                <option value="Camo">Camo</option>
-                <option value="Stars">Stars</option>
-                <option value="Hearts">Hearts</option>
-                <option value="Waves">Waves</option>
-                <option value="Bricks">Bricks</option>
-                <option value="Honeycomb">Honeycomb</option>
-                <option value="Leopard">Leopard</option>
-                <option value="Zebra">Zebra</option>
-                <option value="Tiger">Tiger</option>
-                <option value="Circuit">Circuit</option>
-                <option value="Scales">Scales</option>
-                <option value="Flame">Flame</option>
-                <option value="Galaxy">Galaxy</option>
-                <option value="Lightning">Lightning</option>
-                <option value="Spirit">Spirit</option>
-                <option value="Crystal">Crystal</option>
-                <option value="Dragon">Dragon</option>
-                <option value="Panda">Panda</option>
-                <option value="Skull">Skull</option>
-                <option value="Cross">Cross</option>
-                <option value="Moon">Moon</option>
-            </select>
+            <button id="playerPatternSelect_p2" data-value="None" style="padding: 10px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; width: 100%; box-sizing: border-box; cursor: pointer; text-align: left;">None</button>
         </div>
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px;">Pattern Color:</label>
@@ -3329,42 +3248,17 @@
 
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Wall Style:</label>
-            <select id="homeWallStyleSelect_p2" onchange="window.onHomeStyleChange(2)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
-                <option value="cyber_circuit">Cyber Circuit (Default)</option>
-                <option value="wooden_log">Cozy Redwood Log</option>
-                <option value="hollow_matrix">Cyber green Matrix Waterfall</option>
-                <option value="glowing_vines">Bio-Neon Glowing Vines</option>
-                <option value="industrial_plate">Industrial Metallic Plating</option>
-                <option value="galaxy_projection">Deep Space Galaxy Projection</option>
-                <option value="aurora_wave">Cosmic Aurora Waves</option>
-                <option value="crimson_fortress">Crimson Ruby Crystal Fortress</option>
-            </select>
+            <button id="homeWallStyleSelect_p2" data-value="cyber_circuit" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace; text-align: left;">Cyber Circuit (Default)</button>
         </div>
 
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Floor Style:</label>
-            <select id="homeFloorStyleSelect_p2" onchange="window.onHomeStyleChange(2)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
-                <option value="cyber_neon">Cyber Neon Grid (Default)</option>
-                <option value="retro_wood">Retro Synthwave Parquet</option>
-                <option value="obsidian_tech">Hexagonal Obsidian Tech</option>
-                <option value="pink_velvet">Pink Velvet & Gold Circuit</option>
-                <option value="blue_circuit">Ocean Blue Plated Circuit</option>
-                <option value="royal_marble">White Marble & Digital Gold</option>
-                <option value="solar_dust">Solar Golden Sparkle panels</option>
-                <option value="emerald_weave">Carbon Emerald Green Weave</option>
-            </select>
+            <button id="homeFloorStyleSelect_p2" data-value="cyber_neon" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace; text-align: left;">Cyber Neon Grid (Default)</button>
         </div>
 
         <div style="margin-bottom: 20px; text-align: left;">
             <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #00ffcc;">Ambient Glow:</label>
-            <select id="homeLightStyleSelect_p2" onchange="window.onHomeStyleChange(2)" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace;">
-                <option value="cyan">Cyber Cyan Glow</option>
-                <option value="pink">Neon Pink Glow</option>
-                <option value="green">Toxic Green Glow</option>
-                <option value="gold">Solar Golden Glow</option>
-                <option value="purple">Cosmic Purple Glow</option>
-                <option value="obsidian">Shadow Obsidian Dim</option>
-            </select>
+            <button id="homeLightStyleSelect_p2" data-value="cyan" style="padding: 10px; border-radius: 5px; border: 1px solid #bf55ec; background: #0b0612; color: white; width: 100%; box-sizing: border-box; cursor: pointer; outline: none; font-family: monospace; text-align: left;">Cyber Cyan Glow</button>
         </div>
 
         <div style="margin-bottom: 20px; text-align: left; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(191,85,236,0.2);">
@@ -5122,45 +5016,36 @@ window.drawPlayerShapePath = function(ctx, shape, x, y, size) {
 // Populate the Shape select box based on Crown Challenge Tier unlocks
 window.updateShapeSelect = function(playerNum) {
     const suffix = (playerNum === 2) ? '_p2' : '';
-    const shapeSelect = document.getElementById('playerShapeSelect' + suffix);
-    if (!shapeSelect) return;
+    const shapeBtn = document.getElementById('playerShapeSelect' + suffix);
+    if (!shapeBtn) return;
 
-    const currentValue = shapeSelect.value;
-    shapeSelect.innerHTML = '';
+    // Check if current value is still valid
+    const currentVal = shapeBtn.dataset.value;
+    const currentTier = window.challengeTier || 1;
+    const currentShapeDef = window.SHAPE_UNLOCKS.find(s => s.id === currentVal);
 
-    const shapes = [
-        { id: 'Square', name: 'Square', tier: 1 },
-        { id: 'Triangle', name: 'Triangle', tier: 3 },
-        { id: 'Horizontal Diamond', name: 'Horizontal Diamond', tier: 5 },
-        { id: 'Vertical Diamond', name: 'Vertical Diamond', tier: 7 },
-        { id: 'Rectangle', name: 'Rectangle', tier: 9 },
-        { id: 'Octagon', name: 'Octagon', tier: 11 },
-        { id: 'Hexagon', name: 'Hexagon', tier: 13 },
-        { id: 'Star', name: 'Star', tier: 15 },
-        { id: 'Circle', name: 'Circle', tier: 17 },
-        { id: 'Heart', name: 'Heart', tier: 19 },
-        { id: 'Crescent', name: 'Crescent', tier: 21 },
-        { id: 'Pentagon', name: 'Pentagon', tier: 23 }
-    ];
-
-    shapes.forEach(sh => {
-        const opt = document.createElement('option');
-        opt.value = sh.id;
-        const currentTier = window.challengeTier || 1;
-        if (sh.tier <= currentTier) {
-            opt.textContent = sh.name;
-            opt.disabled = false;
-        } else {
-            opt.textContent = `${sh.name} (Locked - Tier ${sh.tier})`;
-            opt.disabled = true;
-        }
-        shapeSelect.appendChild(opt);
-    });
-
-    if (currentValue && Array.from(shapeSelect.options).some(o => o.value === currentValue && !o.disabled)) {
-        shapeSelect.value = currentValue;
+    if (!currentShapeDef || currentShapeDef.tier > currentTier) {
+        shapeBtn.dataset.value = 'Square';
+        shapeBtn.innerText = 'Square';
+    } else {
+        shapeBtn.innerText = currentShapeDef.name;
     }
 };
+
+window.SHAPE_UNLOCKS = [
+    { id: 'Square', name: 'Square', tier: 1 },
+    { id: 'Triangle', name: 'Triangle', tier: 3 },
+    { id: 'Horizontal Diamond', name: 'Horizontal Diamond', tier: 5 },
+    { id: 'Vertical Diamond', name: 'Vertical Diamond', tier: 7 },
+    { id: 'Rectangle', name: 'Rectangle', tier: 9 },
+    { id: 'Octagon', name: 'Octagon', tier: 11 },
+    { id: 'Hexagon', name: 'Hexagon', tier: 13 },
+    { id: 'Star', name: 'Star', tier: 15 },
+    { id: 'Circle', name: 'Circle', tier: 17 },
+    { id: 'Heart', name: 'Heart', tier: 19 },
+    { id: 'Crescent', name: 'Crescent', tier: 21 },
+    { id: 'Pentagon', name: 'Pentagon', tier: 23 }
+];
 
 // Shared pattern drawing logic
 window.drawPlayerPattern = function(pCtx, pattern, patternColor) {
@@ -7022,7 +6907,7 @@ window.updateCharacterPreview = function(playerNum = 1, forceP1 = false) {
     const name = (nameInput ? nameInput.value : '') || (playerNum === 2 ? 'P2' : 'P1');
     const color = colorInput ? colorInput.value : '#FFFFFF';
     const auraColor = auraColorInput ? auraColorInput.value : '#00FFFF';
-    const pattern = patternSelect ? patternSelect.value : 'None';
+    const pattern = patternSelect ? patternSelect.dataset.value : 'None';
     const patternColor = patternColorInput ? patternColorInput.value : '#FF0000';
 
     ctx.clearRect(0, 0, width, height);
@@ -7048,7 +6933,7 @@ window.updateCharacterPreview = function(playerNum = 1, forceP1 = false) {
     const charY = centerY - charSize / 2;
 
     const shapeSelect = document.getElementById('playerShapeSelect' + suffix);
-    const shape = shapeSelect ? shapeSelect.value : 'Square';
+    const shape = shapeSelect ? shapeSelect.dataset.value : 'Square';
 
     ctx.save();
     if (window.drawPlayerShapePath) {
@@ -7404,11 +7289,11 @@ function escapeHtml(unsafe) {
             <h2 style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Breeding</h2>
             <div style="margin-bottom: 15px; text-align: left;">
                 <label style="display: block; margin-bottom: 5px;">Parent 1:</label>
-                <select id="parent1Select" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box;"></select>
+                <button id="parent1Select" data-id="" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box; text-align: left; cursor: pointer;">Select Parent</button>
             </div>
             <div style="margin-bottom: 15px; text-align: left;">
                 <label style="display: block; margin-bottom: 5px;">Parent 2:</label>
-                <select id="parent2Select" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box;"></select>
+                <button id="parent2Select" data-id="" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box; text-align: left; cursor: pointer;">Select Parent</button>
             </div>
             <button id="doBreedBtn" onclick="window.doBreed(1)" style="width: 100%; padding: 10px; font-size: 16px;">Breed!</button>
             <p id="breedResult" style="min-height: 20px; font-weight: bold; margin-top: 15px; text-align: center; color: #4caf50;"></p>
@@ -7420,11 +7305,11 @@ function escapeHtml(unsafe) {
             <h2 style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Breeding</h2>
             <div style="margin-bottom: 15px; text-align: left;">
                 <label style="display: block; margin-bottom: 5px;">Parent 1:</label>
-                <select id="parent1Select_P2" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box;"></select>
+                <button id="parent1Select_P2" data-id="" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box; text-align: left; cursor: pointer;">Select Parent</button>
             </div>
             <div style="margin-bottom: 15px; text-align: left;">
                 <label style="display: block; margin-bottom: 5px;">Parent 2:</label>
-                <select id="parent2Select_P2" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box;"></select>
+                <button id="parent2Select_P2" data-id="" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #555; background: #222; color: white; box-sizing: border-box; text-align: left; cursor: pointer;">Select Parent</button>
             </div>
             <button id="doBreedBtn_P2" onclick="window.doBreed(2)" style="width: 100%; padding: 10px; font-size: 16px;">Breed!</button>
             <p id="breedResult_P2" style="min-height: 20px; font-weight: bold; margin-top: 15px; text-align: center; color: #ff9800;"></p>
@@ -7708,7 +7593,7 @@ function escapeHtml(unsafe) {
         <div style="flex: 1; min-width: 220px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #4caf50; box-sizing: border-box;">
             <h3 id="tradeTitleP1">Player 1 (P1)</h3>
             <label>Offer Creature:</label>
-            <select id="tradeCreatureSelectP1" style="width: 100%; margin: 10px 0; padding: 8px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 14px;"></select>
+            <button id="tradeCreatureSelectP1" data-id="" style="width: 100%; margin: 10px 0; padding: 8px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 14px; text-align: left; cursor: pointer;">Select Creature</button>
             <div id="tradeP1Sprite" style="width: 80px; height: 80px; background: #fff; margin: 10px auto; border-radius: 8px;"></div>
             <div id="tradeP1PreviewText" style="margin-top: 10px; font-size: 13px; color: #bbb; line-height: 1.4;"></div>
         </div>
@@ -7716,7 +7601,7 @@ function escapeHtml(unsafe) {
         <div style="flex: 1; min-width: 220px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #ff9800; box-sizing: border-box;">
             <h3 id="tradeTitleP2">Player 2 (P2)</h3>
             <label>Offer Creature:</label>
-            <select id="tradeCreatureSelectP2" style="width: 100%; margin: 10px 0; padding: 8px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 14px;"></select>
+            <button id="tradeCreatureSelectP2" data-id="" style="width: 100%; margin: 10px 0; padding: 8px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 14px; text-align: left; cursor: pointer;">Select Creature</button>
             <div id="tradeP2Sprite" style="width: 80px; height: 80px; background: #fff; margin: 10px auto; border-radius: 8px;"></div>
             <div id="tradeP2PreviewText" style="margin-top: 10px; font-size: 13px; color: #bbb; line-height: 1.4;"></div>
         </div>
@@ -9403,39 +9288,51 @@ document.addEventListener('DOMContentLoaded', () => {
             if (nameInput) nameInput.value = localStorage.getItem('wildpulse_player2_name') || 'P2';
             if (colorInput) colorInput.value = localStorage.getItem('wildpulse_player2_color') || '#FFA500';
             if (auraInput) auraInput.value = localStorage.getItem('wildpulse_player2_aura_color') || '#FF0000';
-            if (patternSelect) patternSelect.value = localStorage.getItem('wildpulse_player2_pattern') || 'Stripes';
+            if (patternSelect) {
+                const savedPattern = localStorage.getItem('wildpulse_player2_pattern') || 'Stripes';
+                const pData = window.PATTERN_UNLOCKS ? window.PATTERN_UNLOCKS[savedPattern] : null;
+                if (pData && window.gameStats && pData.check(window.gameStats)) {
+                    patternSelect.dataset.value = savedPattern;
+                    patternSelect.innerText = savedPattern;
+                } else {
+                    patternSelect.dataset.value = 'None';
+                    patternSelect.innerText = 'None';
+                }
+            }
             if (patternColorInput) patternColorInput.value = localStorage.getItem('wildpulse_player2_pattern_color') || '#FF0000';
 
-            if (window.updateShapeSelect) {
-                window.updateShapeSelect(2);
-            }
             const savedShape = localStorage.getItem('wildpulse_player2_shape') || 'Square';
             if (shapeSelect) {
-                const selectedOpt = Array.from(shapeSelect.options).find(o => o.value === savedShape);
-                if (selectedOpt && !selectedOpt.disabled) {
-                    shapeSelect.value = savedShape;
-                } else {
-                    shapeSelect.value = 'Square';
-                }
+                shapeSelect.dataset.value = savedShape;
+                shapeSelect.innerText = savedShape;
+            }
+            if (window.updateShapeSelect) {
+                window.updateShapeSelect(2);
             }
         } else {
             if (nameInput) nameInput.value = localStorage.getItem('wildpulse_player_name') || '';
             if (colorInput) colorInput.value = localStorage.getItem('wildpulse_player_color') || '#FFFFFF';
             if (auraInput) auraInput.value = localStorage.getItem('wildpulse_player_aura_color') || '#00FFFF';
-            if (patternSelect) patternSelect.value = localStorage.getItem('wildpulse_player_pattern') || 'None';
+            if (patternSelect) {
+                const savedPattern = localStorage.getItem('wildpulse_player_pattern') || 'None';
+                const pData = window.PATTERN_UNLOCKS ? window.PATTERN_UNLOCKS[savedPattern] : null;
+                if (pData && window.gameStats && pData.check(window.gameStats)) {
+                    patternSelect.dataset.value = savedPattern;
+                    patternSelect.innerText = savedPattern;
+                } else {
+                    patternSelect.dataset.value = 'None';
+                    patternSelect.innerText = 'None';
+                }
+            }
             if (patternColorInput) patternColorInput.value = localStorage.getItem('wildpulse_player_pattern_color') || '#FF0000';
 
-            if (window.updateShapeSelect) {
-                window.updateShapeSelect(1);
-            }
             const savedShape = localStorage.getItem('wildpulse_player_shape') || 'Square';
             if (shapeSelect) {
-                const selectedOpt = Array.from(shapeSelect.options).find(o => o.value === savedShape);
-                if (selectedOpt && !selectedOpt.disabled) {
-                    shapeSelect.value = savedShape;
-                } else {
-                    shapeSelect.value = 'Square';
-                }
+                shapeSelect.dataset.value = savedShape;
+                shapeSelect.innerText = savedShape;
+            }
+            if (window.updateShapeSelect) {
+                window.updateShapeSelect(1);
             }
         }
         if (window.syncCustomColorPickers) {
@@ -9464,13 +9361,76 @@ document.addEventListener('DOMContentLoaded', () => {
         const floor = localStorage.getItem(`wildpulse_p${playerNum}_home_floor_style`) || 'cyber_neon';
         const light = localStorage.getItem(`wildpulse_p${playerNum}_home_light_style`) || 'cyan';
 
-        const wallSel = document.getElementById(`homeWallStyleSelect_p${playerNum}`);
-        const floorSel = document.getElementById(`homeFloorStyleSelect_p${playerNum}`);
-        const lightSel = document.getElementById(`homeLightStyleSelect_p${playerNum}`);
+        const wallBtn = document.getElementById(`homeWallStyleSelect_p${playerNum}`);
+        const floorBtn = document.getElementById(`homeFloorStyleSelect_p${playerNum}`);
+        const lightBtn = document.getElementById(`homeLightStyleSelect_p${playerNum}`);
 
-        if (wallSel) wallSel.value = wall;
-        if (floorSel) floorSel.value = floor;
-        if (lightSel) lightSel.value = light;
+        const wallOptions = [
+            { value: 'cyber_circuit', label: 'Cyber Circuit (Default)' },
+            { value: 'wooden_log', label: 'Cozy Redwood Log' },
+            { value: 'hollow_matrix', label: 'Cyber green Matrix Waterfall' },
+            { value: 'glowing_vines', label: 'Bio-Neon Glowing Vines' },
+            { value: 'industrial_plate', label: 'Industrial Metallic Plating' },
+            { value: 'galaxy_projection', label: 'Deep Space Galaxy Projection' },
+            { value: 'aurora_wave', label: 'Cosmic Aurora Waves' },
+            { value: 'crimson_fortress', label: 'Crimson Ruby Crystal Fortress' }
+        ];
+
+        const floorOptions = [
+            { value: 'cyber_neon', label: 'Cyber Neon Grid (Default)' },
+            { value: 'retro_wood', label: 'Retro Synthwave Parquet' },
+            { value: 'obsidian_tech', label: 'Hexagonal Obsidian Tech' },
+            { value: 'pink_velvet', label: 'Pink Velvet & Gold Circuit' },
+            { value: 'blue_circuit', label: 'Ocean Blue Plated Circuit' },
+            { value: 'royal_marble', label: 'White Marble & Digital Gold' },
+            { value: 'solar_dust', label: 'Solar Golden Sparkle panels' },
+            { value: 'emerald_weave', label: 'Carbon Emerald Green Weave' }
+        ];
+
+        const lightOptions = [
+            { value: 'cyan', label: 'Cyber Cyan Glow' },
+            { value: 'pink', label: 'Neon Pink Glow' },
+            { value: 'green', label: 'Toxic Green Glow' },
+            { value: 'gold', label: 'Solar Golden Glow' },
+            { value: 'purple', label: 'Cosmic Purple Glow' },
+            { value: 'obsidian', label: 'Shadow Obsidian Dim' }
+        ];
+
+        if (wallBtn) {
+            wallBtn.dataset.value = wall;
+            wallBtn.innerText = wallOptions.find(o => o.value === wall)?.label || wall;
+            wallBtn.onclick = () => {
+                window.promptOptionSelection(playerNum, "Select Wall Style", wallOptions, (val) => {
+                    wallBtn.dataset.value = val;
+                    wallBtn.innerText = wallOptions.find(o => o.value === val)?.label || val;
+                    window.onHomeStyleChange(playerNum);
+                }, wallBtn.dataset.value);
+            };
+        }
+
+        if (floorBtn) {
+            floorBtn.dataset.value = floor;
+            floorBtn.innerText = floorOptions.find(o => o.value === floor)?.label || floor;
+            floorBtn.onclick = () => {
+                window.promptOptionSelection(playerNum, "Select Floor Style", floorOptions, (val) => {
+                    floorBtn.dataset.value = val;
+                    floorBtn.innerText = floorOptions.find(o => o.value === val)?.label || val;
+                    window.onHomeStyleChange(playerNum);
+                }, floorBtn.dataset.value);
+            };
+        }
+
+        if (lightBtn) {
+            lightBtn.dataset.value = light;
+            lightBtn.innerText = lightOptions.find(o => o.value === light)?.label || light;
+            lightBtn.onclick = () => {
+                window.promptOptionSelection(playerNum, "Select Ambient Glow", lightOptions, (val) => {
+                    lightBtn.dataset.value = val;
+                    lightBtn.innerText = lightOptions.find(o => o.value === val)?.label || val;
+                    window.onHomeStyleChange(playerNum);
+                }, lightBtn.dataset.value);
+            };
+        }
 
         // Populate placed mini-tiles list inside home
         const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
@@ -9544,19 +9504,69 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.onHomeStyleChange = function(playerNum) {
-        const wallSel = document.getElementById(`homeWallStyleSelect_p${playerNum}`);
-        const floorSel = document.getElementById(`homeFloorStyleSelect_p${playerNum}`);
-        const lightSel = document.getElementById(`homeLightStyleSelect_p${playerNum}`);
+        const wallBtn = document.getElementById(`homeWallStyleSelect_p${playerNum}`);
+        const floorBtn = document.getElementById(`homeFloorStyleSelect_p${playerNum}`);
+        const lightBtn = document.getElementById(`homeLightStyleSelect_p${playerNum}`);
 
-        if (wallSel && floorSel && lightSel) {
-            localStorage.setItem(`wildpulse_p${playerNum}_home_wall_style`, wallSel.value);
-            localStorage.setItem(`wildpulse_p${playerNum}_home_floor_style`, floorSel.value);
-            localStorage.setItem(`wildpulse_p${playerNum}_home_light_style`, lightSel.value);
+        if (wallBtn && floorBtn && lightBtn) {
+            localStorage.setItem(`wildpulse_p${playerNum}_home_wall_style`, wallBtn.dataset.value);
+            localStorage.setItem(`wildpulse_p${playerNum}_home_floor_style`, floorBtn.dataset.value);
+            localStorage.setItem(`wildpulse_p${playerNum}_home_light_style`, lightBtn.dataset.value);
 
             // Rebuild interior room tiles dynamically and instantly
             window.rebuildHomeInteriorTiles(playerNum);
         }
     };
+
+    // Helper function to attach onclick events to generic selection buttons
+    function attachOptionSelectionHandlers(playerNum, suffix) {
+        const shapeBtn = document.getElementById('playerShapeSelect' + suffix);
+        const patternBtn = document.getElementById('playerPatternSelect' + suffix);
+
+        if (shapeBtn) {
+            shapeBtn.onclick = () => {
+                const currentVal = shapeBtn.dataset.value || 'Square';
+                const opts = window.SHAPE_UNLOCKS.map(sh => {
+                    const currentTier = window.challengeTier || 1;
+                    const isUnlocked = sh.tier <= currentTier;
+                    return {
+                        value: sh.id,
+                        label: sh.name,
+                        disabled: !isUnlocked,
+                        disabledText: isUnlocked ? null : `(Locked - Tier ${sh.tier})`
+                    };
+                });
+                window.promptOptionSelection(playerNum, "Select Body Shape", opts, (newVal) => {
+                    shapeBtn.dataset.value = newVal;
+                    shapeBtn.innerText = window.SHAPE_UNLOCKS.find(s => s.id === newVal)?.name || newVal;
+                    window.updateCharacterPreview(playerNum);
+                }, currentVal);
+            };
+        }
+
+        if (patternBtn) {
+            patternBtn.onclick = () => {
+                const currentVal = patternBtn.dataset.value || 'None';
+                let opts = [];
+                if (window.PATTERN_UNLOCKS && window.gameStats) {
+                    opts = Object.entries(window.PATTERN_UNLOCKS).map(([pattern, data]) => {
+                        const isUnlocked = data.check(window.gameStats);
+                        return {
+                            value: pattern,
+                            label: pattern,
+                            disabled: !isUnlocked,
+                            disabledText: isUnlocked ? null : `(Locked: ${data.condition})`
+                        };
+                    });
+                }
+                window.promptOptionSelection(playerNum, "Select Skin Pattern", opts, (newVal) => {
+                    patternBtn.dataset.value = newVal;
+                    patternBtn.innerText = newVal;
+                    window.updateCharacterPreview(playerNum);
+                }, currentVal);
+            };
+        }
+    }
 
     // Helper function to open character customization modal
     window.openCustomizationModal = function(playerNum = 1) {
@@ -9633,25 +9643,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         window.loadCustomPlayerInputs(playerNum);
-
-        // Refresh pattern options based on unlocks
-        if (window.PATTERN_UNLOCKS && window.gameStats) {
-            const select = document.getElementById('playerPatternSelect' + suffix);
-            if (select) {
-                const currentValue = select.value;
-                select.innerHTML = '';
-
-                Object.entries(window.PATTERN_UNLOCKS).forEach(([pattern, data]) => {
-                    const isUnlocked = data.check(window.gameStats);
-                    const option = document.createElement('option');
-                    option.value = pattern;
-                    option.text = isUnlocked ? pattern : `${pattern} (Locked: ${data.condition})`;
-                    option.disabled = !isUnlocked;
-                    if (pattern === currentValue) option.selected = true;
-                    select.appendChild(option);
-                });
-            }
-        }
+        attachOptionSelectionHandlers(playerNum, suffix);
 
         if (window.coopActive) {
             window.updateModalVisibility();
@@ -10158,9 +10150,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const name_p2 = document.getElementById('playerNameInput_p2').value.trim();
             const color_p2 = document.getElementById('playerColorInput_p2').value;
             const auraColor_p2 = document.getElementById('playerAuraColorInput_p2').value;
-            const pattern_p2 = document.getElementById('playerPatternSelect_p2').value;
+            const pattern_p2 = document.getElementById('playerPatternSelect_p2') ? document.getElementById('playerPatternSelect_p2').dataset.value : 'None';
             const patternColor_p2 = document.getElementById('playerPatternColorInput_p2').value;
-            const shape_p2 = document.getElementById('playerShapeSelect_p2') ? document.getElementById('playerShapeSelect_p2').value : 'Square';
+            const shape_p2 = document.getElementById('playerShapeSelect_p2') ? document.getElementById('playerShapeSelect_p2').dataset.value : 'Square';
 
             localStorage.setItem('wildpulse_player2_name', name_p2);
             localStorage.setItem('wildpulse_player2_color', color_p2);
@@ -10194,9 +10186,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('playerNameInput').value.trim();
         const color = document.getElementById('playerColorInput').value;
         const auraColor = document.getElementById('playerAuraColorInput').value;
-        const pattern = document.getElementById('playerPatternSelect').value;
+        const pattern = document.getElementById('playerPatternSelect') ? document.getElementById('playerPatternSelect').dataset.value : 'None';
         const patternColor = document.getElementById('playerPatternColorInput').value;
-        const shape = document.getElementById('playerShapeSelect') ? document.getElementById('playerShapeSelect').value : 'Square';
+        const shape = document.getElementById('playerShapeSelect') ? document.getElementById('playerShapeSelect').dataset.value : 'Square';
 
         const targetPlayer = (window.activeCustomPlayer === 2 && !window.isNewGameSetup) ? 2 : 1;
 
@@ -10268,9 +10260,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('playerNameInput_p2').value.trim();
         const color = document.getElementById('playerColorInput_p2').value;
         const auraColor = document.getElementById('playerAuraColorInput_p2').value;
-        const pattern = document.getElementById('playerPatternSelect_p2').value;
+        const pattern = document.getElementById('playerPatternSelect_p2') ? document.getElementById('playerPatternSelect_p2').dataset.value : 'None';
         const patternColor = document.getElementById('playerPatternColorInput_p2').value;
-        const shape = document.getElementById('playerShapeSelect_p2') ? document.getElementById('playerShapeSelect_p2').value : 'Square';
+        const shape = document.getElementById('playerShapeSelect_p2') ? document.getElementById('playerShapeSelect_p2').dataset.value : 'Square';
 
         localStorage.setItem('wildpulse_player2_name', name);
         localStorage.setItem('wildpulse_player2_color', color);
@@ -17167,19 +17159,16 @@ window.calculateCreatureSellPrice = function(c) {
     return Math.max(1, finalPrice);
 };
 
-window.sellCreature = function(playerNum) {
+window.sellCreature = function(playerNum, target) {
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
     const idSet = playerNum === 2 ? window.collectedCreaturesIds2 : window.collectedCreaturesIds;
     const stats = playerNum === 2 ? (window.gameStats2 || window.gameStats) : window.gameStats;
     const statsKey = playerNum === 2 ? 'wildpulse_stats2' : 'wildpulse_stats';
 
-    const selectEl = document.getElementById(`sellCreatureSelect_P${playerNum}`);
-    if (!selectEl || selectEl.value === '') return;
-
-    const idx = parseInt(selectEl.value);
-    const target = list[idx];
     if (!target) return;
+    const idx = list.findIndex(c => c.id === target.id);
+    if (idx === -1) return;
 
     const isPartyCreature = !target.stored;
     const activeParty = list.filter(c => !c.stored);
@@ -17433,36 +17422,26 @@ window.updateStoreUI = function() {
         html += `</div>`;
 
         // Sell section
-        const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
-        let selectHtml = '';
-        const nonEggList = list.filter(c => !c.isEgg);
-        if (nonEggList.length === 0) {
-            selectHtml = '<option value="">No creatures to sell</option>';
-        } else {
-            list.forEach((c, idx) => {
-                if (c.isEgg) return; // Skip eggs!
-                let price = window.calculateCreatureSellPrice(c);
-                let nicknameOrName = c.nickname || c.name;
-                let locationText = c.stored ? 'Storage' : 'Party';
-                selectHtml += `<option value="${idx}">${nicknameOrName} (Lvl ${c.level || 1}, ${locationText}) - 🪙${price}</option>`;
-            });
-        }
-
         html += `
             <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 15px; padding-top: 15px; text-align: left;">
                 <h3 style="color: #ffd700; margin-top: 0; font-size: 14px; margin-bottom: 8px;">Sell Creatures</h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <select id="sellCreatureSelect_P${playerNum}" style="flex: 1; padding: 6px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 12px; height: 32px;">
-                        ${selectHtml}
-                    </select>
-                    <button class="sell-btn" onclick="window.sellCreature(${playerNum})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #e91e63, #c2185b); border: 1px solid #f48fb1; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
-                        Sell
+                    <button class="sell-btn" id="sellCreatureBtn_P${playerNum}" style="flex: 1; padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #e91e63, #c2185b); border: 1px solid #f48fb1; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
+                        Select Creature to Sell
                     </button>
                 </div>
             </div>
         `;
 
         container.innerHTML = html;
+        const sellBtn = document.getElementById(`sellCreatureBtn_P${playerNum}`);
+        if (sellBtn) {
+            sellBtn.onclick = () => {
+                window.promptCreatureSelection(playerNum, "Select Creature to Sell", (creature) => {
+                    window.sellCreature(playerNum, creature);
+                });
+            };
+        }
     };
 
     renderColumn(1, 'storeContent');
@@ -17572,6 +17551,122 @@ window.promptCreatureSelection = function(playerNum, titleText, callback) {
             callback(creature);
         };
 
+        dialog.appendChild(btn);
+    });
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.innerText = "Cancel";
+    cancelBtn.style.marginTop = '15px';
+    cancelBtn.style.padding = '8px 16px';
+    cancelBtn.style.background = '#e53935';
+    cancelBtn.style.border = 'none';
+    cancelBtn.style.borderRadius = '6px';
+    cancelBtn.style.color = 'white';
+    cancelBtn.style.cursor = 'pointer';
+    cancelBtn.style.width = '100%';
+    cancelBtn.style.fontWeight = 'bold';
+    cancelBtn.onclick = () => {
+        document.body.removeChild(overlay);
+        if (playerNum === 2) window.p2ActiveModal = prevActiveModal;
+        else window.p1ActiveModal = prevActiveModal;
+        if (window.updateModalVisibility) window.updateModalVisibility();
+    };
+    dialog.appendChild(cancelBtn);
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+};
+
+// Generic Option Selection Popup Modal
+window.promptOptionSelection = function(playerNum, titleText, options, callback, currentVal) {
+    const prevActiveModal = playerNum === 2 ? window.p2ActiveModal : window.p1ActiveModal;
+    const modalId = playerNum === 2 ? 'optionSelectModal_p2' : 'optionSelectModal_p1';
+
+    const overlay = document.createElement('div');
+    overlay.id = modalId;
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    if (window.coopActive) {
+        overlay.style.width = '50vw';
+        if (playerNum === 2) {
+            overlay.style.left = '50vw';
+        } else {
+            overlay.style.left = '0';
+        }
+    } else {
+        overlay.style.width = '100vw';
+        overlay.style.left = '0';
+    }
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0,0,0,0.7)';
+    overlay.style.zIndex = '300000';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+
+    if (playerNum === 2) {
+        window.p2ActiveModal = modalId;
+    } else {
+        window.p1ActiveModal = modalId;
+    }
+    if (window.updateModalVisibility) {
+        window.updateModalVisibility();
+    }
+
+    const dialog = document.createElement('div');
+    dialog.style.background = 'linear-gradient(135deg, #112a1a, #071510)';
+    dialog.style.border = '2px solid #a5d6a7';
+    dialog.style.borderRadius = '12px';
+    dialog.style.padding = '20px';
+    dialog.style.width = '320px';
+    dialog.style.maxWidth = '90%';
+    dialog.style.maxHeight = '80vh';
+    dialog.style.overflowY = 'auto';
+    dialog.style.color = 'white';
+    dialog.style.textAlign = 'center';
+    dialog.style.boxShadow = '0 8px 24px rgba(0,0,0,0.6)';
+
+    const title = document.createElement('h3');
+    title.innerText = titleText;
+    title.style.margin = '0 0 15px 0';
+    title.style.color = '#a5d6a7';
+    dialog.appendChild(title);
+
+    options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.className = 'creature-select-btn'; // Reusing for gamepad navigation
+        btn.style.display = 'block';
+        btn.style.width = '100%';
+        btn.style.margin = '10px 0';
+        btn.style.padding = '10px';
+        btn.style.background = (currentVal && opt.value === currentVal) ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255,255,255,0.1)';
+        btn.style.border = (currentVal && opt.value === currentVal) ? '1px solid #4caf50' : '1px solid rgba(255,255,255,0.2)';
+        btn.style.borderRadius = '8px';
+        btn.style.color = opt.disabled ? '#888' : 'white';
+        btn.style.cursor = opt.disabled ? 'not-allowed' : 'pointer';
+        btn.style.textAlign = 'left';
+        btn.style.fontSize = '13px';
+        btn.style.transition = 'background 0.2s';
+
+        if (!opt.disabled) {
+            btn.onmouseover = () => { btn.style.background = 'rgba(255,255,255,0.2)'; };
+            btn.onmouseout = () => { btn.style.background = (currentVal && opt.value === currentVal) ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255,255,255,0.1)'; };
+
+            btn.onclick = () => {
+                document.body.removeChild(overlay);
+                if (playerNum === 2) window.p2ActiveModal = prevActiveModal;
+                else window.p1ActiveModal = prevActiveModal;
+                if (window.updateModalVisibility) window.updateModalVisibility();
+                callback(opt.value);
+            };
+        }
+
+        let labelText = opt.label;
+        if (opt.disabled && opt.disabledText) {
+            labelText += ` <span style="color: #ff5555; font-size: 11px;">${opt.disabledText}</span>`;
+        }
+
+        btn.innerHTML = `<div style="font-weight: bold; text-align: center;">${labelText}</div>`;
         dialog.appendChild(btn);
     });
 
@@ -23262,21 +23357,24 @@ window.hatchEgg = function(egg, playerNum = 1) {
     }, 5400);
 };
 
-function populateSelect(selectElement, playerNum = 1) {
-    if (!selectElement) return;
-    selectElement.innerHTML = '';
-    const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
-    list.forEach(c => {
-        if (c.isEgg) return; // Skip eggs in parent selectors
-        if (!c.gender) {
-            c.gender = Math.random() < 0.5 ? 'Male' : 'Female';
-        }
-        const option = document.createElement('option');
-        option.value = c.id;
-        const genderSymbol = c.gender === 'Female' ? '♀' : '♂';
-        option.text = `${c.name} (${genderSymbol}, Lvl ${c.level || 1}, Gen ${c.generation})`;
-        selectElement.appendChild(option);
-    });
+function attachBreedingSelect(btnElement, playerNum = 1, indexStr = "1") {
+    if (!btnElement) return;
+    btnElement.dataset.id = '';
+    btnElement.innerText = `Select Parent ${indexStr}`;
+    btnElement.onclick = () => {
+        window.promptCreatureSelection(playerNum, `Select Parent ${indexStr}`, (creature) => {
+            if (creature.isEgg) {
+                window.showModernNotification("❌ Cannot breed an egg!", 3000, playerNum);
+                return;
+            }
+            if (!creature.gender) {
+                creature.gender = Math.random() < 0.5 ? 'Male' : 'Female';
+            }
+            btnElement.dataset.id = creature.id;
+            const genderSymbol = creature.gender === 'Female' ? '♀' : '♂';
+            btnElement.innerText = `${creature.name} (${genderSymbol}, Lvl ${creature.level || 1}, Gen ${creature.generation})`;
+        });
+    };
 }
 
 window.openBreedingModal = function(playerCollider) {
@@ -23307,14 +23405,14 @@ window.openBreedingModal = function(playerCollider) {
         window.closeAllModalsForPlayer(playerNum, 'breedingModal');
         if (playerNum === 2) {
             window.p2ActiveModal = 'breedingModal';
-            populateSelect(document.getElementById('parent1Select_P2'), 2);
-            populateSelect(document.getElementById('parent2Select_P2'), 2);
+            attachBreedingSelect(document.getElementById('parent1Select_P2'), 2, "1");
+            attachBreedingSelect(document.getElementById('parent2Select_P2'), 2, "2");
             const res2 = document.getElementById('breedResult_P2');
             if (res2) res2.innerText = '';
         } else {
             window.p1ActiveModal = 'breedingModal';
-            populateSelect(document.getElementById('parent1Select'), 1);
-            populateSelect(document.getElementById('parent2Select'), 1);
+            attachBreedingSelect(document.getElementById('parent1Select'), 1, "1");
+            attachBreedingSelect(document.getElementById('parent2Select'), 1, "2");
             const res1 = document.getElementById('breedResult');
             if (res1) res1.innerText = '';
         }
@@ -23322,8 +23420,8 @@ window.openBreedingModal = function(playerCollider) {
     } else {
         document.getElementById('breedingModal').style.display = 'block';
         // Player 1 SELECTS
-        populateSelect(document.getElementById('parent1Select'), 1);
-        populateSelect(document.getElementById('parent2Select'), 1);
+        attachBreedingSelect(document.getElementById('parent1Select'), 1, "1");
+        attachBreedingSelect(document.getElementById('parent2Select'), 1, "2");
         const resEl = document.getElementById('breedResult');
         if (resEl) resEl.innerText = '';
     }
@@ -23380,8 +23478,8 @@ window.doBreed = function(playerNum = 1) {
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     const resEl = document.getElementById(playerNum === 2 ? 'breedResult_P2' : 'breedResult');
 
-    const id1 = document.getElementById('parent1Select' + pPrefix).value;
-    const id2 = document.getElementById('parent2Select' + pPrefix).value;
+    const id1 = document.getElementById('parent1Select' + pPrefix).dataset.id;
+    const id2 = document.getElementById('parent2Select' + pPrefix).dataset.id;
 
     if (!id1 || !id2) {
         if (resEl) resEl.innerText = 'Please collect and select two parents.';
@@ -23491,8 +23589,8 @@ window.doBreed = function(playerNum = 1) {
         window.showModernNotification(notificationMsg, 6000, playerNum);
 
         // Re-populate to show new choices
-        populateSelect(document.getElementById('parent1Select' + pPrefix), playerNum);
-        populateSelect(document.getElementById('parent2Select' + pPrefix), playerNum);
+        attachBreedingSelect(document.getElementById('parent1Select' + pPrefix), playerNum, "1");
+        attachBreedingSelect(document.getElementById('parent2Select' + pPrefix), playerNum, "2");
         if (window.renderPartyList) window.renderPartyList();
         if (window.renderStorageList) window.renderStorageList();
     }
@@ -23543,51 +23641,34 @@ window.openTradeModal = function(playerCollider) {
     if (tradeTitleP2) tradeTitleP2.innerText = window.getP2Name();
 
     const s1 = document.getElementById('tradeCreatureSelectP1');
-    s1.innerHTML = '';
-    const p1Party = window.collectedCreatures.filter(c => !c.stored);
-    p1Party.forEach(c => {
-        const option = document.createElement('option');
-        option.value = c.id;
-        option.text = `${c.name} (Lvl ${c.level})`;
-        s1.appendChild(option);
-    });
+    s1.dataset.id = '';
+    s1.innerText = 'Select Creature';
+    document.getElementById('tradeP1Sprite').innerHTML = '';
+    document.getElementById('tradeP1PreviewText').innerText = '';
 
     const s2 = document.getElementById('tradeCreatureSelectP2');
-    s2.innerHTML = '';
-    const p2Party = window.collectedCreatures2.filter(c => !c.stored);
-    p2Party.forEach(c => {
-        const option = document.createElement('option');
-        option.value = c.id;
-        option.text = `${c.name} (Lvl ${c.level})`;
-        s2.appendChild(option);
-    });
+    s2.dataset.id = '';
+    s2.innerText = 'Select Creature';
+    document.getElementById('tradeP2Sprite').innerHTML = '';
+    document.getElementById('tradeP2PreviewText').innerText = '';
 
-    s1.onchange = () => {
-        const val = s1.value;
-        const c = p1Party.find(item => String(item.id) === String(val));
-        if (c) {
-            window.drawCreatureSprite('tradeP1Sprite', c);
-            document.getElementById('tradeP1PreviewText').innerText = `Type: ${c.type}${c.type2 ? '/' + c.type2 : ''}\nHP: ${c.currentHp || window.getEffectiveStat(c, 'health')}/${window.getEffectiveStat(c, 'health')}`;
-        } else {
-            document.getElementById('tradeP1Sprite').innerHTML = '';
-            document.getElementById('tradeP1PreviewText').innerText = '';
-        }
+    s1.onclick = () => {
+        window.promptCreatureSelection(1, "Select Creature to Offer", (creature) => {
+            s1.dataset.id = creature.id;
+            s1.innerText = `${creature.name} (Lvl ${creature.level})`;
+            window.drawCreatureSprite('tradeP1Sprite', creature);
+            document.getElementById('tradeP1PreviewText').innerText = `Type: ${creature.type}${creature.type2 ? '/' + creature.type2 : ''}\nHP: ${creature.currentHp || window.getEffectiveStat(creature, 'health')}/${window.getEffectiveStat(creature, 'health')}`;
+        });
     };
 
-    s2.onchange = () => {
-        const val = s2.value;
-        const c = p2Party.find(item => String(item.id) === String(val));
-        if (c) {
-            window.drawCreatureSprite('tradeP2Sprite', c);
-            document.getElementById('tradeP2PreviewText').innerText = `Type: ${c.type}${c.type2 ? '/' + c.type2 : ''}\nHP: ${c.currentHp || window.getEffectiveStat(c, 'health')}/${window.getEffectiveStat(c, 'health')}`;
-        } else {
-            document.getElementById('tradeP2Sprite').innerHTML = '';
-            document.getElementById('tradeP2PreviewText').innerText = '';
-        }
+    s2.onclick = () => {
+        window.promptCreatureSelection(2, "Select Creature to Offer", (creature) => {
+            s2.dataset.id = creature.id;
+            s2.innerText = `${creature.name} (Lvl ${creature.level})`;
+            window.drawCreatureSprite('tradeP2Sprite', creature);
+            document.getElementById('tradeP2PreviewText').innerText = `Type: ${creature.type}${creature.type2 ? '/' + creature.type2 : ''}\nHP: ${creature.currentHp || window.getEffectiveStat(creature, 'health')}/${window.getEffectiveStat(creature, 'health')}`;
+        });
     };
-
-    if (p1Party.length > 0) s1.onchange();
-    if (p2Party.length > 0) s2.onchange();
 
     document.getElementById('tradeResultText').innerText = '';
     document.getElementById('tradeModal').style.display = 'block';
@@ -23611,13 +23692,13 @@ setTimeout(() => {
         btn.onclick = () => {
             const s1 = document.getElementById('tradeCreatureSelectP1');
             const s2 = document.getElementById('tradeCreatureSelectP2');
-            if (!s1 || !s2 || !s1.value || !s2.value) {
+            if (!s1 || !s2 || !s1.dataset.id || !s2.dataset.id) {
                 document.getElementById('tradeResultText').innerText = "Both players must select a creature to trade!";
                 return;
             }
 
-            const p1Index = window.collectedCreatures.findIndex(c => String(c.id) === String(s1.value));
-            const p2Index = window.collectedCreatures2.findIndex(c => String(c.id) === String(s2.value));
+            const p1Index = window.collectedCreatures.findIndex(c => String(c.id) === String(s1.dataset.id));
+            const p2Index = window.collectedCreatures2.findIndex(c => String(c.id) === String(s2.dataset.id));
 
             if (p1Index === -1 || p2Index === -1) {
                 document.getElementById('tradeResultText').innerText = "Invalid selection.";
