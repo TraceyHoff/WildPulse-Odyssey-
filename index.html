@@ -168,7 +168,7 @@
         }
 
         #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal, #battleSwapModal, #storeModal, #battleModal, #customizationModal, #challengeModal > div, #introModal > div {
-            animation: modalFadeIn 0.2s ease-out !important;
+            animation: modalFadeIn 0.2s ease-out, neonBorderPulsate 4s ease-in-out infinite !important;
         }
 
         body:not(.modal-open), body:not(.modal-open) * {
@@ -856,14 +856,14 @@
         }
         body.coop-active-layout .battle-controls button {
             font-size: 13px !important;
-            padding: 4px 5px !important;
+            padding: 10px 5px !important;
         }
         body.coop-active-layout .battle-log {
-            height: 80px !important;
+            height: 110px !important;
             font-size: 13px !important;
         }
         body.coop-active-layout .combatant {
-            padding: 2px !important;
+            padding: 6px !important;
         }
         body.coop-active-layout .combatant h3 {
             font-size: 14px !important;
@@ -997,7 +997,7 @@
         .combatant h3 { margin-top: 0; margin-bottom: 5px; }
         .hp-bar-container { width: 100%; height: 15px; background: #444; margin-top: 5px; border: 1px solid #fff; border-radius: 4px; overflow: hidden; }
         .hp-bar { height: 100%; background: linear-gradient(90deg, #4caf50, #81c784); width: 100%; transition: width 0.3s ease; }
-        .battle-log { height: 80px; overflow-y: auto; background: rgba(0,0,0,0.6); border: 1px solid #87CEEB; border-radius: 12px; padding: 10px; margin-bottom: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        .battle-log { height: 150px; overflow-y: auto; background: rgba(0,0,0,0.6); border: 1px solid #87CEEB; border-radius: 12px; padding: 10px; margin-bottom: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
         .battle-log .damage { color: #ff5555; }
         .battle-log .heal { color: #55ff55; }
         .battle-log .status { color: #d500f9; }
@@ -2096,8 +2096,8 @@
         align-items: center !important;
         width: 100% !important;
         height: 100% !important;
-        gap: 4px !important;
-        margin-bottom: 0px !important;
+        gap: 8px !important;
+        margin-bottom: 2px !important;
     }
 
     #playerCombatant, #playerCombatant_p2 {
@@ -2107,7 +2107,7 @@
         justify-content: center !important;
         width: 48% !important;
         margin-top: 0 !important;
-        padding: 2px !important;
+        padding: 10px !important;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
@@ -2120,7 +2120,7 @@
         justify-content: center !important;
         width: 48% !important;
         margin-bottom: 0 !important;
-        padding: 2px !important;
+        padding: 10px !important;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
@@ -2130,7 +2130,7 @@
     .sprite-pedestal-container {
         position: relative !important;
         width: 130px !important;
-        height: 110px !important;
+        height: 130px !important;
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
@@ -2221,8 +2221,7 @@
         height: 80px !important;
         background: linear-gradient(180deg, #ff1744 0%, #ff5252 50%, #ffffff 100%) !important;
         box-shadow: 0 0 12px #ff1744, 0 0 4px #ffffff !important;
-        border-radius: 0 !important;
-        clip-path: polygon(10% 0%, 30% 20%, 15% 40%, 40% 60%, 20% 80%, 50% 100%, 70% 80%, 90% 60%, 65% 40%, 85% 20%, 60% 0%) !important;
+        border-radius: 4px !important;
         transform-origin: top !important;
         animation: clawSlash 0.3s cubic-bezier(0.15, 0.85, 0.35, 1) forwards !important;
     }
@@ -2237,14 +2236,14 @@
         background: rgba(11, 19, 36, 0.9) !important;
         border: 3px double #00ffcc !important;
         border-radius: 8px !important;
-        padding: 6px 12px !important;
+        padding: 12px 16px !important;
         width: 280px !important;
         box-sizing: border-box !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 255, 204, 0.1) !important;
         position: relative !important;
         display: flex !important;
         flex-direction: column !important;
-        gap: 3px !important;
+        gap: 6px !important;
     }
 
     .combatant-info-card.enemy-info {
@@ -2332,7 +2331,7 @@
 
     .battle-log {
         grid-area: log !important;
-        height: 80px !important;
+        height: 110px !important;
         margin-bottom: 0 !important;
         border: 2px solid #00ffcc !important;
         background: rgba(4, 9, 21, 0.95) !important;
@@ -2343,7 +2342,7 @@
         text-shadow: 0 0 5px rgba(0, 255, 204, 0.5) !important;
         box-shadow: inset 0 0 10px rgba(0,255,204,0.2) !important;
         border-radius: 6px !important;
-        padding: 4px !important;
+        padding: 8px !important;
         overflow-y: auto !important;
         box-sizing: border-box !important;
     }
@@ -2353,12 +2352,12 @@
         display: grid;
         grid-template-columns: 1fr 1fr !important;
         grid-template-rows: 1fr 1fr !important;
-        gap: 4px !important;
+        gap: 8px !important;
     }
 
     .battle-controls button {
         font-size: 14px !important;
-        padding: 6px !important;
+        padding: 10px !important;
         cursor: pointer !important;
         border: 2px solid #00ffcc !important;
         background: rgba(11, 22, 44, 0.9) !important;
@@ -2504,7 +2503,7 @@
 
     #cyberTransitionOverlay.active {
         display: flex;
-        animation: cyberFlashGlitch 1.5s ease-out forwards;
+        animation: cyberFlashGlitch 0.5s ease-out forwards;
     }
 
     .cyber-grid-background {
@@ -2563,20 +2562,20 @@
             opacity: 0;
             background: rgba(0, 255, 210, 0.8);
         }
-        3% {
+        10% {
             opacity: 1;
             background: rgba(255, 51, 102, 0.5);
         }
-        6% {
+        20% {
             background: rgba(0, 0, 0, 0.95);
         }
-        10% {
+        30% {
             transform: skewX(-5deg) translate3d(0, 0, 0);
         }
-        15% {
+        35% {
             transform: skewX(5deg) translate3d(0, 0, 0);
         }
-        20% {
+        40% {
             transform: translate3d(0, 0, 0);
         }
         100% {
@@ -2668,76 +2667,6 @@
             transform: scaleX(1);
             opacity: 1;
         }
-    }
-
-
-    /* Tutorial System Styles */
-    #tutorialBox {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, rgba(15, 45, 25, 0.98), rgba(5, 25, 45, 0.98));
-        border: 3px solid #00ffcc;
-        border-radius: 12px;
-        box-shadow: 0 0 30px rgba(0, 255, 204, 0.8), inset 0 0 15px rgba(0, 255, 204, 0.4);
-        padding: 20px 30px;
-        color: #fff;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 20px;
-        font-weight: bold;
-        text-align: center;
-        z-index: 300000;
-        pointer-events: none;
-        display: none;
-        animation: neonBorderPulsate 4s ease-in-out infinite, slideUp 0.3s ease-out forwards;
-        max-width: 80%;
-    }
-
-    body.coop-active-layout #tutorialBox {
-        left: 25%;
-        max-width: 45%;
-    }
-    body.coop-active-layout #tutorialBox_p2 {
-        display: none;
-        position: fixed;
-        bottom: 20px;
-        left: 75%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, rgba(45, 25, 15, 0.98), rgba(45, 5, 25, 0.98));
-        border: 3px solid #ff007f;
-        border-radius: 12px;
-        box-shadow: 0 0 30px rgba(255, 0, 127, 0.8), inset 0 0 15px rgba(255, 0, 127, 0.4);
-        padding: 20px 30px;
-        color: #fff;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 20px;
-        font-weight: bold;
-        text-align: center;
-        z-index: 300000;
-        pointer-events: none;
-        animation: neonBorderPulsate 4s ease-in-out infinite, slideUp 0.3s ease-out forwards;
-        max-width: 45%;
-    }
-
-    @keyframes slideUp {
-        from { transform: translate(-50%, 50px); opacity: 0; }
-        to { transform: translate(-50%, 0); opacity: 1; }
-    }
-
-    .tutorial-highlight {
-        color: #ffff00;
-        text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
-    }
-
-    .tutorial-button-highlight {
-        animation: tutorialPulsate 1.5s infinite !important;
-        z-index: 999999;
-    }
-    @keyframes tutorialPulsate {
-        0% { box-shadow: 0 0 10px #ffff00, inset 0 0 5px rgba(255,255,0,0.3); border-color: #ffff00 !important; }
-        50% { box-shadow: 0 0 25px #ffff00, inset 0 0 15px rgba(255,255,0,0.7); border-color: #ffff00 !important; }
-        100% { box-shadow: 0 0 10px #ffff00, inset 0 0 5px rgba(255,255,0,0.3); border-color: #ffff00 !important; }
     }
 
 </style>
@@ -3595,22 +3524,6 @@
     <div style="font-size: 9px; color: white; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Hospital</div>
 </div>
 
-<div id="p1QuestArrow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4400; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
-    <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(255,215,0,0.5)); transition: transform 0.1s ease-out;">
-        <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffd700" stroke-width="2"/>
-        <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ffd700" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
-    </svg>
-    <div style="font-size: 9px; color: #ffd700; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Quest</div>
-</div>
-
-<div id="p2QuestArrow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4400; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
-    <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(255,215,0,0.5)); transition: transform 0.1s ease-out;">
-        <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffd700" stroke-width="2"/>
-        <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ffd700" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
-    </svg>
-    <div style="font-size: 9px; color: #ffd700; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Quest</div>
-</div>
-
 <div id="p2HospitalArrow" style="position: fixed; top: 20px; left: 75%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
     <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
         <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffffff" stroke-width="2"/>
@@ -4436,6 +4349,10 @@ window.updateStorageChestUI = function(playerNum) {
         "Mini PvP": "⚔️",
         "Mini Breeding Center": "🥚",
         "Mini Challenge": "👑",
+        "Neon Couch": "🛋️",
+        "Cyber Desk": "🖥️",
+        "Glow Carpet": "🔲",
+        "Holo Bed": "🛏️",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
         "Repellent": "🧴",
@@ -4532,13 +4449,13 @@ window.generateNpcTrainerCoords(window.roomSeed || 987654321);
 
 window.questNpcList = [
     { id: 'quest_npc_1', name: "Scout Lyra", r: 105, c: 103, desc: "A seasoned field scout analyzing local fauna." },
-    { id: 'quest_npc_2', name: "Architect Vance", r: 80, c: 520, desc: "A DNA specialist studying bio-neon structures." },
-    { id: 'quest_npc_3', name: "Agent Kael", r: 300, c: 520, desc: "An operative investigating dimensional rifts." },
-    { id: 'quest_npc_4', name: "Specialist Iris", r: 520, c: 520, desc: "A researcher tracking mutant strains." },
-    { id: 'quest_npc_5', name: "Hacker Jax", r: 520, c: 300, desc: "A rogue coder seeking neural energy logs." },
-    { id: 'quest_npc_6', name: "Operative Nomi", r: 520, c: 80, desc: "A field agent securing sector dominance." },
-    { id: 'quest_npc_7', name: "Sentinel Dax", r: 300, c: 80, desc: "A heavy sentinel testing creature battle limits." },
-    { id: 'quest_npc_8', name: "Chief Sarah", r: 300, c: 300, desc: "The chief of bio-engineering operations." }
+    { id: 'quest_npc_2', name: "Architect Vance", r: 80, c: 120, desc: "A DNA specialist studying bio-neon structures." },
+    { id: 'quest_npc_3', name: "Agent Kael", r: 150, c: 50, desc: "An operative investigating dimensional rifts." },
+    { id: 'quest_npc_4', name: "Specialist Iris", r: 50, c: 150, desc: "A researcher tracking mutant strains." },
+    { id: 'quest_npc_5', name: "Hacker Jax", r: 110, c: 110, desc: "A rogue coder seeking neural energy logs." },
+    { id: 'quest_npc_6', name: "Operative Nomi", r: 90, c: 90, desc: "A field agent securing sector dominance." },
+    { id: 'quest_npc_7', name: "Sentinel Dax", r: 130, c: 140, desc: "A heavy sentinel testing creature battle limits." },
+    { id: 'quest_npc_8', name: "Chief Sarah", r: 70, c: 60, desc: "The chief of bio-engineering operations." }
 ];
 
 window.getQuestNpcPos = function(npc) {
@@ -4630,104 +4547,6 @@ window.generateQuestNpcTexture = function(scene, textureKey) {
     scene.textures.addCanvas(textureKey, canvas);
 };
 
-
-window.narrativeProgress = JSON.parse(localStorage.getItem('wildpulse_narrative_progress')) || {
-    unlockedTransmissions: [],
-    completedQuests: [],
-    journalEntries: [],
-    sectorCleared: false,
-    firstHatchDone: false
-};
-
-window.saveNarrativeProgress = function() {
-    localStorage.setItem('wildpulse_narrative_progress', JSON.stringify(window.narrativeProgress));
-};
-
-window.NARRATIVE_TRANSMISSIONS = {
-    "vance_level7": {
-        id: "vance_level7",
-        title: "*** [ TRANSMISSION DECRYPTED: DNA RESONANCE PROTOCOL ] ***",
-        body: "\"Operative, Level 7 clearance confirmed. The DNA Breeding Program is now online. Combine male and female specimens at the Breeding Center. Walk the resulting Mysterious Egg 1,000 steps so its structure can attune to the Pulse. Stored eggs remain dormant.\""
-    },
-    "vance_first_hatch": {
-        id: "vance_first_hatch",
-        title: "*** [ TRANSMISSION DECRYPTED: THE FIRST ECHO ] ***",
-        body: "\"Remarkable... the structural integrity of the genome holds. The pulse anomaly didn't reject the hybridization. Keep nurturing these lifeforms. Their mutations may hold the key to stabilizing the grid.\""
-    },
-    "vance_all_trainers": {
-        id: "vance_all_trainers",
-        title: "*** [ TRANSMISSION DECRYPTED: SECTOR SECURED ] ***",
-        body: "\"All rogue trainers in this sector have been neutralized. The grid is stabilizing. The Dojo Leader has now authorized a direct channel to you. Prepare yourself.\""
-    },
-    "vance_crown_tier_5": {
-        id: "vance_crown_tier_5",
-        title: "*** [ TRANSMISSION DECRYPTED: CROWN ELEVATION ] ***",
-        body: "\"Tier 5 achieved. The Crown Challenge simulation is adapting to your neural patterns. Expect higher resistance protocols going forward.\""
-    },
-    "vance_crown_tier_10": {
-        id: "vance_crown_tier_10",
-        title: "*** [ TRANSMISSION DECRYPTED: CROWN RESONANCE ] ***",
-        body: "\"Tier 10. Fascinating. Your creatures are exhibiting combat synchronicity I've only theorized. The simulation algorithms are struggling to predict your maneuvers.\""
-    },
-    "vance_crown_tier_15": {
-        id: "vance_crown_tier_15",
-        title: "*** [ TRANSMISSION DECRYPTED: CROWN ASCENSION ] ***",
-        body: "\"Tier 15... The anomaly is reacting directly to your victories. Proceed with extreme caution, operative. The simulation parameters are off the charts.\""
-    }
-};
-
-window.NARRATIVE_QUESTS = [
-    {
-        id: "quest_hatch_egg",
-        type: "narrative",
-        title: "Attune the First Echo",
-        description: "Synthesize and hatch one Mysterious Egg.",
-        condition: () => window.narrativeProgress.firstHatchDone,
-        rewardCoins: 50,
-        rewardXp: 150
-    },
-    {
-        id: "quest_level7",
-        type: "narrative",
-        title: "Clearance Level 7",
-        description: "Reach Player Level 7 to unlock the DNA Breeding Program.",
-        condition: (pNum) => {
-            const pLevel = pNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
-            return pLevel >= 7;
-        },
-        rewardCoins: 100,
-        rewardXp: 200
-    },
-    {
-        id: "quest_crown_tier_5",
-        type: "narrative",
-        title: "Simulation Adaptability",
-        description: "Reach Crown Challenge Tier 5.",
-        condition: () => (window.challengeTier || 1) >= 5,
-        rewardCoins: 150,
-        rewardXp: 250
-    }
-];
-
-window.unlockTransmission = function(id, playerNum = 1) {
-    if (!window.narrativeProgress.unlockedTransmissions.includes(id)) {
-        window.narrativeProgress.unlockedTransmissions.push(id);
-        const trans = window.NARRATIVE_TRANSMISSIONS[id];
-        if (trans) {
-            window.narrativeProgress.journalEntries.push({
-                id: trans.id,
-                title: trans.title,
-                body: trans.body,
-                timestamp: new Date().toISOString()
-            });
-        }
-        window.saveNarrativeProgress();
-        if (window.showModernNotification) {
-            window.showModernNotification(`📡 New data packet received – check Journal`, 5000, playerNum, "#00ffcc");
-        }
-    }
-};
-
 window.p1Quests = JSON.parse(localStorage.getItem('wildpulse_p1_quests')) || [];
 window.p2Quests = JSON.parse(localStorage.getItem('wildpulse_p2_quests')) || [];
 
@@ -4760,32 +4579,6 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
             availableTypes = types; // complete fallback if all types are somehow taken
         }
     }
-    // Narrative Quests Integration
-    if (Math.random() < 0.25) {
-        const availableNarrativeQuests = window.NARRATIVE_QUESTS.filter(nq => {
-            const isCompleted = window.narrativeProgress.completedQuests.includes(nq.id);
-            const isActive = activeQuests.some(q => q.id === nq.id);
-            const isConditionMet = nq.condition(playerNum);
-            return !isCompleted && !isActive && !isConditionMet; // offer if they can STILL do it (not completed/active/already done condition)
-        });
-
-        if (availableNarrativeQuests.length > 0) {
-            const nq = availableNarrativeQuests[Math.floor(Math.random() * availableNarrativeQuests.length)];
-            return {
-                id: nq.id,
-                npcId: npcId,
-                type: 'narrative',
-                title: nq.title,
-                description: nq.description,
-                target: 1,
-                progress: 0,
-                rewardCoins: nq.rewardCoins,
-                rewardXp: nq.rewardXp,
-                status: 'active'
-            };
-        }
-    }
-
     const questType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
 
     let title = "";
@@ -4891,23 +4684,11 @@ window.evaluateActiveQuests = function(playerNum = 1) {
                 window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, playerNum);
             }
         } else if (q.type === 'creature_level') {
-            if (maxCreatureLvl >= q.target) {
-                q.status = 'completed';
+            const target = parseInt(q.target);
+            if (maxCreatureLvl >= target && q.progress < q.targetCount) {
+                q.progress = q.targetCount;
                 changed = true;
-                if (window.showModernNotification) window.showModernNotification(`🏆 Quest Completed: ${q.title}!`, 5000, playerNum);
-                awardQuestReward(q, playerNum);
-            }
-        } else if (q.type === 'narrative') {
-            const nq = window.NARRATIVE_QUESTS.find(n => n.id === q.id);
-            if (nq && nq.condition(playerNum)) {
-                q.status = 'completed';
-                changed = true;
-                if (!window.narrativeProgress.completedQuests.includes(q.id)) {
-                    window.narrativeProgress.completedQuests.push(q.id);
-                    window.saveNarrativeProgress();
-                }
-                if (window.showModernNotification) window.showModernNotification(`🏆 Data Objective Met: ${q.title}!`, 5000, playerNum, "#00ffcc");
-                awardQuestReward(q, playerNum);
+                window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, playerNum);
             }
         }
     });
@@ -4935,103 +4716,7 @@ window.getRandomLore = function() {
         "Catching a glimpse of a <span style='color: #ff9800;'>Golden Butterfly</span> near a Luna Lotus is considered a sign of high fortune among the wandering coders.",
         "Never underestimate a <span style='color: #aaddff;'>Co-op Dual Battle</span>. When two signals sync perfectly, their combined output can shatter any defense."
     ];
-
-    // Narrative Hooks
-    if (Math.random() < 0.15 && window.narrativeProgress) {
-        const unlocked = window.narrativeProgress.unlockedTransmissions;
-        const possibleLore = [];
-        if (unlocked.includes('vance_level7')) {
-            possibleLore.push("I heard an audio log recently... Dr. Vance mentioned the DNA Breeding Program. Is that why you're here?");
-        }
-        if (unlocked.includes('vance_first_hatch')) {
-            possibleLore.push("The grid has felt different since that first egg hatched. A strange resonance, they call it 'The First Echo'.");
-        }
-        if (unlocked.includes('vance_all_trainers')) {
-            possibleLore.push("All the trainers in this sector were defeated by someone. The Dojo Leader is finally looking for a real challenge.");
-        }
-        if (unlocked.includes('vance_crown_tier_5')) {
-            possibleLore.push("They say the Crown Challenge isn't just a test. It's a simulation that learns from you. It's adapting.");
-        }
-        if (possibleLore.length > 0) {
-            return "<span style='color: #ff3366;'><em>" + possibleLore[Math.floor(Math.random() * possibleLore.length)] + "</em></span>";
-        }
-    }
-
     return lore[Math.floor(Math.random() * lore.length)];
-};
-
-
-window.getQuestTargetPosition = function(quest, playerObj) {
-    if (!quest) return null;
-
-    let closestDistSq = Infinity;
-    let targetPos = null;
-
-    if (quest.type === 'catch') {
-        if (typeof window.creaturesGroup !== 'undefined' && window.creaturesGroup) {
-            window.creaturesGroup.getChildren().forEach(c => {
-                const data = c.getData('creatureData');
-                if (data && data.name === quest.target) {
-                    const distSq = (c.x - playerObj.x) ** 2 + (c.y - playerObj.y) ** 2;
-                    if (distSq < closestDistSq) {
-                        closestDistSq = distSq;
-                        targetPos = { x: c.x, y: c.y };
-                    }
-                }
-            });
-        }
-    } else if (quest.type === 'breed') {
-        if (typeof window.breedGroup !== 'undefined' && window.breedGroup) {
-            window.breedGroup.getChildren().forEach(b => {
-                const distSq = (b.x - playerObj.x) ** 2 + (b.y - playerObj.y) ** 2;
-                if (distSq < closestDistSq) {
-                    closestDistSq = distSq;
-                    targetPos = { x: b.x, y: b.y };
-                }
-            });
-        }
-    } else if (quest.type === 'defeat_trainer') {
-        if (window.npcTrainerCoords) {
-            for (const [id, coord] of Object.entries(window.npcTrainerCoords)) {
-                const tName = window.getNpcTrainerName ? window.getNpcTrainerName(id) : "Trainer";
-                if (tName === quest.target) {
-                    // Coordinates are in tiles
-                    const px = coord.c * 100 + 50;
-                    const py = coord.r * 100 + 50;
-                    const distSq = (px - playerObj.x) ** 2 + (py - playerObj.y) ** 2;
-                    if (distSq < closestDistSq) {
-                        closestDistSq = distSq;
-                        targetPos = { x: px, y: py };
-                    }
-                }
-            }
-        }
-    } else if (quest.type === 'challenge_tier') {
-        // I need to use the variable for challengeGroup, let's verify if window.challengeGroup exists or check where it is stored. I will fall back to checking active tiles if needed, but challengeGroup is defined globally?
-        // Let's iterate challengeGroup if available
-        if (typeof challengeGroup !== 'undefined' && challengeGroup) {
-            challengeGroup.getChildren().forEach(c => {
-                const distSq = (c.x - playerObj.x) ** 2 + (c.y - playerObj.y) ** 2;
-                if (distSq < closestDistSq) {
-                    closestDistSq = distSq;
-                    targetPos = { x: c.x, y: c.y };
-                }
-            });
-        }
-    } else if (quest.type === 'narrative' || quest.status === 'completed') {
-        // Return to quest giver
-        if (quest.npcId && window.questNpcs && window.getQuestNpcPos) {
-            const npc = window.questNpcs.find(n => n.id === quest.npcId);
-            if (npc) {
-                const pos = window.getQuestNpcPos(npc);
-                if (pos) {
-                    targetPos = { x: pos.c * 100 + 50, y: pos.r * 100 + 50 };
-                }
-            }
-        }
-    }
-
-    return targetPos;
 };
 
 window.openQuestModal = function(playerNum, npcId) {
@@ -5259,9 +4944,9 @@ window.openQuestModal = function(playerNum, npcId) {
                     }
                 }
 
-                // Mark completed
+                // Mark completed and remove
                 const idx = quests.indexOf(activeQuest);
-                if (idx > -1) quests[idx].status = 'completed';
+                if (idx > -1) quests.splice(idx, 1); // Remove from active tracking or set status: 'completed'
                 window.saveQuests();
 
                 if (window.WildPulseMusic && window.WildPulseMusic.synth) {
@@ -5424,14 +5109,12 @@ window.updateShapeSelect = function(playerNum) {
     shapes.forEach(sh => {
         const opt = document.createElement('option');
         opt.value = sh.id;
-        const playerLevel = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
-        const reqLevel = sh.tier === 1 ? 1 : ((sh.tier - 1) / 2) * 15;
-
-        if (playerLevel >= reqLevel) {
+        const currentTier = window.challengeTier || 1;
+        if (sh.tier <= currentTier) {
             opt.textContent = sh.name;
             opt.disabled = false;
         } else {
-            opt.textContent = `${sh.name} (Lv. ${reqLevel})`;
+            opt.textContent = `${sh.name} (Locked - Tier ${sh.tier})`;
             opt.disabled = true;
         }
         shapeSelect.appendChild(opt);
@@ -7723,8 +7406,7 @@ function escapeHtml(unsafe) {
             <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 10px;">Player 1 Journal</h2>
             <div class="journal-tabs" style="display: flex; justify-content: center; margin-bottom: 10px;">
                 <button class="journal-tab journal-tab-bestiary active" onclick="window.switchJournalTab(1, 'bestiary')" style="flex: 1; padding: 8px; background: rgba(76,175,80,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 4px 0 0 4px;">Bestiary</button>
-                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(1, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer;">Quests</button>
-                <button class="journal-tab journal-tab-data" onclick="window.switchJournalTab(1, 'data')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Data</button>
+                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(1, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Quests</button>
             </div>
             <div id="journalContent_Bestiary_P1">
                 <div id="journalStats" style="font-size: 14px; margin: 5px 0; color: #aaa;">
@@ -7739,16 +7421,6 @@ function escapeHtml(unsafe) {
                     <!-- Dynamically populated -->
                 </div>
             </div>
-            <div id="journalContent_Data_P1" style="display: none;">
-                <div id="dataList_P1" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #4caf50;">
-                    <!-- Dynamically populated -->
-                </div>
-            </div>
-            <div id="journalContent_Data_P2" style="display: none;">
-                <div id="dataList_P2" style="max-height: 420px; overflow-y: auto; text-align: left; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid #ff9800;">
-                    <!-- Dynamically populated -->
-                </div>
-            </div>
         </div>
 
         <!-- Player 2 Column -->
@@ -7757,8 +7429,7 @@ function escapeHtml(unsafe) {
             <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 10px;">Player 2 Journal</h2>
             <div class="journal-tabs" style="display: flex; justify-content: center; margin-bottom: 10px;">
                 <button class="journal-tab journal-tab-bestiary active" onclick="window.switchJournalTab(2, 'bestiary')" style="flex: 1; padding: 8px; background: rgba(255,152,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 4px 0 0 4px;">Bestiary</button>
-                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(2, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer;">Quests</button>
-                <button class="journal-tab journal-tab-data" onclick="window.switchJournalTab(2, 'data')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Data</button>
+                <button class="journal-tab journal-tab-quests" onclick="window.switchJournalTab(2, 'quests')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 0 4px 4px 0;">Quests</button>
             </div>
             <div id="journalContent_Bestiary_P2">
                 <div id="journalStats_P2" style="font-size: 14px; margin: 5px 0; color: #aaa;">
@@ -8199,54 +7870,48 @@ let moonSprite;
 window.timeText = undefined;
 let timeText;
 let lastDayNightUpdate = 0;
-class MusicManager {
-    constructor() {
-        this.initialized = false;
-        this.muted = false;
-        this.state = 'MENU';
-        this.bpm = 100;
-        this.currentChord = [];
-        this.lastMusicUpdate = 0;
-        this.synth = null;
-    }
+window.WildPulseMusic = {
+    initialized: false,
+    muted: false,
+    state: 'MENU', // Default to MENU state initially
+    bpm: 100, // 100 BPM for MENU
+    synths: {},
+    loops: [],
+    currentChord: [],
 
     async start() {
-        if (typeof Tone === 'undefined') return;
-
-        if (Tone.context && Tone.context.state === 'suspended') {
+        if (typeof Tone !== 'undefined' && Tone.context && Tone.context.state === 'suspended') {
             try { await Tone.context.resume(); } catch(e) {}
         }
-
         if (this.initialized) return;
-
         try {
-            if (Tone.context) {
-                Tone.getContext().lookAhead = 0.5;
-                Tone.getContext().updateInterval = 0.05;
-            }
+            Tone.setContext(new Tone.Context({ latencyHint: "playback" }));
             await Tone.start();
             this.initialized = true;
 
+            // Master volume bus for ducking and balance
             this.musicBus = new Tone.Volume(-4).toDestination();
 
+            // shared Reverb and Delay effects routed through the musicBus
             this.reverb = new Tone.Reverb(3.5).connect(this.musicBus);
             this.reverb.wet.value = 0.45;
-
             this.delay = new Tone.FeedbackDelay("8n", 0.4).connect(this.reverb);
+
+            // Chorus for a lush stereo soundscape
             this.chorus = new Tone.Chorus(1.5, 2.5, 0.35).connect(this.musicBus).start();
 
+            // Filter for the Lead Synth to tame harsh frequencies
             this.leadFilter = new Tone.Filter(800, "lowpass").connect(this.chorus);
+
+            // Filter for the Pad Synth (glorious space pad sweeps)
             this.padFilter = new Tone.Filter(1000, "lowpass").connect(this.reverb);
 
-            this.synths = {};
-
-            this.synth = new Tone.PolySynth(Tone.Synth).connect(this.musicBus);
-            this.synth.volume.value = -10;
-
+            // Instruments
             this.synths.kick = new Tone.MembraneSynth({
                 envelope: { attack: 0.001, decay: 0.25, sustain: 0 }
             }).connect(this.musicBus);
 
+            // Routed through custom bandpass filter to avoid unsupported NoiseSynth constructor filter options
             this.snareFilter = new Tone.Filter(1000, "bandpass").connect(this.musicBus);
             this.synths.snare = new Tone.NoiseSynth({
                 envelope: { sustain: 0, attack: 0.001, decay: 0.12 }
@@ -8281,23 +7946,59 @@ class MusicManager {
                 filterEnvelope: { attack: 0.02, decay: 0.1, baseFrequency: 180, octaves: 2 }
             }).connect(this.delay).connect(this.musicBus);
 
-            this.windFilter = new Tone.Filter({ type: "lowpass", frequency: 400, rolloff: -24 }).connect(this.reverb);
-            this.windLFO = new Tone.LFO({ type: "sine", min: 200, max: 800, frequency: 0.1 }).start();
+            // Atmospheric noises (directly to reverb or destination for depth)
+
+            // Wind setup - Howling LFO-filtered noise
+            this.windFilter = new Tone.Filter({
+                type: "lowpass",
+                frequency: 400,
+                rolloff: -24
+            }).connect(this.reverb);
+
+            this.windLFO = new Tone.LFO({
+                type: "sine",
+                min: 200,
+                max: 800,
+                frequency: 0.1
+            }).start();
             this.windLFO.connect(this.windFilter.frequency);
-            this.synths.wind = new Tone.NoiseSynth({ noise: { type: 'brown' }, envelope: { attack: 4, decay: 0.2, sustain: 1, release: 4 } }).connect(this.windFilter);
+
+            this.synths.wind = new Tone.NoiseSynth({
+                noise: { type: 'brown' },
+                envelope: { attack: 4, decay: 0.2, sustain: 1, release: 4 }
+            }).connect(this.windFilter);
             this.synths.wind.volume.value = -60;
 
-            this.rainFilter = new Tone.Filter({ type: "bandpass", frequency: 1000, Q: 0.5 }).connect(this.reverb);
-            this.synths.rain = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 2, decay: 0.1, sustain: 1, release: 2 } }).connect(this.rainFilter);
+            // Rain setup - Bandpass filtered noise
+            this.rainFilter = new Tone.Filter({
+                type: "bandpass",
+                frequency: 1000,
+                Q: 0.5
+            }).connect(this.reverb);
+
+            this.synths.rain = new Tone.NoiseSynth({
+                noise: { type: 'pink' },
+                envelope: { attack: 2, decay: 0.1, sustain: 1, release: 2 }
+            }).connect(this.rainFilter);
             this.synths.rain.volume.value = -60;
 
-            this.synths.thunderStrike = new Tone.MembraneSynth({ pitchDecay: 0.05, octaves: 4, oscillator: { type: "square" }, envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4 } }).connect(this.reverb);
+            // Thunder setup - Membrane strike + Distorted noise rumble
+            this.synths.thunderStrike = new Tone.MembraneSynth({
+                pitchDecay: 0.05,
+                octaves: 4,
+                oscillator: { type: "square" },
+                envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4 }
+            }).connect(this.reverb);
             this.synths.thunderStrike.volume.value = -5;
 
             let thunderDist = new Tone.Distortion(0.8).connect(new Tone.Filter(300, "lowpass").connect(this.reverb));
-            this.synths.thunder = new Tone.NoiseSynth({ noise: { type: 'brown' }, envelope: { attack: 0.1, decay: 1, sustain: 0.5, release: 4 } }).connect(thunderDist);
+            this.synths.thunder = new Tone.NoiseSynth({
+                noise: { type: 'brown' },
+                envelope: { attack: 0.1, decay: 1, sustain: 0.5, release: 4 }
+            }).connect(thunderDist);
             this.synths.thunder.volume.value = -5;
 
+            // Balanced volumes for a more beautiful, easy on the ears modern experience
             this.synths.kick.volume.value = -10;
             this.synths.snare.volume.value = -16;
             this.synths.hihat.volume.value = -22;
@@ -8306,24 +8007,20 @@ class MusicManager {
             this.synths.pad.volume.value = -14;
             this.synths.pulser.volume.value = -18;
 
-            this.setupMasterLoop();
+            this.setupLoops();
             Tone.Transport.bpm.value = this.bpm;
             Tone.Transport.start();
-            console.log("[Music] Advanced procedural techno-synth engine started via MusicManager.");
+            console.log("[Music] Advanced procedural techno-synth engine started.");
         } catch (e) {
             console.warn("[Music] Failed to start Tone.js:", e);
         }
-    }
+    },
 
-    setupMasterLoop() {
-        // Use a single 16n loop to handle all musical logic to avoid multiple Tone.Loop overhead
-        new Tone.Loop(time => {
-            if (!this.initialized || this.muted) return;
-
+    setupLoops() {
+        // Chord Progression Loop (Half-Note resolution)
+        this.loops.push(new Tone.Loop(time => {
             const season = window.currentSeason || 'Summer';
-            const totalSixteenths = Math.round(Tone.Transport.getTicksAtTime(time) / (Tone.Transport.PPQ / 4));
-
-            const progressions = {
+            let progressions = {
                 'MENU': [
                     ["C3", "E3", "G3", "B3", "D4"], ["F2", "A2", "C3", "E3", "G3"], ["G2", "B2", "D3", "F3", "A3"], ["E2", "G2", "B2", "D3", "F#3"]
                 ],
@@ -8364,208 +8061,233 @@ class MusicManager {
             };
 
             let prog;
-            if (this.state === 'PVP') prog = progressions.PVP;
-            else if (this.state === 'TRADE') prog = progressions.TRADE;
-            else if (this.state === 'BATTLE') prog = progressions.BATTLE[season] || progressions.BATTLE['Summer'];
-            else if (this.state === 'MENU') prog = progressions.MENU;
-            else prog = progressions.EXPLORING[season] || progressions.EXPLORING['Summer'];
-
-            // Chord Progression Loop (Half-Note resolution = 8 sixteenths)
-            if (totalSixteenths % 8 === 0) {
-                const chordIndex = Math.floor(totalSixteenths / 8) % prog.length;
-                const targetChord = prog[chordIndex];
-                const currentChordStr = this.currentChord ? this.currentChord.join(",") : "";
-                const targetChordStr = targetChord.join(",");
-
-                if (currentChordStr !== targetChordStr) {
-                    this.currentChord = targetChord;
-                    if (this.synths.pad) {
-                        this.synths.pad.releaseAll(time);
-                        this.synths.pad.triggerAttack(this.currentChord, time + 0.05);
-                    }
-                }
+            if (this.state === 'PVP') {
+                prog = progressions.PVP;
+            } else if (this.state === 'TRADE') {
+                prog = progressions.TRADE;
+            } else if (this.state === 'BATTLE') {
+                prog = progressions.BATTLE[season] || progressions.BATTLE['Summer'];
+            } else if (this.state === 'MENU') {
+                prog = progressions.MENU;
+            } else {
+                prog = progressions.EXPLORING[season] || progressions.EXPLORING['Summer'];
             }
 
+            const beatsPerChord = 4;
+            const totalBeats = Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ;
+            const index = Math.floor(totalBeats / beatsPerChord) % prog.length;
+            const targetChord = prog[index];
+
+            const currentChordStr = this.currentChord ? this.currentChord.join(",") : "";
+            const targetChordStr = targetChord.join(",");
+
+            if (currentChordStr !== targetChordStr) {
+                this.currentChord = targetChord;
+                if (this.synths.pad) {
+                    this.synths.pad.releaseAll(time);
+                    this.synths.pad.triggerAttack(this.currentChord, time + 0.05);
+                }
+            }
+        }, "2n").start(0));
+
+        // Bass Loop
+        this.loops.push(new Tone.Loop(time => {
             if (!this.currentChord || this.currentChord.length === 0) return;
             const rootNote = this.currentChord[0];
             const bassNote = rootNote.replace(/\d/, '2');
 
-            // Bass Loop (8n interval -> runs every 2 sixteenths)
-            if (totalSixteenths % 2 === 0) {
-                const step8 = (totalSixteenths / 2) % 8;
-                if (this.state === 'BATTLE' || this.state === 'PVP') {
-                    if (step8 === 0 || step8 === 2 || step8 === 3 || step8 === 5 || step8 === 6) {
-                        this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.6);
-                    }
-                } else if (this.state === 'TRADE') {
-                    if (step8 % 2 === 0) {
-                        this.synths.bass.triggerAttackRelease(bassNote, "8n", time, 0.4);
-                    }
-                } else if (this.state === 'MENU') {
-                    if (step8 === 0 || step8 === 2) {
-                        this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.45);
-                    }
-                } else {
-                    const note = (step8 === 3 || step8 === 7) ? rootNote.replace(/\d/, '3') : bassNote;
-                    if (step8 === 0 || step8 === 2 || step8 === 3 || step8 === 4 || step8 === 6 || step8 === 7) {
-                        this.synths.bass.triggerAttackRelease(note, "16n", time, 0.55);
-                    }
+            if (this.state === 'BATTLE' || this.state === 'PVP') {
+                // Energetic syncopated techno bass
+                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
+                if (step === 0 || step === 2 || step === 3 || step === 5 || step === 6) {
+                    this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.6);
+                }
+            } else if (this.state === 'TRADE') {
+                // Chill lounge bass - shorter duration to avoid overlap warnings
+                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ)) % 4;
+                if (step === 0) {
+                    this.synths.bass.triggerAttackRelease(bassNote, "8n", time, 0.4);
+                }
+            } else if (this.state === 'MENU') {
+                // Menu slow pulse
+                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ)) % 4;
+                if (step === 0 || step === 2) {
+                    this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.45);
+                }
+            } else {
+                // Exploring bass - playful, galloping adventure bassline!
+                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
+                const note = (step === 3 || step === 7) ? rootNote.replace(/\d/, '3') : bassNote;
+                if (step === 0 || step === 2 || step === 3 || step === 4 || step === 6 || step === 7) {
+                    this.synths.bass.triggerAttackRelease(note, "16n", time, 0.55);
                 }
             }
+        }, "8n").start(0));
 
-            // Techno-Arpeggiator / Pulser Loop (16n interval -> runs every 1 sixteenth)
-            if (this.state !== 'TRADE') {
-                const step16 = totalSixteenths % 16;
-                const noteIndex = step16 % this.currentChord.length;
+        // Techno-Arpeggiator / Pulser Loop
+        this.loops.push(new Tone.Loop(time => {
+            if (!this.currentChord || this.currentChord.length === 0) return;
+            if (this.state === 'TRADE') return;
 
-                if (this.state === 'BATTLE' || this.state === 'PVP') {
-                    let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
-                    if (Math.random() > 0.3) {
-                        if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
-                            this.synths.pulser.filterEnvelope.baseFrequency = 400 + Math.sin(time * 0.2) * 500;
-                        }
-                        this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.32);
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 4) % 16;
+
+            if (this.state === 'BATTLE' || this.state === 'PVP') {
+                const noteIndex = step % this.currentChord.length;
+                let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
+                if (Math.random() > 0.3) {
+                    const cutoff = 400 + Math.sin(time * 0.2) * 500;
+                    if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
+                        this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
                     }
-                } else if (this.state === 'MENU') {
-                    let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
-                    if (step16 % 2 === 0) {
-                        if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
-                            this.synths.pulser.filterEnvelope.baseFrequency = 350 + Math.sin(time * 0.15) * 200;
-                        }
-                        this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.18);
+                    this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.32);
+                }
+            } else if (this.state === 'MENU') {
+                const noteIndex = step % this.currentChord.length;
+                let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
+                if (step % 2 === 0) {
+                    const cutoff = 350 + Math.sin(time * 0.15) * 200;
+                    if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
+                        this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
                     }
-                } else {
-                    const ni = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 3][step16] % this.currentChord.length;
-                    let arpNote = this.currentChord[ni];
-                    let oct = (step16 % 4 === 0 || step16 % 4 === 2) ? '4' : '5';
-                    arpNote = arpNote.replace(/\d/, oct);
+                    this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.18);
+                }
+            } else {
+                // Exploring - bright, sparkling adventure arpeggiator!
+                const noteIndex = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 3][step % 16] % this.currentChord.length;
+                let arpNote = this.currentChord[noteIndex];
+                let oct = (step % 4 === 0 || step % 4 === 2) ? '4' : '5';
+                arpNote = arpNote.replace(/\d/, oct);
 
-                    if (step16 % 4 !== 3) {
-                        if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
-                            this.synths.pulser.filterEnvelope.baseFrequency = 400 + Math.sin(time * 0.2) * 350;
-                        }
-                        this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.24);
+                if (step % 4 !== 3) {
+                    const cutoff = 400 + Math.sin(time * 0.2) * 350;
+                    if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
+                        this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
                     }
+                    this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.24);
                 }
             }
+        }, "16n").start(0));
 
-            // Melodic Lead Loop (8n interval -> runs every 2 sixteenths)
-            if (totalSixteenths % 2 === 0) {
-                const step8 = (totalSixteenths / 2) % 16;
-                let shouldPlay = false;
-                let noteOffset = 0;
-                let noteLength = "8n";
-                let octave = '5';
+        // Melodic Lead Loop
+        this.loops.push(new Tone.Loop(time => {
+            if (!this.currentChord || this.currentChord.length === 0) return;
 
-                if (this.state === 'BATTLE' || this.state === 'PVP') {
-                    const battlePattern = [true, false, true, true, false, true, false, true, true, false, true, false, true, true, false, false];
-                    shouldPlay = battlePattern[step8];
-                    const offsets = [0, 2, 1, 2, 0, 3, 2, 4, 3, 1, 2, 0, 1, 3, 2, 0];
-                    noteOffset = offsets[step8] % this.currentChord.length;
-                    noteLength = (step8 % 2 === 0) ? "16n" : "32n";
-                    octave = (step8 % 8 === 7) ? '6' : '5';
-                } else if (this.state === 'TRADE') {
-                    const tradePattern = [true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, false];
-                    shouldPlay = tradePattern[step8];
-                    noteOffset = step8 % this.currentChord.length;
-                    noteLength = "4n";
-                    octave = '5';
-                } else if (this.state === 'MENU') {
-                    const menuPattern = [true, false, true, false, true, true, false, false, true, false, true, false, true, false, false, false];
-                    shouldPlay = menuPattern[step8];
-                    const offsets = [0, 1, 2, 3, 2, 1, 0, 2];
-                    noteOffset = offsets[step8 % offsets.length] % this.currentChord.length;
-                    noteLength = "8n";
-                    octave = '5';
-                } else {
-                    const exploringPattern = [true, false, true, false, true, true, false, true, false, true, true, false, true, false, true, false];
-                    shouldPlay = exploringPattern[step8];
-                    const melodicContour = [0, 1, 2, 1, 3, 2, 4, 3, 1, 2, 3, 4, 5, 3, 2, 0];
-                    noteOffset = melodicContour[step8] % this.currentChord.length;
-                    noteLength = (step8 === 4 || step8 === 12) ? "4n" : "8n";
-                    octave = (melodicContour[step8] >= 4) ? '6' : '5';
-                }
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 16; // 16-step cycle
+            let shouldPlay = false;
+            let noteOffset = 0;
+            let noteLength = "8n";
+            let octave = '5';
 
-                if (shouldPlay) {
-                    let leadNote = this.currentChord[noteOffset];
-                    leadNote = leadNote.replace(/\d/, octave);
-                    const vol = (this.state === 'TRADE') ? 0.25 : 0.44;
-                    this.synths.lead.triggerAttackRelease(leadNote, noteLength, time, vol);
-                }
+            if (this.state === 'BATTLE' || this.state === 'PVP') {
+                const battlePattern = [true, false, true, true, false, true, false, true, true, false, true, false, true, true, false, false];
+                shouldPlay = battlePattern[step];
+                const offsets = [0, 2, 1, 2, 0, 3, 2, 4, 3, 1, 2, 0, 1, 3, 2, 0];
+                noteOffset = offsets[step] % this.currentChord.length;
+                noteLength = (step % 2 === 0) ? "16n" : "32n";
+                octave = (step % 8 === 7) ? '6' : '5';
+            } else if (this.state === 'TRADE') {
+                const tradePattern = [true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, false];
+                shouldPlay = tradePattern[step];
+                noteOffset = step % this.currentChord.length;
+                noteLength = "4n";
+                octave = '5';
+            } else if (this.state === 'MENU') {
+                const menuPattern = [true, false, true, false, true, true, false, false, true, false, true, false, true, false, false, false];
+                shouldPlay = menuPattern[step];
+                const offsets = [0, 1, 2, 3, 2, 1, 0, 2];
+                noteOffset = offsets[step % offsets.length] % this.currentChord.length;
+                noteLength = "8n";
+                octave = '5';
+            } else {
+                // EXPLORING - Epic, upbeat adventure game lead melody!
+                const exploringPattern = [true, false, true, false, true, true, false, true, false, true, true, false, true, false, true, false];
+                shouldPlay = exploringPattern[step];
+                const melodicContour = [0, 1, 2, 1, 3, 2, 4, 3, 1, 2, 3, 4, 5, 3, 2, 0];
+                noteOffset = melodicContour[step] % this.currentChord.length;
+                noteLength = (step === 4 || step === 12) ? "4n" : "8n";
+                octave = (melodicContour[step] >= 4) ? '6' : '5';
             }
 
-            // Drums: Kick Drum Loop (8n interval)
-            if (totalSixteenths % 2 === 0) {
-                const step8 = (totalSixteenths / 2) % 8;
-                let shouldPlay = false;
-                let vol = 0.5;
+            if (shouldPlay) {
+                let leadNote = this.currentChord[noteOffset];
+                leadNote = leadNote.replace(/\d/, octave);
+                const vol = (this.state === 'TRADE') ? 0.25 : 0.44;
+                this.synths.lead.triggerAttackRelease(leadNote, noteLength, time, vol);
+            }
+        }, "8n").start(0));
 
-                if (this.state === 'BATTLE' || this.state === 'PVP') {
-                    shouldPlay = (step8 === 0 || step8 === 2 || step8 === 3 || step8 === 4 || step8 === 6 || step8 === 7);
-                    vol = 0.95;
-                } else if (this.state === 'EXPLORING') {
-                    shouldPlay = (step8 === 0 || step8 === 3 || step8 === 4);
-                    vol = 0.75;
-                } else if (this.state === 'MENU') {
-                    shouldPlay = (step8 === 0 || step8 === 4);
-                    vol = 0.55;
-                } else if (this.state === 'TRADE') {
-                    shouldPlay = (step8 === 0);
-                    vol = 0.4;
-                }
+        // Drums: Kick Drum Loop (8n interval for syncopated adventure drum beats!)
+        this.loops.push(new Tone.Loop(time => {
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
+            let shouldPlay = false;
+            let vol = 0.5;
 
-                if (shouldPlay) {
-                    this.synths.kick.triggerAttackRelease("C1", "8n", time, vol);
-                }
+            if (this.state === 'BATTLE' || this.state === 'PVP') {
+                shouldPlay = (step === 0 || step === 2 || step === 3 || step === 4 || step === 6 || step === 7);
+                vol = 0.95;
+            } else if (this.state === 'EXPLORING') {
+                shouldPlay = (step === 0 || step === 3 || step === 4);
+                vol = 0.75;
+            } else if (this.state === 'MENU') {
+                shouldPlay = (step === 0 || step === 4);
+                vol = 0.55;
+            } else if (this.state === 'TRADE') {
+                shouldPlay = (step === 0);
+                vol = 0.4;
             }
 
-            // Drums: Snare Drum Loop (8n interval)
-            if (totalSixteenths % 2 === 0) {
-                const step8 = (totalSixteenths / 2) % 8;
-                let shouldPlay = false;
-                let vol = 0.5;
+            if (shouldPlay) {
+                this.synths.kick.triggerAttackRelease("C1", "8n", time, vol);
+            }
+        }, "8n").start(0));
 
-                if (this.state === 'BATTLE' || this.state === 'PVP') {
-                    shouldPlay = (step8 === 2 || step8 === 6 || step8 === 7);
-                    vol = (step8 === 7) ? 0.4 : 0.78;
-                } else if (this.state === 'EXPLORING') {
-                    shouldPlay = (step8 === 2 || step8 === 6 || (step8 === 5 && Math.random() < 0.4));
-                    vol = (step8 === 5) ? 0.22 : 0.6;
-                } else if (this.state === 'MENU') {
-                    shouldPlay = (step8 === 2 || step8 === 6);
-                    vol = 0.5;
-                }
+        // Drums: Snare Drum Loop (8n interval for active backbeats and ghost notes!)
+        this.loops.push(new Tone.Loop(time => {
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
+            let shouldPlay = false;
+            let vol = 0.5;
 
-                if (shouldPlay) {
-                    this.synths.snare.triggerAttackRelease("16n", time, vol);
-                }
+            if (this.state === 'BATTLE' || this.state === 'PVP') {
+                shouldPlay = (step === 2 || step === 6 || step === 7);
+                vol = (step === 7) ? 0.4 : 0.78;
+            } else if (this.state === 'EXPLORING') {
+                shouldPlay = (step === 2 || step === 6 || (step === 5 && Math.random() < 0.4));
+                vol = (step === 5) ? 0.22 : 0.6;
+            } else if (this.state === 'MENU') {
+                shouldPlay = (step === 2 || step === 6);
+                vol = 0.5;
             }
 
-            // Drums: Hi-hat Loop (16n interval)
-            const step16 = totalSixteenths % 16;
+            if (shouldPlay) {
+                this.synths.snare.triggerAttackRelease("16n", time, vol);
+            }
+        }, "8n").start(0));
+
+        // Drums: Hi-hat Loop (16n interval for energetic sixteenth-note adventure grooves!)
+        this.loops.push(new Tone.Loop(time => {
+            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 4) % 16;
             let shouldPlay = false;
             let vol = 0.15;
 
             if (this.state === 'BATTLE' || this.state === 'PVP') {
                 shouldPlay = true;
-                vol = (step16 % 4 === 2) ? 0.45 : ((step16 % 2 === 0) ? 0.22 : 0.12);
+                vol = (step % 4 === 2) ? 0.45 : ((step % 2 === 0) ? 0.22 : 0.12);
             } else if (this.state === 'EXPLORING') {
-                shouldPlay = (step16 % 2 === 0);
-                vol = (step16 % 4 === 2) ? 0.28 : 0.16;
+                shouldPlay = (step % 2 === 0);
+                vol = (step % 4 === 2) ? 0.28 : 0.16;
             } else if (this.state === 'MENU') {
-                shouldPlay = (step16 % 4 === 2);
+                shouldPlay = (step % 4 === 2);
                 vol = 0.18;
             } else if (this.state === 'TRADE') {
-                shouldPlay = (step16 % 4 === 2 || step16 % 8 === 6);
+                shouldPlay = (step % 4 === 2 || step % 8 === 6);
                 vol = 0.12;
             }
 
             if (shouldPlay) {
                 this.synths.hihat.triggerAttackRelease("32n", time, vol);
             }
-
-        }, "16n").start(0);
-    }
+        }, "16n").start(0));
+    },
 
     update() {
         if (!this.initialized || this.muted) return;
@@ -8585,8 +8307,12 @@ class MusicManager {
 
         let newState = 'EXPLORING';
         if (!this.dom) {
-            this.dom = { tradeModal: document.getElementById('tradeModal'), pvpModal: document.getElementById('pvpModal') };
+            this.dom = {
+                tradeModal: document.getElementById('tradeModal'),
+                pvpModal: document.getElementById('pvpModal')
+            };
         }
+
         if (!window.gameStarted) newState = 'MENU';
         else if (window.isPvpBattle) newState = 'PVP';
         else if (window.inBattle) newState = 'BATTLE';
@@ -8598,13 +8324,16 @@ class MusicManager {
             if (this.state === 'MENU') {
                 this.synths.lead.set({ oscillator: { type: "sine" } });
                 if (this.leadFilter) this.leadFilter.frequency.rampTo(500, 1.5);
-            } else if (this.state === 'BATTLE') {
+            }
+            else if (this.state === 'BATTLE') {
                 this.synths.lead.set({ oscillator: { type: "triangle" } });
                 if (this.leadFilter) this.leadFilter.frequency.rampTo(900, 1.5);
-            } else if (this.state === 'PVP') {
+            }
+            else if (this.state === 'PVP') {
                 this.synths.lead.set({ oscillator: { type: "triangle" } });
                 if (this.leadFilter) this.leadFilter.frequency.rampTo(1000, 1.5);
-            } else if (this.state === 'TRADE') {
+            }
+            else if (this.state === 'TRADE') {
                 this.synths.lead.set({ oscillator: { type: "sine" } });
                 if (this.leadFilter) this.leadFilter.frequency.rampTo(600, 1.5);
             } else {
@@ -8614,6 +8343,7 @@ class MusicManager {
             console.log(`[Music] State changed to ${this.state}`);
         }
 
+        // Dynamically calculate target BPM based on state baseline, season, and time of day
         let baseBpm = 125;
         if (this.state === 'MENU') baseBpm = 110;
         else if (this.state === 'BATTLE') baseBpm = 150;
@@ -8637,29 +8367,36 @@ class MusicManager {
         }
 
         let targetBpm = Math.max(60, Math.min(200, Math.round(baseBpm + seasonMod + timeMod)));
+
         if (Math.abs(Tone.Transport.bpm.value - targetBpm) > 0.5) {
             Tone.Transport.bpm.value = targetBpm;
             this.bpm = targetBpm;
         }
 
+        // Atmospheric weather effects
         const weather = window.weatherPattern || 'none';
         const hasWeather = (weather !== 'none');
         const intensity = window.weatherIntensity || 0;
 
         if (this.reverb) {
             const targetWet = hasWeather ? 0.35 + (0.45 * intensity) : 0.35;
-            if (Math.abs(this.reverb.wet.value - targetWet) > 0.05) this.reverb.wet.rampTo(targetWet, 4);
+            if (Math.abs(this.reverb.wet.value - targetWet) > 0.05) {
+                this.reverb.wet.rampTo(targetWet, 4);
+            }
         }
 
-        if (this.padFilter && this.synths.pulser && this.synths.pulser.filter) {
+        // Apply weather sweeps to lowpass filters safely using value sets to avoid timeline ramp collisions
+        if (this.padFilter && this.synths.pulser) {
             let padCutoff = 1000;
             let pulserCutoff = 600;
             if (hasWeather && intensity > 0) {
-                padCutoff = 1000 - (650 * intensity);
-                pulserCutoff = 600 - (400 * intensity);
+                padCutoff = 1000 - (650 * intensity);     // sweep down to 350Hz
+                pulserCutoff = 600 - (400 * intensity);   // sweep down to 200Hz
             }
-            if (Math.abs(this.padFilter.frequency.value - padCutoff) > 10) this.padFilter.frequency.value = padCutoff;
-            if (Math.abs(this.synths.pulser.filter.frequency.value - pulserCutoff) > 10) this.synths.pulser.filter.frequency.value = pulserCutoff;
+            this.padFilter.frequency.value = padCutoff;
+            if (this.synths.pulser && this.synths.pulser.filter) {
+                this.synths.pulser.filter.frequency.value = pulserCutoff;
+            }
         }
 
         let musicDucking = 0;
@@ -8668,29 +8405,45 @@ class MusicManager {
             let targetRainVol = -60;
 
             if (weather !== 'none' && intensity > 0) {
-                targetWindVol = -45 + (20 * intensity);
+                const baseWind = -45;
+                targetWindVol = baseWind + (20 * intensity);
                 musicDucking -= (4 * intensity);
-                if (this.windLFO) this.windLFO.frequency.value = 0.05 + (window.windSpeed / 500);
+
+                if (this.windLFO) {
+                    this.windLFO.frequency.value = 0.05 + (window.windSpeed / 500);
+                }
             }
+
             if ((weather.includes('rain') || weather.includes('storm')) && intensity > 0) {
+                const baseRain = -40;
                 const maxRain = (weather === 'thunderstorm') ? -15 : -25;
-                targetRainVol = -40 + ((maxRain + 40) * intensity);
+                targetRainVol = baseRain + ((maxRain - baseRain) * intensity);
                 musicDucking -= (6 * intensity);
                 if (weather === 'thunderstorm') musicDucking -= (4 * intensity);
             }
 
             if (this.synths.wind) {
-                if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 1) this.synths.wind.volume.rampTo(targetWindVol, 1);
+                if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 1) {
+                    this.synths.wind.volume.rampTo(targetWindVol, 1);
+                }
                 if (targetWindVol > -58 && this.synths.wind.state !== 'started') this.synths.wind.triggerAttack();
                 else if (targetWindVol <= -58 && this.synths.wind.state === 'started') this.synths.wind.triggerRelease();
             }
 
             if (this.synths.rain) {
-                const finalRainVol = targetRainVol + ((Math.random() - 0.5) * 2);
-                if (Math.abs(this.synths.rain.volume.value - finalRainVol) > 1) this.synths.rain.volume.rampTo(finalRainVol, 1);
+                const variation = (Math.random() - 0.5) * 2;
+                const finalRainVol = targetRainVol + variation;
+
+                if (Math.abs(this.synths.rain.volume.value - finalRainVol) > 1) {
+                    this.synths.rain.volume.rampTo(finalRainVol, 1);
+                }
                 if (targetRainVol > -58) {
                     if (this.synths.rain.state !== 'started') this.synths.rain.triggerAttack();
-                    this.synths.rain.noise.type = weather === 'thunderstorm' ? 'white' : 'pink';
+                    if (weather === 'thunderstorm') {
+                        this.synths.rain.noise.type = 'white';
+                    } else {
+                        this.synths.rain.noise.type = 'pink';
+                    }
                 } else if (this.synths.rain.state === 'started') {
                     this.synths.rain.triggerRelease();
                 }
@@ -8700,16 +8453,19 @@ class MusicManager {
             if (this.synths.rain && this.synths.rain.volume.value > -59) this.synths.rain.volume.rampTo(-60, 1);
         }
 
-        if (this.musicBus && Math.abs(this.musicBus.volume.value - musicDucking) > 0.5) {
-            this.musicBus.volume.rampTo(musicDucking, 1);
+        // Apply music ducking
+        if (this.musicBus) {
+            if (Math.abs(this.musicBus.volume.value - musicDucking) > 0.5) {
+                this.musicBus.volume.rampTo(musicDucking, 1);
+            }
         }
-    }
+    },
 
     triggerThunder() {
         if (!this.initialized || this.muted || !this.synths.thunder) return;
         if (this.synths.thunderStrike) this.synths.thunderStrike.triggerAttackRelease("C1", "8n");
         this.synths.thunder.triggerAttackRelease("1n");
-    }
+    },
 
     toggle() {
         this.muted = !this.muted;
@@ -8721,9 +8477,7 @@ class MusicManager {
         }
         return this.muted;
     }
-}
-
-window.WildPulseMusic = new MusicManager();
+};
 
 window.PATTERN_UNLOCKS = {
     'None': { condition: 'Default', check: () => true },
@@ -8901,29 +8655,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => {
                                 // Fade in battle modal content after transition flash peak
                                 battleModalEl.style.opacity = '1';
-
-                                // Set gamepad focus to Attack buttons
-                                const p1Attack = document.querySelector('#battleControls .btn-attack');
-                                if (p1Attack) {
-                                    document.querySelectorAll('#battleControls .gamepad-focused-p1').forEach(el => el.classList.remove('gamepad-focused-p1'));
-                                    p1Attack.classList.add('gamepad-focused-p1');
-                                    try { p1Attack.focus(); } catch(e){}
-                                }
-                                const ctrlP2 = document.getElementById('battleControls_p2');
-                                if (ctrlP2 && ctrlP2.style.display !== 'none') {
-                                    const p2Attack = document.querySelector('#battleControls_p2 .btn-attack');
-                                    if (p2Attack) {
-                                        document.querySelectorAll('#battleControls_p2 .gamepad-focused-p2').forEach(el => el.classList.remove('gamepad-focused-p2'));
-                                        p2Attack.classList.add('gamepad-focused-p2');
-                                        try { p2Attack.focus(); } catch(e){}
-                                    }
-                                }
-                            }, 1000);
+                            }, 200);
 
                             setTimeout(() => {
                                 overlay.classList.remove('active');
                                 overlay.style.display = 'none';
-                            }, 1500);
+                            }, 500);
                         } else if (currentDisplay === 'none' && (previousDisplay === 'block' || previousDisplay === '')) {
                             // Battle exited! Play exit glitch fade-out
                             overlay.style.display = 'flex';
@@ -8934,12 +8671,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => {
                                 overlay.style.transition = 'opacity 0.2s ease';
                                 overlay.style.opacity = '0';
-                            }, 800);
+                            }, 200);
 
                             setTimeout(() => {
                                 overlay.style.display = 'none';
                                 overlay.style.opacity = '1'; // reset for next time
-                            }, 1000);
+                            }, 400);
                         }
                         previousDisplay = currentDisplay;
                     }
@@ -9952,6 +9689,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Healing Juice Jug", icon: "🏺", desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Bundle of Wood", icon: "🪵", price: 150, desc: "Build your own base. Contains various wooden building parts." },
         { name: "Creature Cookie", icon: "🍪", desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -9964,6 +9702,10 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Mini PvP", icon: "⚔️", desc: "A functional smaller version of the PvP arena. Place near your home. (Requires Lv 10)" },
         { name: "Mini Breeding Center", icon: "🥚", desc: "A functional smaller version of the Breeding Center. Place near your home. (Requires Lv 10)" },
         { name: "Mini Challenge", icon: "👑", desc: "A functional smaller version of the Challenge area. Place near your home. (Requires Lv 10)" },
+        { name: "Neon Couch", icon: "🛋️", desc: "A comfortable neon-lit couch for your home. Place inside using mini-tile placement." },
+        { name: "Cyber Desk", icon: "🖥️", desc: "A high-tech cyber desk for your home. Place inside using mini-tile placement." },
+        { name: "Glow Carpet", icon: "🔲", desc: "A glowing cybernetic carpet. Place inside using mini-tile placement." },
+        { name: "Holo Bed", icon: "🛏️", desc: "A futuristic holographic bed. Place inside using mini-tile placement." },
         { name: "Dojo Tile", icon: "⛩️", desc: "A placeable tile that summons the Dojo Leader for elite matches. (Defeat all 24 trainers)" },
         { name: "NPC Dual Link", icon: "📡", desc: "Guarantees a 100% chance of a cooperative 2v2 NPC Trainer Dual Battle for 5 minutes." },
         { name: "Wild Dual Signal", icon: "📶", desc: "Guarantees a 100% chance of a cooperative wild creature Dual Battle for 5 minutes." }
@@ -16961,16 +16703,10 @@ window.gainPlayerXp = function(playerNum, amount) {
         if (leveledUp) {
             if (window.showModernNotification) {
                 window.showModernNotification(`🎉 Player 2 leveled up to Level ${window.p2Level}! 🎉`, "#ffeb3b");
-                if (window.p2Level % 15 === 0) {
-                    const shapesList = ['Square', 'Triangle', 'Horizontal Diamond', 'Vertical Diamond', 'Rectangle', 'Octagon', 'Hexagon', 'Star', 'Circle', 'Heart', 'Crescent', 'Pentagon'];
-                    const shapeIndex = Math.min(window.p2Level / 15, shapesList.length - 1);
-                    window.showModernNotification(`🏆 New Body Shape Unlocked: ${shapesList[shapeIndex]}! 🏆`, 5000, 2);
-                }
             }
             if (window.updatePlayerLabels) window.updatePlayerLabels();
         }
         if (window.evaluateActiveQuests) window.evaluateActiveQuests(2);
-        if (window.p2Level >= 7) window.unlockTransmission('vance_level7', 2);
         return leveledUp;
     } else {
         window.p1Xp = (window.p1Xp || 0) + amount;
@@ -16984,16 +16720,10 @@ window.gainPlayerXp = function(playerNum, amount) {
         if (leveledUp) {
             if (window.showModernNotification) {
                 window.showModernNotification(`🎉 Player 1 leveled up to Level ${window.p1Level}! 🎉`, "#ffeb3b");
-                if (window.p1Level % 15 === 0) {
-                    const shapesList = ['Square', 'Triangle', 'Horizontal Diamond', 'Vertical Diamond', 'Rectangle', 'Octagon', 'Hexagon', 'Star', 'Circle', 'Heart', 'Crescent', 'Pentagon'];
-                    const shapeIndex = Math.min(window.p1Level / 15, shapesList.length - 1);
-                    window.showModernNotification(`🏆 New Body Shape Unlocked: ${shapesList[shapeIndex]}! 🏆`, 5000, 1);
-                }
             }
             if (window.updatePlayerLabels) window.updatePlayerLabels();
         }
         if (window.evaluateActiveQuests) window.evaluateActiveQuests(1);
-        if (window.p1Level >= 7) window.unlockTransmission('vance_level7', 1);
         return leveledUp;
     }
 };
@@ -17037,6 +16767,15 @@ window.p1Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory')) || 
 window.p2Inventory = JSON.parse(localStorage.getItem('wildpulse_inventory2')) || [{ name: "Healing Juice Bottle", quantity: 2 }, { name: "Creature License", quantity: 1 }];
 
 
+// Base Building Persistence
+window.p1BaseTiles = JSON.parse(localStorage.getItem('wildpulse_p1_base_tiles')) || [];
+window.p2BaseTiles = JSON.parse(localStorage.getItem('wildpulse_p2_base_tiles')) || [];
+
+window.saveBaseTiles = function() {
+    localStorage.setItem('wildpulse_p1_base_tiles', JSON.stringify(window.p1BaseTiles));
+    localStorage.setItem('wildpulse_p2_base_tiles', JSON.stringify(window.p2BaseTiles));
+};
+
 // Store Stock Initialization
 const defaultStock = {
     "Repellent": 15,
@@ -17057,6 +16796,7 @@ const defaultStock = {
     "Nano-Nurture Serum": 15,
     "DNA Stabilizer": 15,
     "Storage Chest": 15,
+    "Bundle of Wood": 15,
     "NPC Dual Link": 15,
     "Wild Dual Signal": 15
 };
@@ -17342,78 +17082,6 @@ window.calculateCreatureSellPrice = function(c) {
     return Math.max(1, finalPrice);
 };
 
-
-window.getItemSellPrice = function(itemName) {
-    const prices = {
-        "Repellent": 170,
-        "HP Booster": 270,
-        "Attack Booster": 240,
-        "Defense Booster": 240,
-        "Speed Booster": 240,
-        "Sp. Atk Booster": 240,
-        "Sp. Def Booster": 240,
-        "Jank Juice": 270,
-        "Healing Juice Bottle": 160,
-        "Healing Juice Jug": 240,
-        "ExPALL": 370,
-        "Creature License": 295,
-        "Bundle of Wood": 150,
-        "Creature Cookie": 150,
-        "Pedometer": 220,
-        "Cyber-Core Upgrade": 320,
-        "Nano-Nurture Serum": 450,
-        "DNA Stabilizer": 420,
-        "NPC Dual Link": 400,
-        "Wild Dual Signal": 400,
-        "Storage Chest": 620,
-        "Mini Hospital": 770,
-        "Mini Store": 770,
-        "Mini Trade": 770,
-        "Mini PvP": 770,
-        "Mini Breeding Center": 770,
-        "Mini Challenge": 770,
-        "Dojo Tile": 920
-    };
-    return Math.floor((prices[itemName] || 100) / 2);
-};
-
-window.sellItem = function(playerNum) {
-    const selectEl = document.getElementById(`sellItemSelect_P${playerNum}`);
-    if (!selectEl || selectEl.value === '') return;
-
-    const itemName = selectEl.value;
-    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
-    const invKey = playerNum === 2 ? 'wildpulse_p2_inventory' : 'wildpulse_inventory';
-    const stats = playerNum === 2 ? (window.gameStats2 || window.gameStats) : window.gameStats;
-    const statsKey = playerNum === 2 ? 'wildpulse_stats2' : 'wildpulse_stats';
-
-    const itemIndex = inv.findIndex(i => i.name === itemName);
-    if (itemIndex === -1) return;
-
-    const price = window.getItemSellPrice(itemName);
-
-    window.safeConfirm(playerNum, "SELL ITEM", `Are you sure you want to sell 1x ${itemName} for 🪙 ${price} coins?`, () => {
-        inv[itemIndex].quantity -= 1;
-        if (inv[itemIndex].quantity <= 0) {
-            inv.splice(itemIndex, 1);
-        }
-        localStorage.setItem(invKey, JSON.stringify(inv));
-
-        stats.coins = (stats.coins || 0) + price;
-        localStorage.setItem(statsKey, JSON.stringify(stats));
-
-        if (window.showModernNotification) {
-            window.showModernNotification(`✅ Sold 1x ${itemName} for 🪙 ${price}!`, "#4caf50", playerNum);
-        }
-
-        if (window.updateStoreUI) window.updateStoreUI();
-        if (window.updatePlayerSlots) {
-            const containerId = playerNum === 2 ? 'p2InventorySlots' : 'p1InventorySlots';
-            window.updatePlayerSlots(playerNum, containerId);
-        }
-    });
-};
-
 window.sellCreature = function(playerNum) {
     const list = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     const key = playerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
@@ -17481,6 +17149,7 @@ window.updateStoreUI = function() {
         { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", price: 370, desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", price: 295, desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Bundle of Wood", icon: "🪵", price: 150, desc: "Build your own base. Contains various wooden building parts." },
         { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -17510,7 +17179,11 @@ window.updateStoreUI = function() {
                 { name: "Mini Trade", icon: "🔄", price: 770, desc: "A functional smaller version of the Trade center. Place near your home." },
                 { name: "Mini PvP", icon: "⚔️", price: 770, desc: "A functional smaller version of the PvP arena. Place near your home." },
                 { name: "Mini Breeding Center", icon: "🥚", price: 770, desc: "A functional smaller version of the Breeding Center. Place near your home." },
-                { name: "Mini Challenge", icon: "👑", price: 770, desc: "A functional smaller version of the Challenge area. Place near your home." }
+                { name: "Mini Challenge", icon: "👑", price: 770, desc: "A functional smaller version of the Challenge area. Place near your home." },
+                { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place inside using mini-tile placement." },
+                { name: "Cyber Desk", icon: "🖥️", price: 550, desc: "A high-tech cyber desk for your home. Place inside using mini-tile placement." },
+                { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place inside using mini-tile placement." },
+                { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place inside using mini-tile placement." }
             );
         }
         if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
@@ -17607,32 +17280,6 @@ window.updateStoreUI = function() {
                         ${selectHtml}
                     </select>
                     <button class="sell-btn" onclick="window.sellCreature(${playerNum})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #e91e63, #c2185b); border: 1px solid #f48fb1; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
-                        Sell
-                    </button>
-                </div>
-            </div>
-        `;
-
-        // Sell Items section
-        const inv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
-        let sellItemSelectHtml = '';
-        if (inv.length === 0) {
-            sellItemSelectHtml = '<option value="">No items to sell</option>';
-        } else {
-            inv.forEach((item) => {
-                let price = window.getItemSellPrice(item.name);
-                sellItemSelectHtml += `<option value="${item.name}">${item.name} (x${item.quantity}) - 🪙${price} ea</option>`;
-            });
-        }
-
-        html += `
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 15px; padding-top: 15px; text-align: left; padding-bottom: 15px;">
-                <h3 style="color: #ffd700; margin-top: 0; font-size: 14px; margin-bottom: 8px;">Sell Items</h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <select id="sellItemSelect_P${playerNum}" style="flex: 1; padding: 6px; border-radius: 6px; background: #222; color: white; border: 1px solid #555; font-size: 12px; height: 32px;">
-                        ${sellItemSelectHtml}
-                    </select>
-                    <button class="sell-item-btn" onclick="window.sellItem(${playerNum})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #ff9800, #f57c00); border: 1px solid #ffcc80; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
                         Sell
                     </button>
                 </div>
@@ -17855,6 +17502,23 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.updateInventoryUI) window.updateInventoryUI();
         if (window.updateStoreUI) window.updateStoreUI();
     };
+
+    if (item.name === "Bundle of Wood") {
+        if (window.closeInventoryWheel) window.closeInventoryWheel(playerNum);
+        if (window.closeActionWheel) window.closeActionWheel(playerNum);
+        if (window.closeInventoryModal) window.closeInventoryModal();
+
+        window[`p${playerNum}BasePlacementMode`] = true;
+        window[`p${playerNum}BasePlacementType`] = 'base_foundation';
+        window[`p${playerNum}BasePlacementSlotIndex`] = slotIndex;
+
+        const playerObj = playerNum === 2 ? window.player2 : window.player;
+        window[`p${playerNum}BasePreviewX`] = playerObj ? playerObj.x : 0;
+        window[`p${playerNum}BasePreviewY`] = playerObj ? playerObj.y : 0;
+
+        window.showModernNotification("🪵 Base Placement Mode: Press E (PC) or X (Gamepad) to cycle parts. A/Click to place. Y/Right-Click to destroy. B/ESC to cancel.", 8000, playerNum);
+        return; // Wait for placement
+    }
 
     if (item.name === "Repellent") {
         if (playerNum === 2) {
@@ -18115,163 +17779,6 @@ window.getLegendaryIconHTML = function(size = 16) {
         <path d="M20,40 L35,20 L50,30 L65,20 L80,40 L70,80 L30,80 Z" fill="url(#legGrad)" stroke="#fff" stroke-width="3"/>
         <circle cx="50" cy="55" r="10" fill="#fff" />
     </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">👑</span>`;
-};
-
-
-window.createTypeIconTexture = function(scene, type) {
-    let textureKey = 'type_icon_' + type;
-    if (scene.textures.exists(textureKey)) {
-        return textureKey;
-    }
-
-    let canvas = document.createElement('canvas');
-    canvas.width = 16;
-    canvas.height = 16;
-    let ctx = canvas.getContext('2d');
-
-    // Default styling
-    let fill = '#ffffff';
-    let stroke = '#000000';
-
-    ctx.beginPath();
-
-    if (type === 'Fire') {
-        fill = '#ff4400';
-        ctx.fillStyle = fill;
-        ctx.moveTo(8, 2);
-        ctx.bezierCurveTo(2, 8, 2, 14, 8, 14);
-        ctx.bezierCurveTo(14, 14, 14, 8, 8, 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.fillStyle = '#ffaa00';
-        ctx.moveTo(8, 6);
-        ctx.bezierCurveTo(5, 10, 5, 13, 8, 13);
-        ctx.bezierCurveTo(11, 13, 11, 10, 8, 6);
-        ctx.fill();
-    } else if (type === 'Water') {
-        fill = '#0088ff';
-        ctx.fillStyle = fill;
-        ctx.moveTo(8, 2);
-        ctx.bezierCurveTo(3, 8, 3, 14, 8, 14);
-        ctx.bezierCurveTo(13, 14, 13, 8, 8, 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(6, 11, 1, 0, Math.PI * 2);
-        ctx.fill();
-    } else if (type === 'Nature') {
-        fill = '#00cc44';
-        ctx.fillStyle = fill;
-        ctx.moveTo(8, 14);
-        ctx.bezierCurveTo(0, 14, 0, 2, 8, 2);
-        ctx.bezierCurveTo(16, 2, 16, 14, 8, 14);
-        ctx.fill();
-        ctx.strokeStyle = '#006622';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(8, 14);
-        ctx.lineTo(8, 3);
-        ctx.stroke();
-    } else if (type === 'Electric') {
-        fill = '#ffee00';
-        ctx.fillStyle = fill;
-        ctx.moveTo(9, 1);
-        ctx.lineTo(3, 8);
-        ctx.lineTo(8, 8);
-        ctx.lineTo(7, 15);
-        ctx.lineTo(13, 7);
-        ctx.lineTo(8, 7);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = '#cc9900';
-        ctx.stroke();
-    } else if (type === 'Ice') {
-        fill = '#00ffff';
-        ctx.strokeStyle = fill;
-        ctx.lineWidth = 1.5;
-        for (let i = 0; i < 6; i++) {
-            ctx.moveTo(8, 8);
-            ctx.lineTo(8 + Math.cos(i * Math.PI / 3) * 6, 8 + Math.sin(i * Math.PI / 3) * 6);
-        }
-        ctx.stroke();
-    } else if (type === 'Earth') {
-        fill = '#8b5a2b';
-        ctx.fillStyle = fill;
-        ctx.moveTo(2, 14);
-        ctx.lineTo(8, 4);
-        ctx.lineTo(11, 9);
-        ctx.lineTo(14, 14);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = '#5c3a18';
-        ctx.stroke();
-    } else if (type === 'Wind') {
-        ctx.strokeStyle = '#cccccc';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(2, 4); ctx.lineTo(10, 4); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(4, 8); ctx.lineTo(14, 8); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(2, 12); ctx.lineTo(12, 12); ctx.stroke();
-    } else if (type === 'Light') {
-        fill = '#ffffcc';
-        ctx.fillStyle = fill;
-        ctx.arc(8, 8, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#ffff00';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        for (let i = 0; i < 8; i++) {
-            ctx.moveTo(8 + Math.cos(i * Math.PI / 4) * 5, 8 + Math.sin(i * Math.PI / 4) * 5);
-            ctx.lineTo(8 + Math.cos(i * Math.PI / 4) * 7, 8 + Math.sin(i * Math.PI / 4) * 7);
-        }
-        ctx.stroke();
-    } else if (type === 'Dark') {
-        fill = '#440088';
-        ctx.fillStyle = fill;
-        ctx.arc(8, 8, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.beginPath();
-        ctx.arc(10, 6, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalCompositeOperation = 'source-over';
-    } else if (type === 'Cosmic') {
-        fill = '#aa00ff';
-        ctx.fillStyle = fill;
-        ctx.arc(8, 8, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#00ffff';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.ellipse(8, 8, 7, 3, Math.PI / 6, 0, Math.PI * 2);
-        ctx.stroke();
-    } else if (type === 'Shiny') {
-        fill = '#ffff00';
-        ctx.fillStyle = fill;
-        ctx.moveTo(8, 1);
-        ctx.lineTo(10, 6);
-        ctx.lineTo(15, 6);
-        ctx.lineTo(11, 10);
-        ctx.lineTo(12, 15);
-        ctx.lineTo(8, 12);
-        ctx.lineTo(4, 15);
-        ctx.lineTo(5, 10);
-        ctx.lineTo(1, 6);
-        ctx.lineTo(6, 6);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = '#ccaa00';
-        ctx.stroke();
-    } else {
-        // Unknown type - draw a question mark
-        ctx.fillStyle = '#ff00ff';
-        ctx.font = '14px Courier New';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('?', 8, 8);
-    }
-
-    scene.textures.addCanvas(textureKey, canvas);
-    return textureKey;
 };
 
 window.getItemIconHTML = function(itemName, size = 24) {
@@ -18544,6 +18051,37 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <circle cx="46" cy="42" r="2" fill="#ff00ff" />
                 <circle cx="54" cy="48" r="1.5" fill="#ff00ff" />`;
             break;
+
+        case "Neon Couch":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="20" y="50" width="60" height="20" fill="#1e1e2e" stroke="#00ffd2" stroke-width="3" filter="url(#glow)"/>
+                <rect x="15" y="45" width="70" height="15" fill="#181825" stroke="#00ffd2" stroke-width="3"/>
+                <rect x="15" y="50" width="10" height="25" fill="#1e1e2e" stroke="#00ffd2" stroke-width="2"/>
+                <rect x="75" y="50" width="10" height="25" fill="#1e1e2e" stroke="#00ffd2" stroke-width="2"/>`;
+            break;
+        case "Cyber Desk":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <rect x="25" y="30" width="50" height="25" fill="#0a0a0a" stroke="#ff00ff" stroke-width="3" filter="url(#glow)"/>
+                <rect x="20" y="55" width="60" height="10" fill="#111" stroke="#00ffd2" stroke-width="2"/>
+                <rect x="35" y="60" width="30" height="5" fill="#00ffd2" filter="url(#glow)"/>
+                <rect x="25" y="65" width="8" height="20" fill="#555"/>
+                <rect x="67" y="65" width="8" height="20" fill="#555"/>`;
+            break;
+        case "Glow Carpet":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff9f00" stroke-width="4"/>
+                <rect x="20" y="20" width="60" height="60" fill="#000" stroke="#ff9f00" stroke-width="4" filter="url(#glow)"/>
+                <rect x="35" y="35" width="30" height="30" fill="none" stroke="#00ffd2" stroke-width="3" filter="url(#glow)"/>
+                <line x1="50" y1="20" x2="50" y2="80" stroke="#00ffd2" stroke-width="2"/>
+                <line x1="20" y1="50" x2="80" y2="50" stroke="#00ffd2" stroke-width="2"/>`;
+            break;
+        case "Holo Bed":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
+                <rect x="25" y="20" width="50" height="60" fill="#222" stroke="#ff00ff" stroke-width="3"/>
+                <rect x="30" y="40" width="40" height="40" fill="rgba(0, 255, 255, 0.5)" filter="url(#glow)"/>
+                <rect x="35" y="25" width="30" height="10" fill="#fff" stroke="#ff00ff" stroke-width="2"/>
+                <circle cx="25" cy="20" r="4" fill="#00ffd2" filter="url(#glow)"/>
+                <circle cx="75" cy="20" r="4" fill="#00ffd2" filter="url(#glow)"/>`;
+            break;
         case "Mini Challenge":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#bf55ec" stroke-width="4"/>
                 <path d="M30,75 L70,75 L60,55 L40,55 Z" fill="#333" stroke="#bf55ec" stroke-width="2" />
@@ -18569,6 +18107,10 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "Mini PvP": "⚔️",
         "Mini Breeding Center": "🥚",
         "Mini Challenge": "👑",
+        "Neon Couch": "🛋️",
+        "Cyber Desk": "🖥️",
+        "Glow Carpet": "🔲",
+        "Holo Bed": "🛏️",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
         "Repellent": "🧴",
@@ -18621,6 +18163,10 @@ window.updateInventoryUI = function() {
         "Mini PvP": "⚔️",
         "Mini Breeding Center": "🥚",
         "Mini Challenge": "👑",
+        "Neon Couch": "🛋️",
+        "Cyber Desk": "🖥️",
+        "Glow Carpet": "🔲",
+        "Holo Bed": "🛏️",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
         "Repellent": "🧴",
@@ -19239,6 +18785,55 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justRight = currRight && !prev.Right;
 
 
+    // Special handling for Base Placement Mode
+    if (window[`p${playerNum}BasePlacementMode`]) {
+        const rx = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
+        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
+        const speed = 12;
+        if (Math.abs(rx) > 0.15) window[`p${playerNum}BasePreviewX`] += rx * speed;
+        if (Math.abs(ry) > 0.15) window[`p${playerNum}BasePreviewY`] += ry * speed;
+
+        // X button cycles parts
+        if (justX) {
+            const parts = ['base_foundation', 'base_wall', 'base_wall_window', 'base_wall_door', 'base_stairs', 'base_ceiling', 'base_roof'];
+            let currentIdx = parts.indexOf(window[`p${playerNum}BasePlacementType`]);
+            let nextIdx = (currentIdx + 1) % parts.length;
+            window[`p${playerNum}BasePlacementType`] = parts[nextIdx];
+
+            if (window[`p${playerNum}BasePreviewSprite`]) {
+                window[`p${playerNum}BasePreviewSprite`].setTexture(window[`p${playerNum}BasePlacementType`]);
+            }
+        }
+
+        const previewSpriteId = `p${playerNum}BasePreviewSprite`;
+        if (window[previewSpriteId]) {
+            let col = Math.floor(window[`p${playerNum}BasePreviewX`] / 50);
+            let row = Math.floor(window[`p${playerNum}BasePreviewY`] / 50);
+            let snappedX = col * 50 + 25;
+            let snappedY = row * 50 + 25;
+            window[previewSpriteId].setPosition(snappedX, snappedY);
+        }
+
+        if (justA) {
+            window.tryPlaceBase(playerNum, window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
+        }
+
+        // Y button destroys piece under cursor
+        if (justY) {
+            window.tryDestroyBase(playerNum, window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
+        }
+
+        if (justB) {
+            window.cancelBasePlacement(playerNum);
+        }
+
+        prev.Y = currY; prev.X = currX; prev.B = currB; prev.A = currA;
+        prev.Start = currStart; prev.Up = currUp; prev.Down = currDown;
+        prev.Left = currLeft; prev.Right = currRight;
+        prev.LB = currLB; prev.RB = currRB;
+        return;
+    }
+
     // Special handling for Mini Tile Placement Mode
     if (window[`p${playerNum}MiniTilePlacementMode`]) {
         const rx = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
@@ -19691,114 +19286,17 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                 let focusIndex = selectables.findIndex(el => el.classList.contains(`gamepad-focused-p${playerNum}`) || el === document.activeElement);
                 const oldEl = focusIndex !== -1 ? selectables[focusIndex] : null;
 
-                const isKeyboardModal = container.id === 'virtualKeyboardModal_p1' || container.id === 'virtualKeyboardModal_p2';
-
-                if (isKeyboardModal && oldEl && (justUp || justDown)) {
-                    let bestIndex = -1;
-                    let bestDist = Infinity;
-                    const currentRect = oldEl.getBoundingClientRect();
-                    const currentCenter = currentRect.left + currentRect.width / 2;
-
-                    let targetY = null;
-                    if (justUp) {
-                        let maxBottom = -Infinity;
-                        for (let i = 0; i < selectables.length; i++) {
-                            const rect = selectables[i].getBoundingClientRect();
-                            if (rect.bottom <= currentRect.top + 5 && rect.bottom > maxBottom) {
-                                maxBottom = rect.bottom;
-                            }
-                        }
-                        targetY = maxBottom;
-                    } else if (justDown) {
-                        let minTop = Infinity;
-                        for (let i = 0; i < selectables.length; i++) {
-                            const rect = selectables[i].getBoundingClientRect();
-                            if (rect.top >= currentRect.bottom - 5 && rect.top < minTop) {
-                                minTop = rect.top;
-                            }
-                        }
-                        targetY = minTop;
-                    }
-
-                    if (targetY !== null && targetY !== -Infinity && targetY !== Infinity) {
-                        for (let i = 0; i < selectables.length; i++) {
-                            const rect = selectables[i].getBoundingClientRect();
-                            if ((justUp && Math.abs(rect.bottom - targetY) < 10) ||
-                                (justDown && Math.abs(rect.top - targetY) < 10)) {
-                                const center = rect.left + rect.width / 2;
-                                const dist = Math.abs(center - currentCenter);
-                                if (dist < bestDist) {
-                                    bestDist = dist;
-                                    bestIndex = i;
-                                }
-                            }
-                        }
-                    }
-
-                    if (bestIndex !== -1) {
-                        focusIndex = bestIndex;
+                if (focusIndex === -1) {
+                    if (justUp || justLeft) {
+                        focusIndex = selectables.length - 1;
                     } else {
-                        // Implement column wrap-around if no row above/below
-                        let wrapTargetY = null;
-                        if (justUp) {
-                            // Find the bottom-most row
-                            let maxBottom = -Infinity;
-                            for (let i = 0; i < selectables.length; i++) {
-                                const rect = selectables[i].getBoundingClientRect();
-                                if (rect.bottom > maxBottom) {
-                                    maxBottom = rect.bottom;
-                                }
-                            }
-                            wrapTargetY = maxBottom;
-                        } else if (justDown) {
-                            // Find the top-most row
-                            let minTop = Infinity;
-                            for (let i = 0; i < selectables.length; i++) {
-                                const rect = selectables[i].getBoundingClientRect();
-                                if (rect.top < minTop) {
-                                    minTop = rect.top;
-                                }
-                            }
-                            wrapTargetY = minTop;
-                        }
-
-                        let wrapBestIndex = -1;
-                        let wrapBestDist = Infinity;
-                        if (wrapTargetY !== null && wrapTargetY !== -Infinity && wrapTargetY !== Infinity) {
-                            for (let i = 0; i < selectables.length; i++) {
-                                const rect = selectables[i].getBoundingClientRect();
-                                if ((justUp && Math.abs(rect.bottom - wrapTargetY) < 10) ||
-                                    (justDown && Math.abs(rect.top - wrapTargetY) < 10)) {
-                                    const center = rect.left + rect.width / 2;
-                                    const dist = Math.abs(center - currentCenter);
-                                    if (dist < wrapBestDist) {
-                                        wrapBestDist = dist;
-                                        wrapBestIndex = i;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (wrapBestIndex !== -1) {
-                            focusIndex = wrapBestIndex;
-                        } else {
-                            if (justUp) focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
-                            if (justDown) focusIndex = (focusIndex + 1) % selectables.length;
-                        }
+                        focusIndex = 0;
                     }
                 } else {
-                    if (focusIndex === -1) {
-                        if (justUp || justLeft) {
-                            focusIndex = selectables.length - 1;
-                        } else {
-                            focusIndex = 0;
-                        }
-                    } else {
-                        if (justUp || justLeft) {
-                            focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
-                        } else if (justDown || justRight) {
-                            focusIndex = (focusIndex + 1) % selectables.length;
-                        }
+                    if (justUp || justLeft) {
+                        focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
+                    } else if (justDown || justRight) {
+                        focusIndex = (focusIndex + 1) % selectables.length;
                     }
                 }
 
@@ -20599,9 +20097,7 @@ window.renderQuestsList = function(playerNum = 1) {
             trackBtn.style.cursor = 'pointer';
 
             trackBtn.onclick = () => {
-                const wasTracked = quest.tracked;
-                quests.forEach(q => q.tracked = false);
-                quest.tracked = !wasTracked;
+                quest.tracked = !quest.tracked;
                 window.saveQuests();
                 window.renderQuestsList(playerNum);
             };
@@ -20622,67 +20118,24 @@ window.switchJournalTab = function(playerNum, tabName) {
 
     const bestiaryTab = container.querySelector('.journal-tab-bestiary');
     const questsTab = container.querySelector('.journal-tab-quests');
-    const dataTab = container.querySelector('.journal-tab-data');
     const bestiaryContent = container.querySelector('#journalContent_Bestiary_P' + playerNum);
     const questsContent = container.querySelector('#journalContent_Quests_P' + playerNum);
-    const dataContent = container.querySelector('#journalContent_Data_P' + playerNum);
 
     const baseColor = playerNum === 2 ? '#ff9800' : '#4caf50';
 
     if (tabName === 'bestiary') {
         if (bestiaryTab) { bestiaryTab.classList.add('active'); bestiaryTab.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.5)`; }
         if (questsTab) { questsTab.classList.remove('active'); questsTab.style.background = 'rgba(0,0,0,0.5)'; }
-        if (dataTab) { dataTab.classList.remove('active'); dataTab.style.background = 'rgba(0,0,0,0.5)'; }
         if (bestiaryContent) bestiaryContent.style.display = 'block';
         if (questsContent) questsContent.style.display = 'none';
-        if (dataContent) dataContent.style.display = 'none';
     } else if (tabName === 'quests') {
         if (bestiaryTab) { bestiaryTab.classList.remove('active'); bestiaryTab.style.background = 'rgba(0,0,0,0.5)'; }
         if (questsTab) { questsTab.classList.add('active'); questsTab.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.5)`; }
-        if (dataTab) { dataTab.classList.remove('active'); dataTab.style.background = 'rgba(0,0,0,0.5)'; }
         if (bestiaryContent) bestiaryContent.style.display = 'none';
         if (questsContent) questsContent.style.display = 'block';
-        if (dataContent) dataContent.style.display = 'none';
         if (window.renderQuestsList) window.renderQuestsList(playerNum);
-    } else if (tabName === 'data') {
-        if (bestiaryTab) { bestiaryTab.classList.remove('active'); bestiaryTab.style.background = 'rgba(0,0,0,0.5)'; }
-        if (questsTab) { questsTab.classList.remove('active'); questsTab.style.background = 'rgba(0,0,0,0.5)'; }
-        if (dataTab) { dataTab.classList.add('active'); dataTab.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.5)`; }
-        if (bestiaryContent) bestiaryContent.style.display = 'none';
-        if (questsContent) questsContent.style.display = 'none';
-        if (dataContent) dataContent.style.display = 'block';
-        if (window.renderTransmissionsList) window.renderTransmissionsList(playerNum);
     }
 };
-
-window.renderTransmissionsList = function(playerNum) {
-    const listEl = document.getElementById('dataList_P' + playerNum);
-    if (!listEl) return;
-    listEl.innerHTML = '';
-
-    const entries = window.narrativeProgress.journalEntries || [];
-    if (entries.length === 0) {
-        listEl.innerHTML = '<p style="color:#aaa; font-style:italic; text-align:center;">No data packets decrypted yet.</p>';
-        return;
-    }
-
-    entries.slice().reverse().forEach(entry => {
-        const div = document.createElement('div');
-        div.style.background = 'rgba(0,0,0,0.6)';
-        div.style.border = `1px solid ${playerNum === 2 ? '#ff9800' : '#4caf50'}`;
-        div.style.borderRadius = '5px';
-        div.style.padding = '10px';
-        div.style.marginBottom = '10px';
-        div.style.fontFamily = "'Courier New', Courier, monospace";
-
-        div.innerHTML = `
-            <h4 style="color: #00ffcc; margin: 0 0 8px 0; font-size: 14px;">${entry.title}</h4>
-            <p style="color: #ddd; font-size: 12px; margin: 0; line-height: 1.4;"><em>${entry.body}</em></p>
-        `;
-        listEl.appendChild(div);
-    });
-};
-
 
 window.closeJournalModal = function(playerNum = 1) {
     window.lastModalCloseTime = Date.now();
@@ -22373,6 +21826,10 @@ window.updateInventoryWheelUI = function(playerNum) {
         "Mini PvP": "⚔️",
         "Mini Breeding Center": "🥚",
         "Mini Challenge": "👑",
+        "Neon Couch": "🛋️",
+        "Cyber Desk": "🖥️",
+        "Glow Carpet": "🔲",
+        "Holo Bed": "🛏️",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
         "Repellent": "🧴",
@@ -22441,31 +21898,149 @@ window.useInventoryWheelOption = function(playerNum, optionName) {
 };
 
 window.deleteProgress = function(playerNum = 1) {
-    const isCoop = window.coopActive;
-    const title = isCoop ? 'ERASE ALL DATA?' : 'ERASE DATA?';
-    const desc = isCoop
-        ? 'Are you sure? This will erase all split-screen save data for both players.'
-        : 'Are you sure? This will erase your singleplayer save data.';
+    if (window.coopActive) {
+        window.showConfirm(playerNum, 'ERASE ALL DATA?', 'Are you sure? This will erase all split-screen save data for both players.', () => {
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('wildpulse_collected_creatures2');
+            localStorage.removeItem('wildpulse_player_level');
+            localStorage.removeItem('wildpulse_player_xp');
+            localStorage.removeItem('wildpulse_player2_level');
+            localStorage.removeItem('wildpulse_player2_xp');
+            localStorage.removeItem('wildpulse_player_x');
+            localStorage.removeItem('wildpulse_player_y');
+            localStorage.removeItem('wildpulse_player2_x');
+            localStorage.removeItem('wildpulse_player2_y');
+            localStorage.removeItem('wildpulse_inGameDays');
+            localStorage.removeItem('wildpulse_currentSeason');
+            localStorage.removeItem('wildpulse_world_seed');
+            localStorage.removeItem('wildpulse_total_elapsed_ms');
+            localStorage.removeItem('wildpulse_challenge_tier');
+            localStorage.removeItem('wildpulse_unlocked_patterns_cache');
+            localStorage.removeItem('wildpulse_stats');
+            localStorage.removeItem('wildpulse_stats2');
+            localStorage.removeItem('wildpulse_coop_active');
+            localStorage.removeItem('wildpulse_store_stock_p1');
+            localStorage.removeItem('wildpulse_store_stock_p2');
+            localStorage.removeItem('wildpulse_last_replenish_day');
+            localStorage.removeItem('wildpulse_inventory');
+            localStorage.removeItem('wildpulse_inventory2');
+            localStorage.removeItem('wildpulse_npc_trainer_data');
+            localStorage.removeItem('wildpulse_p1_last_cookie_time');
+            localStorage.removeItem('wildpulse_p2_last_cookie_time');
+            localStorage.removeItem('wildpulse_p1_last_pet_time');
+            localStorage.removeItem('wildpulse_p2_last_pet_time');
+            localStorage.removeItem('wildpulse_p1PedometerTime');
+            localStorage.removeItem('wildpulse_p2PedometerTime');
+            localStorage.removeItem('wildpulse_p1NpcDualTime');
+            localStorage.removeItem('wildpulse_p2NpcDualTime');
+            localStorage.removeItem('wildpulse_p1WildDualTime');
+            localStorage.removeItem('wildpulse_p2WildDualTime');
+            localStorage.removeItem('wildpulse_p1RepellentTime');
+            localStorage.removeItem('wildpulse_p2RepellentTime');
+            localStorage.removeItem('wildpulse_p1JankJuiceTime');
+            localStorage.removeItem('wildpulse_p2JankJuiceTime');
+            localStorage.removeItem('wildpulse_p1ExPallTime');
+            localStorage.removeItem('wildpulse_p2ExPallTime');
+            localStorage.removeItem('wildpulse_p1_home_x');
+            localStorage.removeItem('wildpulse_p1_home_y');
+            localStorage.removeItem('wildpulse_p2_home_x');
+            localStorage.removeItem('wildpulse_p2_home_y');
+            localStorage.removeItem('wildpulse_p1_mini_tiles');
+            localStorage.removeItem('wildpulse_p2_mini_tiles');
+            localStorage.removeItem('wildpulse_p1_quests');
+            localStorage.removeItem('wildpulse_p2_quests');
 
-    window.showConfirm(playerNum, title, desc, () => {
-        // Dynamic cleanup to ensure all progress is deleted
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && (key.startsWith('wildpulse_') || key === STORAGE_KEY) && !key.includes('own_world_code') && !key.includes('world_code')) {
-                localStorage.removeItem(key);
-                i--; // Decrement because we just removed an item
+            if (window.spawnPlayerHomes) {
+                window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
             }
-        }
+            if (window.spawnMiniTiles) {
+                window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
+            }
 
-        if (window.spawnPlayerHomes) {
-            window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
-        }
-        if (window.spawnMiniTiles) {
-            window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
-        }
+            // Reset customization settings for both players
+            localStorage.removeItem('wildpulse_player_name');
+            localStorage.removeItem('wildpulse_player_color');
+            localStorage.removeItem('wildpulse_player_aura_color');
+            localStorage.removeItem('wildpulse_player_pattern');
+            localStorage.removeItem('wildpulse_player_pattern_color');
+            localStorage.removeItem('wildpulse_player_shape');
 
-        location.reload();
-    });
+            localStorage.removeItem('wildpulse_player2_name');
+            localStorage.removeItem('wildpulse_player2_color');
+            localStorage.removeItem('wildpulse_player2_aura_color');
+            localStorage.removeItem('wildpulse_player2_pattern');
+            localStorage.removeItem('wildpulse_player2_pattern_color');
+            localStorage.removeItem('wildpulse_player2_shape');
+
+            location.reload();
+        });
+    } else {
+        window.showConfirm(playerNum, 'ERASE DATA?', 'Are you sure? This will erase your singleplayer save data.', () => {
+            // Delete ONLY Player 1/Singleplayer progress keys
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('wildpulse_player_level');
+            localStorage.removeItem('wildpulse_player_xp');
+            localStorage.removeItem('wildpulse_player_x');
+            localStorage.removeItem('wildpulse_player_y');
+            localStorage.removeItem('wildpulse_stats');
+            localStorage.removeItem('wildpulse_store_stock_p1');
+            localStorage.removeItem('wildpulse_inventory');
+            localStorage.removeItem('wildpulse_p1_last_cookie_time');
+            localStorage.removeItem('wildpulse_p1_last_pet_time');
+            localStorage.removeItem('wildpulse_p1PedometerTime');
+            localStorage.removeItem('wildpulse_p1NpcDualTime');
+            localStorage.removeItem('wildpulse_p1WildDualTime');
+            localStorage.removeItem('wildpulse_p1RepellentTime');
+            localStorage.removeItem('wildpulse_p1JankJuiceTime');
+            localStorage.removeItem('wildpulse_p1ExPallTime');
+            localStorage.removeItem('wildpulse_p1_home_x');
+            localStorage.removeItem('wildpulse_p1_home_y');
+            localStorage.removeItem('wildpulse_p1_mini_tiles');
+            localStorage.removeItem('wildpulse_p1_quests');
+
+            // Reset customization settings for player 1
+            localStorage.removeItem('wildpulse_player_name');
+            localStorage.removeItem('wildpulse_player_color');
+            localStorage.removeItem('wildpulse_player_aura_color');
+            localStorage.removeItem('wildpulse_player_pattern');
+            localStorage.removeItem('wildpulse_player_pattern_color');
+            localStorage.removeItem('wildpulse_player_shape');
+
+            // Reset shared/global keys as well
+            localStorage.removeItem('wildpulse_inGameDays');
+            localStorage.removeItem('wildpulse_currentSeason');
+            localStorage.removeItem('wildpulse_world_seed');
+            localStorage.removeItem('wildpulse_total_elapsed_ms');
+            localStorage.removeItem('wildpulse_challenge_tier');
+            localStorage.removeItem('wildpulse_unlocked_patterns_cache');
+            localStorage.removeItem('wildpulse_last_replenish_day');
+            localStorage.removeItem('wildpulse_coop_active');
+
+            // Reset P1 NPC trainer data inside the JSON structure
+            try {
+                let allData = JSON.parse(localStorage.getItem('wildpulse_npc_trainer_data')) || {};
+                for (let trainerId in allData) {
+                    if (allData[trainerId]) {
+                        delete allData[trainerId].weekBattles;
+                        delete allData[trainerId].lastBattleTimeMs;
+                        allData[trainerId].p1 = { weekBattles: {}, lastBattleTimeMs: 0 };
+                    }
+                }
+                localStorage.setItem('wildpulse_npc_trainer_data', JSON.stringify(allData));
+            } catch (e) {
+                console.error("Error resetting P1 NPC trainer data:", e);
+            }
+
+            if (window.spawnPlayerHomes) {
+                window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
+            }
+            if (window.spawnMiniTiles) {
+                window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
+            }
+
+            location.reload();
+        });
+    }
 };
 
 window.exitGame = function(playerNum) {
@@ -23029,11 +22604,6 @@ window.hatchEgg = function(egg, playerNum = 1) {
 
             const playerName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
             const notificationMsg = `✨ ${playerName}'s Mysterious Egg successfully hatched into ${egg.name} (Gen ${egg.generation})! ✨`;
-            if (!window.narrativeProgress.firstHatchDone) {
-                window.narrativeProgress.firstHatchDone = true;
-                window.saveNarrativeProgress();
-                window.unlockTransmission('vance_first_hatch', playerNum);
-            }
             window.showModernNotification(notificationMsg, 7000);
         });
 
@@ -24474,23 +24044,6 @@ window.checkDualBattleFaintsOrEnd = function(callback) {
 
             window.saveNpcTrainerData(trainerId, trainerData);
             window.logBattle(`<span style="color:#ffd700; font-weight:bold;">Cooperative victory credit recorded for BOTH players!</span>`);
-
-            if (window.hasDefeatedAllTrainers) {
-                if (window.hasDefeatedAllTrainers(1)) {
-                    if (!window.narrativeProgress.sectorCleared) {
-                        window.narrativeProgress.sectorCleared = true;
-                        window.saveNarrativeProgress();
-                    }
-                    window.unlockTransmission('vance_all_trainers', 1);
-                }
-                if (window.hasDefeatedAllTrainers(2)) {
-                    if (!window.narrativeProgress.sectorCleared) {
-                        window.narrativeProgress.sectorCleared = true;
-                        window.saveNarrativeProgress();
-                    }
-                    window.unlockTransmission('vance_all_trainers', 2);
-                }
-            }
         } else {
             window.logBattle(`<span style="color:#55ff55; font-weight:bold;">VICTORY! Both wild creatures have been defeated cooperatively!</span>`);
         }
@@ -26157,6 +25710,111 @@ function generateTileTextures(scene) {
     storageChestCtx.lineWidth = 4;
     storageChestCtx.strokeRect(2, 2, 96, 96);
     scene.textures.addCanvas('storage_chest_tile', storageChestCanvas);
+
+    // -----------------------------------------
+    // Furniture Textures
+    // -----------------------------------------
+    // Neon Couch
+    const couchCanvas = document.createElement('canvas');
+    couchCanvas.width = 100;
+    couchCanvas.height = 100;
+    const couchCtx = couchCanvas.getContext('2d');
+    couchCtx.fillStyle = '#1e1e2e'; // Base dark cushion color
+    couchCtx.fillRect(10, 30, 80, 50); // main seat
+    couchCtx.fillStyle = '#181825';
+    couchCtx.fillRect(5, 20, 90, 20); // backrest
+    couchCtx.fillRect(0, 30, 15, 60); // left arm
+    couchCtx.fillRect(85, 30, 15, 60); // right arm
+    // Neon accents
+    couchCtx.strokeStyle = '#00ffd2'; // Cyber cyan glow
+    couchCtx.lineWidth = 3;
+    couchCtx.shadowBlur = 10;
+    couchCtx.shadowColor = '#00ffd2';
+    couchCtx.strokeRect(10, 30, 80, 50);
+    couchCtx.strokeRect(5, 20, 90, 20);
+    if (window.add3DDepth) window.add3DDepth(couchCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_couch_tile', couchCanvas);
+
+    // Cyber Desk
+    const deskCanvas = document.createElement('canvas');
+    deskCanvas.width = 100;
+    deskCanvas.height = 100;
+    const deskCtx = deskCanvas.getContext('2d');
+    deskCtx.fillStyle = '#111'; // Desk top
+    deskCtx.fillRect(5, 40, 90, 40);
+    // Legs
+    deskCtx.fillStyle = '#555';
+    deskCtx.fillRect(10, 80, 10, 15);
+    deskCtx.fillRect(80, 80, 10, 15);
+    // Monitors
+    deskCtx.fillStyle = '#0a0a0a';
+    deskCtx.fillRect(20, 10, 60, 30);
+    deskCtx.strokeStyle = '#ff00ff';
+    deskCtx.lineWidth = 2;
+    deskCtx.shadowBlur = 5;
+    deskCtx.shadowColor = '#ff00ff';
+    deskCtx.strokeRect(20, 10, 60, 30);
+    // Keyboard glow
+    deskCtx.fillStyle = '#00ffd2';
+    deskCtx.shadowColor = '#00ffd2';
+    deskCtx.fillRect(30, 50, 40, 10);
+    if (window.add3DDepth) window.add3DDepth(deskCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_desk_tile', deskCanvas);
+
+    // Glow Carpet
+    const carpetCanvas = document.createElement('canvas');
+    carpetCanvas.width = 100;
+    carpetCanvas.height = 100;
+    const carpetCtx = carpetCanvas.getContext('2d');
+    carpetCtx.fillStyle = '#000000';
+    carpetCtx.fillRect(5, 5, 90, 90);
+    // Cyber circuit patterns
+    carpetCtx.strokeStyle = '#ff9f00';
+    carpetCtx.lineWidth = 4;
+    carpetCtx.shadowBlur = 15;
+    carpetCtx.shadowColor = '#ff9f00';
+    carpetCtx.beginPath();
+    carpetCtx.moveTo(10, 10); carpetCtx.lineTo(90, 10); carpetCtx.lineTo(90, 90); carpetCtx.lineTo(10, 90); carpetCtx.closePath();
+    carpetCtx.stroke();
+    carpetCtx.beginPath();
+    carpetCtx.moveTo(25, 25); carpetCtx.lineTo(75, 25); carpetCtx.lineTo(75, 75); carpetCtx.lineTo(25, 75); carpetCtx.closePath();
+    carpetCtx.stroke();
+    carpetCtx.strokeStyle = '#00ffd2';
+    carpetCtx.shadowColor = '#00ffd2';
+    carpetCtx.beginPath();
+    carpetCtx.moveTo(50, 25); carpetCtx.lineTo(50, 75);
+    carpetCtx.moveTo(25, 50); carpetCtx.lineTo(75, 50);
+    carpetCtx.stroke();
+    scene.textures.addCanvas('furniture_carpet_tile', carpetCanvas);
+
+    // Holo Bed
+    const bedCanvas = document.createElement('canvas');
+    bedCanvas.width = 100;
+    bedCanvas.height = 100;
+    const bedCtx = bedCanvas.getContext('2d');
+    bedCtx.fillStyle = '#222';
+    bedCtx.fillRect(10, 10, 80, 80); // base frame
+    // Holo sheets
+    bedCtx.fillStyle = 'rgba(0, 255, 255, 0.4)';
+    bedCtx.shadowBlur = 20;
+    bedCtx.shadowColor = '#00ffff';
+    bedCtx.fillRect(15, 30, 70, 55);
+    // Pillow
+    bedCtx.fillStyle = '#fff';
+    bedCtx.shadowBlur = 5;
+    bedCtx.shadowColor = '#fff';
+    bedCtx.fillRect(20, 15, 60, 15);
+    // Futuristic glowing nodes
+    bedCtx.fillStyle = '#ff00ff';
+    bedCtx.shadowBlur = 10;
+    bedCtx.shadowColor = '#ff00ff';
+    bedCtx.beginPath(); bedCtx.arc(15, 15, 5, 0, Math.PI*2); bedCtx.fill();
+    bedCtx.beginPath(); bedCtx.arc(85, 15, 5, 0, Math.PI*2); bedCtx.fill();
+    bedCtx.beginPath(); bedCtx.arc(15, 90, 5, 0, Math.PI*2); bedCtx.fill();
+    bedCtx.beginPath(); bedCtx.arc(85, 90, 5, 0, Math.PI*2); bedCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(bedCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_bed_tile', bedCanvas);
+
 }
 
 function generateMiscTextures(scene) {
@@ -27710,6 +27368,10 @@ window.spawnMiniTiles = function(scene) {
             else if (tile.type === 'challenge') textureKey = 'challenge_tile';
             else if (tile.type === 'storage_chest') textureKey = 'storage_chest_tile';
             else if (tile.type === 'dojo') textureKey = 'dojo_tile';
+            else if (tile.type === 'furniture_couch') textureKey = 'furniture_couch_tile';
+            else if (tile.type === 'furniture_desk') textureKey = 'furniture_desk_tile';
+            else if (tile.type === 'furniture_carpet') textureKey = 'furniture_carpet_tile';
+            else if (tile.type === 'furniture_bed') textureKey = 'furniture_bed_tile';
 
             if (textureKey) {
                 let mSprite = window.miniTilesGroup.create(tile.x, tile.y, textureKey);
@@ -27842,6 +27504,192 @@ window.startHomePlacement = function(playerNum) {
 };
 
 
+window.tryPlaceBase = function(playerNum, x, y) {
+    const itemName = window[`p${playerNum}BasePlacementType`];
+    if (!itemName) return;
+
+    let col = Math.floor(x / 50);
+    let row = Math.floor(y / 50);
+    let snappedX = col * 50 + 25;
+    let snappedY = row * 50 + 25;
+
+    // Boundary check
+    if (snappedX < 100 || snappedX > WORLD_SIZE - 100 || snappedY < 100 || snappedY > WORLD_SIZE - 100) {
+        window.showModernNotification("❌ Out of bounds.", 3000, playerNum);
+        return;
+    }
+
+    const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
+    if (isInside) {
+        window.showModernNotification("❌ Cannot build base inside home.", 3000, playerNum);
+        return;
+    }
+
+    // Check underlying map data (only grass or safe ground)
+    const mapCol = Math.floor(snappedX / 100);
+    const mapRow = Math.floor(snappedY / 100);
+    if (!window.mapData || !window.mapData[mapRow] || window.mapData[mapRow][mapCol] !== 'grass') {
+        window.showModernNotification("❌ Can only build on clear ground.", 3000, playerNum);
+        return;
+    }
+
+    // Water proximity check using mapData
+    for(let r = mapRow - 1; r <= mapRow + 1; r++) {
+        for(let c = mapCol - 1; c <= mapCol + 1; c++) {
+            if(window.mapData[r] && window.mapData[r][c] === 'obs') {
+                window.showModernNotification("❌ Too close to water.", 3000, playerNum);
+                return;
+            }
+        }
+    }
+
+    const baseTiles = playerNum === 2 ? window.p2BaseTiles : window.p1BaseTiles;
+
+    const getTilesAt = (tx, ty) => {
+        return baseTiles.filter(t => t.x === tx && t.y === ty);
+    };
+
+    const existingTiles = getTilesAt(snappedX, snappedY);
+
+    if (itemName === 'base_foundation') {
+        if (existingTiles.length > 0) {
+            window.showModernNotification("❌ Space is already occupied.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName.startsWith('base_wall')) {
+        const hasFoundation = existingTiles.some(t => t.type === 'base_foundation');
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        if (!hasFoundation) {
+            window.showModernNotification("❌ Walls must be placed on a foundation.", 3000, playerNum);
+            return;
+        }
+        if (hasWall) {
+            window.showModernNotification("❌ A wall already exists here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_stairs') {
+        const hasFoundation = existingTiles.some(t => t.type === 'base_foundation');
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        const hasStairs = existingTiles.some(t => t.type === 'base_stairs');
+        if (!hasFoundation && !hasCeiling) {
+            window.showModernNotification("❌ Stairs must be placed on a foundation or ceiling.", 3000, playerNum);
+            return;
+        }
+        if (hasStairs) {
+            window.showModernNotification("❌ Stairs already exist here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_ceiling') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        if (!hasWall) {
+            window.showModernNotification("❌ Ceilings must be placed on top of walls.", 3000, playerNum);
+            return;
+        }
+        if (hasCeiling) {
+            window.showModernNotification("❌ A ceiling already exists here.", 3000, playerNum);
+            return;
+        }
+    } else if (itemName === 'base_roof') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasRoof = existingTiles.some(t => t.type === 'base_roof');
+        if (!hasWall) {
+            window.showModernNotification("❌ Roofs must be placed on top of walls.", 3000, playerNum);
+            return;
+        }
+        if (hasRoof) {
+            window.showModernNotification("❌ A roof already exists here.", 3000, playerNum);
+            return;
+        }
+    }
+
+    const newTile = { type: itemName, x: snappedX, y: snappedY };
+    baseTiles.push(newTile);
+    window.saveBaseTiles();
+    window.spawnSingleBaseTile(newTile, playerNum);
+    window.showModernNotification("✅ Piece placed!", 2000, playerNum, "#00ff96");
+};
+
+window.tryDestroyBase = function(playerNum, x, y) {
+    let col = Math.floor(x / 50);
+    let row = Math.floor(y / 50);
+    let snappedX = col * 50 + 25;
+    let snappedY = row * 50 + 25;
+
+    const baseTiles = playerNum === 2 ? window.p2BaseTiles : window.p1BaseTiles;
+
+    const existingTiles = baseTiles.filter(t => t.x === snappedX && t.y === snappedY);
+    if (existingTiles.length === 0) {
+        window.showModernNotification("❌ Nothing to destroy here.", 2000, playerNum);
+        return;
+    }
+
+    const getPriority = (type) => {
+        if (type === 'base_roof') return 5;
+        if (type === 'base_ceiling') return 4;
+        if (type === 'base_stairs') return 3;
+        if (type.startsWith('base_wall')) return 2;
+        if (type === 'base_foundation') return 1;
+        return 0;
+    };
+
+    existingTiles.sort((a, b) => getPriority(b.type) - getPriority(a.type));
+    const targetTile = existingTiles[0];
+
+    if (targetTile.type === 'base_foundation') {
+        const hasWall = existingTiles.some(t => t.type.startsWith('base_wall'));
+        const hasStairs = existingTiles.some(t => t.type === 'base_stairs');
+        if (hasWall || hasStairs) {
+            window.showModernNotification("❌ Destroy dependent structures first.", 3000, playerNum);
+            return;
+        }
+    }
+    if (targetTile.type.startsWith('base_wall')) {
+        const hasCeiling = existingTiles.some(t => t.type === 'base_ceiling');
+        const hasRoof = existingTiles.some(t => t.type === 'base_roof');
+        if (hasCeiling || hasRoof) {
+            window.showModernNotification("❌ Destroy ceilings/roofs first.", 3000, playerNum);
+            return;
+        }
+    }
+
+    const idx = baseTiles.indexOf(targetTile);
+    if (idx !== -1) {
+        baseTiles.splice(idx, 1);
+        window.saveBaseTiles();
+
+        if (targetTile.sprite) {
+            if (targetTile.sprite.body) {
+                targetTile.sprite.body.destroy();
+            }
+            targetTile.sprite.destroy();
+        }
+
+        const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+        let woodItem = inv.find(i => i.name === 'Bundle of Wood');
+        if (woodItem) {
+            if (woodItem.quantity < 10) woodItem.quantity++;
+        } else {
+            inv.push({ name: 'Bundle of Wood', quantity: 1 });
+        }
+        window.saveInventory();
+        if (window.updateInventoryUI) window.updateInventoryUI();
+
+        window.showModernNotification("💥 Structure destroyed. Bundle of Wood refunded.", 2000, playerNum, "#ff3366");
+    }
+};
+
+
+window.cancelBasePlacement = function(playerNum) {
+    window[`p${playerNum}BasePlacementMode`] = false;
+    window[`p${playerNum}BasePlacementType`] = null;
+    const previewSprite = window[`p${playerNum}BasePreviewSprite`];
+    if (previewSprite) {
+        previewSprite.destroy();
+        window[`p${playerNum}BasePreviewSprite`] = null;
+    }
+    window.showModernNotification("❌ Base placement cancelled.", 2000, playerNum);
+};
 
 window.tryPlaceHome = function(playerNum, x, y) {
     let col = Math.floor(x / 100);
@@ -27972,7 +27820,11 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         "Mini PvP": "pvp_tile",
         "Mini Breeding Center": "breed_tile",
         "Mini Challenge": "challenge_tile",
-        "Dojo Tile": "dojo_tile"
+        "Dojo Tile": "dojo_tile",
+        "Neon Couch": "furniture_couch_tile",
+        "Cyber Desk": "furniture_desk_tile",
+        "Glow Carpet": "furniture_carpet_tile",
+        "Holo Bed": "furniture_bed_tile"
     };
     const textureKey = textureMap[itemName] || 'home_tile';
 
@@ -28041,7 +27893,11 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
         "Mini Breeding Center": "breed",
         "Mini Challenge": "challenge",
         "Storage Chest": "storage_chest",
-        "Dojo Tile": "dojo"
+        "Dojo Tile": "dojo",
+        "Neon Couch": "furniture_couch",
+        "Cyber Desk": "furniture_desk",
+        "Glow Carpet": "furniture_carpet",
+        "Holo Bed": "furniture_bed"
     };
     const tileType = typeMap[itemName];
 
@@ -28420,6 +28276,14 @@ function create() {
     window.localPlayerLabel.setDepth(10);
 
     this.physics.add.collider(player, window.treesGroup);
+
+    if (!window.baseTilesGroup) window.baseTilesGroup = this.physics.add.staticGroup();
+    if (!window.renderBaseTiles) window.renderBaseTiles = function(scene) {};
+    window.renderBaseTiles(this);
+    this.physics.add.collider(player, window.baseTilesGroup);
+    if (window.coopActive) {
+        this.physics.add.collider(window.player2, window.baseTilesGroup);
+    }
 
     this.physics.add.collider(player, obstaclesGroup);
 
@@ -29169,6 +29033,21 @@ function create() {
 
     // PC pointer listener for Home Placement
     this.input.on('pointerdown', (pointer) => {
+
+        if (window.p1BasePlacementMode) {
+            let p1WorldX = this.cameras.main.scrollX + pointer.x;
+            let p1WorldY = this.cameras.main.scrollY + pointer.y;
+
+            // Left click to place
+            if (pointer.button === 0) {
+                window.tryPlaceBase(1, p1WorldX, p1WorldY);
+            } else if (pointer.button === 2) {
+                // Right click to destroy
+                window.tryDestroyBase(1, p1WorldX, p1WorldY);
+            }
+            return;
+        }
+
         if (window.p1HomePlacementMode) {
             let p1WorldX = this.cameras.main.scrollX + pointer.x;
             let p1WorldY = this.cameras.main.scrollY + pointer.y;
@@ -29205,148 +29084,6 @@ function create() {
         document.getElementById('loadingScreen').style.display = 'none';
     }
 }
-
-
-window.updateQuestArrows = function(scene) {
-    const p1Arrow = window.getCachedElement('p1QuestArrow');
-    const p2Arrow = window.getCachedElement('p2QuestArrow');
-    if (!p1Arrow || !p2Arrow) return;
-
-    if (!window.gameStarted) {
-        if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
-        if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
-        return;
-    }
-
-    const cam = scene && scene.cameras ? scene.cameras.main : null;
-    const cam2 = window.camera2 || null;
-
-    // Player 1
-    let p1Visible = true;
-    let p1TrackedQuest = (window.p1Quests || []).find(q => q.tracked);
-
-    if (window.coopActive) {
-        const battleModal = window.getCachedElement('battleModal');
-        const battleActive = battleModal && battleModal.style.display === 'flex' &&
-            (battleModal.classList.contains('p1-battle-active') ||
-             battleModal.classList.contains('pvp-battle-active'));
-        if (battleActive || window.p1ActiveModal !== null) {
-            p1Visible = false;
-        }
-    } else {
-        if (window.inBattle || (window.isAnyModalOpen && window.isAnyModalOpen())) {
-            p1Visible = false;
-        }
-    }
-
-    if (!p1TrackedQuest) {
-        p1Visible = false;
-    }
-
-    if (p1Visible && window.player && cam) {
-        const targetPos = window.getQuestTargetPosition(p1TrackedQuest, window.player);
-        if (targetPos) {
-            const targetDisplay = 'flex';
-
-            // Calculate screen position of player
-            const playerScreenX = window.player.x - cam.scrollX;
-            const playerScreenY = window.player.y - cam.scrollY;
-
-            // Calculate angle to target
-            const dx = targetPos.x - window.player.x;
-            const dy = targetPos.y - window.player.y;
-            const angleRad = Math.atan2(dy, dx);
-            const angleDeg = (angleRad * 180) / Math.PI;
-
-            // Orbit distance
-            const orbitRadius = 100;
-            const arrowX = playerScreenX + Math.cos(angleRad) * orbitRadius;
-            const arrowY = playerScreenY + Math.sin(angleRad) * orbitRadius;
-
-            const distance = Math.hypot(dx, dy);
-            const targetOpacity = (distance < 150) ? '0.2' : '1';
-
-            const targetTransform = `rotate(${angleDeg}deg)`;
-
-            if (p1Arrow.style.display !== targetDisplay) p1Arrow.style.display = targetDisplay;
-            p1Arrow.style.left = arrowX + 'px';
-            p1Arrow.style.top = arrowY + 'px';
-            if (p1Arrow.style.opacity !== targetOpacity) p1Arrow.style.opacity = targetOpacity;
-
-            const svgElement = p1Arrow.querySelector('svg');
-            if (svgElement) {
-                if (svgElement.style.transform !== targetTransform) {
-                    svgElement.style.transform = targetTransform;
-                }
-            }
-        } else {
-            if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
-        }
-    } else {
-        if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
-    }
-
-    // Player 2
-    let p2Visible = false;
-    let p2TrackedQuest = null;
-
-    if (window.coopActive && window.player2) {
-        p2Visible = true;
-        p2TrackedQuest = (window.p2Quests || []).find(q => q.tracked);
-        const battleModal = window.getCachedElement('battleModal');
-        const battleActive = battleModal && battleModal.style.display === 'flex' &&
-            (battleModal.classList.contains('p2-battle-active') ||
-             battleModal.classList.contains('pvp-battle-active'));
-        if (battleActive || window.p2ActiveModal !== null) {
-            p2Visible = false;
-        }
-    }
-
-    if (!p2TrackedQuest) {
-        p2Visible = false;
-    }
-
-    if (p2Visible && window.player2 && cam2) {
-        const targetPos = window.getQuestTargetPosition(p2TrackedQuest, window.player2);
-        if (targetPos) {
-            const targetDisplay = 'flex';
-
-            // Calculate screen position of player 2 in the P2 viewport
-            const player2ScreenX = (window.player2.x - cam2.scrollX) + cam.width; // Offset by P1 viewport width
-            const player2ScreenY = window.player2.y - cam2.scrollY;
-
-            const dx = targetPos.x - window.player2.x;
-            const dy = targetPos.y - window.player2.y;
-            const angleRad = Math.atan2(dy, dx);
-            const angleDeg = (angleRad * 180) / Math.PI;
-
-            const orbitRadius = 100;
-            const arrowX = player2ScreenX + Math.cos(angleRad) * orbitRadius;
-            const arrowY = player2ScreenY + Math.sin(angleRad) * orbitRadius;
-
-            const distance = Math.hypot(dx, dy);
-            const targetOpacity = (distance < 150) ? '0.2' : '1';
-
-            const targetTransform = `rotate(${angleDeg}deg)`;
-
-            if (p2Arrow.style.display !== targetDisplay) p2Arrow.style.display = targetDisplay;
-            p2Arrow.style.left = arrowX + 'px';
-            p2Arrow.style.top = arrowY + 'px';
-            if (p2Arrow.style.opacity !== targetOpacity) p2Arrow.style.opacity = targetOpacity;
-
-            const svgElement = p2Arrow.querySelector('svg');
-            if (svgElement) {
-                if (svgElement.style.transform !== targetTransform) {
-                    svgElement.style.transform = targetTransform;
-                }
-            }
-        } else {
-            if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
-        }
-    } else {
-        if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
-    }
-};
 
 function updateHospitalArrows() {
     const p1Arrow = window.getCachedElement('p1HospitalArrow');
@@ -29938,82 +29675,35 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     sprite.setData('creatureData', clonedData);
     creaturesGroup.add(sprite);
 
-    // Create sleek cyberpunk nameplate above creature
-    const nameplate = scene.add.container(x, y - 35);
-    nameplate.setDepth(11);
-
-    // Ensure type textures exist
-    const typeTexture = window.createTypeIconTexture(scene, clonedData.type);
-
-    // Create text elements
-    const nameLevelStr = `Lv ${clonedData.level} ${clonedData.name}`;
-    const textEl = scene.add.text(0, 0, nameLevelStr, {
-        fontFamily: 'Courier New',
-        fontSize: '10px',
-        color: clonedData.isShiny ? '#ffea00' : '#00ffd2',
-        stroke: '#000000',
-        strokeThickness: 2
-    }).setOrigin(0, 0.5);
-
-    // Create type icon sprite
-    const typeSprite = scene.add.sprite(0, 0, typeTexture);
-    typeSprite.setDisplaySize(12, 12);
-    typeSprite.setOrigin(0, 0.5);
-
-    let shinySprite = null;
+    // Create element symbol text above creature
+    const emojiMap = {
+        "Fire": "🔥",
+        "Water": "💧",
+        "Nature": "🍃",
+        "Electric": "⚡",
+        "Ice": "❄️",
+        "Earth": "🪨",
+        "Wind": "💨",
+        "Light": "☀️",
+        "Dark": "🌙",
+        "Cosmic": "🪐"
+    };
+    let symbolEmoji = emojiMap[clonedData.type] || "❓";
     if (clonedData.isShiny) {
-        const shinyTexture = window.createTypeIconTexture(scene, 'Shiny');
-        shinySprite = scene.add.sprite(0, 0, shinyTexture);
-        shinySprite.setDisplaySize(12, 12);
-        shinySprite.setOrigin(0, 0.5);
+        symbolEmoji = "⭐" + symbolEmoji;
     }
+    const symbolText = scene.add.text(x, y - 24, symbolEmoji, {
+        fontSize: '12px',
+        stroke: '#000000',
+        strokeThickness: 3
+    }).setOrigin(0.5);
+    symbolText.setDepth(11);
+    sprite.setData('symbolText', symbolText);
 
-    // Calculate layout
-    const padding = 4;
-    const iconSpacing = 2;
-    const textSpacing = 4;
-
-    let totalWidth = padding * 2 + typeSprite.displayWidth + textSpacing + textEl.width;
-    if (shinySprite) {
-        totalWidth += iconSpacing + shinySprite.displayWidth;
-    }
-    const height = 18;
-
-    // Create background graphics
-    const bg = scene.add.graphics();
-    bg.fillStyle(0x0b1424, 0.85); // Dark blue/black background
-    const strokeColor = clonedData.isShiny ? 0xffea00 : 0x00ffd2;
-    bg.lineStyle(1, strokeColor, 1);
-
-    // Center the background around (0,0)
-    bg.fillRoundedRect(-totalWidth / 2, -height / 2, totalWidth, height, 4);
-    bg.strokeRoundedRect(-totalWidth / 2, -height / 2, totalWidth, height, 4);
-
-    // Position elements relative to the center
-    let currentX = -totalWidth / 2 + padding;
-
-    if (shinySprite) {
-        shinySprite.setPosition(currentX, 0);
-        currentX += shinySprite.displayWidth + iconSpacing;
-        nameplate.add(shinySprite);
-    }
-
-    typeSprite.setPosition(currentX, 0);
-    currentX += typeSprite.displayWidth + textSpacing;
-    nameplate.add(typeSprite);
-
-    textEl.setPosition(currentX, 0);
-    nameplate.add(textEl);
-
-    // Add background first so it's behind the text/icons
-    nameplate.addAt(bg, 0);
-
-    sprite.setData('nameplate', nameplate);
-
-    // Ensure nameplate is destroyed when creature sprite is destroyed
+    // Ensure symbol text is destroyed when creature sprite is destroyed
     sprite.on('destroy', () => {
-        if (nameplate) {
-            nameplate.destroy();
+        if (symbolText) {
+            symbolText.destroy();
         }
     });
 }
@@ -30021,9 +29711,6 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 function updatePetFollow(scene, playerNum, playerObj, party) {
     if (!playerObj || !playerObj.body) {
         if (window['p' + playerNum + 'PetSprite']) {
-            if (window['p' + playerNum + 'PetSprite'].getData('nameplate')) {
-                window['p' + playerNum + 'PetSprite'].getData('nameplate').destroy();
-            }
             window['p' + playerNum + 'PetSprite'].destroy();
             window['p' + playerNum + 'PetSprite'] = null;
         }
@@ -30033,9 +29720,6 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
     let followCreature = party.find(c => !c.stored);
     if (!followCreature) {
         if (window['p' + playerNum + 'PetSprite']) {
-            if (window['p' + playerNum + 'PetSprite'].getData('nameplate')) {
-                window['p' + playerNum + 'PetSprite'].getData('nameplate').destroy();
-            }
             window['p' + playerNum + 'PetSprite'].destroy();
             window['p' + playerNum + 'PetSprite'] = null;
         }
@@ -30069,18 +29753,6 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         scene.physics.add.existing(pet);
         pet.setDepth(playerObj.depth - 0.02);
         pet.setData('creatureId', followCreature.id);
-
-        // Create nameplate
-        const nameplate = scene.add.container(pet.x, pet.y - 35);
-        nameplate.setDepth(11);
-        pet.setData('nameplate', nameplate);
-
-        pet.on('destroy', () => {
-            if (pet.getData('nameplate')) {
-                pet.getData('nameplate').destroy();
-            }
-        });
-
         window['p' + playerNum + 'PetSprite'] = pet;
     } else {
         if (pet.getData('creatureId') !== followCreature.id || pet.texture.key !== textureKey) {
@@ -30089,135 +29761,17 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         }
     }
 
-    // Update nameplate layout/content
-    const nameplate = pet.getData('nameplate');
-    if (nameplate) {
-        let typeSprite = nameplate.getByName('typeSprite');
-        let textEl = nameplate.getByName('textEl');
-        let shinySprite = nameplate.getByName('shinySprite');
-        let hapDot = nameplate.getByName('hapDot');
-        let bg = nameplate.getByName('bg');
-
-        const typeTexture = window.createTypeIconTexture(scene, followCreature.type);
-        const nameLevelStr = `Lv ${followCreature.level} ${followCreature.name}`;
-        const happiness = followCreature.happiness !== undefined ? followCreature.happiness : 50;
-        let hapColor = 0xff0000;
-        if (happiness >= 70) hapColor = 0x00ff00;
-        else if (happiness >= 35) hapColor = 0xffff00;
-
-        if (!textEl) {
-            bg = scene.add.graphics();
-            bg.setName('bg');
-            nameplate.add(bg);
-
-            typeSprite = scene.add.sprite(0, 0, typeTexture);
-            typeSprite.setName('typeSprite');
-            typeSprite.setDisplaySize(12, 12);
-            typeSprite.setOrigin(0, 0.5);
-            nameplate.add(typeSprite);
-
-            if (isShiny) {
-                const shinyTexture = window.createTypeIconTexture(scene, 'Shiny');
-                shinySprite = scene.add.sprite(0, 0, shinyTexture);
-                shinySprite.setName('shinySprite');
-                shinySprite.setDisplaySize(12, 12);
-                shinySprite.setOrigin(0, 0.5);
-                nameplate.add(shinySprite);
-            }
-
-            textEl = scene.add.text(0, 0, nameLevelStr, {
-                fontFamily: 'Courier New',
-                fontSize: '10px',
-                color: isShiny ? '#ffea00' : '#00ffd2',
-                stroke: '#000000',
-                strokeThickness: 2
-            }).setOrigin(0, 0.5);
-            textEl.setName('textEl');
-            nameplate.add(textEl);
-
-            hapDot = scene.add.graphics();
-            hapDot.setName('hapDot');
-            nameplate.add(hapDot);
-        } else {
-            typeSprite.setTexture(typeTexture);
-            textEl.setText(nameLevelStr);
-            textEl.setColor(isShiny ? '#ffea00' : '#00ffd2');
-
-            if (isShiny && !shinySprite) {
-                const shinyTexture = window.createTypeIconTexture(scene, 'Shiny');
-                shinySprite = scene.add.sprite(0, 0, shinyTexture);
-                shinySprite.setName('shinySprite');
-                shinySprite.setDisplaySize(12, 12);
-                shinySprite.setOrigin(0, 0.5);
-                nameplate.add(shinySprite);
-            } else if (!isShiny && shinySprite) {
-                shinySprite.destroy();
-                shinySprite = null;
-            }
-        }
-
-        // Layout and draw dot
-        let currentX = 0;
-        const spacing = 4;
-
-        typeSprite.setPosition(currentX, 0);
-        currentX += 12 + spacing;
-
-        if (shinySprite) {
-            shinySprite.setPosition(currentX, 0);
-            currentX += 12 + spacing;
-        }
-
-        textEl.setPosition(currentX, 0);
-        currentX += textEl.width + spacing;
-
-        const dotRadius = 3;
-        hapDot.clear();
-        hapDot.fillStyle(hapColor, 1);
-        hapDot.lineStyle(1, 0x000000, 1);
-        hapDot.fillCircle(currentX + dotRadius, 0, dotRadius);
-        hapDot.strokeCircle(currentX + dotRadius, 0, dotRadius);
-
-        currentX += (dotRadius * 2);
-
-        const totalWidth = currentX;
-        const bgWidth = totalWidth + 4;
-        const bgHeight = 16;
-
-        bg.clear();
-        bg.fillStyle(0x000000, 0.6);
-        bg.fillRoundedRect(-2, -8, bgWidth, bgHeight, 4);
-
-        // Center entire container
-        const offsetX = -totalWidth / 2;
-        bg.setX(offsetX);
-        typeSprite.setX(offsetX);
-        if (shinySprite) shinySprite.setX(offsetX + 16);
-        textEl.setX(offsetX + (shinySprite ? 32 : 16));
-        hapDot.setX(offsetX);
-
-        nameplate.setPosition(pet.x, pet.y - 35);
-    }
-
+    // Follow physics and logic
     if (pet && pet.body) {
         let dist = Phaser.Math.Distance.Between(pet.x, pet.y, playerObj.x, playerObj.y);
-
-        if (playerObj.x < pet.x) {
-            pet.setFlipX(true);
-        } else if (playerObj.x > pet.x) {
-            pet.setFlipX(false);
-        }
-
         if (dist > 1500) {
             pet.setPosition(playerObj.x, playerObj.y);
-            pet.body.updateFromGameObject();
+            if (pet.body.reset) pet.body.reset(playerObj.x, playerObj.y);
+            pet.body.setVelocity(0, 0);
         } else if (dist > 60) {
             let angle = Phaser.Math.Angle.Between(pet.x, pet.y, playerObj.x, playerObj.y);
-            let petSpeed = playerObj.speed ? playerObj.speed * 0.9 : 140;
-            if (playerObj.movementModifiers && playerObj.movementModifiers.speedMultiplier) {
-                petSpeed *= playerObj.movementModifiers.speedMultiplier;
-            }
-            if (playerObj.isDashing) {
+            let petSpeed = 160;
+            if (dist > 120) {
                 petSpeed = 240;
             }
             pet.body.setVelocity(Math.cos(angle) * petSpeed, Math.sin(angle) * petSpeed);
@@ -30228,7 +29782,7 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         // Swimming Visuals for pet
         let petCol = Math.floor(pet.x / 100);
         let petRow = Math.floor(pet.y / 100);
-        let petInWater = (window.mapData[petRow] && window.mapData[petRow][petCol] === 'obs');
+        let petInWater = (mapData[petRow] && mapData[petRow][petCol] === 'obs');
         if (petInWater && window.currentSeason !== 'Winter') {
             pet.setAlpha(0.6);
             pet.setTint(0x88ccff);
@@ -32077,10 +31631,6 @@ window.closeBattleModal = function() {
             localStorage.setItem('wildpulse_challenge_tier', window.challengeTier.toString());
             const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
 
-            if (window.challengeTier === 5) window.unlockTransmission('vance_crown_tier_5', pNum);
-            if (window.challengeTier === 10) window.unlockTransmission('vance_crown_tier_10', pNum);
-            if (window.challengeTier === 15) window.unlockTransmission('vance_crown_tier_15', pNum);
-
             // Trigger customized notification for unlocking shape or skin/pattern
             if (window.challengeTier % 2 === 0) {
                 // Even tier: Unlocked a pattern/skin
@@ -32094,6 +31644,19 @@ window.closeBattleModal = function() {
                     const unlockedPattern = patternsList[patternIdx];
                     if (window.showModernNotification) {
                         window.showModernNotification(`🎨 Crown Challenge: New Skin Pattern Unlocked: ${unlockedPattern}! 🎨`, 5000, pNum);
+                    }
+                }
+            } else {
+                // Odd tier: Unlocked a shape
+                const shapesList = [
+                    'Square', 'Triangle', 'Horizontal Diamond', 'Vertical Diamond', 'Rectangle', 'Octagon',
+                    'Hexagon', 'Star', 'Circle', 'Heart', 'Crescent', 'Pentagon'
+                ];
+                const shapeIdx = Math.floor((window.challengeTier - 1) / 2);
+                if (shapeIdx >= 0 && shapeIdx < shapesList.length) {
+                    const unlockedShape = shapesList[shapeIdx];
+                    if (window.showModernNotification) {
+                        window.showModernNotification(`🏆 Crown Challenge: New Body Shape Unlocked: ${unlockedShape}! 🏆`, 5000, pNum);
                     }
                 }
             }
@@ -32318,13 +31881,6 @@ window.endBattle = function(result) {
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
                         window.showModernNotification(`🪙 ${window.getP2Name()} won ${rawRew} coins!`);
-                        if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(2)) {
-                            if (!window.narrativeProgress.sectorCleared) {
-                                window.narrativeProgress.sectorCleared = true;
-                                window.saveNarrativeProgress();
-                            }
-                            window.unlockTransmission('vance_all_trainers', 2);
-                        }
                     } else {
                         window.gameStats.battlesWon++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
@@ -32332,13 +31888,6 @@ window.endBattle = function(result) {
                         window.gameStats.coins += rawRew;
                         window.saveStats();
                         window.showModernNotification(`🪙 ${window.getP1Name()} won ${rawRew} coins!`);
-                        if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(1)) {
-                            if (!window.narrativeProgress.sectorCleared) {
-                                window.narrativeProgress.sectorCleared = true;
-                                window.saveNarrativeProgress();
-                            }
-                            window.unlockTransmission('vance_all_trainers', 1);
-                        }
                     }
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 } else if (result === 'loss') {
@@ -32461,7 +32010,7 @@ window.endBattle = function(result) {
             }
 
             let xpMultiplier = window.inChallengeBattle ? (1 + window.challengeTier * 0.1) : 1.0;
-            let xpGained = Math.floor(currentEnemy.level * 12.5 * xpMultiplier);
+            let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
             // Award Player XP
@@ -33271,6 +32820,21 @@ function update() {
 
     // Update PC controls for Home Placement Mode
     if (activeScene && activeScene.input) {
+
+        if (window.p1BasePlacementMode) {
+            let p1WorldX = this.cameras.main.scrollX + pointer.x;
+            let p1WorldY = this.cameras.main.scrollY + pointer.y;
+
+            // Left click to place
+            if (pointer.button === 0) {
+                window.tryPlaceBase(1, p1WorldX, p1WorldY);
+            } else if (pointer.button === 2) {
+                // Right click to destroy
+                window.tryDestroyBase(1, p1WorldX, p1WorldY);
+            }
+            return;
+        }
+
         if (window.p1HomePlacementMode) {
             const pointer = activeScene.input.activePointer;
             if (activeScene._lastP1PointerX === undefined) {
@@ -33458,11 +33022,6 @@ function update() {
     // Update hospital directional arrows
     if (typeof updateHospitalArrows === 'function') {
         updateHospitalArrows();
-    }
-
-    // Update quest directional arrows
-    if (typeof window.updateQuestArrows === 'function') {
-        window.updateQuestArrows(this);
     }
 
     let deltaMs = this.game.loop.delta || 16;
@@ -33925,6 +33484,7 @@ function update() {
                     "Nano-Nurture Serum": 15,
                     "DNA Stabilizer": 15,
                     "Storage Chest": 15,
+    "Bundle of Wood": 15,
                     "NPC Dual Link": 15,
                     "Wild Dual Signal": 15
                 };
@@ -34284,9 +33844,9 @@ function update() {
     if (creaturesGroup) {
         creaturesGroup.getChildren().forEach(c => {
             if (c.setDepth) c.setDepth(10 + c.y / 10000);
-            const nameplate = c.getData('nameplate');
-            if (nameplate) {
-                nameplate.setDepth(c.depth + 1);
+            const symbolText = c.getData('symbolText');
+            if (symbolText) {
+                symbolText.setDepth(c.depth + 1);
             }
         });
     }
@@ -34726,9 +34286,8 @@ function update() {
         if (window.pointerTarget) {
             const dx = window.pointerTarget.x - player.x;
             const dy = window.pointerTarget.y - player.y;
-            const distSq = dx * dx + dy * dy;
-            if (distSq > 100) {
-                const distance = Math.sqrt(distSq);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > 10) {
                 targetVx = (dx / distance) * moveSpeed;
                 targetVy = (dy / distance) * moveSpeed;
                 movedX = true;
@@ -34916,9 +34475,8 @@ function update() {
             if (window.pointer2Target) {
                 const dx = window.pointer2Target.x - window.player2.x;
                 const dy = window.pointer2Target.y - window.player2.y;
-                const distSq = dx * dx + dy * dy;
-                if (distSq > 100) {
-                    const distance = Math.sqrt(distSq);
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 10) {
                     p2TargetVx = (dx / distance) * p2Speed;
                     p2TargetVy = (dy / distance) * p2Speed;
                     p2MovedX = true;
@@ -35375,11 +34933,11 @@ function update() {
         }
 
         // Sync symbol text position and visibility
-        const nameplate = creature.getData('nameplate');
-        if (nameplate) {
-            nameplate.setPosition(creature.x, creature.y - 35);
-            nameplate.setVisible(isVisible);
-            nameplate.setDepth(creature.depth + 1);
+        const symbolText = creature.getData('symbolText');
+        if (symbolText) {
+            symbolText.setPosition(creature.x, creature.y - 24);
+            symbolText.setVisible(isVisible);
+            symbolText.setDepth(creature.depth + 1);
         }
     });
 
@@ -36106,219 +35664,6 @@ document.addEventListener('mouseout', (e) => {
         tooltip.style.display = 'none';
     }
 });
-
-    // ==================== TUTORIAL SYSTEM ====================
-    window.TutorialManager = {
-        p1: {
-            menuStep: parseInt(localStorage.getItem('wildpulse_p1_menu_tutorial')) || 0, // 0: Start, 1: Open Menu, 2: Open Party, 3: Stats Tab, 4: Close Party, 5: Open Storage, 6: Complete
-            battleStep: parseInt(localStorage.getItem('wildpulse_p1_battle_tutorial')) || 0, // 0: Start, 1: Complete
-            box: null,
-            timer: null
-        },
-        p2: {
-            menuStep: parseInt(localStorage.getItem('wildpulse_p2_menu_tutorial')) || 0,
-            battleStep: parseInt(localStorage.getItem('wildpulse_p2_battle_tutorial')) || 0,
-            box: null,
-            timer: null
-        },
-        init: function() {
-            this.p1.box = document.getElementById('tutorialBox');
-            this.p2.box = document.getElementById('tutorialBox_p2');
-
-            // Start checking for tutorial triggers
-            setInterval(() => this.checkStates(), 500);
-        },
-        show: function(playerNum, text, duration = 0) {
-            const state = playerNum === 1 ? this.p1 : this.p2;
-            if (!state.box) return;
-
-            state.box.innerHTML = text;
-            state.box.style.display = 'block';
-
-            if (state.timer) clearTimeout(state.timer);
-
-            if (duration > 0) {
-                state.timer = setTimeout(() => {
-                    this.hide(playerNum);
-                }, duration);
-            }
-        },
-        clearHighlights: function(pNum) {
-            document.querySelectorAll('.tutorial-button-highlight-p' + pNum).forEach(el => {
-                el.classList.remove('tutorial-button-highlight', 'tutorial-button-highlight-p' + pNum);
-            });
-        },
-        highlight: function(pNum, selector) {
-            this.clearHighlights(pNum);
-            if (selector) {
-                document.querySelectorAll(selector).forEach(el => {
-                    el.classList.add('tutorial-button-highlight', 'tutorial-button-highlight-p' + pNum);
-                });
-            }
-        },
-        hide: function(playerNum) {
-            const state = playerNum === 1 ? this.p1 : this.p2;
-            if (state.box) state.box.style.display = 'none';
-            this.clearHighlights(playerNum);
-        },
-        save: function(playerNum, type, step) {
-            const state = playerNum === 1 ? this.p1 : this.p2;
-            state[type + 'Step'] = step;
-            localStorage.setItem('wildpulse_p' + playerNum + '_' + type + '_tutorial', step);
-        },
-        checkStates: function() {
-            if (!window.gameStarted) return;
-
-            this.processMenuTutorial(1);
-            this.processBattleTutorial(1);
-
-            if (window.coopActive && window.player2) {
-                this.processMenuTutorial(2);
-                this.processBattleTutorial(2);
-            }
-        },
-        processMenuTutorial: function(pNum) {
-            const state = pNum === 1 ? this.p1 : this.p2;
-            if (state.menuStep >= 7) return; // Complete
-
-            // Check if player has customized. If they haven't finished onboarding, don't show.
-            const setupComplete = pNum === 1 ? window.p1SetupComplete : window.p2SetupComplete;
-            if (!setupComplete) return;
-
-            // Delay start slightly so they have time to breathe after customization
-            if (window.totalElapsedMs < 2000) return;
-
-            // In battle, don't show menu tutorial
-            const isBattling = window.inBattle && (window.activeBattlePlayer === pNum || window.isLocalPvp || window.isDualBattle);
-            if (isBattling) {
-                this.hide(pNum);
-                return;
-            }
-
-            const menuModal = window.getCachedElement('menuModal');
-            const partyModal = window.getCachedElement('partyModal');
-            const storageModal = window.getCachedElement('storageModal');
-
-            const isMenuOpen = window['p' + pNum + 'ActiveModal'] === 'menuModal' || (pNum === 1 && !window.coopActive && menuModal && menuModal.style.display === 'block');
-            const isPartyOpen = window['p' + pNum + 'ActiveModal'] === 'partyModal' || (pNum === 1 && !window.coopActive && partyModal && partyModal.style.display === 'block');
-            const isStorageOpen = window['p' + pNum + 'ActiveModal'] === 'storageModal' || (pNum === 1 && !window.coopActive && storageModal && storageModal.style.display === 'block');
-
-            const tabParty = document.getElementById(pNum === 1 ? 'tabParty_P1' : 'tabParty_P2');
-            const tabStats = document.getElementById(pNum === 1 ? 'tabStats_P1' : 'tabStats_P2');
-            const isStatsTabOpen = tabStats && tabStats.style.color !== 'rgb(136, 136, 136)' && tabStats.style.color !== '#888';
-
-            // State Machine
-            if (state.menuStep === 0) {
-                if (isMenuOpen) {
-                    this.save(pNum, 'menu', 1);
-                } else {
-                    const isTouch = (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
-                    const isGamepad = (navigator.getGamepads && Array.from(navigator.getGamepads()).some(gp => gp !== null));
-
-                    let controlText = 'Press ESC or M';
-                    if (isTouch) controlText = 'Tap the on-screen menu button';
-                    else if (isGamepad) controlText = 'Press Start';
-
-                    this.show(pNum, `Welcome! Let's learn the controls.<br>Open your <span class="tutorial-highlight">Menu</span> (${controlText}).`);
-                    this.highlight(pNum, pNum === 1 ? '#menuBtn' : '#menuBtn_P2');
-                }
-            } else if (state.menuStep === 1) {
-                if (!isMenuOpen && !isPartyOpen) {
-                    // Went backwards
-                    this.save(pNum, 'menu', 0);
-                } else if (isPartyOpen) {
-                    this.save(pNum, 'menu', 2);
-                } else {
-                    this.show(pNum, 'Great! Now click <span class="tutorial-highlight">Party</span> to view your active creatures.');
-                    this.highlight(pNum, pNum === 1 ? '#menuPartyBtn' : '#menuPartyBtn_P2');
-                }
-            } else if (state.menuStep === 2) {
-                if (!isPartyOpen) {
-                    this.save(pNum, 'menu', 1); // Go back if they closed it
-                } else {
-                    const largeCreatureOpen = document.getElementById(pNum === 1 ? 'fullSizeImageModal' : 'fullSizeImageModal_p2')?.style.display === 'flex';
-                    if (largeCreatureOpen) {
-                        this.save(pNum, 'menu', 3);
-                    } else {
-                        this.show(pNum, 'Here is your party! Click on a <span class="tutorial-highlight">Creature Image</span> to view its full details and large portrait.');
-                        this.highlight(pNum, pNum === 1 ? '#partyList .party-card' : '#partyList_P2 .party-card');
-                    }
-                }
-            } else if (state.menuStep === 3) {
-                if (!isPartyOpen) {
-                    this.save(pNum, 'menu', 1); // Go back
-                } else {
-                    const largeCreatureOpen = document.getElementById(pNum === 1 ? 'fullSizeImageModal' : 'fullSizeImageModal_p2')?.style.display === 'flex';
-                    if (isStatsTabOpen && !largeCreatureOpen) {
-                        this.save(pNum, 'menu', 4);
-                    } else {
-                        this.show(pNum, 'Great job! Now use the stats tab to view your personal Trainer stats!');
-                        this.highlight(pNum, pNum === 1 ? '#tabStats_P1' : '#tabStats_P2');
-                    }
-                }
-            } else if (state.menuStep === 4) {
-                if (!isPartyOpen) {
-                    this.save(pNum, 'menu', 5);
-                } else {
-                    this.show(pNum, 'Here are your detailed stats! Now <span class="tutorial-highlight">Close your Party</span> using the X button or by pressing B/ESC.');
-                    this.highlight(pNum, pNum === 1 ? '#partyModal .p1-col .close-party-btn' : '#partyModal .p2-col .close-party-btn');
-                }
-            } else if (state.menuStep === 5) {
-                if (isStorageOpen) {
-                    this.save(pNum, 'menu', 6);
-                } else if (isMenuOpen) {
-                    this.show(pNum, 'Now open your <span class="tutorial-highlight">Storage Box</span> from the menu.');
-                    this.highlight(pNum, pNum === 1 ? '#menuStorageBtn' : '#menuStorageBtn_P2');
-                } else {
-                    this.show(pNum, 'Open your Menu again, then open your <span class="tutorial-highlight">Storage Box</span>.');
-                    this.highlight(pNum, pNum === 1 ? '#menuBtn' : '#menuBtn_P2');
-                }
-            } else if (state.menuStep === 6) {
-                if (!isStorageOpen) {
-                    this.save(pNum, 'menu', 7);
-                    this.show(pNum, 'Tutorial Complete! Explore the WildPulse!', 4000);
-                    this.clearHighlights(pNum);
-                } else {
-                    this.show(pNum, 'This is Storage where extra caught creatures go. <span class="tutorial-highlight">Close the Storage Box</span> to finish the tutorial.');
-                    this.highlight(pNum, pNum === 1 ? '#storageModal .p1-col .close-storage-btn' : '#storageModal .p2-col .close-storage-btn');
-                }
-            }
-        },
-        processBattleTutorial: function(pNum) {
-            const state = pNum === 1 ? this.p1 : this.p2;
-            if (state.battleStep >= 1) return; // Complete
-
-            const isBattling = window.inBattle && (window.activeBattlePlayer === pNum || window.isLocalPvp || window.isDualBattle);
-            if (!isBattling) {
-                // If not in a battle and we haven't completed it, just make sure box is hidden
-                if (state.menuStep >= 7) {
-                    // Only hide if menu tutorial isn't currently using the box
-                    this.hide(pNum);
-                }
-                return;
-            }
-
-            // We are in our first battle!
-            if (window.isActionRunning) {
-                // They took an action, tutorial complete!
-                this.save(pNum, 'battle', 1);
-                this.hide(pNum);
-            } else {
-                this.show(pNum, 'First Battle! <span class="tutorial-highlight">Attack</span> to deal damage.<br><span class="tutorial-highlight">Catch</span> attempts to capture them (lower their HP first!).<br><span class="tutorial-highlight">Swap</span> changes your active creature. <span class="tutorial-highlight">Run</span> escapes.');
-                this.highlight(pNum, pNum === 1 ? '#battleControls button' : '#battleControls_p2 button');
-            }
-        }
-    };
-
-    // Initialize after DOM is fully loaded and ready
-    document.addEventListener('DOMContentLoaded', () => {
-        window.TutorialManager.init();
-    });
-
 </script>
-
-<div id="tutorialBox"></div>
-<div id="tutorialBox_p2"></div>
-
 </body>
 </html>
