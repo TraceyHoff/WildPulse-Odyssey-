@@ -30110,6 +30110,9 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 function updatePetFollow(scene, playerNum, playerObj, party) {
     if (!playerObj || !playerObj.body) {
         if (window['p' + playerNum + 'PetSprite']) {
+            if (window['p' + playerNum + 'PetSprite'].getData('nameplate')) {
+                window['p' + playerNum + 'PetSprite'].getData('nameplate').destroy();
+            }
             window['p' + playerNum + 'PetSprite'].destroy();
             window['p' + playerNum + 'PetSprite'] = null;
         }
@@ -30119,6 +30122,9 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
     let followCreature = party.find(c => !c.stored);
     if (!followCreature) {
         if (window['p' + playerNum + 'PetSprite']) {
+            if (window['p' + playerNum + 'PetSprite'].getData('nameplate')) {
+                window['p' + playerNum + 'PetSprite'].getData('nameplate').destroy();
+            }
             window['p' + playerNum + 'PetSprite'].destroy();
             window['p' + playerNum + 'PetSprite'] = null;
         }
@@ -30152,6 +30158,18 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         scene.physics.add.existing(pet);
         pet.setDepth(playerObj.depth - 0.02);
         pet.setData('creatureId', followCreature.id);
+
+        // Create nameplate
+        const nameplate = scene.add.container(pet.x, pet.y - 35);
+        nameplate.setDepth(11);
+        pet.setData('nameplate', nameplate);
+
+        pet.on('destroy', () => {
+            if (pet.getData('nameplate')) {
+                pet.getData('nameplate').destroy();
+            }
+        });
+
         window['p' + playerNum + 'PetSprite'] = pet;
     } else {
         if (pet.getData('creatureId') !== followCreature.id || pet.texture.key !== textureKey) {
@@ -30160,17 +30178,135 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         }
     }
 
-    // Follow physics and logic
+    // Update nameplate layout/content
+    const nameplate = pet.getData('nameplate');
+    if (nameplate) {
+        let typeSprite = nameplate.getByName('typeSprite');
+        let textEl = nameplate.getByName('textEl');
+        let shinySprite = nameplate.getByName('shinySprite');
+        let hapDot = nameplate.getByName('hapDot');
+        let bg = nameplate.getByName('bg');
+
+        const typeTexture = window.createTypeIconTexture(scene, followCreature.type);
+        const nameLevelStr = `Lv ${followCreature.level} ${followCreature.name}`;
+        const happiness = followCreature.happiness !== undefined ? followCreature.happiness : 50;
+        let hapColor = 0xff0000;
+        if (happiness >= 70) hapColor = 0x00ff00;
+        else if (happiness >= 35) hapColor = 0xffff00;
+
+        if (!textEl) {
+            bg = scene.add.graphics();
+            bg.setName('bg');
+            nameplate.add(bg);
+
+            typeSprite = scene.add.sprite(0, 0, typeTexture);
+            typeSprite.setName('typeSprite');
+            typeSprite.setDisplaySize(12, 12);
+            typeSprite.setOrigin(0, 0.5);
+            nameplate.add(typeSprite);
+
+            if (isShiny) {
+                const shinyTexture = window.createTypeIconTexture(scene, 'Shiny');
+                shinySprite = scene.add.sprite(0, 0, shinyTexture);
+                shinySprite.setName('shinySprite');
+                shinySprite.setDisplaySize(12, 12);
+                shinySprite.setOrigin(0, 0.5);
+                nameplate.add(shinySprite);
+            }
+
+            textEl = scene.add.text(0, 0, nameLevelStr, {
+                fontFamily: 'Courier New',
+                fontSize: '10px',
+                color: isShiny ? '#ffea00' : '#00ffd2',
+                stroke: '#000000',
+                strokeThickness: 2
+            }).setOrigin(0, 0.5);
+            textEl.setName('textEl');
+            nameplate.add(textEl);
+
+            hapDot = scene.add.graphics();
+            hapDot.setName('hapDot');
+            nameplate.add(hapDot);
+        } else {
+            typeSprite.setTexture(typeTexture);
+            textEl.setText(nameLevelStr);
+            textEl.setColor(isShiny ? '#ffea00' : '#00ffd2');
+
+            if (isShiny && !shinySprite) {
+                const shinyTexture = window.createTypeIconTexture(scene, 'Shiny');
+                shinySprite = scene.add.sprite(0, 0, shinyTexture);
+                shinySprite.setName('shinySprite');
+                shinySprite.setDisplaySize(12, 12);
+                shinySprite.setOrigin(0, 0.5);
+                nameplate.add(shinySprite);
+            } else if (!isShiny && shinySprite) {
+                shinySprite.destroy();
+                shinySprite = null;
+            }
+        }
+
+        // Layout and draw dot
+        let currentX = 0;
+        const spacing = 4;
+
+        typeSprite.setPosition(currentX, 0);
+        currentX += 12 + spacing;
+
+        if (shinySprite) {
+            shinySprite.setPosition(currentX, 0);
+            currentX += 12 + spacing;
+        }
+
+        textEl.setPosition(currentX, 0);
+        currentX += textEl.width + spacing;
+
+        const dotRadius = 3;
+        hapDot.clear();
+        hapDot.fillStyle(hapColor, 1);
+        hapDot.lineStyle(1, 0x000000, 1);
+        hapDot.fillCircle(currentX + dotRadius, 0, dotRadius);
+        hapDot.strokeCircle(currentX + dotRadius, 0, dotRadius);
+
+        currentX += (dotRadius * 2);
+
+        const totalWidth = currentX;
+        const bgWidth = totalWidth + 4;
+        const bgHeight = 16;
+
+        bg.clear();
+        bg.fillStyle(0x000000, 0.6);
+        bg.fillRoundedRect(-2, -8, bgWidth, bgHeight, 4);
+
+        // Center entire container
+        const offsetX = -totalWidth / 2;
+        bg.setX(offsetX);
+        typeSprite.setX(offsetX);
+        if (shinySprite) shinySprite.setX(offsetX + 16);
+        textEl.setX(offsetX + (shinySprite ? 32 : 16));
+        hapDot.setX(offsetX);
+
+        nameplate.setPosition(pet.x, pet.y - 35);
+    }
+
     if (pet && pet.body) {
         let dist = Phaser.Math.Distance.Between(pet.x, pet.y, playerObj.x, playerObj.y);
+
+        if (playerObj.x < pet.x) {
+            pet.setFlipX(true);
+        } else if (playerObj.x > pet.x) {
+            pet.setFlipX(false);
+        }
+
         if (dist > 1500) {
             pet.setPosition(playerObj.x, playerObj.y);
-            if (pet.body.reset) pet.body.reset(playerObj.x, playerObj.y);
-            pet.body.setVelocity(0, 0);
+            pet.body.updateFromGameObject();
         } else if (dist > 60) {
             let angle = Phaser.Math.Angle.Between(pet.x, pet.y, playerObj.x, playerObj.y);
-            let petSpeed = 160;
-            if (dist > 120) {
+            let petSpeed = playerObj.speed ? playerObj.speed * 0.9 : 140;
+            if (playerObj.movementModifiers && playerObj.movementModifiers.speedMultiplier) {
+                petSpeed *= playerObj.movementModifiers.speedMultiplier;
+            }
+            if (playerObj.isDashing) {
                 petSpeed = 240;
             }
             pet.body.setVelocity(Math.cos(angle) * petSpeed, Math.sin(angle) * petSpeed);
@@ -30181,7 +30317,7 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         // Swimming Visuals for pet
         let petCol = Math.floor(pet.x / 100);
         let petRow = Math.floor(pet.y / 100);
-        let petInWater = (mapData[petRow] && mapData[petRow][petCol] === 'obs');
+        let petInWater = (window.mapData[petRow] && window.mapData[petRow][petCol] === 'obs');
         if (petInWater && window.currentSeason !== 'Winter') {
             pet.setAlpha(0.6);
             pet.setTint(0x88ccff);
