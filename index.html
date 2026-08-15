@@ -18329,9 +18329,15 @@ window.getItemIconHTML = function(itemName, size = 24) {
 
         case "L-Couch":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M20,20 L40,20 L40,60 L80,60 L80,80 L20,80 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="2" />
-                <rect x="25" y="65" width="50" height="10" fill="#00ffd2" opacity="0.8" />
-                <rect x="25" y="25" width="10" height="35" fill="#00ffd2" opacity="0.8" />
+                <path d="M15,15 L40,15 L40,60 L85,60 L85,85 L15,85 Z" fill="#1e1e2e" stroke="#00ffd2" stroke-width="2" />
+                <rect x="15" y="35" width="10" height="40" fill="#2a2a3e" stroke="#00ffd2" stroke-width="1.5" />
+                <rect x="15" y="75" width="60" height="10" fill="#2a2a3e" stroke="#00ffd2" stroke-width="1.5" />
+                <rect x="15" y="15" width="25" height="10" fill="#3a3a4e" stroke="#00ffd2" stroke-width="1.5" rx="2" />
+                <rect x="75" y="60" width="10" height="25" fill="#3a3a4e" stroke="#00ffd2" stroke-width="1.5" rx="2" />
+                <rect x="25" y="25" width="15" height="25" fill="#1e1e2e" stroke="#00ffd2" stroke-width="1.5" rx="1" />
+                <rect x="25" y="50" width="15" height="25" fill="#1e1e2e" stroke="#00ffd2" stroke-width="1.5" rx="1" />
+                <rect x="40" y="60" width="17.5" height="15" fill="#1e1e2e" stroke="#00ffd2" stroke-width="1.5" rx="1" />
+                <rect x="57.5" y="60" width="17.5" height="15" fill="#1e1e2e" stroke="#00ffd2" stroke-width="1.5" rx="1" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["L-Couch"]}</span>`;
             break;
         case "Love Seat":
@@ -26387,15 +26393,60 @@ function generateTileTextures(scene) {
     lcouchCanvas.width = 100;
     lcouchCanvas.height = 100;
     const lcouchCtx = lcouchCanvas.getContext('2d');
+
+    // Fill Base
     lcouchCtx.fillStyle = '#1e1e2e';
-    lcouchCtx.fillRect(10, 10, 30, 80);
-    lcouchCtx.fillRect(40, 60, 50, 30);
-    lcouchCtx.strokeStyle = '#00ffd2';
-    lcouchCtx.lineWidth = 3;
+    lcouchCtx.beginPath();
+    lcouchCtx.moveTo(15, 15);
+    lcouchCtx.lineTo(40, 15);
+    lcouchCtx.lineTo(40, 60);
+    lcouchCtx.lineTo(85, 60);
+    lcouchCtx.lineTo(85, 85);
+    lcouchCtx.lineTo(15, 85);
+    lcouchCtx.closePath();
+    lcouchCtx.fill();
+
     lcouchCtx.shadowBlur = 10;
     lcouchCtx.shadowColor = '#00ffd2';
-    lcouchCtx.strokeRect(10, 10, 30, 80);
-    lcouchCtx.strokeRect(40, 60, 50, 30);
+    lcouchCtx.strokeStyle = '#00ffd2';
+    lcouchCtx.lineWidth = 3;
+    lcouchCtx.stroke();
+    lcouchCtx.shadowBlur = 0;
+
+    // Backrest (left)
+    lcouchCtx.fillStyle = '#2a2a3e';
+    lcouchCtx.lineWidth = 1.5;
+    lcouchCtx.fillRect(15, 35, 10, 40);
+    lcouchCtx.strokeRect(15, 35, 10, 40);
+
+    // Backrest (bottom)
+    lcouchCtx.fillRect(15, 75, 60, 10);
+    lcouchCtx.strokeRect(15, 75, 60, 10);
+
+    // Armrest (top)
+    lcouchCtx.fillStyle = '#3a3a4e';
+    lcouchCtx.fillRect(15, 15, 25, 10);
+    lcouchCtx.strokeRect(15, 15, 25, 10);
+
+    // Armrest (right)
+    lcouchCtx.fillRect(75, 60, 10, 25);
+    lcouchCtx.strokeRect(75, 60, 10, 25);
+
+    // Cushions
+    lcouchCtx.fillStyle = '#1e1e2e';
+    lcouchCtx.lineWidth = 1.5;
+    // left section cushions
+    lcouchCtx.fillRect(25, 25, 15, 25);
+    lcouchCtx.strokeRect(25, 25, 15, 25);
+    lcouchCtx.fillRect(25, 50, 15, 25);
+    lcouchCtx.strokeRect(25, 50, 15, 25);
+
+    // bottom section cushions
+    lcouchCtx.fillRect(40, 60, 17.5, 15);
+    lcouchCtx.strokeRect(40, 60, 17.5, 15);
+    lcouchCtx.fillRect(57.5, 60, 17.5, 15);
+    lcouchCtx.strokeRect(57.5, 60, 17.5, 15);
+
     if (window.add3DDepth) window.add3DDepth(lcouchCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_lcouch_tile', lcouchCanvas);
 
