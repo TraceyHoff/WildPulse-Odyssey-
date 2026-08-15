@@ -7192,7 +7192,7 @@ window.showModernNotification = function(text, duration = 3000, playerNum = null
     const el = document.getElementById(elId);
     if (!el) return;
 
-    el.innerText = text;
+    el.innerHTML = DOMPurify.sanitize(text);
     el.style.opacity = '1';
 
     const lowerTextForTop = (text || '').toLowerCase();
@@ -7219,7 +7219,7 @@ window.showModernNotification = function(text, duration = 3000, playerNum = null
     if (playerNum === 2) {
         const fallbackEl = document.getElementById('modernNotification');
         if (fallbackEl) {
-            fallbackEl.innerText = text;
+            fallbackEl.innerHTML = DOMPurify.sanitize(text);
             fallbackEl.style.opacity = '1';
             fallbackEl.style.left = '75%';
             if (isWeatherOrEventNotification) {
