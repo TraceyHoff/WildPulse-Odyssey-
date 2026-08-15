@@ -19554,7 +19554,18 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         if (justX) {
             window[`p${playerNum}MiniTileRotation`] = (window[`p${playerNum}MiniTileRotation`] + 90) % 360;
             if (window[previewSpriteId]) {
-                window[previewSpriteId].setAngle(window[`p${playerNum}MiniTileRotation`]);
+                const currentKey = window[previewSpriteId].texture.key;
+                const baseKey = currentKey.split('_').length > 1 && !isNaN(currentKey.split('_').pop())
+                    ? currentKey.substring(0, currentKey.lastIndexOf('_'))
+                    : currentKey;
+
+                if (baseKey.startsWith('furniture_')) {
+                    const finalKey = window[`p${playerNum}MiniTileRotation`] > 0 ? baseKey + '_' + window[`p${playerNum}MiniTileRotation`] : baseKey;
+                    window[previewSpriteId].setTexture(finalKey);
+                    window[previewSpriteId].setAngle(0);
+                } else {
+                    window[previewSpriteId].setAngle(window[`p${playerNum}MiniTileRotation`]);
+                }
             }
         }
 
@@ -26013,6 +26024,35 @@ function generateCloudTextures(scene) {
     scene.textures.addCanvas('cloud_reflection', cloudReflCanvas);
 }
 
+window.finalizeFurnitureTexture = function(scene, key, sourceCanvas, has3D) {
+    const angles = [0, 90, 180, 270];
+    for (let angle of angles) {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = sourceCanvas.width;
+        tempCanvas.height = sourceCanvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        if (angle !== 0) {
+            tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+            tempCtx.rotate(angle * Math.PI / 180);
+            tempCtx.translate(-tempCanvas.width / 2, -tempCanvas.height / 2);
+        }
+
+        tempCtx.drawImage(sourceCanvas, 0, 0);
+
+        if (angle !== 0) {
+            tempCtx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+
+        if (has3D && window.add3DDepth) {
+            window.add3DDepth(tempCtx, 0, 0, tempCanvas.width, tempCanvas.height);
+        }
+
+        const finalKey = angle === 0 ? key : (key + '_' + angle);
+        scene.textures.addCanvas(finalKey, tempCanvas);
+    }
+};
+
 function generateTileTextures(scene) {
     // Pre-generate Portal texture (pulsing neon/cyber spiral vortex)
     const portalCanvas = document.createElement('canvas');
@@ -26379,8 +26419,7 @@ function generateTileTextures(scene) {
     couchCtx.fillRect(15, 35, 15, 15);
     couchCtx.fillStyle = '#ffaa00';
     couchCtx.fillRect(70, 35, 15, 15);
-    if (window.add3DDepth) window.add3DDepth(couchCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_couch_tile', couchCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_couch_tile', couchCanvas, true);
 
     // L-Couch
     const lcouchCanvas = document.createElement('canvas');
@@ -26396,8 +26435,7 @@ function generateTileTextures(scene) {
     lcouchCtx.shadowColor = '#00ffd2';
     lcouchCtx.strokeRect(10, 10, 30, 80);
     lcouchCtx.strokeRect(40, 60, 50, 30);
-    if (window.add3DDepth) window.add3DDepth(lcouchCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_lcouch_tile', lcouchCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_lcouch_tile', lcouchCanvas, true);
 
     // Love Seat
     const loveseatCanvas = document.createElement('canvas');
@@ -26412,8 +26450,7 @@ function generateTileTextures(scene) {
     loveseatCtx.fillStyle = '#ff5555';
     loveseatCtx.fillRect(30, 40, 15, 15);
     loveseatCtx.fillRect(55, 40, 15, 15);
-    if (window.add3DDepth) window.add3DDepth(loveseatCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_loveseat_tile', loveseatCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_loveseat_tile', loveseatCanvas, true);
 
     // Office Chair
     const officeChairCanvas = document.createElement('canvas');
@@ -26432,8 +26469,7 @@ function generateTileTextures(scene) {
     officeChairCtx.beginPath();
     officeChairCtx.ellipse(50, 65, 25, 10, 0, 0, Math.PI*2);
     officeChairCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(officeChairCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_officechair_tile', officeChairCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_officechair_tile', officeChairCanvas, true);
 
     // Stool
     const stoolCanvas = document.createElement('canvas');
@@ -26451,8 +26487,7 @@ function generateTileTextures(scene) {
     stoolCtx.moveTo(40, 45); stoolCtx.lineTo(30, 80);
     stoolCtx.moveTo(60, 45); stoolCtx.lineTo(70, 80);
     stoolCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(stoolCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_stool_tile', stoolCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_stool_tile', stoolCanvas, true);
 
     // Coffee Table
     const coffeeTableCanvas = document.createElement('canvas');
@@ -26464,8 +26499,7 @@ function generateTileTextures(scene) {
     coffeeTableCtx.strokeStyle = '#00ffd2';
     coffeeTableCtx.lineWidth = 2;
     coffeeTableCtx.strokeRect(15, 30, 70, 40);
-    if (window.add3DDepth) window.add3DDepth(coffeeTableCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_coffeetable_tile', coffeeTableCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_coffeetable_tile', coffeeTableCanvas, true);
 
     // Dining Table
     const diningTableCanvas = document.createElement('canvas');
@@ -26479,8 +26513,7 @@ function generateTileTextures(scene) {
     diningTableCtx.strokeStyle = '#00ffd2';
     diningTableCtx.lineWidth = 2;
     diningTableCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(diningTableCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_diningtable_tile', diningTableCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_diningtable_tile', diningTableCanvas, true);
 
     // Park Bench
     const parkBenchCanvas = document.createElement('canvas');
@@ -26494,8 +26527,7 @@ function generateTileTextures(scene) {
     parkBenchCtx.lineWidth = 2;
     parkBenchCtx.strokeRect(10, 40, 80, 20);
     parkBenchCtx.strokeRect(10, 65, 80, 10);
-    if (window.add3DDepth) window.add3DDepth(parkBenchCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_parkbench_tile', parkBenchCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_parkbench_tile', parkBenchCanvas, true);
 
     // Cyber Bench
     const cyberBenchCanvas = document.createElement('canvas');
@@ -26507,8 +26539,7 @@ function generateTileTextures(scene) {
     cyberBenchCtx.strokeStyle = '#00ff66';
     cyberBenchCtx.lineWidth = 3;
     cyberBenchCtx.strokeRect(10, 50, 80, 15);
-    if (window.add3DDepth) window.add3DDepth(cyberBenchCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_cyberbench_tile', cyberBenchCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_cyberbench_tile', cyberBenchCanvas, true);
 
     // Filing Cabinet
     const filingCabinetCanvas = document.createElement('canvas');
@@ -26524,8 +26555,7 @@ function generateTileTextures(scene) {
     filingCabinetCtx.fillRect(35, 25, 30, 15);
     filingCabinetCtx.fillRect(35, 45, 30, 15);
     filingCabinetCtx.fillRect(35, 65, 30, 15);
-    if (window.add3DDepth) window.add3DDepth(filingCabinetCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_filingcabinet_tile', filingCabinetCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_filingcabinet_tile', filingCabinetCanvas, true);
 
     // Display Cabinet
     const displayCabinetCanvas = document.createElement('canvas');
@@ -26539,8 +26569,7 @@ function generateTileTextures(scene) {
     displayCabinetCtx.strokeStyle = '#00ffd2';
     displayCabinetCtx.lineWidth = 2;
     displayCabinetCtx.strokeRect(20, 10, 60, 80);
-    if (window.add3DDepth) window.add3DDepth(displayCabinetCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_displaycabinet_tile', displayCabinetCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_displaycabinet_tile', displayCabinetCanvas, true);
 
     // Nightstand
     const nightstandCanvas = document.createElement('canvas');
@@ -26556,8 +26585,7 @@ function generateTileTextures(scene) {
     nightstandCtx.beginPath();
     nightstandCtx.arc(50, 20, 5, 0, Math.PI*2);
     nightstandCtx.fill();
-    if (window.add3DDepth) window.add3DDepth(nightstandCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_nightstand_tile', nightstandCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_nightstand_tile', nightstandCanvas, true);
 
     // Corner Table
     const cornerTableCanvas = document.createElement('canvas');
@@ -26574,8 +26602,7 @@ function generateTileTextures(scene) {
     cornerTableCtx.strokeStyle = '#00ffd2';
     cornerTableCtx.lineWidth = 2;
     cornerTableCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(cornerTableCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_cornertable_tile', cornerTableCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_cornertable_tile', cornerTableCanvas, true);
 
     // Bunk Bed
     const bunkBedCanvas = document.createElement('canvas');
@@ -26592,8 +26619,7 @@ function generateTileTextures(scene) {
     bunkBedCtx.fillStyle = '#ff007f';
     bunkBedCtx.fillRect(25, 15, 20, 15);
     bunkBedCtx.fillRect(25, 55, 20, 15);
-    if (window.add3DDepth) window.add3DDepth(bunkBedCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_bunkbed_tile', bunkBedCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_bunkbed_tile', bunkBedCanvas, true);
 
     // King Bed
     const kingBedCanvas = document.createElement('canvas');
@@ -26608,8 +26634,7 @@ function generateTileTextures(scene) {
     kingBedCtx.fillStyle = '#ff007f';
     kingBedCtx.fillRect(15, 25, 30, 20);
     kingBedCtx.fillRect(55, 25, 30, 20);
-    if (window.add3DDepth) window.add3DDepth(kingBedCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_kingbed_tile', kingBedCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_kingbed_tile', kingBedCanvas, true);
 
 
     // Cyber Desk
@@ -26642,8 +26667,7 @@ function generateTileTextures(scene) {
     deskCtx.beginPath(); deskCtx.arc(80, 50, 5, 0, Math.PI*2); deskCtx.fill();
     deskCtx.fillStyle = '#fff';
     deskCtx.fillRect(15, 60, 10, 15);
-    if (window.add3DDepth) window.add3DDepth(deskCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_desk_tile', deskCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_desk_tile', deskCanvas, true);
 
     // Glow Carpet
     const carpetCanvas = document.createElement('canvas');
@@ -26669,7 +26693,7 @@ function generateTileTextures(scene) {
     carpetCtx.moveTo(50, 25); carpetCtx.lineTo(50, 75);
     carpetCtx.moveTo(25, 50); carpetCtx.lineTo(75, 50);
     carpetCtx.stroke();
-    scene.textures.addCanvas('furniture_carpet_tile', carpetCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_carpet_tile', carpetCanvas, false);
 
     // Holo Bed
     const bedCanvas = document.createElement('canvas');
@@ -26701,8 +26725,7 @@ function generateTileTextures(scene) {
     bedCtx.beginPath(); bedCtx.arc(85, 15, 5, 0, Math.PI*2); bedCtx.fill();
     bedCtx.beginPath(); bedCtx.arc(15, 90, 5, 0, Math.PI*2); bedCtx.fill();
     bedCtx.beginPath(); bedCtx.arc(85, 90, 5, 0, Math.PI*2); bedCtx.fill();
-    if (window.add3DDepth) window.add3DDepth(bedCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_bed_tile', bedCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_bed_tile', bedCanvas, true);
 
     // Neon Chair
     const chairCanvas = document.createElement('canvas');
@@ -26718,8 +26741,7 @@ function generateTileTextures(scene) {
     chairCtx.shadowColor = '#ff00ff';
     chairCtx.strokeRect(25, 40, 50, 40);
     chairCtx.strokeRect(25, 10, 50, 30);
-    if (window.add3DDepth) window.add3DDepth(chairCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_chair_tile', chairCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_chair_tile', chairCanvas, true);
 
     // Holo Table
     const tableCanvas = document.createElement('canvas');
@@ -26732,8 +26754,7 @@ function generateTileTextures(scene) {
     tableCtx.shadowBlur = 15;
     tableCtx.shadowColor = '#00ffff';
     tableCtx.fillRect(15, 25, 70, 50); // holo top
-    if (window.add3DDepth) window.add3DDepth(tableCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_table_tile', tableCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_table_tile', tableCanvas, true);
 
 
     // Crystal Bonsai
@@ -26774,8 +26795,7 @@ function generateTileTextures(scene) {
     bonsaiCtx.beginPath();
     bonsaiCtx.moveTo(45, 40); bonsaiCtx.lineTo(35, 35); bonsaiCtx.lineTo(40, 45);
     bonsaiCtx.fill();
-    if (window.add3DDepth) window.add3DDepth(bonsaiCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_crystal_bonsai_tile', bonsaiCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_crystal_bonsai_tile', bonsaiCanvas, true);
 
     // Neon Fern
     const fernCanvas = document.createElement('canvas');
@@ -26807,8 +26827,7 @@ function generateTileTextures(scene) {
     fernCtx.lineWidth = 2;
     fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(40, 50, 35, 40); fernCtx.stroke();
     fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(60, 50, 65, 40); fernCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(fernCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_neon_fern_tile', fernCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_neon_fern_tile', fernCanvas, true);
 
     // Plasma Cactus
     const cactusCanvas = document.createElement('canvas');
@@ -26835,8 +26854,7 @@ function generateTileTextures(scene) {
     cactusCtx.lineWidth = 4;
     cactusCtx.beginPath(); cactusCtx.moveTo(37, 50); cactusCtx.lineTo(42, 50); cactusCtx.stroke();
     cactusCtx.beginPath(); cactusCtx.moveTo(63, 45); cactusCtx.lineTo(58, 45); cactusCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(cactusCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_plasma_cactus_tile', cactusCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_plasma_cactus_tile', cactusCanvas, true);
 
     // Holo Orchid
     const orchidCanvas = document.createElement('canvas');
@@ -26860,8 +26878,7 @@ function generateTileTextures(scene) {
     orchidCtx.shadowColor = '#ff00ff';
     orchidCtx.save(); orchidCtx.translate(50, 20); orchidCtx.rotate(45 * Math.PI / 180); orchidCtx.beginPath(); orchidCtx.ellipse(0, 0, 10, 15, 0, 0, Math.PI * 2); orchidCtx.fill(); orchidCtx.restore();
     orchidCtx.save(); orchidCtx.translate(50, 20); orchidCtx.rotate(-45 * Math.PI / 180); orchidCtx.beginPath(); orchidCtx.ellipse(0, 0, 10, 15, 0, 0, Math.PI * 2); orchidCtx.fill(); orchidCtx.restore();
-    if (window.add3DDepth) window.add3DDepth(orchidCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_holo_orchid_tile', orchidCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_holo_orchid_tile', orchidCanvas, true);
 
     // Cyber Plant
     const plantCanvas = document.createElement('canvas');
@@ -26882,7 +26899,7 @@ function generateTileTextures(scene) {
     plantCtx.beginPath();
     plantCtx.arc(65, 45, 15, 0, Math.PI * 2);
     plantCtx.fill();
-    scene.textures.addCanvas('furniture_plant_tile', plantCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_plant_tile', plantCanvas, false);
 
     // Neon Lamp
     const lampCanvas = document.createElement('canvas');
@@ -26898,7 +26915,7 @@ function generateTileTextures(scene) {
     lampCtx.beginPath();
     lampCtx.arc(50, 20, 15, 0, Math.PI * 2);
     lampCtx.fill();
-    scene.textures.addCanvas('furniture_lamp_tile', lampCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_lamp_tile', lampCanvas, false);
 
     // Neon Lamp Off
     const lampOffCanvas = document.createElement('canvas');
@@ -26912,7 +26929,7 @@ function generateTileTextures(scene) {
     lampOffCtx.beginPath();
     lampOffCtx.arc(50, 20, 15, 0, Math.PI * 2);
     lampOffCtx.fill();
-    scene.textures.addCanvas('furniture_lamp_off_tile', lampOffCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_lamp_off_tile', lampOffCanvas, false);
 
     // Neon Lamp On
     const lampOnCanvas = document.createElement('canvas');
@@ -26928,7 +26945,7 @@ function generateTileTextures(scene) {
     lampOnCtx.beginPath();
     lampOnCtx.arc(50, 20, 15, 0, Math.PI * 2);
     lampOnCtx.fill();
-    scene.textures.addCanvas('furniture_lamp_on_tile', lampOnCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_lamp_on_tile', lampOnCanvas, false);
 
 
     // Server Rack
@@ -26954,8 +26971,7 @@ function generateTileTextures(scene) {
             serverCtx.fillStyle = '#00ff00';
         }
     }
-    if (window.add3DDepth) window.add3DDepth(serverCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_server_tile', serverCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_server_tile', serverCanvas, true);
 
     // Arcade Machine
     const arcadeCanvas = document.createElement('canvas');
@@ -26978,8 +26994,7 @@ function generateTileTextures(scene) {
     arcadeCtx.fillText('COIN', 38, 45);
     arcadeCtx.fillStyle = '#ff0055';
     arcadeCtx.fillRect(45, 60, 10, 10); // joystick
-    if (window.add3DDepth) window.add3DDepth(arcadeCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_arcade_tile', arcadeCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_arcade_tile', arcadeCanvas, true);
 
     // Cyber TV
     const tvCanvas = document.createElement('canvas');
@@ -27004,8 +27019,7 @@ function generateTileTextures(scene) {
     tvCtx.fillStyle = '#333';
     tvCtx.fillRect(40, 70, 20, 20); // stand
     tvCtx.fillRect(20, 85, 60, 5); // base
-    if (window.add3DDepth) window.add3DDepth(tvCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_tv_tile', tvCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_tv_tile', tvCanvas, true);
 
     // Neon Shelf
     const shelfCanvas = document.createElement('canvas');
@@ -27022,8 +27036,7 @@ function generateTileTextures(scene) {
         shelfCtx.fillRect(25, i, 50, 5); // shelf
         shelfCtx.strokeRect(25, i, 50, 5);
     }
-    if (window.add3DDepth) window.add3DDepth(shelfCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_shelf_tile', shelfCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_shelf_tile', shelfCanvas, true);
 
     // Tech Bin
     const binCanvas = document.createElement('canvas');
@@ -27047,7 +27060,7 @@ function generateTileTextures(scene) {
     binCtx.fillRect(40, 25, 5, 5);
     binCtx.fillStyle = '#ff00ff';
     binCtx.fillRect(55, 27, 4, 4);
-    scene.textures.addCanvas('furniture_bin_tile', binCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_bin_tile', binCanvas, false);
 
     // Neon Wardrobe
     const wardrobeCanvas = document.createElement('canvas');
@@ -27068,8 +27081,7 @@ function generateTileTextures(scene) {
     wardrobeCtx.fillStyle = '#00ffcc';
     wardrobeCtx.fillRect(40, 50, 5, 10); // handle
     wardrobeCtx.fillRect(55, 50, 5, 10); // handle
-    if (window.add3DDepth) window.add3DDepth(wardrobeCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_wardrobe_tile', wardrobeCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_wardrobe_tile', wardrobeCanvas, true);
 
     // Cyber Fridge
     const fridgeCanvas = document.createElement('canvas');
@@ -27095,8 +27107,7 @@ function generateTileTextures(scene) {
     // Digital display
     fridgeCtx.fillStyle = '#00ffcc';
     fridgeCtx.fillRect(45, 12, 20, 10); // bottom handle
-    if (window.add3DDepth) window.add3DDepth(fridgeCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_fridge_tile', fridgeCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_fridge_tile', fridgeCanvas, true);
 
     // Holo Display
     const displayCanvas = document.createElement('canvas');
@@ -27114,8 +27125,7 @@ function generateTileTextures(scene) {
     displayCtx.lineTo(80, 70);
     displayCtx.closePath();
     displayCtx.fill();
-    if (window.add3DDepth) window.add3DDepth(displayCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_display_tile', displayCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_display_tile', displayCanvas, true);
 
     // Lava Lamp
     const lavaLampCanvas = document.createElement('canvas');
@@ -27139,8 +27149,7 @@ function generateTileTextures(scene) {
     lavaLampCtx.beginPath(); lavaLampCtx.arc(50, 65, 8, 0, Math.PI*2); lavaLampCtx.fill();
     lavaLampCtx.beginPath(); lavaLampCtx.arc(45, 45, 5, 0, Math.PI*2); lavaLampCtx.fill();
     lavaLampCtx.beginPath(); lavaLampCtx.arc(55, 30, 4, 0, Math.PI*2); lavaLampCtx.fill();
-    if (window.add3DDepth) window.add3DDepth(lavaLampCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_lavalamp_tile', lavaLampCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_lavalamp_tile', lavaLampCanvas, true);
 
     // Plasma Globe
     const plasmaGlobeCanvas = document.createElement('canvas');
@@ -27171,8 +27180,7 @@ function generateTileTextures(scene) {
     plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(40, 65);
     plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(60, 65);
     plasmaGlobeCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(plasmaGlobeCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_plasmaglobe_tile', plasmaGlobeCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_plasmaglobe_tile', plasmaGlobeCanvas, true);
 
     // Cyber Poster
     const cyberPosterCanvas = document.createElement('canvas');
@@ -27195,8 +27203,7 @@ function generateTileTextures(scene) {
     cyberPosterCtx.beginPath();
     cyberPosterCtx.moveTo(35, 75); cyberPosterCtx.lineTo(65, 75);
     cyberPosterCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(cyberPosterCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_cyberposter_tile', cyberPosterCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_cyberposter_tile', cyberPosterCanvas, true);
 
     // Neon Sign
     const neonSignCanvas = document.createElement('canvas');
@@ -27217,8 +27224,7 @@ function generateTileTextures(scene) {
     neonSignCtx.bezierCurveTo(35, 20, 45, 80, 60, 50);
     neonSignCtx.bezierCurveTo(65, 40, 75, 70, 80, 50);
     neonSignCtx.stroke();
-    if (window.add3DDepth) window.add3DDepth(neonSignCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_neonsign_tile', neonSignCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_neonsign_tile', neonSignCanvas, true);
 
     // Gaming PC
     const gamingPcCanvas = document.createElement('canvas');
@@ -27241,8 +27247,7 @@ function generateTileTextures(scene) {
     gamingPcCtx.beginPath(); gamingPcCtx.arc(50, 65, 10, 0, Math.PI*2); gamingPcCtx.stroke();
     gamingPcCtx.fillStyle = 'rgba(0, 255, 210, 0.5)';
     gamingPcCtx.fillRect(30, 25, 5, 50); // RAM glow
-    if (window.add3DDepth) window.add3DDepth(gamingPcCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_gamingpc_tile', gamingPcCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_gamingpc_tile', gamingPcCanvas, true);
 
     // Smart Mirror
     const smartMirrorCanvas = document.createElement('canvas');
@@ -27265,8 +27270,7 @@ function generateTileTextures(scene) {
     smartMirrorCtx.shadowBlur = 10;
     smartMirrorCtx.shadowColor = '#ff00ff';
     smartMirrorCtx.beginPath(); smartMirrorCtx.arc(50, 80, 4, 0, Math.PI*2); smartMirrorCtx.fill();
-    if (window.add3DDepth) window.add3DDepth(smartMirrorCtx, 0, 0, 100, 100);
-    scene.textures.addCanvas('furniture_smartmirror_tile', smartMirrorCanvas);
+    window.finalizeFurnitureTexture(scene, 'furniture_smartmirror_tile', smartMirrorCanvas, true);
 
 }
 
@@ -28865,13 +28869,21 @@ window.spawnMiniTiles = function(scene) {
 
 
             if (textureKey) {
-                let mSprite = window.miniTilesGroup.create(tile.x, tile.y, textureKey);
+                let finalTextureKey = textureKey;
+                if (textureKey.startsWith('furniture_') && tile.rotation > 0) {
+                    finalTextureKey += '_' + tile.rotation;
+                }
+                let mSprite = window.miniTilesGroup.create(tile.x, tile.y, finalTextureKey);
                 mSprite.setDepth(9);
                 mSprite.setScale(0.6); // Smaller version
                 mSprite.isMiniTile = true;
                 mSprite.miniTileType = tile.type;
                 mSprite.playerNum = pNum;
-                mSprite.setAngle(tile.rotation || 0);
+                if (textureKey.startsWith('furniture_')) {
+                    mSprite.setAngle(0);
+                } else {
+                    mSprite.setAngle(tile.rotation || 0);
+                }
 
                 if (tile.type.startsWith('furniture_')) {
                     if (tile.tint && tile.tint !== '#ffffff') {
@@ -34560,7 +34572,18 @@ function update() {
             if (Phaser.Input.Keyboard.JustDown(rKey)) {
                 window.p1MiniTileRotation = (window.p1MiniTileRotation + 90) % 360;
                 if (window.p1MiniTilePreviewSprite) {
-                    window.p1MiniTilePreviewSprite.setAngle(window.p1MiniTileRotation);
+                    const currentKey = window.p1MiniTilePreviewSprite.texture.key;
+                    const baseKey = currentKey.split('_').length > 1 && !isNaN(currentKey.split('_').pop())
+                        ? currentKey.substring(0, currentKey.lastIndexOf('_'))
+                        : currentKey;
+
+                    if (baseKey.startsWith('furniture_')) {
+                        const finalKey = window.p1MiniTileRotation > 0 ? baseKey + '_' + window.p1MiniTileRotation : baseKey;
+                        window.p1MiniTilePreviewSprite.setTexture(finalKey);
+                        window.p1MiniTilePreviewSprite.setAngle(0);
+                    } else {
+                        window.p1MiniTilePreviewSprite.setAngle(window.p1MiniTileRotation);
+                    }
                 }
             }
         }
@@ -34595,7 +34618,18 @@ function update() {
             if (Phaser.Input.Keyboard.JustDown(rKey)) {
                 window.p2MiniTileRotation = (window.p2MiniTileRotation + 90) % 360;
                 if (window.p2MiniTilePreviewSprite) {
-                    window.p2MiniTilePreviewSprite.setAngle(window.p2MiniTileRotation);
+                    const currentKey = window.p2MiniTilePreviewSprite.texture.key;
+                    const baseKey = currentKey.split('_').length > 1 && !isNaN(currentKey.split('_').pop())
+                        ? currentKey.substring(0, currentKey.lastIndexOf('_'))
+                        : currentKey;
+
+                    if (baseKey.startsWith('furniture_')) {
+                        const finalKey = window.p2MiniTileRotation > 0 ? baseKey + '_' + window.p2MiniTileRotation : baseKey;
+                        window.p2MiniTilePreviewSprite.setTexture(finalKey);
+                        window.p2MiniTilePreviewSprite.setAngle(0);
+                    } else {
+                        window.p2MiniTilePreviewSprite.setAngle(window.p2MiniTileRotation);
+                    }
                 }
             }
         }
