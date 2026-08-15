@@ -9747,6 +9747,10 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Speed Booster", icon: "⚡", desc: "Permanently raises creature's Speed by 5." },
         { name: "Sp. Atk Booster", icon: "🔮", desc: "Permanently raises creature's Sp. Atk by 5." },
         { name: "Sp. Def Booster", icon: "🧿", desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Crystal Bonsai", icon: "🪨", desc: "An elegant bonsai made of glowing crystals." },
+        { name: "Neon Fern", icon: "🌿", desc: "A bioluminescent fern with neon-green fronds." },
+        { name: "Plasma Cactus", icon: "🌵", desc: "A desert plant containing glowing pink plasma." },
+        { name: "Holo Orchid", icon: "🌸", desc: "A holographic projection of a rare orchid." },
         { name: "Jank Juice", icon: "🧃", desc: "Greatly increases wild shiny spawn rate for 6 minutes (360,000ms)." },
         { name: "Healing Juice Bottle", icon: "🧪", desc: "Heals one creature or revives with 50% HP." },
         { name: "Healing Juice Jug", icon: "🏺", desc: "Fully heals and revives all active party creatures." },
@@ -17317,6 +17321,10 @@ window.updateStoreUI = function() {
             { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place inside using mini-tile placement.", reqLevel: 10 },
             { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place inside.", reqLevel: 10 },
             { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place inside.", reqLevel: 10 },
+            { name: "Crystal Bonsai", icon: "🪨", price: 350, desc: "An elegant bonsai made of glowing crystals. Place inside.", reqLevel: 10 },
+            { name: "Neon Fern", icon: "🌿", price: 280, desc: "A bioluminescent fern with neon-green fronds. Place inside.", reqLevel: 10 },
+            { name: "Plasma Cactus", icon: "🌵", price: 420, desc: "A desert plant containing glowing pink plasma. Place inside.", reqLevel: 10 },
+            { name: "Holo Orchid", icon: "🌸", price: 500, desc: "A holographic projection of a rare orchid. Place inside.", reqLevel: 10 },
             { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place inside.", reqLevel: 10 },
             { name: "Server Rack", icon: "🗄️", price: 800, desc: "A glowing cybernetic data server. Place inside.", reqLevel: 10 },
             { name: "Arcade Machine", icon: "🕹️", price: 1000, desc: "A retro-futuristic arcade cabinet. Place inside.", reqLevel: 10 },
@@ -18032,6 +18040,10 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "Neon Chair": "🪑",
         "Holo Table": "🪵",
         "Cyber Plant": "🪴",
+        "Crystal Bonsai": "🪨",
+        "Neon Fern": "🌿",
+        "Plasma Cactus": "🌵",
+        "Holo Orchid": "🌸",
         "Neon Lamp": "💡",
         "Server Rack": "🗄️",
         "Arcade Machine": "🕹️",
@@ -18557,6 +18569,82 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <line x1="70" y1="55" x2="70" y2="80" stroke="#00ffd2" stroke-width="3" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Table"]}</span>`;
+            break;
+        case "Crystal Bonsai":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <!-- Intricate cyber pot -->
+                <path d="M30,85 L70,85 L75,65 L25,65 Z" fill="#111" stroke="#00ffd2" stroke-width="2"/>
+                <rect x="22" y="60" width="56" height="5" fill="#00ffd2"/>
+                <line x1="40" y1="65" x2="40" y2="85" stroke="#00ffd2" stroke-width="1.5" stroke-dasharray="2 2"/>
+                <line x1="60" y1="65" x2="60" y2="85" stroke="#00ffd2" stroke-width="1.5" stroke-dasharray="2 2"/>
+                <!-- Trunk -->
+                <path d="M50,60 Q40,40 55,30 Q45,20 50,15" fill="none" stroke="#663300" stroke-width="6" stroke-linecap="round"/>
+                <!-- Crystal leaves/branches -->
+                <polygon points="50,15 45,25 55,25" fill="#00ffff" opacity="0.8"/>
+                <polygon points="55,30 65,25 60,35" fill="#00ffff" opacity="0.8"/>
+                <polygon points="45,40 35,35 40,45" fill="#00ffff" opacity="0.8"/>
+                <circle cx="50" cy="15" r="3" fill="#fff" filter="url(#glow)"/>
+                <circle cx="65" cy="25" r="2" fill="#fff" filter="url(#glow)"/>
+                <circle cx="35" cy="35" r="2" fill="#fff" filter="url(#glow)"/>
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Crystal Bonsai"]}</span>`;
+            break;
+        case "Neon Fern":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <!-- Sleek minimal pot -->
+                <path d="M35,85 L65,85 L65,65 L35,65 Z" fill="#222" stroke="#00ff66" stroke-width="2"/>
+                <rect x="30" y="65" width="40" height="4" fill="#00ff66"/>
+                <!-- Fern fronds -->
+                <path d="M50,65 Q30,40 25,25" fill="none" stroke="#00ff66" stroke-width="3" stroke-linecap="round"/>
+                <path d="M50,65 Q70,40 75,25" fill="none" stroke="#00ff66" stroke-width="3" stroke-linecap="round"/>
+                <path d="M50,65 Q50,30 50,15" fill="none" stroke="#00ff66" stroke-width="4" stroke-linecap="round"/>
+                <path d="M50,65 Q40,50 35,40" fill="none" stroke="#00ff66" stroke-width="2" stroke-linecap="round"/>
+                <path d="M50,65 Q60,50 65,40" fill="none" stroke="#00ff66" stroke-width="2" stroke-linecap="round"/>
+                <!-- Glowing spores -->
+                <circle cx="25" cy="25" r="2" fill="#fff" filter="url(#glow)"/>
+                <circle cx="75" cy="25" r="2" fill="#fff" filter="url(#glow)"/>
+                <circle cx="50" cy="15" r="3" fill="#fff" filter="url(#glow)"/>
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Fern"]}</span>`;
+            break;
+        case "Plasma Cactus":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <!-- Hexagonal tech pot -->
+                <polygon points="35,85 65,85 75,65 25,65" fill="#333" stroke="#ff007f" stroke-width="2"/>
+                <line x1="35" y1="85" x2="25" y2="65" stroke="#ff007f" stroke-width="2"/>
+                <line x1="65" y1="85" x2="75" y2="65" stroke="#ff007f" stroke-width="2"/>
+                <!-- Cactus body (glass/plasma container) -->
+                <rect x="42" y="30" width="16" height="35" rx="8" fill="rgba(255, 0, 127, 0.3)" stroke="#ff007f" stroke-width="2"/>
+                <rect x="25" y="40" width="12" height="15" rx="6" fill="rgba(255, 0, 127, 0.3)" stroke="#ff007f" stroke-width="2"/>
+                <rect x="63" y="35" width="12" height="20" rx="6" fill="rgba(255, 0, 127, 0.3)" stroke="#ff007f" stroke-width="2"/>
+                <!-- Arms connecting -->
+                <path d="M37,50 L42,50" stroke="#ff007f" stroke-width="4"/>
+                <path d="M63,45 L58,45" stroke="#ff007f" stroke-width="4"/>
+                <!-- Plasma core/bubbles -->
+                <circle cx="50" cy="55" r="4" fill="#ff007f" filter="url(#glow)"/>
+                <circle cx="50" cy="40" r="3" fill="#ff007f" filter="url(#glow)"/>
+                <circle cx="31" cy="47" r="2" fill="#ff007f" filter="url(#glow)"/>
+                <circle cx="69" cy="45" r="2" fill="#ff007f" filter="url(#glow)"/>
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Plasma Cactus"]}</span>`;
+            break;
+        case "Holo Orchid":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <!-- Floating base projector -->
+                <ellipse cx="50" cy="75" rx="20" ry="8" fill="#111" stroke="#00ffd2" stroke-width="2"/>
+                <ellipse cx="50" cy="72" rx="15" ry="5" fill="#00ffd2" opacity="0.5"/>
+                <!-- Holographic projection beam -->
+                <polygon points="35,72 65,72 55,20 45,20" fill="rgba(0, 255, 210, 0.15)"/>
+                <!-- Stem -->
+                <path d="M50,70 Q45,50 55,35 Q60,25 50,20" fill="none" stroke="rgba(0, 255, 210, 0.6)" stroke-width="2" stroke-dasharray="2 2"/>
+                <!-- Petals (Holographic pink/magenta) -->
+                <ellipse cx="50" cy="20" rx="10" ry="15" fill="rgba(255, 0, 255, 0.7)" transform="rotate(45 50 20)"/>
+                <ellipse cx="50" cy="20" rx="10" ry="15" fill="rgba(255, 0, 255, 0.7)" transform="rotate(-45 50 20)"/>
+                <circle cx="50" cy="20" r="5" fill="#fff" filter="url(#glow)"/>
+                <!-- Leaf -->
+                <ellipse cx="40" cy="55" rx="8" ry="3" fill="rgba(0, 255, 210, 0.6)" transform="rotate(-30 40 55)"/>
+
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Orchid"]}</span>`;
             break;
         case "Cyber Plant":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
@@ -26647,6 +26735,134 @@ function generateTileTextures(scene) {
     if (window.add3DDepth) window.add3DDepth(tableCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_table_tile', tableCanvas);
 
+
+    // Crystal Bonsai
+    const bonsaiCanvas = document.createElement('canvas');
+    bonsaiCanvas.width = 100;
+    bonsaiCanvas.height = 100;
+    const bonsaiCtx = bonsaiCanvas.getContext('2d');
+    bonsaiCtx.fillStyle = '#111';
+    bonsaiCtx.beginPath();
+    bonsaiCtx.moveTo(25, 65);
+    bonsaiCtx.lineTo(75, 65);
+    bonsaiCtx.lineTo(70, 85);
+    bonsaiCtx.lineTo(30, 85);
+    bonsaiCtx.closePath();
+    bonsaiCtx.fill();
+    bonsaiCtx.strokeStyle = '#00ffd2';
+    bonsaiCtx.lineWidth = 2;
+    bonsaiCtx.stroke();
+    bonsaiCtx.fillStyle = '#00ffd2';
+    bonsaiCtx.fillRect(22, 60, 56, 5);
+    bonsaiCtx.strokeStyle = '#663300';
+    bonsaiCtx.lineWidth = 6;
+    bonsaiCtx.lineCap = 'round';
+    bonsaiCtx.beginPath();
+    bonsaiCtx.moveTo(50, 60);
+    bonsaiCtx.quadraticCurveTo(40, 40, 55, 30);
+    bonsaiCtx.quadraticCurveTo(45, 20, 50, 15);
+    bonsaiCtx.stroke();
+    bonsaiCtx.fillStyle = 'rgba(0, 255, 255, 0.8)';
+    bonsaiCtx.shadowBlur = 10;
+    bonsaiCtx.shadowColor = '#00ffff';
+    bonsaiCtx.beginPath();
+    bonsaiCtx.moveTo(50, 15); bonsaiCtx.lineTo(45, 25); bonsaiCtx.lineTo(55, 25);
+    bonsaiCtx.fill();
+    bonsaiCtx.beginPath();
+    bonsaiCtx.moveTo(55, 30); bonsaiCtx.lineTo(65, 25); bonsaiCtx.lineTo(60, 35);
+    bonsaiCtx.fill();
+    bonsaiCtx.beginPath();
+    bonsaiCtx.moveTo(45, 40); bonsaiCtx.lineTo(35, 35); bonsaiCtx.lineTo(40, 45);
+    bonsaiCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(bonsaiCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_crystal_bonsai_tile', bonsaiCanvas);
+
+    // Neon Fern
+    const fernCanvas = document.createElement('canvas');
+    fernCanvas.width = 100;
+    fernCanvas.height = 100;
+    const fernCtx = fernCanvas.getContext('2d');
+    fernCtx.fillStyle = '#222';
+    fernCtx.beginPath();
+    fernCtx.moveTo(35, 65);
+    fernCtx.lineTo(65, 65);
+    fernCtx.lineTo(65, 85);
+    fernCtx.lineTo(35, 85);
+    fernCtx.closePath();
+    fernCtx.fill();
+    fernCtx.strokeStyle = '#00ff66';
+    fernCtx.lineWidth = 2;
+    fernCtx.stroke();
+    fernCtx.fillStyle = '#00ff66';
+    fernCtx.fillRect(30, 65, 40, 4);
+    fernCtx.strokeStyle = '#00ff66';
+    fernCtx.lineCap = 'round';
+    fernCtx.shadowBlur = 8;
+    fernCtx.shadowColor = '#00ff66';
+    fernCtx.lineWidth = 4;
+    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(50, 30, 50, 15); fernCtx.stroke();
+    fernCtx.lineWidth = 3;
+    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(30, 40, 25, 25); fernCtx.stroke();
+    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(70, 40, 75, 25); fernCtx.stroke();
+    fernCtx.lineWidth = 2;
+    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(40, 50, 35, 40); fernCtx.stroke();
+    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(60, 50, 65, 40); fernCtx.stroke();
+    if (window.add3DDepth) window.add3DDepth(fernCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_neon_fern_tile', fernCanvas);
+
+    // Plasma Cactus
+    const cactusCanvas = document.createElement('canvas');
+    cactusCanvas.width = 100;
+    cactusCanvas.height = 100;
+    const cactusCtx = cactusCanvas.getContext('2d');
+    cactusCtx.fillStyle = '#333';
+    cactusCtx.beginPath();
+    cactusCtx.moveTo(25, 65);
+    cactusCtx.lineTo(75, 65);
+    cactusCtx.lineTo(65, 85);
+    cactusCtx.lineTo(35, 85);
+    cactusCtx.closePath();
+    cactusCtx.fill();
+    cactusCtx.strokeStyle = '#ff007f';
+    cactusCtx.lineWidth = 2;
+    cactusCtx.stroke();
+    cactusCtx.fillStyle = 'rgba(255, 0, 127, 0.3)';
+    cactusCtx.shadowBlur = 10;
+    cactusCtx.shadowColor = '#ff007f';
+    cactusCtx.beginPath(); cactusCtx.roundRect(42, 30, 16, 35, 8); cactusCtx.fill(); cactusCtx.stroke();
+    cactusCtx.beginPath(); cactusCtx.roundRect(25, 40, 12, 15, 6); cactusCtx.fill(); cactusCtx.stroke();
+    cactusCtx.beginPath(); cactusCtx.roundRect(63, 35, 12, 20, 6); cactusCtx.fill(); cactusCtx.stroke();
+    cactusCtx.lineWidth = 4;
+    cactusCtx.beginPath(); cactusCtx.moveTo(37, 50); cactusCtx.lineTo(42, 50); cactusCtx.stroke();
+    cactusCtx.beginPath(); cactusCtx.moveTo(63, 45); cactusCtx.lineTo(58, 45); cactusCtx.stroke();
+    if (window.add3DDepth) window.add3DDepth(cactusCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_plasma_cactus_tile', cactusCanvas);
+
+    // Holo Orchid
+    const orchidCanvas = document.createElement('canvas');
+    orchidCanvas.width = 100;
+    orchidCanvas.height = 100;
+    const orchidCtx = orchidCanvas.getContext('2d');
+    orchidCtx.fillStyle = '#111';
+    orchidCtx.strokeStyle = '#00ffd2';
+    orchidCtx.lineWidth = 2;
+    orchidCtx.beginPath(); orchidCtx.ellipse(50, 75, 20, 8, 0, 0, Math.PI * 2); orchidCtx.fill(); orchidCtx.stroke();
+    orchidCtx.fillStyle = 'rgba(0, 255, 210, 0.5)';
+    orchidCtx.beginPath(); orchidCtx.ellipse(50, 72, 15, 5, 0, 0, Math.PI * 2); orchidCtx.fill();
+    orchidCtx.fillStyle = 'rgba(0, 255, 210, 0.15)';
+    orchidCtx.beginPath(); orchidCtx.moveTo(35, 72); orchidCtx.lineTo(65, 72); orchidCtx.lineTo(55, 20); orchidCtx.lineTo(45, 20); orchidCtx.closePath(); orchidCtx.fill();
+    orchidCtx.strokeStyle = 'rgba(0, 255, 210, 0.6)';
+    orchidCtx.setLineDash([2, 2]);
+    orchidCtx.beginPath(); orchidCtx.moveTo(50, 70); orchidCtx.quadraticCurveTo(45, 50, 55, 35); orchidCtx.quadraticCurveTo(60, 25, 50, 20); orchidCtx.stroke();
+    orchidCtx.setLineDash([]);
+    orchidCtx.fillStyle = 'rgba(255, 0, 255, 0.7)';
+    orchidCtx.shadowBlur = 10;
+    orchidCtx.shadowColor = '#ff00ff';
+    orchidCtx.save(); orchidCtx.translate(50, 20); orchidCtx.rotate(45 * Math.PI / 180); orchidCtx.beginPath(); orchidCtx.ellipse(0, 0, 10, 15, 0, 0, Math.PI * 2); orchidCtx.fill(); orchidCtx.restore();
+    orchidCtx.save(); orchidCtx.translate(50, 20); orchidCtx.rotate(-45 * Math.PI / 180); orchidCtx.beginPath(); orchidCtx.ellipse(0, 0, 10, 15, 0, 0, Math.PI * 2); orchidCtx.fill(); orchidCtx.restore();
+    if (window.add3DDepth) window.add3DDepth(orchidCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_holo_orchid_tile', orchidCanvas);
+
     // Cyber Plant
     const plantCanvas = document.createElement('canvas');
     plantCanvas.width = 100;
@@ -28627,6 +28843,10 @@ window.spawnMiniTiles = function(scene) {
             else if (tile.type === 'furniture_chair') textureKey = 'furniture_chair_tile';
             else if (tile.type === 'furniture_table') textureKey = 'furniture_table_tile';
             else if (tile.type === 'furniture_plant') textureKey = 'furniture_plant_tile';
+            else if (tile.type === "furniture_crystal_bonsai") textureKey = "furniture_crystal_bonsai_tile";
+            else if (tile.type === "furniture_neon_fern") textureKey = "furniture_neon_fern_tile";
+            else if (tile.type === "furniture_plasma_cactus") textureKey = "furniture_plasma_cactus_tile";
+            else if (tile.type === "furniture_holo_orchid") textureKey = "furniture_holo_orchid_tile";
             else if (tile.type === 'furniture_lamp') textureKey = 'furniture_lamp_tile';
             else if (tile.type === 'furniture_server') textureKey = 'furniture_server_tile';
             else if (tile.type === 'furniture_arcade') textureKey = 'furniture_arcade_tile';
@@ -29147,6 +29367,10 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         "Neon Chair": "furniture_chair_tile",
         "Holo Table": "furniture_table_tile",
         "Cyber Plant": "furniture_plant_tile",
+        "Crystal Bonsai": "furniture_crystal_bonsai_tile",
+        "Neon Fern": "furniture_neon_fern_tile",
+        "Plasma Cactus": "furniture_plasma_cactus_tile",
+        "Holo Orchid": "furniture_holo_orchid_tile",
         "Neon Lamp": "furniture_lamp_tile",
         "Server Rack": "furniture_server_tile",
         "Arcade Machine": "furniture_arcade_tile",
@@ -29254,6 +29478,10 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
         "Neon Chair": "furniture_chair",
         "Holo Table": "furniture_table",
         "Cyber Plant": "furniture_plant",
+        "Crystal Bonsai": "furniture_crystal_bonsai",
+        "Neon Fern": "furniture_neon_fern",
+        "Plasma Cactus": "furniture_plasma_cactus",
+        "Holo Orchid": "furniture_holo_orchid",
         "Neon Lamp": "furniture_lamp",
         "Server Rack": "furniture_server",
         "Arcade Machine": "furniture_arcade",
