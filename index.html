@@ -8196,20 +8196,26 @@ let moonSprite;
 window.timeText = undefined;
 let timeText;
 let lastDayNightUpdate = 0;
-window.WildPulseMusic = {
-    initialized: false,
-    muted: false,
-    state: 'MENU', // Default to MENU state initially
-    bpm: 100, // 100 BPM for MENU
-    synths: {},
-    loops: [],
-    currentChord: [],
+class MusicManager {
+    constructor() {
+        this.initialized = false;
+        this.muted = false;
+        this.state = 'MENU';
+        this.bpm = 100;
+        this.currentChord = [];
+        this.lastMusicUpdate = 0;
+        this.synth = null;
+    }
 
     async start() {
-        if (typeof Tone !== 'undefined' && Tone.context && Tone.context.state === 'suspended') {
+        if (typeof Tone === 'undefined') return;
+
+        if (Tone.context && Tone.context.state === 'suspended') {
             try { await Tone.context.resume(); } catch(e) {}
         }
+
         if (this.initialized) return;
+
         try {
             if (Tone.context) {
                 Tone.getContext().lookAhead = 0.5;
@@ -8218,29 +8224,26 @@ window.WildPulseMusic = {
             await Tone.start();
             this.initialized = true;
 
-            // Master volume bus for ducking and balance
             this.musicBus = new Tone.Volume(-4).toDestination();
 
-            // shared Reverb and Delay effects routed through the musicBus
             this.reverb = new Tone.Reverb(3.5).connect(this.musicBus);
             this.reverb.wet.value = 0.45;
-            this.delay = new Tone.FeedbackDelay("8n", 0.4).connect(this.reverb);
 
-            // Chorus for a lush stereo soundscape
+            this.delay = new Tone.FeedbackDelay("8n", 0.4).connect(this.reverb);
             this.chorus = new Tone.Chorus(1.5, 2.5, 0.35).connect(this.musicBus).start();
 
-            // Filter for the Lead Synth to tame harsh frequencies
             this.leadFilter = new Tone.Filter(800, "lowpass").connect(this.chorus);
-
-            // Filter for the Pad Synth (glorious space pad sweeps)
             this.padFilter = new Tone.Filter(1000, "lowpass").connect(this.reverb);
 
-            // Instruments
+            this.synths = {};
+
+            this.synth = new Tone.PolySynth(Tone.Synth).connect(this.musicBus);
+            this.synth.volume.value = -10;
+
             this.synths.kick = new Tone.MembraneSynth({
                 envelope: { attack: 0.001, decay: 0.25, sustain: 0 }
             }).connect(this.musicBus);
 
-            // Routed through custom bandpass filter to avoid unsupported NoiseSynth constructor filter options
             this.snareFilter = new Tone.Filter(1000, "bandpass").connect(this.musicBus);
             this.synths.snare = new Tone.NoiseSynth({
                 envelope: { sustain: 0, attack: 0.001, decay: 0.12 }
@@ -8275,59 +8278,23 @@ window.WildPulseMusic = {
                 filterEnvelope: { attack: 0.02, decay: 0.1, baseFrequency: 180, octaves: 2 }
             }).connect(this.delay).connect(this.musicBus);
 
-            // Atmospheric noises (directly to reverb or destination for depth)
-
-            // Wind setup - Howling LFO-filtered noise
-            this.windFilter = new Tone.Filter({
-                type: "lowpass",
-                frequency: 400,
-                rolloff: -24
-            }).connect(this.reverb);
-
-            this.windLFO = new Tone.LFO({
-                type: "sine",
-                min: 200,
-                max: 800,
-                frequency: 0.1
-            }).start();
+            this.windFilter = new Tone.Filter({ type: "lowpass", frequency: 400, rolloff: -24 }).connect(this.reverb);
+            this.windLFO = new Tone.LFO({ type: "sine", min: 200, max: 800, frequency: 0.1 }).start();
             this.windLFO.connect(this.windFilter.frequency);
-
-            this.synths.wind = new Tone.NoiseSynth({
-                noise: { type: 'brown' },
-                envelope: { attack: 4, decay: 0.2, sustain: 1, release: 4 }
-            }).connect(this.windFilter);
+            this.synths.wind = new Tone.NoiseSynth({ noise: { type: 'brown' }, envelope: { attack: 4, decay: 0.2, sustain: 1, release: 4 } }).connect(this.windFilter);
             this.synths.wind.volume.value = -60;
 
-            // Rain setup - Bandpass filtered noise
-            this.rainFilter = new Tone.Filter({
-                type: "bandpass",
-                frequency: 1000,
-                Q: 0.5
-            }).connect(this.reverb);
-
-            this.synths.rain = new Tone.NoiseSynth({
-                noise: { type: 'pink' },
-                envelope: { attack: 2, decay: 0.1, sustain: 1, release: 2 }
-            }).connect(this.rainFilter);
+            this.rainFilter = new Tone.Filter({ type: "bandpass", frequency: 1000, Q: 0.5 }).connect(this.reverb);
+            this.synths.rain = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 2, decay: 0.1, sustain: 1, release: 2 } }).connect(this.rainFilter);
             this.synths.rain.volume.value = -60;
 
-            // Thunder setup - Membrane strike + Distorted noise rumble
-            this.synths.thunderStrike = new Tone.MembraneSynth({
-                pitchDecay: 0.05,
-                octaves: 4,
-                oscillator: { type: "square" },
-                envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4 }
-            }).connect(this.reverb);
+            this.synths.thunderStrike = new Tone.MembraneSynth({ pitchDecay: 0.05, octaves: 4, oscillator: { type: "square" }, envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4 } }).connect(this.reverb);
             this.synths.thunderStrike.volume.value = -5;
 
             let thunderDist = new Tone.Distortion(0.8).connect(new Tone.Filter(300, "lowpass").connect(this.reverb));
-            this.synths.thunder = new Tone.NoiseSynth({
-                noise: { type: 'brown' },
-                envelope: { attack: 0.1, decay: 1, sustain: 0.5, release: 4 }
-            }).connect(thunderDist);
+            this.synths.thunder = new Tone.NoiseSynth({ noise: { type: 'brown' }, envelope: { attack: 0.1, decay: 1, sustain: 0.5, release: 4 } }).connect(thunderDist);
             this.synths.thunder.volume.value = -5;
 
-            // Balanced volumes for a more beautiful, easy on the ears modern experience
             this.synths.kick.volume.value = -10;
             this.synths.snare.volume.value = -16;
             this.synths.hihat.volume.value = -22;
@@ -8336,20 +8303,24 @@ window.WildPulseMusic = {
             this.synths.pad.volume.value = -14;
             this.synths.pulser.volume.value = -18;
 
-            this.setupLoops();
+            this.setupMasterLoop();
             Tone.Transport.bpm.value = this.bpm;
             Tone.Transport.start();
-            console.log("[Music] Advanced procedural techno-synth engine started.");
+            console.log("[Music] Advanced procedural techno-synth engine started via MusicManager.");
         } catch (e) {
             console.warn("[Music] Failed to start Tone.js:", e);
         }
-    },
+    }
 
-    setupLoops() {
-        // Chord Progression Loop (Half-Note resolution)
-        this.loops.push(new Tone.Loop(time => {
+    setupMasterLoop() {
+        // Use a single 16n loop to handle all musical logic to avoid multiple Tone.Loop overhead
+        new Tone.Loop(time => {
+            if (!this.initialized || this.muted) return;
+
             const season = window.currentSeason || 'Summer';
-            let progressions = {
+            const totalSixteenths = Math.round(Tone.Transport.getTicksAtTime(time) / (Tone.Transport.PPQ / 4));
+
+            const progressions = {
                 'MENU': [
                     ["C3", "E3", "G3", "B3", "D4"], ["F2", "A2", "C3", "E3", "G3"], ["G2", "B2", "D3", "F3", "A3"], ["E2", "G2", "B2", "D3", "F#3"]
                 ],
@@ -8390,233 +8361,208 @@ window.WildPulseMusic = {
             };
 
             let prog;
-            if (this.state === 'PVP') {
-                prog = progressions.PVP;
-            } else if (this.state === 'TRADE') {
-                prog = progressions.TRADE;
-            } else if (this.state === 'BATTLE') {
-                prog = progressions.BATTLE[season] || progressions.BATTLE['Summer'];
-            } else if (this.state === 'MENU') {
-                prog = progressions.MENU;
-            } else {
-                prog = progressions.EXPLORING[season] || progressions.EXPLORING['Summer'];
-            }
+            if (this.state === 'PVP') prog = progressions.PVP;
+            else if (this.state === 'TRADE') prog = progressions.TRADE;
+            else if (this.state === 'BATTLE') prog = progressions.BATTLE[season] || progressions.BATTLE['Summer'];
+            else if (this.state === 'MENU') prog = progressions.MENU;
+            else prog = progressions.EXPLORING[season] || progressions.EXPLORING['Summer'];
 
-            const beatsPerChord = 4;
-            const totalBeats = Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ;
-            const index = Math.floor(totalBeats / beatsPerChord) % prog.length;
-            const targetChord = prog[index];
+            // Chord Progression Loop (Half-Note resolution = 8 sixteenths)
+            if (totalSixteenths % 8 === 0) {
+                const chordIndex = Math.floor(totalSixteenths / 8) % prog.length;
+                const targetChord = prog[chordIndex];
+                const currentChordStr = this.currentChord ? this.currentChord.join(",") : "";
+                const targetChordStr = targetChord.join(",");
 
-            const currentChordStr = this.currentChord ? this.currentChord.join(",") : "";
-            const targetChordStr = targetChord.join(",");
-
-            if (currentChordStr !== targetChordStr) {
-                this.currentChord = targetChord;
-                if (this.synths.pad) {
-                    this.synths.pad.releaseAll(time);
-                    this.synths.pad.triggerAttack(this.currentChord, time + 0.05);
+                if (currentChordStr !== targetChordStr) {
+                    this.currentChord = targetChord;
+                    if (this.synths.pad) {
+                        this.synths.pad.releaseAll(time);
+                        this.synths.pad.triggerAttack(this.currentChord, time + 0.05);
+                    }
                 }
             }
-        }, "2n").start(0));
 
-        // Bass Loop
-        this.loops.push(new Tone.Loop(time => {
             if (!this.currentChord || this.currentChord.length === 0) return;
             const rootNote = this.currentChord[0];
             const bassNote = rootNote.replace(/\d/, '2');
 
-            if (this.state === 'BATTLE' || this.state === 'PVP') {
-                // Energetic syncopated techno bass
-                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
-                if (step === 0 || step === 2 || step === 3 || step === 5 || step === 6) {
-                    this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.6);
-                }
-            } else if (this.state === 'TRADE') {
-                // Chill lounge bass - shorter duration to avoid overlap warnings
-                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ)) % 4;
-                if (step === 0) {
-                    this.synths.bass.triggerAttackRelease(bassNote, "8n", time, 0.4);
-                }
-            } else if (this.state === 'MENU') {
-                // Menu slow pulse
-                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ)) % 4;
-                if (step === 0 || step === 2) {
-                    this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.45);
-                }
-            } else {
-                // Exploring bass - playful, galloping adventure bassline!
-                const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
-                const note = (step === 3 || step === 7) ? rootNote.replace(/\d/, '3') : bassNote;
-                if (step === 0 || step === 2 || step === 3 || step === 4 || step === 6 || step === 7) {
-                    this.synths.bass.triggerAttackRelease(note, "16n", time, 0.55);
-                }
-            }
-        }, "8n").start(0));
-
-        // Techno-Arpeggiator / Pulser Loop
-        this.loops.push(new Tone.Loop(time => {
-            if (!this.currentChord || this.currentChord.length === 0) return;
-            if (this.state === 'TRADE') return;
-
-            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 4) % 16;
-
-            if (this.state === 'BATTLE' || this.state === 'PVP') {
-                const noteIndex = step % this.currentChord.length;
-                let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
-                if (Math.random() > 0.3) {
-                    const cutoff = 400 + Math.sin(time * 0.2) * 500;
-                    if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
-                        this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
+            // Bass Loop (8n interval -> runs every 2 sixteenths)
+            if (totalSixteenths % 2 === 0) {
+                const step8 = (totalSixteenths / 2) % 8;
+                if (this.state === 'BATTLE' || this.state === 'PVP') {
+                    if (step8 === 0 || step8 === 2 || step8 === 3 || step8 === 5 || step8 === 6) {
+                        this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.6);
                     }
-                    this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.32);
-                }
-            } else if (this.state === 'MENU') {
-                const noteIndex = step % this.currentChord.length;
-                let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
-                if (step % 2 === 0) {
-                    const cutoff = 350 + Math.sin(time * 0.15) * 200;
-                    if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
-                        this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
+                } else if (this.state === 'TRADE') {
+                    if (step8 % 2 === 0) {
+                        this.synths.bass.triggerAttackRelease(bassNote, "8n", time, 0.4);
                     }
-                    this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.18);
-                }
-            } else {
-                // Exploring - bright, sparkling adventure arpeggiator!
-                const noteIndex = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 3][step % 16] % this.currentChord.length;
-                let arpNote = this.currentChord[noteIndex];
-                let oct = (step % 4 === 0 || step % 4 === 2) ? '4' : '5';
-                arpNote = arpNote.replace(/\d/, oct);
-
-                if (step % 4 !== 3) {
-                    const cutoff = 400 + Math.sin(time * 0.2) * 350;
-                    if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
-                        this.synths.pulser.filterEnvelope.baseFrequency = cutoff;
+                } else if (this.state === 'MENU') {
+                    if (step8 === 0 || step8 === 2) {
+                        this.synths.bass.triggerAttackRelease(bassNote, "16n", time, 0.45);
                     }
-                    this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.24);
+                } else {
+                    const note = (step8 === 3 || step8 === 7) ? rootNote.replace(/\d/, '3') : bassNote;
+                    if (step8 === 0 || step8 === 2 || step8 === 3 || step8 === 4 || step8 === 6 || step8 === 7) {
+                        this.synths.bass.triggerAttackRelease(note, "16n", time, 0.55);
+                    }
                 }
             }
-        }, "16n").start(0));
 
-        // Melodic Lead Loop
-        this.loops.push(new Tone.Loop(time => {
-            if (!this.currentChord || this.currentChord.length === 0) return;
+            // Techno-Arpeggiator / Pulser Loop (16n interval -> runs every 1 sixteenth)
+            if (this.state !== 'TRADE') {
+                const step16 = totalSixteenths % 16;
+                const noteIndex = step16 % this.currentChord.length;
 
-            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 16; // 16-step cycle
-            let shouldPlay = false;
-            let noteOffset = 0;
-            let noteLength = "8n";
-            let octave = '5';
+                if (this.state === 'BATTLE' || this.state === 'PVP') {
+                    let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
+                    if (Math.random() > 0.3) {
+                        if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
+                            this.synths.pulser.filterEnvelope.baseFrequency = 400 + Math.sin(time * 0.2) * 500;
+                        }
+                        this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.32);
+                    }
+                } else if (this.state === 'MENU') {
+                    let arpNote = this.currentChord[noteIndex].replace(/\d/, '4');
+                    if (step16 % 2 === 0) {
+                        if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
+                            this.synths.pulser.filterEnvelope.baseFrequency = 350 + Math.sin(time * 0.15) * 200;
+                        }
+                        this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.18);
+                    }
+                } else {
+                    const ni = [0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 3][step16] % this.currentChord.length;
+                    let arpNote = this.currentChord[ni];
+                    let oct = (step16 % 4 === 0 || step16 % 4 === 2) ? '4' : '5';
+                    arpNote = arpNote.replace(/\d/, oct);
 
-            if (this.state === 'BATTLE' || this.state === 'PVP') {
-                const battlePattern = [true, false, true, true, false, true, false, true, true, false, true, false, true, true, false, false];
-                shouldPlay = battlePattern[step];
-                const offsets = [0, 2, 1, 2, 0, 3, 2, 4, 3, 1, 2, 0, 1, 3, 2, 0];
-                noteOffset = offsets[step] % this.currentChord.length;
-                noteLength = (step % 2 === 0) ? "16n" : "32n";
-                octave = (step % 8 === 7) ? '6' : '5';
-            } else if (this.state === 'TRADE') {
-                const tradePattern = [true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, false];
-                shouldPlay = tradePattern[step];
-                noteOffset = step % this.currentChord.length;
-                noteLength = "4n";
-                octave = '5';
-            } else if (this.state === 'MENU') {
-                const menuPattern = [true, false, true, false, true, true, false, false, true, false, true, false, true, false, false, false];
-                shouldPlay = menuPattern[step];
-                const offsets = [0, 1, 2, 3, 2, 1, 0, 2];
-                noteOffset = offsets[step % offsets.length] % this.currentChord.length;
-                noteLength = "8n";
-                octave = '5';
-            } else {
-                // EXPLORING - Epic, upbeat adventure game lead melody!
-                const exploringPattern = [true, false, true, false, true, true, false, true, false, true, true, false, true, false, true, false];
-                shouldPlay = exploringPattern[step];
-                const melodicContour = [0, 1, 2, 1, 3, 2, 4, 3, 1, 2, 3, 4, 5, 3, 2, 0];
-                noteOffset = melodicContour[step] % this.currentChord.length;
-                noteLength = (step === 4 || step === 12) ? "4n" : "8n";
-                octave = (melodicContour[step] >= 4) ? '6' : '5';
+                    if (step16 % 4 !== 3) {
+                        if (this.synths.pulser && this.synths.pulser.filterEnvelope) {
+                            this.synths.pulser.filterEnvelope.baseFrequency = 400 + Math.sin(time * 0.2) * 350;
+                        }
+                        this.synths.pulser.triggerAttackRelease(arpNote, "32n", time, 0.24);
+                    }
+                }
             }
 
-            if (shouldPlay) {
-                let leadNote = this.currentChord[noteOffset];
-                leadNote = leadNote.replace(/\d/, octave);
-                const vol = (this.state === 'TRADE') ? 0.25 : 0.44;
-                this.synths.lead.triggerAttackRelease(leadNote, noteLength, time, vol);
-            }
-        }, "8n").start(0));
+            // Melodic Lead Loop (8n interval -> runs every 2 sixteenths)
+            if (totalSixteenths % 2 === 0) {
+                const step8 = (totalSixteenths / 2) % 16;
+                let shouldPlay = false;
+                let noteOffset = 0;
+                let noteLength = "8n";
+                let octave = '5';
 
-        // Drums: Kick Drum Loop (8n interval for syncopated adventure drum beats!)
-        this.loops.push(new Tone.Loop(time => {
-            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
-            let shouldPlay = false;
-            let vol = 0.5;
+                if (this.state === 'BATTLE' || this.state === 'PVP') {
+                    const battlePattern = [true, false, true, true, false, true, false, true, true, false, true, false, true, true, false, false];
+                    shouldPlay = battlePattern[step8];
+                    const offsets = [0, 2, 1, 2, 0, 3, 2, 4, 3, 1, 2, 0, 1, 3, 2, 0];
+                    noteOffset = offsets[step8] % this.currentChord.length;
+                    noteLength = (step8 % 2 === 0) ? "16n" : "32n";
+                    octave = (step8 % 8 === 7) ? '6' : '5';
+                } else if (this.state === 'TRADE') {
+                    const tradePattern = [true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, false];
+                    shouldPlay = tradePattern[step8];
+                    noteOffset = step8 % this.currentChord.length;
+                    noteLength = "4n";
+                    octave = '5';
+                } else if (this.state === 'MENU') {
+                    const menuPattern = [true, false, true, false, true, true, false, false, true, false, true, false, true, false, false, false];
+                    shouldPlay = menuPattern[step8];
+                    const offsets = [0, 1, 2, 3, 2, 1, 0, 2];
+                    noteOffset = offsets[step8 % offsets.length] % this.currentChord.length;
+                    noteLength = "8n";
+                    octave = '5';
+                } else {
+                    const exploringPattern = [true, false, true, false, true, true, false, true, false, true, true, false, true, false, true, false];
+                    shouldPlay = exploringPattern[step8];
+                    const melodicContour = [0, 1, 2, 1, 3, 2, 4, 3, 1, 2, 3, 4, 5, 3, 2, 0];
+                    noteOffset = melodicContour[step8] % this.currentChord.length;
+                    noteLength = (step8 === 4 || step8 === 12) ? "4n" : "8n";
+                    octave = (melodicContour[step8] >= 4) ? '6' : '5';
+                }
 
-            if (this.state === 'BATTLE' || this.state === 'PVP') {
-                shouldPlay = (step === 0 || step === 2 || step === 3 || step === 4 || step === 6 || step === 7);
-                vol = 0.95;
-            } else if (this.state === 'EXPLORING') {
-                shouldPlay = (step === 0 || step === 3 || step === 4);
-                vol = 0.75;
-            } else if (this.state === 'MENU') {
-                shouldPlay = (step === 0 || step === 4);
-                vol = 0.55;
-            } else if (this.state === 'TRADE') {
-                shouldPlay = (step === 0);
-                vol = 0.4;
-            }
-
-            if (shouldPlay) {
-                this.synths.kick.triggerAttackRelease("C1", "8n", time, vol);
-            }
-        }, "8n").start(0));
-
-        // Drums: Snare Drum Loop (8n interval for active backbeats and ghost notes!)
-        this.loops.push(new Tone.Loop(time => {
-            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 2) % 8;
-            let shouldPlay = false;
-            let vol = 0.5;
-
-            if (this.state === 'BATTLE' || this.state === 'PVP') {
-                shouldPlay = (step === 2 || step === 6 || step === 7);
-                vol = (step === 7) ? 0.4 : 0.78;
-            } else if (this.state === 'EXPLORING') {
-                shouldPlay = (step === 2 || step === 6 || (step === 5 && Math.random() < 0.4));
-                vol = (step === 5) ? 0.22 : 0.6;
-            } else if (this.state === 'MENU') {
-                shouldPlay = (step === 2 || step === 6);
-                vol = 0.5;
+                if (shouldPlay) {
+                    let leadNote = this.currentChord[noteOffset];
+                    leadNote = leadNote.replace(/\d/, octave);
+                    const vol = (this.state === 'TRADE') ? 0.25 : 0.44;
+                    this.synths.lead.triggerAttackRelease(leadNote, noteLength, time, vol);
+                }
             }
 
-            if (shouldPlay) {
-                this.synths.snare.triggerAttackRelease("16n", time, vol);
-            }
-        }, "8n").start(0));
+            // Drums: Kick Drum Loop (8n interval)
+            if (totalSixteenths % 2 === 0) {
+                const step8 = (totalSixteenths / 2) % 8;
+                let shouldPlay = false;
+                let vol = 0.5;
 
-        // Drums: Hi-hat Loop (16n interval for energetic sixteenth-note adventure grooves!)
-        this.loops.push(new Tone.Loop(time => {
-            const step = Math.round((Tone.Transport.getTicksAtTime(time) / Tone.Transport.PPQ) * 4) % 16;
+                if (this.state === 'BATTLE' || this.state === 'PVP') {
+                    shouldPlay = (step8 === 0 || step8 === 2 || step8 === 3 || step8 === 4 || step8 === 6 || step8 === 7);
+                    vol = 0.95;
+                } else if (this.state === 'EXPLORING') {
+                    shouldPlay = (step8 === 0 || step8 === 3 || step8 === 4);
+                    vol = 0.75;
+                } else if (this.state === 'MENU') {
+                    shouldPlay = (step8 === 0 || step8 === 4);
+                    vol = 0.55;
+                } else if (this.state === 'TRADE') {
+                    shouldPlay = (step8 === 0);
+                    vol = 0.4;
+                }
+
+                if (shouldPlay) {
+                    this.synths.kick.triggerAttackRelease("C1", "8n", time, vol);
+                }
+            }
+
+            // Drums: Snare Drum Loop (8n interval)
+            if (totalSixteenths % 2 === 0) {
+                const step8 = (totalSixteenths / 2) % 8;
+                let shouldPlay = false;
+                let vol = 0.5;
+
+                if (this.state === 'BATTLE' || this.state === 'PVP') {
+                    shouldPlay = (step8 === 2 || step8 === 6 || step8 === 7);
+                    vol = (step8 === 7) ? 0.4 : 0.78;
+                } else if (this.state === 'EXPLORING') {
+                    shouldPlay = (step8 === 2 || step8 === 6 || (step8 === 5 && Math.random() < 0.4));
+                    vol = (step8 === 5) ? 0.22 : 0.6;
+                } else if (this.state === 'MENU') {
+                    shouldPlay = (step8 === 2 || step8 === 6);
+                    vol = 0.5;
+                }
+
+                if (shouldPlay) {
+                    this.synths.snare.triggerAttackRelease("16n", time, vol);
+                }
+            }
+
+            // Drums: Hi-hat Loop (16n interval)
+            const step16 = totalSixteenths % 16;
             let shouldPlay = false;
             let vol = 0.15;
 
             if (this.state === 'BATTLE' || this.state === 'PVP') {
                 shouldPlay = true;
-                vol = (step % 4 === 2) ? 0.45 : ((step % 2 === 0) ? 0.22 : 0.12);
+                vol = (step16 % 4 === 2) ? 0.45 : ((step16 % 2 === 0) ? 0.22 : 0.12);
             } else if (this.state === 'EXPLORING') {
-                shouldPlay = (step % 2 === 0);
-                vol = (step % 4 === 2) ? 0.28 : 0.16;
+                shouldPlay = (step16 % 2 === 0);
+                vol = (step16 % 4 === 2) ? 0.28 : 0.16;
             } else if (this.state === 'MENU') {
-                shouldPlay = (step % 4 === 2);
+                shouldPlay = (step16 % 4 === 2);
                 vol = 0.18;
             } else if (this.state === 'TRADE') {
-                shouldPlay = (step % 4 === 2 || step % 8 === 6);
+                shouldPlay = (step16 % 4 === 2 || step16 % 8 === 6);
                 vol = 0.12;
             }
 
             if (shouldPlay) {
                 this.synths.hihat.triggerAttackRelease("32n", time, vol);
             }
-        }, "16n").start(0));
-    },
+
+        }, "16n").start(0);
+    }
 
     update() {
         if (!this.initialized || this.muted) return;
@@ -8636,12 +8582,8 @@ window.WildPulseMusic = {
 
         let newState = 'EXPLORING';
         if (!this.dom) {
-            this.dom = {
-                tradeModal: document.getElementById('tradeModal'),
-                pvpModal: document.getElementById('pvpModal')
-            };
+            this.dom = { tradeModal: document.getElementById('tradeModal'), pvpModal: document.getElementById('pvpModal') };
         }
-
         if (!window.gameStarted) newState = 'MENU';
         else if (window.isPvpBattle) newState = 'PVP';
         else if (window.inBattle) newState = 'BATTLE';
@@ -8653,16 +8595,13 @@ window.WildPulseMusic = {
             if (this.state === 'MENU') {
                 this.synths.lead.set({ oscillator: { type: "sine" } });
                 if (this.leadFilter) this.leadFilter.frequency.rampTo(500, 1.5);
-            }
-            else if (this.state === 'BATTLE') {
+            } else if (this.state === 'BATTLE') {
                 this.synths.lead.set({ oscillator: { type: "triangle" } });
                 if (this.leadFilter) this.leadFilter.frequency.rampTo(900, 1.5);
-            }
-            else if (this.state === 'PVP') {
+            } else if (this.state === 'PVP') {
                 this.synths.lead.set({ oscillator: { type: "triangle" } });
                 if (this.leadFilter) this.leadFilter.frequency.rampTo(1000, 1.5);
-            }
-            else if (this.state === 'TRADE') {
+            } else if (this.state === 'TRADE') {
                 this.synths.lead.set({ oscillator: { type: "sine" } });
                 if (this.leadFilter) this.leadFilter.frequency.rampTo(600, 1.5);
             } else {
@@ -8672,7 +8611,6 @@ window.WildPulseMusic = {
             console.log(`[Music] State changed to ${this.state}`);
         }
 
-        // Dynamically calculate target BPM based on state baseline, season, and time of day
         let baseBpm = 125;
         if (this.state === 'MENU') baseBpm = 110;
         else if (this.state === 'BATTLE') baseBpm = 150;
@@ -8696,36 +8634,29 @@ window.WildPulseMusic = {
         }
 
         let targetBpm = Math.max(60, Math.min(200, Math.round(baseBpm + seasonMod + timeMod)));
-
         if (Math.abs(Tone.Transport.bpm.value - targetBpm) > 0.5) {
             Tone.Transport.bpm.value = targetBpm;
             this.bpm = targetBpm;
         }
 
-        // Atmospheric weather effects
         const weather = window.weatherPattern || 'none';
         const hasWeather = (weather !== 'none');
         const intensity = window.weatherIntensity || 0;
 
         if (this.reverb) {
             const targetWet = hasWeather ? 0.35 + (0.45 * intensity) : 0.35;
-            if (Math.abs(this.reverb.wet.value - targetWet) > 0.05) {
-                this.reverb.wet.rampTo(targetWet, 4);
-            }
+            if (Math.abs(this.reverb.wet.value - targetWet) > 0.05) this.reverb.wet.rampTo(targetWet, 4);
         }
 
-        // Apply weather sweeps to lowpass filters safely using value sets to avoid timeline ramp collisions
-        if (this.padFilter && this.synths.pulser) {
+        if (this.padFilter && this.synths.pulser && this.synths.pulser.filter) {
             let padCutoff = 1000;
             let pulserCutoff = 600;
             if (hasWeather && intensity > 0) {
-                padCutoff = 1000 - (650 * intensity);     // sweep down to 350Hz
-                pulserCutoff = 600 - (400 * intensity);   // sweep down to 200Hz
+                padCutoff = 1000 - (650 * intensity);
+                pulserCutoff = 600 - (400 * intensity);
             }
-            this.padFilter.frequency.value = padCutoff;
-            if (this.synths.pulser && this.synths.pulser.filter) {
-                this.synths.pulser.filter.frequency.value = pulserCutoff;
-            }
+            if (Math.abs(this.padFilter.frequency.value - padCutoff) > 10) this.padFilter.frequency.value = padCutoff;
+            if (Math.abs(this.synths.pulser.filter.frequency.value - pulserCutoff) > 10) this.synths.pulser.filter.frequency.value = pulserCutoff;
         }
 
         let musicDucking = 0;
@@ -8734,45 +8665,29 @@ window.WildPulseMusic = {
             let targetRainVol = -60;
 
             if (weather !== 'none' && intensity > 0) {
-                const baseWind = -45;
-                targetWindVol = baseWind + (20 * intensity);
+                targetWindVol = -45 + (20 * intensity);
                 musicDucking -= (4 * intensity);
-
-                if (this.windLFO) {
-                    this.windLFO.frequency.value = 0.05 + (window.windSpeed / 500);
-                }
+                if (this.windLFO) this.windLFO.frequency.value = 0.05 + (window.windSpeed / 500);
             }
-
             if ((weather.includes('rain') || weather.includes('storm')) && intensity > 0) {
-                const baseRain = -40;
                 const maxRain = (weather === 'thunderstorm') ? -15 : -25;
-                targetRainVol = baseRain + ((maxRain - baseRain) * intensity);
+                targetRainVol = -40 + ((maxRain + 40) * intensity);
                 musicDucking -= (6 * intensity);
                 if (weather === 'thunderstorm') musicDucking -= (4 * intensity);
             }
 
             if (this.synths.wind) {
-                if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 1) {
-                    this.synths.wind.volume.rampTo(targetWindVol, 1);
-                }
+                if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 1) this.synths.wind.volume.rampTo(targetWindVol, 1);
                 if (targetWindVol > -58 && this.synths.wind.state !== 'started') this.synths.wind.triggerAttack();
                 else if (targetWindVol <= -58 && this.synths.wind.state === 'started') this.synths.wind.triggerRelease();
             }
 
             if (this.synths.rain) {
-                const variation = (Math.random() - 0.5) * 2;
-                const finalRainVol = targetRainVol + variation;
-
-                if (Math.abs(this.synths.rain.volume.value - finalRainVol) > 1) {
-                    this.synths.rain.volume.rampTo(finalRainVol, 1);
-                }
+                const finalRainVol = targetRainVol + ((Math.random() - 0.5) * 2);
+                if (Math.abs(this.synths.rain.volume.value - finalRainVol) > 1) this.synths.rain.volume.rampTo(finalRainVol, 1);
                 if (targetRainVol > -58) {
                     if (this.synths.rain.state !== 'started') this.synths.rain.triggerAttack();
-                    if (weather === 'thunderstorm') {
-                        this.synths.rain.noise.type = 'white';
-                    } else {
-                        this.synths.rain.noise.type = 'pink';
-                    }
+                    this.synths.rain.noise.type = weather === 'thunderstorm' ? 'white' : 'pink';
                 } else if (this.synths.rain.state === 'started') {
                     this.synths.rain.triggerRelease();
                 }
@@ -8782,19 +8697,16 @@ window.WildPulseMusic = {
             if (this.synths.rain && this.synths.rain.volume.value > -59) this.synths.rain.volume.rampTo(-60, 1);
         }
 
-        // Apply music ducking
-        if (this.musicBus) {
-            if (Math.abs(this.musicBus.volume.value - musicDucking) > 0.5) {
-                this.musicBus.volume.rampTo(musicDucking, 1);
-            }
+        if (this.musicBus && Math.abs(this.musicBus.volume.value - musicDucking) > 0.5) {
+            this.musicBus.volume.rampTo(musicDucking, 1);
         }
-    },
+    }
 
     triggerThunder() {
         if (!this.initialized || this.muted || !this.synths.thunder) return;
         if (this.synths.thunderStrike) this.synths.thunderStrike.triggerAttackRelease("C1", "8n");
         this.synths.thunder.triggerAttackRelease("1n");
-    },
+    }
 
     toggle() {
         this.muted = !this.muted;
@@ -8806,7 +8718,9 @@ window.WildPulseMusic = {
         }
         return this.muted;
     }
-};
+}
+
+window.WildPulseMusic = new MusicManager();
 
 window.PATTERN_UNLOCKS = {
     'None': { condition: 'Default', check: () => true },
