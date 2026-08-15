@@ -22497,150 +22497,31 @@ window.useInventoryWheelOption = function(playerNum, optionName) {
 };
 
 window.deleteProgress = function(playerNum = 1) {
-    if (window.coopActive) {
-        window.showConfirm(playerNum, 'ERASE ALL DATA?', 'Are you sure? This will erase all split-screen save data for both players.', () => {
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem('wildpulse_collected_creatures2');
-            localStorage.removeItem('wildpulse_player_level');
-            localStorage.removeItem('wildpulse_player_xp');
-            localStorage.removeItem('wildpulse_player2_level');
-            localStorage.removeItem('wildpulse_player2_xp');
-            localStorage.removeItem('wildpulse_player_x');
-            localStorage.removeItem('wildpulse_player_y');
-            localStorage.removeItem('wildpulse_player2_x');
-            localStorage.removeItem('wildpulse_player2_y');
-            localStorage.removeItem('wildpulse_inGameDays');
-            localStorage.removeItem('wildpulse_currentSeason');
-            localStorage.removeItem('wildpulse_world_seed');
-            localStorage.removeItem('wildpulse_total_elapsed_ms');
-            localStorage.removeItem('wildpulse_challenge_tier');
-            localStorage.removeItem('wildpulse_unlocked_patterns_cache');
-            localStorage.removeItem('wildpulse_stats');
-            localStorage.removeItem('wildpulse_stats2');
-            localStorage.removeItem('wildpulse_coop_active');
-            localStorage.removeItem('wildpulse_store_stock_p1');
-            localStorage.removeItem('wildpulse_store_stock_p2');
-            localStorage.removeItem('wildpulse_last_replenish_day');
-            localStorage.removeItem('wildpulse_inventory');
-            localStorage.removeItem('wildpulse_inventory2');
-            localStorage.removeItem('wildpulse_npc_trainer_data');
-            localStorage.removeItem('wildpulse_p1_last_cookie_time');
-            localStorage.removeItem('wildpulse_p2_last_cookie_time');
-            localStorage.removeItem('wildpulse_p1_last_pet_time');
-            localStorage.removeItem('wildpulse_p2_last_pet_time');
-            localStorage.removeItem('wildpulse_p1PedometerTime');
-            localStorage.removeItem('wildpulse_p2PedometerTime');
-            localStorage.removeItem('wildpulse_p1NpcDualTime');
-            localStorage.removeItem('wildpulse_p2NpcDualTime');
-            localStorage.removeItem('wildpulse_p1WildDualTime');
-            localStorage.removeItem('wildpulse_p2WildDualTime');
-            localStorage.removeItem('wildpulse_narrative_progress');
-            localStorage.removeItem('wildpulse_p1RepellentTime');
-            localStorage.removeItem('wildpulse_p2RepellentTime');
-            localStorage.removeItem('wildpulse_p1JankJuiceTime');
-            localStorage.removeItem('wildpulse_p2JankJuiceTime');
-            localStorage.removeItem('wildpulse_p1ExPallTime');
-            localStorage.removeItem('wildpulse_p2ExPallTime');
-            localStorage.removeItem('wildpulse_p1_home_x');
-            localStorage.removeItem('wildpulse_p1_home_y');
-            localStorage.removeItem('wildpulse_p2_home_x');
-            localStorage.removeItem('wildpulse_p2_home_y');
-            localStorage.removeItem('wildpulse_p1_mini_tiles');
-            localStorage.removeItem('wildpulse_p2_mini_tiles');
-            localStorage.removeItem('wildpulse_p1_quests');
-            localStorage.removeItem('wildpulse_p2_quests');
+    const isCoop = window.coopActive;
+    const title = isCoop ? 'ERASE ALL DATA?' : 'ERASE DATA?';
+    const desc = isCoop
+        ? 'Are you sure? This will erase all split-screen save data for both players.'
+        : 'Are you sure? This will erase your singleplayer save data.';
 
-            if (window.spawnPlayerHomes) {
-                window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
+    window.showConfirm(playerNum, title, desc, () => {
+        // Dynamic cleanup to ensure all progress is deleted
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith('wildpulse_') || key === STORAGE_KEY) && !key.includes('own_world_code') && !key.includes('world_code')) {
+                localStorage.removeItem(key);
+                i--; // Decrement because we just removed an item
             }
-            if (window.spawnMiniTiles) {
-                window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
-            }
+        }
 
-            // Reset customization settings for both players
-            localStorage.removeItem('wildpulse_player_name');
-            localStorage.removeItem('wildpulse_player_color');
-            localStorage.removeItem('wildpulse_player_aura_color');
-            localStorage.removeItem('wildpulse_player_pattern');
-            localStorage.removeItem('wildpulse_player_pattern_color');
-            localStorage.removeItem('wildpulse_player_shape');
+        if (window.spawnPlayerHomes) {
+            window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
+        }
+        if (window.spawnMiniTiles) {
+            window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
+        }
 
-            localStorage.removeItem('wildpulse_player2_name');
-            localStorage.removeItem('wildpulse_player2_color');
-            localStorage.removeItem('wildpulse_player2_aura_color');
-            localStorage.removeItem('wildpulse_player2_pattern');
-            localStorage.removeItem('wildpulse_player2_pattern_color');
-            localStorage.removeItem('wildpulse_player2_shape');
-
-            location.reload();
-        });
-    } else {
-        window.showConfirm(playerNum, 'ERASE DATA?', 'Are you sure? This will erase your singleplayer save data.', () => {
-            // Delete ONLY Player 1/Singleplayer progress keys
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem('wildpulse_player_level');
-            localStorage.removeItem('wildpulse_player_xp');
-            localStorage.removeItem('wildpulse_player_x');
-            localStorage.removeItem('wildpulse_player_y');
-            localStorage.removeItem('wildpulse_stats');
-            localStorage.removeItem('wildpulse_store_stock_p1');
-            localStorage.removeItem('wildpulse_inventory');
-            localStorage.removeItem('wildpulse_p1_last_cookie_time');
-            localStorage.removeItem('wildpulse_p1_last_pet_time');
-            localStorage.removeItem('wildpulse_p1PedometerTime');
-            localStorage.removeItem('wildpulse_p1NpcDualTime');
-            localStorage.removeItem('wildpulse_p1WildDualTime');
-            localStorage.removeItem('wildpulse_p1RepellentTime');
-            localStorage.removeItem('wildpulse_p1JankJuiceTime');
-            localStorage.removeItem('wildpulse_p1ExPallTime');
-            localStorage.removeItem('wildpulse_p1_home_x');
-            localStorage.removeItem('wildpulse_p1_home_y');
-            localStorage.removeItem('wildpulse_p1_mini_tiles');
-            localStorage.removeItem('wildpulse_p1_quests');
-
-            // Reset customization settings for player 1
-            localStorage.removeItem('wildpulse_player_name');
-            localStorage.removeItem('wildpulse_player_color');
-            localStorage.removeItem('wildpulse_player_aura_color');
-            localStorage.removeItem('wildpulse_player_pattern');
-            localStorage.removeItem('wildpulse_player_pattern_color');
-            localStorage.removeItem('wildpulse_player_shape');
-
-            // Reset shared/global keys as well
-            localStorage.removeItem('wildpulse_inGameDays');
-            localStorage.removeItem('wildpulse_currentSeason');
-            localStorage.removeItem('wildpulse_world_seed');
-            localStorage.removeItem('wildpulse_total_elapsed_ms');
-            localStorage.removeItem('wildpulse_challenge_tier');
-            localStorage.removeItem('wildpulse_unlocked_patterns_cache');
-            localStorage.removeItem('wildpulse_last_replenish_day');
-            localStorage.removeItem('wildpulse_coop_active');
-
-            // Reset P1 NPC trainer data inside the JSON structure
-            try {
-                let allData = JSON.parse(localStorage.getItem('wildpulse_npc_trainer_data')) || {};
-                for (let trainerId in allData) {
-                    if (allData[trainerId]) {
-                        delete allData[trainerId].weekBattles;
-                        delete allData[trainerId].lastBattleTimeMs;
-                        allData[trainerId].p1 = { weekBattles: {}, lastBattleTimeMs: 0 };
-                    }
-                }
-                localStorage.setItem('wildpulse_npc_trainer_data', JSON.stringify(allData));
-            } catch (e) {
-                console.error("Error resetting P1 NPC trainer data:", e);
-            }
-
-            if (window.spawnPlayerHomes) {
-                window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
-            }
-            if (window.spawnMiniTiles) {
-                window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
-            }
-
-            location.reload();
-        });
-    }
+        location.reload();
+    });
 };
 
 window.exitGame = function(playerNum) {
