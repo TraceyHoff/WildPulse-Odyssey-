@@ -3584,6 +3584,22 @@
     <div style="font-size: 9px; color: white; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Hospital</div>
 </div>
 
+<div id="p1QuestArrow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4400; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
+    <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(255,215,0,0.5)); transition: transform 0.1s ease-out;">
+        <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffd700" stroke-width="2"/>
+        <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ffd700" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-size: 9px; color: #ffd700; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Quest</div>
+</div>
+
+<div id="p2QuestArrow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 4400; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
+    <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(255,215,0,0.5)); transition: transform 0.1s ease-out;">
+        <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffd700" stroke-width="2"/>
+        <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ffd700" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-size: 9px; color: #ffd700; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Quest</div>
+</div>
+
 <div id="p2HospitalArrow" style="position: fixed; top: 20px; left: 75%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
     <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
         <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffffff" stroke-width="2"/>
@@ -4931,6 +4947,80 @@ window.getRandomLore = function() {
     }
 
     return lore[Math.floor(Math.random() * lore.length)];
+};
+
+
+window.getQuestTargetPosition = function(quest, playerObj) {
+    if (!quest) return null;
+
+    let closestDistSq = Infinity;
+    let targetPos = null;
+
+    if (quest.type === 'catch') {
+        if (typeof window.creaturesGroup !== 'undefined' && window.creaturesGroup) {
+            window.creaturesGroup.getChildren().forEach(c => {
+                const data = c.getData('creatureData');
+                if (data && data.name === quest.target) {
+                    const distSq = (c.x - playerObj.x) ** 2 + (c.y - playerObj.y) ** 2;
+                    if (distSq < closestDistSq) {
+                        closestDistSq = distSq;
+                        targetPos = { x: c.x, y: c.y };
+                    }
+                }
+            });
+        }
+    } else if (quest.type === 'breed') {
+        if (typeof window.breedGroup !== 'undefined' && window.breedGroup) {
+            window.breedGroup.getChildren().forEach(b => {
+                const distSq = (b.x - playerObj.x) ** 2 + (b.y - playerObj.y) ** 2;
+                if (distSq < closestDistSq) {
+                    closestDistSq = distSq;
+                    targetPos = { x: b.x, y: b.y };
+                }
+            });
+        }
+    } else if (quest.type === 'defeat_trainer') {
+        if (window.npcTrainerCoords) {
+            for (const [id, coord] of Object.entries(window.npcTrainerCoords)) {
+                const tName = window.getNpcTrainerName ? window.getNpcTrainerName(id) : "Trainer";
+                if (tName === quest.target) {
+                    // Coordinates are in tiles
+                    const px = coord.c * 100 + 50;
+                    const py = coord.r * 100 + 50;
+                    const distSq = (px - playerObj.x) ** 2 + (py - playerObj.y) ** 2;
+                    if (distSq < closestDistSq) {
+                        closestDistSq = distSq;
+                        targetPos = { x: px, y: py };
+                    }
+                }
+            }
+        }
+    } else if (quest.type === 'challenge_tier') {
+        // I need to use the variable for challengeGroup, let's verify if window.challengeGroup exists or check where it is stored. I will fall back to checking active tiles if needed, but challengeGroup is defined globally?
+        // Let's iterate challengeGroup if available
+        if (typeof challengeGroup !== 'undefined' && challengeGroup) {
+            challengeGroup.getChildren().forEach(c => {
+                const distSq = (c.x - playerObj.x) ** 2 + (c.y - playerObj.y) ** 2;
+                if (distSq < closestDistSq) {
+                    closestDistSq = distSq;
+                    targetPos = { x: c.x, y: c.y };
+                }
+            });
+        }
+    } else if (quest.type === 'narrative' || quest.status === 'completed') {
+        // Return to quest giver
+        if (quest.npcId && window.questNpcs && window.getQuestNpcPos) {
+            const npc = window.questNpcs.find(n => n.id === quest.npcId);
+            if (npc) {
+                const pos = window.getQuestNpcPos(npc);
+                if (pos) {
+                    targetPos = { x: pos.c * 100 + 50, y: pos.r * 100 + 50 };
+                }
+            }
+        }
+    }
+
+    return targetPos;
 };
 
 window.openQuestModal = function(playerNum, npcId) {
@@ -20301,7 +20391,9 @@ window.renderQuestsList = function(playerNum = 1) {
             trackBtn.style.cursor = 'pointer';
 
             trackBtn.onclick = () => {
-                quest.tracked = !quest.tracked;
+                const wasTracked = quest.tracked;
+                quests.forEach(q => q.tracked = false);
+                quest.tracked = !wasTracked;
                 window.saveQuests();
                 window.renderQuestsList(playerNum);
             };
@@ -29025,6 +29117,148 @@ function create() {
     }
 }
 
+
+window.updateQuestArrows = function(scene) {
+    const p1Arrow = window.getCachedElement('p1QuestArrow');
+    const p2Arrow = window.getCachedElement('p2QuestArrow');
+    if (!p1Arrow || !p2Arrow) return;
+
+    if (!window.gameStarted) {
+        if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
+        if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
+        return;
+    }
+
+    const cam = scene && scene.cameras ? scene.cameras.main : null;
+    const cam2 = window.camera2 || null;
+
+    // Player 1
+    let p1Visible = true;
+    let p1TrackedQuest = (window.p1Quests || []).find(q => q.tracked);
+
+    if (window.coopActive) {
+        const battleModal = window.getCachedElement('battleModal');
+        const battleActive = battleModal && battleModal.style.display === 'flex' &&
+            (battleModal.classList.contains('p1-battle-active') ||
+             battleModal.classList.contains('pvp-battle-active'));
+        if (battleActive || window.p1ActiveModal !== null) {
+            p1Visible = false;
+        }
+    } else {
+        if (window.inBattle || (window.isAnyModalOpen && window.isAnyModalOpen())) {
+            p1Visible = false;
+        }
+    }
+
+    if (!p1TrackedQuest) {
+        p1Visible = false;
+    }
+
+    if (p1Visible && window.player && cam) {
+        const targetPos = window.getQuestTargetPosition(p1TrackedQuest, window.player);
+        if (targetPos) {
+            const targetDisplay = 'flex';
+
+            // Calculate screen position of player
+            const playerScreenX = window.player.x - cam.scrollX;
+            const playerScreenY = window.player.y - cam.scrollY;
+
+            // Calculate angle to target
+            const dx = targetPos.x - window.player.x;
+            const dy = targetPos.y - window.player.y;
+            const angleRad = Math.atan2(dy, dx);
+            const angleDeg = (angleRad * 180) / Math.PI;
+
+            // Orbit distance
+            const orbitRadius = 100;
+            const arrowX = playerScreenX + Math.cos(angleRad) * orbitRadius;
+            const arrowY = playerScreenY + Math.sin(angleRad) * orbitRadius;
+
+            const distance = Math.hypot(dx, dy);
+            const targetOpacity = (distance < 150) ? '0.2' : '1';
+
+            const targetTransform = `rotate(${angleDeg}deg)`;
+
+            if (p1Arrow.style.display !== targetDisplay) p1Arrow.style.display = targetDisplay;
+            p1Arrow.style.left = arrowX + 'px';
+            p1Arrow.style.top = arrowY + 'px';
+            if (p1Arrow.style.opacity !== targetOpacity) p1Arrow.style.opacity = targetOpacity;
+
+            const svgElement = p1Arrow.querySelector('svg');
+            if (svgElement) {
+                if (svgElement.style.transform !== targetTransform) {
+                    svgElement.style.transform = targetTransform;
+                }
+            }
+        } else {
+            if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
+        }
+    } else {
+        if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
+    }
+
+    // Player 2
+    let p2Visible = false;
+    let p2TrackedQuest = null;
+
+    if (window.coopActive && window.player2) {
+        p2Visible = true;
+        p2TrackedQuest = (window.p2Quests || []).find(q => q.tracked);
+        const battleModal = window.getCachedElement('battleModal');
+        const battleActive = battleModal && battleModal.style.display === 'flex' &&
+            (battleModal.classList.contains('p2-battle-active') ||
+             battleModal.classList.contains('pvp-battle-active'));
+        if (battleActive || window.p2ActiveModal !== null) {
+            p2Visible = false;
+        }
+    }
+
+    if (!p2TrackedQuest) {
+        p2Visible = false;
+    }
+
+    if (p2Visible && window.player2 && cam2) {
+        const targetPos = window.getQuestTargetPosition(p2TrackedQuest, window.player2);
+        if (targetPos) {
+            const targetDisplay = 'flex';
+
+            // Calculate screen position of player 2 in the P2 viewport
+            const player2ScreenX = (window.player2.x - cam2.scrollX) + cam.width; // Offset by P1 viewport width
+            const player2ScreenY = window.player2.y - cam2.scrollY;
+
+            const dx = targetPos.x - window.player2.x;
+            const dy = targetPos.y - window.player2.y;
+            const angleRad = Math.atan2(dy, dx);
+            const angleDeg = (angleRad * 180) / Math.PI;
+
+            const orbitRadius = 100;
+            const arrowX = player2ScreenX + Math.cos(angleRad) * orbitRadius;
+            const arrowY = player2ScreenY + Math.sin(angleRad) * orbitRadius;
+
+            const distance = Math.hypot(dx, dy);
+            const targetOpacity = (distance < 150) ? '0.2' : '1';
+
+            const targetTransform = `rotate(${angleDeg}deg)`;
+
+            if (p2Arrow.style.display !== targetDisplay) p2Arrow.style.display = targetDisplay;
+            p2Arrow.style.left = arrowX + 'px';
+            p2Arrow.style.top = arrowY + 'px';
+            if (p2Arrow.style.opacity !== targetOpacity) p2Arrow.style.opacity = targetOpacity;
+
+            const svgElement = p2Arrow.querySelector('svg');
+            if (svgElement) {
+                if (svgElement.style.transform !== targetTransform) {
+                    svgElement.style.transform = targetTransform;
+                }
+            }
+        } else {
+            if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
+        }
+    } else {
+        if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
+    }
+};
+
 function updateHospitalArrows() {
     const p1Arrow = window.getCachedElement('p1HospitalArrow');
     const p2Arrow = window.getCachedElement('p2HospitalArrow');
@@ -32965,6 +33199,11 @@ function update() {
     // Update hospital directional arrows
     if (typeof updateHospitalArrows === 'function') {
         updateHospitalArrows();
+    }
+
+    // Update quest directional arrows
+    if (typeof window.updateQuestArrows === 'function') {
+        window.updateQuestArrows(this);
     }
 
     let deltaMs = this.game.loop.delta || 16;
