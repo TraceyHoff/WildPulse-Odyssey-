@@ -4355,6 +4355,18 @@ window.updateStorageChestUI = function(playerNum) {
         "Holo Bed": "🛏️",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
+        "Neon Chair": "🪑",
+        "Holo Table": "🪑",
+        "Cyber Plant": "🪴",
+        "Neon Lamp": "💡",
+        "Server Rack": "🗄️",
+        "Arcade Machine": "🕹️",
+        "Cyber TV": "📺",
+        "Neon Shelf": "📚",
+        "Tech Bin": "🗑️",
+        "Neon Wardrobe": "🚪",
+        "Cyber Fridge": "🧊",
+        "Holo Display": "🖼️",
         "Repellent": "🧴",
         "HP Booster": "💚",
         "Attack Booster": "⚔️",
@@ -7455,7 +7467,11 @@ function escapeHtml(unsafe) {
         <!-- Player 1 Store Column -->
         <div class="coop-column p1-col">
             <button class="close-btn close-store-btn" aria-label="Close Store">X</button>
-            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 15px;">Player 1 Store</h2>
+            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 5px;">Player 1 Store</h2>
+            <div style="display: flex; margin-bottom: 15px; border-radius: 4px; overflow: hidden; padding-bottom: 2px;">
+                <button class="store-tab store-tab-items-p1 active" onclick="window.switchStoreTab(1, 'items')" style="flex: 1; padding: 8px; background: rgba(76,175,80,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 4px 0 0 4px; outline: 1px solid white; outline-offset: -2px;">Items</button>
+                <button class="store-tab store-tab-home-p1" onclick="window.switchStoreTab(1, 'home')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 0 4px 4px 0; outline: 1px solid white; outline-offset: -2px;">Home</button>
+            </div>
             <div id="storeContent">
                 <p>Welcome to the store! (Features coming soon)</p>
             </div>
@@ -7464,7 +7480,11 @@ function escapeHtml(unsafe) {
         <!-- Player 2 Store Column -->
         <div class="coop-column p2-col">
             <button class="close-btn close-store-btn" aria-label="Close Store">X</button>
-            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 15px;">Player 2 Store</h2>
+            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 5px;">Player 2 Store</h2>
+            <div style="display: flex; margin-bottom: 15px; border-radius: 4px; overflow: hidden; padding-bottom: 2px;">
+                <button class="store-tab store-tab-items-p2 active" onclick="window.switchStoreTab(2, 'items')" style="flex: 1; padding: 8px; background: rgba(255,152,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 4px 0 0 4px; outline: 1px solid white; outline-offset: -2px;">Items</button>
+                <button class="store-tab store-tab-home-p2" onclick="window.switchStoreTab(2, 'home')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 0 4px 4px 0; outline: 1px solid white; outline-offset: -2px;">Home</button>
+            </div>
             <div id="storeContent_P2">
                 <p>Welcome to the store! (Features coming soon)</p>
             </div>
@@ -17135,6 +17155,48 @@ window.sellCreature = function(playerNum) {
     });
 };
 
+
+window.p1StoreTab = 'items';
+window.p2StoreTab = 'items';
+window.switchStoreTab = function(playerNum, tabName) {
+    if (playerNum === 2) {
+        window.p2StoreTab = tabName;
+        const itemsBtn = document.querySelector('.store-tab-items-p2');
+        const homeBtn = document.querySelector('.store-tab-home-p2');
+        if (itemsBtn && homeBtn) {
+            if (tabName === 'items') {
+                itemsBtn.classList.add('active');
+                itemsBtn.style.background = 'rgba(255,152,0,0.5)';
+                homeBtn.classList.remove('active');
+                homeBtn.style.background = 'rgba(0,0,0,0.5)';
+            } else {
+                homeBtn.classList.add('active');
+                homeBtn.style.background = 'rgba(255,152,0,0.5)';
+                itemsBtn.classList.remove('active');
+                itemsBtn.style.background = 'rgba(0,0,0,0.5)';
+            }
+        }
+    } else {
+        window.p1StoreTab = tabName;
+        const itemsBtn = document.querySelector('.store-tab-items-p1');
+        const homeBtn = document.querySelector('.store-tab-home-p1');
+        if (itemsBtn && homeBtn) {
+            if (tabName === 'items') {
+                itemsBtn.classList.add('active');
+                itemsBtn.style.background = 'rgba(76,175,80,0.5)';
+                homeBtn.classList.remove('active');
+                homeBtn.style.background = 'rgba(0,0,0,0.5)';
+            } else {
+                homeBtn.classList.add('active');
+                homeBtn.style.background = 'rgba(76,175,80,0.5)';
+                itemsBtn.classList.remove('active');
+                itemsBtn.style.background = 'rgba(0,0,0,0.5)';
+            }
+        }
+    }
+    if (window.updateStoreUI) window.updateStoreUI();
+};
+
 window.updateStoreUI = function() {
     const items = [
         { name: "Repellent", icon: "🧴", price: 170, desc: "Stops wild creature attacks for 60 seconds." },
@@ -17167,13 +17229,14 @@ window.updateStoreUI = function() {
 
         const pLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
         const activeItems = [...items];
+        const homeItems = [];
         if (pLvl >= 6) {
-            activeItems.push(
+            homeItems.push(
                 { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage." }
             );
         }
         if (pLvl >= 10) {
-            activeItems.push(
+            homeItems.push(
                 { name: "Mini Hospital", icon: "🏥", price: 770, desc: "A functional smaller version of the Hospital. Place near your home." },
                 { name: "Mini Store", icon: "🏪", price: 770, desc: "A functional smaller version of the Store. Place near your home." },
                 { name: "Mini Trade", icon: "🔄", price: 770, desc: "A functional smaller version of the Trade center. Place near your home." },
@@ -17183,16 +17246,32 @@ window.updateStoreUI = function() {
                 { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place inside using mini-tile placement." },
                 { name: "Cyber Desk", icon: "🖥️", price: 550, desc: "A high-tech cyber desk for your home. Place inside using mini-tile placement." },
                 { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place inside using mini-tile placement." },
-                { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place inside using mini-tile placement." }
+                { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place inside using mini-tile placement." },
+                { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place inside using mini-tile placement." },
+                { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place inside." },
+                { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place inside." },
+                { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place inside." },
+                { name: "Server Rack", icon: "🗄️", price: 800, desc: "A glowing cybernetic data server. Place inside." },
+                { name: "Arcade Machine", icon: "🕹️", price: 1000, desc: "A retro-futuristic arcade cabinet. Place inside." },
+                { name: "Cyber TV", icon: "📺", price: 700, desc: "A massive flat-screen cyber display. Place inside." },
+                { name: "Neon Shelf", icon: "📚", price: 250, desc: "A wall-leaning shelf with neon edges. Place inside." },
+                { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place inside." },
+                { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place inside." },
+                { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place inside." },
+                { name: "Holo Display", icon: "🖼️", price: 550, desc: "A holographic art projection base. Place inside." }
             );
         }
         if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
-            activeItems.push(
+            homeItems.push(
                 { name: "Dojo Tile", icon: "⛩️", price: 920, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." }
             );
         }
 
         activeItems.sort((a, b) => a.price - b.price);
+        homeItems.sort((a, b) => a.price - b.price);
+
+        const currentTab = playerNum === 2 ? (window.p2StoreTab || 'items') : (window.p1StoreTab || 'items');
+        let displayedItems = currentTab === 'home' ? homeItems : activeItems;
 
         let html = `
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
@@ -17201,7 +17280,7 @@ window.updateStoreUI = function() {
             <div style="display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 280px); overflow-y: auto; padding-right: 5px;">
         `;
 
-        activeItems.forEach(item => {
+        displayedItems.forEach(item => {
             const inv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
             let spaceInExisting = 0;
             inv.forEach(invItem => {
@@ -25813,6 +25892,225 @@ function generateTileTextures(scene) {
     if (window.add3DDepth) window.add3DDepth(bedCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_bed_tile', bedCanvas);
 
+    // Neon Chair
+    const chairCanvas = document.createElement('canvas');
+    chairCanvas.width = 100;
+    chairCanvas.height = 100;
+    const chairCtx = chairCanvas.getContext('2d');
+    chairCtx.fillStyle = '#222';
+    chairCtx.fillRect(25, 40, 50, 40); // seat
+    chairCtx.fillRect(25, 10, 50, 30); // back
+    chairCtx.strokeStyle = '#ff00ff';
+    chairCtx.lineWidth = 3;
+    chairCtx.shadowBlur = 10;
+    chairCtx.shadowColor = '#ff00ff';
+    chairCtx.strokeRect(25, 40, 50, 40);
+    chairCtx.strokeRect(25, 10, 50, 30);
+    if (window.add3DDepth) window.add3DDepth(chairCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_chair_tile', chairCanvas);
+
+    // Holo Table
+    const tableCanvas = document.createElement('canvas');
+    tableCanvas.width = 100;
+    tableCanvas.height = 100;
+    const tableCtx = tableCanvas.getContext('2d');
+    tableCtx.fillStyle = '#333';
+    tableCtx.fillRect(10, 20, 80, 60); // base
+    tableCtx.fillStyle = 'rgba(0, 255, 255, 0.5)';
+    tableCtx.shadowBlur = 15;
+    tableCtx.shadowColor = '#00ffff';
+    tableCtx.fillRect(15, 25, 70, 50); // holo top
+    if (window.add3DDepth) window.add3DDepth(tableCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_table_tile', tableCanvas);
+
+    // Cyber Plant
+    const plantCanvas = document.createElement('canvas');
+    plantCanvas.width = 100;
+    plantCanvas.height = 100;
+    const plantCtx = plantCanvas.getContext('2d');
+    plantCtx.fillStyle = '#444';
+    plantCtx.fillRect(30, 60, 40, 30); // pot
+    plantCtx.fillStyle = '#00ff00';
+    plantCtx.shadowBlur = 10;
+    plantCtx.shadowColor = '#00ff00';
+    plantCtx.beginPath();
+    plantCtx.arc(50, 35, 20, 0, Math.PI * 2);
+    plantCtx.fill();
+    plantCtx.beginPath();
+    plantCtx.arc(35, 45, 15, 0, Math.PI * 2);
+    plantCtx.fill();
+    plantCtx.beginPath();
+    plantCtx.arc(65, 45, 15, 0, Math.PI * 2);
+    plantCtx.fill();
+    scene.textures.addCanvas('furniture_plant_tile', plantCanvas);
+
+    // Neon Lamp
+    const lampCanvas = document.createElement('canvas');
+    lampCanvas.width = 100;
+    lampCanvas.height = 100;
+    const lampCtx = lampCanvas.getContext('2d');
+    lampCtx.fillStyle = '#222';
+    lampCtx.fillRect(45, 20, 10, 70); // pole
+    lampCtx.fillRect(35, 80, 30, 10); // base
+    lampCtx.fillStyle = '#ffff00';
+    lampCtx.shadowBlur = 20;
+    lampCtx.shadowColor = '#ffff00';
+    lampCtx.beginPath();
+    lampCtx.arc(50, 20, 15, 0, Math.PI * 2);
+    lampCtx.fill();
+    scene.textures.addCanvas('furniture_lamp_tile', lampCanvas);
+
+    // Server Rack
+    const serverCanvas = document.createElement('canvas');
+    serverCanvas.width = 100;
+    serverCanvas.height = 100;
+    const serverCtx = serverCanvas.getContext('2d');
+    serverCtx.fillStyle = '#111';
+    serverCtx.fillRect(20, 10, 60, 80);
+    serverCtx.fillStyle = '#00ff00';
+    serverCtx.shadowBlur = 5;
+    serverCtx.shadowColor = '#00ff00';
+    for (let i = 20; i < 80; i += 15) {
+        serverCtx.fillRect(25, i, 10, 5);
+        serverCtx.fillRect(40, i, 5, 5);
+        serverCtx.fillRect(50, i, 25, 5);
+    }
+    if (window.add3DDepth) window.add3DDepth(serverCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_server_tile', serverCanvas);
+
+    // Arcade Machine
+    const arcadeCanvas = document.createElement('canvas');
+    arcadeCanvas.width = 100;
+    arcadeCanvas.height = 100;
+    const arcadeCtx = arcadeCanvas.getContext('2d');
+    arcadeCtx.fillStyle = '#222';
+    arcadeCtx.fillRect(25, 10, 50, 80);
+    arcadeCtx.fillStyle = '#000';
+    arcadeCtx.fillRect(30, 20, 40, 30); // screen
+    arcadeCtx.strokeStyle = '#ff0055';
+    arcadeCtx.lineWidth = 2;
+    arcadeCtx.shadowBlur = 10;
+    arcadeCtx.shadowColor = '#ff0055';
+    arcadeCtx.strokeRect(30, 20, 40, 30);
+    arcadeCtx.fillStyle = '#ff0055';
+    arcadeCtx.fillRect(45, 60, 10, 10); // joystick
+    if (window.add3DDepth) window.add3DDepth(arcadeCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_arcade_tile', arcadeCanvas);
+
+    // Cyber TV
+    const tvCanvas = document.createElement('canvas');
+    tvCanvas.width = 100;
+    tvCanvas.height = 100;
+    const tvCtx = tvCanvas.getContext('2d');
+    tvCtx.fillStyle = '#111';
+    tvCtx.fillRect(10, 20, 80, 50); // screen
+    tvCtx.strokeStyle = '#00ffff';
+    tvCtx.lineWidth = 3;
+    tvCtx.shadowBlur = 10;
+    tvCtx.shadowColor = '#00ffff';
+    tvCtx.strokeRect(10, 20, 80, 50);
+    tvCtx.fillStyle = '#333';
+    tvCtx.fillRect(40, 70, 20, 20); // stand
+    tvCtx.fillRect(20, 85, 60, 5); // base
+    if (window.add3DDepth) window.add3DDepth(tvCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_tv_tile', tvCanvas);
+
+    // Neon Shelf
+    const shelfCanvas = document.createElement('canvas');
+    shelfCanvas.width = 100;
+    shelfCanvas.height = 100;
+    const shelfCtx = shelfCanvas.getContext('2d');
+    shelfCtx.fillStyle = '#222';
+    shelfCtx.fillRect(20, 10, 60, 80);
+    shelfCtx.strokeStyle = '#ffaa00';
+    shelfCtx.lineWidth = 2;
+    shelfCtx.shadowBlur = 8;
+    shelfCtx.shadowColor = '#ffaa00';
+    for(let i=30; i<90; i+=25) {
+        shelfCtx.fillRect(25, i, 50, 5); // shelf
+        shelfCtx.strokeRect(25, i, 50, 5);
+    }
+    if (window.add3DDepth) window.add3DDepth(shelfCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_shelf_tile', shelfCanvas);
+
+    // Tech Bin
+    const binCanvas = document.createElement('canvas');
+    binCanvas.width = 100;
+    binCanvas.height = 100;
+    const binCtx = binCanvas.getContext('2d');
+    binCtx.fillStyle = '#333';
+    binCtx.fillRect(30, 30, 40, 50);
+    binCtx.fillStyle = '#555';
+    binCtx.fillRect(25, 20, 50, 10);
+    binCtx.strokeStyle = '#ff0000';
+    binCtx.lineWidth = 2;
+    binCtx.shadowBlur = 5;
+    binCtx.shadowColor = '#ff0000';
+    binCtx.beginPath();
+    binCtx.moveTo(40, 50);
+    binCtx.lineTo(60, 50);
+    binCtx.stroke();
+    scene.textures.addCanvas('furniture_bin_tile', binCanvas);
+
+    // Neon Wardrobe
+    const wardrobeCanvas = document.createElement('canvas');
+    wardrobeCanvas.width = 100;
+    wardrobeCanvas.height = 100;
+    const wardrobeCtx = wardrobeCanvas.getContext('2d');
+    wardrobeCtx.fillStyle = '#222';
+    wardrobeCtx.fillRect(20, 10, 60, 80);
+    wardrobeCtx.strokeStyle = '#00ffcc';
+    wardrobeCtx.lineWidth = 2;
+    wardrobeCtx.shadowBlur = 10;
+    wardrobeCtx.shadowColor = '#00ffcc';
+    wardrobeCtx.strokeRect(20, 10, 60, 80);
+    wardrobeCtx.beginPath();
+    wardrobeCtx.moveTo(50, 10);
+    wardrobeCtx.lineTo(50, 90);
+    wardrobeCtx.stroke();
+    wardrobeCtx.fillStyle = '#00ffcc';
+    wardrobeCtx.fillRect(40, 50, 5, 10); // handle
+    wardrobeCtx.fillRect(55, 50, 5, 10); // handle
+    if (window.add3DDepth) window.add3DDepth(wardrobeCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_wardrobe_tile', wardrobeCanvas);
+
+    // Cyber Fridge
+    const fridgeCanvas = document.createElement('canvas');
+    fridgeCanvas.width = 100;
+    fridgeCanvas.height = 100;
+    const fridgeCtx = fridgeCanvas.getContext('2d');
+    fridgeCtx.fillStyle = '#aaa';
+    fridgeCtx.fillRect(25, 10, 50, 80);
+    fridgeCtx.fillStyle = '#000';
+    fridgeCtx.fillRect(25, 45, 50, 2);
+    fridgeCtx.fillStyle = '#00aaff';
+    fridgeCtx.shadowBlur = 5;
+    fridgeCtx.shadowColor = '#00aaff';
+    fridgeCtx.fillRect(35, 20, 5, 20); // top handle
+    fridgeCtx.fillRect(35, 55, 5, 20); // bottom handle
+    if (window.add3DDepth) window.add3DDepth(fridgeCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_fridge_tile', fridgeCanvas);
+
+    // Holo Display
+    const displayCanvas = document.createElement('canvas');
+    displayCanvas.width = 100;
+    displayCanvas.height = 100;
+    const displayCtx = displayCanvas.getContext('2d');
+    displayCtx.fillStyle = '#333';
+    displayCtx.fillRect(30, 80, 40, 10); // base
+    displayCtx.fillStyle = 'rgba(255, 0, 255, 0.4)';
+    displayCtx.shadowBlur = 15;
+    displayCtx.shadowColor = '#ff00ff';
+    displayCtx.beginPath();
+    displayCtx.moveTo(50, 10);
+    displayCtx.lineTo(20, 70);
+    displayCtx.lineTo(80, 70);
+    displayCtx.closePath();
+    displayCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(displayCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_display_tile', displayCanvas);
+
+
 }
 
 function generateMiscTextures(scene) {
@@ -27370,6 +27668,19 @@ window.spawnMiniTiles = function(scene) {
             else if (tile.type === 'furniture_desk') textureKey = 'furniture_desk_tile';
             else if (tile.type === 'furniture_carpet') textureKey = 'furniture_carpet_tile';
             else if (tile.type === 'furniture_bed') textureKey = 'furniture_bed_tile';
+            else if (tile.type === 'furniture_chair') textureKey = 'furniture_chair_tile';
+            else if (tile.type === 'furniture_table') textureKey = 'furniture_table_tile';
+            else if (tile.type === 'furniture_plant') textureKey = 'furniture_plant_tile';
+            else if (tile.type === 'furniture_lamp') textureKey = 'furniture_lamp_tile';
+            else if (tile.type === 'furniture_server') textureKey = 'furniture_server_tile';
+            else if (tile.type === 'furniture_arcade') textureKey = 'furniture_arcade_tile';
+            else if (tile.type === 'furniture_tv') textureKey = 'furniture_tv_tile';
+            else if (tile.type === 'furniture_shelf') textureKey = 'furniture_shelf_tile';
+            else if (tile.type === 'furniture_bin') textureKey = 'furniture_bin_tile';
+            else if (tile.type === 'furniture_wardrobe') textureKey = 'furniture_wardrobe_tile';
+            else if (tile.type === 'furniture_fridge') textureKey = 'furniture_fridge_tile';
+            else if (tile.type === 'furniture_display') textureKey = 'furniture_display_tile';
+
 
             if (textureKey) {
                 let mSprite = window.miniTilesGroup.create(tile.x, tile.y, textureKey);
@@ -27822,7 +28133,19 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         "Neon Couch": "furniture_couch_tile",
         "Cyber Desk": "furniture_desk_tile",
         "Glow Carpet": "furniture_carpet_tile",
-        "Holo Bed": "furniture_bed_tile"
+        "Holo Bed": "furniture_bed_tile",
+        "Neon Chair": "furniture_chair_tile",
+        "Holo Table": "furniture_table_tile",
+        "Cyber Plant": "furniture_plant_tile",
+        "Neon Lamp": "furniture_lamp_tile",
+        "Server Rack": "furniture_server_tile",
+        "Arcade Machine": "furniture_arcade_tile",
+        "Cyber TV": "furniture_tv_tile",
+        "Neon Shelf": "furniture_shelf_tile",
+        "Tech Bin": "furniture_bin_tile",
+        "Neon Wardrobe": "furniture_wardrobe_tile",
+        "Cyber Fridge": "furniture_fridge_tile",
+        "Holo Display": "furniture_display_tile"
     };
     const textureKey = textureMap[itemName] || 'home_tile';
 
@@ -27895,7 +28218,19 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
         "Neon Couch": "furniture_couch",
         "Cyber Desk": "furniture_desk",
         "Glow Carpet": "furniture_carpet",
-        "Holo Bed": "furniture_bed"
+        "Holo Bed": "furniture_bed",
+        "Neon Chair": "furniture_chair",
+        "Holo Table": "furniture_table",
+        "Cyber Plant": "furniture_plant",
+        "Neon Lamp": "furniture_lamp",
+        "Server Rack": "furniture_server",
+        "Arcade Machine": "furniture_arcade",
+        "Cyber TV": "furniture_tv",
+        "Neon Shelf": "furniture_shelf",
+        "Tech Bin": "furniture_bin",
+        "Neon Wardrobe": "furniture_wardrobe",
+        "Cyber Fridge": "furniture_fridge",
+        "Holo Display": "furniture_display"
     };
     const tileType = typeMap[itemName];
 
