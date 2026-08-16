@@ -118,9 +118,9 @@ test.describe('Home Interior Entering and Leaving System', () => {
       };
     });
 
-    // Player 2 should be inside the P2 Room Center (col 592, row 582) -> X = 59250, Y = 58250
+    // Player 2 should be inside the P2 Room Center (col 592, row 542) -> X = 59250, Y = 54250
     expect(enterResult.playerX).toBe(59250);
-    expect(enterResult.playerY).toBe(58250);
+    expect(enterResult.playerY).toBe(54250);
     expect(enterResult.preHomeX).toBe(4700);
     expect(enterResult.preHomeY).toBe(4700);
 

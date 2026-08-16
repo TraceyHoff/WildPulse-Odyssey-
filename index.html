@@ -28848,7 +28848,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         }
         sprites.push(wall);
 
-        if (obstaclesGroup) {
+        if (obstaclesGroup && !isHolo) {
             let obsSprite = obstaclesGroup.create(posX, posY, textureKey);
             obsSprite.setScale(1.0, 0.2);
             obsSprite.setOrigin(0.5, 0.5);
