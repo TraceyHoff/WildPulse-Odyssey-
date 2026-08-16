@@ -31725,6 +31725,119 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
     window.updateBattleUI();
 };
 
+window.updateCreatureNameplate = function(scene, nameplateContainer, creatureData) {
+    if (!nameplateContainer || !creatureData || !scene) return;
+
+    let pBg = nameplateContainer.getData('bg');
+    let pText = nameplateContainer.getData('text');
+    let pDot = nameplateContainer.getData('dot');
+
+    if (!pBg || !pText || !pDot) {
+        if (!pBg) {
+            pBg = scene.add.graphics();
+            nameplateContainer.add(pBg);
+            nameplateContainer.setData('bg', pBg);
+            nameplateContainer.sendToBack(pBg);
+        }
+        if (!pText) {
+            pText = scene.add.text(0, 0, "", {
+                fontSize: '12px',
+                fontFamily: '"Courier New", Courier, monospace',
+                color: '#ffffff',
+                shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 2, fill: true }
+            }).setOrigin(0.5);
+            nameplateContainer.add(pText);
+            nameplateContainer.setData('text', pText);
+        }
+        if (!pDot) {
+            pDot = scene.add.text(0, 0, "●", {
+                fontSize: '10px',
+                shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 1, fill: true }
+            }).setOrigin(0.5);
+            nameplateContainer.add(pDot);
+            nameplateContainer.setData('dot', pDot);
+        }
+    }
+
+    let displayName = creatureData.nickname || creatureData.name;
+    let textStr = `Lv.${creatureData.level} ${displayName}`;
+    let lastText = nameplateContainer.getData('lastText');
+    let lastShiny = nameplateContainer.getData('lastShiny');
+    let primaryType = creatureData.type || 'Normal';
+    if (Array.isArray(primaryType) && primaryType.length > 0) primaryType = primaryType[0];
+    let lastType = nameplateContainer.getData('lastType');
+
+    if (lastText !== textStr || lastShiny !== creatureData.isShiny || lastType !== primaryType) {
+        nameplateContainer.setData('lastText', textStr);
+        nameplateContainer.setData('lastShiny', creatureData.isShiny);
+        nameplateContainer.setData('lastType', primaryType);
+
+        pText.setText(textStr);
+
+        const typeKey = window.createTypeIconTexture(scene, primaryType);
+        let shinyKey = null;
+        if (creatureData.isShiny) shinyKey = window.createShinyIconTexture(scene);
+
+        let tSprite = nameplateContainer.getData('typeSprite');
+        let sSprite = nameplateContainer.getData('shinySprite');
+
+        let elementsWidth = pText.width;
+        let currentX = elementsWidth / 2 + 6;
+        pDot.setPosition(currentX, 0);
+        currentX += 12;
+
+        if (typeKey) {
+            if (!tSprite) {
+                tSprite = scene.add.sprite(currentX, 0, typeKey);
+                nameplateContainer.add(tSprite);
+                nameplateContainer.setData('typeSprite', tSprite);
+            } else {
+                tSprite.setTexture(typeKey);
+                tSprite.setPosition(currentX, 0);
+                tSprite.setVisible(true);
+            }
+            currentX += 18;
+        } else if (tSprite) {
+            tSprite.setVisible(false);
+        }
+
+        if (shinyKey) {
+            if (!sSprite) {
+                sSprite = scene.add.sprite(currentX, 0, shinyKey);
+                nameplateContainer.add(sSprite);
+                nameplateContainer.setData('shinySprite', sSprite);
+            } else {
+                sSprite.setTexture(shinyKey);
+                sSprite.setPosition(currentX, 0);
+                sSprite.setVisible(true);
+            }
+            currentX += 18;
+        } else if (sSprite) {
+            sSprite.setVisible(false);
+        }
+
+        let totalWidth = currentX - (elementsWidth / 2 + 6) + elementsWidth;
+        let shiftX = (totalWidth - elementsWidth) / 2;
+        pText.x = -shiftX;
+        pDot.x -= shiftX;
+        if (tSprite && tSprite.visible) tSprite.x -= shiftX;
+        if (sSprite && sSprite.visible) sSprite.x -= shiftX;
+
+        const bgWidth = totalWidth + 16;
+        pBg.clear();
+        pBg.fillStyle(0x000000, 0.6);
+        pBg.fillRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
+        pBg.lineStyle(1, 0x00ffcc, 0.8);
+        pBg.strokeRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
+    }
+
+    const happiness = creatureData.happiness !== undefined ? creatureData.happiness : 50;
+    let happinessColor = '#ff3333';
+    if (happiness > 75) happinessColor = '#33ff33';
+    else if (happiness > 30) happinessColor = '#ffff33';
+    pDot.setColor(happinessColor);
+};
+
 window.adjustWildCreatureLevels = function() {
     let p1Party = (window.collectedCreatures || []).filter(c => !c.stored);
     let p2Party = (window.collectedCreatures2 || []).filter(c => !c.stored);
@@ -31744,6 +31857,11 @@ window.adjustWildCreatureLevels = function() {
                 if (data.level !== targetLevel) {
                     data.level = targetLevel;
                     sprite.setData('creatureData', data);
+
+                    let nameplateContainer = sprite.getData('symbolText');
+                    if (nameplateContainer && sprite.scene) {
+                        window.updateCreatureNameplate(sprite.scene, nameplateContainer, data);
+                    }
                 }
             }
         });
@@ -32014,83 +32132,12 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     let primaryType = clonedData.type || 'Normal';
     if (Array.isArray(primaryType) && primaryType.length > 0) primaryType = primaryType[0];
     const typeKey = window.createTypeIconTexture(scene, primaryType);
-    let shinyKey = null;
-    if (clonedData.isShiny) {
-        shinyKey = window.createShinyIconTexture(scene);
-    }
-
     // Create the nameplate container
     const nameplateContainer = scene.add.container(x, y - 35);
     nameplateContainer.setDepth(11);
 
-    // Create the background for the nameplate
-    const plateBg = scene.add.graphics();
-    nameplateContainer.add(plateBg);
-
-    // Determine happiness color dot
-    const happiness = clonedData.happiness !== undefined ? clonedData.happiness : 50;
-    let happinessColor = '#ff3333'; // Low (Red)
-    if (happiness > 75) {
-        happinessColor = '#33ff33'; // High (Green)
-    } else if (happiness > 30) {
-        happinessColor = '#ffff33'; // Med (Yellow)
-    }
-
-    // Determine nameplate text
-    let displayName = clonedData.nickname || clonedData.name;
-    const nameplateStr = `Lv.${clonedData.level} ${displayName}`;
-
-    const plateText = scene.add.text(0, 0, nameplateStr, {
-        fontSize: '12px',
-        fontFamily: '"Courier New", Courier, monospace',
-        color: '#ffffff',
-        shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 2, fill: true }
-    }).setOrigin(0.5);
-
-    // Add the happiness dot indicator
-    let elementsWidth = plateText.width;
-    let currentX = elementsWidth / 2 + 6;
-
-    const dotText = scene.add.text(currentX, 0, "●", {
-        fontSize: '10px',
-        color: happinessColor,
-        shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 1, fill: true }
-    }).setOrigin(0.5);
-
-    currentX += 12;
-
-    let typeSprite = null;
-    if (typeKey) {
-        typeSprite = scene.add.sprite(currentX, 0, typeKey);
-        currentX += 18;
-    }
-
-    let shinySprite = null;
-    if (shinyKey) {
-        shinySprite = scene.add.sprite(currentX, 0, shinyKey);
-        currentX += 18;
-    }
-
-    // Center everything in the container by shifting elements left
-    let totalWidth = currentX - (elementsWidth / 2 + 6) + elementsWidth;
-    let shiftX = (totalWidth - elementsWidth) / 2;
-
-    plateText.x -= shiftX;
-    dotText.x -= shiftX;
-    if (typeSprite) typeSprite.x -= shiftX;
-    if (shinySprite) shinySprite.x -= shiftX;
-
-    nameplateContainer.add(plateText);
-    nameplateContainer.add(dotText);
-    if (typeSprite) nameplateContainer.add(typeSprite);
-    if (shinySprite) nameplateContainer.add(shinySprite);
-
-    // Auto-resize background based on total width
-    const bgWidth = totalWidth + 16;
-    plateBg.fillStyle(0x000000, 0.6);
-    plateBg.fillRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
-    plateBg.lineStyle(1, 0x00ffcc, 0.8);
-    plateBg.strokeRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
+    // Initialize and update the nameplate contents
+    window.updateCreatureNameplate(scene, nameplateContainer, clonedData);
 
     sprite.setData('symbolText', nameplateContainer);
 
@@ -32165,113 +32212,8 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         nameplateContainer = scene.add.container(pet.x, pet.y - 35);
         nameplateContainer.setDepth(11);
         pet.setData('nameplate', nameplateContainer);
-
-        const plateBg = scene.add.graphics();
-        nameplateContainer.add(plateBg);
-        nameplateContainer.setData('bg', plateBg);
-
-        const plateText = scene.add.text(0, 0, "", {
-            fontSize: '12px',
-            fontFamily: '"Courier New", Courier, monospace',
-            color: '#ffffff',
-            shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 2, fill: true }
-        }).setOrigin(0.5);
-        nameplateContainer.add(plateText);
-        nameplateContainer.setData('text', plateText);
-
-        const dotText = scene.add.text(0, 0, "●", {
-            fontSize: '10px',
-            shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 1, fill: true }
-        }).setOrigin(0.5);
-        nameplateContainer.add(dotText);
-        nameplateContainer.setData('dot', dotText);
     }
-
-    // Check if we need to update the contents (cache by pet ID and stats)
-    let displayName = followCreature.nickname || followCreature.name;
-    let textStr = `Lv.${followCreature.level} ${displayName}`;
-
-    let lastText = nameplateContainer.getData('lastText');
-    let lastShiny = nameplateContainer.getData('lastShiny');
-    let lastType = nameplateContainer.getData('lastType');
-
-    let primaryType = followCreature.type || 'Normal';
-    if (Array.isArray(primaryType) && primaryType.length > 0) primaryType = primaryType[0];
-
-    if (lastText !== textStr || lastShiny !== followCreature.isShiny || lastType !== primaryType) {
-        nameplateContainer.setData('lastText', textStr);
-        nameplateContainer.setData('lastShiny', followCreature.isShiny);
-        nameplateContainer.setData('lastType', primaryType);
-
-        const pBg = nameplateContainer.getData('bg');
-        const pText = nameplateContainer.getData('text');
-        const pDot = nameplateContainer.getData('dot');
-
-        pText.setText(textStr);
-
-        const typeKey = window.createTypeIconTexture(scene, primaryType);
-        let shinyKey = null;
-        if (followCreature.isShiny) shinyKey = window.createShinyIconTexture(scene);
-
-        let tSprite = nameplateContainer.getData('typeSprite');
-        let sSprite = nameplateContainer.getData('shinySprite');
-
-        let elementsWidth = pText.width;
-        let currentX = elementsWidth / 2 + 6;
-        pDot.setPosition(currentX, 0);
-        currentX += 12;
-
-        if (typeKey) {
-            if (!tSprite) {
-                tSprite = scene.add.sprite(currentX, 0, typeKey);
-                nameplateContainer.add(tSprite);
-                nameplateContainer.setData('typeSprite', tSprite);
-            } else {
-                tSprite.setTexture(typeKey);
-                tSprite.setPosition(currentX, 0);
-                tSprite.setVisible(true);
-            }
-            currentX += 18;
-        } else if (tSprite) {
-            tSprite.setVisible(false);
-        }
-
-        if (shinyKey) {
-            if (!sSprite) {
-                sSprite = scene.add.sprite(currentX, 0, shinyKey);
-                nameplateContainer.add(sSprite);
-                nameplateContainer.setData('shinySprite', sSprite);
-            } else {
-                sSprite.setTexture(shinyKey);
-                sSprite.setPosition(currentX, 0);
-                sSprite.setVisible(true);
-            }
-            currentX += 18;
-        } else if (sSprite) {
-            sSprite.setVisible(false);
-        }
-
-        let totalWidth = currentX - (elementsWidth / 2 + 6) + elementsWidth;
-        let shiftX = (totalWidth - elementsWidth) / 2;
-        pText.x = -shiftX;
-        pDot.x -= shiftX;
-        if (tSprite && tSprite.visible) tSprite.x -= shiftX;
-        if (sSprite && sSprite.visible) sSprite.x -= shiftX;
-
-        const bgWidth = totalWidth + 16;
-        pBg.clear();
-        pBg.fillStyle(0x000000, 0.6);
-        pBg.fillRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
-        pBg.lineStyle(1, 0x00ffcc, 0.8);
-        pBg.strokeRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
-    }
-
-    // Update happiness color dynamically (it can change without type/level changes)
-    const happiness = followCreature.happiness !== undefined ? followCreature.happiness : 50;
-    let happinessColor = '#ff3333';
-    if (happiness > 75) happinessColor = '#33ff33';
-    else if (happiness > 30) happinessColor = '#ffff33';
-    nameplateContainer.getData('dot').setColor(happinessColor);
+    window.updateCreatureNameplate(scene, nameplateContainer, followCreature);
 
     // Follow physics and logic
     if (pet && pet.body) {
