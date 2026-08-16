@@ -30678,6 +30678,8 @@ function create() {
     creaturesGroup = this.physics.add.group();
     window.creaturesGroup = creaturesGroup;
     creaturesGroup.setDepth(1);
+    this.physics.add.collider(creaturesGroup, window.treesGroup);
+    this.physics.add.collider(creaturesGroup, obstaclesGroup);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
@@ -32253,7 +32255,6 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         pet = scene.add.sprite(playerObj.x, playerObj.y, textureKey);
         pet.setDisplaySize(36, 36);
         scene.physics.add.existing(pet);
-        pet.setDepth(playerObj.depth - 0.02);
         pet.setData('creatureId', followCreature.id);
         window['p' + playerNum + 'PetSprite'] = pet;
     } else {
@@ -32302,9 +32303,13 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
             pet.clearTint();
         }
 
+        // Depth sorting for pet
+        pet.setDepth(10 + pet.y / 10000);
+
         // Update nameplate position
         if (nameplateContainer) {
             nameplateContainer.setPosition(pet.x, pet.y - 35);
+            nameplateContainer.setDepth(pet.depth + 1);
         }
     }
 }
