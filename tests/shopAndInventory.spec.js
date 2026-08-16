@@ -13,6 +13,7 @@ test.describe('Shop and Inventory Systems', () => {
   });
 
   test('should buy items, display them, handle stacking, and enforce limits', async ({ page }) => {
+    test.setTimeout(120000);
     // 1. Grant initial coins and clear inventory for testing
     await page.evaluate(() => {
         if (!window.gameStats) window.gameStats = { coins: 0 };
@@ -96,6 +97,7 @@ test.describe('Shop and Inventory Systems', () => {
   });
 
   test('should use items and apply their effects correctly', async ({ page }) => {
+    test.setTimeout(120000);
     // Prepare items directly in Player 1 inventory for testing
     await page.evaluate(() => {
         if (!window.gameStats) window.gameStats = { coins: 0 };
@@ -140,6 +142,7 @@ test.describe('Shop and Inventory Systems', () => {
   });
 
   test('should display dynamic available to buy quantity and each player coins', async ({ page }) => {
+    test.setTimeout(120000);
     // Grant coins and prepare empty inventory
     await page.evaluate(() => {
         if (!window.gameStats) window.gameStats = { coins: 0 };

@@ -9817,7 +9817,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "King Bed", icon: "🛏️", desc: "A massive, luxurious bed. Place inside using mini-tile placement." },
         { name: "Glow Carpet", icon: "🔲", desc: "A glowing cybernetic carpet. Place inside using mini-tile placement." },
         { name: "Holo Bed", icon: "🛏️", desc: "A futuristic holographic bed. Place inside using mini-tile placement." },
-        { name: "Dojo Tile", icon: "⛩️", desc: "A placeable tile that summons the Dojo Leader for elite matches. (Defeat all 24 trainers)" },
+        { name: "Dojo Tile", icon: "⛩️", desc: "A placeable tile that summons the Dojo Leader for elite matches. (Defeat all 24 trainers)", type: "Mini Building" },
         { name: "NPC Dual Link", icon: "📡", desc: "Guarantees a 100% chance of a cooperative 2v2 NPC Trainer Dual Battle for 5 minutes." },
         { name: "Wild Dual Signal", icon: "📶", desc: "Guarantees a 100% chance of a cooperative wild creature Dual Battle for 5 minutes." }
     ];
@@ -17318,74 +17318,94 @@ window.updateStoreUI = function() {
         const homeItems = [];
 
         homeItems.push(
-            { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage.", reqLevel: 6 },
-            { name: "Mini Hospital", icon: "🏥", price: 770, desc: "A functional smaller version of the Hospital. Place near your home.", reqLevel: 10 },
-            { name: "Mini Store", icon: "🏪", price: 770, desc: "A functional smaller version of the Store. Place near your home.", reqLevel: 10 },
-            { name: "Mini Trade", icon: "🔄", price: 770, desc: "A functional smaller version of the Trade center. Place near your home.", reqLevel: 10 },
-            { name: "Mini PvP", icon: "⚔️", price: 770, desc: "A functional smaller version of the PvP arena. Place near your home.", reqLevel: 10 },
-            { name: "Mini Breeding Center", icon: "🥚", price: 770, desc: "A functional smaller version of the Breeding Center. Place near your home.", reqLevel: 10 },
-            { name: "Mini Challenge", icon: "👑", price: 770, desc: "A functional smaller version of the Challenge area. Place near your home.", reqLevel: 10 },
-            { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "L-Couch", icon: "🛋️", price: 650, desc: "An L-shaped couch for your home. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Love Seat", icon: "🛋️", price: 400, desc: "A small, comfortable seat for two. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Cyber Desk", icon: "🖥️", price: 550, desc: "A high-tech cyber desk for your home. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Office Chair", icon: "💺", price: 250, desc: "An ergonomic chair for the cyber desk. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Stool", icon: "🪑", price: 150, desc: "A simple futuristic stool. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Coffee Table", icon: "🪵", price: 300, desc: "A stylish table for the living area. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Dining Table", icon: "🍽️", price: 600, desc: "A large table for cyber-meals. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Park Bench", icon: "🪑", price: 350, desc: "A bench for relaxing outdoors or indoors. Place using mini-tile placement.", reqLevel: 10 },
-            { name: "Cyber Bench", icon: "🪑", price: 400, desc: "A glowing tech-bench. Place using mini-tile placement.", reqLevel: 10 },
-            { name: "Filing Cabinet", icon: "🗄️", price: 300, desc: "For storing physical documents securely. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Display Cabinet", icon: "🗄️", price: 500, desc: "A glass cabinet to show off cyber-artifacts. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Nightstand", icon: "🪑", price: 200, desc: "A small table for beside the bed. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Corner Table", icon: "🪵", price: 250, desc: "A small table designed for corners. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Bunk Bed", icon: "🛏️", price: 700, desc: "A multi-level bed unit. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "King Bed", icon: "🛏️", price: 1000, desc: "A massive, luxurious bed. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place inside using mini-tile placement.", reqLevel: 10 },
-            { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place inside.", reqLevel: 10 },
-            { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place inside.", reqLevel: 10 },
-            { name: "Crystal Bonsai", icon: "🪨", price: 350, desc: "An elegant bonsai made of glowing crystals. Place inside.", reqLevel: 10 },
-            { name: "Neon Fern", icon: "🌿", price: 280, desc: "A bioluminescent fern with neon-green fronds. Place inside.", reqLevel: 10 },
-            { name: "Plasma Cactus", icon: "🌵", price: 420, desc: "A desert plant containing glowing pink plasma. Place inside.", reqLevel: 10 },
-            { name: "Holo Orchid", icon: "🌸", price: 500, desc: "A holographic projection of a rare orchid. Place inside.", reqLevel: 10 },
-            { name: "Potted Ficus", icon: "🪴", price: 280, desc: "A classic potted ficus tree, updated for the cyber-age. Place inside.", reqLevel: 10 },
-            { name: "Monstera Plant", icon: "🌿", price: 320, desc: "A lush monstera with neon-veined leaves. Place inside.", reqLevel: 10 },
-            { name: "Cyber Bamboo", icon: "🎋", price: 350, desc: "Digital bamboo stalks that glow softly. Place inside.", reqLevel: 10 },
-            { name: "Neon Succulent", icon: "🌵", price: 200, desc: "A small, resilient succulent glowing with neon. Place inside.", reqLevel: 10 },
-            { name: "Holo Rose", icon: "🌹", price: 400, desc: "A holographic projection of a perfect rose. Place inside.", reqLevel: 10 },
-            { name: "Bio Mushroom", icon: "🍄", price: 380, desc: "Genetically modified glowing mushrooms in a terrarium. Place inside.", reqLevel: 10 },
-            { name: "Digi Sunflower", icon: "🌻", price: 300, desc: "A tall sunflower that tracks light sources. Place inside.", reqLevel: 10 },
-            { name: "Zen Bonsai", icon: "🌲", price: 450, desc: "A traditional bonsai tree, meticulously maintained. Place inside.", reqLevel: 10 },
-            { name: "Lunar Lily", icon: "🪷", price: 420, desc: "A beautiful lily that blooms under holographic moonlight. Place inside.", reqLevel: 10 },
-            { name: "Cyber Tree", icon: "🌳", price: 600, desc: "A large decorative indoor tree with fiber-optic leaves. Place inside.", reqLevel: 10 },
-            { name: "Neon Pine", icon: "🌲", price: 500, desc: "A small pine tree radiating a sharp, neon glow. Place inside.", reqLevel: 10 },
-            { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place inside.", reqLevel: 10 },
-            { name: "Server Rack", icon: "🗄️", price: 800, desc: "A glowing cybernetic data server. Place inside.", reqLevel: 10 },
-            { name: "Arcade Machine", icon: "🕹️", price: 1000, desc: "A retro-futuristic arcade cabinet. Place inside.", reqLevel: 10 },
-            { name: "Cyber TV", icon: "📺", price: 700, desc: "A massive flat-screen cyber display. Place inside.", reqLevel: 10 },
-            { name: "Neon Shelf", icon: "📚", price: 250, desc: "A wall-leaning shelf with neon edges. Place inside.", reqLevel: 10 },
-            { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place inside.", reqLevel: 10 },
-            { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place inside.", reqLevel: 10 },
-            { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place inside.", reqLevel: 10 },
-            { name: "Holo Display", icon: "🖼️", price: 1200, desc: "A floating holographic art display. Place inside.", reqLevel: 10 },
-            { name: "Lava Lamp", icon: "🌋", price: 350, desc: "A retro-futuristic glowing lava lamp. Place inside.", reqLevel: 10 },
-            { name: "Plasma Globe", icon: "🔮", price: 450, desc: "A sphere of crackling plasma energy. Place inside.", reqLevel: 10 },
-            { name: "Cyber Poster", icon: "📜", price: 250, desc: "A digital neon poster for your wall. Place inside.", reqLevel: 10 },
-            { name: "Neon Sign", icon: "🪧", price: 650, desc: "A bright, buzzing neon sign. Place inside.", reqLevel: 10 },
-            { name: "Gaming PC", icon: "💻", price: 1500, desc: "A high-end RGB gaming rig. Place inside.", reqLevel: 10 },
-            { name: "Smart Mirror", icon: "🪞", price: 850, desc: "A high-tech interactive mirror. Place inside.", reqLevel: 10 }
+            { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage.", reqLevel: 6, type: "Storage" },
+            { name: "Mini Hospital", icon: "🏥", price: 770, desc: "A functional smaller version of the Hospital. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Store", icon: "🏪", price: 770, desc: "A functional smaller version of the Store. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Trade", icon: "🔄", price: 770, desc: "A functional smaller version of the Trade center. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini PvP", icon: "⚔️", price: 770, desc: "A functional smaller version of the PvP arena. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Breeding Center", icon: "🥚", price: 770, desc: "A functional smaller version of the Breeding Center. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Challenge", icon: "👑", price: 770, desc: "A functional smaller version of the Challenge area. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place inside using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "L-Couch", icon: "🛋️", price: 650, desc: "An L-shaped couch for your home. Place inside using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Love Seat", icon: "🛋️", price: 400, desc: "A small, comfortable seat for two. Place inside using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Cyber Desk", icon: "🖥️", price: 550, desc: "A high-tech cyber desk for your home. Place inside using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Office Chair", icon: "💺", price: 250, desc: "An ergonomic chair for the cyber desk. Place inside using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Stool", icon: "🪑", price: 150, desc: "A simple futuristic stool. Place inside using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Coffee Table", icon: "🪵", price: 300, desc: "A stylish table for the living area. Place inside using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Dining Table", icon: "🍽️", price: 600, desc: "A large table for cyber-meals. Place inside using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Park Bench", icon: "🪑", price: 350, desc: "A bench for relaxing outdoors or indoors. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Cyber Bench", icon: "🪑", price: 400, desc: "A glowing tech-bench. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Filing Cabinet", icon: "🗄️", price: 300, desc: "For storing physical documents securely. Place inside using mini-tile placement.", reqLevel: 10, type: "Storage" },
+            { name: "Display Cabinet", icon: "🗄️", price: 500, desc: "A glass cabinet to show off cyber-artifacts. Place inside using mini-tile placement.", reqLevel: 10, type: "Storage" },
+            { name: "Nightstand", icon: "🪑", price: 200, desc: "A small table for beside the bed. Place inside using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Corner Table", icon: "🪵", price: 250, desc: "A small table designed for corners. Place inside using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Bunk Bed", icon: "🛏️", price: 700, desc: "A multi-level bed unit. Place inside using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "King Bed", icon: "🛏️", price: 1000, desc: "A massive, luxurious bed. Place inside using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place inside using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place inside using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place inside using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place inside.", reqLevel: 10, type: "Table" },
+            { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Crystal Bonsai", icon: "🪨", price: 350, desc: "An elegant bonsai made of glowing crystals. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Neon Fern", icon: "🌿", price: 280, desc: "A bioluminescent fern with neon-green fronds. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Plasma Cactus", icon: "🌵", price: 420, desc: "A desert plant containing glowing pink plasma. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Holo Orchid", icon: "🌸", price: 500, desc: "A holographic projection of a rare orchid. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Potted Ficus", icon: "🪴", price: 280, desc: "A classic potted ficus tree, updated for the cyber-age. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Monstera Plant", icon: "🌿", price: 320, desc: "A lush monstera with neon-veined leaves. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Cyber Bamboo", icon: "🎋", price: 350, desc: "Digital bamboo stalks that glow softly. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Neon Succulent", icon: "🌵", price: 200, desc: "A small, resilient succulent glowing with neon. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Holo Rose", icon: "🌹", price: 400, desc: "A holographic projection of a perfect rose. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Bio Mushroom", icon: "🍄", price: 380, desc: "Genetically modified glowing mushrooms in a terrarium. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Digi Sunflower", icon: "🌻", price: 300, desc: "A tall sunflower that tracks light sources. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Zen Bonsai", icon: "🌲", price: 450, desc: "A traditional bonsai tree, meticulously maintained. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Lunar Lily", icon: "🪷", price: 420, desc: "A beautiful lily that blooms under holographic moonlight. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Cyber Tree", icon: "🌳", price: 600, desc: "A large decorative indoor tree with fiber-optic leaves. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Neon Pine", icon: "🌲", price: 500, desc: "A small pine tree radiating a sharp, neon glow. Place inside.", reqLevel: 10, type: "Plant" },
+            { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place inside.", reqLevel: 10, type: "Lighting" },
+            { name: "Server Rack", icon: "🗄️", price: 800, desc: "A glowing cybernetic data server. Place inside.", reqLevel: 10, type: "Electronics" },
+            { name: "Arcade Machine", icon: "🕹️", price: 1000, desc: "A retro-futuristic arcade cabinet. Place inside.", reqLevel: 10, type: "Electronics" },
+            { name: "Cyber TV", icon: "📺", price: 700, desc: "A massive flat-screen cyber display. Place inside.", reqLevel: 10, type: "Electronics" },
+            { name: "Neon Shelf", icon: "📚", price: 250, desc: "A wall-leaning shelf with neon edges. Place inside.", reqLevel: 10, type: "Storage" },
+            { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place inside.", reqLevel: 10, type: "Misc" },
+            { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place inside.", reqLevel: 10, type: "Storage" },
+            { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place inside.", reqLevel: 10, type: "Electronics" },
+            { name: "Holo Display", icon: "🖼️", price: 1200, desc: "A floating holographic art display. Place inside.", reqLevel: 10, type: "Decor" },
+            { name: "Lava Lamp", icon: "🌋", price: 350, desc: "A retro-futuristic glowing lava lamp. Place inside.", reqLevel: 10, type: "Lighting" },
+            { name: "Plasma Globe", icon: "🔮", price: 450, desc: "A sphere of crackling plasma energy. Place inside.", reqLevel: 10, type: "Lighting" },
+            { name: "Cyber Poster", icon: "📜", price: 250, desc: "A digital neon poster for your wall. Place inside.", reqLevel: 10, type: "Decor" },
+            { name: "Neon Sign", icon: "🪧", price: 650, desc: "A bright, buzzing neon sign. Place inside.", reqLevel: 10, type: "Lighting" },
+            { name: "Gaming PC", icon: "💻", price: 1500, desc: "A high-end RGB gaming rig. Place inside.", reqLevel: 10, type: "Electronics" },
+            { name: "Smart Mirror", icon: "🪞", price: 850, desc: "A high-tech interactive mirror. Place inside.", reqLevel: 10, type: "Electronics" }
         );
 
         if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
             homeItems.push(
-                { name: "Dojo Tile", icon: "⛩️", price: 920, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." }
+                { name: "Dojo Tile", icon: "⛩️", price: 920, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." , type: "Mini Building" }
             );
         }
 
+const categoryOrder = {
+            "Mini Building": 1,
+            "Seating": 2,
+            "Table": 3,
+            "Bed": 4,
+            "Storage": 5,
+            "Plant": 6,
+            "Lighting": 7,
+            "Electronics": 8,
+            "Decor": 9,
+            "Misc": 10
+        };
+
         activeItems.sort((a, b) => a.price - b.price);
-        homeItems.sort((a, b) => a.price - b.price);
+        homeItems.sort((a, b) => {
+            const catA = categoryOrder[a.type] || 99;
+            const catB = categoryOrder[b.type] || 99;
+            if (catA !== catB) {
+                return catA - catB;
+            }
+            return a.price - b.price;
+        });
 
         const currentTab = playerNum === 2 ? (window.p2StoreTab || 'items') : (window.p1StoreTab || 'items');
         let displayedItems = currentTab === 'home' ? homeItems : activeItems;
@@ -17397,7 +17417,14 @@ window.updateStoreUI = function() {
             <div style="display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 280px); overflow-y: auto; padding-right: 5px;">
         `;
 
+        let currentCategory = null;
         displayedItems.forEach(item => {
+            if (currentTab === 'home' && item.type && item.type !== currentCategory) {
+                currentCategory = item.type;
+                html += `<div style="width: 100%; text-align: left; margin-top: 10px; margin-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); padding-bottom: 5px;">
+                            <span style="font-size: 14px; font-weight: bold; color: #4caf50;">${currentCategory}</span>
+                         </div>`;
+            }
             const inv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
             let spaceInExisting = 0;
             inv.forEach(invItem => {
