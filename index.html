@@ -5803,6 +5803,29 @@ window.generateHomeInteriorTextures = function(scene) {
     add3DDepth(wallDefaultCtx, 12);
     scene.textures.addCanvas('home_wall_tile', wallDefault);
 
+    // Holographic Wall Texture
+    const holoWallCanvas = document.createElement('canvas'); holoWallCanvas.width = 100; holoWallCanvas.height = 100;
+    const holoWallCtx = holoWallCanvas.getContext('2d');
+    // Transparent blue base
+    holoWallCtx.fillStyle = 'rgba(0, 150, 255, 0.3)';
+    holoWallCtx.fillRect(0, 0, 100, 100);
+    // Sci-fi grid
+    holoWallCtx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+    holoWallCtx.lineWidth = 1;
+    for (let i = 0; i <= 100; i += 10) {
+        holoWallCtx.beginPath(); holoWallCtx.moveTo(i, 0); holoWallCtx.lineTo(i, 100); holoWallCtx.stroke();
+        holoWallCtx.beginPath(); holoWallCtx.moveTo(0, i); holoWallCtx.lineTo(100, i); holoWallCtx.stroke();
+    }
+    // Glowing radial center
+    const holoGrad = holoWallCtx.createRadialGradient(50, 50, 0, 50, 50, 50);
+    holoGrad.addColorStop(0, 'rgba(0, 255, 255, 0.6)');
+    holoGrad.addColorStop(1, 'rgba(0, 100, 255, 0.1)');
+    holoWallCtx.fillStyle = holoGrad;
+    holoWallCtx.fillRect(0, 0, 100, 100);
+    // 3D Depth
+    add3DDepth(holoWallCtx, 12);
+    scene.textures.addCanvas('home_holo_wall_tile', holoWallCanvas);
+
     // PRE-GENERATE ALL 8 FLOOR STYLES
     const floorStyles = {
         'cyber_neon': function(ctx) {
@@ -28747,15 +28770,27 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         let floor = scene.add.sprite(posX, posY, textureKey);
         floor.setDepth(-1);
         sprites.push(floor);
-    } else if (mapData[r][c] === 'home_wall') {
+    } else if (mapData[r][c] === 'home_wall' || mapData[r][c] === 'home_holo_wall') {
         let pNum = 1;
         if (c >= 589 && c <= 595) pNum = 2;
+        const isHolo = mapData[r][c] === 'home_holo_wall';
         const style = localStorage.getItem(`wildpulse_p${pNum}_home_wall_style`) || 'cyber_circuit';
-        const textureKey = `wall_${style}`;
+        const textureKey = isHolo ? 'home_holo_wall_tile' : `wall_${style}`;
         let wall = scene.add.sprite(posX, posY, textureKey);
         wall.setScale(1.0, 0.2);
         wall.setOrigin(0.5, 0.5);
         wall.setDepth(10);
+        if (isHolo) {
+            wall.setAlpha(0.8);
+            scene.tweens.add({
+                targets: wall,
+                alpha: 0.4,
+                duration: 2000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+        }
         sprites.push(wall);
 
         if (obstaclesGroup) {
@@ -30363,6 +30398,7 @@ function create() {
         }
     }
     mapData[584][582] = 'home_door_p1';
+    mapData[585][583] = 'home_holo_wall'; // Place holographic wall
 
     // Player 2 room: Walkable 5x5 at row 540 to 544, col 590 to 594
     for (let r = 539; r <= 545; r++) {
@@ -30375,6 +30411,7 @@ function create() {
         }
     }
     mapData[544][592] = 'home_door_p2';
+    mapData[545][593] = 'home_holo_wall'; // Place holographic wall
 
     // Generate separate portal rift world (40x40 area at row 400 to 439, col 400 to 439)
     // We surround it with wall boundaries
