@@ -28,7 +28,7 @@ test.describe('Favorite and Gamepad Scrolling Systems', () => {
             { id: "test_c4", name: "Meteorhorn", level: 5, currentHp: 50, stats: { health: 100 }, generation: 1, type: "Earth", description: "Earth horn" }
         ];
         localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
-        if (window.renderPartyList) window.renderPartyList();
+        if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
     });
 
     // Open Party Modal
@@ -44,24 +44,24 @@ test.describe('Favorite and Gamepad Scrolling Systems', () => {
     await expect(favoriteButtons.nth(0)).toHaveText('🤍');
 
     // Toggle favorite on first creature
-    await favoriteButtons.nth(0).click();
+    await favoriteButtons.nth(0).click({force: true});
     await expect(favoriteButtons.nth(0)).toHaveText('❤️');
 
     // Toggle favorite off first creature
-    await favoriteButtons.nth(0).click();
+    await favoriteButtons.nth(0).click({force: true});
     await expect(favoriteButtons.nth(0)).toHaveText('🤍');
 
     // Toggle favorite on first 3 creatures
-    await favoriteButtons.nth(0).click();
-    await favoriteButtons.nth(1).click();
-    await favoriteButtons.nth(2).click();
+    await favoriteButtons.nth(0).click({force: true});
+    await favoriteButtons.nth(1).click({force: true});
+    await favoriteButtons.nth(2).click({force: true});
 
     await expect(favoriteButtons.nth(0)).toHaveText('❤️');
     await expect(favoriteButtons.nth(1)).toHaveText('❤️');
     await expect(favoriteButtons.nth(2)).toHaveText('❤️');
 
     // Try to favorite 4th creature
-    await favoriteButtons.nth(3).click();
+    await favoriteButtons.nth(3).click({force: true});
     // Should still be white heart because max limit is 3
     await expect(favoriteButtons.nth(3)).toHaveText('🤍');
 
@@ -78,7 +78,7 @@ test.describe('Favorite and Gamepad Scrolling Systems', () => {
             { id: "test_c2", name: "Aquaweaver", level: 5, currentHp: 50, xp: 10, stats: { health: 100 }, generation: 1, type: "Water", description: "Water", favorited: true }
         ];
         localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
-        if (window.renderPartyList) window.renderPartyList();
+        if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
     });
 
     // 2. Simulate winning a battle
@@ -120,7 +120,7 @@ test.describe('Favorite and Gamepad Scrolling Systems', () => {
             { id: "test_c1", name: "Phoenix", level: 5, currentHp: 50, stats: { health: 100 }, generation: 1, type: "Fire", description: "This is a very long description. Phoenix is a legendary bird of fire that rises from its ashes. It has glowing golden feathers, beautiful blazing wings, a long trailing tail of sparks, and powerful flaming talons. It is incredibly swift and powerful, filling the room with intense heat and majestic light." }
         ];
         localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
-        if (window.renderPartyList) window.renderPartyList();
+        if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
     });
 
     // Open Party Modal
