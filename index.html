@@ -27454,33 +27454,38 @@ function generateTileTextures(scene) {
     if (window.add3DDepth) window.add3DDepth(sunflowerCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_sunflower_tile', sunflowerCanvas);
 
-    // Zen Bonsai
+        // Zen Bonsai
     const zenbonsaiCanvas = document.createElement('canvas');
     zenbonsaiCanvas.width = 100;
     zenbonsaiCanvas.height = 100;
     const zenbonsaiCtx = zenbonsaiCanvas.getContext('2d');
     // Pot
-    zenbonsaiCtx.fillStyle = '#111';
-    zenbonsaiCtx.fillRect(30, 80, 40, 10);
+    zenbonsaiCtx.fillStyle = '#222';
+    zenbonsaiCtx.fillRect(25, 85, 50, 12);
     // Trunk
-    zenbonsaiCtx.strokeStyle = '#4a3018';
-    zenbonsaiCtx.lineWidth = 6;
+    zenbonsaiCtx.strokeStyle = '#6d4c41';
+    zenbonsaiCtx.lineWidth = 8;
     zenbonsaiCtx.lineCap = 'round';
     zenbonsaiCtx.beginPath();
-    zenbonsaiCtx.moveTo(50, 80);
-    zenbonsaiCtx.quadraticCurveTo(30, 50, 70, 30);
+    zenbonsaiCtx.moveTo(50, 85);
+    zenbonsaiCtx.quadraticCurveTo(30, 55, 65, 30);
     zenbonsaiCtx.stroke();
     // Branches
-    zenbonsaiCtx.lineWidth = 3;
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.moveTo(40, 60); zenbonsaiCtx.lineTo(20, 50); zenbonsaiCtx.stroke();
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.moveTo(60, 40); zenbonsaiCtx.lineTo(80, 30); zenbonsaiCtx.stroke();
+    zenbonsaiCtx.lineWidth = 4;
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.moveTo(40, 65); zenbonsaiCtx.lineTo(20, 50); zenbonsaiCtx.stroke();
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.moveTo(55, 45); zenbonsaiCtx.lineTo(75, 40); zenbonsaiCtx.stroke();
     // Leaves
-    zenbonsaiCtx.fillStyle = '#005500';
-    zenbonsaiCtx.shadowBlur = 5;
-    zenbonsaiCtx.shadowColor = '#00ff00';
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(70, 25, 15, 0, Math.PI*2); zenbonsaiCtx.fill();
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(20, 45, 12, 0, Math.PI*2); zenbonsaiCtx.fill();
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(50, 15, 12, 0, Math.PI*2); zenbonsaiCtx.fill();
+    zenbonsaiCtx.fillStyle = '#2e7d32';
+    zenbonsaiCtx.shadowBlur = 8;
+    zenbonsaiCtx.shadowColor = '#4caf50';
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(65, 25, 18, 0, Math.PI*2); zenbonsaiCtx.fill();
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(15, 45, 14, 0, Math.PI*2); zenbonsaiCtx.fill();
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(45, 18, 14, 0, Math.PI*2); zenbonsaiCtx.fill();
+    // Leaf Highlights
+    zenbonsaiCtx.fillStyle = '#4caf50';
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(60, 20, 8, 0, Math.PI*2); zenbonsaiCtx.fill();
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(12, 40, 6, 0, Math.PI*2); zenbonsaiCtx.fill();
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(42, 13, 6, 0, Math.PI*2); zenbonsaiCtx.fill();
     if (window.add3DDepth) window.add3DDepth(zenbonsaiCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_zenbonsai_tile', zenbonsaiCanvas);
 
@@ -27528,20 +27533,26 @@ function generateTileTextures(scene) {
     if (window.add3DDepth) window.add3DDepth(cybertreeCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_cybertree_tile', cybertreeCanvas);
 
-    // Neon Pine
+        // Neon Pine
     const neonpineCanvas = document.createElement('canvas');
     neonpineCanvas.width = 100;
     neonpineCanvas.height = 100;
     const neonpineCtx = neonpineCanvas.getContext('2d');
-    neonpineCtx.fillStyle = '#111';
-    neonpineCtx.fillRect(40, 85, 20, 10);
+    neonpineCtx.fillStyle = '#1a1a1a';
+    neonpineCtx.fillRect(40, 85, 20, 15);
     // Tree
-    neonpineCtx.fillStyle = '#00ffaa';
-    neonpineCtx.shadowBlur = 15;
+    neonpineCtx.fillStyle = 'rgba(0, 255, 170, 0.8)';
+    neonpineCtx.strokeStyle = '#00ffaa';
+    neonpineCtx.lineWidth = 3;
+    neonpineCtx.shadowBlur = 20;
     neonpineCtx.shadowColor = '#00ffaa';
-    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 10); neonpineCtx.lineTo(75, 45); neonpineCtx.lineTo(25, 45); neonpineCtx.fill();
-    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 30); neonpineCtx.lineTo(80, 65); neonpineCtx.lineTo(20, 65); neonpineCtx.fill();
-    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 50); neonpineCtx.lineTo(85, 85); neonpineCtx.lineTo(15, 85); neonpineCtx.fill();
+    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 5); neonpineCtx.lineTo(70, 35); neonpineCtx.lineTo(30, 35); neonpineCtx.closePath(); neonpineCtx.fill(); neonpineCtx.stroke();
+    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 25); neonpineCtx.lineTo(75, 60); neonpineCtx.lineTo(25, 60); neonpineCtx.closePath(); neonpineCtx.fill(); neonpineCtx.stroke();
+    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 50); neonpineCtx.lineTo(80, 85); neonpineCtx.lineTo(20, 85); neonpineCtx.closePath(); neonpineCtx.fill(); neonpineCtx.stroke();
+    // Inner glows
+    neonpineCtx.fillStyle = '#fff';
+    neonpineCtx.shadowBlur = 10;
+    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 15); neonpineCtx.lineTo(55, 30); neonpineCtx.lineTo(45, 30); neonpineCtx.fill();
     if (window.add3DDepth) window.add3DDepth(neonpineCtx, 0, 0, 100, 100);
     scene.textures.addCanvas('furniture_neonpine_tile', neonpineCanvas);
 
