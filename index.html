@@ -32589,7 +32589,7 @@ window.handleFaint = function(target) {
     } else {
         const activeParty = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         // Sync fainted creature's HP
-        let orig = activeParty.find(c => String(c.id) === String(currentPlayer?.id));
+        let orig = activeParty.find(c => String(c.id) === String(target?.id));
         if (orig) {
             orig.currentHp = 0;
             orig.status = null;
@@ -32597,7 +32597,7 @@ window.handleFaint = function(target) {
             window.adjustHappiness(orig, -15, window.activeBattlePlayer === 2 ? 2 : 1);
         }
 
-        let next = activeParty.find(c => !c.stored && !c.isEgg && c.currentHp > 0 && String(c.id) !== String(currentPlayer?.id));
+        let next = activeParty.find(c => !c.stored && !c.isEgg && c.currentHp > 0);
         if (next) {
             currentPlayer = JSON.parse(JSON.stringify(next));
             window.currentPlayer = currentPlayer;
