@@ -4517,7 +4517,7 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     let rewardItem = null;
 
     const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
-    const furniturePool = ["Storage Chest", "Mini Hospital", "Mini Store", "Mini Trade", "Mini PvP", "Mini Breeding Center", "Mini Challenge", "Neon Couch", "L-Couch", "Love Seat", "Cyber Desk", "Office Chair", "Stool", "Coffee Table", "Dining Table", "Park Bench", "Cyber Bench", "Filing Cabinet", "Display Cabinet", "Nightstand", "Corner Table", "Bunk Bed", "King Bed", "Glow Carpet", "Holo Bed", "Neon Chair", "Holo Table", "Cyber Plant", "Crystal Bonsai", "Neon Fern", "Plasma Cactus", "Holo Orchid", "Neon Lamp", "Server Rack", "Arcade Machine", "Cyber TV", "Neon Shelf", "Tech Bin", "Neon Wardrobe", "Cyber Fridge", "Holo Display", "Lava Lamp", "Plasma Globe", "Cyber Poster", "Neon Sign", "Gaming PC", "Smart Mirror"];
+    const furniturePool = ["Storage Chest", "Mini Hospital", "Mini Store", "Mini Trade", "Mini PvP", "Mini Breeding Center", "Mini Challenge", "Neon Couch", "L-Couch", "Love Seat", "Cyber Desk", "Office Chair", "Stool", "Coffee Table", "Dining Table", "Park Bench", "Cyber Bench", "Filing Cabinet", "Display Cabinet", "Nightstand", "Corner Table", "Bunk Bed", "King Bed", "Glow Carpet", "Holo Bed", "Neon Chair", "Holo Table", "Cyber Plant", "Crystal Bonsai", "Neon Fern", "Plasma Cactus", "Holo Orchid", "Neon Lamp", "Server Rack", "Arcade Machine", "Cyber TV", "Neon Shelf", "Tech Bin", "Neon Wardrobe", "Cyber Fridge", "Holo Display", "Lava Lamp", "Plasma Globe", "Cyber Poster", "Neon Sign", "Gaming PC", "Smart Mirror", "Potted Ficus", "Monstera Plant", "Cyber Bamboo", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Digi Sunflower", "Zen Bonsai", "Lunar Lily", "Cyber Tree", "Neon Pine"];
 
     if (pLevel >= 10 && Math.random() < 0.15) {
         rewardItem = furniturePool[Math.floor(Math.random() * furniturePool.length)];
@@ -9767,6 +9767,17 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Speed Booster", icon: "⚡", desc: "Permanently raises creature's Speed by 5." },
         { name: "Sp. Atk Booster", icon: "🔮", desc: "Permanently raises creature's Sp. Atk by 5." },
         { name: "Sp. Def Booster", icon: "🧿", desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Potted Ficus", icon: "🪴", desc: "A classic potted ficus tree, updated for the cyber-age." },
+        { name: "Monstera Plant", icon: "🌿", desc: "A lush monstera with neon-veined leaves." },
+        { name: "Cyber Bamboo", icon: "🎋", desc: "Digital bamboo stalks that glow softly." },
+        { name: "Neon Succulent", icon: "🌵", desc: "A small, resilient succulent glowing with neon." },
+        { name: "Holo Rose", icon: "🌹", desc: "A holographic projection of a perfect rose." },
+        { name: "Bio Mushroom", icon: "🍄", desc: "Genetically modified glowing mushrooms in a terrarium." },
+        { name: "Digi Sunflower", icon: "🌻", desc: "A tall sunflower that tracks light sources." },
+        { name: "Zen Bonsai", icon: "🌲", desc: "A traditional bonsai tree, meticulously maintained." },
+        { name: "Lunar Lily", icon: "🪷", desc: "A beautiful lily that blooms under holographic moonlight." },
+        { name: "Cyber Tree", icon: "🌳", desc: "A large decorative indoor tree with fiber-optic leaves." },
+        { name: "Neon Pine", icon: "🌲", desc: "A small pine tree radiating a sharp, neon glow." },
         { name: "Crystal Bonsai", icon: "🪨", desc: "An elegant bonsai made of glowing crystals." },
         { name: "Neon Fern", icon: "🌿", desc: "A bioluminescent fern with neon-green fronds." },
         { name: "Plasma Cactus", icon: "🌵", desc: "A desert plant containing glowing pink plasma." },
@@ -17339,6 +17350,17 @@ window.updateStoreUI = function() {
             { name: "Neon Fern", icon: "🌿", price: 280, desc: "A bioluminescent fern with neon-green fronds. Place inside.", reqLevel: 10 },
             { name: "Plasma Cactus", icon: "🌵", price: 420, desc: "A desert plant containing glowing pink plasma. Place inside.", reqLevel: 10 },
             { name: "Holo Orchid", icon: "🌸", price: 500, desc: "A holographic projection of a rare orchid. Place inside.", reqLevel: 10 },
+            { name: "Potted Ficus", icon: "🪴", price: 280, desc: "A classic potted ficus tree, updated for the cyber-age. Place inside.", reqLevel: 10 },
+            { name: "Monstera Plant", icon: "🌿", price: 320, desc: "A lush monstera with neon-veined leaves. Place inside.", reqLevel: 10 },
+            { name: "Cyber Bamboo", icon: "🎋", price: 350, desc: "Digital bamboo stalks that glow softly. Place inside.", reqLevel: 10 },
+            { name: "Neon Succulent", icon: "🌵", price: 200, desc: "A small, resilient succulent glowing with neon. Place inside.", reqLevel: 10 },
+            { name: "Holo Rose", icon: "🌹", price: 400, desc: "A holographic projection of a perfect rose. Place inside.", reqLevel: 10 },
+            { name: "Bio Mushroom", icon: "🍄", price: 380, desc: "Genetically modified glowing mushrooms in a terrarium. Place inside.", reqLevel: 10 },
+            { name: "Digi Sunflower", icon: "🌻", price: 300, desc: "A tall sunflower that tracks light sources. Place inside.", reqLevel: 10 },
+            { name: "Zen Bonsai", icon: "🌲", price: 450, desc: "A traditional bonsai tree, meticulously maintained. Place inside.", reqLevel: 10 },
+            { name: "Lunar Lily", icon: "🪷", price: 420, desc: "A beautiful lily that blooms under holographic moonlight. Place inside.", reqLevel: 10 },
+            { name: "Cyber Tree", icon: "🌳", price: 600, desc: "A large decorative indoor tree with fiber-optic leaves. Place inside.", reqLevel: 10 },
+            { name: "Neon Pine", icon: "🌲", price: 500, desc: "A small pine tree radiating a sharp, neon glow. Place inside.", reqLevel: 10 },
             { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place inside.", reqLevel: 10 },
             { name: "Server Rack", icon: "🗄️", price: 800, desc: "A glowing cybernetic data server. Place inside.", reqLevel: 10 },
             { name: "Arcade Machine", icon: "🕹️", price: 1000, desc: "A retro-futuristic arcade cabinet. Place inside.", reqLevel: 10 },
@@ -18164,6 +18186,17 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "Neon Fern": "🌿",
         "Plasma Cactus": "🌵",
         "Holo Orchid": "🌸",
+        "Potted Ficus": "🪴",
+        "Monstera Plant": "🌿",
+        "Cyber Bamboo": "🎋",
+        "Neon Succulent": "🌵",
+        "Holo Rose": "🌹",
+        "Bio Mushroom": "🍄",
+        "Digi Sunflower": "🌻",
+        "Zen Bonsai": "🌲",
+        "Lunar Lily": "🪷",
+        "Cyber Tree": "🌳",
+        "Neon Pine": "🌲",
         "Neon Lamp": "💡",
         "Server Rack": "🗄️",
         "Arcade Machine": "🕹️",
@@ -18919,6 +18952,22 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <rect x="35" y="25" width="5" height="50" fill="#00ffd2" opacity="0.5" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Gaming PC"]}</span>`;
+            break;
+
+        case "Potted Ficus":
+        case "Monstera Plant":
+        case "Cyber Bamboo":
+        case "Neon Succulent":
+        case "Holo Rose":
+        case "Bio Mushroom":
+        case "Digi Sunflower":
+        case "Zen Bonsai":
+        case "Lunar Lily":
+        case "Cyber Tree":
+        case "Neon Pine":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+                <text x="50" y="65" font-family="Arial" font-size="50" text-anchor="middle" dominant-baseline="central">${emojiMap[itemName]}</text>
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap[itemName]}</span>`;
             break;
         case "Smart Mirror":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
@@ -27174,6 +27223,302 @@ function generateTileTextures(scene) {
     scene.textures.addCanvas('furniture_lamp_on_tile', lampOnCanvas);
 
 
+
+    // Potted Ficus
+    const ficusCanvas = document.createElement('canvas');
+    ficusCanvas.width = 100;
+    ficusCanvas.height = 100;
+    const ficusCtx = ficusCanvas.getContext('2d');
+    ficusCtx.fillStyle = '#553311'; // brown pot
+    ficusCtx.beginPath();
+    ficusCtx.moveTo(35, 80);
+    ficusCtx.lineTo(65, 80);
+    ficusCtx.lineTo(60, 95);
+    ficusCtx.lineTo(40, 95);
+    ficusCtx.fill();
+    ficusCtx.fillStyle = '#00aa00'; // leaves
+    ficusCtx.beginPath();
+    ficusCtx.arc(50, 45, 25, 0, Math.PI * 2);
+    ficusCtx.fill();
+    ficusCtx.beginPath();
+    ficusCtx.arc(35, 55, 15, 0, Math.PI * 2);
+    ficusCtx.fill();
+    ficusCtx.beginPath();
+    ficusCtx.arc(65, 55, 15, 0, Math.PI * 2);
+    ficusCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(ficusCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_ficus_tile', ficusCanvas);
+
+    // Monstera Plant
+    const monsteraCanvas = document.createElement('canvas');
+    monsteraCanvas.width = 100;
+    monsteraCanvas.height = 100;
+    const monsteraCtx = monsteraCanvas.getContext('2d');
+    monsteraCtx.fillStyle = '#222'; // modern pot
+    monsteraCtx.fillRect(35, 75, 30, 20);
+    monsteraCtx.fillStyle = '#00ff66';
+    monsteraCtx.shadowBlur = 10;
+    monsteraCtx.shadowColor = '#00ff66';
+    // Draw big leaves with holes
+    monsteraCtx.beginPath();
+    monsteraCtx.ellipse(50, 40, 25, 30, 0, 0, Math.PI * 2);
+    monsteraCtx.fill();
+    // Holes
+    monsteraCtx.globalCompositeOperation = 'destination-out';
+    monsteraCtx.beginPath();
+    monsteraCtx.arc(40, 30, 5, 0, Math.PI * 2);
+    monsteraCtx.arc(60, 50, 6, 0, Math.PI * 2);
+    monsteraCtx.arc(55, 25, 4, 0, Math.PI * 2);
+    monsteraCtx.fill();
+    monsteraCtx.globalCompositeOperation = 'source-over';
+    if (window.add3DDepth) window.add3DDepth(monsteraCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_monstera_tile', monsteraCanvas);
+
+    // Cyber Bamboo
+    const bambooCanvas = document.createElement('canvas');
+    bambooCanvas.width = 100;
+    bambooCanvas.height = 100;
+    const bambooCtx = bambooCanvas.getContext('2d');
+    bambooCtx.fillStyle = '#111'; // long planter
+    bambooCtx.fillRect(20, 85, 60, 10);
+    bambooCtx.strokeStyle = '#00ffcc';
+    bambooCtx.lineWidth = 4;
+    bambooCtx.shadowBlur = 8;
+    bambooCtx.shadowColor = '#00ffcc';
+    // Stalks
+    for(let x of [30, 40, 50, 60, 70]) {
+        bambooCtx.beginPath();
+        bambooCtx.moveTo(x, 85);
+        bambooCtx.lineTo(x + (Math.random() * 10 - 5), 20 + Math.random() * 10);
+        bambooCtx.stroke();
+        // Leaves
+        bambooCtx.fillStyle = '#00ffcc';
+        bambooCtx.beginPath();
+        bambooCtx.ellipse(x-5, 40, 8, 3, Math.PI/4, 0, Math.PI*2);
+        bambooCtx.fill();
+    }
+    if (window.add3DDepth) window.add3DDepth(bambooCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_bamboo_tile', bambooCanvas);
+
+    // Neon Succulent
+    const succulentCanvas = document.createElement('canvas');
+    succulentCanvas.width = 100;
+    succulentCanvas.height = 100;
+    const succulentCtx = succulentCanvas.getContext('2d');
+    succulentCtx.fillStyle = '#444'; // round pot
+    succulentCtx.beginPath();
+    succulentCtx.arc(50, 80, 15, 0, Math.PI);
+    succulentCtx.fill();
+    succulentCtx.fillStyle = '#ff00aa';
+    succulentCtx.shadowBlur = 10;
+    succulentCtx.shadowColor = '#ff00aa';
+    // Spiky leaves
+    for(let a=0; a<Math.PI; a+=Math.PI/4) {
+        succulentCtx.beginPath();
+        succulentCtx.moveTo(50, 80);
+        succulentCtx.lineTo(50 + Math.cos(a)*20, 80 - Math.sin(a)*25);
+        succulentCtx.lineTo(50 + Math.cos(a+0.2)*10, 80 - Math.sin(a+0.2)*15);
+        succulentCtx.fill();
+    }
+    if (window.add3DDepth) window.add3DDepth(succulentCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_succulent_tile', succulentCanvas);
+
+    // Holo Rose
+    const holoroseCanvas = document.createElement('canvas');
+    holoroseCanvas.width = 100;
+    holoroseCanvas.height = 100;
+    const holoroseCtx = holoroseCanvas.getContext('2d');
+    holoroseCtx.fillStyle = '#222';
+    holoroseCtx.fillRect(40, 90, 20, 5); // base projector
+    holoroseCtx.strokeStyle = 'rgba(255, 0, 100, 0.6)';
+    holoroseCtx.lineWidth = 2;
+    holoroseCtx.beginPath(); // stem
+    holoroseCtx.moveTo(50, 90);
+    holoroseCtx.lineTo(50, 40);
+    holoroseCtx.stroke();
+    holoroseCtx.fillStyle = 'rgba(255, 0, 50, 0.8)';
+    holoroseCtx.shadowBlur = 15;
+    holoroseCtx.shadowColor = '#ff0055';
+    // Petals
+    holoroseCtx.beginPath();
+    holoroseCtx.arc(50, 30, 15, 0, Math.PI*2);
+    holoroseCtx.fill();
+    holoroseCtx.fillStyle = 'rgba(255, 100, 100, 0.9)';
+    holoroseCtx.beginPath();
+    holoroseCtx.arc(50, 30, 8, 0, Math.PI*2);
+    holoroseCtx.fill();
+    // Grid lines for holo effect
+    holoroseCtx.strokeStyle = '#fff';
+    holoroseCtx.lineWidth = 0.5;
+    for(let y=15; y<45; y+=3) {
+        holoroseCtx.beginPath();
+        holoroseCtx.moveTo(35, y);
+        holoroseCtx.lineTo(65, y);
+        holoroseCtx.stroke();
+    }
+    if (window.add3DDepth) window.add3DDepth(holoroseCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_holorose_tile', holoroseCanvas);
+
+    // Bio Mushroom
+    const mushroomCanvas = document.createElement('canvas');
+    mushroomCanvas.width = 100;
+    mushroomCanvas.height = 100;
+    const mushroomCtx = mushroomCanvas.getContext('2d');
+    // Terrarium base
+    mushroomCtx.fillStyle = '#333';
+    mushroomCtx.beginPath();
+    mushroomCtx.ellipse(50, 85, 25, 10, 0, 0, Math.PI*2);
+    mushroomCtx.fill();
+    // Mushrooms
+    mushroomCtx.shadowBlur = 12;
+    mushroomCtx.shadowColor = '#00ffff';
+
+    // shroom 1
+    mushroomCtx.strokeStyle = '#fff';
+    mushroomCtx.lineWidth = 3;
+    mushroomCtx.beginPath(); mushroomCtx.moveTo(40, 80); mushroomCtx.lineTo(35, 50); mushroomCtx.stroke();
+    mushroomCtx.fillStyle = '#00ffff';
+    mushroomCtx.beginPath(); mushroomCtx.arc(35, 45, 12, Math.PI, 0); mushroomCtx.fill();
+
+    // shroom 2
+    mushroomCtx.beginPath(); mushroomCtx.moveTo(60, 85); mushroomCtx.lineTo(65, 60); mushroomCtx.stroke();
+    mushroomCtx.fillStyle = '#00aaff';
+    mushroomCtx.beginPath(); mushroomCtx.arc(65, 55, 15, Math.PI, 0); mushroomCtx.fill();
+
+    // Glass dome
+    mushroomCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    mushroomCtx.lineWidth = 2;
+    mushroomCtx.shadowBlur = 0;
+    mushroomCtx.beginPath();
+    mushroomCtx.arc(50, 60, 30, Math.PI, 0);
+    mushroomCtx.stroke();
+
+    if (window.add3DDepth) window.add3DDepth(mushroomCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_mushroom_tile', mushroomCanvas);
+
+    // Digi Sunflower
+    const sunflowerCanvas = document.createElement('canvas');
+    sunflowerCanvas.width = 100;
+    sunflowerCanvas.height = 100;
+    const sunflowerCtx = sunflowerCanvas.getContext('2d');
+    sunflowerCtx.fillStyle = '#663300';
+    sunflowerCtx.fillRect(40, 80, 20, 15);
+    // Stem
+    sunflowerCtx.strokeStyle = '#00ff00';
+    sunflowerCtx.lineWidth = 4;
+    sunflowerCtx.beginPath();
+    sunflowerCtx.moveTo(50, 80);
+    sunflowerCtx.lineTo(50, 30);
+    sunflowerCtx.stroke();
+    // Center
+    sunflowerCtx.fillStyle = '#222';
+    sunflowerCtx.beginPath();
+    sunflowerCtx.arc(50, 30, 12, 0, Math.PI*2);
+    sunflowerCtx.fill();
+    // Petals
+    sunflowerCtx.fillStyle = '#ffff00';
+    sunflowerCtx.shadowBlur = 10;
+    sunflowerCtx.shadowColor = '#ffff00';
+    for(let a=0; a<Math.PI*2; a+=Math.PI/6) {
+        sunflowerCtx.beginPath();
+        sunflowerCtx.ellipse(50 + Math.cos(a)*18, 30 + Math.sin(a)*18, 10, 4, a, 0, Math.PI*2);
+        sunflowerCtx.fill();
+    }
+    if (window.add3DDepth) window.add3DDepth(sunflowerCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_sunflower_tile', sunflowerCanvas);
+
+    // Zen Bonsai
+    const zenbonsaiCanvas = document.createElement('canvas');
+    zenbonsaiCanvas.width = 100;
+    zenbonsaiCanvas.height = 100;
+    const zenbonsaiCtx = zenbonsaiCanvas.getContext('2d');
+    // Pot
+    zenbonsaiCtx.fillStyle = '#111';
+    zenbonsaiCtx.fillRect(30, 80, 40, 10);
+    // Trunk
+    zenbonsaiCtx.strokeStyle = '#4a3018';
+    zenbonsaiCtx.lineWidth = 6;
+    zenbonsaiCtx.lineCap = 'round';
+    zenbonsaiCtx.beginPath();
+    zenbonsaiCtx.moveTo(50, 80);
+    zenbonsaiCtx.quadraticCurveTo(30, 50, 70, 30);
+    zenbonsaiCtx.stroke();
+    // Branches
+    zenbonsaiCtx.lineWidth = 3;
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.moveTo(40, 60); zenbonsaiCtx.lineTo(20, 50); zenbonsaiCtx.stroke();
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.moveTo(60, 40); zenbonsaiCtx.lineTo(80, 30); zenbonsaiCtx.stroke();
+    // Leaves
+    zenbonsaiCtx.fillStyle = '#005500';
+    zenbonsaiCtx.shadowBlur = 5;
+    zenbonsaiCtx.shadowColor = '#00ff00';
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(70, 25, 15, 0, Math.PI*2); zenbonsaiCtx.fill();
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(20, 45, 12, 0, Math.PI*2); zenbonsaiCtx.fill();
+    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(50, 15, 12, 0, Math.PI*2); zenbonsaiCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(zenbonsaiCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_zenbonsai_tile', zenbonsaiCanvas);
+
+    // Lunar Lily
+    const lunarlilyCanvas = document.createElement('canvas');
+    lunarlilyCanvas.width = 100;
+    lunarlilyCanvas.height = 100;
+    const lunarlilyCtx = lunarlilyCanvas.getContext('2d');
+    lunarlilyCtx.fillStyle = '#0a1a2a'; // dark pot
+    lunarlilyCtx.beginPath(); lunarlilyCtx.arc(50, 85, 15, 0, Math.PI); lunarlilyCtx.fill();
+    lunarlilyCtx.fillStyle = '#ffffff';
+    lunarlilyCtx.shadowBlur = 15;
+    lunarlilyCtx.shadowColor = '#aaccff';
+    for(let a=0; a<Math.PI*2; a+=Math.PI/4) {
+        lunarlilyCtx.beginPath();
+        lunarlilyCtx.ellipse(50 + Math.cos(a)*15, 75 + Math.sin(a)*10, 15, 5, a, 0, Math.PI*2);
+        lunarlilyCtx.fill();
+    }
+    // Glowing center
+    lunarlilyCtx.fillStyle = '#aaccff';
+    lunarlilyCtx.beginPath(); lunarlilyCtx.arc(50, 75, 5, 0, Math.PI*2); lunarlilyCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(lunarlilyCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_lunarlily_tile', lunarlilyCanvas);
+
+    // Cyber Tree
+    const cybertreeCanvas = document.createElement('canvas');
+    cybertreeCanvas.width = 100;
+    cybertreeCanvas.height = 100;
+    const cybertreeCtx = cybertreeCanvas.getContext('2d');
+    cybertreeCtx.fillStyle = '#333';
+    cybertreeCtx.fillRect(35, 80, 30, 20); // pot
+    cybertreeCtx.strokeStyle = '#555';
+    cybertreeCtx.lineWidth = 10;
+    cybertreeCtx.beginPath(); cybertreeCtx.moveTo(50, 80); cybertreeCtx.lineTo(50, 30); cybertreeCtx.stroke();
+    // Canopy
+    cybertreeCtx.fillStyle = '#00ccff';
+    cybertreeCtx.shadowBlur = 20;
+    cybertreeCtx.shadowColor = '#00ccff';
+    cybertreeCtx.beginPath(); cybertreeCtx.arc(50, 30, 30, 0, Math.PI*2); cybertreeCtx.fill();
+    // Grid lines on canopy
+    cybertreeCtx.strokeStyle = '#ffffff';
+    cybertreeCtx.lineWidth = 1;
+    cybertreeCtx.beginPath(); cybertreeCtx.moveTo(20, 30); cybertreeCtx.lineTo(80, 30); cybertreeCtx.stroke();
+    cybertreeCtx.beginPath(); cybertreeCtx.moveTo(50, 0); cybertreeCtx.lineTo(50, 60); cybertreeCtx.stroke();
+    if (window.add3DDepth) window.add3DDepth(cybertreeCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_cybertree_tile', cybertreeCanvas);
+
+    // Neon Pine
+    const neonpineCanvas = document.createElement('canvas');
+    neonpineCanvas.width = 100;
+    neonpineCanvas.height = 100;
+    const neonpineCtx = neonpineCanvas.getContext('2d');
+    neonpineCtx.fillStyle = '#111';
+    neonpineCtx.fillRect(40, 85, 20, 10);
+    // Tree
+    neonpineCtx.fillStyle = '#00ffaa';
+    neonpineCtx.shadowBlur = 15;
+    neonpineCtx.shadowColor = '#00ffaa';
+    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 10); neonpineCtx.lineTo(75, 45); neonpineCtx.lineTo(25, 45); neonpineCtx.fill();
+    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 30); neonpineCtx.lineTo(80, 65); neonpineCtx.lineTo(20, 65); neonpineCtx.fill();
+    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 50); neonpineCtx.lineTo(85, 85); neonpineCtx.lineTo(15, 85); neonpineCtx.fill();
+    if (window.add3DDepth) window.add3DDepth(neonpineCtx, 0, 0, 100, 100);
+    scene.textures.addCanvas('furniture_neonpine_tile', neonpineCanvas);
+
+
     // Server Rack
     const serverCanvas = document.createElement('canvas');
     serverCanvas.width = 100;
@@ -29098,6 +29443,17 @@ window.spawnMiniTiles = function(scene) {
             else if (tile.type === "furniture_neon_fern") textureKey = "furniture_neon_fern_tile";
             else if (tile.type === "furniture_plasma_cactus") textureKey = "furniture_plasma_cactus_tile";
             else if (tile.type === "furniture_holo_orchid") textureKey = "furniture_holo_orchid_tile";
+            else if (tile.type === "furniture_ficus") textureKey = "furniture_ficus_tile";
+            else if (tile.type === "furniture_monstera") textureKey = "furniture_monstera_tile";
+            else if (tile.type === "furniture_bamboo") textureKey = "furniture_bamboo_tile";
+            else if (tile.type === "furniture_succulent") textureKey = "furniture_succulent_tile";
+            else if (tile.type === "furniture_holorose") textureKey = "furniture_holorose_tile";
+            else if (tile.type === "furniture_mushroom") textureKey = "furniture_mushroom_tile";
+            else if (tile.type === "furniture_sunflower") textureKey = "furniture_sunflower_tile";
+            else if (tile.type === "furniture_zenbonsai") textureKey = "furniture_zenbonsai_tile";
+            else if (tile.type === "furniture_lunarlily") textureKey = "furniture_lunarlily_tile";
+            else if (tile.type === "furniture_cybertree") textureKey = "furniture_cybertree_tile";
+            else if (tile.type === "furniture_neonpine") textureKey = "furniture_neonpine_tile";
             else if (tile.type === 'furniture_lamp') textureKey = 'furniture_lamp_tile';
             else if (tile.type === 'furniture_server') textureKey = 'furniture_server_tile';
             else if (tile.type === 'furniture_arcade') textureKey = 'furniture_arcade_tile';
@@ -29534,7 +29890,7 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
         if (hash < 12 && !isAboveHospital) return false;
     }
 
-    const smallItems = ["Neon Lamp", "Tech Bin", "Cyber Plant", "Lava Lamp", "Plasma Globe", "Gaming PC", "furniture_lamp", "furniture_bin", "furniture_plant", "furniture_lavalamp", "furniture_plasmaglobe", "furniture_gamingpc"];
+    const smallItems = [ "Potted Ficus", "Monstera Plant", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Zen Bonsai", "Lunar Lily", "furniture_ficus", "furniture_monstera", "furniture_succulent", "furniture_holorose", "furniture_mushroom", "furniture_zenbonsai", "furniture_lunarlily", "Neon Lamp", "Tech Bin", "Cyber Plant", "Lava Lamp", "Plasma Globe", "Gaming PC", "furniture_lamp", "furniture_bin", "furniture_plant", "furniture_lavalamp", "furniture_plasmaglobe", "furniture_gamingpc"];
     const flatTopItems = ["furniture_table", "furniture_desk", "furniture_shelf", "Cyber Desk", "Holo Table", "Neon Shelf", "furniture_wardrobe", "Neon Wardrobe", "Server Rack", "furniture_server"];
 
     // Check other homes/structures and other mini tiles
@@ -29622,6 +29978,17 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         "Neon Fern": "furniture_neon_fern_tile",
         "Plasma Cactus": "furniture_plasma_cactus_tile",
         "Holo Orchid": "furniture_holo_orchid_tile",
+        "Potted Ficus": "furniture_ficus_tile",
+        "Monstera Plant": "furniture_monstera_tile",
+        "Cyber Bamboo": "furniture_bamboo_tile",
+        "Neon Succulent": "furniture_succulent_tile",
+        "Holo Rose": "furniture_holorose_tile",
+        "Bio Mushroom": "furniture_mushroom_tile",
+        "Digi Sunflower": "furniture_sunflower_tile",
+        "Zen Bonsai": "furniture_zenbonsai_tile",
+        "Lunar Lily": "furniture_lunarlily_tile",
+        "Cyber Tree": "furniture_cybertree_tile",
+        "Neon Pine": "furniture_neonpine_tile",
         "Neon Lamp": "furniture_lamp_tile",
         "Server Rack": "furniture_server_tile",
         "Arcade Machine": "furniture_arcade_tile",
@@ -29733,6 +30100,17 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
         "Neon Fern": "furniture_neon_fern",
         "Plasma Cactus": "furniture_plasma_cactus",
         "Holo Orchid": "furniture_holo_orchid",
+        "Potted Ficus": "furniture_ficus",
+        "Monstera Plant": "furniture_monstera",
+        "Cyber Bamboo": "furniture_bamboo",
+        "Neon Succulent": "furniture_succulent",
+        "Holo Rose": "furniture_holorose",
+        "Bio Mushroom": "furniture_mushroom",
+        "Digi Sunflower": "furniture_sunflower",
+        "Zen Bonsai": "furniture_zenbonsai",
+        "Lunar Lily": "furniture_lunarlily",
+        "Cyber Tree": "furniture_cybertree",
+        "Neon Pine": "furniture_neonpine",
         "Neon Lamp": "furniture_lamp",
         "Server Rack": "furniture_server",
         "Arcade Machine": "furniture_arcade",
