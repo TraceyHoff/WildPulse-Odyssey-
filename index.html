@@ -4883,7 +4883,8 @@ window.openQuestModal = function(playerNum, npcId) {
                 if (window.WildPulseMusic && window.WildPulseMusic.synth) {
                     try { window.WildPulseMusic.synth.triggerAttackRelease("C5", "8n"); } catch(e){}
                 }
-                window.showModernNotification(`🎉 Quest complete! Earned ${activeQuest.rewards.coins} coins, ${activeQuest.rewards.xp} Player XP${itemGainedMsg}!`, 6000, playerNum);
+                const lvlUpIcon = window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉';
+                window.showModernNotification(`${lvlUpIcon} Quest complete! Earned ${activeQuest.rewards.coins} coins, ${activeQuest.rewards.xp} Player XP${itemGainedMsg}!`, 6000, playerNum);
 
                 // Close modal
                 window.closeQuestModal(playerNum);
@@ -16744,7 +16745,8 @@ window.checkLevelUpForCreature = function(creature, playerNum) {
         let statsHtml = '';
 
         if (creature.growthSpurtThisLevel) {
-            statsHtml += `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em;">✨ Growth Spurt! All stats increased! ✨</div>`;
+            const growthIcon = window.getGrowthSpurtIconHTML ? window.getGrowthSpurtIconHTML(20) : '✨';
+            statsHtml += `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em; display: flex; align-items: center; justify-content: center;">${growthIcon} Growth Spurt! All stats increased! ${growthIcon}</div>`;
             creature.growthSpurtThisLevel = false;
         }
 
@@ -16836,7 +16838,8 @@ window.gainPlayerXp = function(playerNum, amount) {
         window.savePlayerLevels();
         if (leveledUp) {
             if (window.showModernNotification) {
-                window.showModernNotification(`🎉 Player 2 leveled up to Level ${window.p2Level}! 🎉`, "#ffeb3b");
+                const lvlUpIcon = window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉';
+                window.showModernNotification(`${lvlUpIcon} Player 2 leveled up to Level ${window.p2Level}! ${lvlUpIcon}`, "#ffeb3b");
             }
             if (window.updatePlayerLabels) window.updatePlayerLabels();
         }
@@ -16853,7 +16856,8 @@ window.gainPlayerXp = function(playerNum, amount) {
         window.savePlayerLevels();
         if (leveledUp) {
             if (window.showModernNotification) {
-                window.showModernNotification(`🎉 Player 1 leveled up to Level ${window.p1Level}! 🎉`, "#ffeb3b");
+                const lvlUpIcon = window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉';
+                window.showModernNotification(`${lvlUpIcon} Player 1 leveled up to Level ${window.p1Level}! ${lvlUpIcon}`, "#ffeb3b");
             }
             if (window.updatePlayerLabels) window.updatePlayerLabels();
         }
@@ -18116,6 +18120,46 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.hatchEgg(creature, playerNum);
         });
     }
+};
+
+window.getLevelUpIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #4caf50); margin: 0 4px;">
+        <defs>
+            <linearGradient id="lvlUpGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#4caf50"/>
+                <stop offset="100%" stop-color="#81c784"/>
+            </linearGradient>
+            <radialGradient id="sparkleGradLvl" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="30%" stop-color="#81c784"/>
+                <stop offset="100%" stop-color="#4caf50" stop-opacity="0"/>
+            </radialGradient>
+        </defs>
+        <!-- Arrow pointing up -->
+        <path d="M50 10 L85 50 L65 50 L65 90 L35 90 L35 50 L15 50 Z" fill="url(#lvlUpGrad)" stroke="#fff" stroke-width="3"/>
+        <!-- Star 1 -->
+        <path d="M75 15 L80 30 L95 35 L80 40 L75 55 L70 40 L55 35 L70 30 Z" fill="url(#sparkleGradLvl)" stroke="#fff" stroke-width="1.5"/>
+        <!-- Star 2 -->
+        <path d="M25 70 L30 80 L40 85 L30 90 L25 100 L20 90 L10 85 L20 80 Z" fill="url(#sparkleGradLvl)" stroke="#fff" stroke-width="1.5"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🎉</span>`;
+};
+
+window.getGrowthSpurtIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #00ffcc); margin: 0 4px;">
+        <defs>
+            <radialGradient id="growthGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="40%" stop-color="#00ffcc"/>
+                <stop offset="100%" stop-color="#00ffcc" stop-opacity="0"/>
+            </radialGradient>
+        </defs>
+        <!-- Large Star -->
+        <path d="M50 5 L60 40 L95 50 L60 60 L50 95 L40 60 L5 50 L40 40 Z" fill="url(#growthGrad)" stroke="#fff" stroke-width="2"/>
+        <!-- Small Star 1 -->
+        <path d="M75 15 L80 25 L90 30 L80 35 L75 45 L70 35 L60 30 L70 25 Z" fill="url(#growthGrad)" stroke="#fff" stroke-width="1.5"/>
+        <!-- Small Star 2 -->
+        <path d="M25 70 L30 80 L40 85 L30 90 L25 100 L20 90 L10 85 L20 80 Z" fill="url(#growthGrad)" stroke="#fff" stroke-width="1.5"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">✨</span>`;
 };
 
 window.getShinyIconHTML = function(size = 16) {
@@ -34648,7 +34692,8 @@ window.endBattle = function(result) {
                     let statsHtml = '';
 
                     if (expTarget.growthSpurtThisLevel) {
-                        statsHtml += `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em;">✨ Growth Spurt! All stats increased! ✨</div>`;
+                        const growthIcon = window.getGrowthSpurtIconHTML ? window.getGrowthSpurtIconHTML(20) : '✨';
+                        statsHtml += `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em; display: flex; align-items: center; justify-content: center;">${growthIcon} Growth Spurt! All stats increased! ${growthIcon}</div>`;
                         expTarget.growthSpurtThisLevel = false;
                     }
 
