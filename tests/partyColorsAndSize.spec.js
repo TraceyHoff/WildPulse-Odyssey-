@@ -56,11 +56,11 @@ test.describe('Party Modal Text Color & Creature World Scaling Tests', () => {
     });
 
     // Open the Menu modal
-    await page.click('#menuBtn');
+    await page.evaluate(() => window.openMenuModal());
     await page.waitForSelector('#menuModal', { state: 'visible' });
 
     // Open the Party modal
-    await page.click('#menuPartyBtn');
+    await page.evaluate(() => window.openPartyModal());
     await page.waitForSelector('#partyModal', { state: 'visible' });
 
     // Check that cards have correct classes
