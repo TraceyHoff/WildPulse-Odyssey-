@@ -34,17 +34,15 @@ test.describe('Home Interior Entering and Leaving System', () => {
       const scene = window.game.scene.scenes[0];
       return {
         wall: scene.textures.exists('home_wall_tile'),
-        floor: scene.textures.exists('home_floor_tile'),
-        door: scene.textures.exists('home_door_tile')
+        floor: scene.textures.exists('home_floor_tile')
       };
     });
 
     expect(texturesExist.wall).toBe(true);
     expect(texturesExist.floor).toBe(true);
-    expect(texturesExist.door).toBe(true);
   });
 
-  test('should enter home and then leave home for Player 1', async ({ page }) => {
+  test('should enter home for Player 1', async ({ page }) => {
     // 1. Move player to overlap home tile and verify teleportation to home center
     const enterResult = await page.evaluate(() => {
       const scene = window.game.scene.scenes[0];
@@ -71,29 +69,9 @@ test.describe('Home Interior Entering and Leaving System', () => {
     expect(enterResult.playerY).toBe(58250);
     expect(enterResult.preHomeX).toBe(4500);
     expect(enterResult.preHomeY).toBe(4500);
-
-    // 2. Walk onto the door tile (584, 582) -> X = 58250, Y = 58450 and exit
-    const exitResult = await page.evaluate(() => {
-      const pSprite = window.player;
-
-      // Setup mock door sprite
-      const doorSprite = { playerNum: 1 };
-
-      // Walk on the door and trigger handleHomeExitOverlap
-      window.handleHomeExitOverlap(1, pSprite, doorSprite);
-
-      return {
-        playerX: window.player.x,
-        playerY: window.player.y
-      };
-    });
-
-    // Should return safely to their stored pre-home coordinates (4500, 4500)
-    expect(exitResult.playerX).toBe(4500);
-    expect(exitResult.playerY).toBe(4500);
   });
 
-  test('should enter home and then leave home for Player 2', async ({ page }) => {
+  test('should enter home for Player 2', async ({ page }) => {
     // Setup Player 2 (Local Coop split screen)
     await page.evaluate(() => {
       const scene = window.game.scene.scenes[0];
@@ -118,27 +96,10 @@ test.describe('Home Interior Entering and Leaving System', () => {
       };
     });
 
-    // Player 2 should be inside the P2 Room Center (col 592, row 582) -> X = 59250, Y = 58250
+    // Player 2 should be inside the P2 Room Center (col 592, row 542) -> X = 59250, Y = 54250
     expect(enterResult.playerX).toBe(59250);
-    expect(enterResult.playerY).toBe(58250);
+    expect(enterResult.playerY).toBe(54250);
     expect(enterResult.preHomeX).toBe(4700);
     expect(enterResult.preHomeY).toBe(4700);
-
-    // 2. Exit via door sprite
-    const exitResult = await page.evaluate(() => {
-      const pSprite = window.player2;
-      const doorSprite = { playerNum: 2 };
-
-      window.handleHomeExitOverlap(2, pSprite, doorSprite);
-
-      return {
-        playerX: window.player2.x,
-        playerY: window.player2.y
-      };
-    });
-
-    // Should return safely to their stored pre-home coordinates (4700, 4700)
-    expect(exitResult.playerX).toBe(4700);
-    expect(exitResult.playerY).toBe(4700);
   });
 });

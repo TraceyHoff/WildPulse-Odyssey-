@@ -5892,44 +5892,6 @@ window.generateHomeInteriorTextures = function(scene) {
     add3DDepth(floorDefaultCtx, 6);
     scene.textures.addCanvas('home_floor_tile', floorDefault);
 
-    // 3. Exit Door/Rug Tile (matching the outside's door: cyan filled with purple trim)
-    const doorCanvas = document.createElement('canvas');
-    doorCanvas.width = 100;
-    doorCanvas.height = 100;
-    const doorCtx = doorCanvas.getContext('2d');
-
-    // Floor background first
-    doorCtx.fillStyle = '#0b0612';
-    doorCtx.fillRect(0, 0, 100, 100);
-
-    // Outside border matching floor
-    doorCtx.strokeStyle = 'rgba(191, 85, 236, 0.3)';
-    doorCtx.lineWidth = 2;
-    doorCtx.strokeRect(0, 0, 100, 100);
-
-    // Beautiful glowing door/mat area in the center
-    doorCtx.fillStyle = '#00ffcc'; // Cyan
-    doorCtx.fillRect(20, 25, 60, 50);
-
-    // Inner border/pattern on door
-    doorCtx.strokeStyle = '#bf55ec'; // Purple
-    doorCtx.lineWidth = 4;
-    doorCtx.strokeRect(25, 30, 50, 40);
-
-    // Draw an exit arrow or text "EXIT" or a door handle
-    doorCtx.fillStyle = '#bf55ec';
-    doorCtx.beginPath();
-    doorCtx.moveTo(50, 62); // Point of arrow
-    doorCtx.lineTo(40, 48);
-    doorCtx.lineTo(46, 48);
-    doorCtx.lineTo(46, 38);
-    doorCtx.lineTo(54, 38);
-    doorCtx.lineTo(54, 48);
-    doorCtx.lineTo(60, 48);
-    doorCtx.closePath();
-    doorCtx.fill();
-
-    scene.textures.addCanvas('home_door_tile', doorCanvas);
 };
 
 window.generatePlantTextures = function(scene) {
@@ -28768,28 +28730,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             }
             sprites.push(obsSprite);
         }
-    } else if (mapData[r][c] === 'home_door_p1') {
-        let door = scene.add.sprite(posX, posY, 'home_door_tile');
-        door.setDepth(-0.9);
-        sprites.push(door);
-
-        if (window.homeDoorsGroup) {
-            let dSprite = window.homeDoorsGroup.create(posX, posY, 'home_door_tile');
-            dSprite.setVisible(false);
-            dSprite.playerNum = 1;
-            sprites.push(dSprite);
-        }
-    } else if (mapData[r][c] === 'home_door_p2') {
-        let door = scene.add.sprite(posX, posY, 'home_door_tile');
-        door.setDepth(-0.9);
-        sprites.push(door);
-
-        if (window.homeDoorsGroup) {
-            let dSprite = window.homeDoorsGroup.create(posX, posY, 'home_door_tile');
-            dSprite.setVisible(false);
-            dSprite.playerNum = 2;
-            sprites.push(dSprite);
-        }
     } else if (mapData[r][c] && mapData[r][c].startsWith('npc_trainer')) {
         let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
         grass.setDepth(-1);
@@ -29216,8 +29156,6 @@ window.rebuildHomeInteriorTiles = function(playerNum) {
                     if (sprite.isHomeTile || sprite.isMiniTile) return;
                     if (window.obstaclesGroup && window.obstaclesGroup.contains(sprite)) {
                         window.obstaclesGroup.remove(sprite, true, true);
-                    } else if (window.homeDoorsGroup && window.homeDoorsGroup.contains(sprite)) {
-                        window.homeDoorsGroup.remove(sprite, true, true);
                     } else {
                         if (sprite.destroy) sprite.destroy();
                     }
@@ -29303,48 +29241,6 @@ window.handleHomeOverlap = function(playerNum, pCol, homeSprite) {
     window.updateHomeAmbientOverlay(playerNum);
 
     window.showModernNotification("🏠 Entering your cozy home!", 3000, playerNum);
-};
-
-window.handleHomeExitOverlap = function(playerNum, pCol, doorSprite) {
-    if (window.inBattle) return;
-    if (doorSprite.playerNum !== playerNum) return;
-
-    const now = Date.now();
-    const playerObj = playerNum === 2 ? window.player2 : window.player;
-    if (!playerObj) return;
-
-    if (playerObj.lastHomeExitOverlapTime && now - playerObj.lastHomeExitOverlapTime < 1500) {
-        return;
-    }
-    playerObj.lastHomeExitOverlapTime = now;
-
-    // Teleport back outside!
-    const prePos = window[`p${playerNum}PreHomePos`];
-    let targetX = playerNum === 2 ? 5000 : 4900;
-    let targetY = 5000;
-
-    if (prePos) {
-        targetX = prePos.homeX;
-        targetY = prePos.homeY;
-    } else {
-        const hx = localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
-        const hy = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
-        if (hx && hy) {
-            targetX = parseFloat(hx);
-            targetY = parseFloat(hy);
-        }
-    }
-
-    playerObj.setPosition(targetX, targetY);
-    if (playerObj.body) {
-        playerObj.body.updateFromGameObject();
-    }
-    playerObj.lastHomeOverlapTime = now; // Prevent immediate re-entering!
-
-    // Trigger clean-up of ambient light overlay on exit
-    window.updateHomeAmbientOverlay(playerNum);
-
-    window.showModernNotification("🏠 Leaving your cozy home.", 3000, playerNum);
 };
 
 window.handlePortalOverlap = function(playerNum, portalSprite) {
@@ -30261,7 +30157,6 @@ function create() {
     pvpGroup = this.physics.add.staticGroup();
     window.breedGroup = this.physics.add.staticGroup();
     window.homesGroup = this.physics.add.staticGroup();
-    window.homeDoorsGroup = this.physics.add.staticGroup();
     window.questNpcGroup = this.physics.add.staticGroup();
     window.npcTrainersGroup = this.physics.add.group();
     window.portalsGroup = this.physics.add.staticGroup();
@@ -30362,7 +30257,6 @@ function create() {
             }
         }
     }
-    mapData[584][582] = 'home_door_p1';
 
     // Player 2 room: Walkable 5x5 at row 540 to 544, col 590 to 594
     for (let r = 539; r <= 545; r++) {
@@ -30374,7 +30268,6 @@ function create() {
             }
         }
     }
-    mapData[544][592] = 'home_door_p2';
 
     // Generate separate portal rift world (40x40 area at row 400 to 439, col 400 to 439)
     // We surround it with wall boundaries
@@ -31218,9 +31111,6 @@ function create() {
     }, null, this);
     this.physics.add.overlap(player, window.homesGroup, (pCol, homeSprite) => {
         window.handleHomeOverlap(1, pCol, homeSprite);
-    }, null, this);
-    this.physics.add.overlap(player, window.homeDoorsGroup, (pCol, doorSprite) => {
-        window.handleHomeExitOverlap(1, pCol, doorSprite);
     }, null, this);
     this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
     this.physics.add.overlap(player, hospitalGroup, (pCol, tile) => {
@@ -34753,9 +34643,6 @@ window.enableCoop = function(scene) {
     }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.homesGroup, (pCol, homeSprite) => {
         window.handleHomeOverlap(2, pCol, homeSprite);
-    }, null, scene));
-    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.homeDoorsGroup, (pCol, doorSprite) => {
-        window.handleHomeExitOverlap(2, pCol, doorSprite);
     }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, creaturesGroup, collectCreature, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, hospitalGroup, (pCol, tile) => {
