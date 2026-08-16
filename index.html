@@ -31232,6 +31232,82 @@ window.adjustWildCreatureLevels = function() {
     }
 };
 
+window.createTypeIconTexture = function(scene, type) {
+    const key = `type_icon_${type}`;
+    if (scene.textures.exists(key)) return key;
+
+    const dCanvas = document.createElement('canvas');
+    dCanvas.width = 16;
+    dCanvas.height = 16;
+    const ctx = dCanvas.getContext('2d');
+
+    const typeColors = {
+        'Fire': '#FF4500', 'Water': '#1E90FF', 'Grass': '#32CD32',
+        'Electric': '#FFD700', 'Ice': '#00BFFF', 'Fighting': '#C22E28',
+        'Poison': '#A040A0', 'Ground': '#E0C068', 'Flying': '#A890F0',
+        'Psychic': '#F85888', 'Bug': '#A8B820', 'Rock': '#B8A038',
+        'Ghost': '#705898', 'Dragon': '#7038F8', 'Dark': '#705848',
+        'Steel': '#B8B8D0', 'Fairy': '#EE99AC', 'Normal': '#A8A878'
+    };
+
+    const color = typeColors[type] || '#A8A878';
+    const initial = (type && type.length > 0) ? type.charAt(0).toUpperCase() : '?';
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(8, 8, 8, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 10px "Courier New", Courier, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(initial, 8, 8);
+
+    scene.textures.addCanvas(key, dCanvas);
+    return key;
+};
+
+window.createShinyIconTexture = function(scene) {
+    const key = `shiny_icon`;
+    if (scene.textures.exists(key)) return key;
+
+    const dCanvas = document.createElement('canvas');
+    dCanvas.width = 16;
+    dCanvas.height = 16;
+    const ctx = dCanvas.getContext('2d');
+
+    ctx.fillStyle = '#FFD700'; // Gold
+    ctx.beginPath();
+    const cx = 8, cy = 8, spikes = 5, outerRadius = 8, innerRadius = 3.5;
+    let rot = Math.PI / 2 * 3;
+    let x = cx, y = cy;
+    let step = Math.PI / spikes;
+
+    ctx.moveTo(cx, cy - outerRadius);
+    for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+    }
+    ctx.lineTo(cx, cy - outerRadius);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#DAA520'; // Darker gold stroke
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    scene.textures.addCanvas(key, dCanvas);
+    return key;
+};
+
 function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     const maxSpawns = window.perfLowerSpawns ? 20 : 50;
     if (creaturesGroup && creaturesGroup.getChildren().length >= maxSpawns) return;
@@ -31416,22 +31492,94 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         "Dark": "🌙",
         "Cosmic": "🪐"
     };
-    let symbolEmoji = emojiMap[clonedData.type] || "❓";
+    // Ensure icon textures exist
+    let primaryType = clonedData.type || 'Normal';
+    if (Array.isArray(primaryType) && primaryType.length > 0) primaryType = primaryType[0];
+    const typeKey = window.createTypeIconTexture(scene, primaryType);
+    let shinyKey = null;
     if (clonedData.isShiny) {
-        symbolEmoji = "⭐" + symbolEmoji;
+        shinyKey = window.createShinyIconTexture(scene);
     }
-    const symbolText = scene.add.text(x, y - 24, symbolEmoji, {
+
+    // Create the nameplate container
+    const nameplateContainer = scene.add.container(x, y - 35);
+    nameplateContainer.setDepth(11);
+
+    // Create the background for the nameplate
+    const plateBg = scene.add.graphics();
+    nameplateContainer.add(plateBg);
+
+    // Determine happiness color dot
+    const happiness = clonedData.happiness !== undefined ? clonedData.happiness : 50;
+    let happinessColor = '#ff3333'; // Low (Red)
+    if (happiness > 75) {
+        happinessColor = '#33ff33'; // High (Green)
+    } else if (happiness > 30) {
+        happinessColor = '#ffff33'; // Med (Yellow)
+    }
+
+    // Determine nameplate text
+    let displayName = clonedData.nickname || clonedData.name;
+    const nameplateStr = `Lv.${clonedData.level} ${displayName}`;
+
+    const plateText = scene.add.text(0, 0, nameplateStr, {
         fontSize: '12px',
-        stroke: '#000000',
-        strokeThickness: 3
+        fontFamily: '"Courier New", Courier, monospace',
+        color: '#ffffff',
+        shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 2, fill: true }
     }).setOrigin(0.5);
-    symbolText.setDepth(11);
-    sprite.setData('symbolText', symbolText);
+
+    // Add the happiness dot indicator
+    let elementsWidth = plateText.width;
+    let currentX = elementsWidth / 2 + 6;
+
+    const dotText = scene.add.text(currentX, 0, "●", {
+        fontSize: '10px',
+        color: happinessColor,
+        shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 1, fill: true }
+    }).setOrigin(0.5);
+
+    currentX += 12;
+
+    let typeSprite = null;
+    if (typeKey) {
+        typeSprite = scene.add.sprite(currentX, 0, typeKey);
+        currentX += 18;
+    }
+
+    let shinySprite = null;
+    if (shinyKey) {
+        shinySprite = scene.add.sprite(currentX, 0, shinyKey);
+        currentX += 18;
+    }
+
+    // Center everything in the container by shifting elements left
+    let totalWidth = currentX - (elementsWidth / 2 + 6) + elementsWidth;
+    let shiftX = (totalWidth - elementsWidth) / 2;
+
+    plateText.x -= shiftX;
+    dotText.x -= shiftX;
+    if (typeSprite) typeSprite.x -= shiftX;
+    if (shinySprite) shinySprite.x -= shiftX;
+
+    nameplateContainer.add(plateText);
+    nameplateContainer.add(dotText);
+    if (typeSprite) nameplateContainer.add(typeSprite);
+    if (shinySprite) nameplateContainer.add(shinySprite);
+
+    // Auto-resize background based on total width
+    const bgWidth = totalWidth + 16;
+    plateBg.fillStyle(0x000000, 0.6);
+    plateBg.fillRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
+    plateBg.lineStyle(1, 0x00ffcc, 0.8);
+    plateBg.strokeRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
+
+    sprite.setData('symbolText', nameplateContainer);
 
     // Ensure symbol text is destroyed when creature sprite is destroyed
     sprite.on('destroy', () => {
-        if (symbolText) {
-            symbolText.destroy();
+        if (nameplateContainer) {
+            nameplateContainer.destroy();
         }
     });
 }
@@ -31439,7 +31587,9 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 function updatePetFollow(scene, playerNum, playerObj, party) {
     if (!playerObj || !playerObj.body) {
         if (window['p' + playerNum + 'PetSprite']) {
-            window['p' + playerNum + 'PetSprite'].destroy();
+            const pet = window['p' + playerNum + 'PetSprite'];
+            if (pet.getData('nameplate')) pet.getData('nameplate').destroy();
+            pet.destroy();
             window['p' + playerNum + 'PetSprite'] = null;
         }
         return;
@@ -31448,7 +31598,9 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
     let followCreature = party.find(c => !c.stored);
     if (!followCreature) {
         if (window['p' + playerNum + 'PetSprite']) {
-            window['p' + playerNum + 'PetSprite'].destroy();
+            const pet = window['p' + playerNum + 'PetSprite'];
+            if (pet.getData('nameplate')) pet.getData('nameplate').destroy();
+            pet.destroy();
             window['p' + playerNum + 'PetSprite'] = null;
         }
         return;
@@ -31489,6 +31641,120 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         }
     }
 
+    // Update Nameplate
+    let nameplateContainer = pet.getData('nameplate');
+    if (!nameplateContainer) {
+        nameplateContainer = scene.add.container(pet.x, pet.y - 35);
+        nameplateContainer.setDepth(11);
+        pet.setData('nameplate', nameplateContainer);
+
+        const plateBg = scene.add.graphics();
+        nameplateContainer.add(plateBg);
+        nameplateContainer.setData('bg', plateBg);
+
+        const plateText = scene.add.text(0, 0, "", {
+            fontSize: '12px',
+            fontFamily: '"Courier New", Courier, monospace',
+            color: '#ffffff',
+            shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 2, fill: true }
+        }).setOrigin(0.5);
+        nameplateContainer.add(plateText);
+        nameplateContainer.setData('text', plateText);
+
+        const dotText = scene.add.text(0, 0, "●", {
+            fontSize: '10px',
+            shadow: { offsetX: 1, offsetY: 1, color: '#000', blur: 1, fill: true }
+        }).setOrigin(0.5);
+        nameplateContainer.add(dotText);
+        nameplateContainer.setData('dot', dotText);
+    }
+
+    // Check if we need to update the contents (cache by pet ID and stats)
+    let displayName = followCreature.nickname || followCreature.name;
+    let textStr = `Lv.${followCreature.level} ${displayName}`;
+
+    let lastText = nameplateContainer.getData('lastText');
+    let lastShiny = nameplateContainer.getData('lastShiny');
+    let lastType = nameplateContainer.getData('lastType');
+
+    let primaryType = followCreature.type || 'Normal';
+    if (Array.isArray(primaryType) && primaryType.length > 0) primaryType = primaryType[0];
+
+    if (lastText !== textStr || lastShiny !== followCreature.isShiny || lastType !== primaryType) {
+        nameplateContainer.setData('lastText', textStr);
+        nameplateContainer.setData('lastShiny', followCreature.isShiny);
+        nameplateContainer.setData('lastType', primaryType);
+
+        const pBg = nameplateContainer.getData('bg');
+        const pText = nameplateContainer.getData('text');
+        const pDot = nameplateContainer.getData('dot');
+
+        pText.setText(textStr);
+
+        const typeKey = window.createTypeIconTexture(scene, primaryType);
+        let shinyKey = null;
+        if (followCreature.isShiny) shinyKey = window.createShinyIconTexture(scene);
+
+        let tSprite = nameplateContainer.getData('typeSprite');
+        let sSprite = nameplateContainer.getData('shinySprite');
+
+        let elementsWidth = pText.width;
+        let currentX = elementsWidth / 2 + 6;
+        pDot.setPosition(currentX, 0);
+        currentX += 12;
+
+        if (typeKey) {
+            if (!tSprite) {
+                tSprite = scene.add.sprite(currentX, 0, typeKey);
+                nameplateContainer.add(tSprite);
+                nameplateContainer.setData('typeSprite', tSprite);
+            } else {
+                tSprite.setTexture(typeKey);
+                tSprite.setPosition(currentX, 0);
+                tSprite.setVisible(true);
+            }
+            currentX += 18;
+        } else if (tSprite) {
+            tSprite.setVisible(false);
+        }
+
+        if (shinyKey) {
+            if (!sSprite) {
+                sSprite = scene.add.sprite(currentX, 0, shinyKey);
+                nameplateContainer.add(sSprite);
+                nameplateContainer.setData('shinySprite', sSprite);
+            } else {
+                sSprite.setTexture(shinyKey);
+                sSprite.setPosition(currentX, 0);
+                sSprite.setVisible(true);
+            }
+            currentX += 18;
+        } else if (sSprite) {
+            sSprite.setVisible(false);
+        }
+
+        let totalWidth = currentX - (elementsWidth / 2 + 6) + elementsWidth;
+        let shiftX = (totalWidth - elementsWidth) / 2;
+        pText.x = -shiftX;
+        pDot.x -= shiftX;
+        if (tSprite && tSprite.visible) tSprite.x -= shiftX;
+        if (sSprite && sSprite.visible) sSprite.x -= shiftX;
+
+        const bgWidth = totalWidth + 16;
+        pBg.clear();
+        pBg.fillStyle(0x000000, 0.6);
+        pBg.fillRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
+        pBg.lineStyle(1, 0x00ffcc, 0.8);
+        pBg.strokeRoundedRect(-bgWidth / 2, -10, bgWidth, 20, 4);
+    }
+
+    // Update happiness color dynamically (it can change without type/level changes)
+    const happiness = followCreature.happiness !== undefined ? followCreature.happiness : 50;
+    let happinessColor = '#ff3333';
+    if (happiness > 75) happinessColor = '#33ff33';
+    else if (happiness > 30) happinessColor = '#ffff33';
+    nameplateContainer.getData('dot').setColor(happinessColor);
+
     // Follow physics and logic
     if (pet && pet.body) {
         let dist = Phaser.Math.Distance.Between(pet.x, pet.y, playerObj.x, playerObj.y);
@@ -31517,6 +31783,11 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
         } else {
             pet.setAlpha(1.0);
             pet.clearTint();
+        }
+
+        // Update nameplate position
+        if (nameplateContainer) {
+            nameplateContainer.setPosition(pet.x, pet.y - 35);
         }
     }
 }
@@ -36786,7 +37057,7 @@ function update() {
         // Sync symbol text position and visibility
         const symbolText = creature.getData('symbolText');
         if (symbolText) {
-            symbolText.setPosition(creature.x, creature.y - 24);
+            symbolText.setPosition(creature.x, creature.y - 35);
             symbolText.setVisible(isVisible);
             symbolText.setDepth(creature.depth + 1);
         }
