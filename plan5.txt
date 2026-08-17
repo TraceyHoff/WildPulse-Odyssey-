@@ -1,0 +1,30 @@
+Wait, if I scale the static tree by `3.5`, `tree.body.setSize(14, 14)` would make it `49x49` scaled?
+Actually, `tree.body.setSize()` in Phaser 3 static bodies expects the UN-SCALED size.
+Wait, if the tree is 100x150, and origin is 0.5, 0.8.
+The original trunk offset was `25` (X) and `90` or `140` (Y), which are unscaled coordinates.
+If we scale it to `3.5`, the texture scales from the origin.
+If we do:
+```javascript
+            tree.setScale(2.5);
+            tree.body.setSize(50, 50);
+            tree.body.setOffset(25, isTall ? 140 : 90);
+```
+Wait, in Phaser 3, if you set the scale on a static body, the easiest way to update its collision box is `tree.refreshBody()`, but that completely resets `setSize` and `setOffset`!
+Ah! The original code:
+```javascript
+            let tree = window.treesGroup.create(posX, posY, texture);
+            tree.setOrigin(0.5, 0.8);
+            tree.setDepth(10 + posY / 10000);
+
+            // Adjust tree collision body
+            tree.body.setSize(50, 50);
+            tree.body.setOffset(25, isTall ? 140 : 90);
+```
+If we want a realistic tree scale, say `2.5` (25 ft tall), we can do:
+```javascript
+            tree.setScale(2.5);
+            // Size in unscaled pixels: 50 -> scaled size: 125. Maybe we want it a bit smaller so player can walk under.
+            tree.body.setSize(20, 20);
+            tree.body.setOffset(40, isTall ? 170 : 120);
+```
+Wait, this requires fine tuning. Let's write a small script to test.

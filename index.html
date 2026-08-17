@@ -8454,6 +8454,21 @@ window.PATTERN_UNLOCKS = {
 };
 
 window.gameStarted = false;
+
+window.getRealisticScale = function(type) {
+    if (!type) return 1;
+    // 40px = 4 feet, 10px = 1 foot. Base furniture size is 100x100px = 10x10 feet.
+    const t = type.toLowerCase();
+    if (t.includes('chair') || t.includes('nightstand') || t.includes('bin') || t.includes('succulent') || t.includes('holorose')) return 0.25; // 2.5 ft
+    if (t.includes('plant') || t.includes('fern') || t.includes('cactus') || t.includes('bonsai') || t.includes('orchid') || t.includes('ficus') || t.includes('monstera') || t.includes('bamboo') || t.includes('mushroom') || t.includes('sunflower') || t.includes('lunarlily') || t.includes('lavalamp') || t.includes('plasmaglobe') || t.includes('lamp')) return 0.3; // 3 ft
+    if (t.includes('table') || t.includes('desk') || t.includes('cabinet') || t.includes('gamingpc') || t.includes('tv') || t.includes('arcade') || t.includes('display') || t.includes('fridge') || t.includes('server') || t.includes('shelf') || t.includes('wardrobe') || t.includes('smartmirror') || t.includes('cyberposter') || t.includes('neonsign')) return 0.4; // 4 ft
+    if (t.includes('bench')) return 0.5; // 5 ft
+    if (t.includes('bed')) return 0.7; // 7 ft
+    if (t.includes('tree') || t.includes('pine')) return 0.8; // 8 ft
+    if (t.includes('carpet')) return 0.9; // 9 ft
+    return 0.5;
+};
+
 window.isNewGameSetup = false;
 window.cameraFollowsPlayer = false;
 window.playerVx = 0;
@@ -28850,6 +28865,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             const treeType = treeTypes[hash % treeTypes.length];
             const seasonKey = treeType + '_' + (window.currentSeason || 'Summer');
             let treeShadow = scene.add.sprite(posX, posY, seasonKey);
+            treeShadow.setScale(2.5);
             treeShadow.setTintFill(0x000000);
             treeShadow.setAlpha(0.3);
             treeShadow.setOrigin(0.5, 1.0);
@@ -28859,6 +28875,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             sprites.push(treeShadow);
 
             let tree = window.treesGroup.create(posX, posY, seasonKey);
+            tree.setScale(2.5);
             tree.baseTreeType = treeType;
             tree.setOrigin(0.5, 1.0);
             if (treeType === 'tree_willow') {
@@ -28902,14 +28919,14 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             shadow.setTintFill(0x000000);
             shadow.setAlpha(0.2);
             shadow.setOrigin(0.5, 0.8);
-            shadow.setScale(0.8, 0.45 * 0.8);
+            shadow.setScale(1.2, 0.45 * 1.2);
             shadow.setDepth(1);
             sprites.push(shadow);
 
             // Plant sprite - scaled down to 0.8 to make flowers/plants smaller
             let plant = scene.add.sprite(posX, posY + 15, plantType);
             plant.setOrigin(0.5, 0.8);
-            plant.setScale(0.8);
+            plant.setScale(1.2);
             plant.setDepth(10 + (posY + 15) / 10000);
             plant.isPlant = true;
             plant.plantType = plantType;
@@ -29086,14 +29103,14 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             shadow.setTintFill(0x000000);
             shadow.setAlpha(0.2);
             shadow.setOrigin(0.5, 0.8);
-            shadow.setScale(0.8, 0.45 * 0.8);
+            shadow.setScale(1.2, 0.45 * 1.2);
             shadow.setDepth(1);
             sprites.push(shadow);
 
             // Plant sprite - scaled down to 0.8 to make plants smaller
             let plant = scene.add.sprite(posX, posY + 15, plantType);
             plant.setOrigin(0.5, 0.8);
-            plant.setScale(0.8);
+            plant.setScale(1.2);
             plant.setDepth(10 + (posY + 15) / 10000);
             plant.isPlant = true;
             plant.plantType = plantType;
@@ -29589,6 +29606,7 @@ window.spawnPlayerHomes = function(scene) {
         let hx = parseFloat(p1HX);
         let hy = parseFloat(p1HY);
         let hSprite = window.homesGroup.create(hx, hy, 'home_tile');
+        hSprite.setScale(3);
         hSprite.setDepth(9);
         hSprite.isHomeTile = true;
         hSprite.playerNum = 1;
@@ -29601,6 +29619,7 @@ window.spawnPlayerHomes = function(scene) {
         let hx = parseFloat(p2HX);
         let hy = parseFloat(p2HY);
         let hSprite = window.homesGroup.create(hx, hy, 'home_tile');
+        hSprite.setScale(3);
         hSprite.setDepth(9);
         hSprite.isHomeTile = true;
         hSprite.playerNum = 2;
@@ -29983,7 +30002,7 @@ window.spawnMiniTiles = function(scene) {
                 } else {
                     mSprite.setDepth(9);
                 }
-                mSprite.setScale(0.6); // Smaller version
+                mSprite.setScale(window.getRealisticScale(tile.type));
                 mSprite.isMiniTile = true;
                 mSprite.miniTileType = tile.type;
                 mSprite.playerNum = pNum;
@@ -30109,11 +30128,13 @@ window.startHomePlacement = function(playerNum) {
     const previewSpriteId = `p${playerNum}HomePreviewSprite`;
     if (!window[previewSpriteId]) {
         window[previewSpriteId] = scene.add.sprite(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`], 'home_tile');
+        window[previewSpriteId].setScale(3);
         window[previewSpriteId].setAlpha(0.6);
         window[previewSpriteId].setDepth(100);
         window[previewSpriteId].setAngle(0);
     } else {
         window[previewSpriteId].setPosition(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`]);
+        window[previewSpriteId].setScale(3);
         window[previewSpriteId].setVisible(true);
         window[previewSpriteId].setAngle(0);
     }
@@ -30532,11 +30553,12 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
     if (!window[previewSpriteId]) {
         window[previewSpriteId] = scene.add.sprite(window[`p${playerNum}MiniTilePreviewX`], window[`p${playerNum}MiniTilePreviewY`], textureKey);
         window[previewSpriteId].setAlpha(0.6);
-        window[previewSpriteId].setScale(0.6);
+        window[previewSpriteId].setScale(window.getRealisticScale(itemName));
         window[previewSpriteId].setDepth(100);
         window[previewSpriteId].setAngle(0);
     } else {
         window[previewSpriteId].setTexture(textureKey);
+        window[previewSpriteId].setScale(window.getRealisticScale(itemName));
         window[previewSpriteId].setPosition(window[`p${playerNum}MiniTilePreviewX`], window[`p${playerNum}MiniTilePreviewY`]);
         window[previewSpriteId].setVisible(true);
         window[previewSpriteId].setAngle(0);

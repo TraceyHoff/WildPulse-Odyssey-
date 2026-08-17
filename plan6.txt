@@ -1,0 +1,6 @@
+Look at `tree.body.setSize(20, 20)` and `tree.setOrigin(0.5, 1.0)`.
+Currently, `setOrigin(0.5, 1.0)`!
+This means the bottom center is the origin.
+If we use `tree.setScale(2.5)`, the tree will grow upwards and outwards from the bottom center, which is PERFECT.
+Then `treeShadow.setScale(2.5)` too! (Wait, shadow was `treeShadow.setScale(1, 0.4)` maybe?)
+Let's see the shadow generation.

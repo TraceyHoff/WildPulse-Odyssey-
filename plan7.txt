@@ -1,0 +1,26 @@
+So we can scale trees and their shadows together:
+```javascript
+            let scaleFactor = 2.5; // Realistic tree scale
+            treeShadow.setScale(scaleFactor);
+            // Wait, does treeShadow have any specific skewed scale in update? Let's check update loop for treeShadow.
+            tree.setScale(scaleFactor);
+```
+Wait, if we scale `tree`, does its static physics body work correctly with just `setScale()`?
+Phaser 3 static bodies DO NOT auto-update when scaled after creation.
+We MUST call `tree.body.updateFromGameObject()` OR adjust `tree.body.setSize` / `setOffset`.
+Wait, if we use `tree.setScale(2.5)`:
+```javascript
+            if (treeType === 'tree_willow') {
+                tree.body.setSize(20, 20); // 20x20 in unscaled coordinates => 50x50 physically
+                tree.body.setOffset(40, 180);
+                tree.body.updateFromGameObject(); // NO, updateFromGameObject uses the display size!
+            } else { ... }
+```
+Actually, `tree.body.setSize(width, height)` sets the body size, and `setOffset` sets the offset relative to the TOP-LEFT of the unscaled texture.
+If we scale the tree by 2.5, we should do:
+```javascript
+            tree.setScale(2.5);
+            // After scale, if we want the same physical body size relative to the trunk, we can keep the unscaled sizes!
+            // Wait, does setSize and setOffset work with scale in Phaser 3 static bodies?
+```
+Let me write a quick test script to check how it modifies `index.html`.

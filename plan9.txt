@@ -1,0 +1,9 @@
+I will now formulate the full Git merge diff replacements.
+
+Wait, if we scale `home_tile` to 3, the default `isHomeTile` sprite is 300x300, and its physics body is updated by `hSprite.body.updateFromGameObject()`, which makes the teleport overlap area 300x300. This is large, but acceptable for a home exterior.
+
+Wait, is there any other place where trees or bushes are spawned?
+Yes, `mapData` loop in `spawnTile`.
+Also, what about `window.treesGroup` in `spawnTile`? Yes, I got that.
+
+Let me use `request_plan_review`.

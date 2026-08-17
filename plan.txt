@@ -1,0 +1,30 @@
+To make everything scale realistically relative to a 4-foot tall (40px) player (10px = 1 foot):
+
+1. **Player Home**: `home_tile` canvas is 100x100 (10x10 feet). For a real house, let's say 40x40 feet. That would be 400x400 pixels! But it's an external teleporter node. The prompt says "players home realistically sized to match their size they would be in real life". A realistic house size might be around 250-300 pixels (25-30 feet wide/long). However, if `home_tile` is meant to be a full house sprite, making it larger is appropriate. Or if the user means the inside of the home, the home is a 5x5 grid of 100x100 tiles (50x50 feet), which is realistic (2500 sq ft). Wait, maybe they mean the physical `home_tile` outside on the map? Let's scale up `homeCanvas` to be 200x200 or 300x300.
+Wait, if it's placed on a 100x100 grid, increasing the canvas size might affect tile placement and collision.
+Let's see: `window.homesGroup = this.physics.add.staticGroup();`
+
+2. **Trees**:
+   Pine, Oak, Birch, etc.:
+   A mature oak tree is 50-70 feet tall. (500-700px).
+   A pine tree is 50-100 feet tall (500-1000px).
+   A birch is 40-50 feet tall (400-500px).
+   Current trees are 100x150 or 100x200. This is 10-15 feet tall.
+   Let's increase the tree canvas size to realistically match:
+   Wait, if we make trees 600px tall, it might completely dominate the screen and cover the entire map viewport (which is usually around 800x600).
+   Actually, "realistically sized" means:
+   Player = 4 ft = 40px (scale factor 10px = 1 ft).
+   Plants / Bushes:
+   Bush currently: radius 34 (width 68px = 6.8 ft). This is a good size for a bush. But if we want it taller, maybe a bit larger? Or maybe they mean the `furniture_plant` inside the house, or the bushes in the map?
+   Trees: Let's scale trees in `generateTreeTextures` from 100x150 up to something like 300x450 (30 ft wide, 45 ft tall) or more, or we can use `.setScale()`.
+   Wait, scaling trees using `tree.setScale(3)` would be easier.
+
+3. **Furniture**:
+   Right now, all furniture is drawn on a 100x100 canvas and placed with `setScale(0.6)` (60x60px = 6x6 feet).
+   A chair is NOT 6x6 feet. A standard chair is maybe 2x2 feet (20x20px).
+   A bed is ~5x7 feet (50x70px).
+   A table might be 4x6 feet (40x60px).
+   The problem is all furniture is handled uniformly as `100x100` canvases and scaled uniformly to `0.6`.
+   If we want to make them realistically sized, we should adjust the `.setScale()` for each furniture type!
+
+Let's write a script to check how furniture scaling is done.

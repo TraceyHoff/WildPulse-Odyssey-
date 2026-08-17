@@ -1,0 +1,48 @@
+Wait, let's write a function `getRealisticScale(type)`.
+```javascript
+window.getRealisticScale = function(type) {
+    if (!type) return 1;
+    // 40px = 4 feet, 10px = 1 foot.
+    // Base furniture size is 100x100px = 10x10 feet.
+    // To make it X feet, scale should be (X * 10) / 100 = X / 10.
+    if (type.includes('chair') || type.includes('nightstand') || type.includes('bin') || type.includes('succulent') || type.includes('holorose')) return 0.25; // 2.5 ft
+    if (type.includes('plant') || type.includes('fern') || type.includes('cactus') || type.includes('bonsai') || type.includes('orchid') || type.includes('ficus') || type.includes('monstera') || type.includes('bamboo') || type.includes('mushroom') || type.includes('sunflower') || type.includes('lunarlily') || type.includes('lavalamp') || type.includes('plasmaglobe') || type.includes('lamp')) return 0.3; // 3 ft
+    if (type.includes('table') || type.includes('desk') || type.includes('cabinet') || type.includes('gamingpc') || type.includes('tv') || type.includes('arcade') || type.includes('display') || type.includes('fridge') || type.includes('server') || type.includes('shelf') || type.includes('wardrobe') || type.includes('smartmirror') || type.includes('cyberposter') || type.includes('neonsign')) return 0.4; // 4 ft
+    if (type.includes('bench')) return 0.5; // 5 ft
+    if (type.includes('bed')) return 0.7; // 7 ft
+    if (type.includes('tree') || type.includes('pine')) return 0.8; // 8 ft
+    if (type.includes('carpet')) return 0.9; // 9 ft
+    return 0.5;
+};
+```
+
+Let's check if there's any other scale to adjust:
+- Trees: In `spawnTile`: `let tree = window.treesGroup.create(posX, posY, texture);`
+  We can do `tree.setScale(3.5); tree.body.setSize(20, 20); tree.body.updateFromGameObject();` wait, if it's 3.5 scale, and trunk is thin, maybe body size `30, 30` is better, with offset `35, isTall ? 140 : 90`.
+- Bushes (plants in `spawnTile`):
+  `shadow.setScale(1.2, 0.45 * 1.2);`
+  `plant.setScale(1.2);`
+  (currently it is 0.8)
+- Player's home:
+  In `spawnPlayerHomes`:
+  `hSprite.setScale(3);`
+  `if (hSprite.body) hSprite.body.updateFromGameObject();`
+  In `window.spawnPlayerHomePreview`:
+  `window[previewSpriteId].setScale(3);`
+
+Wait, do we need to adjust tree body offsets if we scale the tree?
+```javascript
+            // Adjust tree collision body
+            // Original code: tree.body.setSize(50, 50); tree.body.setOffset(25, isTall ? 140 : 90);
+            tree.setScale(3.5);
+            tree.body.setSize(30, 30);
+            // After scaling, the body size and offset refer to the unscaled texture coordinates!
+            // Wait, in Phaser 3, if a sprite is scaled, the body scales automatically IF it's a dynamic body.
+            // But this is a static body!
+            // Actually, if we use `updateFromGameObject()`, it will recalculate everything.
+            // Better to `updateFromGameObject()`, then `setSize` and `setOffset`?
+            // Actually, `setSize(width, height)` sets the UN-SCALED size.
+            // If scale is 3.5, and we want a 105x105 trunk, we do `tree.body.setSize(30, 30)`.
+            // Wait, does updateFromGameObject() handle offset?
+```
+Let's test `test_scale.js`.
