@@ -26227,6 +26227,40 @@ function generateCloudTextures(scene) {
 
 function generateTileTextures(scene) {
     window.gameScene = scene;
+    // Pre-generate Home Teleporter texture
+    const teleporterCanvas = document.createElement('canvas');
+    teleporterCanvas.width = 100;
+    teleporterCanvas.height = 100;
+    const teleporterCtx = teleporterCanvas.getContext('2d');
+
+    // Background base
+    teleporterCtx.fillStyle = '#080510';
+    teleporterCtx.fillRect(0, 0, 100, 100);
+
+    // Glowing cyan/green pad
+    teleporterCtx.strokeStyle = '#00ffcc';
+    teleporterCtx.lineWidth = 4;
+    teleporterCtx.shadowBlur = 10;
+    teleporterCtx.shadowColor = '#00ffcc';
+
+    // Outer ring
+    teleporterCtx.beginPath();
+    teleporterCtx.arc(50, 50, 40, 0, Math.PI * 2);
+    teleporterCtx.stroke();
+
+    // Inner ring
+    teleporterCtx.beginPath();
+    teleporterCtx.arc(50, 50, 25, 0, Math.PI * 2);
+    teleporterCtx.stroke();
+
+    // Center glowing core
+    teleporterCtx.fillStyle = '#00ffcc';
+    teleporterCtx.beginPath();
+    teleporterCtx.arc(50, 50, 10, 0, Math.PI * 2);
+    teleporterCtx.fill();
+
+    scene.textures.addCanvas('home_teleporter_tile', teleporterCanvas);
+
     // Pre-generate Portal texture (pulsing neon/cyber spiral vortex)
     const portalCanvas = document.createElement('canvas');
     portalCanvas.width = 100;
@@ -28779,6 +28813,30 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             dSprite.playerNum = 1;
             sprites.push(dSprite);
         }
+    } else if (mapData[r][c] === 'hospital_teleporter_p1') {
+        let tpad = scene.add.sprite(posX, posY, 'home_teleporter_tile');
+        tpad.setDepth(-0.9);
+        sprites.push(tpad);
+
+        if (window.homeTeleportersGroup) {
+            let tSprite = window.homeTeleportersGroup.create(posX, posY, 'home_teleporter_tile');
+            tSprite.setVisible(false);
+            tSprite.playerNum = 1;
+            tSprite.teleportType = 'to_home';
+            sprites.push(tSprite);
+        }
+    } else if (mapData[r][c] === 'hospital_teleporter_p2') {
+        let tpad = scene.add.sprite(posX, posY, 'home_teleporter_tile');
+        tpad.setDepth(-0.9);
+        sprites.push(tpad);
+
+        if (window.homeTeleportersGroup) {
+            let tSprite = window.homeTeleportersGroup.create(posX, posY, 'home_teleporter_tile');
+            tSprite.setVisible(false);
+            tSprite.playerNum = 2;
+            tSprite.teleportType = 'to_home';
+            sprites.push(tSprite);
+        }
     } else if (mapData[r][c] === 'home_door_p2') {
         let door = scene.add.sprite(posX, posY, 'home_door_tile');
         door.setDepth(-0.9);
@@ -29164,6 +29222,12 @@ window.spawnPlayerHomes = function(scene) {
         window.homesGroup = scene.physics.add.staticGroup();
     }
 
+    if (window.customHomeTeleportersGroup) {
+        window.customHomeTeleportersGroup.clear(true, true);
+    } else {
+        window.customHomeTeleportersGroup = scene.physics.add.staticGroup();
+    }
+
     const p1HX = localStorage.getItem('wildpulse_p1_home_x');
     const p1HY = localStorage.getItem('wildpulse_p1_home_y');
     if (p1HX && p1HY) {
@@ -29174,6 +29238,12 @@ window.spawnPlayerHomes = function(scene) {
         hSprite.isHomeTile = true;
         hSprite.playerNum = 1;
         if (hSprite.body) hSprite.body.updateFromGameObject();
+
+        let tSprite = window.customHomeTeleportersGroup.create(hx - 200, hy, 'home_teleporter_tile');
+        tSprite.setDepth(9);
+        tSprite.teleportType = 'to_hospital';
+        tSprite.playerNum = 1;
+        if (tSprite.body) tSprite.body.updateFromGameObject();
     }
 
     const p2HX = localStorage.getItem('wildpulse_p2_home_x');
@@ -29186,6 +29256,12 @@ window.spawnPlayerHomes = function(scene) {
         hSprite.isHomeTile = true;
         hSprite.playerNum = 2;
         if (hSprite.body) hSprite.body.updateFromGameObject();
+
+        let tSprite = window.customHomeTeleportersGroup.create(hx - 200, hy, 'home_teleporter_tile');
+        tSprite.setDepth(9);
+        tSprite.teleportType = 'to_hospital';
+        tSprite.playerNum = 2;
+        if (tSprite.body) tSprite.body.updateFromGameObject();
     }
 };
 
@@ -29266,6 +29342,48 @@ window.updateHomeAmbientOverlay = function(playerNum) {
     overlay.setDepth(9.5);
     overlay.setBlendMode(Phaser.BlendModes.ADD);
     window[overlayId] = overlay;
+};
+
+window.handleHomeTeleporterOverlap = function(playerNum, pCol, teleporterSprite) {
+    if (window.inBattle) return;
+    if (teleporterSprite.playerNum !== playerNum) return;
+
+    const now = Date.now();
+    const playerObj = playerNum === 2 ? window.player2 : window.player;
+    if (!playerObj) return;
+
+    if (playerObj.lastTeleportTime && now - playerObj.lastTeleportTime < 1500) {
+        return;
+    }
+
+    if (teleporterSprite.teleportType === 'to_hospital') {
+        // Offset slightly to prevent instant infinite teleport loops if they don't move
+        const targetX = playerNum === 2 ? (102 * 100 + 100) : (98 * 100);
+        const targetY = 101 * 100 + 100;
+
+        playerObj.setPosition(targetX, targetY);
+        if (playerObj.body) playerObj.body.updateFromGameObject();
+        playerObj.lastTeleportTime = now;
+        window.showModernNotification("⚡ Fast-traveled to Hospital Hub!", 3000, playerNum);
+    } else if (teleporterSprite.teleportType === 'to_home') {
+        const hx = localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
+        const hy = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
+
+        if (!hx || !hy) {
+            window.showModernNotification("❌ You haven't placed a custom Home yet! Build one first.", 3000, playerNum);
+            playerObj.lastTeleportTime = now + 1500; // brief pause before warning again
+            return;
+        }
+
+        // Offset slightly to prevent instant infinite teleport loops
+        const targetX = parseFloat(hx) - 200;
+        const targetY = parseFloat(hy) + 50;
+
+        playerObj.setPosition(targetX, targetY);
+        if (playerObj.body) playerObj.body.updateFromGameObject();
+        playerObj.lastTeleportTime = now;
+        window.showModernNotification("⚡ Fast-traveled to your Home!", 3000, playerNum);
+    }
 };
 
 window.handleHomeOverlap = function(playerNum, pCol, homeSprite) {
@@ -30262,6 +30380,8 @@ function create() {
     window.breedGroup = this.physics.add.staticGroup();
     window.homesGroup = this.physics.add.staticGroup();
     window.homeDoorsGroup = this.physics.add.staticGroup();
+    window.homeTeleportersGroup = this.physics.add.staticGroup();
+    window.customHomeTeleportersGroup = this.physics.add.staticGroup();
     window.questNpcGroup = this.physics.add.staticGroup();
     window.npcTrainersGroup = this.physics.add.group();
     window.portalsGroup = this.physics.add.staticGroup();
@@ -30350,6 +30470,10 @@ function create() {
     mapData[100][103] = 'pvp';
     // Breeding center tile
     mapData[97][100] = 'breed';
+
+    // Teleporters to player custom homes from hospital area
+    mapData[101][98] = 'hospital_teleporter_p1';
+    mapData[101][102] = 'hospital_teleporter_p2';
 
     // Generate separate home interior maps for Player 1 and Player 2 at safe isolated coordinates
     // Player 1 room: Walkable 5x5 at row 580 to 584, col 580 to 584
@@ -31215,6 +31339,12 @@ function create() {
     }, null, this);
     this.physics.add.overlap(player, window.returnPortalsGroup, (pCol, rPortalSprite) => {
         window.handleReturnPortalOverlap(1, rPortalSprite);
+    }, null, this);
+    this.physics.add.overlap(player, window.homeTeleportersGroup, (pCol, sprite) => {
+        window.handleHomeTeleporterOverlap(1, pCol, sprite);
+    }, null, this);
+    this.physics.add.overlap(player, window.customHomeTeleportersGroup, (pCol, sprite) => {
+        window.handleHomeTeleporterOverlap(1, pCol, sprite);
     }, null, this);
     this.physics.add.overlap(player, window.homesGroup, (pCol, homeSprite) => {
         window.handleHomeOverlap(1, pCol, homeSprite);
@@ -34750,6 +34880,12 @@ window.enableCoop = function(scene) {
     }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.returnPortalsGroup, (pCol, rPortalSprite) => {
         window.handleReturnPortalOverlap(2, rPortalSprite);
+    }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.homeTeleportersGroup, (pCol, sprite) => {
+        window.handleHomeTeleporterOverlap(2, pCol, sprite);
+    }, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.customHomeTeleportersGroup, (pCol, sprite) => {
+        window.handleHomeTeleporterOverlap(2, pCol, sprite);
     }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.homesGroup, (pCol, homeSprite) => {
         window.handleHomeOverlap(2, pCol, homeSprite);
