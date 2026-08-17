@@ -9355,8 +9355,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Close other modals for this player
         if (window.coopActive) {
-            window.closeAllModalsForPlayer(playerNum, 'homeCustomizationModal');
-            if (playerNum === 2) window.p2ActiveModal = 'homeCustomizationModal';
+            window.closeAllModalsForPlayer(playerNum, playerNum === 2 ? 'homeCustomizationModal_p2' : 'homeCustomizationModal');
+            if (playerNum === 2) window.p2ActiveModal = 'homeCustomizationModal_p2';
             else window.p1ActiveModal = 'homeCustomizationModal';
             window.updateModalVisibility();
         } else {
@@ -19534,6 +19534,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
         if (introP2 && introP2.style.display !== 'none' && introP2.style.display !== '') {
             return introP2;
         }
+        const homeCustomP2 = document.getElementById('homeCustomizationModal_p2');
+        if (homeCustomP2 && homeCustomP2.style.display !== 'none' && homeCustomP2.style.display !== '') {
+            return homeCustomP2;
+        }
         const customP2 = document.getElementById('customizationModal_p2');
         if (customP2 && customP2.style.display !== 'none' && customP2.style.display !== '') {
             return customP2;
@@ -19554,6 +19558,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
         const selectP1 = document.getElementById('creatureSelectModal_p1');
         if (selectP1 && selectP1.style.display !== 'none' && selectP1.style.display !== '') {
             return selectP1;
+        }
+        const homeCustomP1 = document.getElementById('homeCustomizationModal');
+        if (homeCustomP1 && homeCustomP1.style.display !== 'none' && homeCustomP1.style.display !== '') {
+            return homeCustomP1;
         }
         const introP1 = document.getElementById('introModal');
         if (introP1 && introP1.style.display !== 'none' && introP1.style.display !== '') {
@@ -20448,6 +20456,9 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             } else {
                 if (window.closeAllModalsForPlayer) {
                     window.closeAllModalsForPlayer(playerNum);
+                    if (container.id === 'homeCustomizationModal' || container.id === 'homeCustomizationModal_p2') {
+                        if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(playerNum);
+                    }
                 }
                 if (window.closeBattleSwapModal) window.closeBattleSwapModal();
                 if (window.closeTradeModal) window.closeTradeModal();
@@ -20526,7 +20537,7 @@ window.isAnyOtherModalOpen = function() {
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal', 'dojoModal',
-        'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
+        'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2', 'homeCustomizationModal', 'homeCustomizationModal_p2',
         'fullSizeImageModal', 'fullSizeImageModal_p2',
         'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
         'customConfirmModal_p1', 'customConfirmModal_p2',
@@ -20568,7 +20579,7 @@ window.isAnyModalOpen = function() {
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal', 'dojoModal',
-        'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
+        'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2', 'homeCustomizationModal', 'homeCustomizationModal_p2',
         'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal', 'inventoryWheelModal',
         'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
         'customConfirmModal_p1', 'customConfirmModal_p2',
@@ -20591,7 +20602,7 @@ window.updateModalVisibility = function() {
         // Reset classes and styles in case co-op was just disabled
         const modalIds = [
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
-            'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
+            'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2', 'homeCustomizationModal', 'homeCustomizationModal_p2',
             'challengeModal', 'dojoModal', 'battleModal', 'actionWheelModal', 'inventoryWheelModal'
         ];
         modalIds.forEach(id => {
@@ -20613,7 +20624,7 @@ window.updateModalVisibility = function() {
 
     const modalIds = [
         'menuModal', 'partyModal', 'storageModal', 'helpModal',
-        'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2',
+        'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2', 'homeCustomizationModal', 'homeCustomizationModal_p2',
         'challengeModal', 'dojoModal', 'actionWheelModal', 'inventoryWheelModal'
     ];
 
@@ -20623,17 +20634,23 @@ window.updateModalVisibility = function() {
 
         let p1Open = (window.p1ActiveModal === id);
         let p2Open = (window.p2ActiveModal === id);
-        if (id === 'customizationModal') {
+                if (id === 'customizationModal') {
             p1Open = (window.p1ActiveModal === 'customizationModal');
             p2Open = false;
         } else if (id === 'customizationModal_p2') {
             p1Open = false;
-            p2Open = (window.p2ActiveModal === 'customizationModal');
+            p2Open = (window.p2ActiveModal === 'customizationModal' || window.p2ActiveModal === 'customizationModal_p2');
+        } else if (id === 'homeCustomizationModal') {
+            p1Open = (window.p1ActiveModal === 'homeCustomizationModal');
+            p2Open = false;
+        } else if (id === 'homeCustomizationModal_p2') {
+            p1Open = false;
+            p2Open = (window.p2ActiveModal === 'homeCustomizationModal' || window.p2ActiveModal === 'homeCustomizationModal_p2');
         }
 
         if (p1Open || p2Open) {
-            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2' || id === 'actionWheelModal' || id === 'inventoryWheelModal') ? 'flex' : 'block';
-            if (id !== 'customizationModal' && id !== 'customizationModal_p2') {
+            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2' || id === 'homeCustomizationModal' || id === 'homeCustomizationModal_p2' || id === 'actionWheelModal' || id === 'inventoryWheelModal') ? 'flex' : 'block';
+            if (id !== 'customizationModal' && id !== 'customizationModal_p2' && id !== 'homeCustomizationModal' && id !== 'homeCustomizationModal_p2') {
                 modalEl.style.background = 'transparent';
                 modalEl.style.pointerEvents = 'none';
                 modalEl.style.boxShadow = 'none';
@@ -20721,6 +20738,8 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
         { id: 'challengeModal', close: (p) => { if (window.closeChallengeModal) window.closeChallengeModal(p); } },
         { id: 'dojoModal', close: (p) => { if (window.closeDojoModal) window.closeDojoModal(p); } },
         { id: 'customizationModal', close: (p) => { if (window.closeCustomizationModal) window.closeCustomizationModal(p); } },
+        { id: 'homeCustomizationModal', close: (p) => { if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(p); } },
+        { id: 'homeCustomizationModal_p2', close: (p) => { if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(p); } },
         { id: 'inventoryWheelModal', close: (p) => { if (window.closeInventoryWheel) window.closeInventoryWheel(p); } },
         { id: `questModal_p${playerNum}`, close: (p) => { if (window.closeQuestModal) window.closeQuestModal(p); } }
     ];
@@ -20767,6 +20786,8 @@ window.closeAllModals = function(exceptId) {
         { id: 'tradeModal', close: () => { if (window.closeTradeModal) window.closeTradeModal(); } },
         { id: 'pvpModal', close: () => { if (window.closePvpModal) window.closePvpModal(); } },
         { id: 'inventoryWheelModal', close: () => { if (window.closeInventoryWheel) window.closeInventoryWheel(); } },
+        { id: 'homeCustomizationModal', close: () => { if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(1); } },
+        { id: 'homeCustomizationModal_p2', close: () => { if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(2); } },
         { id: 'questModal_p1', close: () => { if (window.closeQuestModal) window.closeQuestModal(1); } },
         { id: 'questModal_p2', close: () => { if (window.closeQuestModal) window.closeQuestModal(2); } }
     ];
