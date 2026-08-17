@@ -29767,6 +29767,15 @@ window.handleHomeTeleporterOverlap = function(playerNum, tile) {
     const playerObj = playerNum === 2 ? window.player2 : window.player;
     if (!playerObj) return;
 
+    const pLevel = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
+    if (pLevel < 10) {
+        if (!playerObj.lastTeleportWarningTime || now - playerObj.lastTeleportWarningTime > 4000) {
+            window.showModernNotification("🔒 Trainer level too low! You must be at least Level 10 to use the Home Teleporter.", 4000, playerNum);
+            playerObj.lastTeleportWarningTime = now;
+        }
+        return;
+    }
+
     if (playerObj.lastHomeTeleportTime && now - playerObj.lastHomeTeleportTime < 2000) {
         return; // Cooldown
     }
