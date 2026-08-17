@@ -28743,6 +28743,30 @@ function generateMiscTextures(scene) {
         return Math.hypot(x - hospitalX, y - hospitalY) < 1500; // 15 tiles = 1500px
     };
 
+    window.isWithinHomeArea = function(x, y) {
+        const p1HXStr = localStorage.getItem('wildpulse_p1_home_x');
+        const p1HYStr = localStorage.getItem('wildpulse_p1_home_y');
+        if (p1HXStr && p1HYStr) {
+            const p1HX = parseFloat(p1HXStr);
+            const p1HY = parseFloat(p1HYStr);
+            if (Math.hypot(x - p1HX, y - p1HY) <= 350) return true;
+        }
+
+        const p2HXStr = localStorage.getItem('wildpulse_p2_home_x');
+        const p2HYStr = localStorage.getItem('wildpulse_p2_home_y');
+        if (p2HXStr && p2HYStr) {
+            const p2HX = parseFloat(p2HXStr);
+            const p2HY = parseFloat(p2HYStr);
+            if (Math.hypot(x - p2HX, y - p2HY) <= 350) return true;
+        }
+
+        // Inside home interior areas
+        if (x >= 57900 && x <= 58500 && y >= 57900 && y <= 58500) return true;
+        if (x >= 58900 && x <= 59500 && y >= 53900 && y <= 54500) return true;
+
+        return false;
+    };
+
     window.shouldNpcIgnorePlayer = function(playerNum, playerObj, scene) {
         if (!playerObj || !scene) return true;
 
@@ -32586,7 +32610,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
             let tryY = 100 + (sRng() * (WORLD_SIZE - 200));
             let col = Math.floor(tryX / 100);
             let row = Math.floor(tryY / 100);
-            if (mapData[row] && mapData[row][col] === 'grass') {
+            if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(tryX, tryY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(tryX, tryY))) {
                 x = tryX;
                 y = tryY;
                 found = true;
@@ -38267,7 +38291,7 @@ function update() {
 
                     const col = Math.floor(targetX / 100);
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && mapData[row][col] === 'grass') {
+                    if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
                         creature.x = targetX;
                         creature.y = targetY;
                         creature.setData('targetX', targetX);
@@ -38289,7 +38313,7 @@ function update() {
                     // Only move if target isn't water
                     const col = Math.floor(targetX / 100); // TILE_SIZE is 100
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && mapData[row][col] === 'grass') {
+                    if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
                         creature.setData('targetX', targetX);
                         creature.setData('targetY', targetY);
                     } else {
