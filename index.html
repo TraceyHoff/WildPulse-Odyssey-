@@ -4517,7 +4517,7 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     let rewardItem = null;
 
     const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
-    const furniturePool = ["Storage Chest", "Mini Hospital", "Mini Store", "Mini Trade", "Mini PvP", "Mini Breeding Center", "Mini Challenge", "Neon Couch", "L-Couch", "Love Seat", "Cyber Desk", "Office Chair", "Stool", "Coffee Table", "Dining Table", "Park Bench", "Cyber Bench", "Filing Cabinet", "Display Cabinet", "Nightstand", "Corner Table", "Bunk Bed", "King Bed", "Glow Carpet", "Holo Bed", "Neon Chair", "Holo Table", "Cyber Plant", "Crystal Bonsai", "Neon Fern", "Plasma Cactus", "Holo Orchid", "Neon Lamp", "Server Rack", "Arcade Machine", "Cyber TV", "Neon Shelf", "Tech Bin", "Neon Wardrobe", "Cyber Fridge", "Holo Display", "Lava Lamp", "Plasma Globe", "Cyber Poster", "Neon Sign", "Gaming PC", "Smart Mirror", "Potted Ficus", "Monstera Plant", "Cyber Bamboo", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Digi Sunflower", "Zen Bonsai", "Lunar Lily", "Cyber Tree", "Neon Pine"];
+    const furniturePool = ["Storage Chest", "Mini Hospital", "Mini Store", "Mini Trade", "Mini PvP", "Mini Breeding Center", "Mini Challenge", "Neon Couch", "L-Couch", "Love Seat", "Cyber Desk", "Office Chair", "Stool", "Coffee Table", "Dining Table", "Park Bench", "Cyber Bench", "Filing Cabinet", "Display Cabinet", "Nightstand", "Corner Table", "Bunk Bed", "King Bed", "Glow Carpet", "Star Carpet", "Round Cyber Carpet", "Hexagon Carpet", "Heart Carpet", "Diamond Carpet", "Holo Bed", "Neon Chair", "Holo Table", "Cyber Plant", "Crystal Bonsai", "Neon Fern", "Plasma Cactus", "Holo Orchid", "Neon Lamp", "Server Rack", "Arcade Machine", "Cyber TV", "Neon Shelf", "Tech Bin", "Neon Wardrobe", "Cyber Fridge", "Holo Display", "Lava Lamp", "Plasma Globe", "Cyber Poster", "Neon Sign", "Gaming PC", "Smart Mirror", "Potted Ficus", "Monstera Plant", "Cyber Bamboo", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Digi Sunflower", "Zen Bonsai", "Lunar Lily", "Cyber Tree", "Neon Pine"];
 
     if (pLevel >= 10 && Math.random() < 0.15) {
         rewardItem = furniturePool[Math.floor(Math.random() * furniturePool.length)];
@@ -9801,6 +9801,11 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Bunk Bed", icon: "🛏️", desc: "A multi-level bed unit. Place inside using mini-tile placement." },
         { name: "King Bed", icon: "🛏️", desc: "A massive, luxurious bed. Place inside using mini-tile placement." },
         { name: "Glow Carpet", icon: "🔲", desc: "A glowing cybernetic carpet. Place inside using mini-tile placement." },
+        { name: "Star Carpet", icon: "⭐", desc: "A star-shaped cybernetic carpet. Place inside using mini-tile placement." },
+        { name: "Round Cyber Carpet", icon: "🔵", desc: "A circular glowing carpet. Place inside using mini-tile placement." },
+        { name: "Hexagon Carpet", icon: "💠", desc: "A hexagonal tech carpet. Place inside using mini-tile placement." },
+        { name: "Heart Carpet", icon: "❤️", desc: "A heart-shaped cybernetic carpet. Place inside using mini-tile placement." },
+        { name: "Diamond Carpet", icon: "♦️", desc: "A diamond-shaped glowing carpet. Place inside using mini-tile placement." },
         { name: "Holo Bed", icon: "🛏️", desc: "A futuristic holographic bed. Place inside using mini-tile placement." },
         { name: "Dojo Tile", icon: "⛩️", desc: "A placeable tile that summons the Dojo Leader for elite matches. (Defeat all 24 trainers)", type: "Mini Building" },
         { name: "NPC Dual Link", icon: "📡", desc: "Guarantees a 100% chance of a cooperative 2v2 NPC Trainer Dual Battle for 5 minutes." },
@@ -17330,6 +17335,11 @@ window.updateStoreUI = function() {
             { name: "Bunk Bed", icon: "🛏️", price: 700, desc: "A multi-level bed unit. Place inside using mini-tile placement.", reqLevel: 10, type: "Bed" },
             { name: "King Bed", icon: "🛏️", price: 1000, desc: "A massive, luxurious bed. Place inside using mini-tile placement.", reqLevel: 10, type: "Bed" },
             { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place inside using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Star Carpet", icon: "⭐", price: 300, desc: "A star-shaped cybernetic carpet. Place inside using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Round Cyber Carpet", icon: "🔵", price: 300, desc: "A circular glowing carpet. Place inside using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Hexagon Carpet", icon: "💠", price: 300, desc: "A hexagonal tech carpet. Place inside using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Heart Carpet", icon: "❤️", price: 300, desc: "A heart-shaped cybernetic carpet. Place inside using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Diamond Carpet", icon: "♦️", price: 300, desc: "A diamond-shaped glowing carpet. Place inside using mini-tile placement.", reqLevel: 10, type: "Decor" },
             { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place inside using mini-tile placement.", reqLevel: 10, type: "Bed" },
             { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place inside using mini-tile placement.", reqLevel: 10, type: "Seating" },
             { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place inside.", reqLevel: 10, type: "Table" },
@@ -18280,6 +18290,11 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "King Bed": "🛏️",
         "Cyber Desk": "🖥️",
         "Glow Carpet": "🔲",
+        "Star Carpet": "⭐",
+        "Round Cyber Carpet": "🔵",
+        "Hexagon Carpet": "💠",
+        "Heart Carpet": "❤️",
+        "Diamond Carpet": "♦️",
         "Holo Bed": "🛏️",
         "Neon Chair": "🪑",
         "Holo Table": "🪵",
@@ -18718,6 +18733,34 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <line x1="50" y1="20" x2="50" y2="80" stroke="#00ffd2" stroke-width="2"/>
                 <line x1="20" y1="50" x2="80" y2="50" stroke="#00ffd2" stroke-width="2"/>`;
             break;
+        case "Star Carpet":
+            svgContent = `<polygon points="50,15 61,35 85,35 65,50 73,75 50,60 27,75 35,50 15,35 39,35" fill="url(#bgGrad)" stroke="#ffdf00" stroke-width="4"/>
+                <polygon points="50,25 58,40 75,40 60,50 66,65 50,55 34,65 40,50 25,40 42,40" fill="rgba(255, 223, 0, 0.2)" stroke="#ffdf00" stroke-width="2"/>
+                <circle cx="50" cy="50" r="5" fill="#ffdf00" filter="url(#glow)"/>`;
+            break;
+        case "Round Cyber Carpet":
+            svgContent = `<circle cx="50" cy="50" r="40" fill="url(#bgGrad)" stroke="#00d2ff" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#00d2ff" stroke-width="2" opacity="0.7"/>
+                <circle cx="50" cy="50" r="20" fill="rgba(0, 210, 255, 0.3)" stroke="#00d2ff" stroke-width="1"/>
+                <line x1="10" y1="50" x2="90" y2="50" stroke="#00d2ff" stroke-width="2" opacity="0.5"/>
+                <line x1="50" y1="10" x2="50" y2="90" stroke="#00d2ff" stroke-width="2" opacity="0.5"/>`;
+            break;
+        case "Hexagon Carpet":
+            svgContent = `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
+                <polygon points="50,25 70,37 70,63 50,75 30,63 30,37" fill="rgba(255, 0, 255, 0.2)" stroke="#ff00ff" stroke-width="2"/>
+                <circle cx="50" cy="50" r="10" fill="#ff00ff" filter="url(#glow)"/>`;
+            break;
+        case "Heart Carpet":
+            svgContent = `<path d="M50,30 C50,10 20,10 20,40 C20,60 50,85 50,85 C50,85 80,60 80,40 C80,10 50,10 50,30 Z" fill="url(#bgGrad)" stroke="#ff0044" stroke-width="4"/>
+                <path d="M50,40 C50,25 35,25 35,45 C35,55 50,70 50,70 C50,70 65,55 65,45 C65,25 50,25 50,40 Z" fill="rgba(255, 0, 68, 0.3)" stroke="#ff0044" stroke-width="2"/>
+                <circle cx="35" cy="35" r="3" fill="#ff0044" filter="url(#glow)"/>
+                <circle cx="65" cy="35" r="3" fill="#ff0044" filter="url(#glow)"/>`;
+            break;
+        case "Diamond Carpet":
+            svgContent = `<polygon points="50,10 90,50 50,90 10,50" fill="url(#bgGrad)" stroke="#00ff00" stroke-width="4"/>
+                <polygon points="50,30 70,50 50,70 30,50" fill="rgba(0, 255, 0, 0.2)" stroke="#00ff00" stroke-width="2"/>
+                <rect x="45" y="45" width="10" height="10" fill="#00ff00" transform="rotate(45, 50, 50)" filter="url(#glow)"/>`;
+            break;
         case "Holo Bed":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
                 <rect x="25" y="20" width="50" height="60" fill="#222" stroke="#ff00ff" stroke-width="3"/>
@@ -18804,6 +18847,39 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <line x1="20" y1="65" x2="80" y2="65" stroke="#00ffd2" stroke-width="1.5" opacity="0.6" transform="skewX(-20)" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Glow Carpet"]}</span>`;
+            break;
+        case "Star Carpet":
+            svgContent = `<polygon points="50,15 61,35 85,35 65,50 73,75 50,60 27,75 35,50 15,35 39,35" fill="url(#bgGrad)" stroke="#ffdf00" stroke-width="4"/>
+                <polygon points="50,25 58,40 75,40 60,50 66,65 50,55 34,65 40,50 25,40 42,40" fill="rgba(255, 223, 0, 0.2)" stroke="#ffdf00" stroke-width="2" transform="skewX(-20)"/>
+                <circle cx="50" cy="50" r="5" fill="#ffdf00" filter="url(#glow)"/>
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Star Carpet"]}</span>`;
+            break;
+        case "Round Cyber Carpet":
+            svgContent = `<circle cx="50" cy="50" r="40" fill="url(#bgGrad)" stroke="#00d2ff" stroke-width="4" transform="scale(1, 0.6) translateY(30)"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="#00d2ff" stroke-width="2" opacity="0.7" transform="scale(1, 0.6) translateY(30)"/>
+                <circle cx="50" cy="50" r="20" fill="rgba(0, 210, 255, 0.3)" stroke="#00d2ff" stroke-width="1" transform="scale(1, 0.6) translateY(30)"/>
+                <line x1="10" y1="50" x2="90" y2="50" stroke="#00d2ff" stroke-width="2" opacity="0.5" transform="scale(1, 0.6) translateY(30)"/>
+                <line x1="50" y1="10" x2="50" y2="90" stroke="#00d2ff" stroke-width="2" opacity="0.5" transform="scale(1, 0.6) translateY(30)"/>
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Round Cyber Carpet"]}</span>`;
+            break;
+        case "Hexagon Carpet":
+            svgContent = `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4" transform="scale(1, 0.6) translateY(30)"/>
+                <polygon points="50,25 70,37 70,63 50,75 30,63 30,37" fill="rgba(255, 0, 255, 0.2)" stroke="#ff00ff" stroke-width="2" transform="scale(1, 0.6) translateY(30)"/>
+                <circle cx="50" cy="50" r="10" fill="#ff00ff" filter="url(#glow)" transform="scale(1, 0.6) translateY(30)"/>
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Hexagon Carpet"]}</span>`;
+            break;
+        case "Heart Carpet":
+            svgContent = `<path d="M50,30 C50,10 20,10 20,40 C20,60 50,85 50,85 C50,85 80,60 80,40 C80,10 50,10 50,30 Z" fill="url(#bgGrad)" stroke="#ff0044" stroke-width="4" transform="scale(1, 0.6) translateY(30)"/>
+                <path d="M50,40 C50,25 35,25 35,45 C35,55 50,70 50,70 C50,70 65,55 65,45 C65,25 50,25 50,40 Z" fill="rgba(255, 0, 68, 0.3)" stroke="#ff0044" stroke-width="2" transform="scale(1, 0.6) translateY(30)"/>
+                <circle cx="35" cy="35" r="3" fill="#ff0044" filter="url(#glow)" transform="scale(1, 0.6) translateY(30)"/>
+                <circle cx="65" cy="35" r="3" fill="#ff0044" filter="url(#glow)" transform="scale(1, 0.6) translateY(30)"/>
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Heart Carpet"]}</span>`;
+            break;
+        case "Diamond Carpet":
+            svgContent = `<polygon points="50,10 90,50 50,90 10,50" fill="url(#bgGrad)" stroke="#00ff00" stroke-width="4" transform="scale(1, 0.6) translateY(30)"/>
+                <polygon points="50,30 70,50 50,70 30,50" fill="rgba(0, 255, 0, 0.2)" stroke="#00ff00" stroke-width="2" transform="scale(1, 0.6) translateY(30)"/>
+                <rect x="45" y="45" width="10" height="10" fill="#00ff00" filter="url(#glow)" transform="scale(1, 0.6) translateY(30) rotate(45, 50, 50)"/>
+                <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Diamond Carpet"]}</span>`;
             break;
         case "Holo Bed":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
@@ -19134,6 +19210,11 @@ window.updateInventoryUI = function() {
         "King Bed": "🛏️",
         "Cyber Desk": "🖥️",
         "Glow Carpet": "🔲",
+        "Star Carpet": "⭐",
+        "Round Cyber Carpet": "🔵",
+        "Hexagon Carpet": "💠",
+        "Heart Carpet": "❤️",
+        "Diamond Carpet": "♦️",
         "Holo Bed": "🛏️",
         "Dojo Tile": "⛩️",
         "Storage Chest": "🧳",
@@ -27111,6 +27192,129 @@ function generateTileTextures(scene) {
     carpetCtx.stroke();
     scene.textures.addCanvas('furniture_carpet_tile', carpetCanvas);
 
+    // Star Carpet
+    const starCarpetCanvas = document.createElement('canvas');
+    starCarpetCanvas.width = 100;
+    starCarpetCanvas.height = 100;
+    const starCtx = starCarpetCanvas.getContext('2d');
+    starCtx.fillStyle = '#111';
+    starCtx.shadowBlur = 10;
+    starCtx.shadowColor = '#ffdf00';
+    starCtx.beginPath();
+    starCtx.moveTo(50, 5); starCtx.lineTo(61, 35); starCtx.lineTo(95, 35); starCtx.lineTo(65, 55); starCtx.lineTo(75, 90);
+    starCtx.lineTo(50, 70); starCtx.lineTo(25, 90); starCtx.lineTo(35, 55); starCtx.lineTo(5, 35); starCtx.lineTo(39, 35);
+    starCtx.closePath();
+    starCtx.fill();
+    starCtx.strokeStyle = '#ffdf00';
+    starCtx.lineWidth = 3;
+    starCtx.stroke();
+    starCtx.beginPath();
+    starCtx.moveTo(50, 20); starCtx.lineTo(57, 40); starCtx.lineTo(80, 40); starCtx.lineTo(60, 50); starCtx.lineTo(68, 70);
+    starCtx.lineTo(50, 58); starCtx.lineTo(32, 70); starCtx.lineTo(40, 50); starCtx.lineTo(20, 40); starCtx.lineTo(43, 40);
+    starCtx.closePath();
+    starCtx.strokeStyle = '#ff8800';
+    starCtx.stroke();
+    scene.textures.addCanvas('furniture_starcarpet_tile', starCarpetCanvas);
+
+    // Round Cyber Carpet
+    const roundCarpetCanvas = document.createElement('canvas');
+    roundCarpetCanvas.width = 100;
+    roundCarpetCanvas.height = 100;
+    const roundCtx = roundCarpetCanvas.getContext('2d');
+    roundCtx.fillStyle = '#0a1a2a';
+    roundCtx.shadowBlur = 15;
+    roundCtx.shadowColor = '#00d2ff';
+    roundCtx.beginPath();
+    roundCtx.arc(50, 50, 45, 0, Math.PI * 2);
+    roundCtx.fill();
+    roundCtx.strokeStyle = '#00d2ff';
+    roundCtx.lineWidth = 4;
+    roundCtx.stroke();
+    roundCtx.beginPath();
+    roundCtx.arc(50, 50, 30, 0, Math.PI * 2);
+    roundCtx.lineWidth = 2;
+    roundCtx.stroke();
+    roundCtx.beginPath();
+    roundCtx.arc(50, 50, 15, 0, Math.PI * 2);
+    roundCtx.fillStyle = 'rgba(0, 210, 255, 0.4)';
+    roundCtx.fill();
+    scene.textures.addCanvas('furniture_roundcarpet_tile', roundCarpetCanvas);
+
+    // Hexagon Carpet
+    const hexCarpetCanvas = document.createElement('canvas');
+    hexCarpetCanvas.width = 100;
+    hexCarpetCanvas.height = 100;
+    const hexCtx = hexCarpetCanvas.getContext('2d');
+    hexCtx.fillStyle = '#220022';
+    hexCtx.shadowBlur = 12;
+    hexCtx.shadowColor = '#ff00ff';
+    hexCtx.beginPath();
+    hexCtx.moveTo(50, 5); hexCtx.lineTo(90, 27); hexCtx.lineTo(90, 72); hexCtx.lineTo(50, 95); hexCtx.lineTo(10, 72); hexCtx.lineTo(10, 27);
+    hexCtx.closePath();
+    hexCtx.fill();
+    hexCtx.strokeStyle = '#ff00ff';
+    hexCtx.lineWidth = 4;
+    hexCtx.stroke();
+    hexCtx.beginPath();
+    hexCtx.moveTo(50, 20); hexCtx.lineTo(75, 35); hexCtx.lineTo(75, 65); hexCtx.lineTo(50, 80); hexCtx.lineTo(25, 65); hexCtx.lineTo(25, 35);
+    hexCtx.closePath();
+    hexCtx.strokeStyle = '#aa00aa';
+    hexCtx.lineWidth = 2;
+    hexCtx.stroke();
+    scene.textures.addCanvas('furniture_hexcarpet_tile', hexCarpetCanvas);
+
+    // Heart Carpet
+    const heartCarpetCanvas = document.createElement('canvas');
+    heartCarpetCanvas.width = 100;
+    heartCarpetCanvas.height = 100;
+    const heartCtx = heartCarpetCanvas.getContext('2d');
+    heartCtx.fillStyle = '#330011';
+    heartCtx.shadowBlur = 15;
+    heartCtx.shadowColor = '#ff0044';
+    heartCtx.beginPath();
+    heartCtx.moveTo(50, 30);
+    heartCtx.bezierCurveTo(50, 5, 10, 5, 10, 40);
+    heartCtx.bezierCurveTo(10, 65, 50, 95, 50, 95);
+    heartCtx.bezierCurveTo(50, 95, 90, 65, 90, 40);
+    heartCtx.bezierCurveTo(90, 5, 50, 5, 50, 30);
+    heartCtx.fill();
+    heartCtx.strokeStyle = '#ff0044';
+    heartCtx.lineWidth = 4;
+    heartCtx.stroke();
+    heartCtx.beginPath();
+    heartCtx.moveTo(50, 40);
+    heartCtx.bezierCurveTo(50, 20, 25, 20, 25, 45);
+    heartCtx.bezierCurveTo(25, 60, 50, 80, 50, 80);
+    heartCtx.bezierCurveTo(50, 80, 75, 60, 75, 45);
+    heartCtx.bezierCurveTo(75, 20, 50, 20, 50, 40);
+    heartCtx.strokeStyle = '#ff88aa';
+    heartCtx.lineWidth = 2;
+    heartCtx.stroke();
+    scene.textures.addCanvas('furniture_heartcarpet_tile', heartCarpetCanvas);
+
+    // Diamond Carpet
+    const diamondCarpetCanvas = document.createElement('canvas');
+    diamondCarpetCanvas.width = 100;
+    diamondCarpetCanvas.height = 100;
+    const diamondCtx = diamondCarpetCanvas.getContext('2d');
+    diamondCtx.fillStyle = '#002200';
+    diamondCtx.shadowBlur = 15;
+    diamondCtx.shadowColor = '#00ff00';
+    diamondCtx.beginPath();
+    diamondCtx.moveTo(50, 5); diamondCtx.lineTo(95, 50); diamondCtx.lineTo(50, 95); diamondCtx.lineTo(5, 50);
+    diamondCtx.closePath();
+    diamondCtx.fill();
+    diamondCtx.strokeStyle = '#00ff00';
+    diamondCtx.lineWidth = 4;
+    diamondCtx.stroke();
+    diamondCtx.beginPath();
+    diamondCtx.moveTo(50, 25); diamondCtx.lineTo(75, 50); diamondCtx.lineTo(50, 75); diamondCtx.lineTo(25, 50);
+    diamondCtx.closePath();
+    diamondCtx.strokeStyle = '#00aa00';
+    diamondCtx.lineWidth = 2;
+    diamondCtx.stroke();
+    scene.textures.addCanvas('furniture_diamondcarpet_tile', diamondCarpetCanvas);
+
     // Holo Bed
     const bedCanvas = document.createElement('canvas');
     bedCanvas.width = 100;
@@ -29578,7 +29782,12 @@ window.spawnMiniTiles = function(scene) {
 
             if (textureKey) {
                 let mSprite = window.miniTilesGroup.create(tile.x, tile.y, textureKey);
-                mSprite.setDepth(9);
+
+                if (tile.type.includes('carpet')) {
+                    mSprite.setDepth(8.5);
+                } else {
+                    mSprite.setDepth(9);
+                }
                 mSprite.setScale(0.6); // Smaller version
                 mSprite.isMiniTile = true;
                 mSprite.miniTileType = tile.type;
@@ -30075,6 +30284,11 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
         "King Bed": "furniture_kingbed_tile",
         "Cyber Desk": "furniture_desk_tile",
         "Glow Carpet": "furniture_carpet_tile",
+        "Star Carpet": "furniture_starcarpet_tile",
+        "Round Cyber Carpet": "furniture_roundcarpet_tile",
+        "Hexagon Carpet": "furniture_hexcarpet_tile",
+        "Heart Carpet": "furniture_heartcarpet_tile",
+        "Diamond Carpet": "furniture_diamondcarpet_tile",
         "Holo Bed": "furniture_bed_tile",
         "Neon Chair": "furniture_chair_tile",
         "Holo Table": "furniture_table_tile",
@@ -30197,6 +30411,11 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
         "King Bed": "furniture_kingbed",
         "Cyber Desk": "furniture_desk",
         "Glow Carpet": "furniture_carpet",
+        "Star Carpet": "furniture_starcarpet",
+        "Round Cyber Carpet": "furniture_roundcarpet",
+        "Hexagon Carpet": "furniture_hexcarpet",
+        "Heart Carpet": "furniture_heartcarpet",
+        "Diamond Carpet": "furniture_diamondcarpet",
         "Holo Bed": "furniture_bed",
         "Neon Chair": "furniture_chair",
         "Holo Table": "furniture_table",
