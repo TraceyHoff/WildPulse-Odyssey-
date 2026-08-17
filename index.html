@@ -33625,7 +33625,13 @@ window.doEnemyAction = function(callback) {
 
 window.openBattleSwapModal = function() {
     if (window.battleEnding || window.isActionRunning) return;
-    let swapList = document.getElementById('swapPartyList');
+
+    const isP2Swap = (window.playerParty === window.collectedCreatures2);
+    const playerNum = isP2Swap ? 2 : 1;
+    const modalId = isP2Swap ? 'battleSwapModal_p2' : 'battleSwapModal';
+    const listId = isP2Swap ? 'swapPartyList_p2' : 'swapPartyList';
+
+    let swapList = document.getElementById(listId);
     swapList.innerHTML = '';
 
     // Filter out stored creatures and those with no HP.
@@ -33634,7 +33640,7 @@ window.openBattleSwapModal = function() {
         const isNotStored = !c.stored;
         const isNotEgg = !c.isEgg;
         const hasHp = c.currentHp > 0;
-        const isNotActive = String(c.id) !== String(window.currentPlayer?.id);
+        const isNotActive = String(c.id) !== String(isP2Swap ? window.currentPlayer2?.id : window.currentPlayer?.id);
         return isNotStored && isNotEgg && hasHp && isNotActive;
     });
 
@@ -33677,12 +33683,25 @@ window.openBattleSwapModal = function() {
         swapList.appendChild(div);
     });
 
-    document.getElementById('battleSwapModal').style.display = 'flex';
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'flex';
+
+    // Automatically focus the first navigable element for gamepad
+    setTimeout(() => {
+        const selectables = window.getNavigableElements(modal);
+        if (selectables.length > 0) {
+            selectables[0].classList.add(`gamepad-focused-p${playerNum}`);
+            try { selectables[0].focus(); } catch(e){}
+        }
+    }, 50);
 };
 
 window.closeBattleSwapModal = function() {
     window.lastModalCloseTime = Date.now();
-    document.getElementById('battleSwapModal').style.display = 'none';
+    const m1 = document.getElementById('battleSwapModal');
+    if (m1) m1.style.display = 'none';
+    const m2 = document.getElementById('battleSwapModal_p2');
+    if (m2) m2.style.display = 'none';
 };
 
 window.promptDualBattleTarget = function(playerNum, callback) {
