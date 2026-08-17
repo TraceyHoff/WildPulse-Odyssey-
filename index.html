@@ -29121,7 +29121,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         }
     } else if (mapData[r][c] === 'home_floor') {
         let pNum = 1;
-        if (c >= 589 && c <= 595) pNum = 2;
+        if (r >= 539 && r <= 545 && c >= 589 && c <= 595) pNum = 2;
         const style = localStorage.getItem(`wildpulse_p${pNum}_home_floor_style`) || 'cyber_neon';
         const textureKey = `floor_${style}`;
         let floor = scene.add.sprite(posX, posY, textureKey);
@@ -29129,7 +29129,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         sprites.push(floor);
     } else if (mapData[r][c] === 'home_wall' || mapData[r][c] === 'home_holo_wall') {
         let pNum = 1;
-        if (c >= 589 && c <= 595) pNum = 2;
+        if (r >= 539 && r <= 545 && c >= 589 && c <= 595) pNum = 2;
         const isHolo = mapData[r][c] === 'home_holo_wall';
         const style = localStorage.getItem(`wildpulse_p${pNum}_home_wall_style`) || 'cyber_circuit';
         const textureKey = isHolo ? 'home_holo_wall_tile' : `wall_${style}`;

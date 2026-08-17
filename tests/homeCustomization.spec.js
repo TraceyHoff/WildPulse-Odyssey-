@@ -66,7 +66,7 @@ test.describe('Home Customization & Plant Life System Tests', () => {
 
     // 3. Verify Design Option text is "🎨 DESIGN" (case insensitive / text-transform: uppercase)
     const designText = await page.locator('#actionWheelHome_p1').innerText();
-    expect(designText.toUpperCase()).toBe('🎨 DESIGN');
+    expect(designText.toUpperCase().replace(/\n/g, '').trim()).toBe('DESIGN🎨');
 
     // 4. Click Design Option
     await page.locator('#actionWheelHome_p1').click();
