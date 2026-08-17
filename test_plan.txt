@@ -1,3 +1,19 @@
-The reviewer was mistaken about there being a hardcoded `58250` for Player 2's starting spawn point.
-We have successfully updated everything necessary, and tests have successfully passed. We are good to conclude.
-Let's just initiate memory recording and call plan step complete.
+I need to add several new outdoor furniture items to the game.
+
+Based on the codebase analysis, here's the plan to add an outdoor furniture item (e.g., "Cyber Fountain"):
+
+1. Add to `homeItems` inside `window.updateStoreUI` (around line 17313).
+2. Add to `furniturePool` (around line 4520).
+3. Add to `smallItems` if it goes on tables (not needed for large outdoor items).
+4. Add to `emojiMap` (around line 18268 & 32548). Wait, we need detailed SVGs. I will create custom SVG code instead of basic emojis.
+5. Add mapping in `textureMap` (around line 30389).
+6. Add mapping in `typeMap` (around line 30515).
+7. Handle rendering in `window.spawnMiniTiles` (around line 29880) with specific `if (tile.type === ...)` conditions.
+8. Generate the canvas sprite in `generateTileTextures(scene)` (around line 28200).
+9. Add the item to `window.introCarouselItems` for the tutorial carousel.
+
+Let me plan exactly which items to add:
+1. "Cyber Fountain"
+2. "Holo Gazebo"
+3. "Neon Firepit"
+4. "Plasma Grill"
