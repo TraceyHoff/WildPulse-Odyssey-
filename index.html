@@ -28865,7 +28865,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             const treeType = treeTypes[hash % treeTypes.length];
             const seasonKey = treeType + '_' + (window.currentSeason || 'Summer');
             let treeShadow = scene.add.sprite(posX, posY, seasonKey);
-            treeShadow.setScale(2.5);
+            treeShadow.setScale(1.25);
             treeShadow.setTintFill(0x000000);
             treeShadow.setAlpha(0.3);
             treeShadow.setOrigin(0.5, 1.0);
@@ -28875,7 +28875,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             sprites.push(treeShadow);
 
             let tree = window.treesGroup.create(posX, posY, seasonKey);
-            tree.setScale(2.5);
+            tree.setScale(1.25);
             tree.baseTreeType = treeType;
             tree.setOrigin(0.5, 1.0);
             if (treeType === 'tree_willow') {
