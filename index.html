@@ -26383,6 +26383,42 @@ function generateCloudTextures(scene) {
 
 function generateTileTextures(scene) {
     window.gameScene = scene;
+
+    // Pre-generate Home Teleporter texture
+    const homeTeleCanvas = document.createElement('canvas');
+    homeTeleCanvas.width = 100;
+    homeTeleCanvas.height = 100;
+    const htCtx = homeTeleCanvas.getContext('2d');
+    // Base dark circle
+    htCtx.fillStyle = '#0a0a1a';
+    htCtx.beginPath();
+    htCtx.arc(50, 50, 45, 0, Math.PI * 2);
+    htCtx.fill();
+    // Glowing cyan ring
+    htCtx.strokeStyle = '#00ffff';
+    htCtx.lineWidth = 4;
+    htCtx.shadowColor = '#00ffff';
+    htCtx.shadowBlur = 10;
+    htCtx.beginPath();
+    htCtx.arc(50, 50, 40, 0, Math.PI * 2);
+    htCtx.stroke();
+    // Inner grid
+    htCtx.shadowBlur = 0;
+    htCtx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+    htCtx.lineWidth = 1;
+    for(let i=20; i<=80; i+=10) {
+        htCtx.beginPath(); htCtx.moveTo(i, 20); htCtx.lineTo(i, 80); htCtx.stroke();
+        htCtx.beginPath(); htCtx.moveTo(20, i); htCtx.lineTo(80, i); htCtx.stroke();
+    }
+    // Center glowing core
+    const htGrad = htCtx.createRadialGradient(50, 50, 0, 50, 50, 20);
+    htGrad.addColorStop(0, 'rgba(0, 255, 255, 0.8)');
+    htGrad.addColorStop(1, 'rgba(0, 255, 255, 0)');
+    htCtx.fillStyle = htGrad;
+    htCtx.beginPath(); htCtx.arc(50, 50, 20, 0, Math.PI * 2); htCtx.fill();
+    window.add3DDepth(htCtx, 5); // Add depth for isometric look
+    scene.textures.addCanvas('home_teleporter_tile', homeTeleCanvas);
+
     // Pre-generate Portal texture (pulsing neon/cyber spiral vortex)
     const portalCanvas = document.createElement('canvas');
     portalCanvas.width = 100;
@@ -28828,6 +28864,21 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
             sprites.push(plant);
         }
+    } else if (mapData[r][c] === 'home_teleporter') {
+        let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
+        grass.setDepth(-1.1);
+        sprites.push(grass);
+
+        let ht = scene.add.sprite(posX, posY, 'home_teleporter_tile');
+        ht.setDepth(-1);
+        sprites.push(ht);
+
+        if (window.homeTeleportersGroup) {
+            let htSprite = window.homeTeleportersGroup.create(posX, posY, 'home_teleporter_tile');
+            htSprite.setVisible(false);
+            htSprite.isHomeTeleporterTile = true;
+            sprites.push(htSprite);
+        }
     } else if (mapData[r][c] === 'hospital') {
         let grass = scene.add.sprite(posX, posY, 'grass_dynamic');
         grass.setDepth(-1.1);
@@ -29413,6 +29464,8 @@ function destroyTile(key) {
                 }
                 if (sprite.isTree && window.treesGroup) {
                     window.treesGroup.remove(sprite, true, true);
+                } else if (sprite.isHomeTeleporterTile && window.homeTeleportersGroup) {
+                    window.homeTeleportersGroup.remove(sprite, true, true);
                 } else if (sprite.isHospitalTile && hospitalGroup) {
                     hospitalGroup.remove(sprite, true, true);
                 } else if (sprite.isStoreTile && storeGroup) {
@@ -29704,6 +29757,53 @@ window.handleReturnPortalOverlap = function(playerNum, rPortalSprite) {
     }
 
     window.showModernNotification("🌀 Returned safely to the main world!", 3000, playerNum);
+};
+
+
+window.handleHomeTeleporterOverlap = function(playerNum, tile) {
+    if (window.inBattle) return;
+
+    const now = Date.now();
+    const playerObj = playerNum === 2 ? window.player2 : window.player;
+    if (!playerObj) return;
+
+    if (playerObj.lastHomeTeleportTime && now - playerObj.lastHomeTeleportTime < 2000) {
+        return; // Cooldown
+    }
+    playerObj.lastHomeTeleportTime = now;
+
+    let destX, destY;
+
+    // Teleporter pads are at [100][106] (hospital)
+    // [587][583] (p1 home), [547][593] (p2 home)
+
+    // Check if player is near hospital
+    if (tile.y < 200 * 100) {
+        // At hospital, teleport to home
+        if (playerNum === 1) {
+            // P1 home
+            destX = 583 * 100 + 50;
+            destY = 588 * 100 + 50; // spawn slightly south of the home telepad [587][583]
+        } else {
+            // P2 home
+            destX = 593 * 100 + 50;
+            destY = 548 * 100 + 50; // spawn slightly south of the home telepad [547][593]
+        }
+        window.showModernNotification("🌀 Teleported Home!", 3000, playerNum);
+    } else {
+        // At home, teleport to hospital
+        destX = 106 * 100 + 50;
+        destY = 101 * 100 + 50; // spawn slightly south of hospital telepad [100][106]
+        window.showModernNotification("🌀 Teleported to Hospital Area!", 3000, playerNum);
+    }
+
+    console.log(`[HomeTeleport] Player ${playerNum} moving to ${destX}, ${destY}`);
+
+    playerObj.setPosition(destX, destY);
+    if (playerObj.body) {
+        playerObj.body.reset(destX, destY);
+        playerObj.body.updateFromGameObject();
+    }
 };
 
 window.spawnMiniTiles = function(scene) {
@@ -30515,6 +30615,7 @@ function create() {
     window.questNpcGroup = this.physics.add.staticGroup();
     window.npcTrainersGroup = this.physics.add.group();
     window.portalsGroup = this.physics.add.staticGroup();
+    window.homeTeleportersGroup = this.physics.add.staticGroup();
     window.returnPortalsGroup = this.physics.add.staticGroup();
 
     // Procedural generation
@@ -30591,6 +30692,7 @@ function create() {
 
     // Force hospital to be at 100, 100
     mapData[100][100] = 'hospital';
+    mapData[100][106] = 'home_teleporter'; // Added home teleporter near hospital
     mapData[100][97] = 'challenge';
     // Trade tile directly south
     mapData[103][100] = 'trade';
@@ -30613,6 +30715,7 @@ function create() {
         }
     }
     mapData[585][583] = 'home_holo_wall'; // Place holographic wall
+    mapData[587][583] = 'home_teleporter'; // Place home teleporter for Player 1
 
     // Player 2 room: Walkable 5x5 at row 540 to 544, col 590 to 594
     for (let r = 539; r <= 545; r++) {
@@ -30625,6 +30728,7 @@ function create() {
         }
     }
     mapData[545][593] = 'home_holo_wall'; // Place holographic wall
+    mapData[547][593] = 'home_teleporter'; // Place home teleporter for Player 2
 
     // Generate separate portal rift world (40x40 area at row 400 to 439, col 400 to 439)
     // We surround it with wall boundaries
@@ -31462,6 +31566,9 @@ function create() {
     window.spawnMiniTiles(this);
 
     // Overlap physics
+    this.physics.add.overlap(player, window.homeTeleportersGroup, (pCol, tile) => {
+        window.handleHomeTeleporterOverlap(1, tile);
+    }, null, this);
     this.physics.add.overlap(player, window.portalsGroup, (pCol, portalSprite) => {
         window.handlePortalOverlap(1, portalSprite);
     }, null, this);
@@ -34998,6 +35105,9 @@ window.enableCoop = function(scene) {
     window.p2Colliders = [];
     window.p2Colliders.push(scene.physics.add.collider(window.player2, window.treesGroup));
     window.p2Colliders.push(scene.physics.add.collider(window.player2, obstaclesGroup));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.homeTeleportersGroup, (pCol, tile) => {
+        window.handleHomeTeleporterOverlap(2, tile);
+    }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.portalsGroup, (pCol, portalSprite) => {
         window.handlePortalOverlap(2, portalSprite);
     }, null, scene));
