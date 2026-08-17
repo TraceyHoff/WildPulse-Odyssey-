@@ -7245,7 +7245,7 @@ function escapeHtml(unsafe) {
                 <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">⛩️ MODULE_04: GRID CONFLICTS & LOGISTICS</h3>
                 <p>• <strong>Wandering Trainers:</strong> Challenge the 24 elite trainers scattered across the world to win gold. Defeated trainers display green nameplates and a <span style="color:#ffd700;">🏆 trophy</span>.</p>
                 <p>• <strong>Dojo Challenge:</strong> Defeat all 24 trainers to unlock the Dojo Tile in the shop for 920 gold. Placed Dojo Tiles let you fight the Dojo Leader in scalable boss battles.</p>
-                <p>• <strong>Sanctuary Base:</strong> Once you reach <span style="color:#ff007f; font-weight:bold;">Player Level 10</span>, place your Home. Step inside and select '🎨 Design' on your Action Wheel to change walls, floors, and ambient glows.</p>
+                <p>• <strong>Sanctuary Base:</strong> Step inside your Home and select '🎨 Design' on your Action Wheel to change walls, floors, and ambient glows.</p>
                 <p>• <strong>Storage Chest 🧳:</strong> Available at <span style="color:#ff007f; font-weight:bold;">Player Level 6</span>. Purchase for 620 gold and place up to 3 chests to store your extra item stacks (maximum 10 per slot).</p>
                 <p>• <strong>Item Catalog:</strong> Visit the store to buy recovery items, **Creature Licenses** (provides a passive 1.5x capture rate, consumed only on successful catch), and **Jank Juice** (increases shiny spawn rates for 6 minutes).</p>
                 <p>• <strong>Hidden Grove Portals 🌀:</strong> Under specific environmental alignments (Fall Thunderstorms at Night, Winter Thundersnows at Night, Spring Rains at Sunrise, or Summer Storms at Sunset), 3 rare procedurally placed portals materialize across the map. Step through them to access the mysterious, high-stakes 40x40 Hidden Grove Portal World, filled with completely unique flora, glowing grass, much higher shiny rates, and high-level creatures! Step on the center return portal to return to safety.</p>
@@ -22612,16 +22612,13 @@ window.openActionWheel = function(playerNum) {
         window.p1ActiveModal = 'actionWheelModal';
     }
 
-    // Toggle Home button visibility dynamically based on level or inside home room state
+    // Toggle Home button visibility dynamically based on inside home room state
     const pLvl = playerNum === 2 ? window.p2Level : window.p1Level;
     const homeBtn = document.getElementById(`actionWheelHome_p${playerNum}`);
     if (homeBtn) {
         if (window.isPlayerInsideHome(playerNum)) {
             homeBtn.style.display = 'block';
             homeBtn.innerHTML = window.getActionWheelIconHTML('design', '#bf55ec');
-        } else if (pLvl >= 10) {
-            homeBtn.style.display = 'block';
-            homeBtn.innerHTML = window.getActionWheelIconHTML('home', '#bf55ec');
         } else {
             homeBtn.style.display = 'none';
         }
@@ -22629,12 +22626,7 @@ window.openActionWheel = function(playerNum) {
 
     const removeHomeBtn = document.getElementById(`actionWheelRemoveHome_p${playerNum}`);
     if (removeHomeBtn) {
-        const hasPlacedHome = !!localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
-        if (hasPlacedHome && !window.isPlayerInsideHome(playerNum)) {
-            removeHomeBtn.style.display = 'block';
-        } else {
-            removeHomeBtn.style.display = 'none';
-        }
+        removeHomeBtn.style.display = 'none';
     }
 
     // Default highlights
@@ -22767,20 +22759,7 @@ window.useActionWheelOption = function(playerNum, optionName) {
             if (window.openHomeCustomizationModal) {
                 window.openHomeCustomizationModal(playerNum);
             }
-        } else {
-            if (window.startHomePlacement) {
-                window.startHomePlacement(playerNum);
-            }
         }
-    } else if (optionName === 'remove_home') {
-        window.showConfirm(playerNum, "Remove Home", "Are you sure you want to remove your placed home? All inside progress and structure will remain, but the home sprite will be deleted from the world map.", () => {
-            localStorage.removeItem(`wildpulse_p${playerNum}_home_x`);
-            localStorage.removeItem(`wildpulse_p${playerNum}_home_y`);
-            // Respawn homes
-            const scene = game.scene.scenes[0];
-            if (scene && window.spawnPlayerHomes) window.spawnPlayerHomes(scene);
-            window.showModernNotification("🏡 Your placed home has been removed successfully.", 3000, playerNum);
-        });
     } else if (optionName === 'screenshot') {
         window.takeScreenshot();
     }
@@ -29444,8 +29423,17 @@ window.spawnPlayerHomes = function(scene) {
         window.homesGroup = scene.physics.add.staticGroup();
     }
 
-    const p1HX = localStorage.getItem('wildpulse_p1_home_x');
-    const p1HY = localStorage.getItem('wildpulse_p1_home_y');
+    let p1HX = localStorage.getItem('wildpulse_p1_home_x');
+    let p1HY = localStorage.getItem('wildpulse_p1_home_y');
+
+    if (!p1HX || !p1HY) {
+        let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10250, y: 10050 });
+        p1HX = safePos.x;
+        p1HY = safePos.y;
+        localStorage.setItem('wildpulse_p1_home_x', p1HX);
+        localStorage.setItem('wildpulse_p1_home_y', p1HY);
+    }
+
     if (p1HX && p1HY) {
         let hx = parseFloat(p1HX);
         let hy = parseFloat(p1HY);
@@ -29456,8 +29444,17 @@ window.spawnPlayerHomes = function(scene) {
         if (hSprite.body) hSprite.body.updateFromGameObject();
     }
 
-    const p2HX = localStorage.getItem('wildpulse_p2_home_x');
-    const p2HY = localStorage.getItem('wildpulse_p2_home_y');
+    let p2HX = localStorage.getItem('wildpulse_p2_home_x');
+    let p2HY = localStorage.getItem('wildpulse_p2_home_y');
+
+    if (!p2HX || !p2HY) {
+        let safePos = window.getStrictSafeDryLandSpawn(null, { x: 9850, y: 10050 });
+        p2HX = safePos.x;
+        p2HY = safePos.y;
+        localStorage.setItem('wildpulse_p2_home_x', p2HX);
+        localStorage.setItem('wildpulse_p2_home_y', p2HY);
+    }
+
     if (p2HX && p2HY) {
         let hx = parseFloat(p2HX);
         let hy = parseFloat(p2HY);
@@ -29888,46 +29885,6 @@ window.isValidHomeLocation = function(row, col) {
     return true;
 };
 
-window.startHomePlacement = function(playerNum) {
-    const pLvl = playerNum === 2 ? window.p2Level : window.p1Level;
-    if (pLvl < 10) {
-        window.showModernNotification("❌ You must be at least Level 10 to place a Home!", 3000, playerNum);
-        return;
-    }
-
-    window[`p${playerNum}HomePlacementMode`] = true;
-    const playerSprite = playerNum === 2 ? window.player2 : window.player;
-    if (!playerSprite) return;
-
-    window[`p${playerNum}HomePreviewX`] = playerSprite.x;
-    window[`p${playerNum}HomePreviewY`] = playerSprite.y;
-
-    const scene = game.scene.scenes[0];
-    const previewSpriteId = `p${playerNum}HomePreviewSprite`;
-    if (!window[previewSpriteId]) {
-        window[previewSpriteId] = scene.add.sprite(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`], 'home_tile');
-        window[previewSpriteId].setAlpha(0.6);
-        window[previewSpriteId].setDepth(100);
-        window[previewSpriteId].setAngle(0);
-    } else {
-        window[previewSpriteId].setPosition(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`]);
-        window[previewSpriteId].setVisible(true);
-        window[previewSpriteId].setAngle(0);
-    }
-
-    // Setup camera ignore for split screen
-    if (window.coopActive) {
-        if (playerNum === 1 && window.camera2 && window.p1HomePreviewSprite) {
-            window.camera2.ignore(window.p1HomePreviewSprite);
-        } else if (playerNum === 2 && scene.cameras.main && window.p2HomePreviewSprite) {
-            scene.cameras.main.ignore(window.p2HomePreviewSprite);
-        }
-    }
-
-    window.showModernNotification("🏠 Home Placement Mode: Move preview with Right Stick (or mouse on PC), press A (or click) to place. Press B (or ESC) to cancel.", 6000, playerNum);
-};
-
-
 window.tryPlaceBase = function(playerNum, x, y) {
     const itemName = window[`p${playerNum}BasePlacementType`];
     if (!itemName) return;
@@ -30113,60 +30070,6 @@ window.cancelBasePlacement = function(playerNum) {
         window[`p${playerNum}BasePreviewSprite`] = null;
     }
     window.showModernNotification("❌ Base placement cancelled.", 2000, playerNum);
-};
-
-window.tryPlaceHome = function(playerNum, x, y) {
-    let col = Math.floor(x / 100);
-    let row = Math.floor(y / 100);
-    let snappedX = col * 100 + 50;
-    let snappedY = row * 100 + 50;
-
-    if (!window.isValidHomeLocation(row, col)) {
-        window.showModernNotification("❌ Invalid location! Cannot place home on water, trees, buildings, or other homes.", 3000, playerNum);
-        return;
-    }
-
-    const existingX = localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
-    const existingY = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
-
-    const doPlace = () => {
-        // Save home location
-        localStorage.setItem(`wildpulse_p${playerNum}_home_x`, snappedX.toString());
-        localStorage.setItem(`wildpulse_p${playerNum}_home_y`, snappedY.toString());
-
-        // Respawn homes
-        const scene = game.scene.scenes[0];
-        if (window.spawnPlayerHomes) window.spawnPlayerHomes(scene);
-
-        // Exit placement mode
-        window.exitHomePlacementMode(playerNum);
-        window.showModernNotification("🏠 Home placed successfully! It will now act as a spawn point.", 4000, playerNum);
-    };
-
-    if (existingX && existingY) {
-        window.showConfirm(playerNum, "Confirm Relocation", "You already have a home placed! Placing a new one will remove your existing one. Do you want to proceed?", () => {
-            doPlace();
-        }, () => {
-            // Cancel placement
-            window.exitHomePlacementMode(playerNum);
-            window.showModernNotification("🏠 Home placement relocation canceled.", 3000, playerNum);
-        });
-    } else {
-        doPlace();
-    }
-};
-
-window.exitHomePlacementMode = function(playerNum) {
-    window[`p${playerNum}HomePlacementMode`] = false;
-    const sprite = window[`p${playerNum}HomePreviewSprite`];
-    if (sprite) {
-        sprite.setVisible(false);
-    }
-};
-
-window.cancelHomePlacement = function(playerNum) {
-    window.exitHomePlacementMode(playerNum);
-    window.showModernNotification("🏠 Home placement canceled.", 3000, playerNum);
 };
 
 window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {

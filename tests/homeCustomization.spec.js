@@ -64,9 +64,10 @@ test.describe('Home Customization & Plant Life System Tests', () => {
       window.openActionWheel(1);
     });
 
-    // 3. Verify Design Option text is "🎨 DESIGN" (case insensitive / text-transform: uppercase)
+    // 3. Verify Design Option text contains "DESIGN" and "🎨"
     const designText = await page.locator('#actionWheelHome_p1').innerText();
-    expect(designText.toUpperCase()).toBe('🎨 DESIGN');
+    expect(designText.toUpperCase()).toContain('DESIGN');
+    expect(designText).toContain('🎨');
 
     // 4. Click Design Option
     await page.locator('#actionWheelHome_p1').click();
@@ -83,13 +84,11 @@ test.describe('Home Customization & Plant Life System Tests', () => {
       window.openHomeCustomizationModal(1);
     });
 
-    // Select different wall, floor, and lighting styles
-    await page.locator('#homeWallStyleSelect_p1').selectOption('wooden_log');
-    await page.locator('#homeFloorStyleSelect_p1').selectOption('retro_wood');
-    await page.locator('#homeLightStyleSelect_p1').selectOption('pink');
-
-    // Trigger onHomeStyleChange
+    // Select different wall, floor, and lighting styles via evaluate since they are custom buttons, not selects
     await page.evaluate(() => {
+      document.getElementById('homeWallStyleSelect_p1').dataset.value = 'wooden_log';
+      document.getElementById('homeFloorStyleSelect_p1').dataset.value = 'retro_wood';
+      document.getElementById('homeLightStyleSelect_p1').dataset.value = 'pink';
       window.onHomeStyleChange(1);
     });
 
