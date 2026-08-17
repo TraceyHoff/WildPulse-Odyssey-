@@ -32310,15 +32310,20 @@ window.adjustWildCreatureLevels = function() {
     let p2Party = (window.collectedCreatures2 || []).filter(c => !c.stored);
     let allParty = p1Party.concat(p2Party);
     let maxPossibleLevel = allParty.length > 0 ? Math.max(...allParty.map(c => c.level || 1)) : 1;
+    let avgPossibleLevel = allParty.length > 0 ? Math.max(1, Math.floor(allParty.reduce((sum, c) => sum + (c.level || 1), 0) / allParty.length)) : 1;
 
     if (typeof creaturesGroup !== 'undefined' && creaturesGroup) {
         creaturesGroup.getChildren().forEach(sprite => {
             let data = sprite.getData('creatureData');
             if (data) {
                 let isInsideRift = (sprite.x >= 40000 && sprite.x <= 44000 && sprite.y >= 40000 && sprite.y <= 44000);
-                let targetLevel = maxPossibleLevel;
+                let targetLevel = data.isShiny ? avgPossibleLevel : maxPossibleLevel;
                 if (isInsideRift) {
-                    targetLevel = Math.max(targetLevel + 15, 30);
+                    if (data.isShiny) {
+                        targetLevel = targetLevel + 15;
+                    } else {
+                        targetLevel = Math.max(targetLevel + 15, 30);
+                    }
                 }
 
                 if (data.level !== targetLevel) {
@@ -32508,12 +32513,17 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     let p2Party = (window.collectedCreatures2 || []).filter(c => !c.stored);
     let allParty = p1Party.concat(p2Party);
     let maxPossibleLevel = allParty.length > 0 ? Math.max(...allParty.map(c => c.level || 1)) : 1;
+    let avgPossibleLevel = allParty.length > 0 ? Math.max(1, Math.floor(allParty.reduce((sum, c) => sum + (c.level || 1), 0) / allParty.length)) : 1;
 
-    clonedData.level = maxPossibleLevel;
+    clonedData.level = clonedData.isShiny ? avgPossibleLevel : maxPossibleLevel;
 
     // Scale level if inside the Void Rift (Row 400-439, Col 400-439)
     if (isInsideRift) {
-        clonedData.level = Math.max(clonedData.level + 15, 30);
+        if (clonedData.isShiny) {
+            clonedData.level = clonedData.level + 15;
+        } else {
+            clonedData.level = Math.max(clonedData.level + 15, 30);
+        }
         clonedData.name += " [Void]";
     }
 
