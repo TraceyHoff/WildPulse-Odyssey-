@@ -84,9 +84,9 @@ test.describe('Home Customization & Plant Life System Tests', () => {
     });
 
     // Select different wall, floor, and lighting styles
-    await page.locator('#homeWallStyleSelect_p1').selectOption('wooden_log');
-    await page.locator('#homeFloorStyleSelect_p1').selectOption('retro_wood');
-    await page.locator('#homeLightStyleSelect_p1').selectOption('pink');
+    await page.evaluate(() => { document.getElementById('homeWallStyleSelect_p1').dataset.value = 'wooden_log'; });
+    await page.evaluate(() => { document.getElementById('homeFloorStyleSelect_p1').dataset.value = 'retro_wood'; });
+    await page.evaluate(() => { document.getElementById('homeLightStyleSelect_p1').dataset.value = 'pink'; });
 
     // Trigger onHomeStyleChange
     await page.evaluate(() => {

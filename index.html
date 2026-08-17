@@ -28705,6 +28705,14 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
     } else if (mapData[r][c] === 'rift_wall') {
         let wall = scene.add.sprite(posX, posY, 'wall_cyber_circuit');
         wall.setScale(1.0, 0.2);
+
+        const isFloor = (tr, tc) => { if(!mapData || !mapData[tr] || !mapData[tr][tc]) return false; const t = mapData[tr][tc]; return t === "home_floor" || t === "rift_floor" || t.startsWith("home_door") || t === "return_portal"; };
+        const isLeftWall = isFloor(r, c+1) && !isFloor(r, c-1);
+        const isRightWall = isFloor(r, c-1) && !isFloor(r, c+1);
+        if (isLeftWall || isRightWall) {
+            wall.setAngle(90);
+        }
+
         wall.setOrigin(0.5, 0.5);
         wall.setDepth(10);
         sprites.push(wall);
@@ -28712,6 +28720,9 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (obstaclesGroup) {
             let obsSprite = obstaclesGroup.create(posX, posY, 'wall_cyber_circuit');
             obsSprite.setScale(1.0, 0.2);
+            if (isLeftWall || isRightWall) {
+                obsSprite.setAngle(90);
+            }
             obsSprite.setOrigin(0.5, 0.5);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
@@ -28754,6 +28765,14 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         const textureKey = `wall_${style}`;
         let wall = scene.add.sprite(posX, posY, textureKey);
         wall.setScale(1.0, 0.2);
+
+        const isFloor = (tr, tc) => { if(!mapData || !mapData[tr] || !mapData[tr][tc]) return false; const t = mapData[tr][tc]; return t === "home_floor" || t === "rift_floor" || t.startsWith("home_door") || t === "return_portal"; };
+        const isLeftWall = isFloor(r, c+1) && !isFloor(r, c-1);
+        const isRightWall = isFloor(r, c-1) && !isFloor(r, c+1);
+        if (isLeftWall || isRightWall) {
+            wall.setAngle(90);
+        }
+
         wall.setOrigin(0.5, 0.5);
         wall.setDepth(10);
         sprites.push(wall);
@@ -28761,6 +28780,9 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         if (obstaclesGroup) {
             let obsSprite = obstaclesGroup.create(posX, posY, textureKey);
             obsSprite.setScale(1.0, 0.2);
+            if (isLeftWall || isRightWall) {
+                obsSprite.setAngle(90);
+            }
             obsSprite.setOrigin(0.5, 0.5);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
