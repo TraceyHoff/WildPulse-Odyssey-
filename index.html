@@ -9361,7 +9361,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.updateModalVisibility();
         } else {
             window.closeAllModals('homeCustomizationModal');
-            document.getElementById('homeCustomizationModal').style.display = 'flex';
+            document.getElementById(`homeCustomizationModal${playerNum === 2 ? '_p2' : ''}`).style.display = 'flex';
             window.p1ActiveModal = 'homeCustomizationModal';
         }
 
@@ -9506,7 +9506,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else window.p1ActiveModal = null;
             window.updateModalVisibility();
         } else {
-            const el = document.getElementById('homeCustomizationModal');
+            const el = document.getElementById(`homeCustomizationModal${playerNum === 2 ? '_p2' : ''}`);
             if (el) el.style.display = 'none';
             window.p1ActiveModal = null;
         }
@@ -29289,7 +29289,7 @@ window.rebuildHomeInteriorTiles = function(playerNum) {
             const key = `${r}_${c}`;
             if (activeTiles[key]) {
                 activeTiles[key].forEach(sprite => {
-                    if (sprite.isHomeTile || sprite.isMiniTile) return;
+                    if (sprite.isMiniTile) return;
                     if (window.obstaclesGroup && window.obstaclesGroup.contains(sprite)) {
                         window.obstaclesGroup.remove(sprite, true, true);
                     } else {
@@ -29298,9 +29298,10 @@ window.rebuildHomeInteriorTiles = function(playerNum) {
                 });
                 delete activeTiles[key];
             }
-            activeTiles[key] = spawnTile(scene, r, c, 100, mapData[0].length, mapData.length);
-            activeTiles[key].tileR = r;
-            activeTiles[key].tileC = c;
+            let sprites = spawnTile(scene, r, c, 100, mapData[0].length, mapData.length);
+            sprites.tileR = r;
+            sprites.tileC = c;
+            activeTiles[key] = sprites;
         }
     }
     window.updateHomeAmbientOverlay(playerNum);
