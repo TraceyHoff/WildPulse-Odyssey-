@@ -19893,6 +19893,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         if (Math.abs(rx) > 0.15) window[`p${playerNum}BasePreviewX`] += rx * speed;
         if (Math.abs(ry) > 0.15) window[`p${playerNum}BasePreviewY`] += ry * speed;
 
+        // Micro-adjustments with D-pad
+        if (currUp) window[`p${playerNum}BasePreviewY`] -= 1;
+        if (currDown) window[`p${playerNum}BasePreviewY`] += 1;
+        if (currLeft) window[`p${playerNum}BasePreviewX`] -= 1;
+        if (currRight) window[`p${playerNum}BasePreviewX`] += 1;
+
         // X button cycles parts
         if (justX) {
             const parts = ['base_foundation', 'base_wall', 'base_wall_window', 'base_wall_door', 'base_stairs', 'base_ceiling', 'base_roof'];
@@ -19941,6 +19947,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         const speed = 12;
         if (Math.abs(rx) > 0.15) window[`p${playerNum}MiniTilePreviewX`] += rx * speed;
         if (Math.abs(ry) > 0.15) window[`p${playerNum}MiniTilePreviewY`] += ry * speed;
+
+        // Micro-adjustments with D-pad
+        if (currUp) window[`p${playerNum}MiniTilePreviewY`] -= 1;
+        if (currDown) window[`p${playerNum}MiniTilePreviewY`] += 1;
+        if (currLeft) window[`p${playerNum}MiniTilePreviewX`] -= 1;
+        if (currRight) window[`p${playerNum}MiniTilePreviewX`] += 1;
 
         const previewSpriteId = `p${playerNum}MiniTilePreviewSprite`;
         if (window[previewSpriteId]) {
@@ -19994,6 +20006,12 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         const speed = 12;
         if (Math.abs(rx) > 0.15) window[`p${playerNum}HomePreviewX`] += rx * speed;
         if (Math.abs(ry) > 0.15) window[`p${playerNum}HomePreviewY`] += ry * speed;
+
+        // Micro-adjustments with D-pad
+        if (currUp) window[`p${playerNum}HomePreviewY`] -= 1;
+        if (currDown) window[`p${playerNum}HomePreviewY`] += 1;
+        if (currLeft) window[`p${playerNum}HomePreviewX`] -= 1;
+        if (currRight) window[`p${playerNum}HomePreviewX`] += 1;
 
         // Keep preview sprite updated
         const previewSpriteId = `p${playerNum}HomePreviewSprite`;
