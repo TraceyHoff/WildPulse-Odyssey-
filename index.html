@@ -9376,6 +9376,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.openHomeCustomizationModal = function(playerNum) {
         if (window.inBattle) return;
 
+        if (window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum)) {
+            window.showModernNotification("❌ You cannot design another player's home.", 3000, playerNum);
+            return;
+        }
+
         // Close other modals for this player
         if (window.coopActive) {
             window.closeAllModalsForPlayer(playerNum, playerNum === 2 ? 'homeCustomizationModal_p2' : 'homeCustomizationModal');
@@ -20080,7 +20085,9 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         let option = null;
         const playerLvl = playerNum === 2 ? window.p2Level : window.p1Level;
         if (playerLvl >= 10 && currUp && currRight) {
-            option = "home";
+            if (!(window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum))) {
+                option = "home";
+            }
         } else if (currUp && currLeft) {
             const hasPlacedHome = !!localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
             if (hasPlacedHome && !window.isPlayerInsideHome(playerNum)) {
@@ -22683,6 +22690,8 @@ window.openActionWheel = function(playerNum) {
         if (window.isPlayerInsideHome(playerNum)) {
             homeBtn.style.display = 'block';
             homeBtn.innerHTML = window.getActionWheelIconHTML('design', '#bf55ec');
+        } else if (window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum)) {
+            homeBtn.style.display = 'none';
         } else if (pLvl >= 10) {
             homeBtn.style.display = 'block';
             homeBtn.innerHTML = window.getActionWheelIconHTML('home', '#bf55ec');
@@ -22827,6 +22836,10 @@ window.useActionWheelOption = function(playerNum, optionName) {
             window.openHelpModal(playerNum);
         }
     } else if (optionName === 'home') {
+        if (window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum)) {
+            window.showModernNotification("❌ You cannot design another player's home.", 3000, playerNum);
+            return;
+        }
         if (window.isPlayerInsideHome(playerNum)) {
             if (window.openHomeCustomizationModal) {
                 window.openHomeCustomizationModal(playerNum);
@@ -29637,6 +29650,16 @@ window.isPlayerInsideHome = function(playerNum) {
     }
 };
 
+window.isPlayerInsideOtherPlayerHome = function(playerNum) {
+    const p = playerNum === 2 ? window.player2 : window.player;
+    if (!p) return false;
+    if (playerNum === 1) {
+        return p.x >= 58900 && p.x <= 59500 && p.y >= 53900 && p.y <= 54500;
+    } else {
+        return p.x >= 57900 && p.x <= 58500 && p.y >= 57900 && p.y <= 58500;
+    }
+};
+
 window.rebuildHomeInteriorTiles = function(playerNum) {
     const scene = game.scene.scenes[0];
     if (!scene) return;
@@ -30168,7 +30191,8 @@ window.tryPlaceBase = function(playerNum, x, y) {
     }
 
     const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
-    if (isInside) {
+    const isInsideOtherHome = window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum);
+    if (isInside || isInsideOtherHome) {
         window.showModernNotification("❌ Cannot build base inside home.", 3000, playerNum);
         return;
     }
@@ -30259,6 +30283,12 @@ window.tryPlaceBase = function(playerNum, x, y) {
 };
 
 window.tryDestroyBase = function(playerNum, x, y) {
+    const isInsideOtherHome = window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum);
+    if (isInsideOtherHome) {
+        window.showModernNotification("❌ You cannot destroy base parts in another player's home.", 3000, playerNum);
+        return;
+    }
+
     let col = Math.floor(x / 50);
     let row = Math.floor(y / 50);
     let snappedX = col * 50 + 25;
@@ -30400,6 +30430,9 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
 
     const tileType = mapData[row][col];
     const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
+    const isInsideOtherHome = window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum);
+
+    if (isInsideOtherHome) return false;
 
     const HALF_SIZE = 25;
     const tileRect = { left: x - HALF_SIZE, right: x + HALF_SIZE, top: y - HALF_SIZE, bottom: y + HALF_SIZE };
@@ -30466,6 +30499,12 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
     const hy = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
     if (!hx || !hy) {
         window.showModernNotification("❌ You must place a Home first before placing mini tiles close to it!", 4000, playerNum);
+        return;
+    }
+
+    const isInsideOtherHome = window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum);
+    if (isInsideOtherHome) {
+        window.showModernNotification("❌ You cannot place mini tiles in another player's home.", 3000, playerNum);
         return;
     }
 
@@ -30587,6 +30626,12 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
     let row = Math.floor(y / 100);
 
     const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
+    const isInsideOtherHome = window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum);
+
+    if (isInsideOtherHome) {
+        window.showModernNotification("❌ You cannot place mini tiles in another player's home.", 3000, playerNum);
+        return;
+    }
 
     if (!isInside) {
         // 1. Check distance to placed home (must be within 2 tiles = 200px)
