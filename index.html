@@ -38500,6 +38500,17 @@ function update() {
             targetLeafGreen2 = 0;
         }
 
+        let p1Inside = window.isPlayerInsideHome && window.isPlayerInsideHome(1);
+        let p2Inside = window.coopActive && window.isPlayerInsideHome && window.isPlayerInsideHome(2);
+
+        let allInside = window.coopActive ? (p1Inside && p2Inside) : p1Inside;
+
+        if (allInside) {
+            targetLeafRed = 0; targetLeafYellow = 0; targetLeafMixed = 0;
+            targetLeafGreen1 = 0; targetLeafGreen2 = 0; targetPollen = 0;
+            targetRain = 0; targetSnow = 0; targetFireflies = 0; targetButterflies = 0;
+        }
+
         // Apply quantities with smooth lerping
         const lerpQuantity = (emitter, target) => {
             if (!emitter) return;
@@ -38539,6 +38550,9 @@ function update() {
         lerpQuantity(window.butterflyEmitter, targetButterflies);
 
         let targetWind = (window.weatherPattern !== 'none') ? 5 * window.weatherIntensity : 0;
+        if (allInside) {
+            targetWind = 0;
+        }
         lerpQuantity(window.windEmitter, targetWind);
 
         if (window.rainEmitter) {
