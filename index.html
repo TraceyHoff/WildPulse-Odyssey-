@@ -4534,7 +4534,8 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     }
 
     if (questType === 'catch') {
-        const base = window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const base = availablePool[Math.floor(Math.random() * availablePool.length)];
         const species = base ? base.name : "Sparo";
         title = `Catch ${species}`;
         description = `Analyze the DNA sequence of a wild ${species}. Locate and capture one in the wild!`;
@@ -31239,9 +31240,10 @@ function create() {
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
     // Spawn base creatures
-    let spawnCount = Math.floor(baseCreatures.length * 0.7);
+    const baseNormalPool = baseCreatures.filter(c => !c.isLegendary);
+    let spawnCount = Math.floor(baseNormalPool.length * 0.7);
     for (let i = 0; i < spawnCount; i++) {
-        spawnCreature(this, baseCreatures[i % baseCreatures.length], undefined, undefined, i);
+        spawnCreature(this, baseNormalPool[i % baseNormalPool.length], undefined, undefined, i);
     }
 
     // Spawn 1 or 2 random creatures on the main menu lake shore
@@ -32597,9 +32599,10 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     let isInsideRift = (x !== undefined && y !== undefined) ? (x >= 40000 && x <= 44000 && y >= 40000 && y <= 44000) : false;
 
-    // Reject legendary spawns if not inside the Rift
+    // Force legendary spawns into the Rift
     if (creatureData.isLegendary && !isInsideRift) {
-        return;
+        x = undefined;
+        y = undefined;
     }
 
     let found = false;
@@ -32608,6 +32611,13 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         while (!found && attempts < 100) {
             let tryX = 100 + (sRng() * (WORLD_SIZE - 200));
             let tryY = 100 + (sRng() * (WORLD_SIZE - 200));
+
+            if (creatureData.isLegendary) {
+                // Ensure legendary creatures spawn exclusively inside the Hidden Grove Portal World
+                tryX = 40500 + (sRng() * 3000);
+                tryY = 40500 + (sRng() * 3000);
+            }
+
             let col = Math.floor(tryX / 100);
             let row = Math.floor(tryY / 100);
             if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(tryX, tryY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(tryX, tryY))) {
@@ -32618,8 +32628,8 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
             attempts++;
         }
         if (!found) {
-            x = 500;
-            y = 500;
+            x = creatureData.isLegendary ? 42050 : 500;
+            y = creatureData.isLegendary ? 42050 : 500;
         }
     }
 
