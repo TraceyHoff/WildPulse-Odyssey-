@@ -797,7 +797,7 @@
             max-width: none !important;
             max-height: none !important;
             border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 40px 10px 15px 10px !important;
+            padding: 0 !important;
             background-color: transparent !important;
         }
         body.coop-active-layout #battleModal_p2 {
@@ -810,7 +810,7 @@
             max-width: none !important;
             max-height: none !important;
             border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 40px 10px 15px 10px !important;
+            padding: 0 !important;
             background-color: transparent !important;
         }
         body.coop-active-layout #battleModal.pvp-battle-active {
@@ -927,7 +927,7 @@
         }
 
 
-        #battleModal, #battleModal_p2, #storeModal {
+        #storeModal {
             display: none;
             position: fixed !important;
             top: 0 !important;
@@ -939,6 +939,28 @@
             transform: none !important;
             box-sizing: border-box;
             padding: 50px 15px 15px 15px !important;
+            z-index: 500;
+            font-family: monospace;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            background: linear-gradient(135deg, rgba(5, 12, 24, 0.97), rgba(10, 24, 44, 0.97)) !important;
+            border: 1px solid rgba(0, 255, 210, 0.25) !important;
+            box-shadow: 0 0 35px rgba(0, 255, 210, 0.15), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
+            overflow-y: auto !important;
+        }
+
+        #battleModal, #battleModal_p2 {
+            display: none;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            max-height: none !important;
+            transform: none !important;
+            box-sizing: border-box;
+            padding: 0 !important;
             z-index: 500;
             font-family: monospace;
             border-radius: 0 !important;
@@ -2056,7 +2078,7 @@
         border: 3px solid #00ffd2 !important;
         box-shadow: 0 0 35px rgba(0, 255, 210, 0.25), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
         border-radius: 12px !important;
-        padding: 4px 10px !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
         height: 100vh !important;
         max-height: 100vh !important;
@@ -2086,7 +2108,7 @@
         max-width: none !important;
         max-height: none !important;
         border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
-        padding: 4px 10px !important;
+        padding: 0 !important;
         background-color: transparent !important;
     }
     body.coop-active-layout #battleModal_p2 {
@@ -2099,7 +2121,7 @@
         max-width: none !important;
         max-height: none !important;
         border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
-        padding: 4px 10px !important;
+        padding: 0 !important;
         background-color: transparent !important;
     }
     body.coop-active-layout #battleModal.pvp-battle-active {
