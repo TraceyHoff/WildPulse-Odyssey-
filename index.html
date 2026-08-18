@@ -18934,7 +18934,7 @@ window.updateInventoryUI = function() {
                         window.hatchEgg(egg, playerNum);
                     } else {
                         if (window.showModernNotification) {
-                            window.showModernNotification(\`🥚 Egg Progress: \${Math.floor(egg.eggProgress || 0)} / \${egg.eggHatchSteps || 1000} (\${progressPct}%)\`, 3000, playerNum);
+                            window.showModernNotification('🥚 Egg Progress: ' + Math.floor(egg.eggProgress || 0) + ' / ' + (egg.eggHatchSteps || 1000) + ' (' + progressPct + '%)', 3000, playerNum);
                         }
                     }
                 };
@@ -18985,7 +18985,7 @@ window.saveStats = function() {
             if (data.check(window.gameStats)) {
                 currentUnlocks.push(pattern);
                 if (!previousUnlocks.includes(pattern) && data.condition !== 'Default') {
-                    window.showModernNotification(`✨ NEW SKIN UNLOCKED: ${pattern}! ✨`, 5000);
+                    window.showModernNotification('✨ NEW SKIN UNLOCKED: ' + pattern + '! ✨', 5000);
                 }
             }
         });
