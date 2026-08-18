@@ -2,10 +2,12 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('In-game Character Customization', () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      sessionStorage.setItem('wildpulse_skip_start_modal', 'true');
-    });
     await page.goto('http://localhost:3000');
+    // Dismiss start modal by clicking Single Player
+    const startBtn = page.locator('#startGameBtn');
+    if (await startBtn.isVisible()) {
+      await startBtn.click();
+    }
   });
 
   test('should open customization from in-game menu and customize character', async ({ page }) => {
