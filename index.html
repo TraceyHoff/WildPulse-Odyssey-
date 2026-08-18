@@ -451,9 +451,16 @@
         body.coop-active-layout .coop-columns .close-btn,
         body.coop-active-layout #customizationModal .close-btn,
         body.coop-active-layout #challengeModal .close-btn,
-        body.coop-active-layout #dojoModal .close-btn,
-        body.coop-active-layout #battleCloseBtn {
+        body.coop-active-layout #dojoModal .close-btn {
             display: flex !important;
+            position: absolute !important;
+            top: 15px !important;
+            right: 15px !important;
+            z-index: 1100 !important;
+        }
+
+        body.coop-active-layout #battleCloseBtn,
+        body.coop-active-layout #battleCloseBtn_p2 {
             position: absolute !important;
             top: 15px !important;
             right: 15px !important;
@@ -24924,6 +24931,8 @@ window.updateBattleUI = function() {
     const isCombatActive = window.inBattle && window.pendingBattleResult === null;
     const battleCloseBtn = document.getElementById('battleCloseBtn');
     if (battleCloseBtn) battleCloseBtn.style.display = isCombatActive ? 'none' : 'flex';
+    const b2 = document.getElementById('battleCloseBtn_p2');
+    if (b2) b2.style.display = isCombatActive ? 'none' : 'flex';
 
     const catchBtn = document.getElementById('battleCatchBtn');
     if (catchBtn) catchBtn.style.display = (isCombatActive && !window.inChallengeBattle && !window.isNpcBattle) ? 'block' : 'none';
@@ -34601,6 +34610,8 @@ window.endBattle = function(result) {
         window.pendingBattleResult = result;
         document.getElementById('battleControls').style.display = 'none';
         document.getElementById('battleCloseBtn').style.display = 'flex'; // Show close button
+        const b2 = document.getElementById('battleCloseBtn_p2');
+        if (b2) b2.style.display = 'flex';
 
         if (window.xpAwardedForCurrentBattle) {
             return;
