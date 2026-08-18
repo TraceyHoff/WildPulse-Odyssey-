@@ -3441,6 +3441,23 @@
     <div style="font-size: 9px; color: white; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Hospital</div>
 </div>
 
+<!-- Quest Directional Arrows Overlay -->
+<div id="p1QuestArrow" style="position: fixed; top: 85px; left: 50%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
+    <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
+        <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffd700" stroke-width="2"/>
+        <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ffd700" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-size: 9px; color: #ffd700; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Quest</div>
+</div>
+
+<div id="p2QuestArrow" style="position: fixed; top: 85px; left: 75%; transform: translate(-50%, 0); z-index: 4500; pointer-events: none; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.2s;">
+    <svg width="40" height="40" viewBox="0 0 40 40" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); transition: transform 0.1s ease-out;">
+        <circle cx="20" cy="20" r="18" fill="rgba(30, 30, 30, 0.83)" stroke="#ffd700" stroke-width="2"/>
+        <path d="M 11,16 L 23,16 L 23,11 L 32,20 L 23,29 L 23,24 L 11,24 Z" fill="#ffd700" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+    <div style="font-size: 9px; color: #ffd700; text-shadow: 1px 1px 2px black; font-weight: bold; margin-top: 3px; text-transform: uppercase; background: rgba(0, 0, 0, 0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;">Quest</div>
+</div>
+
 <!-- Virtual Cyberpunk Keyboards -->
 <div id="virtualKeyboardModal_p1" class="virtual-keyboard-modal" style="display:none; position:fixed; z-index:400000; box-sizing:border-box;">
     <div class="keyboard-header">
@@ -32086,6 +32103,114 @@ function updateHospitalArrows() {
     }
 }
 
+function updateQuestArrows() {
+    const p1Arrow = window.getCachedElement('p1QuestArrow');
+    const p2Arrow = window.getCachedElement('p2QuestArrow');
+    if (!p1Arrow || !p2Arrow) return;
+
+    if (!window.gameStarted) {
+        if (p1Arrow.style.display !== 'none') p1Arrow.style.display = 'none';
+        if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
+        return;
+    }
+
+    // Helper to process quest arrows for a specific player
+    const processQuestArrow = (playerNum, arrowEl, playerObj) => {
+        let isVisible = false;
+
+        // Visibility checks based on modals/battles
+        if (window.coopActive) {
+            const battleModal = window.getCachedElement('battleModal');
+            const battleActive = battleModal && battleModal.style.display === 'flex' &&
+                (battleModal.classList.contains('p' + playerNum + '-battle-active') ||
+                 battleModal.classList.contains('pvp-battle-active'));
+            if (battleActive || (playerNum === 1 ? window.p1ActiveModal !== null : window.p2ActiveModal !== null)) {
+                // Keep invisible
+            } else {
+                isVisible = true;
+            }
+        } else {
+            if (playerNum === 1 && (window.inBattle || (window.isAnyModalOpen && window.isAnyModalOpen()))) {
+                // Keep invisible
+            } else {
+                isVisible = true;
+            }
+        }
+
+        let targetTrainerId = null;
+        let targetTrainerPos = null;
+
+        if (isVisible) {
+            const quests = playerNum === 2 ? window.p2Quests : window.p1Quests;
+            if (quests) {
+                for (let q of quests) {
+                    if (q.status === 'active' && q.type === 'defeat_trainer') {
+                        // Find the trainer ID for this name
+                        for (let i = 1; i <= 24; i++) {
+                            const tId = 'npc_trainer_' + i;
+                            if (window.getNpcTrainerName(tId) === q.target) {
+                                targetTrainerId = tId;
+                                break;
+                            }
+                        }
+                        break; // Only point to the first active defeat_trainer quest
+                    }
+                }
+            }
+        }
+
+        if (targetTrainerId) {
+            // Check dynamic position if wandering, fallback to start pos
+            if (window.npcTrainersState && window.npcTrainersState[targetTrainerId]) {
+                targetTrainerPos = {
+                    x: window.npcTrainersState[targetTrainerId].x,
+                    y: window.npcTrainersState[targetTrainerId].y
+                };
+            } else if (window.getNpcTrainerStartPos) {
+                targetTrainerPos = window.getNpcTrainerStartPos(targetTrainerId);
+            }
+        }
+
+        if (isVisible && playerObj && targetTrainerPos) {
+            const targetDisplay = 'flex';
+            let targetLeft = '50%';
+            if (window.coopActive) {
+                targetLeft = playerNum === 1 ? '25%' : '75%';
+            }
+
+            const dx = targetTrainerPos.x - playerObj.x;
+            const dy = targetTrainerPos.y - playerObj.y;
+            const distance = Math.hypot(dx, dy);
+
+            const targetOpacity = (distance < 150) ? '0.2' : '1';
+
+            const angleRad = Math.atan2(dy, dx);
+            const angleDeg = (angleRad * 180) / Math.PI;
+            const targetTransform = `rotate(${angleDeg}deg)`;
+
+            if (arrowEl.style.display !== targetDisplay) arrowEl.style.display = targetDisplay;
+            if (arrowEl.style.left !== targetLeft) arrowEl.style.left = targetLeft;
+            if (arrowEl.style.opacity !== targetOpacity) arrowEl.style.opacity = targetOpacity;
+
+            const svgElement = arrowEl.querySelector('svg');
+            if (svgElement) {
+                if (svgElement.style.transform !== targetTransform) {
+                    svgElement.style.transform = targetTransform;
+                }
+            }
+        } else {
+            if (arrowEl.style.display !== 'none') arrowEl.style.display = 'none';
+        }
+    };
+
+    processQuestArrow(1, p1Arrow, window.player);
+    if (window.coopActive && window.player2) {
+        processQuestArrow(2, p2Arrow, window.player2);
+    } else {
+        if (p2Arrow.style.display !== 'none') p2Arrow.style.display = 'none';
+    }
+}
+
 window.registerTileOverlap = function(playerNum, tileType, callback) {
     const playerObj = playerNum === 2 ? window.player2 : window.player;
     if (!playerObj) return;
@@ -36441,6 +36566,11 @@ function update() {
     // Update hospital directional arrows
     if (typeof updateHospitalArrows === 'function') {
         updateHospitalArrows();
+    }
+
+    // Update quest directional arrows
+    if (typeof updateQuestArrows === 'function') {
+        updateQuestArrows();
     }
 
     let deltaMs = this.game.loop.delta || 16;
