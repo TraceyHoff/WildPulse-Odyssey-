@@ -29410,7 +29410,9 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         const isHolo = mapData[r][c] === 'home_holo_wall';
         const style = localStorage.getItem(`wildpulse_p${pNum}_home_wall_style`) || 'cyber_circuit';
         const textureKey = isHolo ? 'home_holo_wall_tile' : `wall_${style}`;
-        let wall = scene.add.sprite(posX, posY, textureKey);
+        let wall = scene.add.tileSprite(posX, posY, tileSize, tileSize, textureKey);
+        wall.tilePositionX = posX;
+        wall.tilePositionY = posY;
 
         const isFloor = (tr, tc) => { if(!mapData || !mapData[tr] || !mapData[tr][tc]) return false; const t = mapData[tr][tc]; return t === "home_floor" || t === "rift_floor" || t.startsWith("home_door") || t === "return_portal"; };
         const isLeftWall = isFloor(r, c+1) && !isFloor(r, c-1);
