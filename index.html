@@ -29687,9 +29687,9 @@ window.isPlayerInsideHome = function(playerNum) {
     const p = playerNum === 2 ? window.player2 : window.player;
     if (!p) return false;
     if (playerNum === 1) {
-        return p.x >= 57900 && p.x <= 58500 && p.y >= 57900 && p.y <= 58500;
+        return p.x >= 57300 && p.x <= 58500 && p.y >= 57300 && p.y <= 58500;
     } else {
-        return p.x >= 58900 && p.x <= 59500 && p.y >= 53900 && p.y <= 54500;
+        return p.x >= 58300 && p.x <= 59500 && p.y >= 53300 && p.y <= 54500;
     }
 };
 
@@ -29697,9 +29697,9 @@ window.isPlayerInsideOtherPlayerHome = function(playerNum) {
     const p = playerNum === 2 ? window.player2 : window.player;
     if (!p) return false;
     if (playerNum === 1) {
-        return p.x >= 58900 && p.x <= 59500 && p.y >= 53900 && p.y <= 54500;
+        return p.x >= 58300 && p.x <= 59500 && p.y >= 53300 && p.y <= 54500;
     } else {
-        return p.x >= 57900 && p.x <= 58500 && p.y >= 57900 && p.y <= 58500;
+        return p.x >= 57300 && p.x <= 58500 && p.y >= 57300 && p.y <= 58500;
     }
 };
 
@@ -29707,9 +29707,9 @@ window.rebuildHomeInteriorTiles = function(playerNum) {
     const scene = game.scene.scenes[0];
     if (!scene) return;
 
-    const minR = playerNum === 2 ? 539 : 579;
+    const minR = playerNum === 2 ? 533 : 573;
     const maxR = playerNum === 2 ? 545 : 585;
-    const minC = playerNum === 2 ? 589 : 579;
+    const minC = playerNum === 2 ? 583 : 573;
     const maxC = playerNum === 2 ? 595 : 585;
 
     for (let r = minR; r <= maxR; r++) {
@@ -30917,29 +30917,61 @@ function create() {
     mapData[97][100] = 'breed';
 
     // Generate separate home interior maps for Player 1 and Player 2 at safe isolated coordinates
-    // Player 1 room: Walkable 5x5 at row 580 to 584, col 580 to 584
-    for (let r = 579; r <= 585; r++) {
-        for (let c = 579; c <= 585; c++) {
-            if (r === 579 || r === 585 || c === 579 || c === 585) {
-                mapData[r][c] = 'home_wall';
-            } else {
-                mapData[r][c] = 'home_floor';
+    // Player 1 rooms: Walkable 5x5 at row 580 to 584, col 580 to 584, and two extra 5x5 rooms to west and north
+    // Room bounds are R: 573..585, C: 573..585 (we only create the 3 rooms)
+    for (let r = 573; r <= 585; r++) {
+        for (let c = 573; c <= 585; c++) {
+            let inMain = (r >= 579 && r <= 585 && c >= 579 && c <= 585);
+            let inWest = (r >= 579 && r <= 585 && c >= 573 && c <= 579);
+            let inNorth = (r >= 573 && r <= 579 && c >= 579 && c <= 585);
+
+            if (inMain || inWest || inNorth) {
+                let isWall = false;
+                if (inMain && (r === 579 || r === 585 || c === 579 || c === 585)) isWall = true;
+                if (inWest && (r === 579 || r === 585 || c === 573 || c === 579)) isWall = true;
+                if (inNorth && (r === 573 || r === 579 || c === 579 || c === 585)) isWall = true;
+
+                if (isWall) {
+                    mapData[r][c] = 'home_wall';
+                } else {
+                    mapData[r][c] = 'home_floor';
+                }
             }
         }
     }
+    // Openings between Player 1 rooms
+    mapData[582][579] = 'home_floor'; // Between Main and West
+    mapData[579][582] = 'home_floor'; // Between Main and North
+
     mapData[585][583] = 'home_holo_wall'; // Place holographic wall
     mapData[587][583] = 'home_teleporter'; // Place home teleporter for Player 1
 
-    // Player 2 room: Walkable 5x5 at row 540 to 544, col 590 to 594
-    for (let r = 539; r <= 545; r++) {
-        for (let c = 589; c <= 595; c++) {
-            if (r === 539 || r === 545 || c === 589 || c === 595) {
-                mapData[r][c] = 'home_wall';
-            } else {
-                mapData[r][c] = 'home_floor';
+    // Player 2 rooms: Walkable 5x5 at row 540 to 544, col 590 to 594, and two extra 5x5 rooms to west and north
+    // Room bounds are R: 533..545, C: 583..595
+    for (let r = 533; r <= 545; r++) {
+        for (let c = 583; c <= 595; c++) {
+            let inMain = (r >= 539 && r <= 545 && c >= 589 && c <= 595);
+            let inWest = (r >= 539 && r <= 545 && c >= 583 && c <= 589);
+            let inNorth = (r >= 533 && r <= 539 && c >= 589 && c <= 595);
+
+            if (inMain || inWest || inNorth) {
+                let isWall = false;
+                if (inMain && (r === 539 || r === 545 || c === 589 || c === 595)) isWall = true;
+                if (inWest && (r === 539 || r === 545 || c === 583 || c === 589)) isWall = true;
+                if (inNorth && (r === 533 || r === 539 || c === 589 || c === 595)) isWall = true;
+
+                if (isWall) {
+                    mapData[r][c] = 'home_wall';
+                } else {
+                    mapData[r][c] = 'home_floor';
+                }
             }
         }
     }
+    // Openings between Player 2 rooms
+    mapData[542][589] = 'home_floor'; // Between Main and West
+    mapData[539][592] = 'home_floor'; // Between Main and North
+
     mapData[545][593] = 'home_holo_wall'; // Place holographic wall
     mapData[547][593] = 'home_teleporter'; // Place home teleporter for Player 2
 
