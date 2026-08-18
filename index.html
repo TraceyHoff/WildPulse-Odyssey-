@@ -28826,7 +28826,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             obsSprite.setOrigin(0.5, 0.5);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
-                obsSprite.body.updateFromGameObject();
+                obsSprite.body.setSize(100, 100);
             }
             sprites.push(obsSprite);
         }
@@ -28893,7 +28893,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             obsSprite.setOrigin(0.5, 0.5);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
-                obsSprite.body.updateFromGameObject();
+                obsSprite.body.setSize(100, 100);
             }
             sprites.push(obsSprite);
         }
