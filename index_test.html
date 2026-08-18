@@ -797,7 +797,7 @@
             max-width: none !important;
             max-height: none !important;
             border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 0 !important;
+            padding: 40px 10px 15px 10px !important;
             background-color: transparent !important;
         }
         body.coop-active-layout #battleModal_p2 {
@@ -810,7 +810,7 @@
             max-width: none !important;
             max-height: none !important;
             border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 0 !important;
+            padding: 40px 10px 15px 10px !important;
             background-color: transparent !important;
         }
         body.coop-active-layout #battleModal.pvp-battle-active {
@@ -866,7 +866,7 @@
             padding: 10px 5px !important;
         }
         body.coop-active-layout .battle-log {
-            height: 80px !important;
+            height: 110px !important;
             font-size: 13px !important;
         }
         body.coop-active-layout .combatant {
@@ -927,7 +927,7 @@
         }
 
 
-        #storeModal {
+        #battleModal, #battleModal_p2, #storeModal {
             display: none;
             position: fixed !important;
             top: 0 !important;
@@ -939,28 +939,6 @@
             transform: none !important;
             box-sizing: border-box;
             padding: 50px 15px 15px 15px !important;
-            z-index: 500;
-            font-family: monospace;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            background: linear-gradient(135deg, rgba(5, 12, 24, 0.97), rgba(10, 24, 44, 0.97)) !important;
-            border: 1px solid rgba(0, 255, 210, 0.25) !important;
-            box-shadow: 0 0 35px rgba(0, 255, 210, 0.15), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
-            overflow-y: auto !important;
-        }
-
-        #battleModal, #battleModal_p2 {
-            display: none;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: none !important;
-            max-height: none !important;
-            transform: none !important;
-            box-sizing: border-box;
-            padding: 0 !important;
             z-index: 500;
             font-family: monospace;
             border-radius: 0 !important;
@@ -1031,7 +1009,7 @@
         }
         .battle-area { display: flex; justify-content: space-between; margin-bottom: 10px; gap: 8px;}
         .combatant { width: 48%; border: 1px solid rgba(0, 255, 210, 0.3); border-radius: 12px; padding: 10px; background: rgba(0,0,0,0.5); position: relative; box-shadow: inset 0 0 10px rgba(255,255,255,0.1); }
-        .combatant h3 { margin: 0; margin-bottom: 3px; font-size: 1.1em; }
+        .combatant h3 { margin-top: 0; margin-bottom: 5px; }
         .hp-bar-container { width: 100%; height: 15px; background: #444; margin-top: 5px; border: 1px solid #fff; border-radius: 4px; overflow: hidden; }
         .hp-bar { height: 100%; background: linear-gradient(90deg, #4caf50, #81c784); width: 100%; transition: width 0.3s ease; }
         .battle-log { height: 150px; overflow-y: auto; background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 255, 210, 0.3); border-radius: 12px; padding: 10px; margin-bottom: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
@@ -2078,7 +2056,7 @@
         border: 3px solid #00ffd2 !important;
         box-shadow: 0 0 35px rgba(0, 255, 210, 0.25), inset 0 0 20px rgba(0, 255, 210, 0.05) !important;
         border-radius: 12px !important;
-        padding: 0 !important;
+        padding: 4px 10px !important;
         box-sizing: border-box !important;
         height: 100vh !important;
         max-height: 100vh !important;
@@ -2108,7 +2086,7 @@
         max-width: none !important;
         max-height: none !important;
         border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
-        padding: 0 !important;
+        padding: 4px 10px !important;
         background-color: transparent !important;
     }
     body.coop-active-layout #battleModal_p2 {
@@ -2121,7 +2099,7 @@
         max-width: none !important;
         max-height: none !important;
         border-left: 2px solid rgba(255, 255, 255, 0.2) !important;
-        padding: 0 !important;
+        padding: 4px 10px !important;
         background-color: transparent !important;
     }
     body.coop-active-layout #battleModal.pvp-battle-active {
@@ -2172,8 +2150,8 @@
     /* Platform Pedestals */
     .sprite-pedestal-container {
         position: relative !important;
-        width: 100px !important;
-        height: 100px !important;
+        width: 130px !important;
+        height: 130px !important;
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
@@ -2181,9 +2159,9 @@
 
     .sprite-pedestal {
         position: absolute !important;
-        bottom: 5px !important;
-        width: 90px !important;
-        height: 30px !important;
+        bottom: 10px !important;
+        width: 110px !important;
+        height: 35px !important;
         background: radial-gradient(ellipse at center, rgba(0, 255, 210, 0.4) 0%, rgba(0, 255, 210, 0.1) 60%, transparent 100%) !important;
         border: 2px solid rgba(0, 255, 210, 0.5) !important;
         border-radius: 50% !important;
@@ -2279,7 +2257,7 @@
         background: rgba(11, 19, 36, 0.9) !important;
         border: 3px double #00ffcc !important;
         border-radius: 8px !important;
-        padding: 8px 12px !important;
+        padding: 12px 16px !important;
         width: 280px !important;
         box-sizing: border-box !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 255, 204, 0.1) !important;
@@ -2336,7 +2314,7 @@
         display: flex !important;
         align-items: center !important;
         gap: 8px !important;
-        margin-top: 2px !important;
+        margin-top: 4px !important;
     }
 
     .hp-label {
@@ -2374,7 +2352,7 @@
 
     .battle-log {
         grid-area: log !important;
-        height: 80px !important;
+        height: 110px !important;
         margin-bottom: 0 !important;
         border: 2px solid #00ffcc !important;
         background: rgba(4, 9, 21, 0.95) !important;
@@ -2400,7 +2378,7 @@
 
     .battle-controls button {
         font-size: 14px !important;
-        padding: 8px !important;
+        padding: 10px !important;
         cursor: pointer !important;
         border: 2px solid #00ffcc !important;
         background: rgba(11, 22, 44, 0.9) !important;
@@ -2493,22 +2471,22 @@
 
         .combatant-info-card {
             width: 175px !important;
-            padding: 4px !important;
+            padding: 8px !important;
             gap: 3px !important;
         }
 
         .sprite-pedestal-container {
-            width: 70px !important;
-            height: 70px !important;
+            width: 90px !important;
+            height: 90px !important;
         }
 
         .sprite-pedestal {
-            width: 60px !important;
-            height: 20px !important;
+            width: 80px !important;
+            height: 25px !important;
         }
 
         .battle-log {
-            height: 60px !important;
+            height: 80px !important;
             font-size: 11px !important;
         }
 
@@ -2518,7 +2496,7 @@
 
         .battle-controls button {
             font-size: 11px !important;
-            padding: 6px !important;
+            padding: 8px !important;
         }
     }
 
@@ -8267,7 +8245,7 @@ window.WildPulseMusic = {
             const dayNight = (typeof dayNightTime !== 'undefined') ? dayNightTime : 12.0;
             const isNight = (dayNight < 6 || dayNight >= 18);
             const isDay = !isNight;
-            const inside = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
+            const inside = window.isPlayerInsideHome;
 
             if (inside) return;
 
@@ -8310,7 +8288,7 @@ window.WildPulseMusic = {
         if (this.lastMusicUpdate && now - this.lastMusicUpdate < 200) return;
         this.lastMusicUpdate = now;
 
-        const isInsideHome = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
+        const isInsideHome = window.isPlayerInsideHome;
         // Sound effects
         if (!isInsideHome) {
             let p1Moving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0));
@@ -8326,7 +8304,7 @@ window.WildPulseMusic = {
         const weather = window.weatherPattern || 'none';
         const hasWeather = (weather !== 'none');
         const intensity = window.weatherIntensity || 0;
-        const inside = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
+        const inside = window.isPlayerInsideHome;
 
         let targetWindVol = -60;
         let targetRainVol = -60;
@@ -8399,7 +8377,7 @@ window.WildPulseMusic = {
 
     triggerThunder() {
         if (!this.initialized || this.muted || !this.synths.thunder) return;
-        const inside = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
+        const inside = window.isPlayerInsideHome;
         const volOffset = inside ? -10 : 0;
         if (this.synths.thunderStrike) {
             this.synths.thunderStrike.volume.value = -5 + volOffset;
@@ -9495,7 +9473,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     "storage_chest": "Storage Chest",
                     "dojo": "Dojo Tile"
                 };
-                let pickerIdsToInit = [];
                 listDiv.innerHTML = interiorTiles.map(t => {
                     let col = Math.floor(t.x / 100);
                     let row = Math.floor(t.y / 100);
@@ -9504,59 +9481,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (t.type.startsWith('furniture_')) {
                         let originalIndex = miniTiles.indexOf(t);
                         let tint = t.tint || '#ffffff';
-                        let pickerId = `furniture_color_p${playerNum}_${originalIndex}`;
-                        // convert tint hex to hsl for initialization
-                        let hsl = {h: 0, s: 100, l: 100}; // default white
-                        if (typeof hexToHsl === 'function' && tint.startsWith('#')) {
-                            hsl = hexToHsl(tint);
-                        } else if (tint === '#ffffff') {
-                            hsl = {h: 0, s: 0, l: 100};
-                        }
-
-                        colorInput = `
-                            <div class="custom-color-picker-wrapper" style="position: relative; width: 60px; margin-left: 10px;">
-                                <div class="custom-color-display" id="${pickerId}_display" style="width: 100%; height: 20px; border: 1px solid #555; border-radius: 5px; background: ${tint}; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; font-size: 9px; text-shadow: 0 0 2px #000; color: ${hsl.l > 60 ? '#000' : '#FFF'}; box-shadow: inset 0 0 5px rgba(0,0,0,0.5);">
-                                    COLOR
-                                </div>
-                                <div class="custom-color-sliders" id="${pickerId}_sliders" style="display: none; background: rgba(10,20,30,0.98); border: 1px solid #00ffcc; border-radius: 8px; padding: 12px; margin-top: 8px; box-shadow: 0 4px 15px rgba(0,255,204,0.3); flex-direction: column; gap: 8px; position: absolute; right: 0; z-index: 200003; width: 150px; box-sizing: border-box;">
-                                    <div style="display: flex; flex-direction: column;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; color: #00ffcc;">
-                                            <span>Hue:</span><span id="${pickerId}_h_val">${hsl.h}°</span>
-                                        </div>
-                                        <input type="range" class="custom-color-slider hue-slider" id="${pickerId}_h" min="0" max="360" value="${hsl.h}" style="width: 100%; height: 8px; cursor: pointer;">
-                                    </div>
-                                    <div style="display: flex; flex-direction: column;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; color: #00ffcc;">
-                                            <span>Sat:</span><span id="${pickerId}_s_val">${hsl.s}%</span>
-                                        </div>
-                                        <input type="range" class="custom-color-slider sat-slider" id="${pickerId}_s" min="0" max="100" value="${hsl.s}" style="width: 100%; height: 8px; cursor: pointer;">
-                                    </div>
-                                    <div style="display: flex; flex-direction: column;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; color: #00ffcc;">
-                                            <span>Light:</span><span id="${pickerId}_l_val">${hsl.l}%</span>
-                                        </div>
-                                        <input type="range" class="custom-color-slider light-slider" id="${pickerId}_l" min="0" max="100" value="${hsl.l}" style="width: 100%; height: 8px; cursor: pointer;">
-                                    </div>
-                                </div>
-                                <input type="hidden" id="${pickerId}" value="${tint}" onchange="window.updateMiniTileColor(${playerNum}, ${originalIndex}, this.value)">
-                            </div>
-                        `;
-                        pickerIdsToInit.push(pickerId);
+                        colorInput = `<input type="color" value="${tint}" onchange="window.updateMiniTileColor(${playerNum}, ${originalIndex}, this.value)" style="margin-left: 10px; cursor: pointer; height: 20px; width: 25px; padding: 0; border: none; background: transparent; vertical-align: middle;">`;
                     }
                     return `<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
                                 <span>• ${name} (Row ${row}, Col ${col})</span>
                                 ${colorInput}
                             </div>`;
                 }).join("");
-
-                // Initialize custom color pickers for dynamically added furniture color elements
-                setTimeout(() => {
-                    pickerIdsToInit.forEach(id => {
-                        if (window.initCustomColorPicker) {
-                            window.initCustomColorPicker(id);
-                        }
-                    });
-                }, 10);
             }
         }
     };
@@ -12887,7 +12818,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             rx = 32;
             ry = 32;
         }
-    } else if (bSize.includes('tiny') || bSize.includes('miniscule') || bSize.includes('diminutive') || bSize.includes('small') || bSize.includes('petite') || bSize.includes('microscopic') || bSize.includes('nano') || bSize.includes('medium') || bSize.includes('rotund')) {
+    } else if (bSize.includes('tiny') || bSize.includes('miniscule') || bSize.includes('diminutive') || bSize.includes('small') || bSize.includes('petite') || bSize.includes('microscopic') || bSize.includes('nano')) {
         rx = 16;
         ry = 16;
         if (bSize.includes('microscopic') || bSize.includes('nano')) {
@@ -12900,7 +12831,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     } else if (bSize.includes('flat') || bSize.includes('disk-like') || bSize.includes('pancake')) {
         rx = 32;
         ry = 12;
-    } else if (bSize.includes('slender') || bSize.includes('graceful') || bSize.includes('floating')) {
+    } else if (bSize.includes('slender') || bSize.includes('graceful')) {
         rx = 18;
         ry = 25;
     } else if (bSize.includes('stout') || bSize.includes('blocky')) {
@@ -14463,7 +14394,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.quadraticCurveTo(50 + rx * 1.1, 50 + ry, 50, 50 + ry * 1.1);
             ctx.quadraticCurveTo(50 - rx * 1.1, 50 + ry, 50 - rx * 0.7, 50 - ry);
             ctx.closePath();
-        } else if (bType.includes('sleek') || bType.includes('lanky') || bType.includes('agile') || bType.includes('graceful') || bType.includes('slender') || bType.includes('ethereal') || bType.includes('divine') || bType.includes('floating') || bType.includes('radiant') || bType.includes('spindly') || bType.includes('sinuous')) {
+        } else if (bType.includes('sleek') || bType.includes('lanky') || bType.includes('agile') || bType.includes('graceful')) {
             // Upward egg shape
             ctx.moveTo(50 - rx * 1.1, 50);
             ctx.quadraticCurveTo(50 - rx * 1.0, 50 - ry * 1.1, 50, 50 - ry * 1.1);
@@ -20381,8 +20312,6 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         // B button closes the inventory wheel
         if (justB) {
             window.closeInventoryWheel(playerNum);
-            // Flag LB as handled so we can navigate slots without reopening wheel
-            prev.LB = true;
         }
 
         prev.Y = currY;
@@ -21707,7 +21636,6 @@ window.startChallengeBattle = function() {
     document.getElementById('battleCloseBtn').style.display = 'none';
     document.getElementById('battleLog').innerHTML = '';
     window.battleLogQueue = [];
-    window.isActionRunning = false;
 
     logBattle(`<span style="color:#ffd700; font-size: 1.2em;">--- CHALLENGE TIER ${window.challengeTier} ---</span>`);
     logBattle(`The arena gates open... Challenge opponent approaches with ${window.npcEnemyParty.length} creatures!`);
@@ -21903,7 +21831,6 @@ window.startDojoBattle = function() {
     document.getElementById('battleCloseBtn').style.display = 'none';
     document.getElementById('battleLog').innerHTML = '';
     window.battleLogQueue = [];
-    window.isActionRunning = false;
 
     logBattle(`<span style="color:#ff3366; font-size: 1.2em; text-shadow: 0 0 5px rgba(255,51,102,0.8);">--- DOJO LEADER TIER ${window.dojoTier} ---</span>`);
     logBattle(`The Dojo gates slide open... Dojo Leader challenges you with ${window.npcEnemyParty.length} creatures!`);
@@ -27118,1511 +27045,115 @@ function generateTileTextures(scene) {
     // -----------------------------------------
     // Furniture Textures
     // -----------------------------------------
-    // Neon Couch
-    const couchCanvas = document.createElement('canvas');
-    couchCanvas.width = 100;
-    couchCanvas.height = 100;
-    const couchCtx = couchCanvas.getContext('2d');
-
-    // Metallic legs
-    couchCtx.fillStyle = '#666';
-    couchCtx.fillRect(15, 75, 8, 10);
-    couchCtx.fillRect(77, 75, 8, 10);
-
-    couchCtx.fillStyle = '#1e1e2e'; // Base dark cushion color
-    couchCtx.fillRect(10, 30, 80, 50); // main seat
-    couchCtx.fillStyle = '#181825';
-    couchCtx.fillRect(5, 20, 90, 20); // backrest
-    couchCtx.fillRect(0, 30, 15, 60); // left arm
-    couchCtx.fillRect(85, 30, 15, 60); // right arm
-    // Neon accents
-    couchCtx.strokeStyle = '#00ffd2'; // Cyber cyan glow
-    couchCtx.lineWidth = 3;
-    couchCtx.shadowBlur = 10;
-    couchCtx.shadowColor = '#00ffd2';
-    couchCtx.strokeRect(10, 30, 80, 50);
-    couchCtx.strokeRect(5, 20, 90, 20);
-    couchCtx.shadowBlur = 0; // Reset
-
-    // Cushion crease lines
-    couchCtx.strokeStyle = '#111';
-    couchCtx.lineWidth = 2;
-    couchCtx.beginPath();
-    couchCtx.moveTo(35, 30); couchCtx.lineTo(35, 80);
-    couchCtx.moveTo(65, 30); couchCtx.lineTo(65, 80);
-    couchCtx.stroke();
-
-    // Throw pillows
-    couchCtx.fillStyle = '#ff0055';
-    couchCtx.fillRect(15, 35, 15, 15);
-    couchCtx.fillStyle = '#ffaa00';
-    couchCtx.fillRect(70, 35, 15, 15);
-
-    window.finalizeFurnitureTexture(scene, 'furniture_couch_tile', couchCanvas);
-
-    // L-Couch
-    const lcouchCanvas = document.createElement('canvas');
-    lcouchCanvas.width = 100;
-    lcouchCanvas.height = 100;
-    const lcouchCtx = lcouchCanvas.getContext('2d');
-
-    // Fill Base
-    lcouchCtx.fillStyle = '#1e1e2e';
-    lcouchCtx.beginPath();
-    lcouchCtx.moveTo(15, 15);
-    lcouchCtx.lineTo(40, 15);
-    lcouchCtx.lineTo(40, 60);
-    lcouchCtx.lineTo(85, 60);
-    lcouchCtx.lineTo(85, 85);
-    lcouchCtx.lineTo(15, 85);
-    lcouchCtx.closePath();
-    lcouchCtx.fill();
-
-    lcouchCtx.shadowBlur = 10;
-    lcouchCtx.shadowColor = '#00ffd2';
-    lcouchCtx.strokeStyle = '#00ffd2';
-    lcouchCtx.lineWidth = 3;
-    lcouchCtx.stroke();
-    lcouchCtx.shadowBlur = 0;
-
-    // Backrest (left)
-    lcouchCtx.fillStyle = '#2a2a3e';
-    lcouchCtx.lineWidth = 1.5;
-    lcouchCtx.fillRect(15, 35, 10, 40);
-    lcouchCtx.strokeRect(15, 35, 10, 40);
-
-    // Backrest (bottom)
-    lcouchCtx.fillRect(15, 75, 60, 10);
-    lcouchCtx.strokeRect(15, 75, 60, 10);
-
-    // Armrest (top)
-    lcouchCtx.fillStyle = '#3a3a4e';
-    lcouchCtx.fillRect(15, 15, 25, 10);
-    lcouchCtx.strokeRect(15, 15, 25, 10);
-
-    // Armrest (right)
-    lcouchCtx.fillRect(75, 60, 10, 25);
-    lcouchCtx.strokeRect(75, 60, 10, 25);
-
-    // Cushions
-    lcouchCtx.fillStyle = '#1e1e2e';
-    lcouchCtx.lineWidth = 1.5;
-    // left section cushions
-    lcouchCtx.fillRect(25, 25, 15, 25);
-    lcouchCtx.strokeRect(25, 25, 15, 25);
-    lcouchCtx.fillRect(25, 50, 15, 25);
-    lcouchCtx.strokeRect(25, 50, 15, 25);
-
-    // bottom section cushions
-    lcouchCtx.fillRect(40, 60, 17.5, 15);
-    lcouchCtx.strokeRect(40, 60, 17.5, 15);
-    lcouchCtx.fillRect(57.5, 60, 17.5, 15);
-    lcouchCtx.strokeRect(57.5, 60, 17.5, 15);
-
-
-    window.finalizeFurnitureTexture(scene, 'furniture_lcouch_tile', lcouchCanvas);
-
-    // Love Seat
-    const loveseatCanvas = document.createElement('canvas');
-    loveseatCanvas.width = 100;
-    loveseatCanvas.height = 100;
-    const loveseatCtx = loveseatCanvas.getContext('2d');
-
-    // Metallic legs
-    loveseatCtx.fillStyle = '#666';
-    loveseatCtx.fillRect(25, 75, 8, 10);
-    loveseatCtx.fillRect(67, 75, 8, 10);
-
-    loveseatCtx.fillStyle = '#1e1e2e';
-    loveseatCtx.fillRect(20, 30, 60, 50);
-    loveseatCtx.strokeStyle = '#00ffd2';
-    loveseatCtx.lineWidth = 3;
-    loveseatCtx.strokeRect(20, 30, 60, 50);
-
-    // Cushion crease
-    loveseatCtx.strokeStyle = '#111';
-    loveseatCtx.lineWidth = 2;
-    loveseatCtx.beginPath();
-    loveseatCtx.moveTo(50, 30); loveseatCtx.lineTo(50, 80);
-    loveseatCtx.stroke();
-
-    loveseatCtx.fillStyle = '#ff5555';
-    loveseatCtx.fillRect(30, 40, 15, 15);
-    loveseatCtx.fillRect(55, 40, 15, 15);
-
-    window.finalizeFurnitureTexture(scene, 'furniture_loveseat_tile', loveseatCanvas);
-
-    // Office Chair
-    const officeChairCanvas = document.createElement('canvas');
-    officeChairCanvas.width = 100;
-    officeChairCanvas.height = 100;
-    const officeChairCtx = officeChairCanvas.getContext('2d');
-    officeChairCtx.fillStyle = '#333';
-    officeChairCtx.fillRect(35, 20, 30, 40);
-    officeChairCtx.fillStyle = '#555';
-    officeChairCtx.beginPath();
-    officeChairCtx.ellipse(50, 65, 25, 10, 0, 0, Math.PI*2);
-    officeChairCtx.fill();
-    officeChairCtx.strokeStyle = '#00ffd2';
-    officeChairCtx.lineWidth = 2;
-    officeChairCtx.strokeRect(35, 20, 30, 40);
-    officeChairCtx.beginPath();
-    officeChairCtx.ellipse(50, 65, 25, 10, 0, 0, Math.PI*2);
-    officeChairCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_officechair_tile', officeChairCanvas);
-
-    // Stool
-    const stoolCanvas = document.createElement('canvas');
-    stoolCanvas.width = 100;
-    stoolCanvas.height = 100;
-    const stoolCtx = stoolCanvas.getContext('2d');
-    stoolCtx.fillStyle = '#ff007f';
-    stoolCtx.beginPath();
-    stoolCtx.ellipse(50, 40, 20, 10, 0, 0, Math.PI*2);
-    stoolCtx.fill();
-    stoolCtx.strokeStyle = '#00ffd2';
-    stoolCtx.lineWidth = 2;
-    stoolCtx.stroke();
-    stoolCtx.beginPath();
-    stoolCtx.moveTo(40, 45); stoolCtx.lineTo(30, 80);
-    stoolCtx.moveTo(60, 45); stoolCtx.lineTo(70, 80);
-    stoolCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_stool_tile', stoolCanvas);
-
-    // Coffee Table
-    const coffeeTableCanvas = document.createElement('canvas');
-    coffeeTableCanvas.width = 100;
-    coffeeTableCanvas.height = 100;
-    const coffeeTableCtx = coffeeTableCanvas.getContext('2d');
-
-    // Legs
-    coffeeTableCtx.fillStyle = '#666';
-    coffeeTableCtx.fillRect(20, 70, 5, 10);
-    coffeeTableCtx.fillRect(75, 70, 5, 10);
-
-    coffeeTableCtx.fillStyle = '#553311';
-    coffeeTableCtx.fillRect(15, 30, 70, 40);
-    coffeeTableCtx.strokeStyle = '#00ffd2';
-    coffeeTableCtx.lineWidth = 2;
-    coffeeTableCtx.strokeRect(15, 30, 70, 40);
-
-    // Glowing center panel
-    coffeeTableCtx.fillStyle = 'rgba(0, 255, 210, 0.4)';
-    coffeeTableCtx.fillRect(25, 40, 50, 20);
-
-
-    window.finalizeFurnitureTexture(scene, 'furniture_coffeetable_tile', coffeeTableCanvas);
-
-    // Dining Table
-    const diningTableCanvas = document.createElement('canvas');
-    diningTableCanvas.width = 100;
-    diningTableCanvas.height = 100;
-    const diningTableCtx = diningTableCanvas.getContext('2d');
-
-    // Legs
-    diningTableCtx.fillStyle = '#666';
-    diningTableCtx.fillRect(35, 75, 5, 10);
-    diningTableCtx.fillRect(60, 75, 5, 10);
-
-    diningTableCtx.fillStyle = '#885522';
-    diningTableCtx.beginPath();
-    diningTableCtx.ellipse(50, 50, 45, 25, 0, 0, Math.PI*2);
-    diningTableCtx.fill();
-    diningTableCtx.strokeStyle = '#00ffd2';
-    diningTableCtx.lineWidth = 2;
-    diningTableCtx.stroke();
-
-    // Glowing center
-    diningTableCtx.fillStyle = 'rgba(0, 255, 210, 0.5)';
-    diningTableCtx.beginPath();
-    diningTableCtx.ellipse(50, 50, 25, 10, 0, 0, Math.PI*2);
-    diningTableCtx.fill();
-
-
-    window.finalizeFurnitureTexture(scene, 'furniture_diningtable_tile', diningTableCanvas);
-
-    // Park Bench
-    const parkBenchCanvas = document.createElement('canvas');
-    parkBenchCanvas.width = 100;
-    parkBenchCanvas.height = 100;
-    const parkBenchCtx = parkBenchCanvas.getContext('2d');
-    parkBenchCtx.fillStyle = '#664422';
-    parkBenchCtx.fillRect(10, 40, 80, 20);
-    parkBenchCtx.fillRect(10, 65, 80, 10);
-    parkBenchCtx.strokeStyle = '#00ffd2';
-    parkBenchCtx.lineWidth = 2;
-    parkBenchCtx.strokeRect(10, 40, 80, 20);
-    parkBenchCtx.strokeRect(10, 65, 80, 10);
-
-    window.finalizeFurnitureTexture(scene, 'furniture_parkbench_tile', parkBenchCanvas);
-
-    // Cyber Bench
-    const cyberBenchCanvas = document.createElement('canvas');
-    cyberBenchCanvas.width = 100;
-    cyberBenchCanvas.height = 100;
-    const cyberBenchCtx = cyberBenchCanvas.getContext('2d');
-    cyberBenchCtx.fillStyle = '#152238';
-    cyberBenchCtx.fillRect(10, 50, 80, 15);
-    cyberBenchCtx.strokeStyle = '#00ff66';
-    cyberBenchCtx.lineWidth = 3;
-    cyberBenchCtx.strokeRect(10, 50, 80, 15);
-
-    window.finalizeFurnitureTexture(scene, 'furniture_cyberbench_tile', cyberBenchCanvas);
-
-    // Filing Cabinet
-    const filingCabinetCanvas = document.createElement('canvas');
-    filingCabinetCanvas.width = 100;
-    filingCabinetCanvas.height = 100;
-    const filingCabinetCtx = filingCabinetCanvas.getContext('2d');
-    filingCabinetCtx.fillStyle = '#444';
-    filingCabinetCtx.fillRect(30, 20, 40, 70);
-    filingCabinetCtx.strokeStyle = '#00ffd2';
-    filingCabinetCtx.lineWidth = 2;
-    filingCabinetCtx.strokeRect(30, 20, 40, 70);
-    filingCabinetCtx.fillStyle = '#555';
-    filingCabinetCtx.fillRect(35, 25, 30, 15);
-    filingCabinetCtx.fillRect(35, 45, 30, 15);
-    filingCabinetCtx.fillRect(35, 65, 30, 15);
-
-    // Drawer handles and digital readouts
-    filingCabinetCtx.fillStyle = '#ccc';
-    filingCabinetCtx.fillRect(45, 30, 10, 3);
-    filingCabinetCtx.fillRect(45, 50, 10, 3);
-    filingCabinetCtx.fillRect(45, 70, 10, 3);
-
-    filingCabinetCtx.fillStyle = '#ff0055'; // red LED dots
-    filingCabinetCtx.fillRect(60, 28, 3, 3);
-    filingCabinetCtx.fillRect(60, 48, 3, 3);
-    filingCabinetCtx.fillRect(60, 68, 3, 3);
-
-
-    window.finalizeFurnitureTexture(scene, 'furniture_filingcabinet_tile', filingCabinetCanvas);
-
-    // Display Cabinet
-    const displayCabinetCanvas = document.createElement('canvas');
-    displayCabinetCanvas.width = 100;
-    displayCabinetCanvas.height = 100;
-    const displayCabinetCtx = displayCabinetCanvas.getContext('2d');
-    displayCabinetCtx.fillStyle = '#222';
-    displayCabinetCtx.fillRect(20, 10, 60, 80);
-    displayCabinetCtx.fillStyle = 'rgba(0,255,210,0.3)';
-    displayCabinetCtx.fillRect(25, 15, 50, 70);
-    displayCabinetCtx.strokeStyle = '#00ffd2';
-    displayCabinetCtx.lineWidth = 2;
-    displayCabinetCtx.strokeRect(20, 10, 60, 80);
-
-    // Digital door lock and readout
-    displayCabinetCtx.fillStyle = '#111';
-    displayCabinetCtx.fillRect(72, 45, 5, 10);
-    displayCabinetCtx.fillStyle = '#00ff00';
-    displayCabinetCtx.fillRect(73, 46, 3, 3);
-
-
-    window.finalizeFurnitureTexture(scene, 'furniture_displaycabinet_tile', displayCabinetCanvas);
-
-    // Nightstand
-    const nightstandCanvas = document.createElement('canvas');
-    nightstandCanvas.width = 100;
-    nightstandCanvas.height = 100;
-    const nightstandCtx = nightstandCanvas.getContext('2d');
-    nightstandCtx.fillStyle = '#332211';
-    nightstandCtx.fillRect(30, 30, 40, 50);
-    nightstandCtx.strokeStyle = '#00ffd2';
-    nightstandCtx.lineWidth = 2;
-    nightstandCtx.strokeRect(30, 30, 40, 50);
-    nightstandCtx.fillStyle = '#ffff00';
-    nightstandCtx.beginPath();
-    nightstandCtx.arc(50, 20, 5, 0, Math.PI*2);
-    nightstandCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_nightstand_tile', nightstandCanvas);
-
-    // Corner Table
-    const cornerTableCanvas = document.createElement('canvas');
-    cornerTableCanvas.width = 100;
-    cornerTableCanvas.height = 100;
-    const cornerTableCtx = cornerTableCanvas.getContext('2d');
-    cornerTableCtx.fillStyle = '#553311';
-    cornerTableCtx.beginPath();
-    cornerTableCtx.moveTo(20, 20);
-    cornerTableCtx.lineTo(80, 20);
-    cornerTableCtx.lineTo(80, 80);
-    cornerTableCtx.closePath();
-    cornerTableCtx.fill();
-    cornerTableCtx.strokeStyle = '#00ffd2';
-    cornerTableCtx.lineWidth = 2;
-    cornerTableCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_cornertable_tile', cornerTableCanvas);
-
-    // Bunk Bed
-    const bunkBedCanvas = document.createElement('canvas');
-    bunkBedCanvas.width = 100;
-    bunkBedCanvas.height = 100;
-    const bunkBedCtx = bunkBedCanvas.getContext('2d');
-    bunkBedCtx.fillStyle = '#152238';
-    bunkBedCtx.fillRect(20, 10, 60, 30);
-    bunkBedCtx.fillRect(20, 50, 60, 30);
-    bunkBedCtx.strokeStyle = '#00ffd2';
-    bunkBedCtx.lineWidth = 3;
-    bunkBedCtx.strokeRect(20, 10, 60, 30);
-    bunkBedCtx.strokeRect(20, 50, 60, 30);
-
-    // Bedsheets
-    bunkBedCtx.fillStyle = 'rgba(0, 255, 210, 0.2)';
-    bunkBedCtx.fillRect(20, 25, 60, 15);
-    bunkBedCtx.fillRect(20, 65, 60, 15);
-
-    // Pillows
-    bunkBedCtx.fillStyle = '#ff007f';
-    bunkBedCtx.fillRect(25, 15, 20, 10);
-    bunkBedCtx.fillRect(25, 55, 20, 10);
-
-    // Ladder
-    bunkBedCtx.fillStyle = '#555';
-    bunkBedCtx.fillRect(70, 10, 5, 70);
-    bunkBedCtx.fillRect(75, 10, 5, 70);
-    bunkBedCtx.fillRect(70, 30, 10, 3);
-    bunkBedCtx.fillRect(70, 50, 10, 3);
-
-
-    window.finalizeFurnitureTexture(scene, 'furniture_bunkbed_tile', bunkBedCanvas);
-
-    // King Bed
-    const kingBedCanvas = document.createElement('canvas');
-    kingBedCanvas.width = 100;
-    kingBedCanvas.height = 100;
-    const kingBedCtx = kingBedCanvas.getContext('2d');
-    kingBedCtx.fillStyle = '#152238';
-    kingBedCtx.fillRect(10, 20, 80, 70);
-    kingBedCtx.strokeStyle = '#00ffd2';
-    kingBedCtx.lineWidth = 3;
-    kingBedCtx.strokeRect(10, 20, 80, 70);
-
-    // Cybernetic blanket pattern
-    kingBedCtx.fillStyle = 'rgba(255, 0, 127, 0.2)';
-    kingBedCtx.fillRect(10, 50, 80, 40);
-    kingBedCtx.strokeStyle = 'rgba(255, 0, 127, 0.5)';
-    kingBedCtx.lineWidth = 2;
-    kingBedCtx.beginPath();
-    kingBedCtx.moveTo(10, 60); kingBedCtx.lineTo(90, 60);
-    kingBedCtx.moveTo(10, 75); kingBedCtx.lineTo(90, 75);
-    kingBedCtx.stroke();
-
-    // Pillows
-    kingBedCtx.fillStyle = '#ff007f';
-    kingBedCtx.fillRect(15, 25, 30, 20);
-    kingBedCtx.fillRect(55, 25, 30, 20);
-
-    // Pillow details
-    kingBedCtx.strokeStyle = '#ffb3d9';
-    kingBedCtx.lineWidth = 1;
-    kingBedCtx.strokeRect(17, 27, 26, 16);
-    kingBedCtx.strokeRect(57, 27, 26, 16);
-
-
-    window.finalizeFurnitureTexture(scene, 'furniture_kingbed_tile', kingBedCanvas);
-
-
-    // Cyber Desk
-    const deskCanvas = document.createElement('canvas');
-    deskCanvas.width = 100;
-    deskCanvas.height = 100;
-    const deskCtx = deskCanvas.getContext('2d');
-    deskCtx.fillStyle = '#111'; // Desk top
-    deskCtx.fillRect(5, 40, 90, 40);
-    // Legs
-    deskCtx.fillStyle = '#555';
-    deskCtx.fillRect(10, 80, 10, 15);
-    deskCtx.fillRect(80, 80, 10, 15);
-    // Monitors
-    deskCtx.fillStyle = '#0a0a0a';
-    deskCtx.fillRect(20, 10, 60, 30);
-    deskCtx.strokeStyle = '#ff00ff';
-    deskCtx.lineWidth = 2;
-    deskCtx.shadowBlur = 5;
-    deskCtx.shadowColor = '#ff00ff';
-    deskCtx.strokeRect(20, 10, 60, 30);
-    // Keyboard glow
-    deskCtx.fillStyle = '#00ffd2';
-    deskCtx.shadowColor = '#00ffd2';
-    deskCtx.fillRect(30, 50, 40, 10);
-    // Gadgets/Clutter
-    deskCtx.fillStyle = '#ff0055';
-    deskCtx.fillRect(10, 45, 8, 12);
-    deskCtx.fillStyle = '#00ffcc';
-    deskCtx.beginPath(); deskCtx.arc(80, 50, 5, 0, Math.PI*2); deskCtx.fill();
-    deskCtx.fillStyle = '#fff';
-    deskCtx.fillRect(15, 60, 10, 15);
-
-    window.finalizeFurnitureTexture(scene, 'furniture_desk_tile', deskCanvas);
-
-    // Glow Carpet
-    const carpetCanvas = document.createElement('canvas');
-    carpetCanvas.width = 100;
-    carpetCanvas.height = 100;
-    const carpetCtx = carpetCanvas.getContext('2d');
-    carpetCtx.fillStyle = '#000000';
-    carpetCtx.fillRect(5, 5, 90, 90);
-    // Cyber circuit patterns
-    carpetCtx.strokeStyle = '#ff9f00';
-    carpetCtx.lineWidth = 4;
-    carpetCtx.shadowBlur = 15;
-    carpetCtx.shadowColor = '#ff9f00';
-    carpetCtx.beginPath();
-    carpetCtx.moveTo(10, 10); carpetCtx.lineTo(90, 10); carpetCtx.lineTo(90, 90); carpetCtx.lineTo(10, 90); carpetCtx.closePath();
-    carpetCtx.stroke();
-    carpetCtx.beginPath();
-    carpetCtx.moveTo(25, 25); carpetCtx.lineTo(75, 25); carpetCtx.lineTo(75, 75); carpetCtx.lineTo(25, 75); carpetCtx.closePath();
-    carpetCtx.stroke();
-    carpetCtx.strokeStyle = '#00ffd2';
-    carpetCtx.shadowColor = '#00ffd2';
-    carpetCtx.beginPath();
-    carpetCtx.moveTo(50, 25); carpetCtx.lineTo(50, 75);
-    carpetCtx.moveTo(25, 50); carpetCtx.lineTo(75, 50);
-    carpetCtx.stroke();
-    window.finalizeFurnitureTexture(scene, 'furniture_carpet_tile', carpetCanvas);
-
-    // Star Carpet
-    const starCarpetCanvas = document.createElement('canvas');
-    starCarpetCanvas.width = 100;
-    starCarpetCanvas.height = 100;
-    const starCtx = starCarpetCanvas.getContext('2d');
-    starCtx.fillStyle = '#111';
-    starCtx.shadowBlur = 10;
-    starCtx.shadowColor = '#ffdf00';
-    starCtx.beginPath();
-    starCtx.moveTo(50, 5); starCtx.lineTo(61, 35); starCtx.lineTo(95, 35); starCtx.lineTo(65, 55); starCtx.lineTo(75, 90);
-    starCtx.lineTo(50, 70); starCtx.lineTo(25, 90); starCtx.lineTo(35, 55); starCtx.lineTo(5, 35); starCtx.lineTo(39, 35);
-    starCtx.closePath();
-    starCtx.fill();
-    starCtx.strokeStyle = '#ffdf00';
-    starCtx.lineWidth = 3;
-    starCtx.stroke();
-    starCtx.beginPath();
-    starCtx.moveTo(50, 20); starCtx.lineTo(57, 40); starCtx.lineTo(80, 40); starCtx.lineTo(60, 50); starCtx.lineTo(68, 70);
-    starCtx.lineTo(50, 58); starCtx.lineTo(32, 70); starCtx.lineTo(40, 50); starCtx.lineTo(20, 40); starCtx.lineTo(43, 40);
-    starCtx.closePath();
-    starCtx.strokeStyle = '#ff8800';
-    starCtx.stroke();
-    window.finalizeFurnitureTexture(scene, 'furniture_starcarpet_tile', starCarpetCanvas);
-
-    // Round Cyber Carpet
-    const roundCarpetCanvas = document.createElement('canvas');
-    roundCarpetCanvas.width = 100;
-    roundCarpetCanvas.height = 100;
-    const roundCtx = roundCarpetCanvas.getContext('2d');
-    roundCtx.fillStyle = '#0a1a2a';
-    roundCtx.shadowBlur = 15;
-    roundCtx.shadowColor = '#00d2ff';
-    roundCtx.beginPath();
-    roundCtx.arc(50, 50, 45, 0, Math.PI * 2);
-    roundCtx.fill();
-    roundCtx.strokeStyle = '#00d2ff';
-    roundCtx.lineWidth = 4;
-    roundCtx.stroke();
-    roundCtx.beginPath();
-    roundCtx.arc(50, 50, 30, 0, Math.PI * 2);
-    roundCtx.lineWidth = 2;
-    roundCtx.stroke();
-    roundCtx.beginPath();
-    roundCtx.arc(50, 50, 15, 0, Math.PI * 2);
-    roundCtx.fillStyle = 'rgba(0, 210, 255, 0.4)';
-    roundCtx.fill();
-    window.finalizeFurnitureTexture(scene, 'furniture_roundcarpet_tile', roundCarpetCanvas);
-
-    // Hexagon Carpet
-    const hexCarpetCanvas = document.createElement('canvas');
-    hexCarpetCanvas.width = 100;
-    hexCarpetCanvas.height = 100;
-    const hexCtx = hexCarpetCanvas.getContext('2d');
-    hexCtx.fillStyle = '#220022';
-    hexCtx.shadowBlur = 12;
-    hexCtx.shadowColor = '#ff00ff';
-    hexCtx.beginPath();
-    hexCtx.moveTo(50, 5); hexCtx.lineTo(90, 27); hexCtx.lineTo(90, 72); hexCtx.lineTo(50, 95); hexCtx.lineTo(10, 72); hexCtx.lineTo(10, 27);
-    hexCtx.closePath();
-    hexCtx.fill();
-    hexCtx.strokeStyle = '#ff00ff';
-    hexCtx.lineWidth = 4;
-    hexCtx.stroke();
-    hexCtx.beginPath();
-    hexCtx.moveTo(50, 20); hexCtx.lineTo(75, 35); hexCtx.lineTo(75, 65); hexCtx.lineTo(50, 80); hexCtx.lineTo(25, 65); hexCtx.lineTo(25, 35);
-    hexCtx.closePath();
-    hexCtx.strokeStyle = '#aa00aa';
-    hexCtx.lineWidth = 2;
-    hexCtx.stroke();
-    window.finalizeFurnitureTexture(scene, 'furniture_hexcarpet_tile', hexCarpetCanvas);
-
-    // Heart Carpet
-    const heartCarpetCanvas = document.createElement('canvas');
-    heartCarpetCanvas.width = 100;
-    heartCarpetCanvas.height = 100;
-    const heartCtx = heartCarpetCanvas.getContext('2d');
-    heartCtx.fillStyle = '#330011';
-    heartCtx.shadowBlur = 15;
-    heartCtx.shadowColor = '#ff0044';
-    heartCtx.beginPath();
-    heartCtx.moveTo(50, 30);
-    heartCtx.bezierCurveTo(50, 5, 10, 5, 10, 40);
-    heartCtx.bezierCurveTo(10, 65, 50, 95, 50, 95);
-    heartCtx.bezierCurveTo(50, 95, 90, 65, 90, 40);
-    heartCtx.bezierCurveTo(90, 5, 50, 5, 50, 30);
-    heartCtx.fill();
-    heartCtx.strokeStyle = '#ff0044';
-    heartCtx.lineWidth = 4;
-    heartCtx.stroke();
-    heartCtx.beginPath();
-    heartCtx.moveTo(50, 40);
-    heartCtx.bezierCurveTo(50, 20, 25, 20, 25, 45);
-    heartCtx.bezierCurveTo(25, 60, 50, 80, 50, 80);
-    heartCtx.bezierCurveTo(50, 80, 75, 60, 75, 45);
-    heartCtx.bezierCurveTo(75, 20, 50, 20, 50, 40);
-    heartCtx.strokeStyle = '#ff88aa';
-    heartCtx.lineWidth = 2;
-    heartCtx.stroke();
-    window.finalizeFurnitureTexture(scene, 'furniture_heartcarpet_tile', heartCarpetCanvas);
-
-    // Diamond Carpet
-    const diamondCarpetCanvas = document.createElement('canvas');
-    diamondCarpetCanvas.width = 100;
-    diamondCarpetCanvas.height = 100;
-    const diamondCtx = diamondCarpetCanvas.getContext('2d');
-    diamondCtx.fillStyle = '#002200';
-    diamondCtx.shadowBlur = 15;
-    diamondCtx.shadowColor = '#00ff00';
-    diamondCtx.beginPath();
-    diamondCtx.moveTo(50, 5); diamondCtx.lineTo(95, 50); diamondCtx.lineTo(50, 95); diamondCtx.lineTo(5, 50);
-    diamondCtx.closePath();
-    diamondCtx.fill();
-    diamondCtx.strokeStyle = '#00ff00';
-    diamondCtx.lineWidth = 4;
-    diamondCtx.stroke();
-    diamondCtx.beginPath();
-    diamondCtx.moveTo(50, 25); diamondCtx.lineTo(75, 50); diamondCtx.lineTo(50, 75); diamondCtx.lineTo(25, 50);
-    diamondCtx.closePath();
-    diamondCtx.strokeStyle = '#00aa00';
-    diamondCtx.lineWidth = 2;
-    diamondCtx.stroke();
-    window.finalizeFurnitureTexture(scene, 'furniture_diamondcarpet_tile', diamondCarpetCanvas);
-
-    // Holo Bed
-    const bedCanvas = document.createElement('canvas');
-    bedCanvas.width = 100;
-    bedCanvas.height = 100;
-    const bedCtx = bedCanvas.getContext('2d');
-    bedCtx.fillStyle = '#222';
-    bedCtx.fillRect(10, 10, 80, 80); // base frame
-    // Holo sheets
-    bedCtx.fillStyle = 'rgba(0, 255, 255, 0.4)';
-    bedCtx.shadowBlur = 20;
-    bedCtx.shadowColor = '#00ffff';
-    bedCtx.fillRect(15, 30, 70, 55);
-    // Pillow
-    bedCtx.fillStyle = '#fff';
-    bedCtx.shadowBlur = 5;
-    bedCtx.shadowColor = '#fff';
-    bedCtx.fillRect(20, 15, 60, 15);
-    // Blanket pattern
-    bedCtx.strokeStyle = '#00ffd2';
-    bedCtx.lineWidth = 2;
-    bedCtx.strokeRect(25, 40, 50, 40);
-    bedCtx.beginPath(); bedCtx.moveTo(25, 40); bedCtx.lineTo(75, 80); bedCtx.stroke();
-    // Futuristic glowing nodes
-    bedCtx.fillStyle = '#ff00ff';
-    bedCtx.shadowBlur = 10;
-    bedCtx.shadowColor = '#ff00ff';
-    bedCtx.beginPath(); bedCtx.arc(15, 15, 5, 0, Math.PI*2); bedCtx.fill();
-    bedCtx.beginPath(); bedCtx.arc(85, 15, 5, 0, Math.PI*2); bedCtx.fill();
-    bedCtx.beginPath(); bedCtx.arc(15, 90, 5, 0, Math.PI*2); bedCtx.fill();
-    bedCtx.beginPath(); bedCtx.arc(85, 90, 5, 0, Math.PI*2); bedCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_bed_tile', bedCanvas);
-
-    // Neon Chair
-    const chairCanvas = document.createElement('canvas');
-    chairCanvas.width = 100;
-    chairCanvas.height = 100;
-    const chairCtx = chairCanvas.getContext('2d');
-    chairCtx.fillStyle = '#222';
-    chairCtx.fillRect(25, 40, 50, 40); // seat
-    chairCtx.fillRect(25, 10, 50, 30); // back
-    chairCtx.strokeStyle = '#ff00ff';
-    chairCtx.lineWidth = 3;
-    chairCtx.shadowBlur = 10;
-    chairCtx.shadowColor = '#ff00ff';
-    chairCtx.strokeRect(25, 40, 50, 40);
-    chairCtx.strokeRect(25, 10, 50, 30);
-
-    window.finalizeFurnitureTexture(scene, 'furniture_chair_tile', chairCanvas);
-
-    // Holo Table
-    const tableCanvas = document.createElement('canvas');
-    tableCanvas.width = 100;
-    tableCanvas.height = 100;
-    const tableCtx = tableCanvas.getContext('2d');
-    tableCtx.fillStyle = '#333';
-    tableCtx.fillRect(10, 20, 80, 60); // base
-    tableCtx.fillStyle = 'rgba(0, 255, 255, 0.5)';
-    tableCtx.shadowBlur = 15;
-    tableCtx.shadowColor = '#00ffff';
-    tableCtx.fillRect(15, 25, 70, 50); // holo top
-
-    window.finalizeFurnitureTexture(scene, 'furniture_table_tile', tableCanvas);
-
-
-    // Crystal Bonsai
-    const bonsaiCanvas = document.createElement('canvas');
-    bonsaiCanvas.width = 100;
-    bonsaiCanvas.height = 100;
-    const bonsaiCtx = bonsaiCanvas.getContext('2d');
-    bonsaiCtx.fillStyle = '#111';
-    bonsaiCtx.beginPath();
-    bonsaiCtx.moveTo(25, 65);
-    bonsaiCtx.lineTo(75, 65);
-    bonsaiCtx.lineTo(70, 85);
-    bonsaiCtx.lineTo(30, 85);
-    bonsaiCtx.closePath();
-    bonsaiCtx.fill();
-    bonsaiCtx.strokeStyle = '#00ffd2';
-    bonsaiCtx.lineWidth = 2;
-    bonsaiCtx.stroke();
-    bonsaiCtx.fillStyle = '#00ffd2';
-    bonsaiCtx.fillRect(22, 60, 56, 5);
-    bonsaiCtx.strokeStyle = '#663300';
-    bonsaiCtx.lineWidth = 6;
-    bonsaiCtx.lineCap = 'round';
-    bonsaiCtx.beginPath();
-    bonsaiCtx.moveTo(50, 60);
-    bonsaiCtx.quadraticCurveTo(40, 40, 55, 30);
-    bonsaiCtx.quadraticCurveTo(45, 20, 50, 15);
-    bonsaiCtx.stroke();
-    bonsaiCtx.fillStyle = 'rgba(0, 255, 255, 0.8)';
-    bonsaiCtx.shadowBlur = 10;
-    bonsaiCtx.shadowColor = '#00ffff';
-    bonsaiCtx.beginPath();
-    bonsaiCtx.moveTo(50, 15); bonsaiCtx.lineTo(45, 25); bonsaiCtx.lineTo(55, 25);
-    bonsaiCtx.fill();
-    bonsaiCtx.beginPath();
-    bonsaiCtx.moveTo(55, 30); bonsaiCtx.lineTo(65, 25); bonsaiCtx.lineTo(60, 35);
-    bonsaiCtx.fill();
-    bonsaiCtx.beginPath();
-    bonsaiCtx.moveTo(45, 40); bonsaiCtx.lineTo(35, 35); bonsaiCtx.lineTo(40, 45);
-    bonsaiCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_crystal_bonsai_tile', bonsaiCanvas);
-
-    // Neon Fern
-    const fernCanvas = document.createElement('canvas');
-    fernCanvas.width = 100;
-    fernCanvas.height = 100;
-    const fernCtx = fernCanvas.getContext('2d');
-    fernCtx.fillStyle = '#222';
-    fernCtx.beginPath();
-    fernCtx.moveTo(35, 65);
-    fernCtx.lineTo(65, 65);
-    fernCtx.lineTo(65, 85);
-    fernCtx.lineTo(35, 85);
-    fernCtx.closePath();
-    fernCtx.fill();
-    fernCtx.strokeStyle = '#00ff66';
-    fernCtx.lineWidth = 2;
-    fernCtx.stroke();
-    fernCtx.fillStyle = '#00ff66';
-    fernCtx.fillRect(30, 65, 40, 4);
-    fernCtx.strokeStyle = '#00ff66';
-    fernCtx.lineCap = 'round';
-    fernCtx.shadowBlur = 8;
-    fernCtx.shadowColor = '#00ff66';
-    fernCtx.lineWidth = 4;
-    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(50, 30, 50, 15); fernCtx.stroke();
-    fernCtx.lineWidth = 3;
-    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(30, 40, 25, 25); fernCtx.stroke();
-    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(70, 40, 75, 25); fernCtx.stroke();
-    fernCtx.lineWidth = 2;
-    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(40, 50, 35, 40); fernCtx.stroke();
-    fernCtx.beginPath(); fernCtx.moveTo(50, 65); fernCtx.quadraticCurveTo(60, 50, 65, 40); fernCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_neon_fern_tile', fernCanvas);
-
-    // Plasma Cactus
-    const cactusCanvas = document.createElement('canvas');
-    cactusCanvas.width = 100;
-    cactusCanvas.height = 100;
-    const cactusCtx = cactusCanvas.getContext('2d');
-    cactusCtx.fillStyle = '#333';
-    cactusCtx.beginPath();
-    cactusCtx.moveTo(25, 65);
-    cactusCtx.lineTo(75, 65);
-    cactusCtx.lineTo(65, 85);
-    cactusCtx.lineTo(35, 85);
-    cactusCtx.closePath();
-    cactusCtx.fill();
-    cactusCtx.strokeStyle = '#ff007f';
-    cactusCtx.lineWidth = 2;
-    cactusCtx.stroke();
-    cactusCtx.fillStyle = 'rgba(255, 0, 127, 0.3)';
-    cactusCtx.shadowBlur = 10;
-    cactusCtx.shadowColor = '#ff007f';
-    cactusCtx.beginPath(); cactusCtx.roundRect(42, 30, 16, 35, 8); cactusCtx.fill(); cactusCtx.stroke();
-    cactusCtx.beginPath(); cactusCtx.roundRect(25, 40, 12, 15, 6); cactusCtx.fill(); cactusCtx.stroke();
-    cactusCtx.beginPath(); cactusCtx.roundRect(63, 35, 12, 20, 6); cactusCtx.fill(); cactusCtx.stroke();
-    cactusCtx.lineWidth = 4;
-    cactusCtx.beginPath(); cactusCtx.moveTo(37, 50); cactusCtx.lineTo(42, 50); cactusCtx.stroke();
-    cactusCtx.beginPath(); cactusCtx.moveTo(63, 45); cactusCtx.lineTo(58, 45); cactusCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_plasma_cactus_tile', cactusCanvas);
-
-    // Holo Orchid
-    const orchidCanvas = document.createElement('canvas');
-    orchidCanvas.width = 100;
-    orchidCanvas.height = 100;
-    const orchidCtx = orchidCanvas.getContext('2d');
-    orchidCtx.fillStyle = '#111';
-    orchidCtx.strokeStyle = '#00ffd2';
-    orchidCtx.lineWidth = 2;
-    orchidCtx.beginPath(); orchidCtx.ellipse(50, 75, 20, 8, 0, 0, Math.PI * 2); orchidCtx.fill(); orchidCtx.stroke();
-    orchidCtx.fillStyle = 'rgba(0, 255, 210, 0.5)';
-    orchidCtx.beginPath(); orchidCtx.ellipse(50, 72, 15, 5, 0, 0, Math.PI * 2); orchidCtx.fill();
-    orchidCtx.fillStyle = 'rgba(0, 255, 210, 0.15)';
-    orchidCtx.beginPath(); orchidCtx.moveTo(35, 72); orchidCtx.lineTo(65, 72); orchidCtx.lineTo(55, 20); orchidCtx.lineTo(45, 20); orchidCtx.closePath(); orchidCtx.fill();
-    orchidCtx.strokeStyle = 'rgba(0, 255, 210, 0.6)';
-    orchidCtx.setLineDash([2, 2]);
-    orchidCtx.beginPath(); orchidCtx.moveTo(50, 70); orchidCtx.quadraticCurveTo(45, 50, 55, 35); orchidCtx.quadraticCurveTo(60, 25, 50, 20); orchidCtx.stroke();
-    orchidCtx.setLineDash([]);
-    orchidCtx.fillStyle = 'rgba(255, 0, 255, 0.7)';
-    orchidCtx.shadowBlur = 10;
-    orchidCtx.shadowColor = '#ff00ff';
-    orchidCtx.save(); orchidCtx.translate(50, 20); orchidCtx.rotate(45 * Math.PI / 180); orchidCtx.beginPath(); orchidCtx.ellipse(0, 0, 10, 15, 0, 0, Math.PI * 2); orchidCtx.fill(); orchidCtx.restore();
-    orchidCtx.save(); orchidCtx.translate(50, 20); orchidCtx.rotate(-45 * Math.PI / 180); orchidCtx.beginPath(); orchidCtx.ellipse(0, 0, 10, 15, 0, 0, Math.PI * 2); orchidCtx.fill(); orchidCtx.restore();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_holo_orchid_tile', orchidCanvas);
-
-    // Cyber Plant
-    const plantCanvas = document.createElement('canvas');
-    plantCanvas.width = 100;
-    plantCanvas.height = 100;
-    const plantCtx = plantCanvas.getContext('2d');
-    plantCtx.fillStyle = '#444';
-    plantCtx.fillRect(30, 60, 40, 30); // pot
-    plantCtx.fillStyle = '#00ff00';
-    plantCtx.shadowBlur = 10;
-    plantCtx.shadowColor = '#00ff00';
-    plantCtx.beginPath();
-    plantCtx.arc(50, 35, 20, 0, Math.PI * 2);
-    plantCtx.fill();
-    plantCtx.beginPath();
-    plantCtx.arc(35, 45, 15, 0, Math.PI * 2);
-    plantCtx.fill();
-    plantCtx.beginPath();
-    plantCtx.arc(65, 45, 15, 0, Math.PI * 2);
-    plantCtx.fill();
-    window.finalizeFurnitureTexture(scene, 'furniture_plant_tile', plantCanvas);
-
-    // Neon Lamp
-    const lampCanvas = document.createElement('canvas');
-    lampCanvas.width = 100;
-    lampCanvas.height = 100;
-    const lampCtx = lampCanvas.getContext('2d');
-    lampCtx.fillStyle = '#222';
-    lampCtx.fillRect(45, 20, 10, 70); // pole
-    lampCtx.fillRect(35, 80, 30, 10); // base
-    lampCtx.fillStyle = '#ffff00';
-    lampCtx.shadowBlur = 20;
-    lampCtx.shadowColor = '#ffff00';
-    lampCtx.beginPath();
-    lampCtx.arc(50, 20, 15, 0, Math.PI * 2);
-    lampCtx.fill();
-    window.finalizeFurnitureTexture(scene, 'furniture_lamp_tile', lampCanvas);
-
-    // Neon Lamp Off
-    const lampOffCanvas = document.createElement('canvas');
-    lampOffCanvas.width = 100;
-    lampOffCanvas.height = 100;
-    const lampOffCtx = lampOffCanvas.getContext('2d');
-    lampOffCtx.fillStyle = '#222';
-    lampOffCtx.fillRect(45, 20, 10, 70); // pole
-    lampOffCtx.fillRect(35, 80, 30, 10); // base
-    lampOffCtx.fillStyle = '#555';
-    lampOffCtx.beginPath();
-    lampOffCtx.arc(50, 20, 15, 0, Math.PI * 2);
-    lampOffCtx.fill();
-    window.finalizeFurnitureTexture(scene, 'furniture_lamp_off_tile', lampOffCanvas);
-
-    // Neon Lamp On
-    const lampOnCanvas = document.createElement('canvas');
-    lampOnCanvas.width = 100;
-    lampOnCanvas.height = 100;
-    const lampOnCtx = lampOnCanvas.getContext('2d');
-    lampOnCtx.fillStyle = '#222';
-    lampOnCtx.fillRect(45, 20, 10, 70); // pole
-    lampOnCtx.fillRect(35, 80, 30, 10); // base
-    lampOnCtx.fillStyle = '#ffff00';
-    lampOnCtx.shadowBlur = 20;
-    lampOnCtx.shadowColor = '#ffff00';
-    lampOnCtx.beginPath();
-    lampOnCtx.arc(50, 20, 15, 0, Math.PI * 2);
-    lampOnCtx.fill();
-    window.finalizeFurnitureTexture(scene, 'furniture_lamp_on_tile', lampOnCanvas);
-
-
-
-    // Potted Ficus
-    const ficusCanvas = document.createElement('canvas');
-    ficusCanvas.width = 100;
-    ficusCanvas.height = 100;
-    const ficusCtx = ficusCanvas.getContext('2d');
-    ficusCtx.fillStyle = '#553311'; // brown pot
-    ficusCtx.beginPath();
-    ficusCtx.moveTo(35, 80);
-    ficusCtx.lineTo(65, 80);
-    ficusCtx.lineTo(60, 95);
-    ficusCtx.lineTo(40, 95);
-    ficusCtx.fill();
-    ficusCtx.fillStyle = '#00aa00'; // leaves
-    ficusCtx.beginPath();
-    ficusCtx.arc(50, 45, 25, 0, Math.PI * 2);
-    ficusCtx.fill();
-    ficusCtx.beginPath();
-    ficusCtx.arc(35, 55, 15, 0, Math.PI * 2);
-    ficusCtx.fill();
-    ficusCtx.beginPath();
-    ficusCtx.arc(65, 55, 15, 0, Math.PI * 2);
-    ficusCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_ficus_tile', ficusCanvas);
-
-    // Monstera Plant
-    const monsteraCanvas = document.createElement('canvas');
-    monsteraCanvas.width = 100;
-    monsteraCanvas.height = 100;
-    const monsteraCtx = monsteraCanvas.getContext('2d');
-    monsteraCtx.fillStyle = '#222'; // modern pot
-    monsteraCtx.fillRect(35, 75, 30, 20);
-    monsteraCtx.fillStyle = '#00ff66';
-    monsteraCtx.shadowBlur = 10;
-    monsteraCtx.shadowColor = '#00ff66';
-    // Draw big leaves with holes
-    monsteraCtx.beginPath();
-    monsteraCtx.ellipse(50, 40, 25, 30, 0, 0, Math.PI * 2);
-    monsteraCtx.fill();
-    // Holes
-    monsteraCtx.globalCompositeOperation = 'destination-out';
-    monsteraCtx.beginPath();
-    monsteraCtx.arc(40, 30, 5, 0, Math.PI * 2);
-    monsteraCtx.arc(60, 50, 6, 0, Math.PI * 2);
-    monsteraCtx.arc(55, 25, 4, 0, Math.PI * 2);
-    monsteraCtx.fill();
-    monsteraCtx.globalCompositeOperation = 'source-over';
-
-    window.finalizeFurnitureTexture(scene, 'furniture_monstera_tile', monsteraCanvas);
-
-    // Cyber Bamboo
-    const bambooCanvas = document.createElement('canvas');
-    bambooCanvas.width = 100;
-    bambooCanvas.height = 100;
-    const bambooCtx = bambooCanvas.getContext('2d');
-    bambooCtx.fillStyle = '#111'; // long planter
-    bambooCtx.fillRect(20, 85, 60, 10);
-    bambooCtx.strokeStyle = '#00ffcc';
-    bambooCtx.lineWidth = 4;
-    bambooCtx.shadowBlur = 8;
-    bambooCtx.shadowColor = '#00ffcc';
-    // Stalks
-    for(let x of [30, 40, 50, 60, 70]) {
-        bambooCtx.beginPath();
-        bambooCtx.moveTo(x, 85);
-        bambooCtx.lineTo(x + (Math.random() * 10 - 5), 20 + Math.random() * 10);
-        bambooCtx.stroke();
-        // Leaves
-        bambooCtx.fillStyle = '#00ffcc';
-        bambooCtx.beginPath();
-        bambooCtx.ellipse(x-5, 40, 8, 3, Math.PI/4, 0, Math.PI*2);
-        bambooCtx.fill();
-    }
-
-    window.finalizeFurnitureTexture(scene, 'furniture_bamboo_tile', bambooCanvas);
-
-    // Neon Succulent
-    const succulentCanvas = document.createElement('canvas');
-    succulentCanvas.width = 100;
-    succulentCanvas.height = 100;
-    const succulentCtx = succulentCanvas.getContext('2d');
-    succulentCtx.fillStyle = '#444'; // round pot
-    succulentCtx.beginPath();
-    succulentCtx.arc(50, 80, 15, 0, Math.PI);
-    succulentCtx.fill();
-    succulentCtx.fillStyle = '#ff00aa';
-    succulentCtx.shadowBlur = 10;
-    succulentCtx.shadowColor = '#ff00aa';
-    // Spiky leaves
-    for(let a=0; a<Math.PI; a+=Math.PI/4) {
-        succulentCtx.beginPath();
-        succulentCtx.moveTo(50, 80);
-        succulentCtx.lineTo(50 + Math.cos(a)*20, 80 - Math.sin(a)*25);
-        succulentCtx.lineTo(50 + Math.cos(a+0.2)*10, 80 - Math.sin(a+0.2)*15);
-        succulentCtx.fill();
-    }
-
-    window.finalizeFurnitureTexture(scene, 'furniture_succulent_tile', succulentCanvas);
-
-    // Holo Rose
-    const holoroseCanvas = document.createElement('canvas');
-    holoroseCanvas.width = 100;
-    holoroseCanvas.height = 100;
-    const holoroseCtx = holoroseCanvas.getContext('2d');
-    holoroseCtx.fillStyle = '#222';
-    holoroseCtx.fillRect(40, 90, 20, 5); // base projector
-    holoroseCtx.strokeStyle = 'rgba(255, 0, 100, 0.6)';
-    holoroseCtx.lineWidth = 2;
-    holoroseCtx.beginPath(); // stem
-    holoroseCtx.moveTo(50, 90);
-    holoroseCtx.lineTo(50, 40);
-    holoroseCtx.stroke();
-    holoroseCtx.fillStyle = 'rgba(255, 0, 50, 0.8)';
-    holoroseCtx.shadowBlur = 15;
-    holoroseCtx.shadowColor = '#ff0055';
-    // Petals
-    holoroseCtx.beginPath();
-    holoroseCtx.arc(50, 30, 15, 0, Math.PI*2);
-    holoroseCtx.fill();
-    holoroseCtx.fillStyle = 'rgba(255, 100, 100, 0.9)';
-    holoroseCtx.beginPath();
-    holoroseCtx.arc(50, 30, 8, 0, Math.PI*2);
-    holoroseCtx.fill();
-    // Grid lines for holo effect
-    holoroseCtx.strokeStyle = '#fff';
-    holoroseCtx.lineWidth = 0.5;
-    for(let y=15; y<45; y+=3) {
-        holoroseCtx.beginPath();
-        holoroseCtx.moveTo(35, y);
-        holoroseCtx.lineTo(65, y);
-        holoroseCtx.stroke();
-    }
-
-    window.finalizeFurnitureTexture(scene, 'furniture_holorose_tile', holoroseCanvas);
-
-    // Bio Mushroom
-    const mushroomCanvas = document.createElement('canvas');
-    mushroomCanvas.width = 100;
-    mushroomCanvas.height = 100;
-    const mushroomCtx = mushroomCanvas.getContext('2d');
-    // Terrarium base
-    mushroomCtx.fillStyle = '#333';
-    mushroomCtx.beginPath();
-    mushroomCtx.ellipse(50, 85, 25, 10, 0, 0, Math.PI*2);
-    mushroomCtx.fill();
-    // Mushrooms
-    mushroomCtx.shadowBlur = 12;
-    mushroomCtx.shadowColor = '#00ffff';
-
-    // shroom 1
-    mushroomCtx.strokeStyle = '#fff';
-    mushroomCtx.lineWidth = 3;
-    mushroomCtx.beginPath(); mushroomCtx.moveTo(40, 80); mushroomCtx.lineTo(35, 50); mushroomCtx.stroke();
-    mushroomCtx.fillStyle = '#00ffff';
-    mushroomCtx.beginPath(); mushroomCtx.arc(35, 45, 12, Math.PI, 0); mushroomCtx.fill();
-
-    // shroom 2
-    mushroomCtx.beginPath(); mushroomCtx.moveTo(60, 85); mushroomCtx.lineTo(65, 60); mushroomCtx.stroke();
-    mushroomCtx.fillStyle = '#00aaff';
-    mushroomCtx.beginPath(); mushroomCtx.arc(65, 55, 15, Math.PI, 0); mushroomCtx.fill();
-
-    // Glass dome
-    mushroomCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    mushroomCtx.lineWidth = 2;
-    mushroomCtx.shadowBlur = 0;
-    mushroomCtx.beginPath();
-    mushroomCtx.arc(50, 60, 30, Math.PI, 0);
-    mushroomCtx.stroke();
-
-
-    window.finalizeFurnitureTexture(scene, 'furniture_mushroom_tile', mushroomCanvas);
-
-    // Digi Sunflower
-    const sunflowerCanvas = document.createElement('canvas');
-    sunflowerCanvas.width = 100;
-    sunflowerCanvas.height = 100;
-    const sunflowerCtx = sunflowerCanvas.getContext('2d');
-    sunflowerCtx.fillStyle = '#663300';
-    sunflowerCtx.fillRect(40, 80, 20, 15);
-    // Stem
-    sunflowerCtx.strokeStyle = '#00ff00';
-    sunflowerCtx.lineWidth = 4;
-    sunflowerCtx.beginPath();
-    sunflowerCtx.moveTo(50, 80);
-    sunflowerCtx.lineTo(50, 30);
-    sunflowerCtx.stroke();
-    // Center
-    sunflowerCtx.fillStyle = '#222';
-    sunflowerCtx.beginPath();
-    sunflowerCtx.arc(50, 30, 12, 0, Math.PI*2);
-    sunflowerCtx.fill();
-    // Petals
-    sunflowerCtx.fillStyle = '#ffff00';
-    sunflowerCtx.shadowBlur = 10;
-    sunflowerCtx.shadowColor = '#ffff00';
-    for(let a=0; a<Math.PI*2; a+=Math.PI/6) {
-        sunflowerCtx.beginPath();
-        sunflowerCtx.ellipse(50 + Math.cos(a)*18, 30 + Math.sin(a)*18, 10, 4, a, 0, Math.PI*2);
-        sunflowerCtx.fill();
-    }
-
-    window.finalizeFurnitureTexture(scene, 'furniture_sunflower_tile', sunflowerCanvas);
-
-        // Zen Bonsai
-    const zenbonsaiCanvas = document.createElement('canvas');
-    zenbonsaiCanvas.width = 100;
-    zenbonsaiCanvas.height = 100;
-    const zenbonsaiCtx = zenbonsaiCanvas.getContext('2d');
-    // Pot
-    zenbonsaiCtx.fillStyle = '#222';
-    zenbonsaiCtx.fillRect(25, 85, 50, 12);
-    // Trunk
-    zenbonsaiCtx.strokeStyle = '#6d4c41';
-    zenbonsaiCtx.lineWidth = 8;
-    zenbonsaiCtx.lineCap = 'round';
-    zenbonsaiCtx.beginPath();
-    zenbonsaiCtx.moveTo(50, 85);
-    zenbonsaiCtx.quadraticCurveTo(30, 55, 65, 30);
-    zenbonsaiCtx.stroke();
-    // Branches
-    zenbonsaiCtx.lineWidth = 4;
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.moveTo(40, 65); zenbonsaiCtx.lineTo(20, 50); zenbonsaiCtx.stroke();
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.moveTo(55, 45); zenbonsaiCtx.lineTo(75, 40); zenbonsaiCtx.stroke();
-    // Leaves
-    zenbonsaiCtx.fillStyle = '#2e7d32';
-    zenbonsaiCtx.shadowBlur = 8;
-    zenbonsaiCtx.shadowColor = '#4caf50';
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(65, 25, 18, 0, Math.PI*2); zenbonsaiCtx.fill();
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(15, 45, 14, 0, Math.PI*2); zenbonsaiCtx.fill();
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(45, 18, 14, 0, Math.PI*2); zenbonsaiCtx.fill();
-    // Leaf Highlights
-    zenbonsaiCtx.fillStyle = '#4caf50';
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(60, 20, 8, 0, Math.PI*2); zenbonsaiCtx.fill();
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(12, 40, 6, 0, Math.PI*2); zenbonsaiCtx.fill();
-    zenbonsaiCtx.beginPath(); zenbonsaiCtx.arc(42, 13, 6, 0, Math.PI*2); zenbonsaiCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_zenbonsai_tile', zenbonsaiCanvas);
-
-    // Lunar Lily
-    const lunarlilyCanvas = document.createElement('canvas');
-    lunarlilyCanvas.width = 100;
-    lunarlilyCanvas.height = 100;
-    const lunarlilyCtx = lunarlilyCanvas.getContext('2d');
-    lunarlilyCtx.fillStyle = '#0a1a2a'; // dark pot
-    lunarlilyCtx.beginPath(); lunarlilyCtx.arc(50, 85, 15, 0, Math.PI); lunarlilyCtx.fill();
-    lunarlilyCtx.fillStyle = '#ffffff';
-    lunarlilyCtx.shadowBlur = 15;
-    lunarlilyCtx.shadowColor = '#aaccff';
-    for(let a=0; a<Math.PI*2; a+=Math.PI/4) {
-        lunarlilyCtx.beginPath();
-        lunarlilyCtx.ellipse(50 + Math.cos(a)*15, 75 + Math.sin(a)*10, 15, 5, a, 0, Math.PI*2);
-        lunarlilyCtx.fill();
-    }
-    // Glowing center
-    lunarlilyCtx.fillStyle = '#aaccff';
-    lunarlilyCtx.beginPath(); lunarlilyCtx.arc(50, 75, 5, 0, Math.PI*2); lunarlilyCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_lunarlily_tile', lunarlilyCanvas);
-
-    // Cyber Tree
-    const cybertreeCanvas = document.createElement('canvas');
-    cybertreeCanvas.width = 100;
-    cybertreeCanvas.height = 100;
-    const cybertreeCtx = cybertreeCanvas.getContext('2d');
-    cybertreeCtx.fillStyle = '#333';
-    cybertreeCtx.fillRect(35, 80, 30, 20); // pot
-    cybertreeCtx.strokeStyle = '#555';
-    cybertreeCtx.lineWidth = 10;
-    cybertreeCtx.beginPath(); cybertreeCtx.moveTo(50, 80); cybertreeCtx.lineTo(50, 30); cybertreeCtx.stroke();
-    // Canopy
-    cybertreeCtx.fillStyle = '#00ccff';
-    cybertreeCtx.shadowBlur = 20;
-    cybertreeCtx.shadowColor = '#00ccff';
-    cybertreeCtx.beginPath(); cybertreeCtx.arc(50, 30, 30, 0, Math.PI*2); cybertreeCtx.fill();
-    // Grid lines on canopy
-    cybertreeCtx.strokeStyle = '#ffffff';
-    cybertreeCtx.lineWidth = 1;
-    cybertreeCtx.beginPath(); cybertreeCtx.moveTo(20, 30); cybertreeCtx.lineTo(80, 30); cybertreeCtx.stroke();
-    cybertreeCtx.beginPath(); cybertreeCtx.moveTo(50, 0); cybertreeCtx.lineTo(50, 60); cybertreeCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_cybertree_tile', cybertreeCanvas);
-
-        // Neon Pine
-    const neonpineCanvas = document.createElement('canvas');
-    neonpineCanvas.width = 100;
-    neonpineCanvas.height = 100;
-    const neonpineCtx = neonpineCanvas.getContext('2d');
-    neonpineCtx.fillStyle = '#1a1a1a';
-    neonpineCtx.fillRect(40, 85, 20, 15);
-    // Tree
-    neonpineCtx.fillStyle = 'rgba(0, 255, 170, 0.8)';
-    neonpineCtx.strokeStyle = '#00ffaa';
-    neonpineCtx.lineWidth = 3;
-    neonpineCtx.shadowBlur = 20;
-    neonpineCtx.shadowColor = '#00ffaa';
-    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 5); neonpineCtx.lineTo(70, 35); neonpineCtx.lineTo(30, 35); neonpineCtx.closePath(); neonpineCtx.fill(); neonpineCtx.stroke();
-    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 25); neonpineCtx.lineTo(75, 60); neonpineCtx.lineTo(25, 60); neonpineCtx.closePath(); neonpineCtx.fill(); neonpineCtx.stroke();
-    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 50); neonpineCtx.lineTo(80, 85); neonpineCtx.lineTo(20, 85); neonpineCtx.closePath(); neonpineCtx.fill(); neonpineCtx.stroke();
-    // Inner glows
-    neonpineCtx.fillStyle = '#fff';
-    neonpineCtx.shadowBlur = 10;
-    neonpineCtx.beginPath(); neonpineCtx.moveTo(50, 15); neonpineCtx.lineTo(55, 30); neonpineCtx.lineTo(45, 30); neonpineCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_neonpine_tile', neonpineCanvas);
-
-
-    // Server Rack
-    const serverCanvas = document.createElement('canvas');
-    serverCanvas.width = 100;
-    serverCanvas.height = 100;
-    const serverCtx = serverCanvas.getContext('2d');
-    serverCtx.fillStyle = '#111';
-    serverCtx.fillRect(20, 10, 60, 80);
-    serverCtx.fillStyle = '#00ff00';
-    serverCtx.shadowBlur = 5;
-    serverCtx.shadowColor = '#00ff00';
-    for (let i = 20; i < 80; i += 15) {
-        serverCtx.fillRect(25, i, 10, 5);
-        serverCtx.fillRect(40, i, 5, 5);
-        serverCtx.fillRect(50, i, 25, 5);
-        // Blinking lights
-        if (i % 30 === 20) {
-            serverCtx.fillStyle = '#ff0055';
-            serverCtx.fillRect(55, i+1, 3, 3);
-            serverCtx.fillStyle = '#ffff00';
-            serverCtx.fillRect(65, i+1, 3, 3);
-            serverCtx.fillStyle = '#00ff00';
+    // Replaced with dynamic SVG rendering
+    const furnitureMap = {
+        "Neon Couch": "furniture_couch_tile",
+        "L-Couch": "furniture_lcouch_tile",
+        "Love Seat": "furniture_loveseat_tile",
+        "Office Chair": "furniture_officechair_tile",
+        "Stool": "furniture_stool_tile",
+        "Coffee Table": "furniture_coffeetable_tile",
+        "Dining Table": "furniture_diningtable_tile",
+        "Park Bench": "furniture_parkbench_tile",
+        "Cyber Bench": "furniture_cyberbench_tile",
+        "Filing Cabinet": "furniture_filingcabinet_tile",
+        "Display Cabinet": "furniture_displaycabinet_tile",
+        "Nightstand": "furniture_nightstand_tile",
+        "Corner Table": "furniture_cornertable_tile",
+        "Bunk Bed": "furniture_bunkbed_tile",
+        "King Bed": "furniture_kingbed_tile",
+        "Desk": "furniture_desk_tile",
+        "Carpet": "furniture_carpet_tile",
+        "Star Carpet": "furniture_starcarpet_tile",
+        "Round Carpet": "furniture_roundcarpet_tile",
+        "Hex Carpet": "furniture_hexcarpet_tile",
+        "Heart Carpet": "furniture_heartcarpet_tile",
+        "Diamond Carpet": "furniture_diamondcarpet_tile",
+        "Basic Bed": "furniture_bed_tile",
+        "Chair": "furniture_chair_tile",
+        "Table": "furniture_table_tile",
+        "Crystal Bonsai": "furniture_crystal_bonsai_tile",
+        "Neon Fern": "furniture_neon_fern_tile",
+        "Plasma Cactus": "furniture_plasma_cactus_tile",
+        "Holo Orchid": "furniture_holo_orchid_tile",
+        "House Plant": "furniture_plant_tile",
+        "Floor Lamp": "furniture_lamp_tile",
+        "Ficus": "furniture_ficus_tile",
+        "Monstera": "furniture_monstera_tile",
+        "Bamboo": "furniture_bamboo_tile",
+        "Succulent": "furniture_succulent_tile",
+        "Holo-Rose": "furniture_holorose_tile",
+        "Glowing Mushroom": "furniture_mushroom_tile",
+        "Cyber Sunflower": "furniture_sunflower_tile",
+        "Zen Bonsai": "furniture_zenbonsai_tile",
+        "Lunar Lily": "furniture_lunarlily_tile",
+        "Cyber Tree": "furniture_cybertree_tile",
+        "Neon Pine": "furniture_neonpine_tile",
+        "Server Rack": "furniture_server_tile",
+        "Arcade Machine": "furniture_arcade_tile",
+        "Cyber TV": "furniture_tv_tile",
+        "Neon Shelf": "furniture_shelf_tile",
+        "Tech Bin": "furniture_bin_tile",
+        "Neon Wardrobe": "furniture_wardrobe_tile",
+        "Cyber Fridge": "furniture_fridge_tile",
+        "Holo Display": "furniture_display_tile",
+        "Lava Lamp": "furniture_lavalamp_tile",
+        "Plasma Globe": "furniture_plasmaglobe_tile",
+        "Cyber Poster": "furniture_cyberposter_tile",
+        "Neon Sign": "furniture_neonsign_tile",
+        "Gaming PC": "furniture_gamingpc_tile",
+        "Smart Mirror": "furniture_smartmirror_tile"
+    };
+
+    Object.keys(furnitureMap).forEach(itemName => {
+        const key = furnitureMap[itemName];
+        // Special case for Floor Lamp
+        if (itemName === "Floor Lamp") {
+             // Handle lamp on/off elsewhere or map them here?
+             // Actually, the original code creates lamp, lamp_on, lamp_off
         }
-    }
 
-    window.finalizeFurnitureTexture(scene, 'furniture_server_tile', serverCanvas);
+        // We will generate the base64 svg
+        let svgStr = window.getItemIconHTML(itemName, 100);
+        // Extract the content between <defs>...</defs> and </svg>
+        let match = svgStr.match(/<defs>[\s\S]*?<\/defs>([\s\S]*?)<\/svg>/);
+        if(match) {
+            let inner = match[1];
+            // Remove the background rect
+            inner = inner.replace(/<rect width="100" height="100" rx="20" fill="url\(#bgGrad\)"[^>]*>/, '');
+            // Remove the span containing emojis
+            inner = inner.replace(/<span[^>]*>[\s\S]*?<\/span>/g, '');
 
-    // Arcade Machine
-    const arcadeCanvas = document.createElement('canvas');
-    arcadeCanvas.width = 100;
-    arcadeCanvas.height = 100;
-    const arcadeCtx = arcadeCanvas.getContext('2d');
-    arcadeCtx.fillStyle = '#222';
-    arcadeCtx.fillRect(25, 10, 50, 80);
-    arcadeCtx.fillStyle = '#000';
-    arcadeCtx.fillRect(30, 20, 40, 30); // screen
-    arcadeCtx.strokeStyle = '#ff0055';
-    arcadeCtx.lineWidth = 2;
-    arcadeCtx.shadowBlur = 10;
-    arcadeCtx.shadowColor = '#ff0055';
-    arcadeCtx.strokeRect(30, 20, 40, 30);
-    // Screen contents
-    arcadeCtx.fillStyle = '#00ffcc';
-    arcadeCtx.font = '10px monospace';
-    arcadeCtx.fillText('INSERT', 32, 35);
-    arcadeCtx.fillText('COIN', 38, 45);
-    arcadeCtx.fillStyle = '#ff0055';
-    arcadeCtx.fillRect(45, 60, 10, 10); // joystick
+            // Re-wrap
+            let cleanSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+                <defs>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+                ${inner}
+            </svg>`;
 
-    window.finalizeFurnitureTexture(scene, 'furniture_arcade_tile', arcadeCanvas);
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 100;
+                canvas.height = 100;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                if (window.add3DDepth) window.add3DDepth(ctx, 0, 0, 100, 100);
+                window.finalizeFurnitureTexture(scene, key, canvas);
 
-    // Cyber TV
-    const tvCanvas = document.createElement('canvas');
-    tvCanvas.width = 100;
-    tvCanvas.height = 100;
-    const tvCtx = tvCanvas.getContext('2d');
-    tvCtx.fillStyle = '#111';
-    tvCtx.fillRect(10, 20, 80, 50); // screen
-    tvCtx.strokeStyle = '#00ffff';
-    tvCtx.lineWidth = 3;
-    tvCtx.shadowBlur = 10;
-    tvCtx.shadowColor = '#00ffff';
-    tvCtx.strokeRect(10, 20, 80, 50);
-    // Screen contents
-    tvCtx.fillStyle = '#00ffcc';
-    tvCtx.fillRect(15, 25, 20, 15);
-    tvCtx.fillStyle = '#ff0055';
-    tvCtx.fillRect(40, 25, 45, 5);
-    tvCtx.fillRect(40, 35, 30, 5);
-    tvCtx.fillStyle = '#fff';
-    tvCtx.fillRect(15, 45, 70, 20);
-    tvCtx.fillStyle = '#333';
-    tvCtx.fillRect(40, 70, 20, 20); // stand
-    tvCtx.fillRect(20, 85, 60, 5); // base
-
-    window.finalizeFurnitureTexture(scene, 'furniture_tv_tile', tvCanvas);
-
-    // Neon Shelf
-    const shelfCanvas = document.createElement('canvas');
-    shelfCanvas.width = 100;
-    shelfCanvas.height = 100;
-    const shelfCtx = shelfCanvas.getContext('2d');
-    shelfCtx.fillStyle = '#222';
-    shelfCtx.fillRect(20, 10, 60, 80);
-    shelfCtx.strokeStyle = '#ffaa00';
-    shelfCtx.lineWidth = 2;
-    shelfCtx.shadowBlur = 8;
-    shelfCtx.shadowColor = '#ffaa00';
-    for(let i=30; i<90; i+=25) {
-        shelfCtx.fillRect(25, i, 50, 5); // shelf
-        shelfCtx.strokeRect(25, i, 50, 5);
-    }
-
-    window.finalizeFurnitureTexture(scene, 'furniture_shelf_tile', shelfCanvas);
-
-    // Tech Bin
-    const binCanvas = document.createElement('canvas');
-    binCanvas.width = 100;
-    binCanvas.height = 100;
-    const binCtx = binCanvas.getContext('2d');
-    binCtx.fillStyle = '#333';
-    binCtx.fillRect(30, 30, 40, 50);
-    binCtx.fillStyle = '#555';
-    binCtx.fillRect(25, 20, 50, 10);
-    binCtx.strokeStyle = '#ff0000';
-    binCtx.lineWidth = 2;
-    binCtx.shadowBlur = 5;
-    binCtx.shadowColor = '#ff0000';
-    binCtx.beginPath();
-    binCtx.moveTo(40, 50);
-    binCtx.lineTo(60, 50);
-    binCtx.stroke();
-    // Glowing trash inside
-    binCtx.fillStyle = '#00ffcc';
-    binCtx.fillRect(40, 25, 5, 5);
-    binCtx.fillStyle = '#ff00ff';
-    binCtx.fillRect(55, 27, 4, 4);
-    window.finalizeFurnitureTexture(scene, 'furniture_bin_tile', binCanvas);
-
-    // Neon Wardrobe
-    const wardrobeCanvas = document.createElement('canvas');
-    wardrobeCanvas.width = 100;
-    wardrobeCanvas.height = 100;
-    const wardrobeCtx = wardrobeCanvas.getContext('2d');
-    wardrobeCtx.fillStyle = '#222';
-    wardrobeCtx.fillRect(20, 10, 60, 80);
-    wardrobeCtx.strokeStyle = '#00ffcc';
-    wardrobeCtx.lineWidth = 2;
-    wardrobeCtx.shadowBlur = 10;
-    wardrobeCtx.shadowColor = '#00ffcc';
-    wardrobeCtx.strokeRect(20, 10, 60, 80);
-    wardrobeCtx.beginPath();
-    wardrobeCtx.moveTo(50, 10);
-    wardrobeCtx.lineTo(50, 90);
-    wardrobeCtx.stroke();
-    wardrobeCtx.fillStyle = '#00ffcc';
-    wardrobeCtx.fillRect(40, 50, 5, 10); // handle
-    wardrobeCtx.fillRect(55, 50, 5, 10); // handle
-
-    window.finalizeFurnitureTexture(scene, 'furniture_wardrobe_tile', wardrobeCanvas);
-
-    // Cyber Fridge
-    const fridgeCanvas = document.createElement('canvas');
-    fridgeCanvas.width = 100;
-    fridgeCanvas.height = 100;
-    const fridgeCtx = fridgeCanvas.getContext('2d');
-    fridgeCtx.fillStyle = '#aaa';
-    fridgeCtx.fillRect(25, 10, 50, 80);
-    fridgeCtx.fillStyle = '#000';
-    fridgeCtx.fillRect(25, 45, 50, 2);
-    fridgeCtx.fillStyle = '#00aaff';
-    fridgeCtx.shadowBlur = 5;
-    fridgeCtx.shadowColor = '#00aaff';
-    fridgeCtx.fillRect(35, 20, 5, 20); // top handle
-    fridgeCtx.fillRect(35, 55, 5, 20);
-    // Sticky note
-    fridgeCtx.fillStyle = '#ffff00';
-    fridgeCtx.fillRect(45, 25, 15, 15);
-    // Little text on sticky note
-    fridgeCtx.fillStyle = '#000';
-    fridgeCtx.fillRect(47, 28, 10, 2);
-    fridgeCtx.fillRect(47, 32, 8, 2);
-    // Digital display
-    fridgeCtx.fillStyle = '#00ffcc';
-    fridgeCtx.fillRect(45, 12, 20, 10); // bottom handle
-
-    window.finalizeFurnitureTexture(scene, 'furniture_fridge_tile', fridgeCanvas);
-
-    // Holo Display
-    const displayCanvas = document.createElement('canvas');
-    displayCanvas.width = 100;
-    displayCanvas.height = 100;
-    const displayCtx = displayCanvas.getContext('2d');
-    displayCtx.fillStyle = '#333';
-    displayCtx.fillRect(30, 80, 40, 10); // base
-    displayCtx.fillStyle = 'rgba(255, 0, 255, 0.4)';
-    displayCtx.shadowBlur = 15;
-    displayCtx.shadowColor = '#ff00ff';
-    displayCtx.beginPath();
-    displayCtx.moveTo(50, 10);
-    displayCtx.lineTo(20, 70);
-    displayCtx.lineTo(80, 70);
-    displayCtx.closePath();
-    displayCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_display_tile', displayCanvas);
-
-    // Lava Lamp
-    const lavaLampCanvas = document.createElement('canvas');
-    lavaLampCanvas.width = 100;
-    lavaLampCanvas.height = 100;
-    const lavaLampCtx = lavaLampCanvas.getContext('2d');
-    window.lavaLampCanvas = lavaLampCanvas;
-    window.lavaLampCtx = lavaLampCtx;
-    lavaLampCtx.fillStyle = '#333';
-    lavaLampCtx.fillRect(35, 75, 30, 15); // Base
-    lavaLampCtx.fillRect(40, 10, 20, 10); // Top cap
-    lavaLampCtx.fillStyle = 'rgba(255, 0, 85, 0.3)';
-    lavaLampCtx.beginPath();
-    lavaLampCtx.moveTo(40, 20);
-    lavaLampCtx.lineTo(60, 20);
-    lavaLampCtx.lineTo(65, 75);
-    lavaLampCtx.lineTo(35, 75);
-    lavaLampCtx.closePath();
-    lavaLampCtx.fill();
-    lavaLampCtx.fillStyle = '#ff0055';
-    lavaLampCtx.shadowBlur = 10;
-    lavaLampCtx.shadowColor = '#ff0055';
-    lavaLampCtx.beginPath(); lavaLampCtx.arc(50, 65, 8, 0, Math.PI*2); lavaLampCtx.fill();
-    lavaLampCtx.beginPath(); lavaLampCtx.arc(45, 45, 5, 0, Math.PI*2); lavaLampCtx.fill();
-    lavaLampCtx.beginPath(); lavaLampCtx.arc(55, 30, 4, 0, Math.PI*2); lavaLampCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_lavalamp_tile', lavaLampCanvas);
-
-    // Plasma Globe
-    const plasmaGlobeCanvas = document.createElement('canvas');
-    plasmaGlobeCanvas.width = 100;
-    plasmaGlobeCanvas.height = 100;
-    const plasmaGlobeCtx = plasmaGlobeCanvas.getContext('2d');
-    window.plasmaGlobeCanvas = plasmaGlobeCanvas;
-    window.plasmaGlobeCtx = plasmaGlobeCtx;
-    plasmaGlobeCtx.fillStyle = '#222';
-    plasmaGlobeCtx.fillRect(35, 70, 30, 20); // Base
-    plasmaGlobeCtx.fillStyle = 'rgba(200, 0, 255, 0.2)';
-    plasmaGlobeCtx.shadowBlur = 15;
-    plasmaGlobeCtx.shadowColor = '#d400ff';
-    plasmaGlobeCtx.beginPath();
-    plasmaGlobeCtx.arc(50, 40, 30, 0, Math.PI*2);
-    plasmaGlobeCtx.fill();
-    plasmaGlobeCtx.strokeStyle = '#d400ff';
-    plasmaGlobeCtx.lineWidth = 2;
-    plasmaGlobeCtx.stroke();
-    plasmaGlobeCtx.fillStyle = '#fff';
-    plasmaGlobeCtx.beginPath();
-    plasmaGlobeCtx.arc(50, 40, 5, 0, Math.PI*2);
-    plasmaGlobeCtx.fill();
-    // Lightning bolts
-    plasmaGlobeCtx.beginPath();
-    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(35, 20);
-    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(65, 20);
-    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(25, 45);
-    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(75, 45);
-    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(40, 65);
-    plasmaGlobeCtx.moveTo(50, 40); plasmaGlobeCtx.lineTo(60, 65);
-    plasmaGlobeCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_plasmaglobe_tile', plasmaGlobeCanvas);
-
-    // Cyber Poster
-    const cyberPosterCanvas = document.createElement('canvas');
-    cyberPosterCanvas.width = 100;
-    cyberPosterCanvas.height = 100;
-    const cyberPosterCtx = cyberPosterCanvas.getContext('2d');
-    cyberPosterCtx.fillStyle = '#111';
-    cyberPosterCtx.fillRect(25, 10, 50, 80);
-    cyberPosterCtx.strokeStyle = '#ff00ff';
-    cyberPosterCtx.lineWidth = 3;
-    cyberPosterCtx.strokeRect(25, 10, 50, 80);
-    cyberPosterCtx.fillStyle = 'rgba(255, 0, 255, 0.4)';
-    cyberPosterCtx.beginPath();
-    cyberPosterCtx.moveTo(25, 10); cyberPosterCtx.lineTo(75, 10); cyberPosterCtx.lineTo(75, 30); cyberPosterCtx.lineTo(25, 30);
-    cyberPosterCtx.fill();
-    cyberPosterCtx.strokeStyle = '#00ffd2';
-    cyberPosterCtx.shadowBlur = 10;
-    cyberPosterCtx.shadowColor = '#00ffd2';
-    cyberPosterCtx.beginPath(); cyberPosterCtx.arc(50, 50, 15, 0, Math.PI*2); cyberPosterCtx.stroke();
-    cyberPosterCtx.beginPath();
-    cyberPosterCtx.moveTo(35, 75); cyberPosterCtx.lineTo(65, 75);
-    cyberPosterCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_cyberposter_tile', cyberPosterCanvas);
-
-    // Neon Sign
-    const neonSignCanvas = document.createElement('canvas');
-    neonSignCanvas.width = 100;
-    neonSignCanvas.height = 100;
-    const neonSignCtx = neonSignCanvas.getContext('2d');
-    neonSignCtx.fillStyle = '#111';
-    neonSignCtx.fillRect(10, 30, 80, 40);
-    neonSignCtx.strokeStyle = '#ff00aa';
-    neonSignCtx.lineWidth = 2;
-    neonSignCtx.strokeRect(10, 30, 80, 40);
-    neonSignCtx.strokeStyle = '#00ffd2';
-    neonSignCtx.lineWidth = 4;
-    neonSignCtx.shadowBlur = 12;
-    neonSignCtx.shadowColor = '#00ffd2';
-    neonSignCtx.beginPath();
-    neonSignCtx.moveTo(20, 50);
-    neonSignCtx.bezierCurveTo(35, 20, 45, 80, 60, 50);
-    neonSignCtx.bezierCurveTo(65, 40, 75, 70, 80, 50);
-    neonSignCtx.stroke();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_neonsign_tile', neonSignCanvas);
-
-    // Gaming PC
-    const gamingPcCanvas = document.createElement('canvas');
-    gamingPcCanvas.width = 100;
-    gamingPcCanvas.height = 100;
-    const gamingPcCtx = gamingPcCanvas.getContext('2d');
-    window.gamingPcCanvas = gamingPcCanvas;
-    window.gamingPcCtx = gamingPcCtx;
-    gamingPcCtx.fillStyle = '#152238';
-    gamingPcCtx.fillRect(25, 20, 50, 60);
-    gamingPcCtx.strokeStyle = '#00ffd2';
-    gamingPcCtx.lineWidth = 2;
-    gamingPcCtx.strokeRect(25, 20, 50, 60);
-    gamingPcCtx.fillStyle = '#000';
-    gamingPcCtx.fillRect(30, 25, 40, 50); // Glass panel
-    gamingPcCtx.strokeStyle = '#ff0055';
-    gamingPcCtx.shadowBlur = 8;
-    gamingPcCtx.shadowColor = '#ff0055';
-    gamingPcCtx.beginPath(); gamingPcCtx.arc(50, 40, 10, 0, Math.PI*2); gamingPcCtx.stroke();
-    gamingPcCtx.strokeStyle = '#00ff55';
-    gamingPcCtx.shadowColor = '#00ff55';
-    gamingPcCtx.beginPath(); gamingPcCtx.arc(50, 65, 10, 0, Math.PI*2); gamingPcCtx.stroke();
-    gamingPcCtx.fillStyle = 'rgba(0, 255, 210, 0.5)';
-    gamingPcCtx.fillRect(30, 25, 5, 50); // RAM glow
-
-    window.finalizeFurnitureTexture(scene, 'furniture_gamingpc_tile', gamingPcCanvas);
-
-    // Smart Mirror
-    const smartMirrorCanvas = document.createElement('canvas');
-    smartMirrorCanvas.width = 100;
-    smartMirrorCanvas.height = 100;
-    const smartMirrorCtx = smartMirrorCanvas.getContext('2d');
-    window.smartMirrorCanvas = smartMirrorCanvas;
-    window.smartMirrorCtx = smartMirrorCtx;
-    smartMirrorCtx.fillStyle = 'rgba(170, 204, 255, 0.8)';
-    smartMirrorCtx.beginPath();
-    smartMirrorCtx.roundRect(25, 10, 50, 80, 25);
-    smartMirrorCtx.fill();
-    smartMirrorCtx.strokeStyle = '#00ffd2';
-    smartMirrorCtx.lineWidth = 3;
-    smartMirrorCtx.stroke();
-    smartMirrorCtx.strokeStyle = '#fff';
-    smartMirrorCtx.lineWidth = 2;
-    smartMirrorCtx.beginPath();
-    smartMirrorCtx.moveTo(40, 20); smartMirrorCtx.lineTo(60, 20);
-    smartMirrorCtx.stroke();
-    smartMirrorCtx.fillStyle = '#ff00ff';
-    smartMirrorCtx.shadowBlur = 10;
-    smartMirrorCtx.shadowColor = '#ff00ff';
-    smartMirrorCtx.beginPath(); smartMirrorCtx.arc(50, 80, 4, 0, Math.PI*2); smartMirrorCtx.fill();
-
-    window.finalizeFurnitureTexture(scene, 'furniture_smartmirror_tile', smartMirrorCanvas);
-
-    // --- DYNAMICALLY GENERATED FROM SVG OVERRIDES ---
-
-}
+                // Floor lamp specific logic to maintain compatibility
+                if (itemName === "Floor Lamp") {
+                    window.finalizeFurnitureTexture(scene, 'furniture_lamp_off_tile', canvas);
+                    window.finalizeFurnitureTexture(scene, 'furniture_lamp_on_tile', canvas); // Simplified for now
+                }
+            };
+            img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(cleanSvg);
+        }
+    });
 
 function generateMiscTextures(scene) {
     // Generate Lilly Pad Texture
@@ -29485,9 +28016,7 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
         const isHolo = mapData[r][c] === 'home_holo_wall';
         const style = localStorage.getItem(`wildpulse_p${pNum}_home_wall_style`) || 'cyber_circuit';
         const textureKey = isHolo ? 'home_holo_wall_tile' : `wall_${style}`;
-        let wall = scene.add.tileSprite(posX, posY, tileSize, tileSize, textureKey);
-        wall.tilePositionX = posX;
-        wall.tilePositionY = posY;
+        let wall = scene.add.sprite(posX, posY, textureKey);
 
         const isFloor = (tr, tc) => { if(!mapData || !mapData[tr] || !mapData[tr][tc]) return false; const t = mapData[tr][tc]; return t === "home_floor" || t === "rift_floor" || t.startsWith("home_door") || t === "return_portal"; };
         const isLeftWall = isFloor(r, c+1) && !isFloor(r, c-1);
@@ -31512,7 +30041,7 @@ function create() {
     window.creaturesGroup = creaturesGroup;
     creaturesGroup.setDepth(1);
     this.physics.add.collider(creaturesGroup, window.treesGroup);
-    // this.physics.add.collider(creaturesGroup, obstaclesGroup);
+    this.physics.add.collider(creaturesGroup, obstaclesGroup);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
@@ -33006,7 +31535,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
             let col = Math.floor(tryX / 100);
             let row = Math.floor(tryY / 100);
-            if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(tryX, tryY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(tryX, tryY))) {
+            if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(tryX, tryY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(tryX, tryY))) {
                 x = tryX;
                 y = tryY;
                 found = true;
@@ -34736,7 +33265,6 @@ window.startPvpBattle = function(opponentId, opponentCreature, myCreature, isIni
     document.getElementById('battleLog').innerHTML = '';
     battleLogQueue = [];
     isTyping = false;
-    window.isActionRunning = false;
 
     window.logBattle(`PvP Battle started against Player ${opponentId.substring(0, 5)}...!`);
     window.logBattle(`Opponent sent out <span style="color:#f44336">${currentEnemy.name}</span>!`);
@@ -36240,7 +34768,7 @@ function updateFurnitureDetails() {
             window.lavaLampCtx.beginPath(); window.lavaLampCtx.arc(55, y3, 4, 0, Math.PI*2); window.lavaLampCtx.fill();
 
             window.lavaLampCtx.shadowBlur = 0; // Reset shadow for 3D depth
-
+            if (window.add3DDepth) window.add3DDepth(window.lavaLampCtx, 0, 0, 100, 100);
             if (window.gameScene.textures.exists('furniture_lavalamp_tile')) {
                 window.gameScene.textures.get('furniture_lavalamp_tile').refresh();
             }
@@ -36279,7 +34807,7 @@ function updateFurnitureDetails() {
             window.plasmaGlobeCtx.stroke();
 
             window.plasmaGlobeCtx.shadowBlur = 0;
-
+            if (window.add3DDepth) window.add3DDepth(window.plasmaGlobeCtx, 0, 0, 100, 100);
             if (window.gameScene.textures.exists('furniture_plasmaglobe_tile')) {
                 window.gameScene.textures.get('furniture_plasmaglobe_tile').refresh();
             }
@@ -36310,7 +34838,7 @@ function updateFurnitureDetails() {
             window.gamingPcCtx.fillStyle = `rgba(0, 255, 210, ${0.2 + (cycle * 0.6)})`;
             window.gamingPcCtx.fillRect(30, 25, 5, 50); // RAM glow
 
-
+            if (window.add3DDepth) window.add3DDepth(window.gamingPcCtx, 0, 0, 100, 100);
             if (window.gameScene.textures.exists('furniture_gamingpc_tile')) {
                 window.gameScene.textures.get('furniture_gamingpc_tile').refresh();
             }
@@ -38631,7 +37159,7 @@ function update() {
                     } else {
                         const col = Math.floor(tx / 100);
                         const row = Math.floor(ty / 100);
-                        if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs')) {
+                        if (mapData[row] && mapData[row][col] === 'grass') {
                             tSprite.setData('targetX', tx);
                             tSprite.setData('targetY', ty);
                         }
@@ -38667,7 +37195,7 @@ function update() {
                 } else {
                     const col = Math.floor(clampedX / 100);
                     const row = Math.floor(clampedY / 100);
-                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs')) {
+                    if (mapData[row] && mapData[row][col] === 'grass') {
                         tSprite.x = clampedX;
                         tSprite.y = clampedY;
                     }
@@ -38683,23 +37211,6 @@ function update() {
             if (nameText) {
                 nameText.setPosition(tSprite.x, tSprite.y - 30);
                 nameText.setVisible(isVisible);
-            }
-
-            // Swimming Visuals for NPC Trainers
-            let tCol = Math.floor(tSprite.x / 100);
-            let tRow = Math.floor(tSprite.y / 100);
-            let tInWater = (mapData[tRow] && mapData[tRow][tCol] === 'obs');
-            if (tInWater && window.currentSeason !== 'Winter') {
-                tSprite.setTint(0x88ccff);
-                tSprite.setAlpha(0.7);
-                let bob = Math.sin(this.time.now / 200) * 4;
-                tSprite.setCrop(0, 0, tSprite.width, tSprite.height * 0.625 + bob);
-                tSprite.setOrigin(0.5, 0.4);
-            } else {
-                tSprite.setTint(0xffffff);
-                tSprite.setAlpha(1.0);
-                if (tSprite.isCropped) tSprite.setCrop();
-                tSprite.setOrigin(0.5, 0.5);
             }
         });
     }
@@ -38733,7 +37244,7 @@ function update() {
 
                     const col = Math.floor(targetX / 100);
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
+                    if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
                         creature.x = targetX;
                         creature.y = targetY;
                         creature.setData('targetX', targetX);
@@ -38755,7 +37266,7 @@ function update() {
                     // Only move if target isn't water
                     const col = Math.floor(targetX / 100); // TILE_SIZE is 100
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
+                    if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
                         creature.setData('targetX', targetX);
                         creature.setData('targetY', targetY);
                     } else {
@@ -38780,26 +37291,6 @@ function update() {
             symbolText.setPosition(creature.x, creature.y - 35);
             symbolText.setVisible(isVisible);
             symbolText.setDepth(creature.depth + 1);
-        }
-
-        // Swimming Visuals for Wild Creatures
-        let cCol = Math.floor(creature.x / 100);
-        let cRow = Math.floor(creature.y / 100);
-        let cInWater = (mapData[cRow] && mapData[cRow][cCol] === 'obs');
-        if (cInWater && window.currentSeason !== 'Winter') {
-            creature.setTint(0x88ccff);
-            creature.setAlpha(0.7);
-            let bob = Math.sin(this.time.now / 200) * 4;
-            creature.setCrop(0, 0, creature.width, creature.height * 0.625 + bob);
-            creature.setOrigin(0.5, 0.4);
-        } else {
-            const cData = creature.getData('creatureData');
-            if (!cData || !cData.isShiny) {
-                creature.setTint(0xffffff);
-            }
-            creature.setAlpha(1.0);
-            if (creature.isCropped) creature.setCrop();
-            creature.setOrigin(0.5, 0.5);
         }
     });
 
