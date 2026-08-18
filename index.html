@@ -19388,7 +19388,7 @@ localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.col
 if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
     const gen1Creatures = window.baseCreatures.filter(c => !c.generation || c.generation === 1);
     if (gen1Creatures.length > 0) {
-        const starterSeed = window.gameSeed || 123456789;
+        const starterSeed = Math.floor(Math.random() * 2000000000);
         const starterRng = window.mulberry32(starterSeed);
         // Explicitly choose completely randomly across all 50 G1 species for player 1's starter deterministically
         let randomIndex = Math.floor(starterRng() * gen1Creatures.length);
@@ -19424,7 +19424,7 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
         collectedCreaturesIds.add(starter.id);
         collectedCreatures.push(starter);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-        console.log("[Starter Selection] Seeded Player 1 starter selected deterministically: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
+        console.log("[Starter Selection] Random Player 1 starter selected: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
     }
 }
 
@@ -19432,7 +19432,7 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
 if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.baseCreatures.length > 0) {
     const gen1Creatures = window.baseCreatures.filter(c => !c.generation || c.generation === 1);
     if (gen1Creatures.length > 0) {
-        const starterSeed2 = (window.gameSeed || 123456789) + 100;
+        const starterSeed2 = Math.floor(Math.random() * 2000000000);
         const starterRng2 = window.mulberry32(starterSeed2);
         // Explicitly choose completely randomly across all 50 G1 species for player 2's starter deterministically
         let randomIndex = Math.floor(starterRng2() * gen1Creatures.length);
@@ -19468,7 +19468,7 @@ if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.ba
         window.collectedCreaturesIds2.add(starter.id);
         window.collectedCreatures2.push(starter);
         localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
-        console.log("[Starter Selection] Seeded Player 2 starter selected deterministically: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
+        console.log("[Starter Selection] Random Player 2 starter selected: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
     }
 }
 
