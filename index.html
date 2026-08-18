@@ -2724,6 +2724,7 @@
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">🌐 Traverse & Map</strong>: Navigate our expanded 60,000px territory. Changing seasons and heavy storm weather directly boost your walking speed—use it to map every sector!</li>
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">⚔️ Tactical Combat</strong>: To build our specimen database, engage and weaken wild creatures. Once their grid signal is low, capture them to secure their physical form in your active party.</li>
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">🧬 DNA Breeding Program</strong>: My crowning achievement. When your trainer clearance reaches Level 7, combine any male and female specimen at the Breeding Center to synthesize a Mysterious Egg. You must physically walk 1,000 steps with the egg in your active party to hatch its DNA structure. Hatching reveals the newborn's hidden stats, nature, temperament, and mutations! (Note: stored eggs won't progress).</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">🏠 Safe Haven</strong>: When your trainer clearance reaches Level 10, your Home Teleporter will unlock, granting you a personal home base! You can instantly travel to your home, and back to the hospital! While inside or near your home, press H or Start to access the Home Design modal, where you can freely place, rotate, and arrange furniture items acquired from quests or the Store to customize your sanctuary.</li>
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">❤️ Mutual Symbiosis</strong>: Active companionship generates trust. Keeping a creature by your side actively builds Happiness and unlocks passive experience gains.</li>
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">👑 Sector Dominance</strong>: Challenge 24 elite wandering trainers spread across the grid, trade creatures with other field operatives, or test your squad in the high-stakes Crown Challenges.</li>
                 </ul>
@@ -2892,6 +2893,7 @@
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">🌐 Traverse & Map</strong>: Navigate our expanded 60,000px territory. Changing seasons and heavy storm weather directly boost your walking speed—use it to map every sector!</li>
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">⚔️ Tactical Combat</strong>: To build our specimen database, engage and weaken wild creatures. Once their grid signal is low, capture them to secure their physical form in your active party.</li>
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">🧬 DNA Breeding Program</strong>: My crowning achievement. When your trainer clearance reaches Level 7, combine any male and female specimen at the Breeding Center to synthesize a Mysterious Egg. You must physically walk 1,000 steps with the egg in your active party to hatch its DNA structure. Hatching reveals the newborn's hidden stats, nature, temperament, and mutations! (Note: stored eggs won't progress).</li>
+                    <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">🏠 Safe Haven</strong>: When your trainer clearance reaches Level 10, your Home Teleporter will unlock, granting you a personal home base! You can instantly travel to your home, and back to the hospital! While inside or near your home, press H or Start to access the Home Design modal, where you can freely place, rotate, and arrange furniture items acquired from quests or the Store to customize your sanctuary.</li>
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">❤️ Mutual Symbiosis</strong>: Active companionship generates trust. Keeping a creature by your side actively builds Happiness and unlocks passive experience gains.</li>
                     <li style="margin-bottom: 8px;"><strong style="color: #00ffcc;">👑 Sector Dominance</strong>: Challenge 24 elite wandering trainers spread across the grid, trade creatures with other field operatives, or test your squad in the high-stakes Crown Challenges.</li>
                 </ul>
@@ -16785,6 +16787,32 @@ window.updatePlayerLabels = function() {
     }
 };
 
+
+window.triggerHomeTutorial = function(playerNum) {
+    const isP2 = (playerNum === 2);
+    const suffix = isP2 ? '_p2' : '';
+
+    // We can use a custom overlay or just series of notifications.
+    if (window.showModernNotification) {
+        setTimeout(() => window.showModernNotification("🏠 HOME UNLOCKED! You can now teleport to your new personal home base!", 6000, playerNum), 1000);
+        setTimeout(() => window.showModernNotification("💡 While inside or near your home, access the Home Design modal (H or Start button) to place furniture.", 7000, playerNum), 7000);
+        setTimeout(() => window.showModernNotification("🛋️ You can rotate furniture before placing, and arrange your sanctuary to your liking!", 7000, playerNum), 14000);
+    }
+};
+
+
+window.awardHomeFurniture = function(playerNum) {
+    const furniturePool = ["Storage Chest", "Mini Hospital", "Mini Store", "Mini Trade", "Mini PvP", "Mini Breeding Center", "Mini Challenge", "Neon Couch", "L-Couch", "Love Seat", "Cyber Desk", "Office Chair", "Stool", "Coffee Table", "Dining Table", "Park Bench", "Cyber Bench", "Filing Cabinet", "Display Cabinet", "Nightstand", "Corner Table", "Bunk Bed", "King Bed", "Glow Carpet", "Star Carpet", "Round Cyber Carpet", "Hexagon Carpet", "Heart Carpet", "Diamond Carpet", "Holo Bed", "Neon Chair", "Holo Table", "Cyber Plant", "Crystal Bonsai", "Neon Fern", "Plasma Cactus", "Holo Orchid", "Neon Lamp", "Server Rack", "Arcade Machine", "Cyber TV", "Neon Shelf", "Tech Bin", "Neon Wardrobe", "Cyber Fridge", "Holo Display", "Lava Lamp", "Plasma Globe", "Cyber Poster", "Neon Sign", "Gaming PC", "Smart Mirror", "Potted Ficus", "Monstera Plant", "Cyber Bamboo", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Digi Sunflower", "Zen Bonsai", "Lunar Lily", "Cyber Tree", "Neon Pine"];
+    const randomItem = furniturePool[Math.floor(Math.random() * furniturePool.length)];
+    if (window.addInventoryItem) {
+        window.addInventoryItem(playerNum, randomItem);
+        if (window.showModernNotification) {
+            window.showModernNotification(`🎉 Level 10 Reached! You received a free ${randomItem} to decorate your new home!`, 8000, playerNum);
+        }
+    }
+    window.triggerHomeTutorial(playerNum);
+};
+
 window.gainPlayerXp = function(playerNum, amount) {
     if (playerNum === 2) {
         window.p2Xp = (window.p2Xp || 0) + amount;
@@ -16792,6 +16820,7 @@ window.gainPlayerXp = function(playerNum, amount) {
         while (window.p2Xp >= window.getXpRequirement(window.p2Level || 1)) {
             window.p2Xp -= window.getXpRequirement(window.p2Level || 1);
             window.p2Level = (window.p2Level || 1) + 1;
+            if (window.p2Level === 10) { window.awardHomeFurniture(2); }
             leveledUp = true;
         }
         window.savePlayerLevels();
@@ -16810,6 +16839,7 @@ window.gainPlayerXp = function(playerNum, amount) {
         while (window.p1Xp >= window.getXpRequirement(window.p1Level || 1)) {
             window.p1Xp -= window.getXpRequirement(window.p1Level || 1);
             window.p1Level = (window.p1Level || 1) + 1;
+            if (window.p1Level === 10) { window.awardHomeFurniture(1); }
             leveledUp = true;
         }
         window.savePlayerLevels();
