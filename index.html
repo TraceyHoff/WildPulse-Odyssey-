@@ -5990,14 +5990,14 @@ window.generateHomeInteriorTextures = function(scene) {
         const c = document.createElement('canvas'); c.width = 100; c.height = 100;
         const ctx = c.getContext('2d');
         drawFunc(ctx);
-        add3DDepth(ctx, 12); // Add blocky 3D depth to walls
+        // add3DDepth(ctx, 12); // Add blocky 3D depth to walls
         scene.textures.addCanvas(`wall_${key}`, c);
     }
     // Backward compatibility: home_wall_tile maps to wall_cyber_circuit
     const wallDefault = document.createElement('canvas'); wallDefault.width = 100; wallDefault.height = 100;
     const wallDefaultCtx = wallDefault.getContext('2d');
     wallStyles['cyber_circuit'](wallDefaultCtx);
-    add3DDepth(wallDefaultCtx, 12);
+    // add3DDepth(wallDefaultCtx, 12);
     scene.textures.addCanvas('home_wall_tile', wallDefault);
 
     // Holographic Wall Texture
@@ -6020,7 +6020,7 @@ window.generateHomeInteriorTextures = function(scene) {
     holoWallCtx.fillStyle = holoGrad;
     holoWallCtx.fillRect(0, 0, 100, 100);
     // 3D Depth
-    add3DDepth(holoWallCtx, 12);
+    // add3DDepth(holoWallCtx, 12);
     scene.textures.addCanvas('home_holo_wall_tile', holoWallCanvas);
 
     // PRE-GENERATE ALL 8 FLOOR STYLES
