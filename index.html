@@ -16911,26 +16911,26 @@ window.saveBaseTiles = function() {
 
 // Store Stock Initialization
 const defaultStock = {
-    "Repellent": 15,
-    "HP Booster": 15,
-    "Attack Booster": 15,
-    "Defense Booster": 15,
-    "Speed Booster": 15,
-    "Sp. Atk Booster": 15,
-    "Sp. Def Booster": 15,
-    "Jank Juice": 15,
-    "Healing Juice Bottle": 15,
-    "Healing Juice Jug": 15,
-    "ExPALL": 15,
-    "Creature License": 15,
-    "Creature Cookie": 15,
-    "Pedometer": 15,
-    "Cyber-Core Upgrade": 15,
-    "Nano-Nurture Serum": 15,
-    "DNA Stabilizer": 15,
-    "Storage Chest": 15,
-    "NPC Dual Link": 15,
-    "Wild Dual Signal": 15
+    "Repellent": 30,
+    "HP Booster": 30,
+    "Attack Booster": 30,
+    "Defense Booster": 30,
+    "Speed Booster": 30,
+    "Sp. Atk Booster": 30,
+    "Sp. Def Booster": 30,
+    "Jank Juice": 30,
+    "Healing Juice Bottle": 30,
+    "Healing Juice Jug": 30,
+    "ExPALL": 30,
+    "Creature License": 30,
+    "Creature Cookie": 30,
+    "Pedometer": 30,
+    "Cyber-Core Upgrade": 30,
+    "Nano-Nurture Serum": 30,
+    "DNA Stabilizer": 30,
+    "Storage Chest": 30,
+    "NPC Dual Link": 30,
+    "Wild Dual Signal": 30
 };
 window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1')) || JSON.parse(JSON.stringify(defaultStock));
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
@@ -17341,12 +17341,12 @@ window.updateStoreUI = function() {
 
         homeItems.push(
             { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage.", reqLevel: 6, type: "Storage" },
-            { name: "Mini Hospital", icon: "🏥", price: 770, desc: "A functional smaller version of the Hospital. Place near your home.", reqLevel: 10, type: "Mini Building" },
-            { name: "Mini Store", icon: "🏪", price: 770, desc: "A functional smaller version of the Store. Place near your home.", reqLevel: 10, type: "Mini Building" },
-            { name: "Mini Trade", icon: "🔄", price: 770, desc: "A functional smaller version of the Trade center. Place near your home.", reqLevel: 10, type: "Mini Building" },
-            { name: "Mini PvP", icon: "⚔️", price: 770, desc: "A functional smaller version of the PvP arena. Place near your home.", reqLevel: 10, type: "Mini Building" },
-            { name: "Mini Breeding Center", icon: "🥚", price: 770, desc: "A functional smaller version of the Breeding Center. Place near your home.", reqLevel: 10, type: "Mini Building" },
-            { name: "Mini Challenge", icon: "👑", price: 770, desc: "A functional smaller version of the Challenge area. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Hospital", icon: "🏥", price: 500, desc: "A functional smaller version of the Hospital. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Store", icon: "🏪", price: 500, desc: "A functional smaller version of the Store. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Trade", icon: "🔄", price: 500, desc: "A functional smaller version of the Trade center. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini PvP", icon: "⚔️", price: 500, desc: "A functional smaller version of the PvP arena. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Breeding Center", icon: "🥚", price: 500, desc: "A functional smaller version of the Breeding Center. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Challenge", icon: "👑", price: 500, desc: "A functional smaller version of the Challenge area. Place near your home.", reqLevel: 10, type: "Mini Building" },
             { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
             { name: "L-Couch", icon: "🛋️", price: 650, desc: "An L-shaped couch for your home. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
             { name: "Love Seat", icon: "🛋️", price: 400, desc: "A small, comfortable seat for two. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
@@ -17361,15 +17361,15 @@ window.updateStoreUI = function() {
             { name: "Display Cabinet", icon: "🗄️", price: 500, desc: "A glass cabinet to show off cyber-artifacts. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
             { name: "Nightstand", icon: "🪑", price: 200, desc: "A small table for beside the bed. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
             { name: "Corner Table", icon: "🪵", price: 250, desc: "A small table designed for corners. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
-            { name: "Bunk Bed", icon: "🛏️", price: 700, desc: "A multi-level bed unit. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
-            { name: "King Bed", icon: "🛏️", price: 1000, desc: "A massive, luxurious bed. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "Bunk Bed", icon: "🛏️", price: 500, desc: "A multi-level bed unit. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "King Bed", icon: "🛏️", price: 750, desc: "A massive, luxurious bed. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
             { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
             { name: "Star Carpet", icon: "⭐", price: 300, desc: "A star-shaped cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
             { name: "Round Cyber Carpet", icon: "🔵", price: 300, desc: "A circular glowing carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
             { name: "Hexagon Carpet", icon: "💠", price: 300, desc: "A hexagonal tech carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
             { name: "Heart Carpet", icon: "❤️", price: 300, desc: "A heart-shaped cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
             { name: "Diamond Carpet", icon: "♦️", price: 300, desc: "A diamond-shaped glowing carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
-            { name: "Holo Bed", icon: "🛏️", price: 800, desc: "A futuristic holographic bed. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "Holo Bed", icon: "🛏️", price: 600, desc: "A futuristic holographic bed. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
             { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
             { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
             { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
@@ -17389,25 +17389,25 @@ window.updateStoreUI = function() {
             { name: "Cyber Tree", icon: "🌳", price: 600, desc: "A large decorative indoor tree with fiber-optic leaves. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
             { name: "Neon Pine", icon: "🌲", price: 500, desc: "A small pine tree radiating a sharp, neon glow. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
             { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
-            { name: "Server Rack", icon: "🗄️", price: 800, desc: "A glowing cybernetic data server. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
-            { name: "Arcade Machine", icon: "🕹️", price: 1000, desc: "A retro-futuristic arcade cabinet. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
-            { name: "Cyber TV", icon: "📺", price: 700, desc: "A massive flat-screen cyber display. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Server Rack", icon: "🗄️", price: 600, desc: "A glowing cybernetic data server. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Arcade Machine", icon: "🕹️", price: 750, desc: "A retro-futuristic arcade cabinet. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Cyber TV", icon: "📺", price: 500, desc: "A massive flat-screen cyber display. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
             { name: "Neon Shelf", icon: "📚", price: 250, desc: "A wall-leaning shelf with neon edges. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
             { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place using mini-tile placement.", reqLevel: 10, type: "Misc" },
             { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
             { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
-            { name: "Holo Display", icon: "🖼️", price: 1200, desc: "A floating holographic art display. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Holo Display", icon: "🖼️", price: 800, desc: "A floating holographic art display. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
             { name: "Lava Lamp", icon: "🌋", price: 350, desc: "A retro-futuristic glowing lava lamp. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
             { name: "Plasma Globe", icon: "🔮", price: 450, desc: "A sphere of crackling plasma energy. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
             { name: "Cyber Poster", icon: "📜", price: 250, desc: "A digital neon poster for your wall. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
             { name: "Neon Sign", icon: "🪧", price: 650, desc: "A bright, buzzing neon sign. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
-            { name: "Gaming PC", icon: "💻", price: 1500, desc: "A high-end RGB gaming rig. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
-            { name: "Smart Mirror", icon: "🪞", price: 850, desc: "A high-tech interactive mirror. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" }
+            { name: "Gaming PC", icon: "💻", price: 900, desc: "A high-end RGB gaming rig. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Smart Mirror", icon: "🪞", price: 650, desc: "A high-tech interactive mirror. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" }
         );
 
         if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
             homeItems.push(
-                { name: "Dojo Tile", icon: "⛩️", price: 920, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." , type: "Mini Building" }
+                { name: "Dojo Tile", icon: "⛩️", price: 650, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." , type: "Mini Building" }
             );
         }
 
@@ -17462,7 +17462,7 @@ const categoryOrder = {
             const freeSlots = 3 - inv.length;
             const available = spaceInExisting + (freeSlots * 10);
 
-            const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 15) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 15);
+            const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 30) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 30);
 
             let displayedPrice = item.price;
             const activePartyForLuckyUI = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -36909,26 +36909,26 @@ function update() {
                 localStorage.setItem('wildpulse_last_replenish_day', window.wildpulse_lastReplenishDay.toString());
 
                 const replenishmentStock = {
-                    "Repellent": 15,
-                    "HP Booster": 15,
-                    "Attack Booster": 15,
-                    "Defense Booster": 15,
-                    "Speed Booster": 15,
-                    "Sp. Atk Booster": 15,
-                    "Sp. Def Booster": 15,
-                    "Jank Juice": 15,
-                    "Healing Juice Bottle": 15,
-                    "Healing Juice Jug": 15,
-                    "ExPALL": 15,
-                    "Creature License": 15,
-                    "Creature Cookie": 15,
-                    "Pedometer": 15,
-                    "Cyber-Core Upgrade": 15,
-                    "Nano-Nurture Serum": 15,
-                    "DNA Stabilizer": 15,
-                    "Storage Chest": 15,
-                    "NPC Dual Link": 15,
-                    "Wild Dual Signal": 15
+                    "Repellent": 30,
+                    "HP Booster": 30,
+                    "Attack Booster": 30,
+                    "Defense Booster": 30,
+                    "Speed Booster": 30,
+                    "Sp. Atk Booster": 30,
+                    "Sp. Def Booster": 30,
+                    "Jank Juice": 30,
+                    "Healing Juice Bottle": 30,
+                    "Healing Juice Jug": 30,
+                    "ExPALL": 30,
+                    "Creature License": 30,
+                    "Creature Cookie": 30,
+                    "Pedometer": 30,
+                    "Cyber-Core Upgrade": 30,
+                    "Nano-Nurture Serum": 30,
+                    "DNA Stabilizer": 30,
+                    "Storage Chest": 30,
+                    "NPC Dual Link": 30,
+                    "Wild Dual Signal": 30
                 };
                 window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
                 window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
