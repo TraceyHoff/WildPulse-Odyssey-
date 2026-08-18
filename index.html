@@ -21658,6 +21658,7 @@ window.startChallengeBattle = function() {
     document.getElementById('battleCloseBtn').style.display = 'none';
     document.getElementById('battleLog').innerHTML = '';
     window.battleLogQueue = [];
+    window.isActionRunning = false;
 
     logBattle(`<span style="color:#ffd700; font-size: 1.2em;">--- CHALLENGE TIER ${window.challengeTier} ---</span>`);
     logBattle(`The arena gates open... Challenge opponent approaches with ${window.npcEnemyParty.length} creatures!`);
@@ -21853,6 +21854,7 @@ window.startDojoBattle = function() {
     document.getElementById('battleCloseBtn').style.display = 'none';
     document.getElementById('battleLog').innerHTML = '';
     window.battleLogQueue = [];
+    window.isActionRunning = false;
 
     logBattle(`<span style="color:#ff3366; font-size: 1.2em; text-shadow: 0 0 5px rgba(255,51,102,0.8);">--- DOJO LEADER TIER ${window.dojoTier} ---</span>`);
     logBattle(`The Dojo gates slide open... Dojo Leader challenges you with ${window.npcEnemyParty.length} creatures!`);
@@ -34683,6 +34685,7 @@ window.startPvpBattle = function(opponentId, opponentCreature, myCreature, isIni
     document.getElementById('battleLog').innerHTML = '';
     battleLogQueue = [];
     isTyping = false;
+    window.isActionRunning = false;
 
     window.logBattle(`PvP Battle started against Player ${opponentId.substring(0, 5)}...!`);
     window.logBattle(`Opponent sent out <span style="color:#f44336">${currentEnemy.name}</span>!`);
