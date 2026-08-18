@@ -31319,7 +31319,6 @@ function create() {
     window.creaturesGroup = creaturesGroup;
     creaturesGroup.setDepth(1);
     this.physics.add.collider(creaturesGroup, window.treesGroup);
-    this.physics.add.collider(creaturesGroup, obstaclesGroup);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
@@ -32444,6 +32443,7 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
 
     window.battleEnding = false;
     window.inBattle = true;
+    window.isActionRunning = false;
     window.isNpcBattle = true;
     window.activeNpcTrainerId = trainerId;
     window.npcEnemyIndex = 0;
@@ -38451,11 +38451,29 @@ function update() {
                 } else {
                     const col = Math.floor(clampedX / 100);
                     const row = Math.floor(clampedY / 100);
-                    if (mapData[row] && mapData[row][col] === 'grass') {
+                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs')) {
                         tSprite.x = clampedX;
                         tSprite.y = clampedY;
                     }
                 }
+            }
+
+            // Handle swimming animation for NPC trainers
+            const tCol = Math.floor(tSprite.x / 100);
+            const tRow = Math.floor(tSprite.y / 100);
+            const tInWater = (mapData[tRow] && mapData[tRow][tCol] === 'obs');
+            const tIsSwimming = tInWater && window.currentSeason !== 'Winter';
+            if (tIsSwimming) {
+                tSprite.setTint(0x88ccff);
+                tSprite.setAlpha(0.7);
+                const bob = Math.sin(this.time.now / 200) * (tSprite.height * 0.1);
+                tSprite.setCrop(0, 0, tSprite.width, tSprite.height * 0.625 + bob);
+                tSprite.setOrigin(0.5, 0.4);
+            } else {
+                tSprite.setTint(0xffffff);
+                tSprite.setAlpha(1.0);
+                tSprite.setCrop();
+                tSprite.setOrigin(0.5, 0.5);
             }
 
             // Save position to state
@@ -38519,10 +38537,10 @@ function update() {
                     if (targetY < 100) targetY = 100 + (100 - targetY);
                     else if (targetY > WORLD_SIZE - 100) targetY = (WORLD_SIZE - 100) - (targetY - (WORLD_SIZE - 100));
 
-                    // Only move if target isn't water
+                    // Move to grass or water
                     const col = Math.floor(targetX / 100); // TILE_SIZE is 100
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
+                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
                         creature.setData('targetX', targetX);
                         creature.setData('targetY', targetY);
                     } else {
@@ -38547,6 +38565,24 @@ function update() {
             symbolText.setPosition(creature.x, creature.y - 35);
             symbolText.setVisible(isVisible);
             symbolText.setDepth(creature.depth + 1);
+        }
+
+        // Handle swimming animation for wild creatures
+        const cCol = Math.floor(creature.x / 100);
+        const cRow = Math.floor(creature.y / 100);
+        const cInWater = (mapData[cRow] && mapData[cRow][cCol] === 'obs');
+        const cIsSwimming = cInWater && window.currentSeason !== 'Winter';
+        if (cIsSwimming) {
+            creature.setTint(0x88ccff);
+            creature.setAlpha(0.7);
+            const bob = Math.sin(this.time.now / 200) * (creature.height * 0.1);
+            creature.setCrop(0, 0, creature.width, creature.height * 0.625 + bob);
+            creature.setOrigin(0.5, 0.4);
+        } else {
+            creature.setTint(0xffffff);
+            creature.setAlpha(1.0);
+            creature.setCrop();
+            creature.setOrigin(0.5, 0.5);
         }
     });
 
