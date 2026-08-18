@@ -3102,7 +3102,7 @@
 </div>
 
 <!-- Player 1 Home Customization Modal -->
-<div id="homeCustomizationModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
+<div id="homeCustomizationModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.2); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
     <div style="position: relative; background: linear-gradient(135deg, rgba(30, 10, 40, 0.95), rgba(10, 0, 30, 0.95)); padding: 25px 20px; border-radius: 15px; border: 2px solid #bf55ec; box-shadow: 0 10px 40px rgba(191, 85, 236, 0.4); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
         <button class="close-btn" onclick="window.closeHomeCustomizationModal(1)" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">X</button>
         <h2 style="margin-top: 0; color: #bf55ec; text-shadow: 0 0 10px rgba(191,85,236,0.6); font-family: 'Courier New', monospace;">🏠 Home Designer</h2>
@@ -3255,7 +3255,7 @@
 </div>
 
 <!-- Player 2 Home Customization Modal -->
-<div id="homeCustomizationModal_p2" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
+<div id="homeCustomizationModal_p2" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.2); z-index: 200001; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
     <div style="position: relative; background: linear-gradient(135deg, rgba(30, 10, 40, 0.95), rgba(10, 0, 30, 0.95)); padding: 25px 20px; border-radius: 15px; border: 2px solid #bf55ec; box-shadow: 0 10px 40px rgba(191, 85, 236, 0.4); text-align: center; width: 95%; max-width: 400px; box-sizing: border-box; margin: auto;">
         <button class="close-btn" onclick="window.closeHomeCustomizationModal(2)" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: white; font-size: 18px; cursor: pointer;">X</button>
         <h2 style="margin-top: 0; color: #bf55ec; text-shadow: 0 0 10px rgba(191,85,236,0.6); font-family: 'Courier New', monospace;">🏠 Home Designer</h2>
@@ -30443,6 +30443,7 @@ function create() {
 
     // Fill background with grass
     obstaclesGroup = this.physics.add.staticGroup();
+    window.obstaclesGroup = obstaclesGroup;
     window.treesGroup = this.physics.add.staticGroup();
     hospitalGroup = this.physics.add.staticGroup();
     storeGroup = this.physics.add.staticGroup();
