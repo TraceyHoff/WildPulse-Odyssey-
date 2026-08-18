@@ -8267,7 +8267,7 @@ window.WildPulseMusic = {
             const dayNight = (typeof dayNightTime !== 'undefined') ? dayNightTime : 12.0;
             const isNight = (dayNight < 6 || dayNight >= 18);
             const isDay = !isNight;
-            const inside = window.isPlayerInsideHome;
+            const inside = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
 
             if (inside) return;
 
@@ -8310,7 +8310,7 @@ window.WildPulseMusic = {
         if (this.lastMusicUpdate && now - this.lastMusicUpdate < 200) return;
         this.lastMusicUpdate = now;
 
-        const isInsideHome = window.isPlayerInsideHome;
+        const isInsideHome = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
         // Sound effects
         if (!isInsideHome) {
             let p1Moving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0));
@@ -8326,7 +8326,7 @@ window.WildPulseMusic = {
         const weather = window.weatherPattern || 'none';
         const hasWeather = (weather !== 'none');
         const intensity = window.weatherIntensity || 0;
-        const inside = window.isPlayerInsideHome;
+        const inside = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
 
         let targetWindVol = -60;
         let targetRainVol = -60;
@@ -8399,7 +8399,7 @@ window.WildPulseMusic = {
 
     triggerThunder() {
         if (!this.initialized || this.muted || !this.synths.thunder) return;
-        const inside = window.isPlayerInsideHome;
+        const inside = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
         const volOffset = inside ? -10 : 0;
         if (this.synths.thunderStrike) {
             this.synths.thunderStrike.volume.value = -5 + volOffset;
