@@ -30489,6 +30489,21 @@ window.tryPlaceHome = function(playerNum, x, y) {
         // Exit placement mode
         window.exitHomePlacementMode(playerNum);
         window.showModernNotification("🏠 Home placed successfully! It will now act as a spawn point.", 4000, playerNum);
+
+        // Start home tutorial series
+        window.showModernNotification("🏠 Home Base Unlocked! Step onto the home tile to enter your house.", 10000, playerNum);
+        setTimeout(() => {
+            window.showModernNotification("🚪 Inside your home, you can teleport back to the hospital area using the glowing exit pad.", 10000, playerNum);
+        }, 12000);
+        setTimeout(() => {
+            window.showModernNotification("🎨 Access the 'Design' menu on your Action Wheel inside to customize walls and floors.", 10000, playerNum);
+        }, 24000);
+        setTimeout(() => {
+            window.showModernNotification("🛋️ Use your inventory to place furniture! Press R (or Right Trigger) to rotate items.", 10000, playerNum);
+        }, 36000);
+        setTimeout(() => {
+            window.showModernNotification("🎮 Pro Tip: During placement mode, use the D-Pad to make 1-pixel micro-adjustments for perfect positioning!", 10000, playerNum);
+        }, 48000);
     };
 
     if (existingX && existingY) {
