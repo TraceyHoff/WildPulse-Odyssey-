@@ -12887,7 +12887,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             rx = 32;
             ry = 32;
         }
-    } else if (bSize.includes('tiny') || bSize.includes('miniscule') || bSize.includes('diminutive') || bSize.includes('small') || bSize.includes('petite') || bSize.includes('microscopic') || bSize.includes('nano')) {
+    } else if (bSize.includes('tiny') || bSize.includes('miniscule') || bSize.includes('diminutive') || bSize.includes('small') || bSize.includes('petite') || bSize.includes('microscopic') || bSize.includes('nano') || bSize.includes('medium') || bSize.includes('rotund')) {
         rx = 16;
         ry = 16;
         if (bSize.includes('microscopic') || bSize.includes('nano')) {
@@ -12900,7 +12900,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
     } else if (bSize.includes('flat') || bSize.includes('disk-like') || bSize.includes('pancake')) {
         rx = 32;
         ry = 12;
-    } else if (bSize.includes('slender') || bSize.includes('graceful')) {
+    } else if (bSize.includes('slender') || bSize.includes('graceful') || bSize.includes('floating')) {
         rx = 18;
         ry = 25;
     } else if (bSize.includes('stout') || bSize.includes('blocky')) {
@@ -14463,7 +14463,7 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
             ctx.quadraticCurveTo(50 + rx * 1.1, 50 + ry, 50, 50 + ry * 1.1);
             ctx.quadraticCurveTo(50 - rx * 1.1, 50 + ry, 50 - rx * 0.7, 50 - ry);
             ctx.closePath();
-        } else if (bType.includes('sleek') || bType.includes('lanky') || bType.includes('agile') || bType.includes('graceful')) {
+        } else if (bType.includes('sleek') || bType.includes('lanky') || bType.includes('agile') || bType.includes('graceful') || bType.includes('slender') || bType.includes('ethereal') || bType.includes('divine') || bType.includes('floating') || bType.includes('radiant') || bType.includes('spindly') || bType.includes('sinuous')) {
             // Upward egg shape
             ctx.moveTo(50 - rx * 1.1, 50);
             ctx.quadraticCurveTo(50 - rx * 1.0, 50 - ry * 1.1, 50, 50 - ry * 1.1);
