@@ -16792,11 +16792,23 @@ window.triggerHomeTutorial = function(playerNum) {
     const isP2 = (playerNum === 2);
     const suffix = isP2 ? '_p2' : '';
 
-    // We can use a custom overlay or just series of notifications.
     if (window.showModernNotification) {
-        setTimeout(() => window.showModernNotification("🏠 HOME UNLOCKED! You can now teleport to your new personal home base!", 6000, playerNum), 1000);
-        setTimeout(() => window.showModernNotification("💡 While inside or near your home, access the Home Design modal (H or Start button) to place furniture.", 7000, playerNum), 7000);
-        setTimeout(() => window.showModernNotification("🛋️ You can rotate furniture before placing, and arrange your sanctuary to your liking!", 7000, playerNum), 14000);
+        // Start home tutorial series
+        setTimeout(() => {
+            window.showModernNotification("🏠 Home Base Unlocked! Step onto the home tile to enter your house.", 10000, playerNum);
+        }, 1000);
+        setTimeout(() => {
+            window.showModernNotification("🚪 Inside your home, you can teleport back to the hospital area using the glowing exit pad.", 10000, playerNum);
+        }, 13000);
+        setTimeout(() => {
+            window.showModernNotification("🎨 Access the 'Design' menu on your Action Wheel inside to customize walls and floors.", 10000, playerNum);
+        }, 25000);
+        setTimeout(() => {
+            window.showModernNotification("🛋️ Use your inventory to place furniture! Press R (or Right Trigger) to rotate items.", 10000, playerNum);
+        }, 37000);
+        setTimeout(() => {
+            window.showModernNotification("🎮 Pro Tip: During placement mode, use the D-Pad to make 1-pixel micro-adjustments for perfect positioning!", 10000, playerNum);
+        }, 49000);
     }
 };
 
@@ -30558,21 +30570,6 @@ window.tryPlaceHome = function(playerNum, x, y) {
         // Exit placement mode
         window.exitHomePlacementMode(playerNum);
         window.showModernNotification("🏠 Home placed successfully! It will now act as a spawn point.", 4000, playerNum);
-
-        // Start home tutorial series
-        window.showModernNotification("🏠 Home Base Unlocked! Step onto the home tile to enter your house.", 10000, playerNum);
-        setTimeout(() => {
-            window.showModernNotification("🚪 Inside your home, you can teleport back to the hospital area using the glowing exit pad.", 10000, playerNum);
-        }, 12000);
-        setTimeout(() => {
-            window.showModernNotification("🎨 Access the 'Design' menu on your Action Wheel inside to customize walls and floors.", 10000, playerNum);
-        }, 24000);
-        setTimeout(() => {
-            window.showModernNotification("🛋️ Use your inventory to place furniture! Press R (or Right Trigger) to rotate items.", 10000, playerNum);
-        }, 36000);
-        setTimeout(() => {
-            window.showModernNotification("🎮 Pro Tip: During placement mode, use the D-Pad to make 1-pixel micro-adjustments for perfect positioning!", 10000, playerNum);
-        }, 48000);
     };
 
     if (existingX && existingY) {
