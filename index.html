@@ -31508,7 +31508,7 @@ function create() {
     window.creaturesGroup = creaturesGroup;
     creaturesGroup.setDepth(1);
     this.physics.add.collider(creaturesGroup, window.treesGroup);
-    this.physics.add.collider(creaturesGroup, obstaclesGroup);
+    // this.physics.add.collider(creaturesGroup, obstaclesGroup);
 
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
@@ -33002,7 +33002,7 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
             let col = Math.floor(tryX / 100);
             let row = Math.floor(tryY / 100);
-            if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(tryX, tryY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(tryX, tryY))) {
+            if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(tryX, tryY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(tryX, tryY))) {
                 x = tryX;
                 y = tryY;
                 found = true;
@@ -38627,7 +38627,7 @@ function update() {
                     } else {
                         const col = Math.floor(tx / 100);
                         const row = Math.floor(ty / 100);
-                        if (mapData[row] && mapData[row][col] === 'grass') {
+                        if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs')) {
                             tSprite.setData('targetX', tx);
                             tSprite.setData('targetY', ty);
                         }
@@ -38663,7 +38663,7 @@ function update() {
                 } else {
                     const col = Math.floor(clampedX / 100);
                     const row = Math.floor(clampedY / 100);
-                    if (mapData[row] && mapData[row][col] === 'grass') {
+                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs')) {
                         tSprite.x = clampedX;
                         tSprite.y = clampedY;
                     }
@@ -38679,6 +38679,23 @@ function update() {
             if (nameText) {
                 nameText.setPosition(tSprite.x, tSprite.y - 30);
                 nameText.setVisible(isVisible);
+            }
+
+            // Swimming Visuals for NPC Trainers
+            let tCol = Math.floor(tSprite.x / 100);
+            let tRow = Math.floor(tSprite.y / 100);
+            let tInWater = (mapData[tRow] && mapData[tRow][tCol] === 'obs');
+            if (tInWater && window.currentSeason !== 'Winter') {
+                tSprite.setTint(0x88ccff);
+                tSprite.setAlpha(0.7);
+                let bob = Math.sin(this.time.now / 200) * 4;
+                tSprite.setCrop(0, 0, tSprite.width, tSprite.height * 0.625 + bob);
+                tSprite.setOrigin(0.5, 0.4);
+            } else {
+                tSprite.setTint(0xffffff);
+                tSprite.setAlpha(1.0);
+                if (tSprite.isCropped) tSprite.setCrop();
+                tSprite.setOrigin(0.5, 0.5);
             }
         });
     }
@@ -38712,7 +38729,7 @@ function update() {
 
                     const col = Math.floor(targetX / 100);
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
+                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
                         creature.x = targetX;
                         creature.y = targetY;
                         creature.setData('targetX', targetX);
@@ -38734,7 +38751,7 @@ function update() {
                     // Only move if target isn't water
                     const col = Math.floor(targetX / 100); // TILE_SIZE is 100
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && mapData[row][col] === 'grass' && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
+                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
                         creature.setData('targetX', targetX);
                         creature.setData('targetY', targetY);
                     } else {
@@ -38759,6 +38776,26 @@ function update() {
             symbolText.setPosition(creature.x, creature.y - 35);
             symbolText.setVisible(isVisible);
             symbolText.setDepth(creature.depth + 1);
+        }
+
+        // Swimming Visuals for Wild Creatures
+        let cCol = Math.floor(creature.x / 100);
+        let cRow = Math.floor(creature.y / 100);
+        let cInWater = (mapData[cRow] && mapData[cRow][cCol] === 'obs');
+        if (cInWater && window.currentSeason !== 'Winter') {
+            creature.setTint(0x88ccff);
+            creature.setAlpha(0.7);
+            let bob = Math.sin(this.time.now / 200) * 4;
+            creature.setCrop(0, 0, creature.width, creature.height * 0.625 + bob);
+            creature.setOrigin(0.5, 0.4);
+        } else {
+            const cData = creature.getData('creatureData');
+            if (!cData || !cData.isShiny) {
+                creature.setTint(0xffffff);
+            }
+            creature.setAlpha(1.0);
+            if (creature.isCropped) creature.setCrop();
+            creature.setOrigin(0.5, 0.5);
         }
     });
 
