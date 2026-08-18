@@ -1,46 +1,36 @@
 from playwright.sync_api import sync_playwright
 
 def run_cuj(page):
+    # Enable test onboarding before loading the page so that when it loads it forces it
+    page.add_init_script("window.__test_onboarding = true;")
     page.goto("http://localhost:3000")
-    page.wait_for_timeout(5000)
 
-    # Click the start button if visible
-    try:
-        page.locator("#startGameBtn").click(timeout=1000)
-    except:
-        pass
-
-    page.wait_for_timeout(4000)
-
-    # Open the store modal
-    page.evaluate("window.gameStarted = true")
-    page.evaluate("window.updateStoreUI(1)")
-    page.evaluate("document.getElementById('storeModal').style.display = 'block'")
-
-    # Switch to home items tab
-    page.evaluate("document.querySelectorAll('#storeModal .store-tab')[1].click()")
+    # Wait for the Start game button to be visible
+    page.wait_for_selector("#startGameBtn", state="visible", timeout=30000)
     page.wait_for_timeout(1000)
 
-    # Scroll down by scrolling all divs with scrollbars
-    page.evaluate('''
-        Array.from(document.querySelectorAll('#storeModal div')).forEach(d => {
-            if (d.scrollHeight > d.clientHeight) {
-                d.scrollTop = 5000;
-            }
-        });
-    ''')
+    # Set the flag just in case
+    page.evaluate("window.__test_onboarding = true;")
+
+    # Click Single Player
+    page.evaluate("document.getElementById('startGameBtn').click()")
     page.wait_for_timeout(1000)
 
-    # Take screenshot
-    page.screenshot(path="verification_store.png")
+    # Click next to go to slide 2
+    page.evaluate("document.getElementById('introNextBtn').click()")
     page.wait_for_timeout(1000)
+
+    # Screenshot Slide 2
+    page.screenshot(path="/home/jules/verification/screenshots/verification_slide2.png")
 
 if __name__ == "__main__":
+    import os
+    os.makedirs("/home/jules/verification/videos", exist_ok=True)
+    os.makedirs("/home/jules/verification/screenshots", exist_ok=True)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(
-            record_video_dir="videos",
-            viewport={'width': 1280, 'height': 720}
+            record_video_dir="/home/jules/verification/videos"
         )
         page = context.new_page()
         try:
