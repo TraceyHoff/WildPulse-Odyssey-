@@ -32640,6 +32640,7 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
     document.getElementById('battleLog').innerHTML = '';
     window.battleLogQueue = [];
     isTyping = false;
+    window.isActionRunning = false;
 
     logBattle(`<span style="color:#00ffff; font-size: 1.2em;">--- BATTLE WITH ${trainerName} ---</span>`);
     logBattle(`Trainer ${trainerName} challenges you with ${window.npcEnemyParty.length} creatures!`);
