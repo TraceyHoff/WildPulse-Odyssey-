@@ -29200,9 +29200,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
         if (obstaclesGroup) {
             let obsSprite = obstaclesGroup.create(posX, posY, 'wall_cyber_circuit');
-            if (isLeftWall || isRightWall) {
-                obsSprite.setAngle(90);
-            }
             obsSprite.setOrigin(0.5, 0.5);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
@@ -29270,9 +29267,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
 
         if (obstaclesGroup && !isHolo) {
             let obsSprite = obstaclesGroup.create(posX, posY, textureKey);
-            if (isLeftWall || isRightWall) {
-                obsSprite.setAngle(90);
-            }
             obsSprite.setOrigin(0.5, 0.5);
             obsSprite.setVisible(false);
             if (obsSprite.body) {
