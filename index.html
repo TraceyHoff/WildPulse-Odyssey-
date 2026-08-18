@@ -20381,6 +20381,8 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         // B button closes the inventory wheel
         if (justB) {
             window.closeInventoryWheel(playerNum);
+            // Flag LB as handled so we can navigate slots without reopening wheel
+            prev.LB = true;
         }
 
         prev.Y = currY;
