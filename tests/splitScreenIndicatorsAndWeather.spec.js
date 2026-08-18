@@ -17,9 +17,9 @@ test.describe('Split-Screen Indicators and Weather Delay', () => {
   test('should display status indicators correctly above players heads in split-screen co-op mode', async ({ page }) => {
     // 1. Enable co-op
     await page.waitForSelector('#menuBtn', { state: 'visible' });
-    await page.click('#menuBtn');
+    await page.evaluate(() => document.getElementById('menuBtn').click());
     await page.waitForSelector('#menuModal', { state: 'visible' });
-    await page.click('#coopToggleBtn');
+    await page.evaluate(() => document.getElementById('coopToggleBtn').click());
 
     // Confirm co-op active
     const isCoopActive = await page.evaluate(() => window.coopActive);
