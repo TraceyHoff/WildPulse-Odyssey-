@@ -23207,7 +23207,7 @@ window.useInventoryWheelOption = function(playerNum, optionName) {
         if (item) {
             window.closeInventoryWheel(playerNum);
 
-            if (item.name.startsWith("Mini ")) {
+            if (item.name.startsWith("Mini ") || item.name === "Dojo Tile" || (window.furniturePool && window.furniturePool.includes(item.name))) {
                 window.startMiniTilePlacement(playerNum, item.name, idx);
             } else {
                 window.useInventoryItem(playerNum, idx);
