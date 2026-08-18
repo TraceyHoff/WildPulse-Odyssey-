@@ -37336,17 +37336,17 @@ function update() {
                 }
 
                 // D-pad
-                if (p1Pad.buttons[12].pressed) { // Up
+                if (p1Pad.buttons[12] && p1Pad.buttons[12].pressed) { // Up
                     targetVy = -moveSpeed;
                     movedY = true;
-                } else if (p1Pad.buttons[13].pressed) { // Down
+                } else if (p1Pad.buttons[13] && p1Pad.buttons[13].pressed) { // Down
                     targetVy = moveSpeed;
                     movedY = true;
                 }
-                if (p1Pad.buttons[14].pressed) { // Left
+                if (p1Pad.buttons[14] && p1Pad.buttons[14].pressed) { // Left
                     targetVx = -moveSpeed;
                     movedX = true;
-                } else if (p1Pad.buttons[15].pressed) { // Right
+                } else if (p1Pad.buttons[15] && p1Pad.buttons[15].pressed) { // Right
                     targetVx = moveSpeed;
                     movedX = true;
                 }
@@ -37525,17 +37525,17 @@ function update() {
                         p2MovedY = true;
                     }
 
-                    if (p2Pad.buttons[12].pressed) {
+                    if (p2Pad.buttons[12] && p2Pad.buttons[12].pressed) {
                         p2TargetVy = -p2Speed;
                         p2MovedY = true;
-                    } else if (p2Pad.buttons[13].pressed) {
+                    } else if (p2Pad.buttons[13] && p2Pad.buttons[13].pressed) {
                         p2TargetVy = p2Speed;
                         p2MovedY = true;
                     }
-                    if (p2Pad.buttons[14].pressed) {
+                    if (p2Pad.buttons[14] && p2Pad.buttons[14].pressed) {
                         p2TargetVx = -p2Speed;
                         p2MovedX = true;
-                    } else if (p2Pad.buttons[15].pressed) {
+                    } else if (p2Pad.buttons[15] && p2Pad.buttons[15].pressed) {
                         p2TargetVx = p2Speed;
                         p2MovedX = true;
                     }
