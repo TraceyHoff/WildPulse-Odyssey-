@@ -8212,6 +8212,16 @@ window.WildPulseMusic = {
             }).connect(new Tone.Filter(4000, "highpass").connect(this.reverb));
             this.synths.crickets.volume.value = -25;
 
+            // Player Steps
+            this.stepFilter = new Tone.Filter({ type: "lowpass", frequency: 1200 }).connect(this.reverb);
+            this.synths.steps = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } }).connect(this.stepFilter);
+            this.synths.steps.volume.value = -30;
+
+            // Leaves Rustling
+            this.leafFilter = new Tone.Filter({ type: "bandpass", frequency: 2000, Q: 1.5 }).connect(this.reverb);
+            this.synths.leaves = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.1, decay: 0.3, sustain: 0, release: 0.5 } }).connect(this.leafFilter);
+            this.synths.leaves.volume.value = -35;
+
             // Owls (Nighttime)
             this.synths.owl = new Tone.Synth({
                 oscillator: { type: "sine" },
@@ -8240,7 +8250,7 @@ window.WildPulseMusic = {
             if (inside) return;
 
             // Day: Birds
-            if (isDay && Math.random() < 0.05) {
+            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.05) {
                 const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
                 this.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
                 if (Math.random() < 0.5) {
@@ -8278,6 +8288,19 @@ window.WildPulseMusic = {
         if (this.lastMusicUpdate && now - this.lastMusicUpdate < 200) return;
         this.lastMusicUpdate = now;
 
+        const isInsideHome = window.isPlayerInsideHome;
+        // Sound effects
+        if (!isInsideHome) {
+            let p1Moving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0));
+            if (p1Moving && this.synths.steps && Math.random() < 0.2) {
+                this.synths.steps.triggerAttackRelease("16n", Tone.now(), Math.random() * 0.2 + 0.1);
+            }
+
+            if (this.synths.leaves && window.windSpeed > 100 && Math.random() < (window.windSpeed / 2000)) {
+                this.synths.leaves.triggerAttackRelease("8n", Tone.now(), Math.random() * 0.3 + 0.2);
+            }
+        }
+
         const weather = window.weatherPattern || 'none';
         const hasWeather = (weather !== 'none');
         const intensity = window.weatherIntensity || 0;
@@ -8314,8 +8337,18 @@ window.WildPulseMusic = {
             if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 1) {
                 this.synths.wind.volume.rampTo(targetWindVol, 1);
             }
-            if (targetWindVol > -58 && this.synths.wind.state !== 'started') this.synths.wind.triggerAttack();
-            else if (targetWindVol <= -58 && this.synths.wind.state === 'started') this.synths.wind.triggerRelease();
+            if (targetWindVol > -58 && this.synths.wind.state !== 'started') {
+                this.synths.wind.triggerAttack();
+            } else if (targetWindVol <= -58 && this.synths.wind.state === 'started') {
+                this.synths.wind.triggerRelease();
+            }
+            if (this.synths.wind.state === 'started') {
+                if (window.windSpeed > 300) {
+                     this.synths.wind.noise.type = 'pink';
+                } else {
+                     this.synths.wind.noise.type = 'brown';
+                }
+            }
         }
 
         if (this.synths.rain) {
@@ -8327,8 +8360,10 @@ window.WildPulseMusic = {
             }
             if (targetRainVol > -58) {
                 if (this.synths.rain.state !== 'started') this.synths.rain.triggerAttack();
-                if (weather.includes('storm')) {
+                if (weather.includes('thunderstorm')) {
                     this.synths.rain.noise.type = 'white';
+                } else if (weather.includes('storm')) {
+                    this.synths.rain.noise.type = 'pink';
                 } else if (weather.includes('snow')) {
                     this.synths.rain.noise.type = 'brown';
                 } else {
