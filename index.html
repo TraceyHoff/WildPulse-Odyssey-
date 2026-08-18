@@ -30055,6 +30055,8 @@ window.spawnMiniTiles = function(scene) {
 
                 if (tile.type.includes('carpet')) {
                     mSprite.setDepth(8.5);
+                } else if (window.smallItems && window.smallItems.includes(tile.type)) {
+                    mSprite.setDepth(9.5);
                 } else {
                     mSprite.setDepth(9);
                 }
@@ -30456,6 +30458,9 @@ window.cancelHomePlacement = function(playerNum) {
     window.showModernNotification("🏠 Home placement canceled.", 3000, playerNum);
 };
 
+window.smallItems = [ "Potted Ficus", "Monstera Plant", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Zen Bonsai", "Lunar Lily", "furniture_ficus", "furniture_monstera", "furniture_succulent", "furniture_holorose", "furniture_mushroom", "furniture_zenbonsai", "furniture_lunarlily", "Neon Lamp", "Tech Bin", "Cyber Plant", "Lava Lamp", "Plasma Globe", "Gaming PC", "furniture_lamp", "furniture_bin", "furniture_plant", "furniture_lavalamp", "furniture_plasmaglobe", "furniture_gamingpc"];
+window.flatTopItems = ["furniture_table", "furniture_desk", "furniture_shelf", "Cyber Desk", "Holo Table", "Neon Shelf", "furniture_wardrobe", "Neon Wardrobe", "Server Rack", "furniture_server", "furniture_chair", "Neon Chair", "furniture_officechair", "Office Chair", "furniture_stool", "Stool", "furniture_couch", "Neon Couch", "furniture_lcouch", "L-Couch", "furniture_loveseat", "Love Seat", "furniture_parkbench", "Park Bench", "furniture_cyberbench", "Cyber Bench", "furniture_diningtable", "Dining Table", "furniture_coffeetable", "Coffee Table", "furniture_filingcabinet", "Filing Cabinet", "furniture_displaycabinet", "Display Cabinet", "furniture_nightstand", "Nightstand", "furniture_cornertable", "Corner Table"];
+
 window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
     let col = Math.floor(x / 100);
     let row = Math.floor(y / 100);
@@ -30494,9 +30499,6 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
         if (hash < 12 && !isAboveHospital) return false;
     }
 
-    const smallItems = [ "Potted Ficus", "Monstera Plant", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Zen Bonsai", "Lunar Lily", "furniture_ficus", "furniture_monstera", "furniture_succulent", "furniture_holorose", "furniture_mushroom", "furniture_zenbonsai", "furniture_lunarlily", "Neon Lamp", "Tech Bin", "Cyber Plant", "Lava Lamp", "Plasma Globe", "Gaming PC", "furniture_lamp", "furniture_bin", "furniture_plant", "furniture_lavalamp", "furniture_plasmaglobe", "furniture_gamingpc"];
-    const flatTopItems = ["furniture_table", "furniture_desk", "furniture_shelf", "Cyber Desk", "Holo Table", "Neon Shelf", "furniture_wardrobe", "Neon Wardrobe", "Server Rack", "furniture_server"];
-
     // Check other homes/structures and other mini tiles
     for (let pNum of [1, 2]) {
         // check home
@@ -30515,7 +30517,7 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
             if (tileRect.left < otherRect.right && tileRect.right > otherRect.left &&
                 tileRect.top < otherRect.bottom && tileRect.bottom > otherRect.top) {
 
-                if (itemName && smallItems.includes(itemName) && flatTopItems.includes(tile.type)) {
+                if (itemName && window.smallItems.includes(itemName) && window.flatTopItems.includes(tile.type)) {
                     continue; // allow placement
                 }
 
