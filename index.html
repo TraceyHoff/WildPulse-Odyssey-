@@ -16813,7 +16813,7 @@ window.awardHomeFurniture = function(playerNum) {
     window.triggerHomeTutorial(playerNum);
 };
 
-window.gainPlayerXp = function(playerNum, amount) {
+window.gainPlayerXp = function(playerNum, amount, suppressNotification = false) {
     if (playerNum === 2) {
         window.p2Xp = (window.p2Xp || 0) + amount;
         let leveledUp = false;
@@ -16827,7 +16827,7 @@ window.gainPlayerXp = function(playerNum, amount) {
         }
         window.savePlayerLevels();
         if (leveledUp) {
-            if (window.showModernNotification) {
+            if (window.showModernNotification && !suppressNotification) {
                 const lvlUpIcon = window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉';
                 window.showModernNotification(`${lvlUpIcon} Player 2 leveled up to Level ${window.p2Level}! ${lvlUpIcon}`, "#ffeb3b");
             }
@@ -16861,7 +16861,7 @@ window.gainPlayerXp = function(playerNum, amount) {
         }
         window.savePlayerLevels();
         if (leveledUp) {
-            if (window.showModernNotification) {
+            if (window.showModernNotification && !suppressNotification) {
                 const lvlUpIcon = window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉';
                 window.showModernNotification(`${lvlUpIcon} Player 1 leveled up to Level ${window.p1Level}! ${lvlUpIcon}`, "#ffeb3b");
             }
@@ -35448,12 +35448,25 @@ window.endBattle = function(result) {
             let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
-            // Award Player XP
-            const winnerNum = window.activeBattlePlayer === 2 ? 2 : 1;
-            if (window.gainPlayerXp) window.gainPlayerXp(winnerNum, xpGained);
-
             // Add XP to the battling creature (currentPlayer) inside the activeParty!
             let expTarget = activeParty.find(c => String(c.id) === String(currentPlayer?.id)) || activeParty[0];
+            let creatureWillLevelUp = false;
+            let playerLeveledUp = false;
+
+            if (expTarget) {
+                let tempXp = (expTarget.xp || 0) + xpGained;
+                let tempLevel = expTarget.level || 1;
+                if (tempXp >= window.getXpRequirement(tempLevel)) {
+                    creatureWillLevelUp = true;
+                }
+            }
+
+            // Award Player XP
+            const winnerNum = window.activeBattlePlayer === 2 ? 2 : 1;
+            if (window.gainPlayerXp) {
+                playerLeveledUp = window.gainPlayerXp(winnerNum, xpGained, creatureWillLevelUp);
+            }
+
             if (expTarget) {
                 let oldStats = {};
                 ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'].forEach(stat => {
@@ -35540,6 +35553,14 @@ window.endBattle = function(result) {
                             statsHtml += `<div style="margin: 5px 0;"><span style="color:${statColors[stat]}">${stat.toUpperCase()}</span>: ${oldVal} <span style="color:#4caf50">➔ ${newVal} (+${diff})</span></div>`;
                         }
                     });
+
+                    if (playerLeveledUp) {
+                        const playerNum = window.activeBattlePlayer === 2 ? 2 : 1;
+                        const pLevel = playerNum === 2 ? window.p2Level : window.p1Level;
+                        const lvlUpIcon = window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉';
+                        let playerStatsHtml = `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em; display: flex; align-items: center; justify-content: center;">${lvlUpIcon} Player ${playerNum} leveled up to Level ${pLevel}! ${lvlUpIcon}</div>`;
+                        statsHtml = playerStatsHtml + statsHtml;
+                    }
 
                     if (window.coopActive) {
                         const targetPlayerNum = window.activeBattlePlayer === 2 ? 2 : 1;
