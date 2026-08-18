@@ -19194,6 +19194,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
         if (fullSizeP2 && fullSizeP2.style.display !== 'none' && fullSizeP2.style.display !== '') {
             return fullSizeP2;
         }
+        const optionSelectP2 = document.getElementById('optionSelectModal_p2');
+        if (optionSelectP2 && optionSelectP2.style.display !== 'none' && optionSelectP2.style.display !== '') {
+            return optionSelectP2;
+        }
         const selectP2 = document.getElementById('creatureSelectModal_p2');
         if (selectP2 && selectP2.style.display !== 'none' && selectP2.style.display !== '') {
             return selectP2;
@@ -19222,6 +19226,10 @@ window.getActiveContainerForPlayer = function(playerNum) {
         const fullSizeP1 = document.getElementById('fullSizeImageModal');
         if (fullSizeP1 && fullSizeP1.style.display !== 'none' && fullSizeP1.style.display !== '') {
             return fullSizeP1;
+        }
+        const optionSelectP1 = document.getElementById('optionSelectModal_p1');
+        if (optionSelectP1 && optionSelectP1.style.display !== 'none' && optionSelectP1.style.display !== '') {
+            return optionSelectP1;
         }
         const selectP1 = document.getElementById('creatureSelectModal_p1');
         if (selectP1 && selectP1.style.display !== 'none' && selectP1.style.display !== '') {
