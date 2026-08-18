@@ -9495,6 +9495,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     "storage_chest": "Storage Chest",
                     "dojo": "Dojo Tile"
                 };
+                let pickerIdsToInit = [];
                 listDiv.innerHTML = interiorTiles.map(t => {
                     let col = Math.floor(t.x / 100);
                     let row = Math.floor(t.y / 100);
@@ -9503,13 +9504,59 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (t.type.startsWith('furniture_')) {
                         let originalIndex = miniTiles.indexOf(t);
                         let tint = t.tint || '#ffffff';
-                        colorInput = `<input type="color" value="${tint}" onchange="window.updateMiniTileColor(${playerNum}, ${originalIndex}, this.value)" style="margin-left: 10px; cursor: pointer; height: 20px; width: 25px; padding: 0; border: none; background: transparent; vertical-align: middle;">`;
+                        let pickerId = `furniture_color_p${playerNum}_${originalIndex}`;
+                        // convert tint hex to hsl for initialization
+                        let hsl = {h: 0, s: 100, l: 100}; // default white
+                        if (typeof hexToHsl === 'function' && tint.startsWith('#')) {
+                            hsl = hexToHsl(tint);
+                        } else if (tint === '#ffffff') {
+                            hsl = {h: 0, s: 0, l: 100};
+                        }
+
+                        colorInput = `
+                            <div class="custom-color-picker-wrapper" style="position: relative; width: 60px; margin-left: 10px;">
+                                <div class="custom-color-display" id="${pickerId}_display" style="width: 100%; height: 20px; border: 1px solid #555; border-radius: 5px; background: ${tint}; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; font-size: 9px; text-shadow: 0 0 2px #000; color: ${hsl.l > 60 ? '#000' : '#FFF'}; box-shadow: inset 0 0 5px rgba(0,0,0,0.5);">
+                                    COLOR
+                                </div>
+                                <div class="custom-color-sliders" id="${pickerId}_sliders" style="display: none; background: rgba(10,20,30,0.98); border: 1px solid #00ffcc; border-radius: 8px; padding: 12px; margin-top: 8px; box-shadow: 0 4px 15px rgba(0,255,204,0.3); flex-direction: column; gap: 8px; position: absolute; right: 0; z-index: 200003; width: 150px; box-sizing: border-box;">
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; color: #00ffcc;">
+                                            <span>Hue:</span><span id="${pickerId}_h_val">${hsl.h}°</span>
+                                        </div>
+                                        <input type="range" class="custom-color-slider hue-slider" id="${pickerId}_h" min="0" max="360" value="${hsl.h}" style="width: 100%; height: 8px; cursor: pointer;">
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; color: #00ffcc;">
+                                            <span>Sat:</span><span id="${pickerId}_s_val">${hsl.s}%</span>
+                                        </div>
+                                        <input type="range" class="custom-color-slider sat-slider" id="${pickerId}_s" min="0" max="100" value="${hsl.s}" style="width: 100%; height: 8px; cursor: pointer;">
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; color: #00ffcc;">
+                                            <span>Light:</span><span id="${pickerId}_l_val">${hsl.l}%</span>
+                                        </div>
+                                        <input type="range" class="custom-color-slider light-slider" id="${pickerId}_l" min="0" max="100" value="${hsl.l}" style="width: 100%; height: 8px; cursor: pointer;">
+                                    </div>
+                                </div>
+                                <input type="hidden" id="${pickerId}" value="${tint}" onchange="window.updateMiniTileColor(${playerNum}, ${originalIndex}, this.value)">
+                            </div>
+                        `;
+                        pickerIdsToInit.push(pickerId);
                     }
                     return `<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
                                 <span>• ${name} (Row ${row}, Col ${col})</span>
                                 ${colorInput}
                             </div>`;
                 }).join("");
+
+                // Initialize custom color pickers for dynamically added furniture color elements
+                setTimeout(() => {
+                    pickerIdsToInit.forEach(id => {
+                        if (window.initCustomColorPicker) {
+                            window.initCustomColorPicker(id);
+                        }
+                    });
+                }, 10);
             }
         }
     };
