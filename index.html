@@ -2757,30 +2757,31 @@
                 <p style="color: #ff9f00; font-weight: bold; margin-top: 0; font-size: 15px; border-left: 3px solid #ff9f00; padding-left: 10px; letter-spacing: 1px; text-transform: uppercase;">*** [ RECORDING SEGMENT 2: FIELD CONTROL INTERACTION DIRECTIVE ] ***</p>
                 <p style="margin-top: 5px; font-size: 13px; color: #ccc;"><em>"To properly interact with the environment, customize your equipment, and interface with our custom holographic keyboards, review the following control mapping details carefully:"</em></p>
                 <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
-                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                    <div id="introKeyboardSection" style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                         <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">💻 KEYBOARD & MOUSE</strong>
                         <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
                             <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">W, A, S, D</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Arrow Keys</span></div>
                             <div>Toggle Menu:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">ESC</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">M</span></div>
-                            <div>Quick Inventory:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">I</span></div>
+                            <div>Inventory Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">I</span> (Hold to view items)</div>
                             <div>Action Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Q</span> (Press to toggle action wheel)</div>
                             <div>Interact / UI:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Click</span></div>
                         </div>
                     </div>
-                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                    <div id="introGamepadSection" style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                         <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">🎮 GAMEPAD / CONTROLLER</strong>
                         <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
                             <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Stick</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">D-Pad</span></div>
-                            <div>Inventory Mode:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span></div>
+                            <div>Inventory Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span> (View items)</div>
                             <div>Use / Confirm:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">A Button</span> (or navigate slots with D-Pad)</div>
                             <div>Action Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold RB (Right Bumper)</span>. Navigate with D-Pad, A to select, B to close</div>
                             <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Start Button</span> (Toggle In-Game Menu)</div>
                         </div>
                     </div>
-                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                    <div id="introMobileSection" style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                         <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">📱 TOUCH / MOBILE</strong>
                         <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
                             <div>Move Character:</div><div>Swipe or tap relative position to move</div>
+                            <div>Inventory Wheel:</div><div>Tap UI button to view items</div>
                             <div>Action Wheel:</div><div>Double-tap/Double-touch anywhere to toggle action wheel</div>
                             <div>Action Buttons:</div><div>Tap dedicated UI buttons and slots directly</div>
                         </div>
@@ -2924,30 +2925,31 @@
                 <p style="color: #ff9f00; font-weight: bold; margin-top: 0; font-size: 15px; border-left: 3px solid #ff9f00; padding-left: 10px; letter-spacing: 1px; text-transform: uppercase;">*** [ RECORDING SEGMENT 2: FIELD CONTROL INTERACTION DIRECTIVE ] ***</p>
                 <p style="margin-top: 5px; font-size: 13px; color: #ccc;"><em>"To properly interact with the environment, customize your equipment, and interface with our custom holographic keyboards, review the following control mapping details carefully:"</em></p>
                 <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
-                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                    <div id="introKeyboardSection_p2" style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                         <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">💻 KEYBOARD & MOUSE</strong>
                         <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
                             <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">W, A, S, D</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Arrow Keys</span></div>
                             <div>Toggle Menu:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">ESC</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">M</span></div>
-                            <div>Quick Inventory:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">I</span></div>
+                            <div>Inventory Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">I</span> (Hold to view items)</div>
                             <div>Action Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Q</span> (Press to toggle action wheel)</div>
                             <div>Interact / UI:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Click</span></div>
                         </div>
                     </div>
-                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                    <div id="introGamepadSection_p2" style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                         <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">🎮 GAMEPAD / CONTROLLER</strong>
                         <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
                             <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Stick</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">D-Pad</span></div>
-                            <div>Inventory Mode:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span></div>
+                            <div>Inventory Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span> (View items)</div>
                             <div>Use / Confirm:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">A Button</span> (or navigate slots with D-Pad)</div>
                             <div>Action Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold RB (Right Bumper)</span>. Navigate with D-Pad, A to select, B to close</div>
                             <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Start Button</span> (Toggle In-Game Menu)</div>
                         </div>
                     </div>
-                    <div style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+                    <div id="introMobileSection_p2" style="background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 6px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                         <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">📱 TOUCH / MOBILE</strong>
                         <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
                             <div>Move Character:</div><div>Swipe or tap relative position to move</div>
+                            <div>Inventory Wheel:</div><div>Tap UI button to view items</div>
                             <div>Action Wheel:</div><div>Double-tap/Double-touch anywhere to toggle action wheel</div>
                             <div>Action Buttons:</div><div>Tap dedicated UI buttons and slots directly</div>
                         </div>
@@ -9796,6 +9798,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (descEl) descEl.innerText = item.desc;
     };
 
+
+    window.updateIntroModalPlatformVisibility = function(suffix) {
+        const kbSection = document.getElementById('introKeyboardSection' + suffix);
+        const gpSection = document.getElementById('introGamepadSection' + suffix);
+        const mbSection = document.getElementById('introMobileSection' + suffix);
+
+        if (kbSection) kbSection.style.display = 'none';
+        if (gpSection) gpSection.style.display = 'none';
+        if (mbSection) mbSection.style.display = 'none';
+
+        if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+            if (mbSection) mbSection.style.display = 'block';
+        } else if (navigator.getGamepads && Array.from(navigator.getGamepads()).some(gp => gp !== null)) {
+            if (gpSection) gpSection.style.display = 'block';
+        } else {
+            if (kbSection) kbSection.style.display = 'block';
+        }
+    };
+
     window.showIntroModal = function(playerNum = 1) {
         const isP2 = (playerNum === 2);
         const suffix = isP2 ? '_p2' : '';
@@ -9844,7 +9865,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const slide2 = document.getElementById('introModalSlide2' + suffix);
             const slide3 = document.getElementById('introModalSlide3' + suffix);
             if (slide1) slide1.style.display = 'none';
-            if (slide2) slide2.style.display = 'block';
+            if (slide2) { slide2.style.display = 'block'; window.updateIntroModalPlatformVisibility(suffix); }
             if (slide3) slide3.style.display = 'none';
 
             const title = document.getElementById('introModalTitle' + suffix);
@@ -9917,7 +9938,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const slide2 = document.getElementById('introModalSlide2' + suffix);
             const slide3 = document.getElementById('introModalSlide3' + suffix);
             if (slide1) slide1.style.display = 'none';
-            if (slide2) slide2.style.display = 'block';
+            if (slide2) { slide2.style.display = 'block'; window.updateIntroModalPlatformVisibility(suffix); }
             if (slide3) slide3.style.display = 'none';
 
             const title = document.getElementById('introModalTitle' + suffix);
