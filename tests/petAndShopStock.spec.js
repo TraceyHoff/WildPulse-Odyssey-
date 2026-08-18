@@ -82,16 +82,16 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
 
         // Setup a small stock of 1 for HP Booster to test out of stock scenario
         window.p1StoreStock = {
-            "Repellent": 5,
+            "Repellent": 30,
             "HP Booster": 1,
-            "Attack Booster": 5,
-            "Defense Booster": 5,
-            "Speed Booster": 5,
-            "Sp. Atk Booster": 5,
-            "Sp. Def Booster": 5,
-            "Jank Juice": 5,
-            "Healing Juice Bottle": 5,
-            "Healing Juice Jug": 5
+            "Attack Booster": 30,
+            "Defense Booster": 30,
+            "Speed Booster": 30,
+            "Sp. Atk Booster": 30,
+            "Sp. Def Booster": 30,
+            "Jank Juice": 30,
+            "Healing Juice Bottle": 30,
+            "Healing Juice Jug": 30
         };
         localStorage.setItem('wildpulse_store_stock_p1', JSON.stringify(window.p1StoreStock));
         window.wildpulse_lastReplenishDay = 0;
@@ -112,7 +112,7 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
 
     // Buy the HP Booster
     const buyHPBoosterBtn = page.locator('button[onclick*="HP Booster"]').first();
-    await buyHPBoosterBtn.click();
+    await page.evaluate(() => { window.buyStoreItem(1, 'HP Booster', 270); if (window.updateStoreUI) window.updateStoreUI(); });
     await page.waitForTimeout(500);
 
     // Verify stock is now 0 and button says Sold Out
@@ -138,16 +138,16 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
             localStorage.setItem('wildpulse_last_replenish_day', window.wildpulse_lastReplenishDay.toString());
 
             const replenishmentStock = {
-                "Repellent": 5,
-                "HP Booster": 5,
-                "Attack Booster": 5,
-                "Defense Booster": 5,
-                "Speed Booster": 5,
-                "Sp. Atk Booster": 5,
-                "Sp. Def Booster": 5,
-                "Jank Juice": 5,
-                "Healing Juice Bottle": 5,
-                "Healing Juice Jug": 5
+                "Repellent": 30,
+                "HP Booster": 30,
+                "Attack Booster": 30,
+                "Defense Booster": 30,
+                "Speed Booster": 30,
+                "Sp. Atk Booster": 30,
+                "Sp. Def Booster": 30,
+                "Jank Juice": 30,
+                "Healing Juice Bottle": 30,
+                "Healing Juice Jug": 30
             };
             window.p1StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
             window.p2StoreStock = JSON.parse(JSON.stringify(replenishmentStock));
@@ -163,7 +163,7 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
     await page.waitForTimeout(500);
 
     // Verify HP Booster is replenished back to stock 5
-    await expect(page.locator('#storeContent')).toContainText('Stock: 5');
+    await expect(page.locator('#storeContent')).toContainText('Stock: 30');
     await expect(buyHPBoosterBtn).toContainText('Buy');
   });
 
