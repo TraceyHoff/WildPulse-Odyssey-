@@ -1154,6 +1154,69 @@
             gap: 12px;
             z-index: 450; /* Above Phaser's canvas, below main modal overlays */
         }
+
+        .mobile-placement-controls {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            display: none;
+            flex-direction: row;
+            gap: 15px;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .mobile-placement-controls .dpad-container {
+            display: grid;
+            grid-template-columns: 40px 40px 40px;
+            grid-template-rows: 40px 40px 40px;
+            gap: 5px;
+        }
+
+        .mobile-placement-controls .dpad-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 204, 0.5);
+            border-radius: 8px;
+            color: #00ffcc;
+            font-size: 18px;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+            transition: transform 0.1s, background 0.1s;
+        }
+
+        .mobile-placement-controls .dpad-btn:active {
+            transform: scale(0.9);
+            background: rgba(0, 255, 204, 0.3);
+        }
+
+        .mobile-placement-controls .dpad-btn.up { grid-column: 2; grid-row: 1; }
+        .mobile-placement-controls .dpad-btn.left { grid-column: 1; grid-row: 2; }
+        .mobile-placement-controls .dpad-btn.right { grid-column: 3; grid-row: 2; }
+        .mobile-placement-controls .dpad-btn.down { grid-column: 2; grid-row: 3; }
+
+        .mobile-btn-rotate {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 0, 127, 0.5);
+            border-radius: 50%;
+            color: #ff007f;
+            font-size: 20px;
+            font-weight: bold;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+            transition: transform 0.1s, background 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-btn-rotate:active {
+            transform: scale(0.9);
+            background: rgba(255, 0, 127, 0.3);
+        }
         #p1InventorySlots {
             left: 20px;
         }
@@ -3448,6 +3511,27 @@
     <div class="inventory-slot"></div>
     <div class="inventory-slot"></div>
     <div class="inventory-slot"></div>
+</div>
+
+<!-- Mobile Placement Controls Overlay -->
+<div id="mobilePlacementControls_p1" class="mobile-placement-controls">
+    <button class="mobile-btn-rotate" onclick="window.triggerPlacementRotate(1)" aria-label="Rotate">R</button>
+    <div class="dpad-container">
+        <button class="dpad-btn up" onclick="window.triggerPlacementMove(1, 0, -1)">▲</button>
+        <button class="dpad-btn left" onclick="window.triggerPlacementMove(1, -1, 0)">◀</button>
+        <button class="dpad-btn right" onclick="window.triggerPlacementMove(1, 1, 0)">▶</button>
+        <button class="dpad-btn down" onclick="window.triggerPlacementMove(1, 0, 1)">▼</button>
+    </div>
+</div>
+
+<div id="mobilePlacementControls_p2" class="mobile-placement-controls" style="right: 20px; left: auto;">
+    <button class="mobile-btn-rotate" onclick="window.triggerPlacementRotate(2)" aria-label="Rotate">R</button>
+    <div class="dpad-container">
+        <button class="dpad-btn up" onclick="window.triggerPlacementMove(2, 0, -1)">▲</button>
+        <button class="dpad-btn left" onclick="window.triggerPlacementMove(2, -1, 0)">◀</button>
+        <button class="dpad-btn right" onclick="window.triggerPlacementMove(2, 1, 0)">▶</button>
+        <button class="dpad-btn down" onclick="window.triggerPlacementMove(2, 0, 1)">▼</button>
+    </div>
 </div>
 
 <!-- Player Active Timers Overlays -->
@@ -18058,6 +18142,11 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.closeActionWheel) window.closeActionWheel(playerNum);
         if (window.closeInventoryModal) window.closeInventoryModal();
 
+        if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+            const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+            if (controls) controls.style.display = 'flex';
+        }
+
         window[`p${playerNum}BasePlacementMode`] = true;
         window[`p${playerNum}BasePlacementType`] = 'base_foundation';
         window[`p${playerNum}BasePlacementSlotIndex`] = slotIndex;
@@ -24908,6 +24997,46 @@ window.getDualBattleAreaHTML = function() {
     `;
 };
 
+window.triggerPlacementMove = function(playerNum, dx, dy) {
+    if (window[`p${playerNum}MiniTilePlacementMode`]) {
+        window[`p${playerNum}MiniTilePreviewX`] += dx;
+        window[`p${playerNum}MiniTilePreviewY`] += dy;
+        const sprite = window[`p${playerNum}MiniTilePreviewSprite`];
+        if (sprite) sprite.setPosition(window[`p${playerNum}MiniTilePreviewX`], window[`p${playerNum}MiniTilePreviewY`]);
+    } else if (window[`p${playerNum}HomePlacementMode`]) {
+        window[`p${playerNum}HomePreviewX`] += dx;
+        window[`p${playerNum}HomePreviewY`] += dy;
+        const sprite = window[`p${playerNum}HomePreviewSprite`];
+        if (sprite) sprite.setPosition(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`]);
+    } else if (window[`p${playerNum}BasePlacementMode`]) {
+        window[`p${playerNum}BasePreviewX`] += dx;
+        window[`p${playerNum}BasePreviewY`] += dy;
+        const sprite = window[`p${playerNum}BasePreviewSprite`];
+        if (sprite) sprite.setPosition(window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
+    }
+};
+
+window.triggerPlacementRotate = function(playerNum) {
+    if (window[`p${playerNum}MiniTilePlacementMode`]) {
+        window[`p${playerNum}MiniTileRotation`] = ((window[`p${playerNum}MiniTileRotation`] || 0) + 90) % 360;
+        const sprite = window[`p${playerNum}MiniTilePreviewSprite`];
+        if (sprite) {
+            let rot = window[`p${playerNum}MiniTileRotation`];
+            let textureKey = sprite.texture.key.replace(/_\d+$/, '');
+            if (textureKey.startsWith('furniture_')) {
+                if (rot !== 0) {
+                    sprite.setTexture(textureKey + '_' + rot);
+                } else {
+                    sprite.setTexture(textureKey);
+                }
+                sprite.setAngle(0);
+            } else {
+                sprite.setAngle(rot);
+            }
+        }
+    }
+};
+
 window.startDualBattle = function(playerCollider, creatureSprite) {
     if (window.inBattle) return;
 
@@ -30471,6 +30600,11 @@ window.startHomePlacement = function(playerNum) {
         return;
     }
 
+    if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+        const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+        if (controls) controls.style.display = 'flex';
+    }
+
     window[`p${playerNum}HomePlacementMode`] = true;
     const playerSprite = playerNum === 2 ? window.player2 : window.player;
     if (!playerSprite) return;
@@ -30697,6 +30831,8 @@ window.cancelBasePlacement = function(playerNum) {
         previewSprite.destroy();
         window[`p${playerNum}BasePreviewSprite`] = null;
     }
+    const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+    if (controls) controls.style.display = 'none';
     window.showModernNotification("❌ Base placement cancelled.", 2000, playerNum);
 };
 
@@ -30747,10 +30883,14 @@ window.exitHomePlacementMode = function(playerNum) {
     if (sprite) {
         sprite.setVisible(false);
     }
+    const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+    if (controls) controls.style.display = 'none';
 };
 
 window.cancelHomePlacement = function(playerNum) {
     window.exitHomePlacementMode(playerNum);
+    const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+    if (controls) controls.style.display = 'none';
     window.showModernNotification("🏠 Home placement canceled.", 3000, playerNum);
 };
 
@@ -30825,6 +30965,11 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
 };
 
 window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
+    if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+        const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+        if (controls) controls.style.display = 'flex';
+    }
+
     // Check if player has placed a Home first
     const hx = localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
     const hy = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
@@ -31090,10 +31235,14 @@ window.exitMiniTilePlacementMode = function(playerNum) {
     if (sprite) {
         sprite.setVisible(false);
     }
+    const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+    if (controls) controls.style.display = 'none';
 };
 
 window.cancelMiniTilePlacement = function(playerNum) {
     window.exitMiniTilePlacementMode(playerNum);
+    const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+    if (controls) controls.style.display = 'none';
     window.showModernNotification("🛠️ Mini tile placement canceled.", 3000, playerNum);
 };
 
