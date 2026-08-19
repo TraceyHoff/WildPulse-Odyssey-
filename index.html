@@ -21160,12 +21160,14 @@ window.updateModalVisibility = function() {
             const p1Col = modalEl.querySelector('.p1-col');
             const p2Col = modalEl.querySelector('.p2-col');
 
+            const isWheel = id === 'actionWheelModal' || id === 'inventoryWheelModal';
+
             if (p1Col) {
-                p1Col.style.display = p1Open ? 'block' : 'none';
+                p1Col.style.display = p1Open ? (isWheel ? 'flex' : 'block') : 'none';
                 p1Col.style.pointerEvents = 'auto';
             }
             if (p2Col) {
-                p2Col.style.display = p2Open ? 'block' : 'none';
+                p2Col.style.display = p2Open ? (isWheel ? 'flex' : 'block') : 'none';
                 p2Col.style.pointerEvents = 'auto';
             }
 
