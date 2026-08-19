@@ -1,0 +1,15 @@
+<<<<<<< SEARCH
+            // Birds (Daytime)
+            this.synths.birds = new Tone.Synth({
+                oscillator: { type: "sine" },
+                envelope: { attack: 0.05, decay: 0.1, sustain: 0.1, release: 0.5 }
+            }).connect(this.reverb);
+            this.synths.birds.volume.value = -20;
+=======
+            // Birds (Daytime)
+            this.synths.birds = new Tone.Synth({
+                oscillator: { type: "sine" },
+                envelope: { attack: 0.05, decay: 0.1, sustain: 0.1, release: 0.5 }
+            }).connect(this.reverb);
+            this.synths.birds.volume.value = -10;
+>>>>>>> REPLACE
