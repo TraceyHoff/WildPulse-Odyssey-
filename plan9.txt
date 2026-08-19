@@ -1,9 +1,26 @@
-I will now formulate the full Git merge diff replacements.
+1. We will update `window.createTypeIconTexture` to return a texture key immediately.
+2. Inside `window.createTypeIconTexture`, we will define a dictionary of SVG paths for each of the 18 types.
+3. We will format the SVG with the theme colors (e.g. `const svgString = '<svg width="16" height="16" ...>' + path + '</svg>'`).
+4. We load this SVG as an Image and `drawImage` to the canvas.
+5. Then we call `scene.textures.get(key).source[0].update()` (safely checking if it exists) to tell Phaser to update the canvas texture.
+6. The nameplate will be updated.
 
-Wait, if we scale `home_tile` to 3, the default `isHomeTile` sprite is 300x300, and its physics body is updated by `hSprite.body.updateFromGameObject()`, which makes the teleport overlap area 300x300. This is large, but acceptable for a home exterior.
-
-Wait, is there any other place where trees or bushes are spawned?
-Yes, `mapData` loop in `spawnTile`.
-Also, what about `window.treesGroup` in `spawnTile`? Yes, I got that.
-
-Let me use `request_plan_review`.
+SVG Paths for all 18 types (simplified and visually appealing within a 16x16 grid):
+- Fire: A flame shape.
+- Water: A water drop.
+- Grass: A leaf.
+- Electric: A lightning bolt.
+- Ice: A snowflake or crystal.
+- Fighting: A fist or crossed swords.
+- Poison: A skull or droplet with bubbles.
+- Ground: Mountains or rocks.
+- Flying: A wing.
+- Psychic: An eye or swirl.
+- Bug: A bug shape.
+- Rock: A sturdy rock.
+- Ghost: A ghost shape.
+- Dragon: A dragon head or claw.
+- Dark: A crescent moon.
+- Steel: A gear or shield.
+- Fairy: A star with sparkles.
+- Normal: A simple circle or star.
