@@ -9567,6 +9567,116 @@ document.addEventListener('DOMContentLoaded', () => {
             return row >= minR && row <= maxR && col >= minC && col <= maxC;
         });
 
+        window.pickupMiniTile = function(playerNum, origIndex) {
+            const key = `wildpulse_p${playerNum}_mini_tiles`;
+            let tiles = JSON.parse(localStorage.getItem(key)) || [];
+
+            const tileToPickup = tiles[origIndex];
+            if (!tileToPickup) return;
+
+            const invMap = {
+                "hospital": "Mini Hospital",
+                "store": "Mini Store",
+                "trade": "Mini Trade",
+                "pvp": "Mini PvP",
+                "breed": "Mini Breeding Center",
+                "challenge": "Mini Challenge",
+                "storage_chest": "Storage Chest",
+                "dojo": "Dojo Tile",
+                "furniture_couch": "Neon Couch",
+                "furniture_lcouch": "L-Couch",
+                "furniture_loveseat": "Love Seat",
+                "furniture_officechair": "Office Chair",
+                "furniture_stool": "Stool",
+                "furniture_coffeetable": "Coffee Table",
+                "furniture_diningtable": "Dining Table",
+                "furniture_parkbench": "Park Bench",
+                "furniture_cyberbench": "Cyber Bench",
+                "furniture_filingcabinet": "Filing Cabinet",
+                "furniture_displaycabinet": "Display Cabinet",
+                "furniture_nightstand": "Nightstand",
+                "furniture_cornertable": "Corner Table",
+                "furniture_bunkbed": "Bunk Bed",
+                "furniture_kingbed": "King Bed",
+                "furniture_desk": "Cyber Desk",
+                "furniture_carpet": "Glow Carpet",
+                "furniture_starcarpet": "Star Carpet",
+                "furniture_roundcarpet": "Round Cyber Carpet",
+                "furniture_hexcarpet": "Hexagon Carpet",
+                "furniture_heartcarpet": "Heart Carpet",
+                "furniture_diamondcarpet": "Diamond Carpet",
+                "furniture_bed": "Holo Bed",
+                "furniture_chair": "Neon Chair",
+                "furniture_table": "Holo Table",
+                "furniture_plant": "Cyber Plant",
+                "furniture_crystal_bonsai": "Crystal Bonsai",
+                "furniture_neon_fern": "Neon Fern",
+                "furniture_plasma_cactus": "Plasma Cactus",
+                "furniture_holo_orchid": "Holo Orchid",
+                "furniture_ficus": "Potted Ficus",
+                "furniture_monstera": "Monstera Plant",
+                "furniture_bamboo": "Cyber Bamboo",
+                "furniture_succulent": "Neon Succulent",
+                "furniture_holorose": "Holo Rose",
+                "furniture_mushroom": "Bio Mushroom",
+                "furniture_sunflower": "Digi Sunflower",
+                "furniture_zenbonsai": "Zen Bonsai",
+                "furniture_lunarlily": "Lunar Lily",
+                "furniture_cybertree": "Cyber Tree",
+                "furniture_neonpine": "Neon Pine",
+                "furniture_lamp": "Neon Lamp",
+                "furniture_talllamp": "Tall Neon Lamp",
+                "furniture_tv": "Holo TV",
+                "furniture_arcade": "Cyber Arcade",
+                "furniture_pc": "Cyber PC Station",
+                "furniture_server": "Server Rack",
+                "furniture_bookshelf": "Cyber Bookshelf",
+                "furniture_wardrobe": "Holo Wardrobe",
+                "furniture_speaker": "Neon Speaker",
+                "furniture_guitar": "Holo Guitar",
+                "furniture_synthesizer": "Cyber Synth",
+                "furniture_telescope": "Star Telescope",
+                "furniture_globe": "Holo Globe",
+                "furniture_chest": "Cyber Chest",
+                "furniture_safe": "Neon Safe",
+                "furniture_trashcan": "Bio Trash Can",
+                "furniture_mirror": "Holo Mirror",
+                "furniture_painting": "Cyber Painting",
+                "furniture_poster": "Neon Poster",
+                "furniture_clock": "Holo Clock",
+                "furniture_window": "Space Window",
+                "furniture_door": "Airlock Door",
+                "furniture_fireplace": "Plasma Fireplace",
+                "furniture_aquarium": "Bio Aquarium",
+                "furniture_fountain": "Cyber Fountain",
+                "furniture_statue": "Holo Statue",
+                "furniture_pillar": "Neon Pillar",
+                "furniture_barrier": "Energy Barrier",
+                "furniture_vendingmachine": "Cyber Vending Machine"
+            };
+
+            const itemName = invMap[tileToPickup.type];
+            if (!itemName) {
+                window.showModernNotification("❌ Cannot pick up this item type.", 3000, playerNum);
+                return;
+            }
+
+            const invFull = window.addInventoryItem(playerNum, itemName, 1);
+            if (invFull) {
+                tiles.splice(origIndex, 1);
+                localStorage.setItem(key, JSON.stringify(tiles));
+                if (window.rebuildHomeInteriorTiles) {
+                    window.rebuildHomeInteriorTiles(playerNum);
+                }
+                if (window.openHomeCustomizationModal) {
+                    window.openHomeCustomizationModal(playerNum);
+                }
+                window.showModernNotification(`✅ Picked up ${itemName}!`, 3000, playerNum);
+            } else {
+                window.showModernNotification("❌ Inventory full! Cannot pick up.", 3000, playerNum);
+            }
+        };
+
         const listDiv = document.getElementById(`homePlacedMiniTilesList_p${playerNum}`);
         if (listDiv) {
             if (interiorTiles.length === 0) {
@@ -9687,9 +9797,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
                         pickerIdsToInit.push(pickerId);
                     }
+
+                    let origIndex = miniTiles.findIndex(origT => origT === t);
+                    let pickupBtn = `<button onclick="window.pickupMiniTile(${playerNum}, ${origIndex})" style="float: right; margin-left: 5px; background: none; border: none; cursor: pointer; outline: none; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;" title="Pick Up">
+                                        ${window.getPickupIconHTML(16)}
+                                    </button>`;
+
                     return `<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
                                 <span>• ${name} (Row ${row}, Col ${col})</span>
-                                ${colorInput}
+                                <div style="display: flex; align-items: center;">
+                                    ${colorInput}
+                                    ${pickupBtn}
+                                </div>
                             </div>`;
                 }).join("");
 
@@ -18614,6 +18733,13 @@ window.getCheckmarkIconHTML = function(size = 16) {
         <circle cx="50" cy="50" r="45" fill="#00ff96" opacity="0.2" stroke="#00ff96" stroke-width="5"/>
         <path d="M25 50 L45 70 L75 30" fill="none" stroke="#00ff96" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
     </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">✅</span>`;
+};
+
+window.getPickupIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #00ffcc); margin: 0 4px;">
+        <circle cx="50" cy="50" r="45" fill="#00ffcc" opacity="0.2" stroke="#00ffcc" stroke-width="5"/>
+        <path d="M50 25 L75 55 L60 55 L60 75 L40 75 L40 55 L25 55 Z" fill="#00ffcc" opacity="0.8" stroke="#00ffcc" stroke-width="2" stroke-linejoin="round"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">⬆️</span>`;
 };
 
 window.getLockIconHTML = function(size = 16) {
