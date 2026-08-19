@@ -7845,6 +7845,7 @@ function escapeHtml(unsafe) {
                 <button class="action-wheel-option" id="actionWheelHome_p1" data-option="home" style="display: none; position: absolute; top: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #bf55ec; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(191,85,236,0.3);" onclick="window.useActionWheelOption(1, 'home')"></button>
                 <button class="action-wheel-option" id="actionWheelRemoveHome_p1" data-option="remove_home" style="display: none; position: absolute; top: 25px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff4d4d; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,77,77,0.3);" onclick="window.useActionWheelOption(1, 'remove_home')"></button>
                 <button class="action-wheel-option" data-option="screenshot" style="position: absolute; bottom: 25px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,255,0.3);" onclick="window.useActionWheelOption(1, 'screenshot')"></button>
+                <button class="action-wheel-option" data-option="switch_bag" style="position: absolute; bottom: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ff00; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,0,0.3);" onclick="window.useActionWheelOption(1, 'switch_bag')"></button>
             </div>
         </div>
 
@@ -7864,6 +7865,7 @@ function escapeHtml(unsafe) {
                 <button class="action-wheel-option" id="actionWheelHome_p2" data-option="home" style="display: none; position: absolute; top: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #bf55ec; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(191,85,236,0.3);" onclick="window.useActionWheelOption(2, 'home')"></button>
                 <button class="action-wheel-option" id="actionWheelRemoveHome_p2" data-option="remove_home" style="display: none; position: absolute; top: 25px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff4d4d; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,77,77,0.3);" onclick="window.useActionWheelOption(2, 'remove_home')"></button>
                 <button class="action-wheel-option" data-option="screenshot" style="position: absolute; bottom: 25px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff00ff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,255,0.3);" onclick="window.useActionWheelOption(2, 'screenshot')"></button>
+                <button class="action-wheel-option" data-option="switch_bag" style="position: absolute; bottom: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ff00; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,0,0.3);" onclick="window.useActionWheelOption(2, 'switch_bag')"></button>
             </div>
         </div>
     </div>
@@ -18436,6 +18438,10 @@ window.getActionWheelIconHTML = function(action, color = '#ffffff', size = 18) {
         emoji = '🎨';
         label = 'Design';
         svgContent = `<path d="M20 50 C20 30 40 20 50 20 C60 20 80 30 80 50 C80 60 70 70 60 70 C55 70 50 65 50 60 C50 55 55 50 60 50 C65 50 65 40 50 40 C35 40 30 50 30 60 C30 80 40 85 50 85 C55 85 60 85 65 85" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/><circle cx="35" cy="45" r="4" fill="${color}"/><circle cx="45" cy="35" r="4" fill="${color}"/><circle cx="65" cy="50" r="4" fill="${color}"/>`;
+    } else if (action === 'switch_bag') {
+        emoji = '➡️';
+        label = 'Bag';
+        svgContent = `<path d="M20 50 L70 50 M50 30 L70 50 L50 70" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>`;
     }
 
     return `<div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -22962,6 +22968,7 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
                               opt === 'party' ? '#00ffcc' :
                               opt === 'help' ? '#ffd700' :
                               opt === 'home' ? '#bf55ec' :
+                              opt === 'switch_bag' ? '#00ff00' :
                               opt === 'screenshot' ? (playerNum === 2 ? '#ff00ff' : '#00ffff') : '#ffffff';
         el.style.boxShadow = '';
     });
@@ -22990,6 +22997,7 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
             else if (optionName === 'help') rotation = 270;
             else if (optionName === 'home') rotation = 45;
             else if (optionName === 'screenshot') rotation = 225;
+            else if (optionName === 'switch_bag') rotation = 135;
 
             pointer.style.transform = `rotate(${rotation}deg)`;
             pointer.style.opacity = '1';
@@ -23003,6 +23011,11 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
 
 window.useActionWheelOption = function(playerNum, optionName) {
     window.closeActionWheel(playerNum);
+
+    if (optionName === 'switch_bag') {
+        window.openInventoryWheel(playerNum);
+        return;
+    }
 
     if (optionName === 'pet') {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -39557,6 +39570,7 @@ document.addEventListener('mouseout', (e) => {
             else if (action === 'help') color = '#ffd700';
             else if (action === 'home') color = '#bf55ec';
             else if (action === 'remove_home') color = '#ff4d4d';
+            else if (action === 'switch_bag') color = '#00ff00';
             else if (action === 'screenshot') {
                 color = btn.closest('.p2-col') ? '#ff00ff' : '#00ffff';
             }
