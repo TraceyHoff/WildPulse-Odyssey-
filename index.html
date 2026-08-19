@@ -16902,19 +16902,19 @@ window.triggerHomeTutorial = function(playerNum) {
     if (window.showModernNotification) {
         // Start home tutorial series
         setTimeout(() => {
-            window.showModernNotification("🏠 Home Base Unlocked! Step onto the home tile to enter your house.", 10000, playerNum);
+            window.showModernNotification(`${window.getHomeIconHTML(20)} Home Base Unlocked! Step onto the home tile to enter your house.`, 10000, playerNum);
         }, 1000);
         setTimeout(() => {
-            window.showModernNotification("🚪 Inside your home, you can teleport back to the hospital area using the glowing exit pad.", 10000, playerNum);
+            window.showModernNotification(`${window.getDoorIconHTML(20)} Inside your home, you can teleport back to the hospital area using the glowing exit pad.`, 10000, playerNum);
         }, 13000);
         setTimeout(() => {
-            window.showModernNotification("🎨 Access the 'Design' menu on your Action Wheel inside to customize walls and floors.", 10000, playerNum);
+            window.showModernNotification(`${window.getDesignIconHTML(20)} Access the 'Design' menu on your Action Wheel inside to customize walls and floors.`, 10000, playerNum);
         }, 25000);
         setTimeout(() => {
-            window.showModernNotification("🛋️ Use your inventory to place furniture! Press R (or Right Trigger) to rotate items.", 10000, playerNum);
+            window.showModernNotification(`${window.getFurnitureIconHTML(20)} Use your inventory to place furniture! Press R (or Right Trigger) to rotate items.`, 10000, playerNum);
         }, 37000);
         setTimeout(() => {
-            window.showModernNotification("🎮 Pro Tip: During placement mode, use the D-Pad to make 1-pixel micro-adjustments for perfect positioning!", 10000, playerNum);
+            window.showModernNotification(`${window.getGamepadIconHTML(20)} Pro Tip: During placement mode, use the D-Pad to make 1-pixel micro-adjustments for perfect positioning!`, 10000, playerNum);
         }, 49000);
     }
 };
@@ -18414,6 +18414,46 @@ window.getCheckmarkIconHTML = function(size = 16) {
         <circle cx="50" cy="50" r="45" fill="#00ff96" opacity="0.2" stroke="#00ff96" stroke-width="5"/>
         <path d="M25 50 L45 70 L75 30" fill="none" stroke="#00ff96" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
     </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">✅</span>`;
+};
+
+
+window.getHomeIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 2px #bf55ec); margin: 0 2px;">
+        <path d="M10 50 L50 10 L90 50 M20 40 L20 90 L80 90 L80 40 M40 90 L40 60 L60 60 L60 90" fill="none" stroke="#bf55ec" stroke-width="8" stroke-linejoin="round"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🏠</span>`;
+};
+
+window.getDoorIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 2px #00ffcc); margin: 0 2px;">
+        <rect x="25" y="10" width="50" height="80" rx="5" fill="none" stroke="#00ffcc" stroke-width="8"/>
+        <circle cx="65" cy="50" r="4" fill="#00ffcc"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🚪</span>`;
+};
+
+window.getDesignIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 2px #ff007f); margin: 0 2px;">
+        <path d="M20 50 C20 30 40 20 50 20 C60 20 80 30 80 50 C80 60 70 70 60 70 C55 70 50 65 50 60 C50 55 55 50 60 50 C65 50 65 40 50 40 C35 40 30 50 30 60 C30 80 40 85 50 85 C55 85 60 85 65 85" fill="none" stroke="#ff007f" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="35" cy="45" r="4" fill="#ff007f"/>
+        <circle cx="45" cy="35" r="4" fill="#ff007f"/>
+        <circle cx="65" cy="50" r="4" fill="#ff007f"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🎨</span>`;
+};
+
+window.getFurnitureIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 2px #ffd700); margin: 0 2px;">
+        <path d="M10 70 L10 30 L30 30 L30 50 L70 50 L70 30 L90 30 L90 70 M10 70 L90 70" fill="none" stroke="#ffd700" stroke-width="8" stroke-linejoin="round"/>
+        <path d="M10 50 L90 50" fill="none" stroke="#ffd700" stroke-width="8"/>
+        <path d="M20 70 L20 85 M80 70 L80 85" fill="none" stroke="#ffd700" stroke-width="8" stroke-linecap="round"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🛋️</span>`;
+};
+
+window.getGamepadIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 2px #00ff66); margin: 0 2px;">
+        <path d="M20 30 C10 30 10 70 20 70 L40 70 L50 80 L60 70 L80 70 C90 70 90 30 80 30 Z" fill="none" stroke="#00ff66" stroke-width="8" stroke-linejoin="round"/>
+        <path d="M25 50 L35 50 M30 45 L30 55" fill="none" stroke="#00ff66" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="65" cy="55" r="4" fill="#00ff66"/>
+        <circle cx="75" cy="45" r="4" fill="#00ff66"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🎮</span>`;
 };
 
 window.getLockIconHTML = function(size = 16) {
