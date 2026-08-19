@@ -8360,7 +8360,7 @@ window.WildPulseMusic = {
 
         if (this.synths.wind) {
             if (Math.abs(this.synths.wind.volume.value - targetWindVol) > 1) {
-                this.synths.wind.volume.rampTo(targetWindVol, 1);
+                this.synths.wind.volume.rampTo(targetWindVol, 5);
             }
             if (targetWindVol > -58 && this.synths.wind.state !== 'started') {
                 this.synths.wind.triggerAttack();
@@ -8381,7 +8381,7 @@ window.WildPulseMusic = {
             const finalRainVol = targetRainVol + variation;
 
             if (Math.abs(this.synths.rain.volume.value - finalRainVol) > 1) {
-                this.synths.rain.volume.rampTo(finalRainVol, 1);
+                this.synths.rain.volume.rampTo(finalRainVol, 5);
             }
             if (targetRainVol > -58) {
                 if (this.synths.rain.state !== 'started') this.synths.rain.triggerAttack();
@@ -25695,6 +25695,13 @@ window.updateBattleUI = function() {
             window.drawCreatureSprite('eSprite2', window.currentEnemy2);
         }
     }
+
+    setTimeout(() => {
+        const m = document.getElementById('battleModal');
+        if (m) m.scrollTop = m.scrollHeight;
+        const m2 = document.getElementById('battleModal_p2');
+        if (m2) m2.scrollTop = m2.scrollHeight;
+    }, 10);
 }
 
 
