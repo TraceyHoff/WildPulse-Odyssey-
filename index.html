@@ -4943,7 +4943,7 @@ window.openQuestModal = function(playerNum, npcId) {
                 quests.push(potentialQuest);
                 window.saveQuests();
                 activeQuest = potentialQuest;
-                window.showModernNotification(`📡 Accepted quest: ${activeQuest.title}!`, 4000, playerNum);
+                window.showModernNotification(`${window.getQuestIconHTML(16)} Accepted quest: ${activeQuest.title}!`, 4000, playerNum);
                 delete window.questSessionState[sessionKey];
                 renderQuestDetails();
                 window.closeQuestModal(playerNum);
@@ -18739,6 +18739,14 @@ window.getCoinIconHTML = function(size = 16) {
         <circle cx="50" cy="50" r="30" fill="none" stroke="#fff9c4" stroke-width="2" opacity="0.5"/>
         <text x="50" y="65" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="#b8860b" text-anchor="middle" style="text-shadow: 1px 1px 0px #fff9c4;">C</text>
     </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🪙</span>`;
+};
+
+window.getQuestIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #ffd700); margin: 0 4px;">
+        <polygon points="50,10 61,35 88,35 66,51 74,77 50,60 26,77 34,51 12,35 39,35" fill="#ffd700" opacity="0.2" stroke="#ffd700" stroke-width="4"/>
+        <path d="M50 30 L50 55" fill="none" stroke="#ffd700" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="50" cy="70" r="5" fill="#ffd700"/>
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">📡</span>`;
 };
 
 window.getCheckmarkIconHTML = function(size = 16) {
