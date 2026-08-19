@@ -39007,11 +39007,11 @@ function update() {
                 // Left stick
                 const lx = p1Pad.leftStick.x;
                 const ly = p1Pad.leftStick.y;
-                if (Math.abs(lx) > 0.1) {
+                if (Math.abs(lx) > 0.2) {
                     targetVx = lx * moveSpeed;
                     movedX = true;
                 }
-                if (Math.abs(ly) > 0.1) {
+                if (Math.abs(ly) > 0.2) {
                     targetVy = ly * moveSpeed;
                     movedY = true;
                 }
@@ -39197,11 +39197,11 @@ function update() {
                 if (p2Pad) {
                     const lx = p2Pad.leftStick.x;
                     const ly = p2Pad.leftStick.y;
-                    if (Math.abs(lx) > 0.1) {
+                    if (Math.abs(lx) > 0.2) {
                         p2TargetVx = lx * p2Speed;
                         p2MovedX = true;
                     }
-                    if (Math.abs(ly) > 0.1) {
+                    if (Math.abs(ly) > 0.2) {
                         p2TargetVy = ly * p2Speed;
                         p2MovedY = true;
                     }
