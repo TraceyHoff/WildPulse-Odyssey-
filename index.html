@@ -257,7 +257,7 @@
         }
 
         /* Modals */
-        #breedingModal, #menuModal, #partyModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal, #battleSwapModal {
+        #breedingModal, #menuModal, #partyModal, #inventoryModal, #storageModal, #helpModal, #levelUpModal, #tradeModal, #pvpModal, #journalModal, #battleSwapModal {
             width: 100vw !important;
             height: 100vh !important;
             max-width: none !important;
@@ -3980,7 +3980,7 @@
     <button class="close-party-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #555, #222); border-color: #777;">Close</button>
 </div>
 
-<div id="inventoryModal" style="display:none; position:absolute; color:white; z-index:350;">
+<div id="inventoryModal" style="display:none; color:white; z-index:350;">
     <button class="close-btn close-inventory-btn" aria-label="Close Inventory">X</button>
     <div class="coop-columns">
         <!-- Player 1 Column -->
@@ -21490,7 +21490,7 @@ window.isAnyOtherModalOpen = function() {
         return true;
     }
     const modals = [
-        'menuModal', 'partyModal', 'storageModal', 'helpModal',
+        'menuModal', 'partyModal', 'inventoryModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal', 'dojoModal',
         'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2', 'homeCustomizationModal', 'homeCustomizationModal_p2',
