@@ -45,21 +45,28 @@ test.describe('Introductory Onboarding and Dynamic Sell Price Tests', () => {
 
     // Verify item count / name are correct
     const carouselCount = page.locator('#introItemCarouselCount');
-    await expect(carouselCount).toHaveText('ITEM 1 / 28');
+    await expect(carouselCount).toHaveText('ITEM 1 / 65');
     const carouselName = page.locator('#introItemCarouselName');
     await expect(carouselName).toHaveText('Repellent');
 
     // Click Next Item to cycle
     await page.click('#introItemNextBtn', { force: true });
-    await expect(carouselCount).toHaveText('ITEM 2 / 28');
+    await expect(carouselCount).toHaveText('ITEM 2 / 65');
     await expect(carouselName).toHaveText('HP Booster');
 
     // Click Prev Item to cycle back
     await page.click('#introItemPrevBtn', { force: true });
-    await expect(carouselCount).toHaveText('ITEM 1 / 28');
+    await expect(carouselCount).toHaveText('ITEM 1 / 65');
     await expect(carouselName).toHaveText('Repellent');
 
-    // Click Configure Avatar on slide 3
+    // Click next from slide 3 to 4
+    await page.click('#introNextBtn');
+    await page.waitForTimeout(200);
+
+    // Verify slide 4
+    await expect(titleEl).toHaveText('[ CREATURE TYPES ]');
+
+    // Click Configure Avatar on slide 4
     await page.click('#introNextBtn');
 
     // Intro modal should close
