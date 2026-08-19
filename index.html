@@ -2082,7 +2082,8 @@
         box-sizing: border-box !important;
         height: 100vh !important;
         max-height: 100vh !important;
-        overflow: hidden !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
         z-index: 500 !important;
         transform: none !important;
         position: fixed !important;
@@ -32421,7 +32422,7 @@ function updateQuestArrows() {
             const quests = playerNum === 2 ? window.p2Quests : window.p1Quests;
             if (quests) {
                 for (let q of quests) {
-                    if (q.status === 'active' && q.type === 'defeat_trainer') {
+                    if (q.status === 'active' && q.type === 'defeat_trainer' && q.tracked) {
                         // Find the trainer ID for this name
                         for (let i = 1; i <= 24; i++) {
                             const tId = 'npc_trainer_' + i;
