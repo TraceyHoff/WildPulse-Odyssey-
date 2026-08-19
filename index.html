@@ -16648,16 +16648,64 @@ window.updateFriendExperience = function(dt) {
     }
 };
 
+window.initializeCreatureLevelUps = function(creature) {
+    if (creature.levelUpCount) return;
+    creature.levelUpCount = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
+    creature.lastLeveledStats = [];
+
+    let allStats = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'];
+    let lvl = creature.level || 1;
+
+    for (let l = 2; l <= lvl; l++) {
+        if (l % 10 === 0) {
+            allStats.forEach(s => {
+                creature.levelUpCount[s] = (creature.levelUpCount[s] || 0) + 1;
+                if (creature.bonusStats && creature.bonusStats[s] >= 2) {
+                    creature.bonusStats[s] -= 2;
+                }
+            });
+            creature.lastLeveledStats = [];
+        } else {
+            let lastLeveledStatsSet = new Set(creature.lastLeveledStats || []);
+            let avail = allStats.filter(s => !lastLeveledStatsSet.has(s));
+            if (avail.length < 2) avail = [...allStats];
+
+            let numToChoose = Math.random() < 0.5 ? 2 : 3;
+            if (numToChoose > avail.length) numToChoose = avail.length;
+
+            let chosen = [];
+            for (let i = 0; i < numToChoose; i++) {
+                let idx = Math.floor(Math.random() * avail.length);
+                let p = avail.splice(idx, 1)[0];
+                chosen.push(p);
+                creature.levelUpCount[p] = (creature.levelUpCount[p] || 0) + 1;
+
+                if (creature.bonusStats && creature.bonusStats[p] >= 2) {
+                    creature.bonusStats[p] -= 2;
+                }
+            }
+            creature.lastLeveledStats = chosen;
+        }
+    }
+};
+
 window.getRawScaledStat = function(creature, statName) {
     if (!creature.stats) creature.stats = {};
     let base = creature.stats[statName] || 50;
-    let lvl = creature.level || 1;
+
+    if (!creature.levelUpCount && (creature.level || 1) > 1) {
+        window.initializeCreatureLevelUps(creature);
+    }
+
+    let lvlCount = (creature.levelUpCount && creature.levelUpCount[statName]) || 0;
+
     let val = 0;
     if (statName === 'health') {
-        val = (base * 0.4) + (base * lvl * 0.15);
+        val = (base * 0.4) + (base * 0.15) + (base * lvlCount * 0.15);
     } else {
-        val = base + (base * (lvl - 1) * 0.15);
+        val = base + (base * lvlCount * 0.15);
     }
+
     let bonus = 0;
     if (creature.bonusStats && creature.bonusStats[statName]) {
         bonus = creature.bonusStats[statName];
@@ -16905,12 +16953,16 @@ window.gainXp = function(creature, amount) {
     let leveledUp = false;
     while (creature.xp >= window.getXpRequirement(creature.level || 1)) {
         creature.xp -= window.getXpRequirement(creature.level || 1);
+
+        if (!creature.levelUpCount && (creature.level || 1) >= 2) {
+            window.initializeCreatureLevelUps(creature);
+        } else if (!creature.levelUpCount) {
+            creature.levelUpCount = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
+        }
+
         creature.level = (creature.level || 1) + 1;
         leveledUp = true;
 
-        if (!creature.bonusStats) {
-            creature.bonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
-        }
         if (!creature.lastLeveledStats) {
             creature.lastLeveledStats = [];
         }
@@ -16918,23 +16970,25 @@ window.gainXp = function(creature, amount) {
         let allStats = ['health', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense'];
 
         if (creature.level % 10 === 0) {
-            allStats.forEach(s => creature.bonusStats[s] += 2);
+            allStats.forEach(s => creature.levelUpCount[s] = (creature.levelUpCount[s] || 0) + 1);
             creature.growthSpurtThisLevel = true;
             creature.lastLeveledStats = []; // Reset restrictions after growth spurt
         } else {
-            let lastLeveledStatsSet = new Set(creature.lastLeveledStats);
+            let lastLeveledStatsSet = new Set(creature.lastLeveledStats || []);
             let avail = allStats.filter(s => !lastLeveledStatsSet.has(s));
             if (avail.length < 2) avail = [...allStats]; // Fallback
 
-            let idx1 = Math.floor(Math.random() * avail.length);
-            let p1 = avail.splice(idx1, 1)[0];
+            let numToChoose = Math.random() < 0.5 ? 2 : 3;
+            if (numToChoose > avail.length) numToChoose = avail.length;
 
-            let idx2 = Math.floor(Math.random() * avail.length);
-            let p2 = avail.splice(idx2, 1)[0];
-
-            creature.bonusStats[p1] += 2;
-            creature.bonusStats[p2] += 2;
-            creature.lastLeveledStats = [p1, p2];
+            let chosen = [];
+            for (let i = 0; i < numToChoose; i++) {
+                let idx = Math.floor(Math.random() * avail.length);
+                let p = avail.splice(idx, 1)[0];
+                chosen.push(p);
+                creature.levelUpCount[p] = (creature.levelUpCount[p] || 0) + 1;
+            }
+            creature.lastLeveledStats = chosen;
         }
     }
     return leveledUp;
