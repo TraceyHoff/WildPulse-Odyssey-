@@ -88,6 +88,16 @@
             box-shadow: 0 0 5px rgba(0, 255, 210, 0.2) !important;
         }
 
+
+        @keyframes modalFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .modal-fade-out {
+            animation: modalFadeOut 0.2s ease-out forwards !important;
+        }
+
         @keyframes modalFadeIn {
             from {
                 opacity: 0;
@@ -8706,7 +8716,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => {
                                 overlay.classList.remove('active');
                                 overlay.style.display = 'none';
-                            }, 500);
+                            }, 1500);
                         } else if (currentDisplay === 'none' && (previousDisplay === 'block' || previousDisplay === '')) {
                             // Battle exited! Play exit glitch fade-out
                             overlay.style.display = 'flex';
@@ -8717,12 +8727,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => {
                                 overlay.style.transition = 'opacity 0.2s ease';
                                 overlay.style.opacity = '0';
-                            }, 200);
+                            }, 1200);
 
                             setTimeout(() => {
                                 overlay.style.display = 'none';
                                 overlay.style.opacity = '1'; // reset for next time
-                            }, 400);
+                            }, 1400);
                         }
                         previousDisplay = currentDisplay;
                     }
