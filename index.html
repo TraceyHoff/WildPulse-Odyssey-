@@ -4147,6 +4147,12 @@ window.p1ActiveChestTile = null;
 window.p2ActiveChestTile = null;
 
 window.getChestItems = function(playerNum, x, y) {
+    if (x === undefined && y === undefined) {
+        // Universal home storage
+        const storageKey = `wildpulse_p${playerNum}_home_storage`;
+        return JSON.parse(localStorage.getItem(storageKey)) || [];
+    }
+
     const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
     const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
     const tile = miniTiles.find(t => Math.floor(t.x) === Math.floor(x) && Math.floor(t.y) === Math.floor(y) && t.type === 'storage_chest');
@@ -4154,6 +4160,13 @@ window.getChestItems = function(playerNum, x, y) {
 };
 
 window.saveChestItems = function(playerNum, x, y, items) {
+    if (x === undefined && y === undefined) {
+        // Universal home storage
+        const storageKey = `wildpulse_p${playerNum}_home_storage`;
+        localStorage.setItem(storageKey, JSON.stringify(items));
+        return;
+    }
+
     const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
     const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
     const tile = miniTiles.find(t => Math.floor(t.x) === Math.floor(x) && Math.floor(t.y) === Math.floor(y) && t.type === 'storage_chest');
@@ -4230,9 +4243,13 @@ window.depositItemIntoChest = function(playerNum, invSlotIndex) {
     if (!item || item.quantity <= 0) return;
 
     const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
-    if (!tileSprite) return;
 
-    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    let chestItems = [];
+    if (tileSprite) {
+        chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    } else {
+        chestItems = window.getChestItems(playerNum, undefined, undefined);
+    }
 
     let added = false;
     for (let cItem of chestItems) {
@@ -4259,7 +4276,11 @@ window.depositItemIntoChest = function(playerNum, invSlotIndex) {
             inv.splice(invSlotIndex, 1);
         }
         window.saveInventory();
-        window.saveChestItems(playerNum, tileSprite.x, tileSprite.y, chestItems);
+        if (tileSprite) {
+            window.saveChestItems(playerNum, tileSprite.x, tileSprite.y, chestItems);
+        } else {
+            window.saveChestItems(playerNum, undefined, undefined, chestItems);
+        }
 
         if (window.updateInventoryUI) window.updateInventoryUI();
         window.updateStorageChestUI(playerNum);
@@ -4269,9 +4290,13 @@ window.depositItemIntoChest = function(playerNum, invSlotIndex) {
 
 window.withdrawItemFromChest = function(playerNum, chestSlotIndex) {
     const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
-    if (!tileSprite) return;
 
-    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    let chestItems = [];
+    if (tileSprite) {
+        chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    } else {
+        chestItems = window.getChestItems(playerNum, undefined, undefined);
+    }
     const item = chestItems[chestSlotIndex];
     if (!item || item.quantity <= 0) return;
 
@@ -4287,7 +4312,11 @@ window.withdrawItemFromChest = function(playerNum, chestSlotIndex) {
         chestItems.splice(chestSlotIndex, 1);
     }
 
-    window.saveChestItems(playerNum, tileSprite.x, tileSprite.y, chestItems);
+    if (tileSprite) {
+        window.saveChestItems(playerNum, tileSprite.x, tileSprite.y, chestItems);
+    } else {
+        window.saveChestItems(playerNum, undefined, undefined, chestItems);
+    }
 
     if (window.updateInventoryUI) window.updateInventoryUI();
     window.updateStorageChestUI(playerNum);
@@ -4296,9 +4325,14 @@ window.withdrawItemFromChest = function(playerNum, chestSlotIndex) {
 
 window.updateStorageChestUI = function(playerNum) {
     const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
-    if (!tileSprite) return;
 
-    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    let chestItems = [];
+    if (tileSprite) {
+        chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    } else {
+        chestItems = window.getChestItems(playerNum, undefined, undefined);
+    }
+
     const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
 
     const itemIcons = {
@@ -7888,6 +7922,7 @@ function escapeHtml(unsafe) {
                 <button class="inventory-wheel-option" data-option="slot1" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot1')">Empty</button>
                 <button class="inventory-wheel-option" data-option="slot2" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot2')">Empty</button>
                 <button class="inventory-wheel-option" data-option="slot3" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot3')">Empty</button>
+                <button class="inventory-wheel-option" data-option="chest" style="position: absolute; bottom: 135px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff7f00; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,127,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'chest')">🧳 Chest</button>
                 <button class="inventory-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useInventoryWheelOption(1, 'close')">❌ Close</button>
             </div>
         </div>
@@ -7904,6 +7939,7 @@ function escapeHtml(unsafe) {
                 <button class="inventory-wheel-option" data-option="slot1" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot1')">Empty</button>
                 <button class="inventory-wheel-option" data-option="slot2" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot2')">Empty</button>
                 <button class="inventory-wheel-option" data-option="slot3" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot3')">Empty</button>
+                <button class="inventory-wheel-option" data-option="chest" style="position: absolute; bottom: 135px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff7f00; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,127,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'chest')">🧳 Chest</button>
                 <button class="inventory-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useInventoryWheelOption(2, 'close')">❌ Close</button>
             </div>
         </div>
@@ -23244,6 +23280,7 @@ window.highlightInventoryWheelOption = function(playerNum, optionName) {
             if (optionName === 'slot1') rotation = 270;
             else if (optionName === 'slot2') rotation = 0;
             else if (optionName === 'slot3') rotation = 90;
+            else if (optionName === 'chest') rotation = 180;
             else if (optionName === 'close') rotation = 180;
 
             pointer.style.transform = `rotate(${rotation}deg)`;
@@ -23336,11 +23373,29 @@ window.updateInventoryWheelUI = function(playerNum) {
             btn.style.opacity = '0.5';
         }
     });
+
+    const chestBtn = container.querySelector('.inventory-wheel-option[data-option="chest"]');
+    const closeBtn = container.querySelector('.inventory-wheel-option[data-option="close"]');
+    if (chestBtn && closeBtn) {
+        if (window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum)) {
+            chestBtn.style.display = 'flex';
+            closeBtn.style.display = 'none';
+        } else {
+            chestBtn.style.display = 'none';
+            closeBtn.style.display = 'flex';
+        }
+    }
 };
 
 window.useInventoryWheelOption = function(playerNum, optionName) {
     if (optionName === 'close') {
         window.closeInventoryWheel(playerNum);
+        return;
+    }
+
+    if (optionName === 'chest') {
+        window.closeInventoryWheel(playerNum);
+        window.openStorageChestModal(playerNum, null);
         return;
     }
 
