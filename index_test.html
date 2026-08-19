@@ -3670,7 +3670,6 @@
             <button id="menuJournalBtn" style="width: 100%; margin: 8px 0;">Journal</button>
             <button id="menuCustomizeBtn" style="width: 100%; margin: 8px 0;">Customize Character</button>
             <button id="menuHelpBtn" style="width: 100%; margin: 8px 0;">Help</button>
-            <button id="menuMusicBtn" style="width: 100%; margin: 8px 0;">Music: ON</button>
             <button id="coopToggleBtn" style="width: 100%; margin: 8px 0;">Toggle Co-op (2 Player)</button>
             <button id="menuDeleteBtn" style="width: 100%; margin: 8px 0; background: linear-gradient(180deg, #ef5350, #c62828); border-color: #ef9a9a;">Delete Progress</button>
             <button id="exitGameBtn" style="width: 100%; margin: 8px 0;">Exit Game</button>
@@ -8988,18 +8987,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btn2) btn2.innerText = text;
     };
 
-    const handleMusicToggle = () => {
-        if (window.WildPulseMusic) {
-            const isMuted = window.WildPulseMusic.toggle();
-            const text = isMuted ? "Music: OFF" : "Music: ON";
-            const btn1 = document.getElementById('menuMusicBtn');
-            const btn2 = document.getElementById('menuMusicBtn_P2');
-            if (btn1) btn1.innerText = text;
-            if (btn2) btn2.innerText = text;
-        }
-    };
-    document.getElementById('menuMusicBtn')?.addEventListener('click', handleMusicToggle);
-    document.getElementById('menuMusicBtn_P2')?.addEventListener('click', handleMusicToggle);
 
     document.getElementById('menuJournalBtn')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(1); });
     document.getElementById('menuJournalBtn_P2')?.addEventListener('click', () => { if (window.openJournalModal) window.openJournalModal(2); });
