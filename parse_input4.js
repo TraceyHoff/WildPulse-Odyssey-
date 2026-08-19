@@ -1,11 +1,6 @@
 const fs = require('fs');
-const content = fs.readFileSync('index.html', 'utf8');
 
-// Search for mouse movement update for minitile placement mode
-const index = content.indexOf("pointermove");
-if (index !== -1) {
-    const block = content.substring(index - 500, index + 2000);
-    console.log(block);
-} else {
-    console.log("not found pointermove");
-}
+let code = fs.readFileSync('index.html', 'utf8');
+
+// Also look at window.createShinyIconTexture
+console.log(code.substring(code.indexOf('window.createShinyIconTexture ='), code.indexOf('window.createShinyIconTexture =') + 1000));

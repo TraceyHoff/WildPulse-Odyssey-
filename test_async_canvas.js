@@ -1,119 +1,58 @@
 const fs = require('fs');
-let html = fs.readFileSync('index.html', 'utf8');
 
-const regex = /\/\/ Neon Couch[\s\S]*?(?=function generateMiscTextures)/;
+let code = `
+window.createTypeIconTexture = function(scene, type) {
+    const key = 'type_icon_' + type;
+    if (scene.textures.exists(key)) return key;
 
-const replacer = `// Replaced with dynamic SVG rendering
-    const furnitureMap = {
-        "Neon Couch": "furniture_couch_tile",
-        "L-Couch": "furniture_lcouch_tile",
-        "Love Seat": "furniture_loveseat_tile",
-        "Office Chair": "furniture_officechair_tile",
-        "Stool": "furniture_stool_tile",
-        "Coffee Table": "furniture_coffeetable_tile",
-        "Dining Table": "furniture_diningtable_tile",
-        "Park Bench": "furniture_parkbench_tile",
-        "Cyber Bench": "furniture_cyberbench_tile",
-        "Filing Cabinet": "furniture_filingcabinet_tile",
-        "Display Cabinet": "furniture_displaycabinet_tile",
-        "Nightstand": "furniture_nightstand_tile",
-        "Corner Table": "furniture_cornertable_tile",
-        "Bunk Bed": "furniture_bunkbed_tile",
-        "King Bed": "furniture_kingbed_tile",
-        "Desk": "furniture_desk_tile",
-        "Carpet": "furniture_carpet_tile",
-        "Star Carpet": "furniture_starcarpet_tile",
-        "Round Carpet": "furniture_roundcarpet_tile",
-        "Hex Carpet": "furniture_hexcarpet_tile",
-        "Heart Carpet": "furniture_heartcarpet_tile",
-        "Diamond Carpet": "furniture_diamondcarpet_tile",
-        "Basic Bed": "furniture_bed_tile",
-        "Chair": "furniture_chair_tile",
-        "Table": "furniture_table_tile",
-        "Crystal Bonsai": "furniture_crystal_bonsai_tile",
-        "Neon Fern": "furniture_neon_fern_tile",
-        "Plasma Cactus": "furniture_plasma_cactus_tile",
-        "Holo Orchid": "furniture_holo_orchid_tile",
-        "House Plant": "furniture_plant_tile",
-        "Floor Lamp": "furniture_lamp_tile",
-        "Ficus": "furniture_ficus_tile",
-        "Monstera": "furniture_monstera_tile",
-        "Bamboo": "furniture_bamboo_tile",
-        "Succulent": "furniture_succulent_tile",
-        "Holo-Rose": "furniture_holorose_tile",
-        "Glowing Mushroom": "furniture_mushroom_tile",
-        "Cyber Sunflower": "furniture_sunflower_tile",
-        "Zen Bonsai": "furniture_zenbonsai_tile",
-        "Lunar Lily": "furniture_lunarlily_tile",
-        "Cyber Tree": "furniture_cybertree_tile",
-        "Neon Pine": "furniture_neonpine_tile",
-        "Server Rack": "furniture_server_tile",
-        "Arcade Machine": "furniture_arcade_tile",
-        "Cyber TV": "furniture_tv_tile",
-        "Neon Shelf": "furniture_shelf_tile",
-        "Tech Bin": "furniture_bin_tile",
-        "Neon Wardrobe": "furniture_wardrobe_tile",
-        "Cyber Fridge": "furniture_fridge_tile",
-        "Holo Display": "furniture_display_tile",
-        "Lava Lamp": "furniture_lavalamp_tile",
-        "Plasma Globe": "furniture_plasmaglobe_tile",
-        "Cyber Poster": "furniture_cyberposter_tile",
-        "Neon Sign": "furniture_neonsign_tile",
-        "Gaming PC": "furniture_gamingpc_tile",
-        "Smart Mirror": "furniture_smartmirror_tile"
+    const dCanvas = document.createElement('canvas');
+    dCanvas.width = 16;
+    dCanvas.height = 16;
+    const ctx = dCanvas.getContext('2d');
+
+    // Temporary placeholder (just a black transparent box, or the old circle)
+    const typeColors = {
+        'Fire': '#FF4500', 'Water': '#1E90FF', 'Grass': '#32CD32',
+        'Electric': '#FFD700', 'Ice': '#00BFFF', 'Fighting': '#C22E28',
+        'Poison': '#A040A0', 'Ground': '#E0C068', 'Flying': '#A890F0',
+        'Psychic': '#F85888', 'Bug': '#A8B820', 'Rock': '#B8A038',
+        'Ghost': '#705898', 'Dragon': '#7038F8', 'Dark': '#705848',
+        'Steel': '#B8B8D0', 'Fairy': '#EE99AC', 'Normal': '#A8A878'
     };
+    const color = typeColors[type] || '#A8A878';
 
-    Object.keys(furnitureMap).forEach(itemName => {
-        const key = furnitureMap[itemName];
-        // Special case for Floor Lamp
-        if (itemName === "Floor Lamp") {
-             // Handle lamp on/off elsewhere or map them here?
-             // Actually, the original code creates lamp, lamp_on, lamp_off
+    // Initial draw (optional, can just be transparent)
+    // ctx.fillStyle = color;
+    // ctx.beginPath(); ctx.arc(8, 8, 8, 0, 2 * Math.PI); ctx.fill();
+
+    scene.textures.addCanvas(key, dCanvas);
+
+    const svgString = window.getTypeIconSVG(type, color);
+    const img = new Image();
+    img.onload = () => {
+        ctx.clearRect(0, 0, 16, 16);
+        ctx.drawImage(img, 0, 0, 16, 16);
+        if (scene.textures.exists(key)) {
+            let tex = scene.textures.get(key);
+            if (tex && tex.source && tex.source[0]) {
+                tex.source[0].update();
+            }
         }
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
 
-        // We will generate the base64 svg
-        let svgStr = window.getItemIconHTML(itemName, 100);
-        // Extract the content between <defs>...</defs> and </svg>
-        let match = svgStr.match(/<defs>[\\s\\S]*?<\\/defs>([\\s\\S]*?)<\\/svg>/);
-        if(match) {
-            let inner = match[1];
-            // Remove the background rect
-            inner = inner.replace(/<rect width="100" height="100" rx="20" fill="url\\(#bgGrad\\)"[^>]*>/, '');
-            // Remove the span containing emojis
-            inner = inner.replace(/<span[^>]*>[\\s\\S]*?<\\/span>/g, '');
+    return key;
+};
 
-            // Re-wrap
-            let cleanSvg = \`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
-                <defs>
-                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="2" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-                </defs>
-                \${inner}
-            </svg>\`;
-
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 100;
-                canvas.height = 100;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                if (window.add3DDepth) window.add3DDepth(ctx, 0, 0, 100, 100);
-                window.finalizeFurnitureTexture(scene, key, canvas);
-
-                // Floor lamp specific logic to maintain compatibility
-                if (itemName === "Floor Lamp") {
-                    window.finalizeFurnitureTexture(scene, 'furniture_lamp_off_tile', canvas);
-                    window.finalizeFurnitureTexture(scene, 'furniture_lamp_on_tile', canvas); // Simplified for now
-                }
-            };
-            img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(cleanSvg);
-        }
-    });
+window.getTypeIconSVG = function(type, color) {
+    let path = '';
+    if (type === 'Fire') {
+        path = '<path d="M8 1 C8 1 3 5 3 10 C3 14 5 15 8 15 C11 15 13 14 13 10 C13 5 8 1 8 1 Z" fill="' + color + '" />';
+    } else {
+        path = '<circle cx="8" cy="8" r="7" fill="' + color + '" />';
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">' + path + '</svg>';
+};
 `;
 
-html = html.replace(regex, replacer + "\n");
-fs.writeFileSync('index_test.html', html);
-console.log("Done");
+console.log('Script written');

@@ -1,42 +1,42 @@
 from playwright.sync_api import sync_playwright
 import time
 
-def verify_level_up_modal():
+def verify():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        page.goto('http://localhost:3000')
+        page.goto("http://localhost:3000")
 
-        # Try to start the game directly, bypassing login if possible
-        try:
-            # wait for ready
-            page.wait_for_selector('#startScreen', state='visible', timeout=5000)
-            page.click('#startBtn')
-        except Exception as e:
-            print("login err:", e)
+        # Click through start menu using keyboard interactions or evaluating javascript since UI buttons might not be simple DOM buttons or their IDs are different.
+        time.sleep(3)
+        page.evaluate("if(window.startGameSession) window.startGameSession();")
+        time.sleep(1)
+        page.evaluate("if(window.startGame) window.startGame(1);") # Start single player
 
-        time.sleep(5)
-
-        # Force the level up modal to display with our mock text
-        page.evaluate('''() => {
-            const levelUpModal = document.getElementById('levelUpModal');
-            const levelUpTitle = document.getElementById('levelUpTitle');
-            const levelUpStats = document.getElementById('levelUpStats');
-
-            levelUpModal.style.display = 'block';
-            levelUpModal.style.zIndex = '9999999';
-            levelUpTitle.innerText = "Flamepup Leveled Up!";
-
-            const statsHtml = "<div style='color: #00ffcc; text-shadow: 0 0 5px #00ffcc; margin-bottom: 10px;'>Player 1 leveled up to Level 5!</div>" +
-                              "HP: 10 -> 12<br>" +
-                              "Attack: 5 -> 6<br>";
-
-            levelUpStats.innerHTML = statsHtml;
-        }''')
-
-        # Take a screenshot
-        page.screenshot(path='/home/jules/verification/screenshots/level_up_modal3.png')
+        time.sleep(3)
+        # spawn a creature right next to player to guarantee it's on screen
+        page.evaluate("""
+        if(window.currentPlayer) {
+            let type = 'Fire'; // ensure it gets an icon
+            let creature = {
+                name: 'TestBurner',
+                baseName: 'TestBurner',
+                type: 'Fire',
+                level: 5,
+                maxHp: 20,
+                hp: 20,
+                attack: 10,
+                defense: 10,
+                speed: 10,
+                baseCreatureInfo: window.baseCreatures['Ignis']
+            };
+            // force a spawn near player
+            window.spawnCreature(window.currentPlayer.x + 50, window.currentPlayer.y + 50, false, false, creature);
+        }
+        """)
+        time.sleep(1)
+        page.screenshot(path="/home/jules/verification/screenshots/verification2.png")
         browser.close()
 
 if __name__ == "__main__":
-    verify_level_up_modal()
+    verify()
