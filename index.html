@@ -20345,6 +20345,8 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             }
         } else if (currDown && currLeft) {
             option = "screenshot";
+        } else if (currDown && currRight) {
+            option = "switch_bag";
         } else if (currUp) {
             option = "pet";
         } else if (currDown) {
@@ -20855,7 +20857,7 @@ window.isAnyOtherModalOpen = function() {
     return false;
 };
 
-window.canOpenWheels = function() {
+window.canOpenWheels = function(ignoreCooldown = false) {
     if (!window.gameStarted) return false;
 
     const loadingScreen = document.getElementById('loadingScreen');
@@ -20866,7 +20868,7 @@ window.canOpenWheels = function() {
 
     if (window.isAnyOtherModalOpen && window.isAnyOtherModalOpen()) return false;
 
-    if (window.lastModalCloseTime && Date.now() - window.lastModalCloseTime < 2000) return false;
+    if (!ignoreCooldown && window.lastModalCloseTime && Date.now() - window.lastModalCloseTime < 2000) return false;
 
     return true;
 };
@@ -23037,7 +23039,7 @@ window.useActionWheelOption = function(playerNum, optionName) {
     window.closeActionWheel(playerNum);
 
     if (optionName === 'switch_bag') {
-        window.openInventoryWheel(playerNum);
+        window.openInventoryWheel(playerNum, true);
         return;
     }
 
@@ -23172,9 +23174,9 @@ window.takeScreenshot = function() {
     }, 300);
 };
 
-window.openInventoryWheel = function(playerNum) {
+window.openInventoryWheel = function(playerNum, ignoreCooldown = false) {
     if (window.inBattle) return;
-    if (window.canOpenWheels && !window.canOpenWheels()) return;
+    if (window.canOpenWheels && !window.canOpenWheels(ignoreCooldown)) return;
     if (window.isAnyModalOpen && window.isAnyModalOpen() && window.p1ActiveModal !== 'inventoryWheelModal' && window.p2ActiveModal !== 'inventoryWheelModal') return;
 
     if (window.coopActive) {
