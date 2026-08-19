@@ -3859,7 +3859,7 @@
 
 <div id="challengeModal" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 700; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 40px 10px; box-sizing: border-box; color: white;">
     <div style="background: linear-gradient(135deg, rgba(30, 20, 10, 0.95), rgba(40, 30, 0, 0.95)); padding: 30px 20px; border-radius: 15px; border: 2px solid #ffd700; box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3); text-align: center; width: 90%; max-width: 450px; box-sizing: border-box; margin: auto; position: relative;">
-        <button class="close-btn" id="closeChallengeBtn" aria-label="Close Challenge">X</button>
+        <button class="close-btn gamepad-selectable" id="closeChallengeBtn" aria-label="Close Challenge">X</button>
         <h2 style="color: #ffd700; font-size: 32px; margin-top: 0; text-shadow: 0 0 10px rgba(255,215,0,0.5);">Crown Challenge</h2>
         <div style="margin: 25px 0; font-size: 18px; line-height: 1.6;">
             <p>Welcome to the Infinite Challenge! Face endless battles that get tougher as you grow.</p>
@@ -3869,7 +3869,7 @@
                 <p style="margin: 5px 0; font-size: 16px; color: #4caf50;">XP Bonus: <span id="challengeXpBonusText">+10%</span></p>
             </div>
         </div>
-        <button id="startChallengeBtn" style="width: 100%; padding: 15px; font-size: 20px; background: linear-gradient(180deg, #ffd700, #b8860b); color: #000; border: none; cursor: pointer; border-radius: 12px; font-weight: bold; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">ENTER THE ARENA</button>
+        <button id="startChallengeBtn" class="gamepad-selectable" style="width: 100%; padding: 15px; font-size: 20px; background: linear-gradient(180deg, #ffd700, #b8860b); color: #000; border: none; cursor: pointer; border-radius: 12px; font-weight: bold; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">ENTER THE ARENA</button>
         <p style="font-size: 14px; color: #888; margin-top: 15px;">Your progress is saved automatically.</p>
     </div>
 </div>
@@ -22308,6 +22308,15 @@ window.openChallengeModal = function(playerCollider) {
     } else {
         modal.style.display = 'flex';
     }
+
+    // Automatically focus the default navigable button for gamepad
+    setTimeout(() => {
+        const selectables = window.getNavigableElements(modal);
+        if (selectables.length > 0) {
+            selectables[0].classList.add(`gamepad-focused-p${playerNum}`);
+            try { selectables[0].focus(); } catch(e){}
+        }
+    }, 50);
 };
 
 window.closeChallengeModal = function(playerNum = 1) {
@@ -22325,6 +22334,13 @@ window.closeChallengeModal = function(playerNum = 1) {
     } else {
         window.p1ChallengeClosedWhileOverlapping = true;
         document.getElementById('challengeModal').style.display = 'none';
+    }
+
+    const modal = document.getElementById('challengeModal');
+    if (modal) {
+        modal.querySelectorAll(`.gamepad-focused-p${playerNum}`).forEach(el => {
+            el.classList.remove(`gamepad-focused-p${playerNum}`);
+        });
     }
 };
 
