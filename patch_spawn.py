@@ -1,47 +1,31 @@
 import re
 
 with open('index.html', 'r') as f:
-    text = f.read()
+    content = f.read()
 
-# I also need to make sure the preview and the spawned minitile use the rotated texture instead of `setAngle`!
-# Let's see what they currently do.
-# In `spawnMiniTiles`:
-#   mSprite.setAngle(tile.rotation || 0);
+# We need to change the spawn condition to allow spawning on 'home_floor' and 'rift_floor' as well as 'grass'
 
-# Wait, `AGENTS.md` says:
-# "Furniture rotation is applied by swapping textures (e.g., `key_90`) generated via `window.finalizeFurnitureTexture` to preserve 3D depth perspective, while non-furniture items use `setAngle`."
-
-# So instead of `mSprite.setAngle(tile.rotation || 0);`
-# we do:
-"""
-                let rot = tile.rotation || 0;
-                if (tile.type.startsWith('furniture_')) {
-                    if (rot !== 0) {
-                        mSprite.setTexture(textureKey + '_' + rot);
-                    }
-                    mSprite.setAngle(0);
-                } else {
-                    mSprite.setAngle(rot);
-                }
+old_code = """
+    // Ensure player spawns on grass
+    let pCol = Math.floor(startX / 100);
+    let pRow = Math.floor(startY / 100);
+    if (!mapData[pRow] || mapData[pRow][pCol] !== 'grass') {
+        let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10550, y: 10550 });
 """
 
-text = re.sub(
-    r"mSprite\.setAngle\((tile\.rotation \|\| 0)\);",
-    r"""let rot = tile.rotation || 0;
-                if (tile.type.startsWith('furniture_')) {
-                    if (rot !== 0) {
-                        mSprite.setTexture(textureKey + '_' + rot);
-                    }
-                    mSprite.setAngle(0);
-                } else {
-                    mSprite.setAngle(rot);
-                }""",
-    text
-)
+new_code = """
+    // Ensure player spawns on a valid ground tile
+    let pCol = Math.floor(startX / 100);
+    let pRow = Math.floor(startY / 100);
+    if (!mapData[pRow] || (mapData[pRow][pCol] !== 'grass' && mapData[pRow][pCol] !== 'home_floor' && mapData[pRow][pCol] !== 'rift_floor')) {
+        let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10550, y: 10550 });
+"""
 
+if old_code in content:
+    content = content.replace(old_code, new_code)
+    with open('index.html', 'w') as f:
+        f.write(content)
+    print("Patched spawn condition successfully.")
+else:
+    print("Could not find the spawn condition code.")
 
-# In `updatePreview` or something similar, when setting the texture, we do the same.
-# Let's check `updatePreview` and `window.p1MiniTileRotation` usage.
-with open('index.html', 'w') as f:
-    f.write(text)
-print("done")
