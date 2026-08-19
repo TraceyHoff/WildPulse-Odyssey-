@@ -31825,10 +31825,10 @@ function create() {
     if (isNaN(startX)) startX = 105 * 100 + 50;
     if (isNaN(startY)) startY = 105 * 100 + 50;
 
-    // Ensure player spawns on grass
+    // Ensure player spawns on a valid ground tile
     let pCol = Math.floor(startX / 100);
     let pRow = Math.floor(startY / 100);
-    if (!mapData[pRow] || mapData[pRow][pCol] !== 'grass') {
+    if (!mapData[pRow] || (mapData[pRow][pCol] !== 'grass' && mapData[pRow][pCol] !== 'home_floor' && mapData[pRow][pCol] !== 'rift_floor')) {
         let safePos = window.getStrictSafeDryLandSpawn(null, { x: 10550, y: 10550 });
         startX = safePos.x;
         startY = safePos.y;
@@ -36231,10 +36231,22 @@ window.enableCoop = function(scene) {
     }
 
     // 1. Create Player 2 sprite next to Player 1 (or default spawning if player doesn't exist)
+    const savedP2X = localStorage.getItem('wildpulse_player2_x');
+    const savedP2Y = localStorage.getItem('wildpulse_player2_y');
     const basePlayerX = isNewGame ? 10050 : ((player && typeof player.x === 'number') ? player.x : 10550);
     const basePlayerY = isNewGame ? 9950 : ((player && typeof player.y === 'number') ? player.y : 10550);
-    const p2X = isNewGame ? 10050 : Phaser.Math.Clamp(basePlayerX + 50, 100, WORLD_SIZE - 100);
-    const p2Y = isNewGame ? 9950 : Phaser.Math.Clamp(basePlayerY, 100, WORLD_SIZE - 100);
+
+    let p2X = isNewGame ? 10050 : Phaser.Math.Clamp(basePlayerX + 50, 100, WORLD_SIZE - 100);
+    let p2Y = isNewGame ? 9950 : Phaser.Math.Clamp(basePlayerY, 100, WORLD_SIZE - 100);
+
+    if (savedP2X && savedP2Y && !isNewGame) {
+        let p2Col = Math.floor(parseFloat(savedP2X) / 100);
+        let p2Row = Math.floor(parseFloat(savedP2Y) / 100);
+        if (mapData[p2Row] && (mapData[p2Row][p2Col] === 'grass' || mapData[p2Row][p2Col] === 'home_floor' || mapData[p2Row][p2Col] === 'rift_floor')) {
+            p2X = parseFloat(savedP2X);
+            p2Y = parseFloat(savedP2Y);
+        }
+    }
 
     if (!localStorage.getItem('wildpulse_player2_color')) {
         if (window.randomizePlayerCustomization) {
@@ -36474,7 +36486,7 @@ window.getStrictSafeDryLandSpawn = function(enemyObj, targetPos = null) {
             console.warn("Could not find safe spawn within strict limits, falling back to center spawn.");
             return {x: 10550, y: 10550};
         }
-    } while ((enemyObj && d < 1000) || d_water < 800 || !mapData[row] || mapData[row][col] !== 'grass' || (Math.abs(row - 100) < 5 && Math.abs(col - 100) < 5));
+    } while ((enemyObj && d < 1000) || d_water < 800 || !mapData[row] || (mapData[row][col] !== 'grass' && mapData[row][col] !== 'home_floor' && mapData[row][col] !== 'rift_floor') || (Math.abs(row - 100) < 5 && Math.abs(col - 100) < 5));
     return {x: rx, y: ry};
 };
 
@@ -38353,6 +38365,10 @@ function update() {
     if (shouldSave) {
         localStorage.setItem('wildpulse_player_x', player.x);
         localStorage.setItem('wildpulse_player_y', player.y);
+        if (window.coopActive && window.player2) {
+            localStorage.setItem('wildpulse_player2_x', window.player2.x);
+            localStorage.setItem('wildpulse_player2_y', window.player2.y);
+        }
         window.lastSaveTime = now;
     }
 
