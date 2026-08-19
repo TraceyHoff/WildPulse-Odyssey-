@@ -4684,7 +4684,7 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     }
 
     if (questType === 'catch') {
-        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
         const base = availablePool[Math.floor(Math.random() * availablePool.length)];
         const species = base ? base.name : "Sparo";
         title = `Catch ${species}`;
@@ -22035,7 +22035,7 @@ window.startChallengeBattle = function() {
 
     activeParty.forEach((playerCreature, idx) => {
         // Pick a random base creature for the challenge
-        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
         const basePrototype = availablePool.length > 0 ? availablePool[Math.floor(rng() * availablePool.length)] : window.baseCreatures[0];
         let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
         enemyCreature.level = enemyLevel;
@@ -22228,7 +22228,7 @@ window.startDojoBattle = function() {
 
     activeParty.forEach((playerCreature, idx) => {
         // Pick a random base creature for the Dojo battle
-        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
         const basePrototype = availablePool.length > 0 ? availablePool[Math.floor(rng() * availablePool.length)] : window.baseCreatures[0];
         let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
 
@@ -25356,7 +25356,7 @@ window.startDualBattle = function(playerCollider, creatureSprite) {
     currentEnemy = window.currentEnemy;
 
     // Generate Wild Enemy 2
-    const availablePool2 = window.baseCreatures.filter(c => !c.isLegendary);
+    const availablePool2 = window.baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
     const basePrototype = availablePool2.length > 0 ? availablePool2[Math.floor(Math.random() * availablePool2.length)] : window.baseCreatures[0];
     window.currentEnemy2 = JSON.parse(JSON.stringify(basePrototype));
     window.currentEnemy2.level = window.currentEnemy.level || 1;
@@ -25465,7 +25465,7 @@ window.startNpcDualBattle = function(playerCollider, trainerId, trainerName) {
 
     // Helper to generate matching enemy creature
     const generateEnemy = (playerCreature, idx) => {
-        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
         const basePrototype = availablePool.length > 0 ? availablePool[Math.floor(rng() * availablePool.length)] : window.baseCreatures[0];
         let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
 
@@ -31963,7 +31963,7 @@ function create() {
     this.physics.world.setBounds(0, 0, WORLD_SIZE, WORLD_SIZE);
 
     // Spawn base creatures
-    const baseNormalPool = baseCreatures.filter(c => !c.isLegendary);
+    const baseNormalPool = baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
     let spawnCount = Math.floor(baseNormalPool.length * 0.7);
     for (let i = 0; i < spawnCount; i++) {
         spawnCreature(this, baseNormalPool[i % baseNormalPool.length], undefined, undefined, i);
@@ -31990,7 +31990,7 @@ function create() {
     }
     if (menuShoreTiles.length > 0 && window.baseCreatures && window.baseCreatures.length > 0) {
         let numMenuCreatures = Math.floor(Math.random() * 2) + 1;
-        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
         if (availablePool.length > 0) {
             for (let i = 0; i < numMenuCreatures; i++) {
                 let randTile = menuShoreTiles[Math.floor(Math.random() * menuShoreTiles.length)];
@@ -32006,7 +32006,7 @@ function create() {
     if (window.baseCreatures && window.baseCreatures.length > 0) {
         // Boost legendary spawn rate inside the Rift Portal World (e.g., 10% chance)
         const legendaryPool = window.baseCreatures.filter(c => c.isLegendary);
-        const normalPool = window.baseCreatures.filter(c => !c.isLegendary);
+        const voidNormalPool = window.baseCreatures.filter(c => !c.isLegendary && (c.type === "Cosmic" || c.type === "Dark"));
 
         for (let i = 0; i < 5; i++) {
             let rx = (405 + Math.floor(Math.random() * 30)) * 100 + 50;
@@ -32016,7 +32016,7 @@ function create() {
             if (legendaryPool.length > 0 && Math.random() < 0.1) {
                 randCreature = legendaryPool[Math.floor(Math.random() * legendaryPool.length)];
             } else {
-                randCreature = normalPool.length > 0 ? normalPool[Math.floor(Math.random() * normalPool.length)] : window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
+                randCreature = voidNormalPool.length > 0 ? voidNormalPool[Math.floor(Math.random() * voidNormalPool.length)] : window.baseCreatures[Math.floor(Math.random() * window.baseCreatures.length)];
             }
 
             spawnCreature(this, randCreature, rx, ry);
@@ -33092,7 +33092,7 @@ window.startNpcBattle = function(playerCollider, trainerId, trainerName) {
     const rng = Math.random;
     activeParty.forEach((playerCreature, idx) => {
         // Choose a random base creature
-        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
+        const availablePool = window.baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
         const basePrototype = availablePool.length > 0 ? availablePool[Math.floor(rng() * availablePool.length)] : window.baseCreatures[0];
         let enemyCreature = JSON.parse(JSON.stringify(basePrototype));
 
@@ -36493,31 +36493,86 @@ window.getStrictSafeDryLandSpawn = function(enemyObj, targetPos = null) {
 
 function respawnEnemyBase() {
     if (typeof Phaser === 'undefined') return;
+    let isInsideRift = false;
+    let activePlayer = window.player;
+    if (window.coopActive && window.activeBattlePlayer === 2 && window.player2) {
+        activePlayer = window.player2;
+    } else if (window.activeBattlePlayer === 1 && window.player) {
+        activePlayer = window.player;
+    }
+    if (activePlayer) {
+        isInsideRift = (activePlayer.x >= 40000 && activePlayer.x <= 44000 && activePlayer.y >= 40000 && activePlayer.y <= 44000);
+    }
+
     let basePrototype = null;
     if (currentEnemy) {
         const currentBaseId = currentEnemy.baseId || currentEnemy.id;
         const currentName = currentEnemy.name;
-        const availablePool = window.baseCreatures.filter(c => {
-            const isSame = (c.id === currentBaseId) || (c.name === currentName);
-            const isLegendary = c.isLegendary;
-            return !isSame && !isLegendary;
-        });
+
+        let availablePool;
+        if (isInsideRift) {
+            availablePool = window.baseCreatures.filter(c => {
+                const isSame = (c.id === currentBaseId) || (c.name === currentName);
+                return !isSame && (c.isLegendary || c.type === "Cosmic" || c.type === "Dark");
+            });
+        } else {
+            availablePool = window.baseCreatures.filter(c => {
+                const isSame = (c.id === currentBaseId) || (c.name === currentName);
+                const isLegendary = c.isLegendary;
+                return !isSame && !isLegendary && c.type !== "Cosmic" && c.type !== "Dark";
+            });
+        }
+
         if (availablePool.length > 0) {
-            basePrototype = availablePool[Math.floor(Math.random() * availablePool.length)];
+            // Boost legendary spawn rate inside the Rift Portal World (e.g., 10% chance)
+            if (isInsideRift) {
+                const legendaryPool = availablePool.filter(c => c.isLegendary);
+                const normalPool = availablePool.filter(c => !c.isLegendary);
+                if (legendaryPool.length > 0 && Math.random() < 0.1) {
+                    basePrototype = legendaryPool[Math.floor(Math.random() * legendaryPool.length)];
+                } else if (normalPool.length > 0) {
+                    basePrototype = normalPool[Math.floor(Math.random() * normalPool.length)];
+                }
+            }
+            if (!basePrototype) {
+                basePrototype = availablePool[Math.floor(Math.random() * availablePool.length)];
+            }
         }
     }
     if (!basePrototype) {
-        const availablePool = window.baseCreatures.filter(c => !c.isLegendary);
-        basePrototype = availablePool[Math.floor(Math.random() * availablePool.length)];
+        let availablePool;
+        if (isInsideRift) {
+            availablePool = window.baseCreatures.filter(c => c.isLegendary || c.type === "Cosmic" || c.type === "Dark");
+            const legendaryPool = availablePool.filter(c => c.isLegendary);
+            const normalPool = availablePool.filter(c => !c.isLegendary);
+            if (legendaryPool.length > 0 && Math.random() < 0.1) {
+                basePrototype = legendaryPool[Math.floor(Math.random() * legendaryPool.length)];
+            } else if (normalPool.length > 0) {
+                basePrototype = normalPool[Math.floor(Math.random() * normalPool.length)];
+            } else {
+                basePrototype = availablePool[Math.floor(Math.random() * availablePool.length)];
+            }
+        } else {
+            availablePool = window.baseCreatures.filter(c => !c.isLegendary && c.type !== "Cosmic" && c.type !== "Dark");
+            basePrototype = availablePool[Math.floor(Math.random() * availablePool.length)];
+        }
     }
     let rx, ry, d, col, row;
+    let attempts = 0;
     do {
-        rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
-        ry = Phaser.Math.Between(100, WORLD_SIZE - 100);
+        if (isInsideRift) {
+            rx = (400 + Math.floor(Math.random() * 40)) * 100 + 50;
+            ry = (400 + Math.floor(Math.random() * 40)) * 100 + 50;
+        } else {
+            rx = Phaser.Math.Between(100, WORLD_SIZE - 100);
+            ry = Phaser.Math.Between(100, WORLD_SIZE - 100);
+        }
         col = Math.floor(rx / 100);
         row = Math.floor(ry / 100);
-        d = Math.hypot(player.x - rx, player.y - ry);
-    } while (d < 500 || (mapData[row] && mapData[row][col] !== 'grass'));
+        d = activePlayer ? Math.hypot(activePlayer.x - rx, activePlayer.y - ry) : 1000;
+        attempts++;
+        if (attempts > 1000) break;
+    } while (d < 500 || (mapData[row] && (isInsideRift ? mapData[row][col] !== 'rift_floor' : mapData[row][col] !== 'grass')));
     spawnCreature(game.scene.scenes[0], basePrototype, rx, ry);
 }
 
