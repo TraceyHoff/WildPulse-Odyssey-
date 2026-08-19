@@ -10754,18 +10754,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (current === modal) break;
                     current = current.parentElement;
                 }
-                // If no scrollable parent in direct hierarchy, search for the largest scrollable child in the modal
+                // If no scrollable parent in direct hierarchy, search for the scrollable child closest to the touch point
                 if (!scrollableEl) {
                     const possibleScrollables = modal.querySelectorAll('*');
-                    let maxArea = 0;
+                    let minDistance = Infinity;
                     for (let j = 0; j < possibleScrollables.length; j++) {
                         const el = possibleScrollables[j];
                         const style = window.getComputedStyle(el);
                         const isScrollable = style.overflowY === 'auto' || style.overflowY === 'scroll';
                         if (isScrollable && el.scrollHeight > el.clientHeight) {
-                            const area = el.clientWidth * el.clientHeight;
-                            if (area > maxArea) {
-                                maxArea = area;
+                            const rect = el.getBoundingClientRect();
+                            const dx = Math.max(rect.left - touch.clientX, 0, touch.clientX - rect.right);
+                            const dy = Math.max(rect.top - touch.clientY, 0, touch.clientY - rect.bottom);
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            if (dist < minDistance) {
+                                minDistance = dist;
                                 scrollableEl = el;
                             }
                         }
