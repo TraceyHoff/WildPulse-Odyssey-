@@ -1,0 +1,222 @@
+<<<<<<< SEARCH
+window.updateStoreUI = function() {
+    const items = [
+        { name: "Repellent", icon: "🧴", price: 170, desc: "Stops wild creature attacks for 60 seconds." },
+        { name: "HP Booster", icon: "💚", price: 270, desc: "Permanently raises creature's HP by 10." },
+        { name: "Attack Booster", icon: "⚔️", price: 240, desc: "Permanently raises creature's Attack by 5." },
+        { name: "Defense Booster", icon: "🛡️", price: 240, desc: "Permanently raises creature's Defense by 5." },
+        { name: "Speed Booster", icon: "⚡", price: 240, desc: "Permanently raises creature's Speed by 5." },
+        { name: "Sp. Atk Booster", icon: "🔮", price: 240, desc: "Permanently raises creature's Sp. Atk by 5." },
+        { name: "Sp. Def Booster", icon: "🧿", price: 240, desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Jank Juice", icon: "🧃", price: 270, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },
+        { name: "Healing Juice Bottle", icon: "🧪", price: 160, desc: "Heals one creature or revives with 50% HP." },
+        { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures." },
+        { name: "ExPALL", icon: "✨", price: 370, desc: "Allows whole party to receive battle experience for 180s." },
+        { name: "Creature License", icon: "🎫", price: 295, desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
+        { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
+        { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
+        { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
+        { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
+        { name: "NPC Dual Link", icon: "📡", price: 400, desc: "Guarantees a 100% chance of an NPC Trainer Dual Battle for 5 minutes." },
+        { name: "Wild Dual Signal", icon: "📶", price: 400, desc: "Guarantees a 100% chance of a wild creature Dual Battle for 5 minutes." }
+    ];
+
+    const renderColumn = (playerNum, containerId) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const coins = playerNum === 2 ? (window.gameStats2?.coins || 0) : (window.gameStats?.coins || 0);
+
+        const pLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
+        const activeItems = [...items];
+        const homeItems = [];
+
+        homeItems.push(
+            { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage.", reqLevel: 6, type: "Storage" },
+            { name: "Mini Hospital", icon: "🏥", price: 500, desc: "A functional smaller version of the Hospital. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Store", icon: "🏪", price: 500, desc: "A functional smaller version of the Store. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Trade", icon: "🔄", price: 500, desc: "A functional smaller version of the Trade center. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini PvP", icon: "⚔️", price: 500, desc: "A functional smaller version of the PvP arena. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Breeding Center", icon: "🥚", price: 500, desc: "A functional smaller version of the Breeding Center. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Mini Challenge", icon: "👑", price: 500, desc: "A functional smaller version of the Challenge area. Place near your home.", reqLevel: 10, type: "Mini Building" },
+            { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "L-Couch", icon: "🛋️", price: 650, desc: "An L-shaped couch for your home. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Love Seat", icon: "🛋️", price: 400, desc: "A small, comfortable seat for two. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Cyber Desk", icon: "🖥️", price: 550, desc: "A high-tech cyber desk for your home. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Office Chair", icon: "💺", price: 250, desc: "An ergonomic chair for the cyber desk. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Stool", icon: "🪑", price: 150, desc: "A simple futuristic stool. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Coffee Table", icon: "🪵", price: 300, desc: "A stylish table for the living area. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Dining Table", icon: "🍽️", price: 600, desc: "A large table for cyber-meals. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Park Bench", icon: "🪑", price: 350, desc: "A bench for relaxing outdoors or indoors. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Cyber Bench", icon: "🪑", price: 400, desc: "A glowing tech-bench. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Filing Cabinet", icon: "🗄️", price: 300, desc: "For storing physical documents securely. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
+            { name: "Display Cabinet", icon: "🗄️", price: 500, desc: "A glass cabinet to show off cyber-artifacts. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
+            { name: "Nightstand", icon: "🪑", price: 200, desc: "A small table for beside the bed. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Corner Table", icon: "🪵", price: 250, desc: "A small table designed for corners. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Bunk Bed", icon: "🛏️", price: 500, desc: "A multi-level bed unit. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "King Bed", icon: "🛏️", price: 750, desc: "A massive, luxurious bed. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Star Carpet", icon: "⭐", price: 300, desc: "A star-shaped cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Round Cyber Carpet", icon: "🔵", price: 300, desc: "A circular glowing carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Hexagon Carpet", icon: "💠", price: 300, desc: "A hexagonal tech carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Heart Carpet", icon: "❤️", price: 300, desc: "A heart-shaped cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Diamond Carpet", icon: "♦️", price: 300, desc: "A diamond-shaped glowing carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Holo Bed", icon: "🛏️", price: 600, desc: "A futuristic holographic bed. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+            { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+            { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+            { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Crystal Bonsai", icon: "🪨", price: 350, desc: "An elegant bonsai made of glowing crystals. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Neon Fern", icon: "🌿", price: 280, desc: "A bioluminescent fern with neon-green fronds. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Plasma Cactus", icon: "🌵", price: 420, desc: "A desert plant containing glowing pink plasma. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Holo Orchid", icon: "🌸", price: 500, desc: "A holographic projection of a rare orchid. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Potted Ficus", icon: "🪴", price: 280, desc: "A classic potted ficus tree, updated for the cyber-age. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Monstera Plant", icon: "🌿", price: 320, desc: "A lush monstera with neon-veined leaves. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Cyber Bamboo", icon: "🎋", price: 350, desc: "Digital bamboo stalks that glow softly. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Neon Succulent", icon: "🌵", price: 200, desc: "A small, resilient succulent glowing with neon. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Holo Rose", icon: "🌹", price: 400, desc: "A holographic projection of a perfect rose. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Bio Mushroom", icon: "🍄", price: 380, desc: "Genetically modified glowing mushrooms in a terrarium. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Digi Sunflower", icon: "🌻", price: 300, desc: "A tall sunflower that tracks light sources. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Zen Bonsai", icon: "🌲", price: 450, desc: "A traditional bonsai tree, meticulously maintained. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Lunar Lily", icon: "🪷", price: 420, desc: "A beautiful lily that blooms under holographic moonlight. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Cyber Tree", icon: "🌳", price: 600, desc: "A large decorative indoor tree with fiber-optic leaves. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Neon Pine", icon: "🌲", price: 500, desc: "A small pine tree radiating a sharp, neon glow. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+            { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
+            { name: "Server Rack", icon: "🗄️", price: 600, desc: "A glowing cybernetic data server. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Arcade Machine", icon: "🕹️", price: 750, desc: "A retro-futuristic arcade cabinet. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Cyber TV", icon: "📺", price: 500, desc: "A massive flat-screen cyber display. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Neon Shelf", icon: "📚", price: 250, desc: "A wall-leaning shelf with neon edges. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
+            { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place using mini-tile placement.", reqLevel: 10, type: "Misc" },
+            { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
+            { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Holo Display", icon: "🖼️", price: 800, desc: "A floating holographic art display. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Lava Lamp", icon: "🌋", price: 350, desc: "A retro-futuristic glowing lava lamp. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
+            { name: "Plasma Globe", icon: "🔮", price: 450, desc: "A sphere of crackling plasma energy. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
+            { name: "Cyber Poster", icon: "📜", price: 250, desc: "A digital neon poster for your wall. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+            { name: "Neon Sign", icon: "🪧", price: 650, desc: "A bright, buzzing neon sign. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
+            { name: "Gaming PC", icon: "💻", price: 900, desc: "A high-end RGB gaming rig. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+            { name: "Smart Mirror", icon: "🪞", price: 650, desc: "A high-tech interactive mirror. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" }
+        );
+
+        if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
+            homeItems.push(
+                { name: "Dojo Tile", icon: "⛩️", price: 650, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." , type: "Mini Building" }
+            );
+        }
+=======
+window.getAllStoreItems = function() {
+    const activeItems = [
+        { name: "Repellent", icon: "🧴", price: 170, desc: "Stops wild creature attacks for 60 seconds." },
+        { name: "HP Booster", icon: "💚", price: 270, desc: "Permanently raises creature's HP by 10." },
+        { name: "Attack Booster", icon: "⚔️", price: 240, desc: "Permanently raises creature's Attack by 5." },
+        { name: "Defense Booster", icon: "🛡️", price: 240, desc: "Permanently raises creature's Defense by 5." },
+        { name: "Speed Booster", icon: "⚡", price: 240, desc: "Permanently raises creature's Speed by 5." },
+        { name: "Sp. Atk Booster", icon: "🔮", price: 240, desc: "Permanently raises creature's Sp. Atk by 5." },
+        { name: "Sp. Def Booster", icon: "🧿", price: 240, desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Jank Juice", icon: "🧃", price: 270, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },
+        { name: "Healing Juice Bottle", icon: "🧪", price: 160, desc: "Heals one creature or revives with 50% HP." },
+        { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures." },
+        { name: "ExPALL", icon: "✨", price: 370, desc: "Allows whole party to receive battle experience for 180s." },
+        { name: "Creature License", icon: "🎫", price: 295, desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
+        { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
+        { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
+        { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
+        { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
+        { name: "NPC Dual Link", icon: "📡", price: 400, desc: "Guarantees a 100% chance of an NPC Trainer Dual Battle for 5 minutes." },
+        { name: "Wild Dual Signal", icon: "📶", price: 400, desc: "Guarantees a 100% chance of a wild creature Dual Battle for 5 minutes." }
+    ];
+
+    const homeItems = [
+        { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage.", reqLevel: 6, type: "Storage" },
+        { name: "Mini Hospital", icon: "🏥", price: 500, desc: "A functional smaller version of the Hospital. Place near your home.", reqLevel: 10, type: "Mini Building" },
+        { name: "Mini Store", icon: "🏪", price: 500, desc: "A functional smaller version of the Store. Place near your home.", reqLevel: 10, type: "Mini Building" },
+        { name: "Mini Trade", icon: "🔄", price: 500, desc: "A functional smaller version of the Trade center. Place near your home.", reqLevel: 10, type: "Mini Building" },
+        { name: "Mini PvP", icon: "⚔️", price: 500, desc: "A functional smaller version of the PvP arena. Place near your home.", reqLevel: 10, type: "Mini Building" },
+        { name: "Mini Breeding Center", icon: "🥚", price: 500, desc: "A functional smaller version of the Breeding Center. Place near your home.", reqLevel: 10, type: "Mini Building" },
+        { name: "Mini Challenge", icon: "👑", price: 500, desc: "A functional smaller version of the Challenge area. Place near your home.", reqLevel: 10, type: "Mini Building" },
+        { name: "Neon Couch", icon: "🛋️", price: 500, desc: "A comfortable neon-lit couch for your home. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+        { name: "L-Couch", icon: "🛋️", price: 650, desc: "An L-shaped couch for your home. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+        { name: "Love Seat", icon: "🛋️", price: 400, desc: "A small, comfortable seat for two. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+        { name: "Cyber Desk", icon: "🖥️", price: 550, desc: "A high-tech cyber desk for your home. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+        { name: "Office Chair", icon: "💺", price: 250, desc: "An ergonomic chair for the cyber desk. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+        { name: "Stool", icon: "🪑", price: 150, desc: "A simple futuristic stool. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+        { name: "Coffee Table", icon: "🪵", price: 300, desc: "A stylish table for the living area. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+        { name: "Dining Table", icon: "🍽️", price: 600, desc: "A large table for cyber-meals. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+        { name: "Park Bench", icon: "🪑", price: 350, desc: "A bench for relaxing outdoors or indoors. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+        { name: "Cyber Bench", icon: "🪑", price: 400, desc: "A glowing tech-bench. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+        { name: "Filing Cabinet", icon: "🗄️", price: 300, desc: "For storing physical documents securely. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
+        { name: "Display Cabinet", icon: "🗄️", price: 500, desc: "A glass cabinet to show off cyber-artifacts. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
+        { name: "Nightstand", icon: "🪑", price: 200, desc: "A small table for beside the bed. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+        { name: "Corner Table", icon: "🪵", price: 250, desc: "A small table designed for corners. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+        { name: "Bunk Bed", icon: "🛏️", price: 500, desc: "A multi-level bed unit. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+        { name: "King Bed", icon: "🛏️", price: 750, desc: "A massive, luxurious bed. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+        { name: "Glow Carpet", icon: "🔲", price: 300, desc: "A glowing cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+        { name: "Star Carpet", icon: "⭐", price: 300, desc: "A star-shaped cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+        { name: "Round Cyber Carpet", icon: "🔵", price: 300, desc: "A circular glowing carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+        { name: "Hexagon Carpet", icon: "💠", price: 300, desc: "A hexagonal tech carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+        { name: "Heart Carpet", icon: "❤️", price: 300, desc: "A heart-shaped cybernetic carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+        { name: "Diamond Carpet", icon: "♦️", price: 300, desc: "A diamond-shaped glowing carpet. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+        { name: "Holo Bed", icon: "🛏️", price: 600, desc: "A futuristic holographic bed. Place using mini-tile placement.", reqLevel: 10, type: "Bed" },
+        { name: "Neon Chair", icon: "🪑", price: 200, desc: "A stylish neon-lined chair. Place using mini-tile placement.", reqLevel: 10, type: "Seating" },
+        { name: "Holo Table", icon: "🪵", price: 400, desc: "A futuristic table with a holographic surface. Place using mini-tile placement.", reqLevel: 10, type: "Table" },
+        { name: "Cyber Plant", icon: "🪴", price: 300, desc: "A bioluminescent decorative plant. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Crystal Bonsai", icon: "🪨", price: 350, desc: "An elegant bonsai made of glowing crystals. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Neon Fern", icon: "🌿", price: 280, desc: "A bioluminescent fern with neon-green fronds. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Plasma Cactus", icon: "🌵", price: 420, desc: "A desert plant containing glowing pink plasma. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Holo Orchid", icon: "🌸", price: 500, desc: "A holographic projection of a rare orchid. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Potted Ficus", icon: "🪴", price: 280, desc: "A classic potted ficus tree, updated for the cyber-age. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Monstera Plant", icon: "🌿", price: 320, desc: "A lush monstera with neon-veined leaves. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Cyber Bamboo", icon: "🎋", price: 350, desc: "Digital bamboo stalks that glow softly. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Neon Succulent", icon: "🌵", price: 200, desc: "A small, resilient succulent glowing with neon. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Holo Rose", icon: "🌹", price: 400, desc: "A holographic projection of a perfect rose. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Bio Mushroom", icon: "🍄", price: 380, desc: "Genetically modified glowing mushrooms in a terrarium. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Digi Sunflower", icon: "🌻", price: 300, desc: "A tall sunflower that tracks light sources. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Zen Bonsai", icon: "🌲", price: 450, desc: "A traditional bonsai tree, meticulously maintained. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Lunar Lily", icon: "🪷", price: 420, desc: "A beautiful lily that blooms under holographic moonlight. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Cyber Tree", icon: "🌳", price: 600, desc: "A large decorative indoor tree with fiber-optic leaves. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Neon Pine", icon: "🌲", price: 500, desc: "A small pine tree radiating a sharp, neon glow. Place using mini-tile placement.", reqLevel: 10, type: "Plant" },
+        { name: "Neon Lamp", icon: "💡", price: 150, desc: "A bright neon standing lamp. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
+        { name: "Server Rack", icon: "🗄️", price: 600, desc: "A glowing cybernetic data server. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+        { name: "Arcade Machine", icon: "🕹️", price: 750, desc: "A retro-futuristic arcade cabinet. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+        { name: "Cyber TV", icon: "📺", price: 500, desc: "A massive flat-screen cyber display. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+        { name: "Neon Shelf", icon: "📚", price: 250, desc: "A wall-leaning shelf with neon edges. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
+        { name: "Tech Bin", icon: "🗑️", price: 100, desc: "A robotic trash receptacle. Place using mini-tile placement.", reqLevel: 10, type: "Misc" },
+        { name: "Neon Wardrobe", icon: "🚪", price: 650, desc: "A high-tech clothing storage unit. Place using mini-tile placement.", reqLevel: 10, type: "Storage" },
+        { name: "Cyber Fridge", icon: "🧊", price: 750, desc: "A cooling unit for your cyber-snacks. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+        { name: "Holo Display", icon: "🖼️", price: 800, desc: "A floating holographic art display. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+        { name: "Lava Lamp", icon: "🌋", price: 350, desc: "A retro-futuristic glowing lava lamp. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
+        { name: "Plasma Globe", icon: "🔮", price: 450, desc: "A sphere of crackling plasma energy. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
+        { name: "Cyber Poster", icon: "📜", price: 250, desc: "A digital neon poster for your wall. Place using mini-tile placement.", reqLevel: 10, type: "Decor" },
+        { name: "Neon Sign", icon: "🪧", price: 650, desc: "A bright, buzzing neon sign. Place using mini-tile placement.", reqLevel: 10, type: "Lighting" },
+        { name: "Gaming PC", icon: "💻", price: 900, desc: "A high-end RGB gaming rig. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" },
+        { name: "Smart Mirror", icon: "🪞", price: 650, desc: "A high-tech interactive mirror. Place using mini-tile placement.", reqLevel: 10, type: "Electronics" }
+    ];
+
+    return [...activeItems, ...homeItems];
+};
+
+window.updateStoreUI = function() {
+    const allItems = window.getAllStoreItems();
+
+    // We split active and home items by looking at whether they have a "type" field
+    // (In the original logic, home items have a type, active items don't)
+    const activeItems = allItems.filter(item => !item.type);
+    const homeItems = allItems.filter(item => item.type);
+
+    const renderColumn = (playerNum, containerId) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const coins = playerNum === 2 ? (window.gameStats2?.coins || 0) : (window.gameStats?.coins || 0);
+
+        const pLvl = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
+
+        let currentHomeItems = [...homeItems];
+
+        if (window.hasDefeatedAllTrainers && window.hasDefeatedAllTrainers(playerNum)) {
+            currentHomeItems.push(
+                { name: "Dojo Tile", icon: "⛩️", price: 650, desc: "A placeable tile that summons the Dojo Leader for elite matches. Place near your home." , type: "Mini Building" }
+            );
+        }
+>>>>>>> REPLACE
