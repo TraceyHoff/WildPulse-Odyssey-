@@ -8443,11 +8443,15 @@ window.WildPulseMusic = {
             this.synths.leaves.volume.value = -35;
 
             // Owls (Nighttime)
-                        this.synths.owl = new Tone.Synth({
+                        this.synths.owl = new Tone.FMSynth({
+                harmonicity: 0.5,
+                modulationIndex: 2,
                 oscillator: { type: "sine" },
-                envelope: { attack: 0.1, decay: 0.2, sustain: 0.8, release: 1 }
+                envelope: { attack: 0.2, decay: 0.3, sustain: 0.5, release: 2 },
+                modulation: { type: "sine" },
+                modulationEnvelope: { attack: 0.2, decay: 0.3, sustain: 0.5, release: 2 }
             }).connect(this.reverb);
-            this.synths.owl.volume.value = -15;
+            this.synths.owl.volume.value = -12;
 
             // Frogs (Nighttime)
             this.synths.frogs = new Tone.MembraneSynth({
@@ -8479,7 +8483,7 @@ window.WildPulseMusic = {
             if (inside) return;
 
                         // Day: Birds
-            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.1) {
+            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.3) {
                 const chirpType = Math.floor(Math.random() * 4);
                 if (chirpType === 0) {
                     const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
@@ -8508,9 +8512,9 @@ window.WildPulseMusic = {
                     if (Math.random() < 0.5) this.synths.crickets.triggerAttackRelease("64n", time + 0.05, 0.4);
                 }
 
-                if (step === 0 && Math.random() < 0.02) {
-                    this.synths.owl.triggerAttackRelease("C4", "4n", time, 0.8);
-                    this.synths.owl.triggerAttackRelease("G3", "2n", time + 0.5, 0.6);
+                if (step === 0 && Math.random() < 0.05) {
+                    this.synths.owl.triggerAttackRelease("C3", "2n", time, 0.8);
+                    this.synths.owl.triggerAttackRelease("C3", "4n", time + 0.5, 0.6);
                 }
 
                 if (step === 0 && Math.random() < 0.05) {
