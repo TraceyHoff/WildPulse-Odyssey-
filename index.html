@@ -4389,6 +4389,30 @@ window.generatePortalCoords = function(seed) {
 window.p1ActiveChestTile = null;
 window.p2ActiveChestTile = null;
 
+
+window.getStorageItemAddedSlots = function(type) {
+    switch(type) {
+        case 'storage_chest': return 5;
+        case 'furniture_filingcabinet': return 3;
+        case 'furniture_displaycabinet': return 5;
+        case 'furniture_shelf': return 2;
+        case 'furniture_wardrobe': return 5;
+        default: return 0;
+    }
+};
+
+window.getHomeStorageMaxSlots = function(playerNum) {
+    let baseSlots = 5;
+    const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
+    const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+
+    for (let tile of miniTiles) {
+        baseSlots += window.getStorageItemAddedSlots(tile.type);
+    }
+
+    return baseSlots;
+};
+
 window.getChestItems = function(playerNum, x, y) {
     if (x == null || y == null) {
         return JSON.parse(localStorage.getItem(`wildpulse_p${playerNum}_home_storage`)) || [];
@@ -4483,7 +4507,7 @@ window.depositItemIntoChest = function(playerNum, invSlotIndex) {
 
     const tileX = tileSprite ? tileSprite.x : null;
     const tileY = tileSprite ? tileSprite.y : null;
-    const maxSlots = tileSprite ? 10 : 5;
+    const maxSlots = tileSprite ? 10 : window.getHomeStorageMaxSlots(playerNum);
 
     const chestItems = window.getChestItems(playerNum, tileX, tileY);
 
@@ -4554,7 +4578,7 @@ window.updateStorageChestUI = function(playerNum) {
 
     const tileX = tileSprite ? tileSprite.x : null;
     const tileY = tileSprite ? tileSprite.y : null;
-    const maxSlots = tileSprite ? 10 : 5;
+    const maxSlots = tileSprite ? 10 : window.getHomeStorageMaxSlots(playerNum);
 
     const chestItems = window.getChestItems(playerNum, tileX, tileY);
     const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
