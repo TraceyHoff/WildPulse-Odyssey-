@@ -22931,7 +22931,7 @@ function renderPartyForPlayer(playerNum = 1) {
     const activeParty = creaturesList.filter(c => !c.stored);
 
     if (activeParty.length === 0) {
-        list.innerHTML = '<p>Your party is empty.</p>';
+        list.innerHTML = '<p style="color: #ffff99;">Your party is empty.</p>';
         return;
     }
 
