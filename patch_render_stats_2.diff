@@ -1,0 +1,123 @@
+<<<<<<< SEARCH
+        window.savePlayerLevels();
+        if (leveledUp) {
+            if (window.showModernNotification && !suppressNotification) {
+                const lvlUpIcon = window.getPlayerLevelUpIconHTML ? window.getPlayerLevelUpIconHTML(20) : (window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉');
+                window.showModernNotification(`${lvlUpIcon} Player 2 leveled up to Level ${window.p2Level}! ${lvlUpIcon}`, "#ffeb3b");
+            }
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
+
+            if (oldLevel < 10 && window.p2Level >= 10 && window.furniturePool) {
+                const item = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+                if (window.canAddInventoryItem && window.canAddInventoryItem(2, item)) {
+                    window.addInventoryItem(2, item);
+                    if (window.showModernNotification) window.showModernNotification(`🎁 Player 2 reached Level 10! You received a ${item} for your home!`, 5000, 2);
+                } else {
+                    if (!window.p2PendingFurniture) window.p2PendingFurniture = [];
+                    window.p2PendingFurniture.push(item);
+                    if (window.savePendingFurniture) window.savePendingFurniture();
+                    if (window.showModernNotification) window.showModernNotification(`🎁 Player 2 reached Level 10! A ${item} will be added when inventory space frees up.`, 6000, 2);
+                }
+            }
+        }
+        if (window.evaluateActiveQuests) window.evaluateActiveQuests(2);
+        return leveledUp;
+    } else {
+        window.p1Xp = (window.p1Xp || 0) + amount;
+        let leveledUp = false;
+        let oldLevel = window.p1Level || 1;
+
+        while (window.p1Xp >= window.getPlayerXpRequirement(window.p1Level || 1)) {
+            window.p1Xp -= window.getPlayerXpRequirement(window.p1Level || 1);
+            window.p1Level = (window.p1Level || 1) + 1;
+            if (window.p1Level === 10) { window.awardHomeFurniture(1); }
+            leveledUp = true;
+        }
+        window.savePlayerLevels();
+        if (leveledUp) {
+            if (window.showModernNotification && !suppressNotification) {
+                const lvlUpIcon = window.getPlayerLevelUpIconHTML ? window.getPlayerLevelUpIconHTML(20) : (window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉');
+                window.showModernNotification(`${lvlUpIcon} Player 1 leveled up to Level ${window.p1Level}! ${lvlUpIcon}`, "#ffeb3b");
+            }
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
+
+            if (oldLevel < 10 && window.p1Level >= 10 && window.furniturePool) {
+                const item = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+                if (window.canAddInventoryItem && window.canAddInventoryItem(1, item)) {
+                    window.addInventoryItem(1, item);
+                    if (window.showModernNotification) window.showModernNotification(`🎁 Player 1 reached Level 10! You received a ${item} for your home!`, 5000, 1);
+                } else {
+                    if (!window.p1PendingFurniture) window.p1PendingFurniture = [];
+                    window.p1PendingFurniture.push(item);
+                    if (window.savePendingFurniture) window.savePendingFurniture();
+                    if (window.showModernNotification) window.showModernNotification(`🎁 Player 1 reached Level 10! A ${item} will be added when inventory space frees up.`, 6000, 1);
+                }
+            }
+        }
+        if (window.evaluateActiveQuests) window.evaluateActiveQuests(1);
+        return leveledUp;
+    }
+};
+=======
+        window.savePlayerLevels();
+        if (leveledUp) {
+            if (window.showModernNotification && !suppressNotification) {
+                const lvlUpIcon = window.getPlayerLevelUpIconHTML ? window.getPlayerLevelUpIconHTML(20) : (window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉');
+                window.showModernNotification(`${lvlUpIcon} Player 2 leveled up to Level ${window.p2Level}! ${lvlUpIcon}`, "#ffeb3b");
+            }
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
+
+            if (oldLevel < 10 && window.p2Level >= 10 && window.furniturePool) {
+                const item = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+                if (window.canAddInventoryItem && window.canAddInventoryItem(2, item)) {
+                    window.addInventoryItem(2, item);
+                    if (window.showModernNotification) window.showModernNotification(`🎁 Player 2 reached Level 10! You received a ${item} for your home!`, 5000, 2);
+                } else {
+                    if (!window.p2PendingFurniture) window.p2PendingFurniture = [];
+                    window.p2PendingFurniture.push(item);
+                    if (window.savePendingFurniture) window.savePendingFurniture();
+                    if (window.showModernNotification) window.showModernNotification(`🎁 Player 2 reached Level 10! A ${item} will be added when inventory space frees up.`, 6000, 2);
+                }
+            }
+        }
+        if (window.evaluateActiveQuests) window.evaluateActiveQuests(2);
+        if (window.renderStatsTab) window.renderStatsTab(2);
+        return leveledUp;
+    } else {
+        window.p1Xp = (window.p1Xp || 0) + amount;
+        let leveledUp = false;
+        let oldLevel = window.p1Level || 1;
+
+        while (window.p1Xp >= window.getPlayerXpRequirement(window.p1Level || 1)) {
+            window.p1Xp -= window.getPlayerXpRequirement(window.p1Level || 1);
+            window.p1Level = (window.p1Level || 1) + 1;
+            if (window.p1Level === 10) { window.awardHomeFurniture(1); }
+            leveledUp = true;
+        }
+        window.savePlayerLevels();
+        if (leveledUp) {
+            if (window.showModernNotification && !suppressNotification) {
+                const lvlUpIcon = window.getPlayerLevelUpIconHTML ? window.getPlayerLevelUpIconHTML(20) : (window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉');
+                window.showModernNotification(`${lvlUpIcon} Player 1 leveled up to Level ${window.p1Level}! ${lvlUpIcon}`, "#ffeb3b");
+            }
+            if (window.updatePlayerLabels) window.updatePlayerLabels();
+
+            if (oldLevel < 10 && window.p1Level >= 10 && window.furniturePool) {
+                const item = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+                if (window.canAddInventoryItem && window.canAddInventoryItem(1, item)) {
+                    window.addInventoryItem(1, item);
+                    if (window.showModernNotification) window.showModernNotification(`🎁 Player 1 reached Level 10! You received a ${item} for your home!`, 5000, 1);
+                } else {
+                    if (!window.p1PendingFurniture) window.p1PendingFurniture = [];
+                    window.p1PendingFurniture.push(item);
+                    if (window.savePendingFurniture) window.savePendingFurniture();
+                    if (window.showModernNotification) window.showModernNotification(`🎁 Player 1 reached Level 10! A ${item} will be added when inventory space frees up.`, 6000, 1);
+                }
+            }
+        }
+        if (window.evaluateActiveQuests) window.evaluateActiveQuests(1);
+        if (window.renderStatsTab) window.renderStatsTab(1);
+        return leveledUp;
+    }
+};
+>>>>>>> REPLACE
