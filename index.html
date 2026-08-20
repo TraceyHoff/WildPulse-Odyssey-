@@ -22192,26 +22192,30 @@ window.renderQuestsList = function(playerNum = 1) {
         }
 
         questCard.innerHTML = `
-            <h3 style="margin: 0 0 5px 0; color: #fff;">${quest.description} ${trackSpan}</h3>
-            <p style="margin: 2px 0; font-size: 14px; color: #ccc;">Given By: ${npcName}</p>
-            <p style="margin: 2px 0; font-size: 14px; color: #ccc;">${targetText}</p>
-            <p style="margin: 2px 0; font-size: 14px; color: ${quest.status === 'completed' ? '#4caf50' : '#ccc'};">${progressText}</p>
-            <p style="margin: 2px 0; font-size: 14px; color: #ffd700;">Reward: ${quest.rewards ? `${quest.rewards.coins} Coins, ${quest.rewards.xp} XP${quest.rewards.item ? ', ' + quest.rewards.item : ''}` : 'Unknown'}</p>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 10px;">
+                <h3 style="margin: 0; color: #fff; font-size: 16px; line-height: 1.3; flex: 1;">${quest.description} ${trackSpan}</h3>
+                <div class="quest-track-btn-container" style="flex-shrink: 0; min-width: 70px; display: flex; justify-content: flex-end;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <p style="margin: 0; font-size: 14px; color: #ccc;">Given By: ${npcName}</p>
+                <p style="margin: 0; font-size: 14px; color: #ccc;">${targetText}</p>
+                <p style="margin: 0; font-size: 14px; color: ${quest.status === 'completed' ? '#4caf50' : '#ccc'};">${progressText}</p>
+                <p style="margin: 0; font-size: 14px; color: #ffd700; word-break: break-word;">Reward: ${quest.rewards ? `${quest.rewards.coins} Coins, ${quest.rewards.xp} XP${quest.rewards.item ? ', ' + quest.rewards.item : ''}` : 'Unknown'}</p>
+            </div>
         `;
 
         if (quest.status !== 'completed') {
             const trackBtn = document.createElement('button');
             trackBtn.className = 'quest-track-btn';
             trackBtn.innerText = trackBtnText;
-            trackBtn.style.position = 'absolute';
-            trackBtn.style.top = '10px';
-            trackBtn.style.right = '10px';
             trackBtn.style.padding = '5px 10px';
             trackBtn.style.background = `rgba(${playerNum === 2 ? '255,152,0' : '76,175,80'},0.2)`;
             trackBtn.style.color = '#fff';
             trackBtn.style.border = `1px solid ${playerNum === 2 ? '#ff9800' : '#4caf50'}`;
             trackBtn.style.borderRadius = '3px';
             trackBtn.style.cursor = 'pointer';
+            trackBtn.style.whiteSpace = 'nowrap';
+            trackBtn.style.width = '100%';
 
             trackBtn.onclick = () => {
                 quest.tracked = !quest.tracked;
@@ -22219,7 +22223,10 @@ window.renderQuestsList = function(playerNum = 1) {
                 window.renderQuestsList(playerNum);
             };
 
-            questCard.appendChild(trackBtn);
+            const btnContainer = questCard.querySelector('.quest-track-btn-container');
+            if (btnContainer) {
+                btnContainer.appendChild(trackBtn);
+            }
         }
 
         listEl.appendChild(questCard);
