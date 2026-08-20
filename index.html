@@ -36445,38 +36445,24 @@ window.endBattle = function(result) {
                 const winnerList = winnerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
                 const winnerKey = winnerNum === 2 ? 'wildpulse_collected_creatures2' : STORAGE_KEY;
 
-                // ExPALL item experience sharing to active party
+                // ExPALL item experience sharing and favorited creature XP
                 const isExPallActive = winnerNum === 2 ? (window.p2ExPallTime > 0) : (window.p1ExPallTime > 0);
-                if (isExPallActive) {
-                    let expallChanged = false;
+                const halfXp = Math.floor(xpGained / 2);
+                let changedList = false;
+
+                if (isExPallActive || halfXp > 0) {
                     winnerList.forEach(c => {
-                        if (!c.stored && !c.isEgg && String(c.id) !== String(expTarget?.id)) {
+                        if (c.isEgg || String(c.id) === String(expTarget?.id)) return;
+
+                        if (isExPallActive && !c.stored) {
                             let subLeveledUp = window.gainXp(c, xpGained);
-                            expallChanged = true;
+                            changedList = true;
                             if (subLeveledUp) {
                                 if (window.showModernNotification) {
                                     window.showModernNotification(`✨ ExPALL: ${c.nickname || c.name} reached Level ${c.level}! ✨`, "#ffeb3b");
                                 }
                             }
-                        }
-                    });
-                    if (expallChanged) {
-                        localStorage.setItem(winnerKey, JSON.stringify(winnerList));
-                        if (winnerNum === 1) {
-                            window.collectedCreatures = winnerList;
-                            window.playerParty = winnerList;
-                        } else {
-                            window.collectedCreatures2 = winnerList;
-                        }
-                    }
-                }
-
-                const halfXp = Math.floor(xpGained / 2);
-                if (halfXp > 0) {
-                    let changedList = false;
-                    winnerList.forEach(c => {
-                        // Prevent duplicate XP if they already got full XP from ExPALL
-                        if (c.favorited && !c.isEgg && String(c.id) !== String(expTarget?.id) && !(isExPallActive && !c.stored)) {
+                        } else if (halfXp > 0 && c.favorited) {
                             let subLeveledUp = window.gainXp(c, halfXp);
                             changedList = true;
                             if (subLeveledUp) {
@@ -36486,17 +36472,18 @@ window.endBattle = function(result) {
                             }
                         }
                     });
-                    if (changedList || isExPallActive) {
-                        localStorage.setItem(winnerKey, JSON.stringify(winnerList));
-                        if (winnerNum === 1) {
-                            window.collectedCreatures = winnerList;
-                            window.playerParty = winnerList;
-                        } else {
-                            window.collectedCreatures2 = winnerList;
-                        }
-                        if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
-                        if (window.renderStorageList) window.renderStorageList();
+                }
+
+                if (changedList || isExPallActive) {
+                    localStorage.setItem(winnerKey, JSON.stringify(winnerList));
+                    if (winnerNum === 1) {
+                        window.collectedCreatures = winnerList;
+                        window.playerParty = winnerList;
+                    } else {
+                        window.collectedCreatures2 = winnerList;
                     }
+                    if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
+                    if (window.renderStorageList) window.renderStorageList();
                 }
 
                 if (leveledUp) {
