@@ -9748,6 +9748,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.rebuildHomeInteriorTiles) {
                     window.rebuildHomeInteriorTiles(playerNum);
                 }
+                if (window.spawnMiniTiles && window.game && window.game.scene && window.game.scene.scenes.length > 0) {
+                    window.spawnMiniTiles(window.game.scene.scenes[0]);
+                }
                 if (window.openHomeCustomizationModal) {
                     window.openHomeCustomizationModal(playerNum);
                 }
