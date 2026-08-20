@@ -20487,7 +20487,7 @@ window.p2ActiveModal = null;
 
 window.getNavigableElements = function(container) {
     if (!container) return [];
-    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .party-card');
+    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .party-card, .custom-color-slider, .custom-color-display');
     return Array.from(all).filter(el => {
         // Must be visible
         if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
@@ -21373,6 +21373,26 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                     focusedEl.selectedIndex = (focusedEl.selectedIndex + 1) % focusedEl.options.length;
                     focusedEl.dispatchEvent(new Event('change', { bubbles: true }));
                 }
+                selectBypass = true;
+            }
+        }
+
+        if (focusedEl && focusedEl.tagName === 'INPUT' && focusedEl.type === 'range') {
+            if (currLeft && currA) {
+                let step = parseFloat(focusedEl.step) || 1;
+                let min = parseFloat(focusedEl.min);
+                if (isNaN(min)) min = 0;
+                focusedEl.value = Math.max(min, parseFloat(focusedEl.value) - step);
+                focusedEl.dispatchEvent(new Event('input', { bubbles: true }));
+                focusedEl.dispatchEvent(new Event('change', { bubbles: true }));
+                selectBypass = true;
+            } else if (currRight && currA) {
+                let step = parseFloat(focusedEl.step) || 1;
+                let max = parseFloat(focusedEl.max);
+                if (isNaN(max)) max = 100;
+                focusedEl.value = Math.min(max, parseFloat(focusedEl.value) + step);
+                focusedEl.dispatchEvent(new Event('input', { bubbles: true }));
+                focusedEl.dispatchEvent(new Event('change', { bubbles: true }));
                 selectBypass = true;
             }
         }
