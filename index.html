@@ -3985,6 +3985,7 @@
         <!-- Player 1 Column -->
         <div class="coop-column p1-col">
             <button class="close-btn close-inventory-btn" aria-label="Close Inventory">X</button>
+            <button id="p1HomeInventoryBtn" class="close-btn" aria-label="Home Inventory" style="display: none; right: 40px; background: #00e5ff; color: #000;" onclick="window.openStorageChestModal(1, null)">🏠</button>
             <h2 style="color: #4caf50; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 1 Inventory</h2>
             <div id="p1InventoryEggSlots" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; min-height: 80px; border-bottom: 1px solid #555; padding-bottom: 10px;"></div>
             <div id="p1InventoryList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;"></div>
@@ -3993,6 +3994,7 @@
         <!-- Player 2 Column -->
         <div class="coop-column p2-col">
             <button class="close-btn close-inventory-btn" aria-label="Close Inventory">X</button>
+            <button id="p2HomeInventoryBtn" class="close-btn" aria-label="Home Inventory" style="display: none; right: 40px; background: #ffd700; color: #000;" onclick="window.openStorageChestModal(2, null)">🏠</button>
             <h2 style="color: #ff9800; text-align: center; margin-top: 0; margin-bottom: 15px;">Player 2 Inventory</h2>
             <div id="p2InventoryEggSlots" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; min-height: 80px; border-bottom: 1px solid #555; padding-bottom: 10px;"></div>
             <div id="p2InventoryList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;"></div>
@@ -4388,6 +4390,9 @@ window.p1ActiveChestTile = null;
 window.p2ActiveChestTile = null;
 
 window.getChestItems = function(playerNum, x, y) {
+    if (x == null || y == null) {
+        return JSON.parse(localStorage.getItem(`wildpulse_p${playerNum}_home_storage`)) || [];
+    }
     const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
     const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
     const tile = miniTiles.find(t => Math.floor(t.x) === Math.floor(x) && Math.floor(t.y) === Math.floor(y) && t.type === 'storage_chest');
@@ -4395,6 +4400,10 @@ window.getChestItems = function(playerNum, x, y) {
 };
 
 window.saveChestItems = function(playerNum, x, y, items) {
+    if (x == null || y == null) {
+        localStorage.setItem(`wildpulse_p${playerNum}_home_storage`, JSON.stringify(items));
+        return;
+    }
     const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
     const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
     const tile = miniTiles.find(t => Math.floor(t.x) === Math.floor(x) && Math.floor(t.y) === Math.floor(y) && t.type === 'storage_chest');
@@ -4471,9 +4480,12 @@ window.depositItemIntoChest = function(playerNum, invSlotIndex) {
     if (!item || item.quantity <= 0) return;
 
     const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
-    if (!tileSprite) return;
 
-    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    const tileX = tileSprite ? tileSprite.x : null;
+    const tileY = tileSprite ? tileSprite.y : null;
+    const maxSlots = tileSprite ? 10 : 5;
+
+    const chestItems = window.getChestItems(playerNum, tileX, tileY);
 
     let added = false;
     for (let cItem of chestItems) {
@@ -4485,11 +4497,11 @@ window.depositItemIntoChest = function(playerNum, invSlotIndex) {
     }
 
     if (!added) {
-        if (chestItems.length < 10) {
+        if (chestItems.length < maxSlots) {
             chestItems.push({ name: item.name, quantity: 1 });
             added = true;
         } else {
-            window.showModernNotification("❌ Storage Chest is full (max 10 slots)!", 3000, playerNum);
+            window.showModernNotification(`❌ Storage Chest is full (max ${maxSlots} slots)!`, 3000, playerNum);
             return;
         }
     }
@@ -4500,7 +4512,7 @@ window.depositItemIntoChest = function(playerNum, invSlotIndex) {
             inv.splice(invSlotIndex, 1);
         }
         window.saveInventory();
-        window.saveChestItems(playerNum, tileSprite.x, tileSprite.y, chestItems);
+        window.saveChestItems(playerNum, tileX, tileY, chestItems);
 
         if (window.updateInventoryUI) window.updateInventoryUI();
         window.updateStorageChestUI(playerNum);
@@ -4510,9 +4522,11 @@ window.depositItemIntoChest = function(playerNum, invSlotIndex) {
 
 window.withdrawItemFromChest = function(playerNum, chestSlotIndex) {
     const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
-    if (!tileSprite) return;
 
-    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    const tileX = tileSprite ? tileSprite.x : null;
+    const tileY = tileSprite ? tileSprite.y : null;
+
+    const chestItems = window.getChestItems(playerNum, tileX, tileY);
     const item = chestItems[chestSlotIndex];
     if (!item || item.quantity <= 0) return;
 
@@ -4528,7 +4542,7 @@ window.withdrawItemFromChest = function(playerNum, chestSlotIndex) {
         chestItems.splice(chestSlotIndex, 1);
     }
 
-    window.saveChestItems(playerNum, tileSprite.x, tileSprite.y, chestItems);
+    window.saveChestItems(playerNum, tileX, tileY, chestItems);
 
     if (window.updateInventoryUI) window.updateInventoryUI();
     window.updateStorageChestUI(playerNum);
@@ -4537,10 +4551,18 @@ window.withdrawItemFromChest = function(playerNum, chestSlotIndex) {
 
 window.updateStorageChestUI = function(playerNum) {
     const tileSprite = playerNum === 2 ? window.p2ActiveChestTile : window.p1ActiveChestTile;
-    if (!tileSprite) return;
 
-    const chestItems = window.getChestItems(playerNum, tileSprite.x, tileSprite.y);
+    const tileX = tileSprite ? tileSprite.x : null;
+    const tileY = tileSprite ? tileSprite.y : null;
+    const maxSlots = tileSprite ? 10 : 5;
+
+    const chestItems = window.getChestItems(playerNum, tileX, tileY);
     const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+
+    const slotsHeader = document.getElementById(`p${playerNum}ChestSlotsHeader`);
+    if (slotsHeader) {
+        slotsHeader.innerText = `Chest Slots (${maxSlots} max)`;
+    }
 
     const itemIcons = {
         "Mini Hospital": "🏥",
@@ -4614,7 +4636,7 @@ window.updateStorageChestUI = function(playerNum) {
     const slotsContainer = document.getElementById(slotsContainerId);
     if (slotsContainer) {
         let slotsHtml = '';
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < maxSlots; i++) {
             const item = chestItems[i];
             if (item) {
                 const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 28) : (itemIcons[item.name] || "📦");
@@ -8024,7 +8046,7 @@ function escapeHtml(unsafe) {
             <div style="display: flex; gap: 15px; margin-top: 15px; justify-content: center; flex-wrap: wrap;">
                 <!-- Left: Chest 10 Slots -->
                 <div style="flex: 1; min-width: 260px; max-width: 380px; background: rgba(0,0,0,0.6); border: 2px solid #00e5ff; border-radius: 8px !important; padding: 12px; box-sizing: border-box;">
-                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #00e5ff; text-transform: uppercase;">Chest Slots (10 max)</div>
+                    <div id="p1ChestSlotsHeader" style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #00e5ff; text-transform: uppercase;">Chest Slots (10 max)</div>
                     <div id="p1ChestSlotsContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
                         <!-- Dynamically populated -->
                     </div>
@@ -8048,7 +8070,7 @@ function escapeHtml(unsafe) {
             <div style="display: flex; gap: 15px; margin-top: 15px; justify-content: center; flex-wrap: wrap;">
                 <!-- Left: Chest 10 Slots -->
                 <div style="flex: 1; min-width: 260px; max-width: 380px; background: rgba(0,0,0,0.6); border: 2px solid #ffd700; border-radius: 8px !important; padding: 12px; box-sizing: border-box;">
-                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ffd700; text-transform: uppercase;">Chest Slots (10 max)</div>
+                    <div id="p2ChestSlotsHeader" style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #ffd700; text-transform: uppercase;">Chest Slots (10 max)</div>
                     <div id="p2ChestSlotsContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
                         <!-- Dynamically populated -->
                     </div>
@@ -20184,6 +20206,24 @@ window.updateInventoryUI = function() {
 
     updateInventoryList(1, 'p1InventoryList');
     updateInventoryList(2, 'p2InventoryList');
+
+    const p1HomeInventoryBtn = document.getElementById('p1HomeInventoryBtn');
+    if (p1HomeInventoryBtn) {
+        if (window.isPlayerInsideHome && window.isPlayerInsideHome(1)) {
+            p1HomeInventoryBtn.style.display = 'block';
+        } else {
+            p1HomeInventoryBtn.style.display = 'none';
+        }
+    }
+
+    const p2HomeInventoryBtn = document.getElementById('p2HomeInventoryBtn');
+    if (p2HomeInventoryBtn) {
+        if (window.isPlayerInsideHome && window.isPlayerInsideHome(2)) {
+            p2HomeInventoryBtn.style.display = 'block';
+        } else {
+            p2HomeInventoryBtn.style.display = 'none';
+        }
+    }
 };
 
 // Stats System
