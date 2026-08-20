@@ -8469,7 +8469,7 @@ window.WildPulseMusic = {
                 oscillator: { type: "sine" },
                 envelope: { attack: 0.05, decay: 0.1, sustain: 0.1, release: 0.5 }
             }).connect(this.reverb);
-            this.synths.birds.volume.value = -20;
+            this.synths.birds.volume.value = -10;
 
             // Crickets (Nighttime)
             this.synths.crickets = new Tone.NoiseSynth({
@@ -8481,7 +8481,7 @@ window.WildPulseMusic = {
             // Player Steps
             this.stepFilter = new Tone.Filter({ type: "lowpass", frequency: 1200 }).connect(this.reverb);
             this.synths.steps = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } }).connect(this.stepFilter);
-            this.synths.steps.volume.value = -30;
+            this.synths.steps.volume.value = -12;
 
             // Leaves Rustling
             this.leafFilter = new Tone.Filter({ type: "bandpass", frequency: 2000, Q: 1.5 }).connect(this.reverb);
@@ -8516,7 +8516,7 @@ window.WildPulseMusic = {
             if (inside) return;
 
             // Day: Birds
-            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.05) {
+            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.1) {
                 const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
                 this.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
                 if (Math.random() < 0.5) {
@@ -8551,17 +8551,28 @@ window.WildPulseMusic = {
         }
 
         const now = Date.now();
+        const isInsideHome = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
+
+        // Fast-update precise sound effects
+        if (!isInsideHome) {
+            let p1Moving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0));
+            if (p1Moving) {
+                if (!this.lastStepTime || now - this.lastStepTime > 250) {
+                    if (this.synths.steps) {
+                        this.synths.steps.triggerAttackRelease("16n", Tone.now(), 0.5);
+                    }
+                    this.lastStepTime = now;
+                }
+            } else {
+                this.lastStepTime = 0;
+            }
+        }
+
         if (this.lastMusicUpdate && now - this.lastMusicUpdate < 200) return;
         this.lastMusicUpdate = now;
 
-        const isInsideHome = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
         // Sound effects
         if (!isInsideHome) {
-            let p1Moving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0));
-            if (p1Moving && this.synths.steps && Math.random() < 0.2) {
-                this.synths.steps.triggerAttackRelease("16n", Tone.now(), Math.random() * 0.2 + 0.1);
-            }
-
             if (this.synths.leaves && window.windSpeed > 100 && Math.random() < (window.windSpeed / 2000)) {
                 this.synths.leaves.triggerAttackRelease("8n", Tone.now(), Math.random() * 0.3 + 0.2);
             }
