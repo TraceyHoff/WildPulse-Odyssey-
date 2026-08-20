@@ -33297,37 +33297,49 @@ function updateQuestArrows() {
             }
         }
 
-        let targetTrainerId = null;
         let targetTrainerPos = null;
 
         if (isVisible) {
             const quests = playerNum === 2 ? window.p2Quests : window.p1Quests;
             if (quests) {
+                // First look for completed tracked quest
                 for (let q of quests) {
-                    if (q.status === 'active' && q.type === 'defeat_trainer' && q.tracked) {
-                        // Find the trainer ID for this name
-                        for (let i = 1; i <= 24; i++) {
-                            const tId = 'npc_trainer_' + i;
-                            if (window.getNpcTrainerName(tId) === q.target) {
-                                targetTrainerId = tId;
-                                break;
-                            }
+                    if (q.tracked && q.progress >= q.targetCount) {
+                        // Quest is ready to turn in, point to quest giver NPC
+                        if (q.npcId && window.getQuestNpcPixelPos) {
+                            targetTrainerPos = window.getQuestNpcPixelPos(q.npcId);
                         }
-                        break; // Only point to the first active defeat_trainer quest
+                        break;
                     }
                 }
-            }
-        }
 
-        if (targetTrainerId) {
-            // Check dynamic position if wandering, fallback to start pos
-            if (window.npcTrainersState && window.npcTrainersState[targetTrainerId]) {
-                targetTrainerPos = {
-                    x: window.npcTrainersState[targetTrainerId].x,
-                    y: window.npcTrainersState[targetTrainerId].y
-                };
-            } else if (window.getNpcTrainerStartPos) {
-                targetTrainerPos = window.getNpcTrainerStartPos(targetTrainerId);
+                // If not found, look for active defeat_trainer quest
+                if (!targetTrainerPos) {
+                    for (let q of quests) {
+                        if (q.tracked && q.type === 'defeat_trainer' && q.progress < q.targetCount && q.status === 'active') {
+                            // Find the trainer ID for this name
+                            let tId = null;
+                            for (let i = 1; i <= 24; i++) {
+                                const tidToCheck = 'npc_trainer_' + i;
+                                if (window.getNpcTrainerName(tidToCheck) === q.target) {
+                                    tId = tidToCheck;
+                                    break;
+                                }
+                            }
+                            if (tId) {
+                                if (window.npcTrainersState && window.npcTrainersState[tId]) {
+                                    targetTrainerPos = {
+                                        x: window.npcTrainersState[tId].x,
+                                        y: window.npcTrainersState[tId].y
+                                    };
+                                } else if (window.getNpcTrainerStartPos) {
+                                    targetTrainerPos = window.getNpcTrainerStartPos(tId);
+                                }
+                            }
+                            break; // Only point to the first active defeat_trainer quest
+                        }
+                    }
+                }
             }
         }
 
