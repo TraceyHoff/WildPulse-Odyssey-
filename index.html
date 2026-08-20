@@ -20460,11 +20460,18 @@ window.saveCollected = function(creature, playerNum = 1) {
 
         if (window.evaluateActiveQuests) {
             const quests = playerNum === 2 ? window.p2Quests : window.p1Quests;
+            let changed = false;
             quests.forEach(q => {
                 if (q.status === 'active' && q.type === 'catch' && q.target === creature.name) {
+                    const oldProg = q.progress;
                     q.progress = Math.min(q.targetCount, q.progress + 1);
+                    if (q.progress > oldProg) {
+                        changed = true;
+                        window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, playerNum);
+                    }
                 }
             });
+            if (changed) window.saveQuests();
             window.evaluateActiveQuests(playerNum);
         }
     }
@@ -24861,15 +24868,22 @@ window.doBreed = function(playerNum = 1) {
 
         if (window.evaluateActiveQuests) {
             const quests = playerNum === 2 ? window.p2Quests : window.p1Quests;
+            let changed = false;
             quests.forEach(q => {
                 if (q.status === 'active' && q.type === 'breed') {
                     const t1 = q.target.type1;
                     const t2 = q.target.type2;
                     if ((p1.type === t1 && p2.type === t2) || (p1.type === t2 && p2.type === t1)) {
+                        const oldProg = q.progress;
                         q.progress = Math.min(q.targetCount, q.progress + 1);
+                        if (q.progress > oldProg) {
+                            changed = true;
+                            window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, playerNum);
+                        }
                     }
                 }
             });
+            if (changed) window.saveQuests();
             window.evaluateActiveQuests(playerNum);
         }
 
@@ -36087,6 +36101,7 @@ window.closeBattleModal = function() {
     const wasInChallenge = window.inChallengeBattle;
     const wasInDojo = window.inDojoBattle;
     const wasInNpcBattle = window.isNpcBattle;
+    const wasInNpcTrainerId = window.activeNpcTrainerId;
     window.inBattle = false;
     window.inChallengeBattle = false; // Reset challenge flag
     window.inDojoBattle = false; // Reset Dojo flag
@@ -36182,14 +36197,21 @@ window.closeBattleModal = function() {
             // No creature sprite or base respawning for NPC trainer battles
             if (result === 'win' && window.evaluateActiveQuests) {
                 const pNum = window.activeBattlePlayer === 2 ? 2 : 1;
-                const trainerName = window.activeNpcTrainerId ? window.getNpcTrainerName(window.activeNpcTrainerId) : "";
+                const trainerName = wasInNpcTrainerId ? window.getNpcTrainerName(wasInNpcTrainerId) : "";
                 if (trainerName) {
                     const quests = pNum === 2 ? window.p2Quests : window.p1Quests;
+                    let changed = false;
                     quests.forEach(q => {
                         if (q.status === 'active' && q.type === 'defeat_trainer' && q.target === trainerName) {
+                            const oldProg = q.progress;
                             q.progress = Math.min(q.targetCount, q.progress + 1);
+                            if (q.progress > oldProg) {
+                                changed = true;
+                                window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, pNum);
+                            }
                         }
                     });
+                    if (changed) window.saveQuests();
                     window.evaluateActiveQuests(pNum);
                 }
             }
