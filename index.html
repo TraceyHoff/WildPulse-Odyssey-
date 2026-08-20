@@ -24210,9 +24210,21 @@ window.renderStatsTab = function(playerNum = 1) {
     const stats = playerNum === 2 ? window.gameStats2 : window.gameStats;
     const targetEl = playerNum === 2 ? document.getElementById('statsTabContent_P2') : (document.getElementById('statsTabContent_P1') || document.getElementById('statsTabContent'));
 
+    const pLevel = playerNum === 2 ? (window.p2Level || 1) : (window.p1Level || 1);
+    const pXp = playerNum === 2 ? (window.p2Xp || 0) : (window.p1Xp || 0);
+    const pXpReq = window.getPlayerXpRequirement(pLevel);
+    const pXpPct = Math.min(100, (pXp / pXpReq) * 100);
+
     if (targetEl && stats) {
         targetEl.innerHTML = `
             <div style="padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                    <span style="font-weight: bold; color: #2196F3; width: 80px;">Lvl ${pLevel} XP:</span>
+                    <div style="flex-grow: 1; height: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; overflow: hidden; max-width: 250px;">
+                        <div style="height: 100%; width: ${pXpPct}%; background: linear-gradient(90deg, #2196F3, #64b5f6); box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);"></div>
+                    </div>
+                    <span style="color: #2196F3; font-weight: bold;">${Math.floor(pXp)} / ${pXpReq}</span>
+                </div>
                 <p><strong>Time Played:</strong></p>
                 <p>Years: <span style="color:#2196F3">${years}</span></p>
                 <p>Months: <span style="color:#2196F3">${months}</span></p>
