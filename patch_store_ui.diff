@@ -1,0 +1,144 @@
+<<<<<<< SEARCH
+            let spaceInExisting = 0;
+            inv.forEach(invItem => {
+                if (invItem.name === item.name) {
+                    spaceInExisting += (10 - invItem.quantity);
+                }
+            });
+            const freeSlots = 4 - inv.length;
+            const available = spaceInExisting + (freeSlots * 10);
+
+            const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 30) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 30);
+
+            let displayedPrice = item.price;
+            const activePartyForLuckyUI = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            const hasLuckyPawUI = activePartyForLuckyUI && activePartyForLuckyUI.filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'lucky_paw');
+            if (hasLuckyPawUI) {
+                displayedPrice = Math.floor(item.price * 0.85);
+            }
+
+            const canAfford = coins >= displayedPrice;
+            const hasSpace = available > 0;
+            const hasStock = stock > 0;
+
+            let meetsLevel = true;
+            let reqText = '';
+            if (item.reqLevel && pLvl < item.reqLevel) {
+                meetsLevel = false;
+                reqText = `Req. Lv ${item.reqLevel}`;
+            }
+
+            const canBuy = canAfford && hasSpace && hasStock && meetsLevel;
+            const btnStyle = canBuy
+                ? "background: linear-gradient(180deg, #4caf50, #2e7d32); border: 1px solid #a5d6a7; cursor: pointer;"
+                : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
+
+            let btnText = "Buy";
+            if (!meetsLevel) {
+                btnText = reqText;
+            } else if (!hasSpace) {
+                btnText = "Full";
+            } else if (!hasStock) {
+                btnText = "Sold Out";
+            } else if (!canAfford) {
+                btnText = "Too Expensive";
+            }
+
+            html += `
+                <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px !important; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
+                    <div style="font-size: 24px; min-width: 35px; text-align: center; display: flex; align-items: center; justify-content: center;">${window.getItemIconHTML ? window.getItemIconHTML(item.name, 32) : item.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 14px; color: #fff;">${item.name}</div>
+                        <div style="font-size: 11px; color: #aaa; margin-top: 2px;">${item.desc}</div>
+                        <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available} | Stock: ${stock}</div>
+                    </div>
+                    <div style="text-align: right; min-width: 80px;">
+                        <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">${window.getCoinIconHTML(16)} ${displayedPrice}</div>
+                        <button class="buy-item-btn" onclick="window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}">
+                            ${btnText}
+                        </button>
+                    </div>
+                </div>
+            `;
+=======
+            let spaceInExisting = 0;
+            let ownedCount = 0;
+            inv.forEach(invItem => {
+                if (invItem.name === item.name) {
+                    spaceInExisting += (10 - invItem.quantity);
+                    ownedCount += invItem.quantity;
+                }
+            });
+            const freeSlots = 4 - inv.length;
+            const available = spaceInExisting + (freeSlots * 10);
+
+            const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 30) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 30);
+
+            let displayedPrice = item.price;
+            const activePartyForLuckyUI = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
+            const hasLuckyPawUI = activePartyForLuckyUI && activePartyForLuckyUI.filter(c => !c.stored).some(c => c.mutation && c.mutation.id === 'lucky_paw');
+            if (hasLuckyPawUI) {
+                displayedPrice = Math.floor(item.price * 0.85);
+            }
+
+            const canAfford = coins >= displayedPrice;
+            const hasSpace = available > 0;
+            const hasStock = stock > 0;
+
+            let meetsLevel = true;
+            let reqText = '';
+            if (item.reqLevel && pLvl < item.reqLevel) {
+                meetsLevel = false;
+                reqText = `Req. Lv ${item.reqLevel}`;
+            }
+
+            const canBuy = canAfford && hasSpace && hasStock && meetsLevel;
+            const btnStyle = canBuy
+                ? "background: linear-gradient(180deg, #4caf50, #2e7d32); border: 1px solid #a5d6a7; cursor: pointer;"
+                : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
+
+            let btnText = "Buy";
+            if (!meetsLevel) {
+                btnText = reqText;
+            } else if (!hasSpace) {
+                btnText = "Full";
+            } else if (!hasStock) {
+                btnText = "Sold Out";
+            } else if (!canAfford) {
+                btnText = "Too Expensive";
+            }
+
+            const sellPrice = Math.floor(item.price * 0.55);
+            const canSell = ownedCount > 0;
+            const sellBtnStyle = canSell
+                ? "background: linear-gradient(180deg, #ff9800, #f57c00); border: 1px solid #ffcc80; cursor: pointer;"
+                : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
+            const sellBtnText = canSell ? "Sell" : "0 Owned";
+
+            html += `
+                <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px !important; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
+                    <div style="font-size: 24px; min-width: 35px; text-align: center; display: flex; align-items: center; justify-content: center;">${window.getItemIconHTML ? window.getItemIconHTML(item.name, 32) : item.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 14px; color: #fff;">${item.name}</div>
+                        <div style="font-size: 11px; color: #aaa; margin-top: 2px;">${item.desc}</div>
+                        <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available} | Stock: ${stock} | Owned: ${ownedCount}</div>
+                    </div>
+                    <div style="text-align: right; min-width: 80px; display: flex; flex-direction: column; gap: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 12px; color: #aaa;">Buy:</span>
+                            <span style="font-size: 13px; font-weight: bold; color: #ffd700;">${window.getCoinIconHTML(16)} ${displayedPrice}</span>
+                        </div>
+                        <button class="buy-item-btn" onclick="window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}">
+                            ${btnText}
+                        </button>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 12px; color: #aaa;">Sell:</span>
+                            <span style="font-size: 13px; font-weight: bold; color: #ffd700;">${window.getCoinIconHTML(16)} ${sellPrice}</span>
+                        </div>
+                        <button class="sell-item-btn" onclick="${canSell ? `window.sellStoreItem(${playerNum}, '${item.name}', ${sellPrice})` : ''}" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${sellBtnStyle}">
+                            ${sellBtnText}
+                        </button>
+                    </div>
+                </div>
+            `;
+>>>>>>> REPLACE
