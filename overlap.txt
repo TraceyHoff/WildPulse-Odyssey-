@@ -1,0 +1,71 @@
+
+    // Spawn player homes
+    window.spawnPlayerHomes(this);
+
+    // Spawn player mini-tiles
+    window.spawnMiniTiles(this);
+
+    // Overlap physics
+    this.physics.add.overlap(player, window.homeTeleportersGroup, (pCol, tile) => {
+        window.handleHomeTeleporterOverlap(1, tile);
+    }, null, this);
+    this.physics.add.overlap(player, window.portalsGroup, (pCol, portalSprite) => {
+        window.handlePortalOverlap(1, portalSprite);
+    }, null, this);
+    this.physics.add.overlap(player, window.returnPortalsGroup, (pCol, rPortalSprite) => {
+        window.handleReturnPortalOverlap(1, rPortalSprite);
+    }, null, this);
+    this.physics.add.overlap(player, window.homesGroup, (pCol, homeSprite) => {
+        window.handleHomeOverlap(1, pCol, homeSprite);
+    }, null, this);
+    this.physics.add.overlap(player, creaturesGroup, collectCreature, null, this);
+    this.physics.add.overlap(player, hospitalGroup, (pCol, tile) => {
+        healParty.call(this, pCol, tile);
+    }, null, this);
+    this.physics.add.overlap(player, storeGroup, (pCol) => {
+        window.registerTileOverlap(1, 'store', () => openStoreModal(pCol));
+    }, null, this);
+    this.physics.add.overlap(player, challengeGroup, (pCol) => {
+        window.registerTileOverlap(1, 'challenge', () => {
+            if (window.openChallengeModal) window.openChallengeModal(pCol);
+        });
+    }, null, this);
+    this.physics.add.overlap(player, tradeGroup, (pCol) => {
+        window.registerTileOverlap(1, 'trade', () => {
+            if (window.openTradeModal) window.openTradeModal(pCol);
+        });
+    }, null, this);
+    this.physics.add.overlap(player, pvpGroup, (pCol) => {
+        window.registerTileOverlap(1, 'pvp', () => {
+            if (window.openPvpModal) window.openPvpModal(pCol);
+        });
+    }, null, this);
+    this.physics.add.overlap(player, window.breedGroup, (pCol) => {
+        window.registerTileOverlap(1, 'breeding_center', () => {
+            const lvl = window.p1Level || 1;
+            if (lvl < 7) {
+                window.showModernNotification(`${window.getLockIconHTML(16)} Trainer level too low! You must be at least Level 7 to use the Breeding Center.`, 4000, 1);
+                return;
+            }
+            if (window.openBreedingModal) window.openBreedingModal(pCol);
+        });
+    }, null, this);
+    this.physics.add.overlap(player, window.npcTrainersGroup, handleNpcTrainerOverlap, null, this);
+    this.physics.add.overlap(player, window.questNpcGroup, handleQuestNpcOverlap, null, this);
+
+    // Overlaps for functional mini-tiles
+    this.physics.add.overlap(player, window.miniTilesGroup, (pCol, tileSprite) => {
+        const tileType = tileSprite.miniTileType;
+        if (tileType === 'hospital') {
+            healParty.call(this, pCol);
+        } else if (tileType === 'store') {
+            window.registerTileOverlap(1, 'store', () => openStoreModal(pCol));
+        } else if (tileType === 'challenge') {
+            window.registerTileOverlap(1, 'challenge', () => {
+                if (window.openChallengeModal) window.openChallengeModal(pCol);
+            });
+        } else if (tileType === 'trade') {
+            window.registerTileOverlap(1, 'trade', () => {
+                if (window.openTradeModal) window.openTradeModal(pCol);
+            });
+        } else if (tileType === 'pvp') {
