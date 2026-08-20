@@ -39623,7 +39623,7 @@ function update() {
                     } else {
                         const col = Math.floor(tx / 100);
                         const row = Math.floor(ty / 100);
-                        if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs')) {
+                        if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs' || (typeof mapData[row][col] === 'string' && mapData[row][col].startsWith('npc_trainer')))) {
                             tSprite.setData('targetX', tx);
                             tSprite.setData('targetY', ty);
                         }
@@ -39659,7 +39659,7 @@ function update() {
                 } else {
                     const col = Math.floor(clampedX / 100);
                     const row = Math.floor(clampedY / 100);
-                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs')) {
+                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs' || (typeof mapData[row][col] === 'string' && mapData[row][col].startsWith('npc_trainer')))) {
                         tSprite.x = clampedX;
                         tSprite.y = clampedY;
                     }
