@@ -31471,8 +31471,8 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
     // Check other homes/structures and other mini tiles
     for (let pNum of [1, 2]) {
         // check home
-        const hx = localStorage.getItem(`wildpulse_p${pNum}_home_x`);
-        const hy = localStorage.getItem(`wildpulse_p${pNum}_home_y`);
+        const hx = pNum === 2 ? 59350 : 58350;
+        const hy = pNum === 2 ? 54750 : 58750;
         if (hx && hy) {
             let hRow = Math.floor(parseFloat(hy) / 100);
             let hCol = Math.floor(parseFloat(hx) / 100);
@@ -31501,14 +31501,6 @@ window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
     if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
         const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
         if (controls) controls.style.display = 'flex';
-    }
-
-    // Check if player has placed a Home first
-    const hx = localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
-    const hy = localStorage.getItem(`wildpulse_p${playerNum}_home_y`);
-    if (!hx || !hy) {
-        window.showModernNotification("❌ You must place a Home first before placing mini tiles close to it!", 4000, playerNum);
-        return;
     }
 
     const isInsideOtherHome = window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum);
@@ -31644,8 +31636,8 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
 
     if (!isInside) {
         // 1. Check distance to placed home (must be within 2 tiles = 200px)
-        const hx = parseFloat(localStorage.getItem(`wildpulse_p${playerNum}_home_x`));
-        const hy = parseFloat(localStorage.getItem(`wildpulse_p${playerNum}_home_y`));
+        const hx = playerNum === 2 ? 59350 : 58350;
+        const hy = playerNum === 2 ? 54750 : 58750;
         const distance = Math.hypot(snappedX - hx, snappedY - hy);
         if (distance > 200) {
             window.showModernNotification("❌ Too far from your Home! Mini tiles must be placed within 2 tiles (200px) of your Home.", 3000, playerNum);
