@@ -4298,6 +4298,13 @@ window.generateNpcTrainerCoords = function(seed) {
 
 window.isPortalComboActive = function() {
     if (window.forcePortalActive) return true;
+
+    // Check if the game is in the first 2 weeks (14 days) of in-game time
+    if (typeof wildpulse_inGameDays !== 'undefined' && wildpulse_inGameDays < 14) {
+        window.portalWasActive = false;
+        return false;
+    }
+
     const season = window.currentSeason;
     const weather = window.weatherPattern || 'none';
     const time = (typeof dayNightTime !== 'undefined') ? dayNightTime : 12.0;
@@ -4305,11 +4312,55 @@ window.isPortalComboActive = function() {
     const isSunrise = (time > 6 && time < 7);
     const isSunset = (time > 20 && time < 21);
 
-    if (season === 'Fall' && weather === 'thunderstorm' && isNight) return true;
-    if (season === 'Winter' && weather === 'thundersnow' && isNight) return true;
-    if (season === 'Spring' && weather === 'light_rain' && isSunrise) return true;
-    if (season === 'Summer' && (weather === 'heavy_rain' || weather === 'thunderstorm') && isSunset) return true;
-    return false;
+    let environmentConditionMet = false;
+    if (season === 'Fall' && weather === 'thunderstorm' && isNight) environmentConditionMet = true;
+    if (season === 'Winter' && weather === 'thundersnow' && isNight) environmentConditionMet = true;
+    if (season === 'Spring' && weather === 'light_rain' && isSunrise) environmentConditionMet = true;
+    if (season === 'Summer' && (weather === 'heavy_rain' || weather === 'thunderstorm') && isSunset) environmentConditionMet = true;
+
+    // Maintain portal state while the environment condition remains true
+    if (window.portalWasActive && environmentConditionMet) {
+        return true;
+    }
+
+    if (!environmentConditionMet) {
+        window.portalWasActive = false;
+        return false;
+    }
+
+    // A new environmental condition just started. Validate cooldown and yearly limits.
+    const lastSpawnDay = parseInt(localStorage.getItem('wildpulse_lastRiftSpawnDay')) || -999;
+
+    const currentRiftYear = Math.floor(wildpulse_inGameDays / 120);
+    let trackedRiftYear = parseInt(localStorage.getItem('wildpulse_currentRiftYear'));
+    if (isNaN(trackedRiftYear)) trackedRiftYear = -1;
+
+    let spawnsThisYear = parseInt(localStorage.getItem('wildpulse_riftSpawnsThisYear')) || 0;
+
+    // Reset spawns if we entered a new year
+    if (currentRiftYear > trackedRiftYear) {
+        spawnsThisYear = 0;
+        localStorage.setItem('wildpulse_currentRiftYear', currentRiftYear.toString());
+        localStorage.setItem('wildpulse_riftSpawnsThisYear', spawnsThisYear.toString());
+    }
+
+    // Cooldown check (14 in-game days)
+    if (wildpulse_inGameDays - lastSpawnDay < 14) {
+        return false;
+    }
+
+    // Limit check (max 2 spawns per year)
+    if (spawnsThisYear >= 2) {
+        return false;
+    }
+
+    // Success: Activate portal for this event block and update trackers
+    window.portalWasActive = true;
+    spawnsThisYear++;
+    localStorage.setItem('wildpulse_riftSpawnsThisYear', spawnsThisYear.toString());
+    localStorage.setItem('wildpulse_lastRiftSpawnDay', wildpulse_inGameDays.toString());
+
+    return true;
 };
 
 window.generatePortalCoords = function(seed) {
@@ -9044,9 +9095,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (window.pendingShinyNotifications && window.pendingShinyNotifications.length > 0) {
             window.pendingShinyNotifications.forEach(name => {
+                const isVoid = name.includes('[Void]') || name.startsWith('Legendary');
+                let p1InsideRift = window.player && (window.player.x >= 40000 && window.player.x <= 44000 && window.player.y >= 40000 && window.player.y <= 44000);
+                let p2InsideRift = window.coopActive && window.player2 && (window.player2.x >= 40000 && window.player2.x <= 44000 && window.player2.y >= 40000 && window.player2.y <= 44000);
+
                 const shinyIcon = window.getShinyIconHTML ? window.getShinyIconHTML(16) : '✨';
+
                 if (window.showModernNotification) {
-                    window.showModernNotification(`${shinyIcon} A wild Shiny ${name} has spawned in the world! ${shinyIcon}`, 6000);
+                    if (!isVoid || p1InsideRift) {
+                        window.showModernNotification(`${shinyIcon} A wild Shiny ${name} has spawned in the world! ${shinyIcon}`, 6000, 1);
+                    }
+                    if (window.coopActive && (!isVoid || p2InsideRift)) {
+                        window.showModernNotification(`${shinyIcon} A wild Shiny ${name} has spawned in the world! ${shinyIcon}`, 6000, 2);
+                    }
                 } else {
                     console.log(`${shinyIcon} A wild Shiny ${name} has spawned in the world! ${shinyIcon}`);
                 }
@@ -19040,6 +19101,13 @@ window.getLockIconHTML = function(size = 16) {
     </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🔒</span>`;
 };
 
+
+window.getPortalIconHTML = function(size = 18) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="vertical-align: middle;">
+        <circle cx="50" cy="50" r="30" fill="none" stroke="#bf55ec" stroke-width="8" />
+        <circle cx="50" cy="50" r="15" fill="#00ffd2" />
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🌀</span>`;
+};
 
 window.getActionWheelIconHTML = function(action, color = '#ffffff', size = 18) {
     let svgContent = '';
@@ -34065,11 +34133,20 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     if (!clonedData.color) clonedData.color = window.getCreatureColor(clonedData);
 
+    const isVoidCreature = clonedData.name.includes('[Void]') || clonedData.isLegendary;
+    let p1InsideRift = window.player && (window.player.x >= 40000 && window.player.x <= 44000 && window.player.y >= 40000 && window.player.y <= 44000);
+    let p2InsideRift = window.coopActive && window.player2 && (window.player2.x >= 40000 && window.player2.x <= 44000 && window.player2.y >= 40000 && window.player2.y <= 44000);
+
     if (clonedData.isShiny) {
         if (window.gameStarted) {
             const shinyIcon = window.getShinyIconHTML ? window.getShinyIconHTML(16) : '✨';
             if (window.showModernNotification) {
-                window.showModernNotification(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`, 6000);
+                if (!isVoidCreature || p1InsideRift) {
+                    window.showModernNotification(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`, 6000, 1);
+                }
+                if (window.coopActive && (!isVoidCreature || p2InsideRift)) {
+                    window.showModernNotification(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`, 6000, 2);
+                }
             } else {
                 console.log(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`);
             }
@@ -34082,8 +34159,10 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     if (clonedData.isLegendary) {
         if (window.gameStarted) {
             if (window.showModernNotification) {
-                window.showModernNotification(`👑 A Legendary ${clonedData.name} has spawned in the Hidden Grove! 👑`, 6000, 1, '#ffeb3b');
-                if (window.coopActive) {
+                if (p1InsideRift) {
+                    window.showModernNotification(`👑 A Legendary ${clonedData.name} has spawned in the Hidden Grove! 👑`, 6000, 1, '#ffeb3b');
+                }
+                if (window.coopActive && p2InsideRift) {
                     window.showModernNotification(`👑 A Legendary ${clonedData.name} has spawned in the Hidden Grove! 👑`, 6000, 2, '#ffeb3b');
                 }
             } else {
