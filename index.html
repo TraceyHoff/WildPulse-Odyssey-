@@ -19077,8 +19077,6 @@ window.getActionWheelIconHTML = function(action, color = '#ffffff', size = 18) {
         emoji = '🎨';
         label = 'Design';
         svgContent = `<path d="M20 50 C20 30 40 20 50 20 C60 20 80 30 80 50 C80 60 70 70 60 70 C55 70 50 65 50 60 C50 55 55 50 60 50 C65 50 65 40 50 40 C35 40 30 50 30 60 C30 80 40 85 50 85 C55 85 60 85 65 85" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/><circle cx="35" cy="45" r="4" fill="${color}"/><circle cx="45" cy="35" r="4" fill="${color}"/><circle cx="65" cy="50" r="4" fill="${color}"/>`;
-        emoji = '➡️';
-        label = 'Bag';
     }
 
     return `<div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -27470,6 +27468,12 @@ function generateCloudTextures(scene) {
 
 
 window.finalizeFurnitureTexture = function(scene, baseKey, canvas) {
+    if (scene.textures.exists(baseKey)) scene.textures.remove(baseKey);
+    for (let angle of [90, 180, 270]) {
+        if (scene.textures.exists(baseKey + '_' + angle)) {
+            scene.textures.remove(baseKey + '_' + angle);
+        }
+    }
     scene.textures.addCanvas(baseKey, canvas);
 
     for (let angle of [90, 180, 270]) {
@@ -29404,7 +29408,102 @@ function generateTileTextures(scene) {
 
     window.finalizeFurnitureTexture(scene, 'furniture_smartmirror_tile', smartMirrorCanvas);
 
+
+
     // --- DYNAMICALLY GENERATED FROM SVG OVERRIDES ---
+    const furnitureItems = [
+        "Neon Couch", "L-Couch", "Love Seat", "Office Chair", "Stool", "Coffee Table", "Dining Table", "Park Bench", "Cyber Bench", "Filing Cabinet", "Display Cabinet", "Nightstand", "Corner Table", "Bunk Bed", "King Bed", "Cyber Desk", "Glow Carpet", "Star Carpet", "Round Cyber Carpet", "Hexagon Carpet", "Heart Carpet", "Diamond Carpet", "Holo Bed", "Neon Chair", "Holo Table", "Cyber Plant", "Crystal Bonsai", "Neon Fern", "Plasma Cactus", "Holo Orchid", "Potted Ficus", "Monstera Plant", "Cyber Bamboo", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Digi Sunflower", "Zen Bonsai", "Lunar Lily", "Cyber Tree", "Neon Pine", "Neon Lamp", "Server Rack", "Arcade Machine", "Cyber TV", "Neon Shelf", "Tech Bin", "Neon Wardrobe", "Cyber Fridge", "Holo Display", "Lava Lamp", "Plasma Globe", "Cyber Poster", "Neon Sign", "Gaming PC", "Smart Mirror"
+    ];
+
+    const typeMapLocal = {
+        "Neon Couch": "furniture_couch",
+        "L-Couch": "furniture_lcouch",
+        "Love Seat": "furniture_loveseat",
+        "Office Chair": "furniture_officechair",
+        "Stool": "furniture_stool",
+        "Coffee Table": "furniture_coffeetable",
+        "Dining Table": "furniture_diningtable",
+        "Park Bench": "furniture_parkbench",
+        "Cyber Bench": "furniture_cyberbench",
+        "Filing Cabinet": "furniture_filingcabinet",
+        "Display Cabinet": "furniture_displaycabinet",
+        "Nightstand": "furniture_nightstand",
+        "Corner Table": "furniture_cornertable",
+        "Bunk Bed": "furniture_bunkbed",
+        "King Bed": "furniture_kingbed",
+        "Cyber Desk": "furniture_desk",
+        "Glow Carpet": "furniture_carpet",
+        "Star Carpet": "furniture_starcarpet",
+        "Round Cyber Carpet": "furniture_roundcarpet",
+        "Hexagon Carpet": "furniture_hexcarpet",
+        "Heart Carpet": "furniture_heartcarpet",
+        "Diamond Carpet": "furniture_diamondcarpet",
+        "Holo Bed": "furniture_bed",
+        "Neon Chair": "furniture_chair",
+        "Holo Table": "furniture_table",
+        "Cyber Plant": "furniture_plant",
+        "Crystal Bonsai": "furniture_crystal_bonsai",
+        "Neon Fern": "furniture_neon_fern",
+        "Plasma Cactus": "furniture_plasma_cactus",
+        "Holo Orchid": "furniture_holo_orchid",
+        "Potted Ficus": "furniture_ficus",
+        "Monstera Plant": "furniture_monstera",
+        "Cyber Bamboo": "furniture_bamboo",
+        "Neon Succulent": "furniture_succulent",
+        "Holo Rose": "furniture_holorose",
+        "Bio Mushroom": "furniture_mushroom",
+        "Digi Sunflower": "furniture_sunflower",
+        "Zen Bonsai": "furniture_zenbonsai",
+        "Lunar Lily": "furniture_lunarlily",
+        "Cyber Tree": "furniture_cybertree",
+        "Neon Pine": "furniture_neonpine",
+        "Neon Lamp": "furniture_lamp",
+        "Server Rack": "furniture_server",
+        "Arcade Machine": "furniture_arcade",
+        "Cyber TV": "furniture_tv",
+        "Neon Shelf": "furniture_shelf",
+        "Tech Bin": "furniture_bin",
+        "Neon Wardrobe": "furniture_wardrobe",
+        "Cyber Fridge": "furniture_fridge",
+        "Holo Display": "furniture_display",
+        "Lava Lamp": "furniture_lavalamp",
+        "Plasma Globe": "furniture_plasmaglobe",
+        "Cyber Poster": "furniture_cyberposter",
+        "Neon Sign": "furniture_neonsign",
+        "Gaming PC": "furniture_gamingpc",
+        "Smart Mirror": "furniture_smartmirror"
+    };
+
+    furnitureItems.forEach(item => {
+        if (!window.getItemIconHTML) return;
+        const html = window.getItemIconHTML(item, 100);
+        // Extract the <svg>...</svg> from the HTML
+        const svgMatch = html.match(/<svg[^>]*>.*?<\/svg>/is);
+        if (svgMatch) {
+            let svgStr = svgMatch[0];
+            const tileKey = typeMapLocal[item];
+            if (!tileKey) return;
+
+            // Clean up the SVG string if needed
+            svgStr = svgStr.replace(/<span.*?>.*?<\/span>/gi, '');
+            svgStr = svgStr.replace(/<rect width="100" height="100" rx="20" fill="url\(#bgGrad\)" stroke=".*?" stroke-width="4"\/>/i, '');
+
+            const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+            const canvas = document.createElement('canvas');
+            canvas.width = 100;
+            canvas.height = 100;
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, 100, 100);
+                if (scene && scene.textures) {
+                    if (scene.textures.exists(tileKey + '_tile')) scene.textures.remove(tileKey + '_tile');
+                    window.finalizeFurnitureTexture(scene, tileKey + '_tile', canvas);
+                }
+            };
+            img.src = svgDataUrl;
+        }
+    });
 
 }
 
