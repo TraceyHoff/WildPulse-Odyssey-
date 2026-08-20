@@ -20487,7 +20487,7 @@ window.p2ActiveModal = null;
 
 window.getNavigableElements = function(container) {
     if (!container) return [];
-    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .party-card');
+    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .party-card, input[type="range"]');
     return Array.from(all).filter(el => {
         // Must be visible
         if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
@@ -21361,6 +21361,56 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
 
         const focusedEl = container.querySelector(`.gamepad-focused-p${playerNum}`) || document.activeElement;
+
+        let rangeEl = null;
+        if (window[`p${playerNum}CursorVisible`] && currA) {
+            const cx = window[`p${playerNum}CursorX`];
+            const cy = window[`p${playerNum}CursorY`];
+            const targetEl = document.elementFromPoint(cx, cy);
+            if (targetEl && targetEl.tagName === 'INPUT' && targetEl.type === 'range') {
+                rangeEl = targetEl;
+            }
+        }
+        if (!rangeEl && focusedEl && focusedEl.tagName === 'INPUT' && focusedEl.type === 'range') {
+            rangeEl = focusedEl;
+        }
+
+        if (rangeEl) {
+            if (currLeft || currRight || (window[`p${playerNum}CursorVisible`] && currA && Math.abs(rx_vc) > deadzone_vc)) {
+                let min = parseFloat(rangeEl.min) || 0;
+                let max = parseFloat(rangeEl.max) || 100;
+                let step = parseFloat(rangeEl.step) || ((max - min) / 100);
+                if (step === 0) step = 1;
+
+                // Allow faster scrolling if holding dpad
+                let adjust = step;
+                if (!justLeft && !justRight && (currLeft || currRight)) {
+                    adjust = step * 2; // Speed up when held
+                }
+
+                let currentVal = parseFloat(rangeEl.value) || 0;
+                let newVal = currentVal;
+
+                if (currLeft) {
+                    newVal = Math.max(min, currentVal - adjust);
+                } else if (currRight) {
+                    newVal = Math.min(max, currentVal + adjust);
+                } else if (window[`p${playerNum}CursorVisible`] && currA && Math.abs(rx_vc) > deadzone_vc) {
+                    newVal = Math.max(min, Math.min(max, currentVal + (rx_vc * adjust * 2)));
+                }
+
+                if (newVal !== currentVal) {
+                    rangeEl.value = newVal;
+                    rangeEl.dispatchEvent(new Event('input', { bubbles: true }));
+                    rangeEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                if (currLeft || currRight) {
+                    selectBypass = true;
+                }
+            }
+        }
+
         if (focusedEl && focusedEl.tagName === 'SELECT') {
             if (justLeft) {
                 if (focusedEl.options.length > 0) {
