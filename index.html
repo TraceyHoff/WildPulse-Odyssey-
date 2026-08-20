@@ -17227,6 +17227,12 @@ window.getXpRequirement = function(level) {
     return Math.min(req, 1000);
 };
 
+window.getPlayerXpRequirement = function(level) {
+    const step = Math.floor((level - 1) / 2);
+    const req = (75 + step * 25) * 3;
+    return Math.min(req, 3000);
+};
+
 window.gainXp = function(creature, amount) {
     let finalAmount = amount;
     if (window.getCreatureXpMultiplier) {
@@ -17416,8 +17422,8 @@ window.gainPlayerXp = function(playerNum, amount, suppressNotification = false) 
         let leveledUp = false;
         let oldLevel = window.p2Level || 1;
 
-        while (window.p2Xp >= window.getXpRequirement(window.p2Level || 1)) {
-            window.p2Xp -= window.getXpRequirement(window.p2Level || 1);
+        while (window.p2Xp >= window.getPlayerXpRequirement(window.p2Level || 1)) {
+            window.p2Xp -= window.getPlayerXpRequirement(window.p2Level || 1);
             window.p2Level = (window.p2Level || 1) + 1;
             if (window.p2Level === 10) { window.awardHomeFurniture(2); }
             leveledUp = true;
@@ -17450,8 +17456,8 @@ window.gainPlayerXp = function(playerNum, amount, suppressNotification = false) 
         let leveledUp = false;
         let oldLevel = window.p1Level || 1;
 
-        while (window.p1Xp >= window.getXpRequirement(window.p1Level || 1)) {
-            window.p1Xp -= window.getXpRequirement(window.p1Level || 1);
+        while (window.p1Xp >= window.getPlayerXpRequirement(window.p1Level || 1)) {
+            window.p1Xp -= window.getPlayerXpRequirement(window.p1Level || 1);
             window.p1Level = (window.p1Level || 1) + 1;
             if (window.p1Level === 10) { window.awardHomeFurniture(1); }
             leveledUp = true;
