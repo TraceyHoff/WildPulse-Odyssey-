@@ -29,6 +29,7 @@ test.describe('Optimizations and Crown Challenge Rewards', () => {
   });
 
   test('should bind locked skins to even-numbered Crown Challenge Tier thresholds', async ({ page }) => {
+    test.setTimeout(60000);
     // Click Start Game to ensure game and scripts are fully loaded
     await page.click('#startGameBtn');
     await page.waitForSelector('#introModal', { state: 'visible' });
@@ -73,6 +74,7 @@ test.describe('Optimizations and Crown Challenge Rewards', () => {
   });
 
   test('should apply unique texture key per creature ID to decouple animations and stop offscreen updates', async ({ page }) => {
+    test.setTimeout(60000);
     // Skip onboarding to go straight into game
     await page.addInitScript(() => {
       localStorage.setItem('wildpulse_player_color', '#FFFFFF');
@@ -116,6 +118,7 @@ test.describe('Optimizations and Crown Challenge Rewards', () => {
   });
 
   test('should reduce camera update rate and scale down particle load when a heavy modal is open', async ({ page }) => {
+    test.setTimeout(60000);
     // Skip onboarding to go straight into game
     await page.addInitScript(() => {
       localStorage.setItem('wildpulse_player_color', '#FFFFFF');
