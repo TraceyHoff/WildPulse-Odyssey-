@@ -1,0 +1,7 @@
+<<<<<<< SEARCH
+        #breedingModal h2, #menuModal h2, #partyModal h2, #inventoryModal h2, #storageModal h2, #helpModal h2, #levelUpModal h2, #tradeModal h2, #pvpModal h2, #journalModal h2, #battleSwapModal h2, #storeModal h2, #storageChestModal h2, #battleModal h2, #customizationModal h2 {
+=======
+        #inventoryModal { padding-bottom: 0 !important; flex-direction: column; }
+
+        #breedingModal h2, #menuModal h2, #partyModal h2, #inventoryModal h2, #storageModal h2, #helpModal h2, #levelUpModal h2, #tradeModal h2, #pvpModal h2, #journalModal h2, #battleSwapModal h2, #storeModal h2, #storageChestModal h2, #battleModal h2, #customizationModal h2 {
+>>>>>>> REPLACE
