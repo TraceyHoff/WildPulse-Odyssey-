@@ -20846,12 +20846,15 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justX = currX && !prev.X;
     const justB = currB && !prev.B;
     const justA = currA && !prev.A;
+    const releasedA = !currA && prev.A;
     const justStart = currStart && !prev.Start;
     const releasedStart = !currStart && prev.Start;
     const justUp = currUp && !prev.Up;
     const justDown = currDown && !prev.Down;
     const justLeft = currLeft && !prev.Left;
     const justRight = currRight && !prev.Right;
+    const releasedLeft = !currLeft && prev.Left;
+    const releasedRight = !currRight && prev.Right;
 
 
     // Special handling for Base Placement Mode
@@ -21210,6 +21213,57 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
     }
 
+    // Virtual cursor right stick slider adjustments
+    if (window[`p${playerNum}CursorVisible`]) {
+        const cx = window[`p${playerNum}CursorX`];
+        const cy = window[`p${playerNum}CursorY`];
+        const targetEl = document.elementFromPoint(cx, cy);
+        if (targetEl && targetEl.tagName === 'INPUT' && targetEl.type === 'range') {
+            let changed = false;
+
+            if (currA) {
+                if (!window[`p${playerNum}RangeCooldown`]) window[`p${playerNum}RangeCooldown`] = 0;
+                window[`p${playerNum}RangeCooldown`]--;
+
+                if (window[`p${playerNum}RangeCooldown`] <= 0) {
+                    if (Math.abs(rx_vc) > deadzone_vc) {
+                        let min = parseFloat(targetEl.min) || 0;
+                        let max = parseFloat(targetEl.max) || 100;
+                        let step = parseFloat(targetEl.step) || ((max - min) / 100) || 1;
+                        let val = parseFloat(targetEl.value);
+                        let dir = rx_vc > 0 ? 1 : -1;
+                        targetEl.value = Math.max(min, Math.min(max, val + dir * step));
+                        changed = true;
+                        window[`p${playerNum}RangeCooldown`] = 4;
+                    }
+                    if (currLeft) {
+                        let min = parseFloat(targetEl.min) || 0;
+                        let step = parseFloat(targetEl.step) || ((parseFloat(targetEl.max) || 100) - min) / 100 || 1;
+                        targetEl.value = Math.max(min, parseFloat(targetEl.value) - step);
+                        changed = true;
+                        window[`p${playerNum}RangeCooldown`] = 4;
+                    } else if (currRight) {
+                        let max = parseFloat(targetEl.max) || 100;
+                        let min = parseFloat(targetEl.min) || 0;
+                        let step = parseFloat(targetEl.step) || (max - min) / 100 || 1;
+                        targetEl.value = Math.min(max, parseFloat(targetEl.value) + step);
+                        changed = true;
+                        window[`p${playerNum}RangeCooldown`] = 4;
+                    }
+                }
+            } else {
+                 window[`p${playerNum}RangeCooldown`] = 0;
+            }
+
+            if (changed) {
+                targetEl.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (releasedA) {
+                targetEl.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+    }
+
     // Update visual hover states based on virtual cursor position
     if (window[`p${playerNum}CursorVisible`]) {
         const cx = window[`p${playerNum}CursorX`];
@@ -21374,6 +21428,31 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                     focusedEl.dispatchEvent(new Event('change', { bubbles: true }));
                 }
                 selectBypass = true;
+            }
+        } else if (focusedEl && focusedEl.tagName === 'INPUT' && focusedEl.type === 'range') {
+            if (currLeft || currRight) {
+                selectBypass = true;
+                if (!window[`p${playerNum}RangeDpadCooldown`]) window[`p${playerNum}RangeDpadCooldown`] = 0;
+                window[`p${playerNum}RangeDpadCooldown`]--;
+
+                if (window[`p${playerNum}RangeDpadCooldown`] <= 0) {
+                    let min = parseFloat(focusedEl.min) || 0;
+                    let max = parseFloat(focusedEl.max) || 100;
+                    let step = parseFloat(focusedEl.step) || ((max - min) / 100) || 1;
+                    let val = parseFloat(focusedEl.value);
+                    if (currLeft) {
+                        focusedEl.value = Math.max(min, val - step);
+                    } else {
+                        focusedEl.value = Math.min(max, val + step);
+                    }
+                    focusedEl.dispatchEvent(new Event('input', { bubbles: true }));
+                    window[`p${playerNum}RangeDpadCooldown`] = 4;
+                }
+            } else {
+                window[`p${playerNum}RangeDpadCooldown`] = 0;
+            }
+            if ((releasedLeft || releasedRight) && !currLeft && !currRight) {
+                focusedEl.dispatchEvent(new Event('change', { bubbles: true }));
             }
         }
 
