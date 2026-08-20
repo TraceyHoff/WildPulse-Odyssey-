@@ -22951,16 +22951,25 @@ window.renderPartyList = function() {
     }
 };
 
+window.lastRenderedPartyState = window.lastRenderedPartyState || {};
+
 function renderPartyForPlayer(playerNum = 1) {
     const targetId = playerNum === 2 ? 'partyList_P2' : 'partyList';
     const list = document.getElementById(targetId);
     if (!list) return;
 
-    list.innerHTML = '';
-    const fragment = document.createDocumentFragment();
-
     const creaturesList = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
     const activeParty = creaturesList.filter(c => !c.stored);
+
+    // Performance optimization: check if state changed before rebuilding DOM
+    const stateStr = JSON.stringify(activeParty);
+    if (window.lastRenderedPartyState[playerNum] === stateStr) {
+        return; // No changes to party, skip heavy DOM rebuild
+    }
+    window.lastRenderedPartyState[playerNum] = stateStr;
+
+    list.innerHTML = '';
+    const fragment = document.createDocumentFragment();
 
     if (activeParty.length === 0) {
         list.innerHTML = '<p style="color: #ffff99;">Your party is empty.</p>';
@@ -25388,7 +25397,7 @@ const config = {
     height: window.innerHeight,
     preserveDrawingBuffer: true,
     render: {
-        roundPixels: true
+        roundPixels: false
     },
     physics: {
         default: 'arcade',
