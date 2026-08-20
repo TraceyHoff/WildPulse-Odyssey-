@@ -24139,6 +24139,20 @@ window.exitGame = function(playerNum) {
             clearTimeout(window.notificationTimeout);
             window.notificationTimeout = null;
         }
+        if (window.notificationTimeoutP1) {
+            clearTimeout(window.notificationTimeoutP1);
+            window.notificationTimeoutP1 = null;
+        }
+        if (window.notificationTimeoutP2) {
+            clearTimeout(window.notificationTimeoutP2);
+            window.notificationTimeoutP2 = null;
+        }
+
+        const modernNotifP1 = document.getElementById('modernNotification');
+        if (modernNotifP1) modernNotifP1.style.opacity = '0';
+
+        const modernNotifP2 = document.getElementById('modernNotification_p2');
+        if (modernNotifP2) modernNotifP2.style.opacity = '0';
 
         // Hide all in-game modals
         const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal', 'journalModal', 'customizationModal'];
