@@ -17840,6 +17840,64 @@ window.buyStoreItem = function(playerNum, itemName, price) {
     window.showModernNotification(`🛒 Bought ${itemName}! Sent directly to your inventory.`, 3000, playerNum);
 };
 
+window.sellStoreItem = function(playerNum, itemName, sellPrice) {
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const stats = playerNum === 2 ? window.gameStats2 : window.gameStats;
+    if (!stats) return;
+
+    let itemIndex = -1;
+    let ownedCount = 0;
+    for (let i = 0; i < inv.length; i++) {
+        if (inv[i].name === itemName) {
+            itemIndex = i;
+            ownedCount = inv[i].quantity;
+            break;
+        }
+    }
+
+    if (itemIndex === -1 || ownedCount <= 0) {
+        window.showModernNotification(`❌ You do not have any ${itemName} to sell!`, 3000, playerNum);
+        return;
+    }
+
+    window.safeConfirm(playerNum, "SELL ITEM", `Sell ${itemName} for ${window.getCoinIconHTML(16)} ${sellPrice} coins?`, () => {
+        // Find the item again in case the inventory changed during confirmation
+        const currentInv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+        let cIndex = -1;
+        for (let i = 0; i < currentInv.length; i++) {
+            if (currentInv[i].name === itemName) {
+                cIndex = i;
+                break;
+            }
+        }
+
+        if (cIndex === -1) {
+            window.showModernNotification(`❌ Item not found in inventory!`, 3000, playerNum);
+            return;
+        }
+
+        currentInv[cIndex].quantity--;
+        if (currentInv[cIndex].quantity <= 0) {
+            currentInv.splice(cIndex, 1);
+        }
+
+        if (window.saveInventory) window.saveInventory();
+
+        stats.coins = (stats.coins || 0) + sellPrice;
+        if (playerNum === 2) {
+            localStorage.setItem('wildpulse_stats2', JSON.stringify(stats));
+        } else {
+            if (window.saveStats) window.saveStats();
+        }
+
+        window.showModernNotification(`${window.getCoinIconHTML(20)} Sold ${itemName} for ${sellPrice} coins!`, 3000, playerNum);
+
+        if (window.updateMenuCoins) window.updateMenuCoins();
+        if (window.updateStoreUI) window.updateStoreUI();
+        if (window.updateInventoryUI) window.updateInventoryUI();
+    });
+};
+
 window.calculateCreatureSellPrice = function(c) {
     if (!c) return 0;
 
@@ -18118,9 +18176,11 @@ const categoryOrder = {
             }
             const inv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
             let spaceInExisting = 0;
+            let ownedCount = 0;
             inv.forEach(invItem => {
                 if (invItem.name === item.name) {
                     spaceInExisting += (10 - invItem.quantity);
+                    ownedCount += invItem.quantity;
                 }
             });
             const freeSlots = 4 - inv.length;
@@ -18162,18 +18222,35 @@ const categoryOrder = {
                 btnText = "Too Expensive";
             }
 
+            const sellPrice = Math.floor(item.price * 0.55);
+            const canSell = ownedCount > 0;
+            const sellBtnStyle = canSell
+                ? "background: linear-gradient(180deg, #ff9800, #f57c00); border: 1px solid #ffcc80; cursor: pointer;"
+                : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
+            const sellBtnText = canSell ? "Sell" : "0 Owned";
+
             html += `
                 <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px !important; padding: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
                     <div style="font-size: 24px; min-width: 35px; text-align: center; display: flex; align-items: center; justify-content: center;">${window.getItemIconHTML ? window.getItemIconHTML(item.name, 32) : item.icon}</div>
                     <div style="flex: 1;">
                         <div style="font-weight: bold; font-size: 14px; color: #fff;">${item.name}</div>
                         <div style="font-size: 11px; color: #aaa; margin-top: 2px;">${item.desc}</div>
-                        <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available} | Stock: ${stock}</div>
+                        <div style="font-size: 11px; color: #ffd700; margin-top: 2px; font-weight: bold;" class="available-qty-label">Available to Buy: ${available} | Stock: ${stock} | Owned: ${ownedCount}</div>
                     </div>
-                    <div style="text-align: right; min-width: 80px;">
-                        <div style="font-size: 13px; font-weight: bold; color: #ffd700; margin-bottom: 5px;">${window.getCoinIconHTML(16)} ${displayedPrice}</div>
+                    <div style="text-align: right; min-width: 100px; display: flex; flex-direction: column; gap: 5px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 12px; color: #aaa; margin-right: 5px;">Buy:</span>
+                            <span style="font-size: 13px; font-weight: bold; color: #ffd700;">${window.getCoinIconHTML(16)} ${displayedPrice}</span>
+                        </div>
                         <button class="buy-item-btn" onclick="window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}">
                             ${btnText}
+                        </button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                            <span style="font-size: 12px; color: #aaa; margin-right: 5px;">Sell:</span>
+                            <span style="font-size: 13px; font-weight: bold; color: #ffd700;">${window.getCoinIconHTML(16)} ${sellPrice}</span>
+                        </div>
+                        <button class="sell-item-btn" onclick="${canSell ? `window.sellStoreItem(${playerNum}, '${item.name}', ${sellPrice})` : ''}" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${sellBtnStyle}" ${!canSell ? 'disabled' : ''}>
+                            ${sellBtnText}
                         </button>
                     </div>
                 </div>
