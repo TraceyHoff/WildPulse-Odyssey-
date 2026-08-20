@@ -7840,7 +7840,7 @@ function escapeHtml(unsafe) {
                 <p>• <strong>Sanctuary Base:</strong> Once you reach <span style="color:#ff007f; font-weight:bold;">Player Level 10</span>, place your Home. Step inside and select '🎨 Design' on your Action Wheel to change walls, floors, and ambient glows.</p>
                 <p>• <strong>Storage Chest 🧳:</strong> Available at <span style="color:#ff007f; font-weight:bold;">Player Level 6</span>. Purchase for 620 gold and place up to 3 chests to store your extra item stacks (maximum 10 per slot).</p>
                 <p>• <strong>Item Catalog:</strong> Visit the store to buy recovery items, **Creature Licenses** (provides a passive 1.5x capture rate, consumed only on successful catch), and **Jank Juice** (increases shiny spawn rates for 6 minutes).</p>
-                <p>• <strong>Hidden Grove Portals 🌀:</strong> Under specific environmental alignments (Fall Thunderstorms at Night, Winter Thundersnows at Night, Spring Rains at Sunrise, or Summer Storms at Sunset), 3 rare procedurally placed portals materialize across the map. Step through them to access the mysterious, high-stakes 40x40 Hidden Grove Portal World, filled with completely unique flora, glowing grass, much higher shiny rates, and high-level creatures! Step on the center return portal to return to safety.</p>
+                <p>• <strong>Hidden Grove Portals ${window.getPortalIconHTML(16)}:</strong> Under specific environmental alignments (Fall Thunderstorms at Night, Winter Thundersnows at Night, Spring Rains at Sunrise, or Summer Storms at Sunset), 3 rare procedurally placed portals materialize across the map. Step through them to access the mysterious, high-stakes 40x40 Hidden Grove Portal World, filled with completely unique flora, glowing grass, much higher shiny rates, and high-level creatures! Step on the center return portal to return to safety.</p>
             </div>
 
             <h3 style="color: #00ffcc; margin-top: 15px;">Type Chart & Natures</h3>
@@ -30716,7 +30716,7 @@ window.handlePortalOverlap = function(playerNum, portalSprite) {
             playerObj.body.updateFromGameObject();
         }
 
-        window.showModernNotification("🌀 Transported inside the mysterious Hidden Grove Portal World!", 3000, playerNum);
+        window.showModernNotification(`${window.getPortalIconHTML(24)} Transported inside the mysterious Hidden Grove Portal World!`, 3000, playerNum);
 
         // If co-op is active, invite the other player to join if they aren't already there
         if (window.coopActive) {
@@ -30744,14 +30744,14 @@ window.handlePortalOverlap = function(playerNum, portalSprite) {
                             otherPlayerObj.body.reset(insideX, insideY);
                             otherPlayerObj.body.updateFromGameObject();
                         }
-                        window.showModernNotification("🌀 Transported inside the mysterious Hidden Grove Portal World!", 3000, otherPlayerNum);
+                        window.showModernNotification(`${window.getPortalIconHTML(24)} Transported inside the mysterious Hidden Grove Portal World!`, 3000, otherPlayerNum);
                     }, () => {
                         otherPlayerObj.isConfirmingPortal = false;
 
                         // Set fresh overlap cooldown for Player 1 now that Player 2 has declined
                         window.player.lastPortalOverlapTime = Date.now();
 
-                        window.showModernNotification("🌀 Declined portal entry. Continue exploring!", 3000, otherPlayerNum);
+                        window.showModernNotification(`${window.getPortalIconHTML(24)} Declined portal entry. Continue exploring!`, 3000, otherPlayerNum);
                     });
                 }
             }
@@ -30759,7 +30759,7 @@ window.handlePortalOverlap = function(playerNum, portalSprite) {
     }, () => {
         playerObj.isConfirmingPortal = false;
         playerObj.lastPortalOverlapTime = Date.now();
-        window.showModernNotification("🌀 Declined portal entry. Continue exploring!", 3000, playerNum);
+        window.showModernNotification(`${window.getPortalIconHTML(24)} Declined portal entry. Continue exploring!`, 3000, playerNum);
     });
 };
 
@@ -30790,7 +30790,7 @@ window.handleReturnPortalOverlap = function(playerNum, rPortalSprite) {
         playerObj.body.updateFromGameObject();
     }
 
-    window.showModernNotification("🌀 Returned safely to the main world!", 3000, playerNum);
+    window.showModernNotification(`${window.getPortalIconHTML(24)} Returned safely to the main world!`, 3000, playerNum);
 };
 
 
@@ -30832,12 +30832,12 @@ window.handleHomeTeleporterOverlap = function(playerNum, tile) {
             destX = 593 * 100 + 50;
             destY = 548 * 100 + 50; // spawn slightly south of the home telepad [547][593]
         }
-        window.showModernNotification("🌀 Teleported Home!", 3000, playerNum);
+        window.showModernNotification(`${window.getPortalIconHTML(24)} Teleported Home!`, 3000, playerNum);
     } else {
         // At home, teleport to hospital
         destX = 106 * 100 + 50;
         destY = 101 * 100 + 50; // spawn slightly south of hospital telepad [100][106]
-        window.showModernNotification("🌀 Teleported to Hospital Area!", 3000, playerNum);
+        window.showModernNotification(`${window.getPortalIconHTML(24)} Teleported to Hospital Area!`, 3000, playerNum);
     }
 
     console.log(`[HomeTeleport] Player ${playerNum} moving to ${destX}, ${destY}`);
@@ -32896,6 +32896,115 @@ function create() {
         window.completeLoadingScreen();
     } else {
         document.getElementById('loadingScreen').style.display = 'none';
+    }
+}
+
+function updatePortalArrows() {
+    let p1Arrow = getCachedElement('p1PortalArrow');
+    let p2Arrow = getCachedElement('p2PortalArrow');
+
+    if (!window.gameStarted || !window.game || !window.game.scene || !window.game.scene.scenes[0]) return;
+
+    // Hide arrows if inside portal world, combo inactive, or in battles
+    if (window.isAnyModalOpen() || window.activeBattle || window.isPlayerInsidePortal() || !window.isPortalComboActive()) {
+        if (p1Arrow) p1Arrow.style.display = 'none';
+        if (p2Arrow) p2Arrow.style.display = 'none';
+        return;
+    }
+
+    // Only show if portal coordinates are generated
+    if (!window.portalCoords || window.portalCoords.length === 0) {
+        if (p1Arrow) p1Arrow.style.display = 'none';
+        if (p2Arrow) p2Arrow.style.display = 'none';
+        return;
+    }
+
+    const PADDING = 50;
+
+    let p1 = window.currentPlayer;
+    if (p1 && p1Arrow) {
+        // Find nearest portal
+        let nearestPortal = null;
+        let minDistance = Infinity;
+        for (let coord of window.portalCoords) {
+            let cx = (coord.x * window.tileSize) + (window.tileSize / 2);
+            let cy = (coord.y * window.tileSize) + (window.tileSize / 2);
+            let dist = Phaser.Math.Distance.Between(p1.x, p1.y, cx, cy);
+            if (dist < minDistance) {
+                minDistance = dist;
+                nearestPortal = {x: cx, y: cy};
+            }
+        }
+
+        if (nearestPortal && minDistance > window.tileSize * 2) {
+            p1Arrow.style.display = 'block';
+            let angle = Phaser.Math.Angle.Between(p1.x, p1.y, nearestPortal.x, nearestPortal.y);
+            let cx = window.innerWidth / 2;
+            let cy = window.innerHeight / 2;
+
+            if (window.coopActive) {
+                cx = window.innerWidth / 4;
+            }
+
+            let r = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+            let arrowX = cx + Math.cos(angle) * r;
+            let arrowY = cy + Math.sin(angle) * r;
+
+            arrowX = Math.max(PADDING, Math.min(window.innerWidth - PADDING, arrowX));
+            arrowY = Math.max(PADDING, Math.min(window.innerHeight - PADDING, arrowY));
+
+            p1Arrow.style.left = arrowX + 'px';
+            p1Arrow.style.top = arrowY + 'px';
+            p1Arrow.style.transform = `translate(-50%, -50%) rotate(${angle + Math.PI / 2}rad)`;
+
+            // Fade out as they get close
+            let opacity = Math.min(1, (minDistance - window.tileSize * 2) / (window.tileSize * 10));
+            p1Arrow.style.opacity = opacity;
+        } else {
+            p1Arrow.style.display = 'none';
+        }
+    } else if (p1Arrow) {
+        p1Arrow.style.display = 'none';
+    }
+
+    let p2 = window.player2;
+    if (window.coopActive && p2 && p2Arrow) {
+        let nearestPortal = null;
+        let minDistance = Infinity;
+        for (let coord of window.portalCoords) {
+            let cx = (coord.x * window.tileSize) + (window.tileSize / 2);
+            let cy = (coord.y * window.tileSize) + (window.tileSize / 2);
+            let dist = Phaser.Math.Distance.Between(p2.x, p2.y, cx, cy);
+            if (dist < minDistance) {
+                minDistance = dist;
+                nearestPortal = {x: cx, y: cy};
+            }
+        }
+
+        if (nearestPortal && minDistance > window.tileSize * 2) {
+            p2Arrow.style.display = 'block';
+            let angle = Phaser.Math.Angle.Between(p2.x, p2.y, nearestPortal.x, nearestPortal.y);
+            let cx = window.innerWidth * 0.75;
+            let cy = window.innerHeight / 2;
+
+            let r = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+            let arrowX = cx + Math.cos(angle) * r;
+            let arrowY = cy + Math.sin(angle) * r;
+
+            arrowX = Math.max(PADDING, Math.min(window.innerWidth - PADDING, arrowX));
+            arrowY = Math.max(PADDING, Math.min(window.innerHeight - PADDING, arrowY));
+
+            p2Arrow.style.left = arrowX + 'px';
+            p2Arrow.style.top = arrowY + 'px';
+            p2Arrow.style.transform = `translate(-50%, -50%) rotate(${angle + Math.PI / 2}rad)`;
+
+            let opacity = Math.min(1, (minDistance - window.tileSize * 2) / (window.tileSize * 10));
+            p2Arrow.style.opacity = opacity;
+        } else {
+            p2Arrow.style.display = 'none';
+        }
+    } else if (p2Arrow) {
+        p2Arrow.style.display = 'none';
     }
 }
 
