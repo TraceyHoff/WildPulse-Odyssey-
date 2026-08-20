@@ -10902,7 +10902,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             const target = touch.target;
-            const modal = target.closest('[id*="Modal"], [id*="modal"], [class*="modal"], .modal, .coop-column');
+            const modal = target.closest('[id$="Modal"], [id$="Modal_p1"], [id$="Modal_p2"], [id$="modal"], .modal, .coop-column');
             if (modal) {
                 // Find the closest scrollable parent of target up to the modal container, or fallback
                 let scrollableEl = null;
@@ -18972,15 +18972,7 @@ window.getActionWheelIconHTML = function(action, color = '#ffffff', size = 18) {
 
 
 window.getCreatureTypeIconHTML = function(type, size = 16) {
-    const typeColors = {
-        'Fire': '#FF4500', 'Water': '#1E90FF', 'Grass': '#32CD32',
-        'Electric': '#FFD700', 'Ice': '#00BFFF', 'Fighting': '#C22E28',
-        'Poison': '#A040A0', 'Ground': '#E0C068', 'Flying': '#A890F0',
-        'Psychic': '#F85888', 'Bug': '#A8B820', 'Rock': '#B8A038',
-        'Ghost': '#705898', 'Dragon': '#7038F8', 'Dark': '#705848',
-        'Steel': '#B8B8D0', 'Fairy': '#EE99AC', 'Normal': '#A8A878'
-    };
-    const color = typeColors[type] || '#A8A878';
+    const color = window.TYPE_COLORS[type] || 'rgba(169, 169, 169, 0.85)';
 
     const typePaths = {
         'Fire': '<path d="M8 1 C10 1 12 5 12 9 C12 12 10 15 8 15 C5 15 3 12 3 9 C3 5 6 1 8 1 Z" fill="' + color + '"/>',
@@ -19003,7 +18995,16 @@ window.getCreatureTypeIconHTML = function(type, size = 16) {
         'Normal': '<circle cx="8" cy="8" r="6" fill="none" stroke="' + color + '" stroke-width="2"/><circle cx="8" cy="8" r="2" fill="' + color + '"/>'
     };
 
-    const svgPath = typePaths[type] || typePaths['Normal'];
+    const typeMapping = {
+        'Nature': 'Grass',
+        'Earth': 'Ground',
+        'Wind': 'Flying',
+        'Light': 'Fairy',
+        'Cosmic': 'Psychic',
+        'Shadow': 'Dark'
+    };
+    const legacyType = typeMapping[type] || type;
+    const svgPath = typePaths[legacyType] || typePaths['Normal'];
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 16 16" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5)); margin-right: 4px;">${svgPath}</svg>`;
 };
 
@@ -33539,15 +33540,7 @@ window.createTypeIconTexture = function(scene, type) {
     dCanvas.height = 16;
     const ctx = dCanvas.getContext('2d');
 
-    const typeColors = {
-        'Fire': '#FF4500', 'Water': '#1E90FF', 'Grass': '#32CD32',
-        'Electric': '#FFD700', 'Ice': '#00BFFF', 'Fighting': '#C22E28',
-        'Poison': '#A040A0', 'Ground': '#E0C068', 'Flying': '#A890F0',
-        'Psychic': '#F85888', 'Bug': '#A8B820', 'Rock': '#B8A038',
-        'Ghost': '#705898', 'Dragon': '#7038F8', 'Dark': '#705848',
-        'Steel': '#B8B8D0', 'Fairy': '#EE99AC', 'Normal': '#A8A878'
-    };
-    const color = typeColors[type] || '#A8A878';
+    const color = window.TYPE_COLORS[type] || 'rgba(169, 169, 169, 0.85)';
 
     const typePaths = {
         'Fire': '<path d="M8 1 C10 1 12 5 12 9 C12 12 10 15 8 15 C5 15 3 12 3 9 C3 5 6 1 8 1 Z" fill="' + color + '"/>',
@@ -33570,7 +33563,16 @@ window.createTypeIconTexture = function(scene, type) {
         'Normal': '<circle cx="8" cy="8" r="6" fill="none" stroke="' + color + '" stroke-width="2"/><circle cx="8" cy="8" r="2" fill="' + color + '"/>'
     };
 
-    const svgPath = typePaths[type] || typePaths['Normal'];
+    const typeMapping = {
+        'Nature': 'Grass',
+        'Earth': 'Ground',
+        'Wind': 'Flying',
+        'Light': 'Fairy',
+        'Cosmic': 'Psychic',
+        'Shadow': 'Dark'
+    };
+    const legacyType = typeMapping[type] || type;
+    const svgPath = typePaths[legacyType] || typePaths['Normal'];
     const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">${svgPath}</svg>`;
 
     // Initially transparent or simple circle before SVG loads
