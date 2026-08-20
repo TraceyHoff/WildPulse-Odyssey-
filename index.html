@@ -1159,16 +1159,6 @@
             box-shadow: 0 0 5px rgba(255, 145, 0, 0.2) !important;
         }
         /* Inventory Slots CSS */
-        .inventory-slots-container {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            display: none; /* Initially hidden, managed by window.gameStarted */
-            flex-direction: column;
-            gap: 12px;
-            z-index: 450; /* Above Phaser's canvas, below main modal overlays */
-        }
-
         .mobile-placement-controls {
             position: fixed;
             bottom: 90px;
@@ -1231,12 +1221,6 @@
             transform: scale(0.9);
             background: rgba(255, 0, 127, 0.3);
         }
-        #p1InventorySlots {
-            left: 20px;
-        }
-        #p2InventorySlots {
-            right: 20px;
-        }
         /* Active Circular Timer Containers CSS */
         .player-timers-container {
             position: fixed;
@@ -1257,19 +1241,6 @@
             left: calc(50vw + 20px);
             right: auto;
         }
-        .inventory-slot {
-            display: flex;
-            width: 48px;
-            height: 48px;
-            background: rgba(10, 30, 20, 0.75);
-            border: 2px solid rgba(165, 214, 167, 0.4);
-            border-radius: 8px !important;
-            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8), 0 4px 6px rgba(0, 0, 0, 0.3);
-            transition: all 0.2s ease;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
         .inventory-wheel-option:hover {
             background: #1e293b !important;
             transform: scale(1.1);
@@ -1277,18 +1248,6 @@
         .inventory-wheel-option.gamepad-focused {
             background: #1e293b !important;
             transform: scale(1.1);
-        }
-        .inventory-slot::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
-        }
-        .inventory-slot:hover {
-            transform: scale(1.08);
-            border-color: rgba(165, 214, 167, 1);
-            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5), 0 0 12px rgba(102, 187, 106, 0.6);
-            background: rgba(15, 45, 30, 0.85);
         }
         #menuModal {
             display: none;
@@ -3522,22 +3481,7 @@
 })();
 </script>
 
-<!-- Inventory Slots Overlay -->
-<div id="p1InventorySlots" class="inventory-slots-container">
-    <div id="p1ActiveBuffs" style="color: #ffeb3b; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 2px black; text-align: center; margin-bottom: 5px; white-space: pre-line;"></div>
-    <div class="inventory-slot"></div>
-    <div class="inventory-slot"></div>
-    <div class="inventory-slot"></div>
-</div>
-
 <div id="coopSplitLine" style="position: fixed; top: 0; left: 50%; width: 2px; height: 100%; background: #000000; transform: translateX(-50%); z-index: 9999; display: none; pointer-events: none;"></div>
-
-<div id="p2InventorySlots" class="inventory-slots-container">
-    <div id="p2ActiveBuffs" style="color: #ffeb3b; font-size: 11px; font-weight: bold; text-shadow: 1px 1px 2px black; text-align: center; margin-bottom: 5px; white-space: pre-line;"></div>
-    <div class="inventory-slot"></div>
-    <div class="inventory-slot"></div>
-    <div class="inventory-slot"></div>
-</div>
 
 <!-- Mobile Placement Controls Overlay -->
 <div id="mobilePlacementControls_p1" class="mobile-placement-controls">
@@ -7980,7 +7924,6 @@ function escapeHtml(unsafe) {
                 <button class="action-wheel-option" id="actionWheelHome_p1" data-option="home" style="display: none; position: absolute; top: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #bf55ec; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(191,85,236,0.3);" onclick="window.useActionWheelOption(1, 'home')"></button>
                 <button class="action-wheel-option" id="actionWheelRemoveHome_p1" data-option="remove_home" style="display: none; position: absolute; top: 25px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff4d4d; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,77,77,0.3);" onclick="window.useActionWheelOption(1, 'remove_home')"></button>
                 <button class="action-wheel-option" data-option="screenshot" style="position: absolute; bottom: 25px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,255,0.3);" onclick="window.useActionWheelOption(1, 'screenshot')"></button>
-                <button class="action-wheel-option" data-option="switch_bag" style="position: absolute; bottom: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ff00; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,0,0.3);" onclick="window.useActionWheelOption(1, 'switch_bag')"></button>
             </div>
         </div>
 
@@ -8000,45 +7943,6 @@ function escapeHtml(unsafe) {
                 <button class="action-wheel-option" id="actionWheelHome_p2" data-option="home" style="display: none; position: absolute; top: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #bf55ec; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(191,85,236,0.3);" onclick="window.useActionWheelOption(2, 'home')"></button>
                 <button class="action-wheel-option" id="actionWheelRemoveHome_p2" data-option="remove_home" style="display: none; position: absolute; top: 25px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff4d4d; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,77,77,0.3);" onclick="window.useActionWheelOption(2, 'remove_home')"></button>
                 <button class="action-wheel-option" data-option="screenshot" style="position: absolute; bottom: 25px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff00ff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,255,0.3);" onclick="window.useActionWheelOption(2, 'screenshot')"></button>
-                <button class="action-wheel-option" data-option="switch_bag" style="position: absolute; bottom: 25px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ff00; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,0,0.3);" onclick="window.useActionWheelOption(2, 'switch_bag')"></button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Inventory Wheel Modal -->
-<div id="inventoryWheelModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index:200030; align-items:center; justify-content:center; box-sizing:border-box;">
-    <!-- Symmetrical Column layout inside modal container for split screen support -->
-    <div class="coop-columns" style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; pointer-events: none;">
-        <!-- Player 1 Column -->
-        <div class="coop-column p1-col" style="flex: 1; display: flex; align-items: center; justify-content: center; height: 100%; pointer-events: auto;">
-            <div class="inventory-wheel-container" style="position: relative; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(5, 8, 16, 0.98) 100%); border: 3px solid #00ffcc; box-shadow: 0 0 30px rgba(0, 255, 204, 0.6), inset 0 0 20px rgba(0, 255, 204, 0.2); display: flex; justify-content: center; align-items: center;">
-                <div class="inventory-wheel-center" style="position: relative; width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #00ffcc; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,255,204,0.5); box-shadow: 0 0 15px rgba(0,255,204,0.3);">
-                    <span>Bag</span>
-                    <span style="font-size: 9px; color: #00ffcc; margin-top: 2px;">Wheel</span>
-                    <div class="inventory-wheel-pointer" style="position: absolute; top: -20px; left: calc(50% - 10px); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid #00ffcc; filter: drop-shadow(0 0 8px #00ffcc); transform-origin: 10px 70px; transform: rotate(0deg); opacity: 0; transition: transform 0.15s ease, opacity 0.15s ease; pointer-events: none; z-index: 10;"></div>
-                </div>
-                <!-- Symmetrical options around center -->
-                <button class="inventory-wheel-option" data-option="slot1" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot1')">Empty</button>
-                <button class="inventory-wheel-option" data-option="slot2" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot2')">Empty</button>
-                <button class="inventory-wheel-option" data-option="slot3" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(1, 'slot3')">Empty</button>
-                <button class="inventory-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useInventoryWheelOption(1, 'close')">❌ Close</button>
-            </div>
-        </div>
-
-        <!-- Player 2 Column -->
-        <div class="coop-column p2-col" style="flex: 1; display: none; align-items: center; justify-content: center; height: 100%; pointer-events: auto;">
-            <div class="inventory-wheel-container" style="position: relative; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.95) 0%, rgba(5, 8, 16, 0.98) 100%); border: 3px solid #ff00ff; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), inset 0 0 20px rgba(255, 0, 255, 0.2); display: flex; justify-content: center; align-items: center;">
-                <div class="inventory-wheel-center" style="position: relative; width: 100px; height: 100px; border-radius: 50%; background: #0b1120; border: 3px solid #ff00ff; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-weight: bold; font-family: 'Courier New', monospace; font-size: 13px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,0,255,0.5); box-shadow: 0 0 15px rgba(255,0,255,0.3);">
-                    <span>Bag</span>
-                    <span style="font-size: 9px; color: #ff00ff; margin-top: 2px;">Wheel</span>
-                    <div class="inventory-wheel-pointer" style="position: absolute; top: -20px; left: calc(50% - 10px); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid #ff00ff; filter: drop-shadow(0 0 8px #ff00ff); transform-origin: 10px 70px; transform: rotate(0deg); opacity: 0; transition: transform 0.15s ease, opacity 0.15s ease; pointer-events: none; z-index: 10;"></div>
-                </div>
-                <!-- Symmetrical options around center -->
-                <button class="inventory-wheel-option" data-option="slot1" style="position: absolute; top: 135px; left: 10px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ff007f; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,0,127,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot1')">Empty</button>
-                <button class="inventory-wheel-option" data-option="slot2" style="position: absolute; top: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #00ffcc; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot2')">Empty</button>
-                <button class="inventory-wheel-option" data-option="slot3" style="position: absolute; top: 135px; left: 210px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffd700; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,215,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center;" onclick="window.useInventoryWheelOption(2, 'slot3')">Empty</button>
-                <button class="inventory-wheel-option" data-option="close" style="position: absolute; bottom: 25px; left: 110px; width: 100px; height: 50px; background: rgba(10,15,30,0.9); border: 2px solid #ffffff; border-radius: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 11px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 10px rgba(255,255,255,0.3);" onclick="window.useInventoryWheelOption(2, 'close')">❌ Close</button>
             </div>
         </div>
     </div>
@@ -8926,13 +8830,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const p1Slots = document.getElementById('p1InventorySlots');
-        if (p1Slots) p1Slots.style.display = 'flex';
-        window._lastP1SlotsDisplay = 'flex';
+
         if (window.coopActive) {
-            const p2Slots = document.getElementById('p2InventorySlots');
-            if (p2Slots) p2Slots.style.display = 'flex';
-            window._lastP2SlotsDisplay = 'flex';
+
         }
 
         if (window.updateInventoryUI) {
@@ -10908,8 +10808,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.inBattle) return;
             if (window.canOpenWheels && !window.canOpenWheels()) return;
             const container = window.getActiveContainerForPlayer(1);
-            if (!container || container.id !== 'inventoryWheelModal') {
-                window.openInventoryWheel(1);
+            if (!container) {
             }
         }
     });
@@ -10918,8 +10817,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('keyup', (e) => {
         if (e.key === 'i' || e.key === 'I') {
             const container = window.getActiveContainerForPlayer(1);
-            if (container && container.id === 'inventoryWheelModal') {
-                window.closeInventoryWheel(1);
+            if (false) {
             }
         }
     });
@@ -17508,11 +17406,9 @@ window.updateVisualTimerCircles = function() {
     }
 
     // Determine visibility for Player 1 and Player 2 timers
-    const p1SlotsEl = document.getElementById('p1InventorySlots');
-    const p1Visible = p1SlotsEl && p1SlotsEl.style.display !== 'none';
+    const p1Visible = window.isAnyModalOpen ? !window.isAnyModalOpen() : true;
 
-    const p2SlotsEl = document.getElementById('p2InventorySlots');
-    const p2Visible = p2SlotsEl && p2SlotsEl.style.display !== 'none' && window.coopActive;
+    const p2Visible = window.coopActive && (window.isAnyModalOpen ? !window.isAnyModalOpen() : true);
 
     updatePlayerTimers(1, p1Visible);
     updatePlayerTimers(2, p2Visible);
@@ -17596,7 +17492,7 @@ window.canAddInventoryItem = function(playerNum, itemName) {
             return true;
         }
     }
-    if (inv.length < 3) {
+    if (inv.length < 4) {
         return true;
     }
     return false;
@@ -17659,7 +17555,7 @@ window.addInventoryItem = function(playerNum, itemName) {
             return true;
         }
     }
-    if (inv.length < 3) {
+    if (inv.length < 4) {
         inv.push({ name: itemName, quantity: 1 });
         window.saveInventory();
         return true;
@@ -18010,7 +17906,7 @@ const categoryOrder = {
                     spaceInExisting += (10 - invItem.quantity);
                 }
             });
-            const freeSlots = 3 - inv.length;
+            const freeSlots = 4 - inv.length;
             const available = spaceInExisting + (freeSlots * 10);
 
             const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 30) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 30);
@@ -18423,7 +18319,6 @@ window.useInventoryItem = function(playerNum, slotIndex) {
     };
 
     if (item.name === "Bundle of Wood") {
-        if (window.closeInventoryWheel) window.closeInventoryWheel(playerNum);
         if (window.closeActionWheel) window.closeActionWheel(playerNum);
         if (window.closeInventoryModal) window.closeInventoryModal();
 
@@ -18851,10 +18746,8 @@ window.getActionWheelIconHTML = function(action, color = '#ffffff', size = 18) {
         emoji = '🎨';
         label = 'Design';
         svgContent = `<path d="M20 50 C20 30 40 20 50 20 C60 20 80 30 80 50 C80 60 70 70 60 70 C55 70 50 65 50 60 C50 55 55 50 60 50 C65 50 65 40 50 40 C35 40 30 50 30 60 C30 80 40 85 50 85 C55 85 60 85 65 85" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round"/><circle cx="35" cy="45" r="4" fill="${color}"/><circle cx="45" cy="35" r="4" fill="${color}"/><circle cx="65" cy="50" r="4" fill="${color}"/>`;
-    } else if (action === 'switch_bag') {
         emoji = '➡️';
         label = 'Bag';
-        svgContent = `<path d="M20 50 L70 50 M50 30 L70 50 L50 70" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>`;
     }
 
     return `<div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -20239,7 +20132,7 @@ window.p2ActiveModal = null;
 
 window.getNavigableElements = function(container) {
     if (!container) return [];
-    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .inventory-slot, .party-card');
+    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .party-card');
     return Array.from(all).filter(el => {
         // Must be visible
         if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
@@ -20345,7 +20238,6 @@ window.getActiveContainerForPlayer = function(playerNum) {
 
         const padRef = playerNum === 2 ? window.p2PadReference : window.p1PadReference;
         if (padRef && padRef.buttons[4] && padRef.buttons[4].pressed) {
-            const containerId = playerNum === 2 ? 'p2InventorySlots' : 'p1InventorySlots';
             const container = document.getElementById(containerId);
             if (container && container.style.display !== 'none' && container.style.display !== '') {
                 return container;
@@ -20380,7 +20272,7 @@ window.getActiveContainerForPlayer = function(playerNum) {
             'menuModal', 'partyModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
             'battleModal', 'battleSwapModal', 'challengeModal', 'dojoModal',
-            'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'actionWheelModal', 'inventoryWheelModal',
+            'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'actionWheelModal',
             'creatureSelectModal_p1', 'creatureSelectModal_p2',
             'respawnChoiceModal_p1', 'respawnChoiceModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
             'customConfirmModal_p1', 'customConfirmModal_p2'
@@ -20785,12 +20677,10 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
 
     if (currLB && !prevLB) {
         if (!window.inBattle && !window.isAnyModalOpen()) {
-            window.openInventoryWheel(playerNum);
         }
     } else if (!currLB && prevLB) {
         const activeContainer = window.getActiveContainerForPlayer(playerNum);
-        if (activeContainer && activeContainer.id === 'inventoryWheelModal') {
-            window.closeInventoryWheel(playerNum);
+        if (false) {
         }
     }
 
@@ -20876,7 +20766,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         return;
     }
 
-    if (container && container.id === 'inventoryWheelModal') {
+    if (false) {
         let option = null;
         if (currLeft) {
             option = "slot1";
@@ -20902,7 +20792,6 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
 
         // B button closes the inventory wheel
         if (justB) {
-            window.closeInventoryWheel(playerNum);
             // Flag LB as handled so we can navigate slots without reopening wheel
             prev.LB = true;
         }
@@ -21372,7 +21261,7 @@ window.isAnyModalOpen = function() {
         'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal',
         'battleModal', 'battleSwapModal', 'challengeModal', 'dojoModal',
         'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2', 'homeCustomizationModal', 'homeCustomizationModal_p2',
-        'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal', 'inventoryWheelModal',
+        'fullSizeImageModal', 'fullSizeImageModal_p2', 'actionWheelModal',
         'creatureSelectModal_p1', 'creatureSelectModal_p2', 'virtualKeyboardModal_p1', 'virtualKeyboardModal_p2',
         'customConfirmModal_p1', 'customConfirmModal_p2',
         'questModal_p1', 'questModal_p2'
@@ -21395,7 +21284,7 @@ window.updateModalVisibility = function() {
         const modalIds = [
             'menuModal', 'partyModal', 'inventoryModal', 'storageModal', 'helpModal',
             'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2', 'homeCustomizationModal', 'homeCustomizationModal_p2',
-            'challengeModal', 'dojoModal', 'battleModal', 'actionWheelModal', 'inventoryWheelModal'
+            'challengeModal', 'dojoModal', 'battleModal', 'actionWheelModal'
         ];
         modalIds.forEach(id => {
             const modalEl = document.getElementById(id);
@@ -21417,7 +21306,7 @@ window.updateModalVisibility = function() {
     const modalIds = [
             'menuModal', 'partyModal', 'inventoryModal', 'storageModal', 'helpModal',
         'breedingModal', 'levelUpModal', 'journalModal', 'storeModal', 'storageChestModal', 'customizationModal', 'customizationModal_p2', 'homeCustomizationModal', 'homeCustomizationModal_p2',
-        'challengeModal', 'dojoModal', 'actionWheelModal', 'inventoryWheelModal'
+        'challengeModal', 'dojoModal', 'actionWheelModal'
     ];
 
     modalIds.forEach(id => {
@@ -21441,7 +21330,7 @@ window.updateModalVisibility = function() {
         }
 
         if (p1Open || p2Open) {
-            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2' || id === 'homeCustomizationModal' || id === 'homeCustomizationModal_p2' || id === 'actionWheelModal' || id === 'inventoryWheelModal') ? 'flex' : 'block';
+            modalEl.style.display = (id === 'customizationModal' || id === 'customizationModal_p2' || id === 'homeCustomizationModal' || id === 'homeCustomizationModal_p2' || id === 'actionWheelModal') ? 'flex' : 'block';
             if (id !== 'customizationModal' && id !== 'customizationModal_p2' && id !== 'homeCustomizationModal' && id !== 'homeCustomizationModal_p2') {
                 modalEl.style.background = 'transparent';
                 modalEl.style.pointerEvents = 'none';
@@ -21452,7 +21341,7 @@ window.updateModalVisibility = function() {
             const p1Col = modalEl.querySelector('.p1-col');
             const p2Col = modalEl.querySelector('.p2-col');
 
-            const isWheel = id === 'actionWheelModal' || id === 'inventoryWheelModal';
+            const isWheel = id === 'actionWheelModal';
 
             if (p1Col) {
                 p1Col.style.display = p1Open ? (isWheel ? 'flex' : 'block') : 'none';
@@ -21537,7 +21426,6 @@ window.closeAllModalsForPlayer = function(playerNum, exceptId) {
         { id: 'homeCustomizationModal', close: (p) => { if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(p); } },
         { id: 'homeCustomizationModal_p2', close: (p) => { if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(p); } },
         { id: 'inventoryModal', close: (p) => { if (window.closeInventoryModal) window.closeInventoryModal(p); } },
-        { id: 'inventoryWheelModal', close: (p) => { if (window.closeInventoryWheel) window.closeInventoryWheel(p); } },
         { id: `questModal_p${playerNum}`, close: (p) => { if (window.closeQuestModal) window.closeQuestModal(p); } }
     ];
 
@@ -21585,7 +21473,6 @@ window.closeAllModals = function(exceptId) {
         { id: 'tradeModal', close: () => { if (window.closeTradeModal) window.closeTradeModal(); } },
         { id: 'pvpModal', close: () => { if (window.closePvpModal) window.closePvpModal(); } },
         { id: 'inventoryModal', close: () => { if (window.closeInventoryModal) window.closeInventoryModal(); } },
-        { id: 'inventoryWheelModal', close: () => { if (window.closeInventoryWheel) window.closeInventoryWheel(); } },
         { id: 'homeCustomizationModal', close: () => { if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(1); } },
         { id: 'homeCustomizationModal_p2', close: () => { if (window.closeHomeCustomizationModal) window.closeHomeCustomizationModal(2); } },
         { id: 'questModal_p1', close: () => { if (window.closeQuestModal) window.closeQuestModal(1); } },
@@ -23537,7 +23424,6 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
                               opt === 'party' ? '#00ffcc' :
                               opt === 'help' ? '#ffd700' :
                               opt === 'home' ? '#bf55ec' :
-                              opt === 'switch_bag' ? '#00ff00' :
                               opt === 'screenshot' ? (playerNum === 2 ? '#ff00ff' : '#00ffff') : '#ffffff';
         el.style.boxShadow = '';
     });
@@ -23566,7 +23452,6 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
             else if (optionName === 'help') rotation = 270;
             else if (optionName === 'home') rotation = 45;
             else if (optionName === 'screenshot') rotation = 225;
-            else if (optionName === 'switch_bag') rotation = 135;
 
             pointer.style.transform = `rotate(${rotation}deg)`;
             pointer.style.opacity = '1';
@@ -23581,10 +23466,6 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
 window.useActionWheelOption = function(playerNum, optionName) {
     window.closeActionWheel(playerNum);
 
-    if (optionName === 'switch_bag') {
-        window.openInventoryWheel(playerNum);
-        return;
-    }
 
     if (optionName === 'pet') {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -23717,46 +23598,10 @@ window.takeScreenshot = function() {
     }, 300);
 };
 
-window.openInventoryWheel = function(playerNum) {
-    if (window.inBattle) return;
-    if (window.canOpenWheels && !window.canOpenWheels()) return;
-    if (window.isAnyModalOpen && window.isAnyModalOpen() && window.p1ActiveModal !== 'inventoryWheelModal' && window.p2ActiveModal !== 'inventoryWheelModal') return;
 
-    if (window.coopActive) {
-        window.closeAllModalsForPlayer(playerNum, 'inventoryWheelModal');
-        if (playerNum === 2) window.p2ActiveModal = 'inventoryWheelModal';
-        else window.p1ActiveModal = 'inventoryWheelModal';
-        window.updateModalVisibility();
-    } else {
-        window.closeAllModals('inventoryWheelModal');
-        document.getElementById('inventoryWheelModal').style.display = 'flex';
-        window.p1ActiveModal = 'inventoryWheelModal';
-    }
-
-    if (window.updateInventoryWheelUI) {
-        window.updateInventoryWheelUI(playerNum);
-    }
-
-    // Default highlight
-    window.highlightInventoryWheelOption(playerNum, null);
-};
-
-window.closeInventoryWheel = function(playerNum) {
-    if (window.coopActive) {
-        if (playerNum === 2) window.p2ActiveModal = null;
-        else window.p1ActiveModal = null;
-        window.updateModalVisibility();
-    } else {
-        const modal = document.getElementById('inventoryWheelModal');
-        if (modal) modal.style.display = 'none';
-        window.p1ActiveModal = null;
-    }
-    window.highlightInventoryWheelOption(playerNum, null);
-};
 
 window.highlightInventoryWheelOption = function(playerNum, optionName) {
     const colClass = playerNum === 2 ? '.p2-col' : '.p1-col';
-    const container = document.querySelector(`#inventoryWheelModal ${colClass}`);
     if (!container) return;
 
     container.querySelectorAll('.inventory-wheel-option').forEach(el => {
@@ -23801,110 +23646,7 @@ window.highlightInventoryWheelOption = function(playerNum, optionName) {
     }
 };
 
-window.updateInventoryWheelUI = function(playerNum) {
-    const colClass = playerNum === 2 ? '.p2-col' : '.p1-col';
-    const container = document.querySelector(`#inventoryWheelModal ${colClass}`);
-    if (!container) return;
 
-    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
-    const itemIcons = {
-        "Mini Hospital": "🏥",
-        "Mini Store": "🏪",
-        "Mini Trade": "🔄",
-        "Mini PvP": "⚔️",
-        "Mini Breeding Center": "🥚",
-        "Mini Challenge": "👑",
-        "Neon Couch": "🛋️",
-
-        "L-Couch": "🛋️",
-        "Love Seat": "🛋️",
-        "Office Chair": "💺",
-        "Stool": "🪑",
-        "Coffee Table": "🪵",
-        "Dining Table": "🍽️",
-        "Park Bench": "🪑",
-        "Cyber Bench": "🪑",
-        "Filing Cabinet": "🗄️",
-        "Display Cabinet": "🗄️",
-        "Nightstand": "🪑",
-        "Corner Table": "🪵",
-        "Bunk Bed": "🛏️",
-        "King Bed": "🛏️",
-        "Cyber Desk": "🖥️",
-        "Glow Carpet": "🔲",
-        "Holo Bed": "🛏️",
-        "Dojo Tile": "⛩️",
-        "Storage Chest": "🧳",
-        "Lava Lamp": "🌋",
-        "Plasma Globe": "🔮",
-        "Cyber Poster": "📜",
-        "Neon Sign": "🪧",
-        "Gaming PC": "💻",
-        "Smart Mirror": "🪞",
-        "Repellent": "🧴",
-        "HP Booster": "💚",
-        "Attack Booster": "⚔️",
-        "Defense Booster": "🛡️",
-        "Speed Booster": "⚡",
-        "Sp. Atk Booster": "🔮",
-        "Sp. Def Booster": "🧿",
-        "Jank Juice": "🧃",
-        "Healing Juice Bottle": "🧪",
-        "Healing Juice Jug": "🏺",
-        "ExPALL": "✨",
-        "Creature License": "🎫",
-        "Creature Cookie": "🍪",
-        "Pedometer": "👣",
-        "Cyber-Core Upgrade": "🔘",
-        "Nano-Nurture Serum": "💉",
-        "DNA Stabilizer": "🧬",
-        "NPC Dual Link": "📡",
-        "Wild Dual Signal": "📶"
-    };
-
-    const slots = ["slot1", "slot2", "slot3"];
-    slots.forEach((slotName, idx) => {
-        const btn = container.querySelector(`.inventory-wheel-option[data-option="${slotName}"]`);
-        if (!btn) return;
-
-        const item = inv[idx];
-        if (item) {
-            const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 24) : (itemIcons[item.name] || "📦");
-            let displayName = item.name;
-            if (displayName.length > 12) {
-                displayName = displayName.substring(0, 10) + "..";
-            }
-            btn.innerHTML = `<span style="display:flex; align-items:center; justify-content:center; width:24px; height:24px; line-height:1; margin:0 auto;">${icon}</span><span style="font-size:8px; line-height:1.2; margin-top:2px; font-weight:normal; text-align:center;">${displayName} (${item.quantity})</span>`;
-            btn.style.opacity = '1';
-        } else {
-            btn.innerHTML = `<span style="color:#666;">Empty</span>`;
-            btn.style.opacity = '0.5';
-        }
-    });
-};
-
-window.useInventoryWheelOption = function(playerNum, optionName) {
-    if (optionName === 'close') {
-        window.closeInventoryWheel(playerNum);
-        return;
-    }
-
-    const slotMap = { 'slot1': 0, 'slot2': 1, 'slot3': 2 };
-    const idx = slotMap[optionName];
-    if (idx !== undefined) {
-        const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
-        const item = inv[idx];
-        if (item) {
-            window.closeInventoryWheel(playerNum);
-
-            if (item.name.startsWith("Mini ") || item.name === "Dojo Tile" || (window.furniturePool && window.furniturePool.includes(item.name))) {
-                window.startMiniTilePlacement(playerNum, item.name, idx);
-            } else {
-                window.useInventoryItem(playerNum, idx);
-            }
-        }
-    }
-};
 
 window.deleteProgress = function(playerNum = 1) {
     if (window.coopActive) {
@@ -24025,10 +23767,8 @@ window.exitGame = function(playerNum) {
         if (p1Arrow) p1Arrow.style.display = 'none';
         if (p2Arrow) p2Arrow.style.display = 'none';
 
-        const p1Slots = document.getElementById('p1InventorySlots');
-        const p2Slots = document.getElementById('p2InventorySlots');
-        if (p1Slots) p1Slots.style.display = 'none';
-        if (p2Slots) p2Slots.style.display = 'none';
+
+
 
         window.cameraFollowsPlayer = false;
         if (window.closeMenuModal) window.closeMenuModal();
@@ -36401,8 +36141,7 @@ window.enableCoop = function(scene) {
     if (splitLine) splitLine.style.display = 'block';
 
     if (window.gameStarted) {
-        const p2Slots = document.getElementById('p2InventorySlots');
-        if (p2Slots) p2Slots.style.display = 'flex';
+
     }
 
     // Force fullscreen mode immediately when entering split screen mode
@@ -36618,8 +36357,7 @@ window.disableCoop = function(scene) {
     const splitLine = document.getElementById('coopSplitLine');
     if (splitLine) splitLine.style.display = 'none';
 
-    const p2Slots = document.getElementById('p2InventorySlots');
-    if (p2Slots) p2Slots.style.display = 'none';
+
 
     // 1. Destroy Player 2 elements
     if (window.player2) {
@@ -36820,8 +36558,8 @@ function isPointerOverButton(p) {
                     target.classList.contains('store-btn') ||
                     target.classList.contains('release-btn') ||
                     target.classList.contains('retrieve-btn') ||
-                    target.classList.contains('inventory-slot') ||
-                    target.classList.contains('inventory-slots-container')
+
+                    false
                 )) {
                     return true;
                 }
@@ -37529,59 +37267,6 @@ function update() {
     window.p2PadReference = null;
     if (window.WildPulseMusic) window.WildPulseMusic.update();
     const now = Date.now();
-
-    // Dynamically show/hide inventory slots based on active modals or battles
-    if (window.gameStarted) {
-        let p1SlotsVisible = true;
-        let p2SlotsVisible = false;
-
-        if (window.coopActive) {
-            p2SlotsVisible = true;
-
-            // Player 1
-            const p1BattleActive = window.inBattle && (window.activeBattlePlayer === 1 || window.isLocalPvp);
-            if (window.p1ActiveModal !== null || p1BattleActive) {
-                p1SlotsVisible = false;
-            }
-
-            // Player 2
-            const p2BattleActive = window.inBattle && (window.activeBattlePlayer === 2 || window.isLocalPvp);
-            if (window.p2ActiveModal !== null || p2BattleActive) {
-                p2SlotsVisible = false;
-            }
-        } else {
-            // Single player: hide P1 slots if any modal is open (including battle/PvP)
-            if (window.isAnyModalOpen && window.isAnyModalOpen()) {
-                p1SlotsVisible = false;
-            }
-        }
-
-        const p1SlotsEl = window.getCachedElement('p1InventorySlots');
-        const p2SlotsEl = window.getCachedElement('p2InventorySlots');
-
-        const targetP1Display = p1SlotsVisible ? 'flex' : 'none';
-        if (p1SlotsEl && window._lastP1SlotsDisplay !== targetP1Display) {
-            p1SlotsEl.style.display = targetP1Display;
-            window._lastP1SlotsDisplay = targetP1Display;
-        }
-
-        const targetP2Display = p2SlotsVisible ? 'flex' : 'none';
-        if (p2SlotsEl && window._lastP2SlotsDisplay !== targetP2Display) {
-            p2SlotsEl.style.display = targetP2Display;
-            window._lastP2SlotsDisplay = targetP2Display;
-        }
-    } else {
-        const p1SlotsEl = window.getCachedElement('p1InventorySlots');
-        const p2SlotsEl = window.getCachedElement('p2InventorySlots');
-        if (p1SlotsEl && window._lastP1SlotsDisplay !== 'none') {
-            p1SlotsEl.style.display = 'none';
-            window._lastP1SlotsDisplay = 'none';
-        }
-        if (p2SlotsEl && window._lastP2SlotsDisplay !== 'none') {
-            p2SlotsEl.style.display = 'none';
-            window._lastP2SlotsDisplay = 'none';
-        }
-    }
 
     // Update hospital directional arrows
     if (typeof updateHospitalArrows === 'function') {
@@ -40304,7 +39989,6 @@ document.addEventListener('mouseout', (e) => {
             else if (action === 'help') color = '#ffd700';
             else if (action === 'home') color = '#bf55ec';
             else if (action === 'remove_home') color = '#ff4d4d';
-            else if (action === 'switch_bag') color = '#00ff00';
             else if (action === 'screenshot') {
                 color = btn.closest('.p2-col') ? '#ff00ff' : '#00ffff';
             }
