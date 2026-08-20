@@ -8415,18 +8415,22 @@ window.WildPulseMusic = {
             this.synths.thunder.volume.value = -5;
 
             // Birds (Daytime)
-            this.synths.birds = new Tone.Synth({
+                        this.synths.birds = new Tone.FMSynth({
+                harmonicity: 3.0,
+                modulationIndex: 10,
                 oscillator: { type: "sine" },
-                envelope: { attack: 0.05, decay: 0.1, sustain: 0.1, release: 0.5 }
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 },
+                modulation: { type: "square" },
+                modulationEnvelope: { attack: 0.05, decay: 0.1, sustain: 0, release: 0.1 }
             }).connect(this.reverb);
-            this.synths.birds.volume.value = -10;
+            this.synths.birds.volume.value = -15;
 
             // Crickets (Nighttime)
-            this.synths.crickets = new Tone.NoiseSynth({
-                noise: { type: 'white' },
-                envelope: { attack: 0.01, decay: 0.05, sustain: 0, release: 0.05 }
-            }).connect(new Tone.Filter(4000, "highpass").connect(this.reverb));
-            this.synths.crickets.volume.value = -25;
+                        this.synths.crickets = new Tone.NoiseSynth({
+                noise: { type: 'brown' },
+                envelope: { attack: 0.01, decay: 0.02, sustain: 0, release: 0.02 }
+            }).connect(new Tone.Filter(6000, "highpass").connect(this.reverb));
+            this.synths.crickets.volume.value = -20;
 
             // Player Steps
             this.stepFilter = new Tone.Filter({ type: "lowpass", frequency: 1200 }).connect(this.reverb);
@@ -8439,11 +8443,20 @@ window.WildPulseMusic = {
             this.synths.leaves.volume.value = -35;
 
             // Owls (Nighttime)
-            this.synths.owl = new Tone.Synth({
+                        this.synths.owl = new Tone.Synth({
                 oscillator: { type: "sine" },
                 envelope: { attack: 0.1, decay: 0.2, sustain: 0.8, release: 1 }
             }).connect(this.reverb);
             this.synths.owl.volume.value = -15;
+
+            // Frogs (Nighttime)
+            this.synths.frogs = new Tone.MembraneSynth({
+                pitchDecay: 0.02,
+                octaves: 2,
+                oscillator: { type: "sawtooth" },
+                envelope: { attack: 0.05, decay: 0.1, sustain: 0.1, release: 0.5 }
+            }).connect(new Tone.Filter(200, "lowpass").connect(this.reverb));
+            this.synths.frogs.volume.value = -15;
 
             this.setupLoops();
             Tone.Transport.bpm.value = this.bpm;
@@ -8465,24 +8478,44 @@ window.WildPulseMusic = {
 
             if (inside) return;
 
-            // Day: Birds
+                        // Day: Birds
             if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.1) {
-                const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
-                this.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
-                if (Math.random() < 0.5) {
-                     this.synths.birds.triggerAttackRelease("E6", "16n", time + 0.1, Math.random() * 0.5 + 0.5);
+                const chirpType = Math.floor(Math.random() * 4);
+                if (chirpType === 0) {
+                    const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
+                    this.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
+                    if (Math.random() < 0.5) {
+                         this.synths.birds.triggerAttackRelease("E6", "16n", time + 0.1, Math.random() * 0.5 + 0.5);
+                    }
+                } else if (chirpType === 1) { // Trill
+                    this.synths.birds.triggerAttackRelease("G6", "32n", time, 0.6);
+                    this.synths.birds.triggerAttackRelease("A6", "32n", time + 0.05, 0.6);
+                    this.synths.birds.triggerAttackRelease("G6", "32n", time + 0.1, 0.6);
+                    this.synths.birds.triggerAttackRelease("A6", "32n", time + 0.15, 0.6);
+                } else if (chirpType === 2) { // Long swoop
+                    this.synths.birds.triggerAttackRelease("E6", "8n", time, 0.7);
+                    this.synths.birds.triggerAttackRelease("C6", "8n", time + 0.2, 0.5);
+                } else { // High peep
+                    this.synths.birds.triggerAttackRelease("D7", "32n", time, 0.4);
+                    this.synths.birds.triggerAttackRelease("D7", "32n", time + 0.2, 0.4);
                 }
             }
 
-            // Night: Crickets & Owls
+                        // Night: Crickets, Owls & Frogs
             if (isNight) {
                 if (step % 2 === 0 && Math.random() < 0.8) {
-                    this.synths.crickets.triggerAttackRelease("32n", time, 0.5);
+                    this.synths.crickets.triggerAttackRelease("64n", time, 0.5);
+                    if (Math.random() < 0.5) this.synths.crickets.triggerAttackRelease("64n", time + 0.05, 0.4);
                 }
 
                 if (step === 0 && Math.random() < 0.02) {
                     this.synths.owl.triggerAttackRelease("C4", "4n", time, 0.8);
                     this.synths.owl.triggerAttackRelease("G3", "2n", time + 0.5, 0.6);
+                }
+
+                if (step === 0 && Math.random() < 0.05) {
+                    this.synths.frogs.triggerAttackRelease("C2", "8n", time, 0.7);
+                    setTimeout(() => { if (this.synths.frogs) this.synths.frogs.triggerAttackRelease("E2", "8n", Tone.now(), 0.5); }, 200);
                 }
             }
         }, "16n").start(0));
@@ -29937,6 +29970,11 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             plant.isPlant = true;
             plant.plantType = plantType;
             plant.shadowSprite = shadow;
+            if (window.plantsGroup) {
+                plant.originalAngle = 0;
+                window.plantsGroup.add(plant);
+                plant.body.setCircle(20, plant.width / 2 - 20, plant.height - 20); // Make hitbox appropriate
+            }
 
             // Initialize the texture based on active season and time of day
             if (window.updatePlantVisualState) {
@@ -30121,6 +30159,11 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             plant.isPlant = true;
             plant.plantType = plantType;
             plant.shadowSprite = shadow;
+            if (window.plantsGroup) {
+                plant.originalAngle = 0;
+                window.plantsGroup.add(plant);
+                plant.body.setCircle(20, plant.width / 2 - 20, plant.height - 20); // Make hitbox appropriate
+            }
 
             // Swaying tween
             scene.tweens.add({
@@ -32773,6 +32816,30 @@ function create() {
 
     // Spawn player mini-tiles
     window.spawnMiniTiles(this);
+    if (!window.plantsGroup) window.plantsGroup = this.physics.add.group();
+
+    this.physics.add.overlap(player, window.plantsGroup, (pCol, plantSprite) => {
+        if (!plantSprite.lastRustleTime || Date.now() - plantSprite.lastRustleTime > 500) {
+            plantSprite.lastRustleTime = Date.now();
+            if (window.WildPulseMusic && window.WildPulseMusic.synths && window.WildPulseMusic.synths.leaves) {
+                try { window.WildPulseMusic.synths.leaves.triggerAttackRelease("16n", Tone.now(), Math.random() * 0.4 + 0.3); } catch(e){}
+            }
+            // Add a little visual wiggle
+            this.tweens.add({
+                targets: plantSprite,
+                angle: { from: plantSprite.angle - 15, to: plantSprite.angle + 15 },
+                duration: 100,
+                yoyo: true,
+                repeat: 1,
+                ease: 'Sine.easeInOut',
+                onComplete: () => {
+                    plantSprite.setAngle(plantSprite.originalAngle || 0);
+                }
+            });
+        }
+    }, null, this);
+
+
 
     // Overlap physics
     this.physics.add.overlap(player, window.homeTeleportersGroup, (pCol, tile) => {
@@ -36707,6 +36774,27 @@ window.enableCoop = function(scene) {
     }, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.npcTrainersGroup, handleNpcTrainerOverlap, null, scene));
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.questNpcGroup, handleQuestNpcOverlap, null, scene));
+    window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.plantsGroup, (pCol, plantSprite) => {
+        if (!plantSprite.lastRustleTime || Date.now() - plantSprite.lastRustleTime > 500) {
+            plantSprite.lastRustleTime = Date.now();
+            if (window.WildPulseMusic && window.WildPulseMusic.synths && window.WildPulseMusic.synths.leaves) {
+                try { window.WildPulseMusic.synths.leaves.triggerAttackRelease("16n", Tone.now(), Math.random() * 0.4 + 0.3); } catch(e){}
+            }
+            // Add a little visual wiggle
+            scene.tweens.add({
+                targets: plantSprite,
+                angle: { from: plantSprite.angle - 15, to: plantSprite.angle + 15 },
+                duration: 100,
+                yoyo: true,
+                repeat: 1,
+                ease: 'Sine.easeInOut',
+                onComplete: () => {
+                    plantSprite.setAngle(plantSprite.originalAngle || 0);
+                }
+            });
+        }
+    }, null, scene));
+
 
     // Overlaps for functional mini-tiles for Player 2
     window.p2Colliders.push(scene.physics.add.overlap(window.player2, window.miniTilesGroup, (pCol, tileSprite) => {
