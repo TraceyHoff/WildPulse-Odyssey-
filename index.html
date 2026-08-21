@@ -4590,6 +4590,42 @@ window.updateStorageChestUI = function(playerNum) {
         "Healing Juice Jug": "🏺",
         "ExPALL": "✨",
         "Creature License": "🎫",
+        "Uncommon HP Booster": "💚",
+        "Uncommon Attack Booster": "⚔️",
+        "Uncommon Defense Booster": "🛡️",
+        "Uncommon Speed Booster": "⚡",
+        "Uncommon Sp. Atk Booster": "🔮",
+        "Uncommon Sp. Def Booster": "🧿",
+        "Rare HP Booster": "💚",
+        "Rare Attack Booster": "⚔️",
+        "Rare Defense Booster": "🛡️",
+        "Rare Speed Booster": "⚡",
+        "Rare Sp. Atk Booster": "🔮",
+        "Rare Sp. Def Booster": "🧿",
+        "Exquisite HP Booster": "💚",
+        "Exquisite Attack Booster": "⚔️",
+        "Exquisite Defense Booster": "🛡️",
+        "Exquisite Speed Booster": "⚡",
+        "Exquisite Sp. Atk Booster": "🔮",
+        "Exquisite Sp. Def Booster": "🧿",
+        "Uncommon HP Booster": "💚",
+        "Uncommon Attack Booster": "⚔️",
+        "Uncommon Defense Booster": "🛡️",
+        "Uncommon Speed Booster": "⚡",
+        "Uncommon Sp. Atk Booster": "🔮",
+        "Uncommon Sp. Def Booster": "🧿",
+        "Rare HP Booster": "💚",
+        "Rare Attack Booster": "⚔️",
+        "Rare Defense Booster": "🛡️",
+        "Rare Speed Booster": "⚡",
+        "Rare Sp. Atk Booster": "🔮",
+        "Rare Sp. Def Booster": "🧿",
+        "Exquisite HP Booster": "💚",
+        "Exquisite Attack Booster": "⚔️",
+        "Exquisite Defense Booster": "🛡️",
+        "Exquisite Speed Booster": "⚡",
+        "Exquisite Sp. Atk Booster": "🔮",
+        "Exquisite Sp. Def Booster": "🧿",
         "Creature Cookie": "🍪",
         "Pedometer": "👣",
         "Cyber-Core Upgrade": "🔘",
@@ -4817,6 +4853,23 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
         rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
     } else if (Math.random() < 0.35) {
         rewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+        if (rewardItem === "Stat Boosters") {
+            const tiers = [
+                { items: ["HP Booster", "Attack Booster", "Defense Booster", "Speed Booster", "Sp. Atk Booster", "Sp. Def Booster"], weight: 50 },
+                { items: ["Uncommon HP Booster", "Uncommon Attack Booster", "Uncommon Defense Booster", "Uncommon Speed Booster", "Uncommon Sp. Atk Booster", "Uncommon Sp. Def Booster"], weight: 30 },
+                { items: ["Rare HP Booster", "Rare Attack Booster", "Rare Defense Booster", "Rare Speed Booster", "Rare Sp. Atk Booster", "Rare Sp. Def Booster"], weight: 15 },
+                { items: ["Exquisite HP Booster", "Exquisite Attack Booster", "Exquisite Defense Booster", "Exquisite Speed Booster", "Exquisite Sp. Atk Booster", "Exquisite Sp. Def Booster"], weight: 5 }
+            ];
+            const rand = Math.random() * 100;
+            let currentWeight = 0;
+            for (const tier of tiers) {
+                currentWeight += tier.weight;
+                if (rand < currentWeight) {
+                    rewardItem = tier.items[Math.floor(Math.random() * tier.items.length)];
+                    break;
+                }
+            }
+        }
     }
 
     if (questType === 'catch') {
@@ -18086,6 +18139,46 @@ window.sellStoreItem = function(playerNum, itemName, sellPrice) {
     });
 };
 
+window.getItemSellPrice = function(itemName) {
+    const items = [
+        { name: "Repellent", icon: "🧴", price: 170, desc: "Stops wild creature attacks for 60 seconds." },
+        { name: "HP Booster", icon: "💚", price: 270, desc: "Permanently raises creature's HP by 10." },
+        { name: "Attack Booster", icon: "⚔️", price: 240, desc: "Permanently raises creature's Attack by 5." },
+        { name: "Defense Booster", icon: "🛡️", price: 240, desc: "Permanently raises creature's Defense by 5." },
+        { name: "Speed Booster", icon: "⚡", price: 240, desc: "Permanently raises creature's Speed by 5." },
+        { name: "Sp. Atk Booster", icon: "🔮", price: 240, desc: "Permanently raises creature's Sp. Atk by 5." },
+        { name: "Sp. Def Booster", icon: "🧿", price: 240, desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Jank Juice", icon: "🧃", price: 270, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },
+        { name: "Healing Juice Bottle", icon: "🧪", price: 160, desc: "Heals one creature or revives with 50% HP." },
+        { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures." },
+        { name: "ExPALL", icon: "✨", price: 370, desc: "Allows whole party to receive battle experience for 180s." },
+        { name: "Creature License", icon: "🎫", price: 295, desc: "Boosts wild capture success rate. Consumed only on success." },
+        { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
+        { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
+        { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
+        { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
+        { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
+        { name: "Bundle of Wood", icon: "🪵", price: 120, desc: "A bundle of sturdy wood used for crafting home base foundations and walls." },
+        { name: "Bundle of Stone", icon: "🪨", price: 180, desc: "A bundle of solid stone blocks for advanced base building." },
+        { name: "Bundle of Metal", icon: "🔩", price: 250, desc: "A bundle of high-grade metal for constructing durable sci-fi base elements." },
+        { name: "Holo-Wall Blueprint", icon: "🖲️", price: 350, desc: "A blueprint to project a high-tech holographic wall for your home base." },
+        { name: "Solar Panel", icon: "🔋", price: 500, desc: "A solar panel that provides passive energy generation for home bases." },
+        { name: "Storage Chest", icon: "🧳", price: 150, desc: "A secure chest to store items within your home base." },
+        { name: "Wild Dual Signal", icon: "📶", price: 250, desc: "Guarantees encountering wild dual battles for 5 minutes." },
+        { name: "NPC Dual Link", icon: "📡", price: 250, desc: "Guarantees encountering cooperative 2v2 NPC trainer battles for 5 minutes." }
+    ];
+    let price = 50;
+    const item = items.find(i => i.name === itemName);
+    if (item && item.price) {
+        price = Math.floor(item.price * 0.55);
+    } else {
+        if (itemName.startsWith("Uncommon")) price = 150;
+        else if (itemName.startsWith("Rare")) price = 300;
+        else if (itemName.startsWith("Exquisite")) price = 500;
+    }
+    return price;
+};
+
 window.calculateCreatureSellPrice = function(c) {
     if (!c) return 0;
 
@@ -18410,7 +18503,7 @@ const categoryOrder = {
                 btnText = "Too Expensive";
             }
 
-            const sellPrice = Math.floor(item.price * 0.55);
+            let sellPrice = window.getItemSellPrice ? window.getItemSellPrice(item.name) : (item.price ? Math.floor(item.price * 0.55) : 50);
             const canSell = ownedCount > 0;
             const sellBtnStyle = canSell
                 ? "background: linear-gradient(180deg, #ff9800, #f57c00); border: 1px solid #ffcc80; cursor: pointer;"
@@ -18940,25 +19033,35 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             let statName = "";
             let boostAmount = 5;
 
-            if (item.name === "HP Booster") {
-                statName = "health";
+            let hpBoostMultiplier = 2; // HP gets double the base boost typically
+
+            if (item.name.startsWith("Uncommon")) {
                 boostAmount = 10;
-                creature.bonusStats.health += boostAmount;
+            } else if (item.name.startsWith("Rare")) {
+                boostAmount = 15;
+            } else if (item.name.startsWith("Exquisite")) {
+                boostAmount = 25;
+            }
+
+            if (item.name.includes("HP Booster")) {
+                statName = "health";
+                let hpBoost = item.name === "HP Booster" ? 10 : boostAmount * hpBoostMultiplier;
+                creature.bonusStats.health += hpBoost;
                 const newMax = window.getEffectiveStat(creature, 'health');
-                creature.currentHp = Math.min((creature.currentHp || 0) + boostAmount, newMax);
-            } else if (item.name === "Attack Booster") {
+                creature.currentHp = Math.min((creature.currentHp || 0) + hpBoost, newMax);
+            } else if (item.name.includes("Attack Booster")) {
                 statName = "attack";
                 creature.bonusStats.attack += boostAmount;
-            } else if (item.name === "Defense Booster") {
+            } else if (item.name.includes("Defense Booster")) {
                 statName = "defense";
                 creature.bonusStats.defense += boostAmount;
-            } else if (item.name === "Speed Booster") {
+            } else if (item.name.includes("Speed Booster")) {
                 statName = "speed";
                 creature.bonusStats.speed += boostAmount;
-            } else if (item.name === "Sp. Atk Booster") {
+            } else if (item.name.includes("Sp. Atk Booster")) {
                 statName = "specialAttack";
                 creature.bonusStats.specialAttack += boostAmount;
-            } else if (item.name === "Sp. Def Booster") {
+            } else if (item.name.includes("Sp. Def Booster")) {
                 statName = "specialDefense";
                 creature.bonusStats.specialDefense += boostAmount;
             }
@@ -19284,12 +19387,23 @@ window.getItemIconHTML = function(itemName, size = 24) {
 
     // Choose theme colors based on item type
     if (itemName.includes("Booster")) {
-        if (itemName.startsWith("HP")) glowColor = '#00ff66';
-        else if (itemName.startsWith("Attack")) glowColor = '#ff3366';
-        else if (itemName.startsWith("Defense")) glowColor = '#0066ff';
-        else if (itemName.startsWith("Speed")) glowColor = '#ffd700';
-        else if (itemName.startsWith("Sp. Atk")) glowColor = '#ff00ff';
-        else if (itemName.startsWith("Sp. Def")) glowColor = '#00ffff';
+        if (itemName.includes("HP")) glowColor = '#00ff66';
+        else if (itemName.includes("Attack")) glowColor = '#ff3366';
+        else if (itemName.includes("Defense")) glowColor = '#0066ff';
+        else if (itemName.includes("Speed")) glowColor = '#ffd700';
+        else if (itemName.includes("Sp. Atk")) glowColor = '#ff00ff';
+        else if (itemName.includes("Sp. Def")) glowColor = '#00ffff';
+
+        if (itemName.startsWith("Uncommon")) {
+            glowColor = '#00ccff'; // Cyan for Uncommon
+            baseColor = '#0f1f3f';
+        } else if (itemName.startsWith("Rare")) {
+            glowColor = '#ff00ff'; // Magenta for Rare
+            baseColor = '#2a0a2a';
+        } else if (itemName.startsWith("Exquisite")) {
+            glowColor = '#ffcc00'; // Gold for Exquisite
+            baseColor = '#3a2a00';
+        }
     } else if (itemName.includes("Healing") || itemName.includes("Serum")) {
         glowColor = '#00ff96';
     } else if (itemName === "Jank Juice") {
@@ -19390,6 +19504,42 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "Healing Juice Jug": "🏺",
         "ExPALL": "✨",
         "Creature License": "🎫",
+        "Uncommon HP Booster": "💚",
+        "Uncommon Attack Booster": "⚔️",
+        "Uncommon Defense Booster": "🛡️",
+        "Uncommon Speed Booster": "⚡",
+        "Uncommon Sp. Atk Booster": "🔮",
+        "Uncommon Sp. Def Booster": "🧿",
+        "Rare HP Booster": "💚",
+        "Rare Attack Booster": "⚔️",
+        "Rare Defense Booster": "🛡️",
+        "Rare Speed Booster": "⚡",
+        "Rare Sp. Atk Booster": "🔮",
+        "Rare Sp. Def Booster": "🧿",
+        "Exquisite HP Booster": "💚",
+        "Exquisite Attack Booster": "⚔️",
+        "Exquisite Defense Booster": "🛡️",
+        "Exquisite Speed Booster": "⚡",
+        "Exquisite Sp. Atk Booster": "🔮",
+        "Exquisite Sp. Def Booster": "🧿",
+        "Uncommon HP Booster": "💚",
+        "Uncommon Attack Booster": "⚔️",
+        "Uncommon Defense Booster": "🛡️",
+        "Uncommon Speed Booster": "⚡",
+        "Uncommon Sp. Atk Booster": "🔮",
+        "Uncommon Sp. Def Booster": "🧿",
+        "Rare HP Booster": "💚",
+        "Rare Attack Booster": "⚔️",
+        "Rare Defense Booster": "🛡️",
+        "Rare Speed Booster": "⚡",
+        "Rare Sp. Atk Booster": "🔮",
+        "Rare Sp. Def Booster": "🧿",
+        "Exquisite HP Booster": "💚",
+        "Exquisite Attack Booster": "⚔️",
+        "Exquisite Defense Booster": "🛡️",
+        "Exquisite Speed Booster": "⚡",
+        "Exquisite Sp. Atk Booster": "🔮",
+        "Exquisite Sp. Def Booster": "🧿",
         "Creature Cookie": "🍪",
         "Pedometer": "👣",
         "Cyber-Core Upgrade": "🔘",
@@ -19475,11 +19625,17 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <circle cx="78" cy="12" r="2" fill="#ff3300" />`;
             break;
         case "HP Booster":
+        case "Uncommon HP Booster":
+        case "Rare HP Booster":
+        case "Exquisite HP Booster":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff66" stroke-width="4"/>
                 <circle cx="50" cy="50" r="30" fill="none" stroke="#00ff66" stroke-width="2" stroke-dasharray="4,4" />
                 <path d="M50,30 C45,20 25,20 25,40 C25,60 50,80 50,80 C50,80 75,60 75,40 C75,20 55,20 50,30 Z" fill="#00ff66" filter="url(#glow)"/>`;
             break;
         case "Attack Booster":
+        case "Uncommon Attack Booster":
+        case "Rare Attack Booster":
+        case "Exquisite Attack Booster":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3366" stroke-width="4"/>
                 <path d="M20,80 L40,60 L50,65 L30,85 Z" fill="#ff3366" />
                 <path d="M80,20 L60,40 L50,35 L70,15 Z" fill="#ff3366" />
@@ -19488,23 +19644,35 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <circle cx="50" cy="50" r="10" fill="none" stroke="#ff3366" stroke-width="3" />`;
             break;
         case "Defense Booster":
+        case "Uncommon Defense Booster":
+        case "Rare Defense Booster":
+        case "Exquisite Defense Booster":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#0066ff" stroke-width="4"/>
                 <path d="M30,25 L50,15 L70,25 L70,55 C70,70 50,85 50,85 C50,85 30,70 30,55 Z" fill="#0066ff" filter="url(#glow)"/>
                 <path d="M35,30 L50,22 L65,30 L65,53 C65,65 50,77 50,77 C50,77 35,65 35,53 Z" fill="#fff" opacity="0.3" />`;
             break;
         case "Speed Booster":
+        case "Uncommon Speed Booster":
+        case "Rare Speed Booster":
+        case "Exquisite Speed Booster":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
                 <path d="M60,15 L25,55 L50,55 L35,85 L80,45 L50,45 Z" fill="#ffd700" filter="url(#glow)"/>
                 <line x1="15" y1="35" x2="35" y2="35" stroke="#ffd700" stroke-width="3" stroke-linecap="round" />
                 <line x1="10" y1="50" x2="30" y2="50" stroke="#ffd700" stroke-width="3" stroke-linecap="round" />`;
             break;
         case "Sp. Atk Booster":
+        case "Uncommon Sp. Atk Booster":
+        case "Rare Sp. Atk Booster":
+        case "Exquisite Sp. Atk Booster":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
                 <circle cx="50" cy="50" r="20" fill="none" stroke="#ff00ff" stroke-width="3" />
                 <path d="M50,15 C60,25 65,40 50,50 C35,60 40,75 50,85" fill="none" stroke="#ff00ff" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
                 <circle cx="50" cy="50" r="6" fill="#fff" />`;
             break;
         case "Sp. Def Booster":
+        case "Uncommon Sp. Def Booster":
+        case "Rare Sp. Def Booster":
+        case "Exquisite Sp. Def Booster":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffff" stroke-width="4"/>
                 <circle cx="50" cy="50" r="30" fill="none" stroke="#00ffff" stroke-width="3" filter="url(#glow)" />
                 <circle cx="50" cy="50" r="15" fill="none" stroke="#00ffff" stroke-width="1" stroke-dasharray="4,2" />
@@ -20283,6 +20451,42 @@ window.updateInventoryUI = function() {
         "Healing Juice Jug": "🏺",
         "ExPALL": "✨",
         "Creature License": "🎫",
+        "Uncommon HP Booster": "💚",
+        "Uncommon Attack Booster": "⚔️",
+        "Uncommon Defense Booster": "🛡️",
+        "Uncommon Speed Booster": "⚡",
+        "Uncommon Sp. Atk Booster": "🔮",
+        "Uncommon Sp. Def Booster": "🧿",
+        "Rare HP Booster": "💚",
+        "Rare Attack Booster": "⚔️",
+        "Rare Defense Booster": "🛡️",
+        "Rare Speed Booster": "⚡",
+        "Rare Sp. Atk Booster": "🔮",
+        "Rare Sp. Def Booster": "🧿",
+        "Exquisite HP Booster": "💚",
+        "Exquisite Attack Booster": "⚔️",
+        "Exquisite Defense Booster": "🛡️",
+        "Exquisite Speed Booster": "⚡",
+        "Exquisite Sp. Atk Booster": "🔮",
+        "Exquisite Sp. Def Booster": "🧿",
+        "Uncommon HP Booster": "💚",
+        "Uncommon Attack Booster": "⚔️",
+        "Uncommon Defense Booster": "🛡️",
+        "Uncommon Speed Booster": "⚡",
+        "Uncommon Sp. Atk Booster": "🔮",
+        "Uncommon Sp. Def Booster": "🧿",
+        "Rare HP Booster": "💚",
+        "Rare Attack Booster": "⚔️",
+        "Rare Defense Booster": "🛡️",
+        "Rare Speed Booster": "⚡",
+        "Rare Sp. Atk Booster": "🔮",
+        "Rare Sp. Def Booster": "🧿",
+        "Exquisite HP Booster": "💚",
+        "Exquisite Attack Booster": "⚔️",
+        "Exquisite Defense Booster": "🛡️",
+        "Exquisite Speed Booster": "⚡",
+        "Exquisite Sp. Atk Booster": "🔮",
+        "Exquisite Sp. Def Booster": "🧿",
         "Creature Cookie": "🍪",
         "Pedometer": "👣",
         "Cyber-Core Upgrade": "🔘",

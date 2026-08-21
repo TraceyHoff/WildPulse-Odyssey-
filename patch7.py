@@ -1,8 +1,12 @@
-<<<<<<< SEARCH
-        { name: "Sp. Def Booster", icon: "🧿", price: 240, desc: "Permanently raises creature's Sp. Def by 5." },
-        { name: "Jank Juice", icon: "🧃", price: 270, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },
-=======
-        { name: "Sp. Def Booster", icon: "🧿", price: 240, desc: "Permanently raises creature's Sp. Def by 5." },
+import sys
+
+with open("index.html", "r") as f:
+    content = f.read()
+
+search_str = """        { name: "Sp. Def Booster", icon: "🧿", price: 240, desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Jank Juice", icon: "🧃", price: 270, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },"""
+
+replace_str = """        { name: "Sp. Def Booster", icon: "🧿", price: 240, desc: "Permanently raises creature's Sp. Def by 5." },
         { name: "Uncommon HP Booster", icon: "💚", price: 400, desc: "Permanently raises creature's HP by 20." },
         { name: "Uncommon Attack Booster", icon: "⚔️", price: 350, desc: "Permanently raises creature's Attack by 10." },
         { name: "Uncommon Defense Booster", icon: "🛡️", price: 350, desc: "Permanently raises creature's Defense by 10." },
@@ -21,5 +25,13 @@
         { name: "Exquisite Speed Booster", icon: "⚡", price: 900, desc: "Permanently raises creature's Speed by 25." },
         { name: "Exquisite Sp. Atk Booster", icon: "🔮", price: 900, desc: "Permanently raises creature's Sp. Atk by 25." },
         { name: "Exquisite Sp. Def Booster", icon: "🧿", price: 900, desc: "Permanently raises creature's Sp. Def by 25." },
-        { name: "Jank Juice", icon: "🧃", price: 270, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },
->>>>>>> REPLACE
+        { name: "Jank Juice", icon: "🧃", price: 270, desc: "Greatly increases wild shiny spawn rate for 6 minutes." },"""
+
+if search_str in content:
+    print("Found Jank Juice!")
+    content = content.replace(search_str, replace_str)
+else:
+    print("Jank Juice not found!")
+
+with open("index.html", "w") as f:
+    f.write(content)

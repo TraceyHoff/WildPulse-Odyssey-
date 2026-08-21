@@ -1,5 +1,9 @@
-<<<<<<< SEARCH
-            if (item.name === "HP Booster") {
+import sys
+
+with open("index.html", "r") as f:
+    content = f.read()
+
+search_str = """            if (item.name === "HP Booster") {
                 statName = "health";
                 boostAmount = 10;
                 creature.bonusStats.health += boostAmount;
@@ -20,9 +24,9 @@
             } else if (item.name === "Sp. Def Booster") {
                 statName = "specialDefense";
                 creature.bonusStats.specialDefense += boostAmount;
-            }
-=======
-            let hpBoostMultiplier = 2; // HP gets double the base boost typically
+            }"""
+
+replace_str = """            let hpBoostMultiplier = 2; // HP gets double the base boost typically
 
             if (item.name.startsWith("Uncommon")) {
                 boostAmount = 10;
@@ -53,5 +57,9 @@
             } else if (item.name.includes("Sp. Def Booster")) {
                 statName = "specialDefense";
                 creature.bonusStats.specialDefense += boostAmount;
-            }
->>>>>>> REPLACE
+            }"""
+
+if search_str in content:
+    print("Found! Replacing.")
+else:
+    print("Not found.")

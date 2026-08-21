@@ -1,64 +1,49 @@
-import re
+import sys
 
-with open('index.html', 'r') as f:
-    text = f.read()
+with open("index.html", "r") as f:
+    content = f.read()
 
-# Replace setAngle calls for preview rotation
+search_str = """    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];"""
+replace_str = """    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
+    const uncommonStatBoosters = ["Uncommon HP Booster", "Uncommon Attack Booster", "Uncommon Defense Booster", "Uncommon Speed Booster", "Uncommon Sp. Atk Booster", "Uncommon Sp. Def Booster"];
+    const rareStatBoosters = ["Rare HP Booster", "Rare Attack Booster", "Rare Defense Booster", "Rare Speed Booster", "Rare Sp. Atk Booster", "Rare Sp. Def Booster"];
+    const exquisiteStatBoosters = ["Exquisite HP Booster", "Exquisite Attack Booster", "Exquisite Defense Booster", "Exquisite Speed Booster", "Exquisite Sp. Atk Booster", "Exquisite Sp. Def Booster"];
+"""
 
-# 1. In gamepad handling:
-text = re.sub(
-    r"window\[previewSpriteId\]\.setAngle\(window\[`p\$\{playerNum\}MiniTileRotation`\]\);",
-    r"""let rot = window[`p${playerNum}MiniTileRotation`];
-                let textureKey = window[`p${playerNum}MiniTilePreviewSprite`].texture.key.replace(/_\d+$/, '');
-                if (textureKey.startsWith('furniture_')) {
-                    if (rot !== 0) {
-                        window[previewSpriteId].setTexture(textureKey + '_' + rot);
-                    } else {
-                        window[previewSpriteId].setTexture(textureKey);
-                    }
-                    window[previewSpriteId].setAngle(0);
-                } else {
-                    window[previewSpriteId].setAngle(rot);
-                }""",
-    text
-)
+if search_str in content:
+    print("Found itemsPool!")
+else:
+    print("itemsPool Not found.")
 
-# 2. In keyboard p1 handling:
-text = re.sub(
-    r"window\.p1MiniTilePreviewSprite\.setAngle\(window\.p1MiniTileRotation\);",
-    r"""let rot = window.p1MiniTileRotation;
-                    let textureKey = window.p1MiniTilePreviewSprite.texture.key.replace(/_\d+$/, '');
-                    if (textureKey.startsWith('furniture_')) {
-                        if (rot !== 0) {
-                            window.p1MiniTilePreviewSprite.setTexture(textureKey + '_' + rot);
-                        } else {
-                            window.p1MiniTilePreviewSprite.setTexture(textureKey);
-                        }
-                        window.p1MiniTilePreviewSprite.setAngle(0);
-                    } else {
-                        window.p1MiniTilePreviewSprite.setAngle(rot);
-                    }""",
-    text
-)
+search_str2 = """    if (pLevel >= 10 && Math.random() < 0.15) {
+        rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+    } else if (Math.random() < 0.35) {
+        rewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+    }"""
+replace_str2 = """    if (pLevel >= 10 && Math.random() < 0.15) {
+        rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+    } else if (Math.random() < 0.35) {
+        rewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+        if (rewardItem === "Stat Boosters") {
+            const tiers = [
+                { items: ["HP Booster", "Attack Booster", "Defense Booster", "Speed Booster", "Sp. Atk Booster", "Sp. Def Booster"], weight: 50 },
+                { items: ["Uncommon HP Booster", "Uncommon Attack Booster", "Uncommon Defense Booster", "Uncommon Speed Booster", "Uncommon Sp. Atk Booster", "Uncommon Sp. Def Booster"], weight: 30 },
+                { items: ["Rare HP Booster", "Rare Attack Booster", "Rare Defense Booster", "Rare Speed Booster", "Rare Sp. Atk Booster", "Rare Sp. Def Booster"], weight: 15 },
+                { items: ["Exquisite HP Booster", "Exquisite Attack Booster", "Exquisite Defense Booster", "Exquisite Speed Booster", "Exquisite Sp. Atk Booster", "Exquisite Sp. Def Booster"], weight: 5 }
+            ];
+            const rand = Math.random() * 100;
+            let currentWeight = 0;
+            for (const tier of tiers) {
+                currentWeight += tier.weight;
+                if (rand < currentWeight) {
+                    rewardItem = tier.items[Math.floor(Math.random() * tier.items.length)];
+                    break;
+                }
+            }
+        }
+    }"""
 
-# 3. In keyboard p2 handling:
-text = re.sub(
-    r"window\.p2MiniTilePreviewSprite\.setAngle\(window\.p2MiniTileRotation\);",
-    r"""let rot = window.p2MiniTileRotation;
-                    let textureKey = window.p2MiniTilePreviewSprite.texture.key.replace(/_\d+$/, '');
-                    if (textureKey.startsWith('furniture_')) {
-                        if (rot !== 0) {
-                            window.p2MiniTilePreviewSprite.setTexture(textureKey + '_' + rot);
-                        } else {
-                            window.p2MiniTilePreviewSprite.setTexture(textureKey);
-                        }
-                        window.p2MiniTilePreviewSprite.setAngle(0);
-                    } else {
-                        window.p2MiniTilePreviewSprite.setAngle(rot);
-                    }""",
-    text
-)
-
-with open('index.html', 'w') as f:
-    f.write(text)
-print("done")
+if search_str2 in content:
+    print("Found rewardItem generation logic!")
+else:
+    print("rewardItem generation logic Not found.")
