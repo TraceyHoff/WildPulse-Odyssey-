@@ -26282,21 +26282,24 @@ window.checkDualBattleFaintsOrEnd = function(callback) {
             window.logBattle(`<span style="color:#55ff55; font-weight:bold;">VICTORY! Both wild creatures have been defeated cooperatively!</span>`);
         }
 
-        // Award 225 gold (modified for passive gold multipliers)
+        const wildLevel = currentEnemy ? (currentEnemy.level || 1) : 1;
+        const coopBaseReward = Math.min(150, 20 + 2 * wildLevel);
+
+        // Award gold (modified for passive gold multipliers)
         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-        let p1CoinsWon = Math.floor(225 * window.getPassiveGoldMultiplier(1));
+        let p1CoinsWon = Math.floor(coopBaseReward * window.getPassiveGoldMultiplier(1));
         window.gameStats.coins += p1CoinsWon;
 
         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-        let p2CoinsWon = Math.floor(225 * window.getPassiveGoldMultiplier(2));
+        let p2CoinsWon = Math.floor(coopBaseReward * window.getPassiveGoldMultiplier(2));
         window.gameStats2.coins += p2CoinsWon;
         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
 
         window.saveStats();
         if (window.updateMenuCoins) window.updateMenuCoins();
 
-        window.logBattle(`Both players received 225 gold coins!`);
+        window.logBattle(`Both players received ${coopBaseReward} gold coins!`);
 
         // Award 80 XP
         window.currentPlayer.xp = (window.currentPlayer.xp || 0) + 80;
@@ -36808,12 +36811,14 @@ window.endBattle = function(result) {
                 window.collectedCreatures2.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, -5, 2));
 
                 window.logBattle(`${window.getP1Name()} wins!`);
+                const opLevel = window.currentPlayer2 ? (window.currentPlayer2.level || 1) : 1;
+                const pvpBaseReward = Math.min(150, 15 + 2 * opLevel);
                 if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                let c1 = Math.floor(80 * window.getPassiveGoldMultiplier(1));
+                let c1 = Math.floor(pvpBaseReward * window.getPassiveGoldMultiplier(1));
                 window.gameStats.coins += c1;
                 if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                 if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                let c2 = Math.floor(2 * window.getPassiveGoldMultiplier(2));
+                let c2 = Math.floor(10 * window.getPassiveGoldMultiplier(2));
                 window.gameStats2.coins += c2;
                 localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                 window.saveStats();
@@ -36824,13 +36829,15 @@ window.endBattle = function(result) {
                 window.collectedCreatures.filter(c => !c.stored).forEach(c => window.adjustHappiness(c, -5, 1));
 
                 window.logBattle(`${window.getP2Name()} wins!`);
+                const opLevel = window.currentPlayer ? (window.currentPlayer.level || 1) : 1;
+                const pvpBaseReward = Math.min(150, 15 + 2 * opLevel);
                 if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                 if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                let c2 = Math.floor(80 * window.getPassiveGoldMultiplier(2));
+                let c2 = Math.floor(pvpBaseReward * window.getPassiveGoldMultiplier(2));
                 window.gameStats2.coins += c2;
                 localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                 if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                let c1 = Math.floor(2 * window.getPassiveGoldMultiplier(1));
+                let c1 = Math.floor(10 * window.getPassiveGoldMultiplier(1));
                 window.gameStats.coins += c1;
                 window.saveStats();
                 window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP2Name()} won ${c2} coins! ${window.getP1Name()} received ${c1} coins!`);
@@ -36854,12 +36861,14 @@ window.endBattle = function(result) {
             }
 
             if (window.isNpcBattle) {
+                const wildLevel = currentEnemy ? (currentEnemy.level || 1) : 1;
+                const npcBaseReward = Math.min(250, 30 + 3 * wildLevel);
                 if (result === 'win') {
                     if (window.activeBattlePlayer === 2) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesWon = (window.gameStats2.battlesWon || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        let rawRew = Math.floor(100 * window.getPassiveGoldMultiplier(2));
+                        let rawRew = Math.floor(npcBaseReward * window.getPassiveGoldMultiplier(2));
                         window.gameStats2.coins += rawRew;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
@@ -36867,7 +36876,7 @@ window.endBattle = function(result) {
                     } else {
                         window.gameStats.battlesWon++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        let rawRew = Math.floor(100 * window.getPassiveGoldMultiplier(1));
+                        let rawRew = Math.floor(npcBaseReward * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += rawRew;
                         window.saveStats();
                         window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} won ${rawRew} coins!`);
@@ -36878,7 +36887,7 @@ window.endBattle = function(result) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesLost = (window.gameStats2.battlesLost || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(2));
+                        let rawRew = Math.floor(10 * window.getPassiveGoldMultiplier(2));
                         window.gameStats2.coins += rawRew;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
@@ -36886,7 +36895,7 @@ window.endBattle = function(result) {
                     } else {
                         window.gameStats.battlesLost++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(1));
+                        let rawRew = Math.floor(10 * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += rawRew;
                         window.saveStats();
                         window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} received ${rawRew} coins on loss.`);
@@ -36894,12 +36903,14 @@ window.endBattle = function(result) {
                     if (window.updateMenuCoins) window.updateMenuCoins();
                 }
             } else if (window.isPvpBattle) {
+                const wildLevel = currentEnemy ? (currentEnemy.level || 1) : 1;
+                const pvpBaseReward = Math.min(150, 15 + 2 * wildLevel);
                 if (window.activeBattlePlayer === 2) {
                     if (result === 'win') {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.pvpBattlesWon = (window.gameStats2.pvpBattlesWon || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        let rawRew = Math.floor(80 * window.getPassiveGoldMultiplier(2));
+                        let rawRew = Math.floor(pvpBaseReward * window.getPassiveGoldMultiplier(2));
                         window.gameStats2.coins += rawRew;
                         window.saveStats();
                         window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP2Name()} won ${rawRew} coins!`);
@@ -36907,7 +36918,7 @@ window.endBattle = function(result) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.pvpBattlesLost = (window.gameStats2.pvpBattlesLost || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(2));
+                        let rawRew = Math.floor(10 * window.getPassiveGoldMultiplier(2));
                         window.gameStats2.coins += rawRew;
                         window.saveStats();
                         window.showModernNotification(`${window.getCoinIconHTML(20)}  Received ${rawRew} coins on loss!`);
@@ -36916,14 +36927,14 @@ window.endBattle = function(result) {
                     if (result === 'win') {
                         window.gameStats.pvpBattlesWon = (window.gameStats.pvpBattlesWon || 0) + 1;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        let rawRew = Math.floor(80 * window.getPassiveGoldMultiplier(1));
+                        let rawRew = Math.floor(pvpBaseReward * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += rawRew;
                         window.saveStats();
                         window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} won ${rawRew} coins!`);
                     } else if (result === 'loss') {
                         window.gameStats.pvpBattlesLost = (window.gameStats.pvpBattlesLost || 0) + 1;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        let rawRew = Math.floor(2 * window.getPassiveGoldMultiplier(1));
+                        let rawRew = Math.floor(10 * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += rawRew;
                         window.saveStats();
                         window.showModernNotification(`${window.getCoinIconHTML(20)}  Received ${rawRew} coins on loss!`);
@@ -36935,7 +36946,7 @@ window.endBattle = function(result) {
             } else {
                 if (result === 'win') {
                     const wildLevel = currentEnemy ? (currentEnemy.level || 1) : 1;
-                    const baseReward = Math.min(260, 20 + 2 * wildLevel);
+                    const baseReward = Math.min(150, 15 + 2 * wildLevel);
 
                     if (window.activeBattlePlayer === 2) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
@@ -36960,7 +36971,7 @@ window.endBattle = function(result) {
                         if (!window.gameStats2) window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || { battlesWon: 0, battlesLost: 0, coins: 0 };
                         window.gameStats2.battlesLost = (window.gameStats2.battlesLost || 0) + 1;
                         if (window.gameStats2.coins === undefined) window.gameStats2.coins = 0;
-                        let coinReward = Math.floor(2 * window.getPassiveGoldMultiplier(2));
+                        let coinReward = Math.floor(10 * window.getPassiveGoldMultiplier(2));
                         window.gameStats2.coins += coinReward;
                         localStorage.setItem('wildpulse_stats2', JSON.stringify(window.gameStats2));
                         window.saveStats();
@@ -36968,7 +36979,7 @@ window.endBattle = function(result) {
                     } else {
                         window.gameStats.battlesLost++;
                         if (window.gameStats.coins === undefined) window.gameStats.coins = 0;
-                        let coinReward = Math.floor(2 * window.getPassiveGoldMultiplier(1));
+                        let coinReward = Math.floor(10 * window.getPassiveGoldMultiplier(1));
                         window.gameStats.coins += coinReward;
                         window.saveStats();
                         window.showModernNotification(`${window.getCoinIconHTML(20)}  ${window.getP1Name()} received ${coinReward} coins on loss.`);
