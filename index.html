@@ -4607,7 +4607,8 @@ window.updateStorageChestUI = function(playerNum) {
         for (let i = 0; i < maxSlots; i++) {
             const item = chestItems[i];
             if (item) {
-                const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 28) : (itemIcons[item.name] || "📦");
+                const baseItemName = window.getBaseItemName ? window.getBaseItemName(item.name) : item.name;
+                const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 28) : (itemIcons[baseItemName] || "📦");
                 slotsHtml += `
                     <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -4641,7 +4642,8 @@ window.updateStorageChestUI = function(playerNum) {
         for (let i = 0; i < 3; i++) {
             const item = inv[i];
             if (item) {
-                const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 28) : (itemIcons[item.name] || "📦");
+                const baseItemName = window.getBaseItemName ? window.getBaseItemName(item.name) : item.name;
+                const icon = window.getItemIconHTML ? window.getItemIconHTML(item.name, 28) : (itemIcons[baseItemName] || "📦");
                 invHtml += `
                     <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -4812,11 +4814,17 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     let rewardXp = 50 + Math.floor(Math.random() * 50);
     let rewardItem = null;
 
-    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
+    const itemsPool = ["HP Booster", "Attack Booster", "Defense Booster", "Speed Booster", "Sp. Atk Booster", "Sp. Def Booster", "Healing Juice Bottle", "Healing Juice Jug", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
     if (pLevel >= 10 && Math.random() < 0.15) {
         rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
     } else if (Math.random() < 0.35) {
-        rewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+        let baseItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+        let rarityRoll = Math.random();
+        let rarityPrefix = "";
+        if (rarityRoll < 0.15) rarityPrefix = "Exquisite ";
+        else if (rarityRoll < 0.50) rarityPrefix = "Rare ";
+        else rarityPrefix = "Uncommon ";
+        rewardItem = rarityPrefix + baseItem;
     }
 
     if (questType === 'catch') {
@@ -17607,6 +17615,22 @@ window.p1StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p1'
 window.p2StoreStock = JSON.parse(localStorage.getItem('wildpulse_store_stock_p2')) || JSON.parse(JSON.stringify(defaultStock));
 window.wildpulse_lastReplenishDay = parseInt(localStorage.getItem('wildpulse_last_replenish_day')) || 0;
 
+window.getBaseItemName = function(itemName) {
+    if (!itemName) return "";
+    if (itemName.startsWith("Uncommon ")) return itemName.replace("Uncommon ", "");
+    if (itemName.startsWith("Rare ")) return itemName.replace("Rare ", "");
+    if (itemName.startsWith("Exquisite ")) return itemName.replace("Exquisite ", "");
+    return itemName;
+};
+
+window.getItemRarityMultiplier = function(itemName) {
+    if (!itemName) return 1.0;
+    if (itemName.startsWith("Uncommon ")) return 1.5;
+    if (itemName.startsWith("Rare ")) return 2.0;
+    if (itemName.startsWith("Exquisite ")) return 3.0;
+    return 1.0;
+};
+
 window.p1RepellentTime = parseFloat(localStorage.getItem('wildpulse_p1RepellentTime')) || 0;
 window.p2RepellentTime = parseFloat(localStorage.getItem('wildpulse_p2RepellentTime')) || 0;
 window.p1JankJuiceTime = parseFloat(localStorage.getItem('wildpulse_p1JankJuiceTime')) || 0;
@@ -18196,6 +18220,27 @@ const categoryOrder = {
         const currentTab = playerNum === 2 ? (window.p2StoreTab || 'items') : (window.p1StoreTab || 'items');
         let displayedItems = currentTab === 'home' ? homeItems : activeItems;
 
+        // Inject rarities from inventory so they can be sold
+        const pInv = playerNum === 2 ? (window.p2Inventory || []) : (window.p1Inventory || []);
+        pInv.forEach(invItem => {
+            if (invItem.name !== window.getBaseItemName(invItem.name)) {
+                // It's a rarity item, check if it's already in displayedItems
+                if (!displayedItems.find(i => i.name === invItem.name)) {
+                    // Find it in the currently displayed tab to ensure we only show rarities relevant to the current view
+                    const baseItem = displayedItems.find(i => i.name === window.getBaseItemName(invItem.name));
+                    if (baseItem) {
+                        const mult = window.getItemRarityMultiplier ? window.getItemRarityMultiplier(invItem.name) : 1;
+                        displayedItems.push({
+                            ...baseItem,
+                            name: invItem.name,
+                            price: Math.floor(baseItem.price * mult),
+                            isRarity: true
+                        });
+                    }
+                }
+            }
+        });
+
         let html = `
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
                 ${window.getCoinIconHTML(20)} Coins: <span style="font-size: 18px;">${coins}</span>
@@ -18243,13 +18288,16 @@ const categoryOrder = {
                 reqText = `Req. Lv ${item.reqLevel}`;
             }
 
-            const canBuy = canAfford && hasSpace && hasStock && meetsLevel;
+            const isRarity = item.isRarity;
+            const canBuy = canAfford && hasSpace && hasStock && meetsLevel && !isRarity;
             const btnStyle = canBuy
                 ? "background: linear-gradient(180deg, #4caf50, #2e7d32); border: 1px solid #a5d6a7; cursor: pointer;"
                 : "background: #555; border: 1px solid #777; cursor: not-allowed; opacity: 0.6;";
 
             let btnText = "Buy";
-            if (!meetsLevel) {
+            if (isRarity) {
+                btnText = "Find Only";
+            } else if (!meetsLevel) {
                 btnText = reqText;
             } else if (!hasSpace) {
                 btnText = "Full";
@@ -18279,7 +18327,7 @@ const categoryOrder = {
                             <span style="font-size: 12px; color: #aaa; margin-right: 5px;">Buy:</span>
                             <span style="font-size: 13px; font-weight: bold; color: #ffd700;">${window.getCoinIconHTML(16)} ${displayedPrice}</span>
                         </div>
-                        <button class="buy-item-btn" onclick="window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}">
+                        <button class="buy-item-btn" onclick="${canBuy ? `window.buyStoreItem(${playerNum}, '${item.name}', ${item.price})` : ''}" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; color: white; width: 100%; transition: all 0.2s; ${btnStyle}" ${!canBuy ? 'disabled' : ''}>
                             ${btnText}
                         </button>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
@@ -18634,7 +18682,10 @@ window.useInventoryItem = function(playerNum, slotIndex) {
     const item = inv[slotIndex];
     if (!item) return;
 
-    if (item.name === "Creature License") {
+    const baseItemName = window.getBaseItemName ? window.getBaseItemName(item.name) : item.name;
+    const rarityMultiplier = window.getItemRarityMultiplier ? window.getItemRarityMultiplier(item.name) : 1;
+
+    if (baseItemName === "Creature License") {
         window.showModernNotification("🎫 This item cannot be used directly. It automatically boosts capture rates in battles and is consumed only upon a successful catch!", 3000, playerNum);
         return;
     }
@@ -18649,7 +18700,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.updateStoreUI) window.updateStoreUI();
     };
 
-    if (item.name === "Bundle of Wood") {
+    if (baseItemName === "Bundle of Wood") {
         if (window.closeActionWheel) window.closeActionWheel(playerNum);
         if (window.closeInventoryModal) window.closeInventoryModal();
 
@@ -18670,73 +18721,73 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         return; // Wait for placement
     }
 
-    if (item.name === "Repellent") {
+    if (baseItemName === "Repellent") {
         if (playerNum === 2) {
-            window.p2RepellentTime = (window.p2RepellentTime || 0) + 60000;
+            window.p2RepellentTime = (window.p2RepellentTime || 0) + (60000 * rarityMultiplier);
         } else {
-            window.p1RepellentTime = (window.p1RepellentTime || 0) + 60000;
+            window.p1RepellentTime = (window.p1RepellentTime || 0) + (60000 * rarityMultiplier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("🧴 Repellent active! Wild encounters prevented for 60 seconds.", 3000, playerNum);
     }
-    else if (item.name === "Pedometer") {
+    else if (baseItemName === "Pedometer") {
         if (playerNum === 2) {
-            window.p2PedometerTime = (window.p2PedometerTime || 0) + 60000;
+            window.p2PedometerTime = (window.p2PedometerTime || 0) + (60000 * rarityMultiplier);
         } else {
-            window.p1PedometerTime = (window.p1PedometerTime || 0) + 60000;
+            window.p1PedometerTime = (window.p1PedometerTime || 0) + (60000 * rarityMultiplier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("👣 Pedometer active! Egg hatching progress is doubled for 60 seconds.", 3000, playerNum);
     }
-    else if (item.name === "Jank Juice") {
+    else if (baseItemName === "Jank Juice") {
         if (playerNum === 2) {
-            window.p2JankJuiceTime = (window.p2JankJuiceTime || 0) + 360000;
+            window.p2JankJuiceTime = (window.p2JankJuiceTime || 0) + (360000 * rarityMultiplier);
         } else {
-            window.p1JankJuiceTime = (window.p1JankJuiceTime || 0) + 360000;
+            window.p1JankJuiceTime = (window.p1JankJuiceTime || 0) + (360000 * rarityMultiplier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("🧃 Jank Juice active! Wild shiny spawn rates significantly increased for 6 minutes.", 3000, playerNum);
     }
-    else if (item.name === "ExPALL") {
+    else if (baseItemName === "ExPALL") {
         if (playerNum === 2) {
-            window.p2ExPallTime = (window.p2ExPallTime || 0) + 180000;
+            window.p2ExPallTime = (window.p2ExPallTime || 0) + (180000 * rarityMultiplier);
         } else {
-            window.p1ExPallTime = (window.p1ExPallTime || 0) + 180000;
+            window.p1ExPallTime = (window.p1ExPallTime || 0) + (180000 * rarityMultiplier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 180 seconds.", 3000, playerNum);
     }
-    else if (item.name === "NPC Dual Link") {
+    else if (baseItemName === "NPC Dual Link") {
         if (playerNum === 2) {
-            window.p2NpcDualTime = (window.p2NpcDualTime || 0) + 300000;
+            window.p2NpcDualTime = (window.p2NpcDualTime || 0) + (300000 * rarityMultiplier);
         } else {
-            window.p1NpcDualTime = (window.p1NpcDualTime || 0) + 300000;
+            window.p1NpcDualTime = (window.p1NpcDualTime || 0) + (300000 * rarityMultiplier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("📡 NPC Dual Link active! Cooperative 2v2 NPC Trainer battles guaranteed for 5 minutes.", 3000, playerNum);
     }
-    else if (item.name === "Wild Dual Signal") {
+    else if (baseItemName === "Wild Dual Signal") {
         if (playerNum === 2) {
-            window.p2WildDualTime = (window.p2WildDualTime || 0) + 300000;
+            window.p2WildDualTime = (window.p2WildDualTime || 0) + (300000 * rarityMultiplier);
         } else {
-            window.p1WildDualTime = (window.p1WildDualTime || 0) + 300000;
+            window.p1WildDualTime = (window.p1WildDualTime || 0) + (300000 * rarityMultiplier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
         window.showModernNotification("📶 Wild Dual Signal active! Wild Dual battles guaranteed for 5 minutes.", 3000, playerNum);
     }
-    else if (item.name === "Healing Juice Jug") {
+    else if (baseItemName === "Healing Juice Jug") {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         const activeParty = party.filter(c => !c.stored && !c.isEgg);
 
@@ -18758,7 +18809,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
         window.showModernNotification("🏺 Fully healed and revived all active party creatures!", 3000, playerNum);
     }
-    else if (item.name === "Healing Juice Bottle") {
+    else if (baseItemName === "Healing Juice Bottle") {
         window.promptCreatureSelection(playerNum, "Choose Creature to Heal", (creature) => {
             const maxHp = window.getEffectiveStat(creature, 'health');
             const wasFainted = creature.currentHp <= 0;
@@ -18777,37 +18828,37 @@ window.useInventoryItem = function(playerNum, slotIndex) {
 
             consumeItem();
             if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
-            window.showModernNotification(`🧪 ${creature.nickname || creature.name} has been ${wasFainted ? 'revived with 50% HP' : 'fully healed'}!`, 3000, playerNum);
+            window.showModernNotification(`🧪 ${creature.nickname || creature.name} has been ${wasFainted ? 'revived' : 'fully healed'}!`, 3000, playerNum);
         });
     }
-    else if (item.name.endsWith("Booster")) {
+    else if (baseItemName.endsWith("Booster")) {
         window.promptCreatureSelection(playerNum, `Boost Stats of Which Creature?`, (creature) => {
             if (!creature.bonusStats) {
                 creature.bonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
             }
 
             let statName = "";
-            let boostAmount = 5;
+            let boostAmount = Math.floor(5 * rarityMultiplier);
 
-            if (item.name === "HP Booster") {
+            if (baseItemName === "HP Booster") {
                 statName = "health";
-                boostAmount = 10;
+                boostAmount = Math.floor(10 * rarityMultiplier);
                 creature.bonusStats.health += boostAmount;
                 const newMax = window.getEffectiveStat(creature, 'health');
                 creature.currentHp = Math.min((creature.currentHp || 0) + boostAmount, newMax);
-            } else if (item.name === "Attack Booster") {
+            } else if (baseItemName === "Attack Booster") {
                 statName = "attack";
                 creature.bonusStats.attack += boostAmount;
-            } else if (item.name === "Defense Booster") {
+            } else if (baseItemName === "Defense Booster") {
                 statName = "defense";
                 creature.bonusStats.defense += boostAmount;
-            } else if (item.name === "Speed Booster") {
+            } else if (baseItemName === "Speed Booster") {
                 statName = "speed";
                 creature.bonusStats.speed += boostAmount;
-            } else if (item.name === "Sp. Atk Booster") {
+            } else if (baseItemName === "Sp. Atk Booster") {
                 statName = "specialAttack";
                 creature.bonusStats.specialAttack += boostAmount;
-            } else if (item.name === "Sp. Def Booster") {
+            } else if (baseItemName === "Sp. Def Booster") {
                 statName = "specialDefense";
                 creature.bonusStats.specialDefense += boostAmount;
             }
@@ -18823,7 +18874,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`✨ Permanently boosted ${creature.nickname || creature.name}'s ${statName.toUpperCase()} stat!`, 3000, playerNum);
         });
     }
-    else if (item.name === "Creature Cookie") {
+    else if (baseItemName === "Creature Cookie") {
         const lastCookieKey = playerNum === 2 ? 'wildpulse_p2_last_cookie_time' : 'wildpulse_p1_last_cookie_time';
         const lastCookieTime = parseInt(localStorage.getItem(lastCookieKey)) || 0;
         const now = Date.now();
@@ -18837,7 +18888,8 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         }
 
         window.promptCreatureSelection(playerNum, "Choose Creature to Feed", (creature) => {
-            window.adjustHappiness(creature, 10, playerNum);
+            const happinessGain = Math.floor(10 * rarityMultiplier);
+            window.adjustHappiness(creature, happinessGain, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -18850,14 +18902,14 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`🍪 Fed ${creature.nickname || creature.name} a Creature Cookie! Happiness increased.`, 3000, playerNum);
         });
     }
-    else if (item.name === "Cyber-Core Upgrade") {
+    else if (baseItemName === "Cyber-Core Upgrade") {
         window.promptCreatureSelection(playerNum, "Upgrade Which Creature?", (creature) => {
             if (creature.isEgg) {
                 window.showModernNotification("❌ Cannot use on an Egg!", 3000, playerNum);
                 return;
             }
 
-            const lvUp = window.gainXp(creature, 150);
+            const lvUp = window.gainXp(creature, Math.floor(150 * rarityMultiplier));
             window.adjustHappiness(creature, 10, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -18869,7 +18921,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`🔘 Cyber-Core Upgrade installed! ${creature.nickname || creature.name} gained 150 XP${lvUp ? ' and leveled up!' : '!'}`, 3000, playerNum);
         });
     }
-    else if (item.name === "Nano-Nurture Serum") {
+    else if (baseItemName === "Nano-Nurture Serum") {
         window.promptCreatureSelection(playerNum, "Choose Creature for Nano-Nurture", (creature) => {
             if (creature.isEgg) {
                 window.showModernNotification("❌ Cannot use on an Egg!", 3000, playerNum);
@@ -18888,7 +18940,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`💉 Nano-Nurture Serum injected! ${creature.nickname || creature.name}'s Happiness has been completely restored to 100! 💖`, 3000, playerNum);
         });
     }
-    else if (item.name === "DNA Stabilizer") {
+    else if (baseItemName === "DNA Stabilizer") {
         window.promptCreatureSelection(playerNum, "Choose Egg to Stabilize & Hatch", (creature) => {
             if (!creature.isEgg) {
                 window.showModernNotification("❌ DNA Stabilizer can only be used on Mysterious Eggs!", 3000, playerNum);
@@ -19131,34 +19183,36 @@ window.getItemIconHTML = function(itemName, size = 24) {
     let glowColor = '#00ffd2';
     let baseColor = '#0b1424';
 
+    const baseItemName = window.getBaseItemName ? window.getBaseItemName(itemName) : itemName;
+
     // Choose theme colors based on item type
-    if (itemName.includes("Booster")) {
-        if (itemName.startsWith("HP")) glowColor = '#00ff66';
-        else if (itemName.startsWith("Attack")) glowColor = '#ff3366';
-        else if (itemName.startsWith("Defense")) glowColor = '#0066ff';
-        else if (itemName.startsWith("Speed")) glowColor = '#ffd700';
-        else if (itemName.startsWith("Sp. Atk")) glowColor = '#ff00ff';
-        else if (itemName.startsWith("Sp. Def")) glowColor = '#00ffff';
-    } else if (itemName.includes("Healing") || itemName.includes("Serum")) {
+    if (baseItemName.includes("Booster")) {
+        if (baseItemName.startsWith("HP")) glowColor = '#00ff66';
+        else if (baseItemName.startsWith("Attack")) glowColor = '#ff3366';
+        else if (baseItemName.startsWith("Defense")) glowColor = '#0066ff';
+        else if (baseItemName.startsWith("Speed")) glowColor = '#ffd700';
+        else if (baseItemName.startsWith("Sp. Atk")) glowColor = '#ff00ff';
+        else if (baseItemName.startsWith("Sp. Def")) glowColor = '#00ffff';
+    } else if (baseItemName.includes("Healing") || baseItemName.includes("Serum")) {
         glowColor = '#00ff96';
-    } else if (itemName === "Jank Juice") {
+    } else if (baseItemName === "Jank Juice") {
         glowColor = '#ff00ff';
-    } else if (itemName === "Repellent") {
+    } else if (baseItemName === "Repellent") {
         glowColor = '#ff3300';
-    } else if (itemName === "ExPALL") {
+    } else if (baseItemName === "ExPALL") {
         glowColor = '#ffd700';
-    } else if (itemName === "Creature Cookie") {
+    } else if (baseItemName === "Creature Cookie") {
         glowColor = '#ff9f00';
-    } else if (itemName === "Pedometer") {
+    } else if (baseItemName === "Pedometer") {
         glowColor = '#00ffd2';
-    } else if (itemName === "NPC Dual Link") {
+    } else if (baseItemName === "NPC Dual Link") {
         glowColor = '#00ffd2';
-    } else if (itemName === "Wild Dual Signal") {
+    } else if (baseItemName === "Wild Dual Signal") {
         glowColor = '#ff4400';
-    } else if (itemName.startsWith("Mini") || itemName.includes("Tile") || itemName === "Storage Chest") {
+    } else if (baseItemName.startsWith("Mini") || baseItemName.includes("Tile") || baseItemName === "Storage Chest") {
         glowColor = '#00ffd2';
-        if (itemName === "Storage Chest") glowColor = '#ff7f00';
-        else if (itemName === "Dojo Tile") glowColor = '#ffd700';
+        if (baseItemName === "Storage Chest") glowColor = '#ff7f00';
+        else if (baseItemName === "Dojo Tile") glowColor = '#ffd700';
     }
 
     const emojiMap = {
@@ -19247,9 +19301,9 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "NPC Dual Link": "📡",
         "Wild Dual Signal": "📶"
     };
-    const emoji = emojiMap[itemName] || "📦";
+    const emoji = emojiMap[baseItemName] || "📦";
 
-    switch (itemName) {
+    switch (baseItemName) {
         case "NPC Dual Link":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
                 <!-- Cyber background grid & circuits -->
@@ -20221,7 +20275,8 @@ window.updateInventoryUI = function() {
             card.style.padding = '10px';
             card.style.boxShadow = '0 0 10px rgba(0,255,204,0.1)';
 
-            const iconStr = itemIcons[item.name] || '📦';
+            const baseItemName = window.getBaseItemName ? window.getBaseItemName(item.name) : item.name;
+            const iconStr = itemIcons[baseItemName] || '📦';
             const iconHtml = window.getItemIconHTML ? window.getItemIconHTML(item.name, 32) : iconStr;
 
             card.innerHTML = `

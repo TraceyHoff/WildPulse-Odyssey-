@@ -26,6 +26,11 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
         localStorage.setItem('wildpulse_collected_creatures', JSON.stringify(window.collectedCreatures));
         // Force state update
         if (window.renderPartyList) window.renderPartyList();
+
+        // Expose updatePetFollow logic if not exposed globally by hooking into scene
+        if (window.game && window.game.scene.scenes[0]) {
+             window.gameStarted = true;
+        }
     });
 
     await page.waitForTimeout(2000);
@@ -108,16 +113,17 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
     await expect(page.locator('#storeModal')).toBeVisible();
 
     // Verify initial stock of HP Booster is 1
-    await expect(page.locator('#storeContent')).toContainText('Stock: 1');
+    const hpBoosterRow = page.locator('#storeContent > div > div').filter({ hasText: 'HP Booster' }).filter({ hasText: 'Stock:' }).first();
+    await expect(hpBoosterRow).toContainText('Stock: 1');
 
     // Buy the HP Booster
-    const buyHPBoosterBtn = page.locator('button[onclick*="HP Booster"]').first();
+    const buyHPBoosterBtn = hpBoosterRow.locator('.buy-item-btn').first();
     await page.evaluate(() => { window.buyStoreItem(1, 'HP Booster', 270); if (window.updateStoreUI) window.updateStoreUI(); });
     await page.waitForTimeout(500);
 
     // Verify stock is now 0 and button says Sold Out
-    await expect(page.locator('#storeContent')).toContainText('Stock: 0');
-    await expect(buyHPBoosterBtn).toContainText('Sold Out');
+    await expect(hpBoosterRow).toContainText('Stock: 0');
+    await expect(buyHPBoosterBtn).toContainText('Sold Out', { ignoreCase: true });
 
     // Trigger stock replenishment by changing inGameDays to 5
     await page.evaluate(() => {
@@ -162,9 +168,9 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
 
     await page.waitForTimeout(500);
 
-    // Verify HP Booster is replenished back to stock 5
-    await expect(page.locator('#storeContent')).toContainText('Stock: 30');
-    await expect(buyHPBoosterBtn).toContainText('Buy');
+    // Verify HP Booster is replenished back to stock 30
+    await expect(hpBoosterRow).toContainText('Stock: 30');
+    await expect(buyHPBoosterBtn).toContainText('Buy', { ignoreCase: true });
   });
 
   test('petting creature should show the correct active and present tense notification', async ({ page }) => {
