@@ -10437,9 +10437,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gpSection) gpSection.style.display = 'none';
         if (mbSection) mbSection.style.display = 'none';
 
-        if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+        const pNum = suffix === '_p2' ? 2 : 1;
+        const activeInput = window['p' + pNum + 'ActiveInput'] || 'keyboard';
+
+        if (activeInput === 'touch') {
             if (mbSection) mbSection.style.display = 'block';
-        } else if (navigator.getGamepads && Array.from(navigator.getGamepads()).some(gp => gp !== null)) {
+        } else if (activeInput === 'gamepad') {
             if (gpSection) gpSection.style.display = 'block';
         } else {
             if (kbSection) kbSection.style.display = 'block';
@@ -11199,6 +11202,40 @@ document.addEventListener('DOMContentLoaded', () => {
             lastTouchTime = currentTime;
         }
     }, { passive: true });
+});
+
+window.p1ActiveInput = 'keyboard';
+window.p2ActiveInput = 'gamepad';
+
+let _lastTouchTimeForInput = 0;
+
+document.addEventListener('keydown', () => {
+    if (window.p1ActiveInput !== 'keyboard') {
+        window.p1ActiveInput = 'keyboard';
+        if (window.updateIntroModalPlatformVisibility) {
+            window.updateIntroModalPlatformVisibility('');
+        }
+    }
+});
+
+document.addEventListener('mousedown', () => {
+    if (Date.now() - _lastTouchTimeForInput < 500) return;
+    if (window.p1ActiveInput !== 'keyboard') {
+        window.p1ActiveInput = 'keyboard';
+        if (window.updateIntroModalPlatformVisibility) {
+            window.updateIntroModalPlatformVisibility('');
+        }
+    }
+});
+
+document.addEventListener('touchstart', () => {
+    _lastTouchTimeForInput = Date.now();
+    if (window.p1ActiveInput !== 'touch') {
+        window.p1ActiveInput = 'touch';
+        if (window.updateIntroModalPlatformVisibility) {
+            window.updateIntroModalPlatformVisibility('');
+        }
+    }
 });
 
 window.isConsoleOrMobile = function() {
@@ -20966,6 +21003,17 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
     const justDown = currDown && !prev.Down;
     const justLeft = currLeft && !prev.Left;
     const justRight = currRight && !prev.Right;
+
+    const anyAxisMoved = pad.axes && pad.axes.some(axis => Math.abs(axis) > 0.1);
+    const anyButtonPressed = pad.buttons && pad.buttons.some(b => b.pressed);
+    if (anyButtonPressed || anyAxisMoved) {
+        if (window['p' + playerNum + 'ActiveInput'] !== 'gamepad') {
+            window['p' + playerNum + 'ActiveInput'] = 'gamepad';
+            if (window.updateIntroModalPlatformVisibility) {
+                window.updateIntroModalPlatformVisibility(playerNum === 2 ? '_p2' : '');
+            }
+        }
+    }
 
 
     // Special handling for Base Placement Mode
