@@ -20707,7 +20707,7 @@ window.getActiveContainerForPlayer = function(playerNum) {
 
         const padRef = playerNum === 2 ? window.p2PadReference : window.p1PadReference;
         if (padRef && padRef.buttons[4] && padRef.buttons[4].pressed) {
-            const container = document.getElementById(containerId);
+            const container = document.getElementById('inventoryModal');
             if (container && container.style.display !== 'none' && container.style.display !== '') {
                 return container;
             }
