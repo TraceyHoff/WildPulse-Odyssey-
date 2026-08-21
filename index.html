@@ -4585,6 +4585,24 @@ window.updateStorageChestUI = function(playerNum) {
         "Speed Booster": "⚡",
         "Sp. Atk Booster": "🔮",
         "Sp. Def Booster": "🧿",
+        "Uncommon HP Booster": "💚",
+        "Uncommon Attack Booster": "⚔️",
+        "Uncommon Defense Booster": "🛡️",
+        "Uncommon Speed Booster": "⚡",
+        "Uncommon Sp. Atk Booster": "🔮",
+        "Uncommon Sp. Def Booster": "🧿",
+        "Rare HP Booster": "💚",
+        "Rare Attack Booster": "⚔️",
+        "Rare Defense Booster": "🛡️",
+        "Rare Speed Booster": "⚡",
+        "Rare Sp. Atk Booster": "🔮",
+        "Rare Sp. Def Booster": "🧿",
+        "Exquisite HP Booster": "💚",
+        "Exquisite Attack Booster": "⚔️",
+        "Exquisite Defense Booster": "🛡️",
+        "Exquisite Speed Booster": "⚡",
+        "Exquisite Sp. Atk Booster": "🔮",
+        "Exquisite Sp. Def Booster": "🧿",
         "Jank Juice": "🧃",
         "Healing Juice Bottle": "🧪",
         "Healing Juice Jug": "🏺",
@@ -4812,7 +4830,10 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     let rewardXp = 50 + Math.floor(Math.random() * 50);
     let rewardItem = null;
 
-    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
+    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer",
+                       "Uncommon HP Booster", "Uncommon Attack Booster", "Uncommon Defense Booster", "Uncommon Speed Booster", "Uncommon Sp. Atk Booster", "Uncommon Sp. Def Booster",
+                       "Rare HP Booster", "Rare Attack Booster", "Rare Defense Booster", "Rare Speed Booster", "Rare Sp. Atk Booster", "Rare Sp. Def Booster",
+                       "Exquisite HP Booster", "Exquisite Attack Booster", "Exquisite Defense Booster", "Exquisite Speed Booster", "Exquisite Sp. Atk Booster", "Exquisite Sp. Def Booster"];
     if (pLevel >= 10 && Math.random() < 0.15) {
         rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
     } else if (Math.random() < 0.35) {
@@ -10349,6 +10370,24 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Speed Booster", icon: "⚡", desc: "Permanently raises creature's Speed by 5." },
         { name: "Sp. Atk Booster", icon: "🔮", desc: "Permanently raises creature's Sp. Atk by 5." },
         { name: "Sp. Def Booster", icon: "🧿", desc: "Permanently raises creature's Sp. Def by 5." },
+        { name: "Uncommon HP Booster", icon: "💚", desc: "Permanently raises creature's HP by 20." },
+        { name: "Uncommon Attack Booster", icon: "⚔️", desc: "Permanently raises creature's Attack by 10." },
+        { name: "Uncommon Defense Booster", icon: "🛡️", desc: "Permanently raises creature's Defense by 10." },
+        { name: "Uncommon Speed Booster", icon: "⚡", desc: "Permanently raises creature's Speed by 10." },
+        { name: "Uncommon Sp. Atk Booster", icon: "🔮", desc: "Permanently raises creature's Sp. Atk by 10." },
+        { name: "Uncommon Sp. Def Booster", icon: "🧿", desc: "Permanently raises creature's Sp. Def by 10." },
+        { name: "Rare HP Booster", icon: "💚", desc: "Permanently raises creature's HP by 30." },
+        { name: "Rare Attack Booster", icon: "⚔️", desc: "Permanently raises creature's Attack by 15." },
+        { name: "Rare Defense Booster", icon: "🛡️", desc: "Permanently raises creature's Defense by 15." },
+        { name: "Rare Speed Booster", icon: "⚡", desc: "Permanently raises creature's Speed by 15." },
+        { name: "Rare Sp. Atk Booster", icon: "🔮", desc: "Permanently raises creature's Sp. Atk by 15." },
+        { name: "Rare Sp. Def Booster", icon: "🧿", desc: "Permanently raises creature's Sp. Def by 15." },
+        { name: "Exquisite HP Booster", icon: "💚", desc: "Permanently raises creature's HP by 40." },
+        { name: "Exquisite Attack Booster", icon: "⚔️", desc: "Permanently raises creature's Attack by 20." },
+        { name: "Exquisite Defense Booster", icon: "🛡️", desc: "Permanently raises creature's Defense by 20." },
+        { name: "Exquisite Speed Booster", icon: "⚡", desc: "Permanently raises creature's Speed by 20." },
+        { name: "Exquisite Sp. Atk Booster", icon: "🔮", desc: "Permanently raises creature's Sp. Atk by 20." },
+        { name: "Exquisite Sp. Def Booster", icon: "🧿", desc: "Permanently raises creature's Sp. Def by 20." },
         { name: "Potted Ficus", icon: "🪴", desc: "A classic potted ficus tree, updated for the cyber-age." },
         { name: "Monstera Plant", icon: "🌿", desc: "A lush monstera with neon-veined leaves." },
         { name: "Cyber Bamboo", icon: "🎋", desc: "Digital bamboo stalks that glow softly." },
@@ -18901,29 +18940,37 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             }
 
             let statName = "";
-            let boostAmount = 5;
+            let baseBoost = 5;
 
-            if (item.name === "HP Booster") {
+            if (item.name.startsWith("Uncommon")) {
+                baseBoost = 10;
+            } else if (item.name.startsWith("Rare")) {
+                baseBoost = 15;
+            } else if (item.name.startsWith("Exquisite")) {
+                baseBoost = 20;
+            }
+
+            if (item.name.includes("HP Booster")) {
                 statName = "health";
-                boostAmount = 10;
-                creature.bonusStats.health += boostAmount;
+                let hpBoost = baseBoost * 2;
+                creature.bonusStats.health += hpBoost;
                 const newMax = window.getEffectiveStat(creature, 'health');
-                creature.currentHp = Math.min((creature.currentHp || 0) + boostAmount, newMax);
-            } else if (item.name === "Attack Booster") {
+                creature.currentHp = Math.min((creature.currentHp || 0) + hpBoost, newMax);
+            } else if (item.name.includes("Attack Booster")) {
                 statName = "attack";
-                creature.bonusStats.attack += boostAmount;
-            } else if (item.name === "Defense Booster") {
+                creature.bonusStats.attack += baseBoost;
+            } else if (item.name.includes("Defense Booster")) {
                 statName = "defense";
-                creature.bonusStats.defense += boostAmount;
-            } else if (item.name === "Speed Booster") {
+                creature.bonusStats.defense += baseBoost;
+            } else if (item.name.includes("Speed Booster")) {
                 statName = "speed";
-                creature.bonusStats.speed += boostAmount;
-            } else if (item.name === "Sp. Atk Booster") {
+                creature.bonusStats.speed += baseBoost;
+            } else if (item.name.includes("Sp. Atk Booster")) {
                 statName = "specialAttack";
-                creature.bonusStats.specialAttack += boostAmount;
-            } else if (item.name === "Sp. Def Booster") {
+                creature.bonusStats.specialAttack += baseBoost;
+            } else if (item.name.includes("Sp. Def Booster")) {
                 statName = "specialDefense";
-                creature.bonusStats.specialDefense += boostAmount;
+                creature.bonusStats.specialDefense += baseBoost;
             }
 
             window.adjustHappiness(creature, 10, playerNum);
@@ -19246,13 +19293,24 @@ window.getItemIconHTML = function(itemName, size = 24) {
     let baseColor = '#0b1424';
 
     // Choose theme colors based on item type
+    let strokeColor = '#00ffd2'; // default outline color
     if (itemName.includes("Booster")) {
-        if (itemName.startsWith("HP")) glowColor = '#00ff66';
-        else if (itemName.startsWith("Attack")) glowColor = '#ff3366';
-        else if (itemName.startsWith("Defense")) glowColor = '#0066ff';
-        else if (itemName.startsWith("Speed")) glowColor = '#ffd700';
-        else if (itemName.startsWith("Sp. Atk")) glowColor = '#ff00ff';
-        else if (itemName.startsWith("Sp. Def")) glowColor = '#00ffff';
+        if (itemName.includes("HP Booster")) glowColor = '#00ff66';
+        else if (itemName.includes("Attack Booster")) glowColor = '#ff3366';
+        else if (itemName.includes("Defense Booster")) glowColor = '#0066ff';
+        else if (itemName.includes("Speed Booster")) glowColor = '#ffd700';
+        else if (itemName.includes("Sp. Atk Booster")) glowColor = '#ff00ff';
+        else if (itemName.includes("Sp. Def Booster")) glowColor = '#00ffff';
+
+        if (itemName.startsWith("Uncommon")) {
+            strokeColor = '#00ccff'; // Blue border
+        } else if (itemName.startsWith("Rare")) {
+            strokeColor = '#cc00ff'; // Purple border
+        } else if (itemName.startsWith("Exquisite")) {
+            strokeColor = '#ffcc00'; // Gold border
+        } else {
+            strokeColor = glowColor; // Base uses its own color
+        }
     } else if (itemName.includes("Healing") || itemName.includes("Serum")) {
         glowColor = '#00ff96';
     } else if (itemName === "Jank Juice") {
@@ -19306,6 +19364,24 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "Heart Carpet": "❤️",
         "Diamond Carpet": "♦️",
         "Holo Bed": "🛏️",
+        "Uncommon HP Booster": "💚",
+        "Uncommon Attack Booster": "⚔️",
+        "Uncommon Defense Booster": "🛡️",
+        "Uncommon Speed Booster": "⚡",
+        "Uncommon Sp. Atk Booster": "🔮",
+        "Uncommon Sp. Def Booster": "🧿",
+        "Rare HP Booster": "💚",
+        "Rare Attack Booster": "⚔️",
+        "Rare Defense Booster": "🛡️",
+        "Rare Speed Booster": "⚡",
+        "Rare Sp. Atk Booster": "🔮",
+        "Rare Sp. Def Booster": "🧿",
+        "Exquisite HP Booster": "💚",
+        "Exquisite Attack Booster": "⚔️",
+        "Exquisite Defense Booster": "🛡️",
+        "Exquisite Speed Booster": "⚡",
+        "Exquisite Sp. Atk Booster": "🔮",
+        "Exquisite Sp. Def Booster": "🧿",
         "Neon Chair": "🪑",
         "Holo Table": "🪵",
         "Cyber Plant": "🪴",
@@ -19438,40 +19514,58 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <circle cx="78" cy="12" r="2" fill="#ff3300" />`;
             break;
         case "HP Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff66" stroke-width="4"/>
-                <circle cx="50" cy="50" r="30" fill="none" stroke="#00ff66" stroke-width="2" stroke-dasharray="4,4" />
-                <path d="M50,30 C45,20 25,20 25,40 C25,60 50,80 50,80 C50,80 75,60 75,40 C75,20 55,20 50,30 Z" fill="#00ff66" filter="url(#glow)"/>`;
+        case "Uncommon HP Booster":
+        case "Rare HP Booster":
+        case "Exquisite HP Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${strokeColor}" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="${glowColor}" stroke-width="2" stroke-dasharray="4,4" />
+                <path d="M50,30 C45,20 25,20 25,40 C25,60 50,80 50,80 C50,80 75,60 75,40 C75,20 55,20 50,30 Z" fill="${glowColor}" filter="url(#glow)"/>`;
             break;
         case "Attack Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3366" stroke-width="4"/>
-                <path d="M20,80 L40,60 L50,65 L30,85 Z" fill="#ff3366" />
-                <path d="M80,20 L60,40 L50,35 L70,15 Z" fill="#ff3366" />
-                <path d="M25,75 L75,25 L80,30 L30,80 Z" fill="#fff" stroke="#ff3366" stroke-width="2" />
-                <path d="M75,75 L25,25 L20,30 L70,80 Z" fill="#fff" stroke="#ff3366" stroke-width="2" />
-                <circle cx="50" cy="50" r="10" fill="none" stroke="#ff3366" stroke-width="3" />`;
+        case "Uncommon Attack Booster":
+        case "Rare Attack Booster":
+        case "Exquisite Attack Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${strokeColor}" stroke-width="4"/>
+                <path d="M20,80 L40,60 L50,65 L30,85 Z" fill="${glowColor}" />
+                <path d="M80,20 L60,40 L50,35 L70,15 Z" fill="${glowColor}" />
+                <path d="M25,75 L75,25 L80,30 L30,80 Z" fill="#fff" stroke="${glowColor}" stroke-width="2" />
+                <path d="M75,75 L25,25 L20,30 L70,80 Z" fill="#fff" stroke="${glowColor}" stroke-width="2" />
+                <circle cx="50" cy="50" r="10" fill="none" stroke="${glowColor}" stroke-width="3" />`;
             break;
         case "Defense Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#0066ff" stroke-width="4"/>
-                <path d="M30,25 L50,15 L70,25 L70,55 C70,70 50,85 50,85 C50,85 30,70 30,55 Z" fill="#0066ff" filter="url(#glow)"/>
+        case "Uncommon Defense Booster":
+        case "Rare Defense Booster":
+        case "Exquisite Defense Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${strokeColor}" stroke-width="4"/>
+                <path d="M30,25 L50,15 L70,25 L70,55 C70,70 50,85 50,85 C50,85 30,70 30,55 Z" fill="${glowColor}" filter="url(#glow)"/>
                 <path d="M35,30 L50,22 L65,30 L65,53 C65,65 50,77 50,77 C50,77 35,65 35,53 Z" fill="#fff" opacity="0.3" />`;
             break;
         case "Speed Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
-                <path d="M60,15 L25,55 L50,55 L35,85 L80,45 L50,45 Z" fill="#ffd700" filter="url(#glow)"/>
-                <line x1="15" y1="35" x2="35" y2="35" stroke="#ffd700" stroke-width="3" stroke-linecap="round" />
-                <line x1="10" y1="50" x2="30" y2="50" stroke="#ffd700" stroke-width="3" stroke-linecap="round" />`;
+        case "Uncommon Speed Booster":
+        case "Rare Speed Booster":
+        case "Exquisite Speed Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${strokeColor}" stroke-width="4"/>
+                <path d="M60,15 L25,55 L50,55 L35,85 L80,45 L50,45 Z" fill="${glowColor}" filter="url(#glow)"/>
+                <line x1="15" y1="35" x2="35" y2="35" stroke="${glowColor}" stroke-width="3" stroke-linecap="round" />
+                <line x1="10" y1="50" x2="30" y2="50" stroke="${glowColor}" stroke-width="3" stroke-linecap="round" />`;
             break;
         case "Sp. Atk Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
-                <circle cx="50" cy="50" r="20" fill="none" stroke="#ff00ff" stroke-width="3" />
-                <path d="M50,15 C60,25 65,40 50,50 C35,60 40,75 50,85" fill="none" stroke="#ff00ff" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
+        case "Uncommon Sp. Atk Booster":
+        case "Rare Sp. Atk Booster":
+        case "Exquisite Sp. Atk Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${strokeColor}" stroke-width="4"/>
+                <circle cx="50" cy="50" r="20" fill="none" stroke="${glowColor}" stroke-width="3" />
+                <path d="M50,15 C60,25 65,40 50,50 C35,60 40,75 50,85" fill="none" stroke="${glowColor}" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
                 <circle cx="50" cy="50" r="6" fill="#fff" />`;
             break;
         case "Sp. Def Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffff" stroke-width="4"/>
-                <circle cx="50" cy="50" r="30" fill="none" stroke="#00ffff" stroke-width="3" filter="url(#glow)" />
-                <circle cx="50" cy="50" r="15" fill="none" stroke="#00ffff" stroke-width="1" stroke-dasharray="4,2" />
-                <rect x="42" y="42" width="16" height="16" rx="4" fill="#00ffff" />`;
+        case "Uncommon Sp. Def Booster":
+        case "Rare Sp. Def Booster":
+        case "Exquisite Sp. Def Booster":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${strokeColor}" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="${glowColor}" stroke-width="3" filter="url(#glow)" />
+                <circle cx="50" cy="50" r="15" fill="none" stroke="${glowColor}" stroke-width="1" stroke-dasharray="4,2" />
+                <rect x="42" y="42" width="16" height="16" rx="4" fill="${glowColor}" />`;
             break;
         case "Jank Juice":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
