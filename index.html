@@ -2861,7 +2861,7 @@
                         <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">🎮 GAMEPAD / CONTROLLER</strong>
                         <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
                             <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Stick</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">D-Pad</span></div>
-                            <div>Inventory Menu:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Tap LB (Left Bumper)</span> (View items)</div>
+                            <div>Inventory Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span> (View items)</div>
                             <div>Use / Confirm:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">A Button</span> (or navigate slots with D-Pad)</div>
                             <div>Action Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold RB (Right Bumper)</span>. Navigate with D-Pad, A to select, B to close</div>
                             <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Start Button</span> (Toggle In-Game Menu)</div>
@@ -3094,7 +3094,7 @@
                         <strong style="color: #00ffcc; display: block; margin-bottom: 5px;">🎮 GAMEPAD / CONTROLLER</strong>
                         <div style="display:grid; grid-template-columns: 140px 1fr; gap: 5px; color: #ddd; font-size: 13px;">
                             <div>Move Character:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Left Stick</span> or <span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">D-Pad</span></div>
-                            <div>Inventory Menu:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Tap LB (Left Bumper)</span> (View items)</div>
+                            <div>Inventory Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold LB (Left Bumper)</span> (View items)</div>
                             <div>Use / Confirm:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">A Button</span> (or navigate slots with D-Pad)</div>
                             <div>Action Wheel:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Hold RB (Right Bumper)</span>. Navigate with D-Pad, A to select, B to close</div>
                             <div>Menu / Screen:</div><div><span style="color:#00ff96; background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:3px; border: 1px solid rgba(0,255,150,0.2);">Start Button</span> (Toggle In-Game Menu)</div>
@@ -7897,7 +7897,7 @@ function escapeHtml(unsafe) {
                 <h3 style="margin-top: 0; font-size: 15px; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(0, 255, 204, 0.3); padding-bottom: 5px;">🎮 MODULE_01: CONTROL INTERFACE</h3>
                 <p>• <strong>Movement:</strong> Walk using <span style="color:#00ff96;">W, A, S, D</span> or <span style="color:#00ff96;">Arrow Keys</span> on PC, the <span style="color:#00ff96;">Left Stick / D-Pad</span> on Gamepads, or by touching and dragging on mobile viewports.</p>
                 <p>• <strong>Action Wheel:</strong> Tap <span style="color:#00ff96;">Q</span> on PC, hold <span style="color:#00ff96;">Right Bumper</span> on your Gamepad, or double-tap the screen on Mobile. Navigate choices using the D-Pad and press <span style="color:#00ff96;">A</span> to confirm.</p>
-                <p>• <strong>Inventory Menu:</strong> Press <span style="color:#00ff96;">I</span> on PC or tap the <span style="color:#00ff96;">Left Bumper</span> on Gamepads to open the Inventory Menu. You can also access it via the Start Menu.</p>
+                <p>• <strong>Inventory Wheel:</strong> Hold <span style="color:#00ff96;">I</span> on PC or the <span style="color:#00ff96;">Left Bumper</span> on Gamepads to access item slots quickly. Releasing the key or button closes the wheel.</p>
                 <p>• <strong>Virtual Cursor:</strong> Use the Gamepad <span style="color:#00ff96;">Right Stick</span> to move separate virtual cursors in menu screens. Select items with <span style="color:#00ff96;">A</span> and close menus with <span style="color:#00ff96;">B</span>.</p>
             </div>
 
@@ -17713,18 +17713,18 @@ window.triggerMainTutorial = function(playerNum) {
         if (inputType === 'gamepad') {
             moveText = "Use the Left Stick or D-Pad to move around the world.";
             interactText = "Press the A Button to interact with NPCs, plants, and objects.";
-            menuText = "Press the Y Button to open your Action Wheel for menus.";
-            inventoryText = "Press the B Button to open your Backpack.";
+            menuText = "Hold the Right Bumper to open your Action Wheel for menus.";
+            inventoryText = "Hold the Left Bumper to open your Inventory Wheel.";
         } else if (inputType === 'touch' || isMobile) {
             moveText = "Use the virtual joystick on the left side of the screen to move.";
             interactText = "Tap the Interact button (hand icon) to talk to NPCs or collect items.";
             menuText = "Tap the Action Wheel icon or double-tap the screen to open menus.";
-            inventoryText = "Tap the Backpack icon to view your inventory.";
+            inventoryText = "Tap 'Inventory' in the Start Menu to view your inventory.";
         } else { // keyboard
             moveText = "Use the W, A, S, D keys to move around the world.";
             interactText = "Press the E key (or Space/Enter) to interact with NPCs and objects.";
             menuText = "Press the Q key to open your Action Wheel for menus.";
-            inventoryText = "Hold the I key to open your Backpack.";
+            inventoryText = "Hold the I key to open your Inventory Wheel.";
         }
 
         let msg = "";
@@ -17751,22 +17751,30 @@ window.triggerHomeTutorial = function(playerNum) {
     const suffix = isP2 ? '_p2' : '';
 
     if (window.showModernNotification) {
-        // Start home tutorial series
+        // Step 1: Tell player to step onto the entry tile
         setTimeout(() => {
             window.showModernNotification(window.getCyberpunkIconHTML("home") + " Base Node Unlocked! Step onto the entry tile to access your subnet.", 10000, playerNum);
         }, 1000);
-        setTimeout(() => {
-            window.showModernNotification(window.getCyberpunkIconHTML("portal") + " Inside your node, you can warp back to the central hub using the glowing exit pad.", 10000, playerNum);
-        }, 13000);
-        setTimeout(() => {
-            window.showModernNotification(window.getCyberpunkIconHTML("design") + " Access the 'Design' interface on your Action Wheel inside to compile walls and floors.", 10000, playerNum);
-        }, 25000);
-        setTimeout(() => {
-            window.showModernNotification(window.getCyberpunkIconHTML("furniture") + " Access your inventory to deploy assets! Press R (or Right Trigger) to orient items.", 10000, playerNum);
-        }, 37000);
-        setTimeout(() => {
-            window.showModernNotification(window.getCyberpunkIconHTML("dpad") + " Pro Tip: During deployment mode, use the D-Pad to execute 1-pixel micro-adjustments for optimal coordinates!", 10000, playerNum);
-        }, 49000);
+
+        // Polling logic to wait until player enters their home
+        const checkInterval = setInterval(() => {
+            if (window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum)) {
+                clearInterval(checkInterval);
+                // Continue tutorial once inside
+                setTimeout(() => {
+                    window.showModernNotification(window.getCyberpunkIconHTML("portal") + " Inside your node, you can warp back to the central hub using the glowing exit pad.", 10000, playerNum);
+                }, 2000);
+                setTimeout(() => {
+                    window.showModernNotification(window.getCyberpunkIconHTML("design") + " Access the 'Design' interface on your Action Wheel inside to compile walls and floors.", 10000, playerNum);
+                }, 14000);
+                setTimeout(() => {
+                    window.showModernNotification(window.getCyberpunkIconHTML("furniture") + " Access your inventory to deploy assets! Press R (or Right Trigger) to orient items.", 10000, playerNum);
+                }, 26000);
+                setTimeout(() => {
+                    window.showModernNotification(window.getCyberpunkIconHTML("dpad") + " Pro Tip: During deployment mode, use the D-Pad to execute 1-pixel micro-adjustments for optimal coordinates!", 10000, playerNum);
+                }, 38000);
+            }
+        }, 1000);
     }
 };
 
