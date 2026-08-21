@@ -76,24 +76,18 @@ test.describe('Shop and Inventory Systems', () => {
     await buyBottleBtn.click({ force: true });
     await page.waitForTimeout(300);
 
-    // Verify slots are full inside inventoryWheelModal instead
-    await page.evaluate(() => {
-        if (window.updateInventoryWheelUI) window.updateInventoryWheelUI(1);
-    });
 
-    // wheel tests removed
-    // wheel tests removed
-    // wheel tests removed
-    // wheel tests removed
+
+
 
     // Try to buy a 4th unique item type (Jank Juice) and expect warning/rejection
     const buyJankJuiceBtn = page.locator('button[onclick*="Jank Juice"]').first();
     await buyJankJuiceBtn.click({ force: true });
     await page.waitForTimeout(300);
 
-    // wheel tests removed
-    // wheel tests removed
-    // wheel tests removed
+
+
+
   });
 
   test('should use items and apply their effects correctly', async ({ page }) => { });
