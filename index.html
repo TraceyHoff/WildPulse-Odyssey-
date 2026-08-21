@@ -37780,7 +37780,39 @@ function updateFurnitureDetails() {
             }
         }
     });
+
+    window.spawnAllHomeCreatures(this);
 }
+
+window.spawnHomeCreature = function(playerNum, index) {
+    if (!window.getHomeCoords || !window.spawnCreature || !window.game || !window.game.scene.scenes[0]) return;
+    const homeCreatures = playerNum === 2 ? window.p2HomeCreatures : window.p1HomeCreatures;
+    const creature = homeCreatures[index];
+    if (!creature) return;
+    const coords = window.getHomeCoords(playerNum);
+    if (coords) {
+        window.spawnCreature(window.game.scene.scenes[0], creature, coords.x, coords.y);
+        const sprites = window.creaturesGroup.getChildren();
+        if (sprites.length > 0) {
+            const newSprite = sprites[sprites.length - 1];
+            newSprite.setData('isHomeCreature', true);
+            newSprite.setData('owner', playerNum);
+            newSprite.setData('homeIndex', index);
+        }
+    }
+};
+
+window.spawnAllHomeCreatures = function(scene) {
+    if (!window.p1HomeCreatures) return;
+    for (let i = 0; i < window.p1HomeCreatures.length; i++) {
+        window.spawnHomeCreature(1, i);
+    }
+    if (window.p2HomeCreatures) {
+        for (let i = 0; i < window.p2HomeCreatures.length; i++) {
+            window.spawnHomeCreature(2, i);
+        }
+    }
+};
 
 function update() {
     updateFurnitureDetails();
@@ -40112,7 +40144,8 @@ function update() {
                 // Teleport creatures that are too far away to just outside the viewport of the closest player (ignore shinies)
                 const cDataForTeleport = creature.getData('creatureData');
                 const isShinyForTeleport = cDataForTeleport && cDataForTeleport.isShiny;
-                if (distToPlayer > 2500 && !isShinyForTeleport) {
+                const isHomeCreature = creature.getData('isHomeCreature');
+                if (distToPlayer > 2500 && !isShinyForTeleport && !isHomeCreature) {
                     const angle = Math.random() * Math.PI * 2;
                     const rDist = 1000 + Math.random() * 1000; // 1000 to 2000 px away
                     const targetX = Phaser.Math.Clamp(closestPlayer.x + Math.cos(angle) * rDist, 100, WORLD_SIZE - 100);
@@ -40120,7 +40153,8 @@ function update() {
 
                     const col = Math.floor(targetX / 100);
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
+                    const validTarget = isHomeCreature ? window.isWithinHomeArea(targetX, targetY) : ((!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY)));
+                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && validTarget) {
                         creature.x = targetX;
                         creature.y = targetY;
                         creature.setData('targetX', targetX);
@@ -40142,7 +40176,8 @@ function update() {
                     // Only move if target isn't water
                     const col = Math.floor(targetX / 100); // TILE_SIZE is 100
                     const row = Math.floor(targetY / 100);
-                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && (!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY))) {
+                    const validTarget = isHomeCreature ? window.isWithinHomeArea(targetX, targetY) : ((!window.isWithinSightOfHospital || !window.isWithinSightOfHospital(targetX, targetY)) && (!window.isWithinHomeArea || !window.isWithinHomeArea(targetX, targetY)));
+                    if (mapData[row] && (mapData[row][col] === 'grass' || mapData[row][col] === 'obs') && validTarget) {
                         creature.setData('targetX', targetX);
                         creature.setData('targetY', targetY);
                     } else {
