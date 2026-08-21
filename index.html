@@ -3507,6 +3507,22 @@
     let targetProgress = 0;
     window.phaserInitComplete = false;
 
+
+window.getBaseItemName = function(itemName) {
+    if (!itemName) return itemName;
+    const match = itemName.match(/^(.*?) \(Tier \d+\)$/);
+    if (match) return match[1];
+    return itemName;
+};
+
+window.getItemTier = function(itemName) {
+    if (!itemName) return 1;
+    const match = itemName.match(/ \(Tier (\d+)\)$/);
+    if (match) return parseInt(match[1], 10);
+    return 1;
+};
+
+
     // Loading stages
     const stageDurations = [350, 450, 350, 350];
     let currentStage = 0;
@@ -4816,7 +4832,12 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     if (pLevel >= 10 && Math.random() < 0.15) {
         rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
     } else if (Math.random() < 0.35) {
-        rewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+        let baseRewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+        let rewardTier = 1;
+        if (Math.random() < 0.5) { // 50% chance to be tiered
+            rewardTier = Math.floor(Math.random() * 4) + 2; // Tiers 2 to 5
+        }
+        rewardItem = rewardTier > 1 ? `${baseRewardItem} (Tier ${rewardTier})` : baseRewardItem;
     }
 
     if (questType === 'catch') {
@@ -10405,8 +10426,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Diamond Carpet", icon: "♦️", desc: "A diamond-shaped glowing carpet. Place using mini-tile placement." },
         { name: "Holo Bed", icon: "🛏️", desc: "A futuristic holographic bed. Place using mini-tile placement." },
         { name: "Dojo Tile", icon: "⛩️", desc: "A placeable tile that summons the Dojo Leader for elite matches. (Defeat all 24 trainers)", type: "Mini Building" },
-        { name: "NPC Dual Link", icon: "📡", desc: "Guarantees a 100% chance of a cooperative 2v2 NPC Trainer Dual Battle for 5 minutes." },
-        { name: "Wild Dual Signal", icon: "📶", desc: "Guarantees a 100% chance of a cooperative wild creature Dual Battle for 5 minutes." }
+        { name: "NPC Dual Link", icon: "📡", desc: "Guarantees a 100% chance of a cooperative 2v2 NPC Trainer Dual Battle for ${5 * tier} minutes." },
+        { name: "Wild Dual Signal", icon: "📶", desc: "Guarantees a 100% chance of a cooperative wild creature Dual Battle for ${5 * tier} minutes." }
     ];
 
     window.updateIntroItemCarousel = function(playerNum = 1) {
@@ -18212,6 +18233,30 @@ window.updateStoreUI = function() {
         const activeItems = [...items];
         const homeItems = [];
 
+        // Inject tiered items from inventory so they can be sold
+        const currentInv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+        if (currentInv) {
+            currentInv.forEach(invItem => {
+                const tier = window.getItemTier ? window.getItemTier(invItem.name) : 1;
+                if (tier > 1) {
+                    const baseName = window.getBaseItemName ? window.getBaseItemName(invItem.name) : invItem.name;
+                    // Check if already in activeItems
+                    if (!activeItems.find(i => i.name === invItem.name)) {
+                        const baseItem = items.find(i => i.name === baseName);
+                        if (baseItem) {
+                            activeItems.push({
+                                name: invItem.name,
+                                icon: baseItem.icon,
+                                price: baseItem.price * tier * 2, // Artificial price to boost sell value
+                                desc: baseItem.desc,
+                                stock: 0 // Cannot be bought
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
         homeItems.push(
             { name: "Storage Chest", icon: "🧳", price: 620, desc: "A placeable chest with 10 item slots. Step on it to open storage.", reqLevel: 6, type: "Storage" },
             { name: "Mini Hospital", icon: "🏥", price: 500, desc: "A functional smaller version of the Hospital. Place near your home.", reqLevel: 10, type: "Mini Building" },
@@ -18337,7 +18382,12 @@ const categoryOrder = {
             const freeSlots = 4 - inv.length;
             const available = spaceInExisting + (freeSlots * 10);
 
-            const stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 30) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 30);
+            let stock = 30;
+            if (item.stock !== undefined) {
+                stock = item.stock; // Use synthetic stock if defined (for tiered items)
+            } else {
+                stock = playerNum === 2 ? (window.p2StoreStock[item.name] !== undefined ? window.p2StoreStock[item.name] : 30) : (window.p1StoreStock[item.name] !== undefined ? window.p1StoreStock[item.name] : 30);
+            }
 
             let displayedPrice = item.price;
             const activePartyForLuckyUI = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -18763,7 +18813,10 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.updateStoreUI) window.updateStoreUI();
     };
 
-    if (item.name === "Bundle of Wood") {
+    const baseName = window.getBaseItemName ? window.getBaseItemName(item.name) : item.name;
+    const tier = window.getItemTier ? window.getItemTier(item.name) : 1;
+
+    if (baseName === "Bundle of Wood") {
         if (window.closeActionWheel) window.closeActionWheel(playerNum);
         if (window.closeInventoryModal) window.closeInventoryModal();
 
@@ -18784,73 +18837,73 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         return; // Wait for placement
     }
 
-    if (item.name === "Repellent") {
+    if (baseName === "Repellent") {
         if (playerNum === 2) {
-            window.p2RepellentTime = (window.p2RepellentTime || 0) + 60000;
+            window.p2RepellentTime = (window.p2RepellentTime || 0) + (60000 * tier);
         } else {
-            window.p1RepellentTime = (window.p1RepellentTime || 0) + 60000;
+            window.p1RepellentTime = (window.p1RepellentTime || 0) + (60000 * tier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
-        window.showModernNotification("🧴 Repellent active! Wild encounters prevented for 60 seconds.", 3000, playerNum);
+        window.showModernNotification(`🧴 Repellent active! Wild encounters prevented for ${60 * tier} seconds.`, 3000, playerNum);
     }
-    else if (item.name === "Pedometer") {
+    else if (baseName === "Pedometer") {
         if (playerNum === 2) {
-            window.p2PedometerTime = (window.p2PedometerTime || 0) + 60000;
+            window.p2PedometerTime = (window.p2PedometerTime || 0) + (60000 * tier);
         } else {
-            window.p1PedometerTime = (window.p1PedometerTime || 0) + 60000;
+            window.p1PedometerTime = (window.p1PedometerTime || 0) + (60000 * tier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
-        window.showModernNotification("👣 Pedometer active! Egg hatching progress is doubled for 60 seconds.", 3000, playerNum);
+        window.showModernNotification(`👣 Pedometer active! Egg hatching progress is doubled for ${60 * tier} seconds.`, 3000, playerNum);
     }
-    else if (item.name === "Jank Juice") {
+    else if (baseName === "Jank Juice") {
         if (playerNum === 2) {
-            window.p2JankJuiceTime = (window.p2JankJuiceTime || 0) + 360000;
+            window.p2JankJuiceTime = (window.p2JankJuiceTime || 0) + (360000 * tier);
         } else {
-            window.p1JankJuiceTime = (window.p1JankJuiceTime || 0) + 360000;
+            window.p1JankJuiceTime = (window.p1JankJuiceTime || 0) + (360000 * tier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
-        window.showModernNotification("🧃 Jank Juice active! Wild shiny spawn rates significantly increased for 6 minutes.", 3000, playerNum);
+        window.showModernNotification(`🧃 Jank Juice active! Wild shiny spawn rates significantly increased for ${6 * tier} minutes.`, 3000, playerNum);
     }
-    else if (item.name === "ExPALL") {
+    else if (baseName === "ExPALL") {
         if (playerNum === 2) {
-            window.p2ExPallTime = (window.p2ExPallTime || 0) + 180000;
+            window.p2ExPallTime = (window.p2ExPallTime || 0) + (180000 * tier);
         } else {
-            window.p1ExPallTime = (window.p1ExPallTime || 0) + 180000;
+            window.p1ExPallTime = (window.p1ExPallTime || 0) + (180000 * tier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
-        window.showModernNotification("✨ ExPALL active! Whole active party will receive battle experience for 180 seconds.", 3000, playerNum);
+        window.showModernNotification(`✨ ExPALL active! Whole active party will receive battle experience for ${180 * tier} seconds.`, 3000, playerNum);
     }
-    else if (item.name === "NPC Dual Link") {
+    else if (baseName === "NPC Dual Link") {
         if (playerNum === 2) {
-            window.p2NpcDualTime = (window.p2NpcDualTime || 0) + 300000;
+            window.p2NpcDualTime = (window.p2NpcDualTime || 0) + (300000 * tier);
         } else {
-            window.p1NpcDualTime = (window.p1NpcDualTime || 0) + 300000;
+            window.p1NpcDualTime = (window.p1NpcDualTime || 0) + (300000 * tier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
-        window.showModernNotification("📡 NPC Dual Link active! Cooperative 2v2 NPC Trainer battles guaranteed for 5 minutes.", 3000, playerNum);
+        window.showModernNotification(`📡 NPC Dual Link active! Cooperative 2v2 NPC Trainer battles guaranteed for ${5 * tier} minutes.`, 3000, playerNum);
     }
-    else if (item.name === "Wild Dual Signal") {
+    else if (baseName === "Wild Dual Signal") {
         if (playerNum === 2) {
-            window.p2WildDualTime = (window.p2WildDualTime || 0) + 300000;
+            window.p2WildDualTime = (window.p2WildDualTime || 0) + (300000 * tier);
         } else {
-            window.p1WildDualTime = (window.p1WildDualTime || 0) + 300000;
+            window.p1WildDualTime = (window.p1WildDualTime || 0) + (300000 * tier);
         }
         window.saveActiveBuffTimers();
         if (window.updateActiveBuffsHUD) window.updateActiveBuffsHUD();
         consumeItem();
-        window.showModernNotification("📶 Wild Dual Signal active! Wild Dual battles guaranteed for 5 minutes.", 3000, playerNum);
+        window.showModernNotification(`📶 Wild Dual Signal active! Wild Dual battles guaranteed for ${5 * tier} minutes.`, 3000, playerNum);
     }
-    else if (item.name === "Healing Juice Jug") {
+    else if (baseName === "Healing Juice Jug") {
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
         const activeParty = party.filter(c => !c.stored && !c.isEgg);
 
@@ -18862,7 +18915,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         activeParty.forEach(creature => {
             const maxHp = window.getEffectiveStat(creature, 'health');
             creature.currentHp = maxHp;
-            window.adjustHappiness(creature, 6, playerNum);
+            window.adjustHappiness(creature, 6 * tier, playerNum);
         });
 
         const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -18872,18 +18925,18 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
         window.showModernNotification("🏺 Fully healed and revived all active party creatures!", 3000, playerNum);
     }
-    else if (item.name === "Healing Juice Bottle") {
+    else if (baseName === "Healing Juice Bottle") {
         window.promptCreatureSelection(playerNum, "Choose Creature to Heal", (creature) => {
             const maxHp = window.getEffectiveStat(creature, 'health');
             const wasFainted = creature.currentHp <= 0;
 
             if (wasFainted) {
-                creature.currentHp = Math.floor(0.5 * maxHp);
+                creature.currentHp = Math.floor(Math.min(1.0, 0.4 + (0.1 * tier)) * maxHp);
             } else {
                 creature.currentHp = maxHp;
             }
 
-            window.adjustHappiness(creature, 10, playerNum);
+            window.adjustHappiness(creature, 10 * tier, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -18891,42 +18944,42 @@ window.useInventoryItem = function(playerNum, slotIndex) {
 
             consumeItem();
             if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
-            window.showModernNotification(`🧪 ${creature.nickname || creature.name} has been ${wasFainted ? 'revived with 50% HP' : 'fully healed'}!`, 3000, playerNum);
+            window.showModernNotification(`🧪 ${creature.nickname || creature.name} has been ${wasFainted ? `revived with ${Math.round(Math.min(100, 40 + (10 * tier)))}% HP` : 'fully healed'}!`, 3000, playerNum);
         });
     }
-    else if (item.name.endsWith("Booster")) {
+    else if (baseName.endsWith("Booster")) {
         window.promptCreatureSelection(playerNum, `Boost Stats of Which Creature?`, (creature) => {
             if (!creature.bonusStats) {
                 creature.bonusStats = { health: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0 };
             }
 
             let statName = "";
-            let boostAmount = 5;
+            let boostAmount = 5 * tier;
 
-            if (item.name === "HP Booster") {
+            if (baseName === "HP Booster") {
                 statName = "health";
-                boostAmount = 10;
+                boostAmount = 10 * tier;
                 creature.bonusStats.health += boostAmount;
                 const newMax = window.getEffectiveStat(creature, 'health');
                 creature.currentHp = Math.min((creature.currentHp || 0) + boostAmount, newMax);
-            } else if (item.name === "Attack Booster") {
+            } else if (baseName === "Attack Booster") {
                 statName = "attack";
                 creature.bonusStats.attack += boostAmount;
-            } else if (item.name === "Defense Booster") {
+            } else if (baseName === "Defense Booster") {
                 statName = "defense";
                 creature.bonusStats.defense += boostAmount;
-            } else if (item.name === "Speed Booster") {
+            } else if (baseName === "Speed Booster") {
                 statName = "speed";
                 creature.bonusStats.speed += boostAmount;
-            } else if (item.name === "Sp. Atk Booster") {
+            } else if (baseName === "Sp. Atk Booster") {
                 statName = "specialAttack";
                 creature.bonusStats.specialAttack += boostAmount;
-            } else if (item.name === "Sp. Def Booster") {
+            } else if (baseName === "Sp. Def Booster") {
                 statName = "specialDefense";
                 creature.bonusStats.specialDefense += boostAmount;
             }
 
-            window.adjustHappiness(creature, 10, playerNum);
+            window.adjustHappiness(creature, 10 * tier, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -18937,7 +18990,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`✨ Permanently boosted ${creature.nickname || creature.name}'s ${statName.toUpperCase()} stat!`, 3000, playerNum);
         });
     }
-    else if (item.name === "Creature Cookie") {
+    else if (baseName === "Creature Cookie") {
         const lastCookieKey = playerNum === 2 ? 'wildpulse_p2_last_cookie_time' : 'wildpulse_p1_last_cookie_time';
         const lastCookieTime = parseInt(localStorage.getItem(lastCookieKey)) || 0;
         const now = Date.now();
@@ -18951,7 +19004,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         }
 
         window.promptCreatureSelection(playerNum, "Choose Creature to Feed", (creature) => {
-            window.adjustHappiness(creature, 10, playerNum);
+            window.adjustHappiness(creature, 10 * tier, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -18964,15 +19017,15 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`🍪 Fed ${creature.nickname || creature.name} a Creature Cookie! Happiness increased.`, 3000, playerNum);
         });
     }
-    else if (item.name === "Cyber-Core Upgrade") {
+    else if (baseName === "Cyber-Core Upgrade") {
         window.promptCreatureSelection(playerNum, "Upgrade Which Creature?", (creature) => {
             if (creature.isEgg) {
                 window.showModernNotification("❌ Cannot use on an Egg!", 3000, playerNum);
                 return;
             }
 
-            const lvUp = window.gainXp(creature, 150);
-            window.adjustHappiness(creature, 10, playerNum);
+            const lvUp = window.gainXp(creature, 150 * tier);
+            window.adjustHappiness(creature, 10 * tier, playerNum);
 
             const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
             const storageKey = playerNum === 2 ? 'wildpulse_collected_creatures2' : 'wildpulse_collected_creatures';
@@ -18980,10 +19033,10 @@ window.useInventoryItem = function(playerNum, slotIndex) {
 
             consumeItem();
             if (window.renderPartyList) window.renderPartyList(); window.updatePartyUI = window.renderPartyList;
-            window.showModernNotification(`🔘 Cyber-Core Upgrade installed! ${creature.nickname || creature.name} gained 150 XP${lvUp ? ' and leveled up!' : '!'}`, 3000, playerNum);
+            window.showModernNotification(`🔘 Cyber-Core Upgrade installed! ${creature.nickname || creature.name} gained ${150 * tier} XP${lvUp ? ' and leveled up!' : '!'}`, 3000, playerNum);
         });
     }
-    else if (item.name === "Nano-Nurture Serum") {
+    else if (baseName === "Nano-Nurture Serum") {
         window.promptCreatureSelection(playerNum, "Choose Creature for Nano-Nurture", (creature) => {
             if (creature.isEgg) {
                 window.showModernNotification("❌ Cannot use on an Egg!", 3000, playerNum);
@@ -19002,7 +19055,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
             window.showModernNotification(`💉 Nano-Nurture Serum injected! ${creature.nickname || creature.name}'s Happiness has been completely restored to 100! 💖`, 3000, playerNum);
         });
     }
-    else if (item.name === "DNA Stabilizer") {
+    else if (baseName === "DNA Stabilizer") {
         window.promptCreatureSelection(playerNum, "Choose Egg to Stabilize & Hatch", (creature) => {
             if (!creature.isEgg) {
                 window.showModernNotification("❌ DNA Stabilizer can only be used on Mysterious Eggs!", 3000, playerNum);
@@ -19241,12 +19294,50 @@ window.getCreatureTypeIconHTML = function(type, size = 16) {
 };
 
 window.getItemIconHTML = function(itemName, size = 24) {
+    const baseName = window.getBaseItemName ? window.getBaseItemName(itemName) : itemName;
+    const tier = window.getItemTier ? window.getItemTier(itemName) : 1;
+
     let svgContent = '';
     let glowColor = '#00ffd2';
     let baseColor = '#0b1424';
 
-    // Choose theme colors based on item type
-    if (itemName.includes("Booster")) {
+    // Base colors (Tier 1 default)
+    if (baseName.includes("Booster")) {
+        if (baseName.startsWith("HP")) glowColor = '#00ff66';
+        else if (baseName.startsWith("Attack")) glowColor = '#ff3366';
+        else if (baseName.startsWith("Defense")) glowColor = '#0066ff';
+        else if (baseName.startsWith("Speed")) glowColor = '#ffd700';
+        else if (baseName.startsWith("Sp. Atk")) glowColor = '#ff00ff';
+        else if (baseName.startsWith("Sp. Def")) glowColor = '#00ffff';
+    } else if (baseName.includes("Healing") || baseName.includes("Serum")) {
+        glowColor = '#00ff96';
+    } else if (baseName === "Jank Juice") {
+        glowColor = '#ff00ff';
+    } else if (baseName === "Repellent") {
+        glowColor = '#ff3300';
+    } else if (baseName === "ExPALL") {
+        glowColor = '#ffd700';
+    } else if (baseName === "Creature Cookie") {
+        glowColor = '#ff9f00';
+    } else if (baseName === "Pedometer") {
+        glowColor = '#00ffd2';
+    } else if (baseName === "NPC Dual Link") {
+        glowColor = '#00ffd2';
+    } else if (baseName === "Wild Dual Signal") {
+        glowColor = '#ff4400';
+    } else if (baseName.startsWith("Mini") || baseName.includes("Tile") || baseName === "Storage Chest") {
+        glowColor = '#00ffd2';
+    }
+
+    // Override colors if tiered
+    if (tier === 2) glowColor = '#00ff66';
+    else if (tier === 3) glowColor = '#0066ff';
+    else if (tier === 4) glowColor = '#ff00ff';
+    else if (tier === 5) glowColor = '#ffd700';
+
+/* Replaced */
+
+    if (baseName.includes("Booster")) {
         if (itemName.startsWith("HP")) glowColor = '#00ff66';
         else if (itemName.startsWith("Attack")) glowColor = '#ff3366';
         else if (itemName.startsWith("Defense")) glowColor = '#0066ff';
@@ -19363,41 +19454,41 @@ window.getItemIconHTML = function(itemName, size = 24) {
     };
     const emoji = emojiMap[itemName] || "📦";
 
-    switch (itemName) {
+    switch (baseName) {
         case "NPC Dual Link":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <!-- Cyber background grid & circuits -->
                 <path d="M10,30 L30,30 L40,40 M90,70 L70,70 L60,60" stroke="rgba(0, 255, 210, 0.25)" stroke-width="1.5" fill="none" />
                 <path d="M10,80 L25,80 L35,70 M90,20 L75,20 L65,30" stroke="rgba(0, 255, 210, 0.25)" stroke-width="1.5" fill="none" />
-                <circle cx="40" cy="40" r="3" fill="#00ffd2" opacity="0.4" />
-                <circle cx="60" cy="60" r="3" fill="#00ffd2" opacity="0.4" />
-                <circle cx="35" cy="70" r="3" fill="#00ffd2" opacity="0.4" />
-                <circle cx="65" cy="30" r="3" fill="#00ffd2" opacity="0.4" />
+                <circle cx="40" cy="40" r="3" fill="${glowColor}" opacity="0.4" />
+                <circle cx="60" cy="60" r="3" fill="${glowColor}" opacity="0.4" />
+                <circle cx="35" cy="70" r="3" fill="${glowColor}" opacity="0.4" />
+                <circle cx="65" cy="30" r="3" fill="${glowColor}" opacity="0.4" />
 
                 <!-- Main Dish Base / Stand -->
-                <path d="M40,82 L60,82 L55,65 L45,65 Z" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <path d="M40,82 L60,82 L55,65 L45,65 Z" fill="#152238" stroke="${glowColor}" stroke-width="2" />
 
                 <!-- Parabolic transmitter dish -->
-                <path d="M25,48 Q50,68 75,48" fill="none" stroke="#00ffd2" stroke-width="4" stroke-linecap="round" />
+                <path d="M25,48 Q50,68 75,48" fill="none" stroke="${glowColor}" stroke-width="4" stroke-linecap="round" />
                 <path d="M32,53 Q50,67 68,53" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
 
                 <!-- Center feed horn/emitter -->
-                <path d="M50,58 L50,42" stroke="#00ffd2" stroke-width="3" stroke-linecap="round" />
+                <path d="M50,58 L50,42" stroke="${glowColor}" stroke-width="3" stroke-linecap="round" />
                 <circle cx="50" cy="40" r="4.5" fill="#fff" filter="url(#glow)" />
 
                 <!-- Dual Link handshaking nodes -->
-                <circle cx="30" cy="25" r="5" fill="#00ffd2" filter="url(#glow)" />
-                <circle cx="70" cy="25" r="5" fill="#00ffd2" filter="url(#glow)" />
-                <path d="M35,25 Q50,15 65,25" fill="none" stroke="#00ffd2" stroke-width="2" stroke-dasharray="3,3" />
+                <circle cx="30" cy="25" r="5" fill="${glowColor}" filter="url(#glow)" />
+                <circle cx="70" cy="25" r="5" fill="${glowColor}" filter="url(#glow)" />
+                <path d="M35,25 Q50,15 65,25" fill="none" stroke="${glowColor}" stroke-width="2" stroke-dasharray="3,3" />
                 <path d="M35,25 L45,36" stroke="rgba(0, 255, 210, 0.5)" stroke-width="1.5" />
                 <path d="M65,25 L55,36" stroke="rgba(0, 255, 210, 0.5)" stroke-width="1.5" />`;
             break;
         case "Wild Dual Signal":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff4400" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <!-- Cyber background grid & circuits -->
                 <path d="M15,20 L15,40 L30,50 M85,80 L85,60 L70,50" stroke="rgba(255, 68, 0, 0.25)" stroke-width="1.5" fill="none" />
-                <circle cx="30" cy="50" r="3" fill="#ff4400" opacity="0.4" />
-                <circle cx="70" cy="50" r="3" fill="#ff4400" opacity="0.4" />
+                <circle cx="30" cy="50" r="3" fill="${glowColor}" opacity="0.4" />
+                <circle cx="70" cy="50" r="3" fill="${glowColor}" opacity="0.4" />
 
                 <!-- Radar sweeps and dual target indicators -->
                 <circle cx="50" cy="55" r="30" fill="none" stroke="rgba(255, 68, 0, 0.15)" stroke-width="1" />
@@ -19405,27 +19496,27 @@ window.getItemIconHTML = function(itemName, size = 24) {
 
                 <!-- High-Tech Dual-Tower Transmitter -->
                 <!-- Left mast -->
-                <line x1="42" y1="80" x2="42" y2="45" stroke="#ff4400" stroke-width="3" stroke-linecap="round" />
-                <circle cx="42" cy="42" r="3.5" fill="#ff4400" />
+                <line x1="42" y1="80" x2="42" y2="45" stroke="${glowColor}" stroke-width="3" stroke-linecap="round" />
+                <circle cx="42" cy="42" r="3.5" fill="${glowColor}" />
 
                 <!-- Right mast -->
-                <line x1="58" y1="80" x2="58" y2="45" stroke="#ff4400" stroke-width="3" stroke-linecap="round" />
-                <circle cx="58" cy="42" r="3.5" fill="#ff4400" />
+                <line x1="58" y1="80" x2="58" y2="45" stroke="${glowColor}" stroke-width="3" stroke-linecap="round" />
+                <circle cx="58" cy="42" r="3.5" fill="${glowColor}" />
 
                 <!-- Center Energy Core -->
-                <rect x="46" y="55" width="8" height="25" rx="3" fill="#150805" stroke="#ff4400" stroke-width="2" />
+                <rect x="46" y="55" width="8" height="25" rx="3" fill="#150805" stroke="${glowColor}" stroke-width="2" />
                 <line x1="50" y1="58" x2="50" y2="77" stroke="#fff" stroke-width="2" filter="url(#glow)" />
 
                 <!-- Dual Pulsing Signal Waveforms radiating outwards -->
-                <path d="M34,42 A12,12 0 0,0 26,26" fill="none" stroke="#ff4400" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M34,42 A12,12 0 0,0 26,26" fill="none" stroke="${glowColor}" stroke-width="2.5" stroke-linecap="round" />
                 <path d="M30,38 A6,6 0 0,0 26,30" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
 
-                <path d="M66,42 A12,12 0 0,1 74,26" fill="none" stroke="#ff4400" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" />
+                <path d="M66,42 A12,12 0 0,1 74,26" fill="none" stroke="${glowColor}" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" />
                 <path d="M70,38 A6,6 0 0,1 74,30" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
 
                 <!-- Telemetry target crosshairs for wild tracking -->
-                <path d="M22,22 L28,22 M22,22 L22,28" stroke="#ff4400" stroke-width="2" />
-                <path d="M78,22 L72,22 M78,22 L78,28" stroke="#ff4400" stroke-width="2" />`;
+                <path d="M22,22 L28,22 M22,22 L22,28" stroke="${glowColor}" stroke-width="2" />
+                <path d="M78,22 L72,22 M78,22 L78,28" stroke="${glowColor}" stroke-width="2" />`;
             break;
         case "Repellent":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3300" stroke-width="4"/>
@@ -19438,52 +19529,52 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <circle cx="78" cy="12" r="2" fill="#ff3300" />`;
             break;
         case "HP Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff66" stroke-width="4"/>
-                <circle cx="50" cy="50" r="30" fill="none" stroke="#00ff66" stroke-width="2" stroke-dasharray="4,4" />
-                <path d="M50,30 C45,20 25,20 25,40 C25,60 50,80 50,80 C50,80 75,60 75,40 C75,20 55,20 50,30 Z" fill="#00ff66" filter="url(#glow)"/>`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="${glowColor}" stroke-width="2" stroke-dasharray="4,4" />
+                <path d="M50,30 C45,20 25,20 25,40 C25,60 50,80 50,80 C50,80 75,60 75,40 C75,20 55,20 50,30 Z" fill="${glowColor}" filter="url(#glow)"/>`;
             break;
         case "Attack Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3366" stroke-width="4"/>
-                <path d="M20,80 L40,60 L50,65 L30,85 Z" fill="#ff3366" />
-                <path d="M80,20 L60,40 L50,35 L70,15 Z" fill="#ff3366" />
-                <path d="M25,75 L75,25 L80,30 L30,80 Z" fill="#fff" stroke="#ff3366" stroke-width="2" />
-                <path d="M75,75 L25,25 L20,30 L70,80 Z" fill="#fff" stroke="#ff3366" stroke-width="2" />
-                <circle cx="50" cy="50" r="10" fill="none" stroke="#ff3366" stroke-width="3" />`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M20,80 L40,60 L50,65 L30,85 Z" fill="${glowColor}" />
+                <path d="M80,20 L60,40 L50,35 L70,15 Z" fill="${glowColor}" />
+                <path d="M25,75 L75,25 L80,30 L30,80 Z" fill="#fff" stroke="${glowColor}" stroke-width="2" />
+                <path d="M75,75 L25,25 L20,30 L70,80 Z" fill="#fff" stroke="${glowColor}" stroke-width="2" />
+                <circle cx="50" cy="50" r="10" fill="none" stroke="${glowColor}" stroke-width="3" />`;
             break;
         case "Defense Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#0066ff" stroke-width="4"/>
-                <path d="M30,25 L50,15 L70,25 L70,55 C70,70 50,85 50,85 C50,85 30,70 30,55 Z" fill="#0066ff" filter="url(#glow)"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M30,25 L50,15 L70,25 L70,55 C70,70 50,85 50,85 C50,85 30,70 30,55 Z" fill="${glowColor}" filter="url(#glow)"/>
                 <path d="M35,30 L50,22 L65,30 L65,53 C65,65 50,77 50,77 C50,77 35,65 35,53 Z" fill="#fff" opacity="0.3" />`;
             break;
         case "Speed Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
-                <path d="M60,15 L25,55 L50,55 L35,85 L80,45 L50,45 Z" fill="#ffd700" filter="url(#glow)"/>
-                <line x1="15" y1="35" x2="35" y2="35" stroke="#ffd700" stroke-width="3" stroke-linecap="round" />
-                <line x1="10" y1="50" x2="30" y2="50" stroke="#ffd700" stroke-width="3" stroke-linecap="round" />`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M60,15 L25,55 L50,55 L35,85 L80,45 L50,45 Z" fill="${glowColor}" filter="url(#glow)"/>
+                <line x1="15" y1="35" x2="35" y2="35" stroke="${glowColor}" stroke-width="3" stroke-linecap="round" />
+                <line x1="10" y1="50" x2="30" y2="50" stroke="${glowColor}" stroke-width="3" stroke-linecap="round" />`;
             break;
         case "Sp. Atk Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
-                <circle cx="50" cy="50" r="20" fill="none" stroke="#ff00ff" stroke-width="3" />
-                <path d="M50,15 C60,25 65,40 50,50 C35,60 40,75 50,85" fill="none" stroke="#ff00ff" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <circle cx="50" cy="50" r="20" fill="none" stroke="${glowColor}" stroke-width="3" />
+                <path d="M50,15 C60,25 65,40 50,50 C35,60 40,75 50,85" fill="none" stroke="${glowColor}" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
                 <circle cx="50" cy="50" r="6" fill="#fff" />`;
             break;
         case "Sp. Def Booster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffff" stroke-width="4"/>
-                <circle cx="50" cy="50" r="30" fill="none" stroke="#00ffff" stroke-width="3" filter="url(#glow)" />
-                <circle cx="50" cy="50" r="15" fill="none" stroke="#00ffff" stroke-width="1" stroke-dasharray="4,2" />
-                <rect x="42" y="42" width="16" height="16" rx="4" fill="#00ffff" />`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="none" stroke="${glowColor}" stroke-width="3" filter="url(#glow)" />
+                <circle cx="50" cy="50" r="15" fill="none" stroke="${glowColor}" stroke-width="1" stroke-dasharray="4,2" />
+                <rect x="42" y="42" width="16" height="16" rx="4" fill="${glowColor}" />`;
             break;
         case "Jank Juice":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
-                <rect x="30" y="30" width="40" height="55" rx="8" fill="url(#pouchGrad)" stroke="#ff00ff" stroke-width="2" />
-                <path d="M45,30 L45,15 Q45,10 55,12" fill="none" stroke="#ffd700" stroke-width="4" stroke-linecap="round" />
-                <path d="M50,42 L52,48 L58,48 L53,52 L55,58 L50,54 L45,58 L47,52 L42,48 L48,48 Z" fill="#ffd700" filter="url(#glow)" />`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="30" y="30" width="40" height="55" rx="8" fill="url(#pouchGrad)" stroke="${glowColor}" stroke-width="2" />
+                <path d="M45,30 L45,15 Q45,10 55,12" fill="none" stroke="${glowColor}" stroke-width="4" stroke-linecap="round" />
+                <path d="M50,42 L52,48 L58,48 L53,52 L55,58 L50,54 L45,58 L47,52 L42,48 L48,48 Z" fill="${glowColor}" filter="url(#glow)" />`;
             break;
         case "Healing Juice Bottle":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff96" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <path d="M42,20 L58,20 L55,30 L45,30 Z" fill="#666" />
-                <path d="M45,30 L55,30 L65,55 L65,80 C65,85 35,85 35,80 L35,55 Z" fill="#00ff96" opacity="0.4" />
-                <path d="M38,58 L62,58 L62,78 C62,82 38,82 38,78 Z" fill="#00ff96" filter="url(#glow)"/>
+                <path d="M45,30 L55,30 L65,55 L65,80 C65,85 35,85 35,80 L35,55 Z" fill="${glowColor}" opacity="0.4" />
+                <path d="M38,58 L62,58 L62,78 C62,82 38,82 38,78 Z" fill="${glowColor}" filter="url(#glow)"/>
                 <circle cx="45" cy="65" r="3" fill="#fff" />
                 <circle cx="55" cy="72" r="2" fill="#fff" />`;
             break;
@@ -19497,15 +19588,15 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <path d="M74,45 Q80,60 68,70" fill="none" stroke="#ffaa00" stroke-width="2" />`;
             break;
         case "ExPALL":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
-                <rect x="30" y="30" width="40" height="40" rx="5" fill="#151515" stroke="#ffd700" stroke-width="3" />
-                <line x1="20" y1="40" x2="30" y2="40" stroke="#ffd700" stroke-width="3" />
-                <line x1="20" y1="50" x2="30" y2="50" stroke="#ffd700" stroke-width="3" />
-                <line x1="20" y1="60" x2="30" y2="60" stroke="#ffd700" stroke-width="3" />
-                <line x1="70" y1="40" x2="80" y2="40" stroke="#ffd700" stroke-width="3" />
-                <line x1="70" y1="50" x2="80" y2="50" stroke="#ffd700" stroke-width="3" />
-                <line x1="70" y1="60" x2="80" y2="60" stroke="#ffd700" stroke-width="3" />
-                <path d="M50,40 L53,46 L59,46 L54,50 L56,56 L50,52 L44,56 L46,50 L41,46 L47,46 Z" fill="#ffd700" filter="url(#glow)" />`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="30" y="30" width="40" height="40" rx="5" fill="#151515" stroke="${glowColor}" stroke-width="3" />
+                <line x1="20" y1="40" x2="30" y2="40" stroke="${glowColor}" stroke-width="3" />
+                <line x1="20" y1="50" x2="30" y2="50" stroke="${glowColor}" stroke-width="3" />
+                <line x1="20" y1="60" x2="30" y2="60" stroke="${glowColor}" stroke-width="3" />
+                <line x1="70" y1="40" x2="80" y2="40" stroke="${glowColor}" stroke-width="3" />
+                <line x1="70" y1="50" x2="80" y2="50" stroke="${glowColor}" stroke-width="3" />
+                <line x1="70" y1="60" x2="80" y2="60" stroke="${glowColor}" stroke-width="3" />
+                <path d="M50,40 L53,46 L59,46 L54,50 L56,56 L50,52 L44,56 L46,50 L41,46 L47,46 Z" fill="${glowColor}" filter="url(#glow)" />`;
             break;
         case "Creature License":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00f3ff" stroke-width="4"/>
@@ -19513,24 +19604,24 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <line x1="28" y1="60" x2="28" y2="40" stroke="#00f3ff" stroke-width="2" />
                 <line x1="33" y1="60" x2="33" y2="40" stroke="#00f3ff" stroke-width="1" />
                 <line x1="37" y1="60" x2="37" y2="40" stroke="#00f3ff" stroke-width="3" />
-                <rect x="62" y="38" width="12" height="10" rx="2" fill="#ffd700" />
+                <rect x="62" y="38" width="12" height="10" rx="2" fill="${glowColor}" />
                 <path d="M46,52 A4,4 0 0,1 54,52 L56,48 L52,48 L50,45 L48,48 Z" fill="none" stroke="#00f3ff" stroke-width="2" />`;
             break;
         case "Creature Cookie":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff9f00" stroke-width="4"/>
                 <circle cx="50" cy="50" r="30" fill="#a05a2c" stroke="#ff9f00" stroke-width="3" />
-                <circle cx="40" cy="35" r="4" fill="#00ffd2" />
-                <circle cx="65" cy="40" r="4" fill="#ff00ff" />
-                <circle cx="45" cy="65" r="4" fill="#00ffd2" />
-                <circle cx="60" cy="60" r="4" fill="#ff00ff" />
+                <circle cx="40" cy="35" r="4" fill="${glowColor}" />
+                <circle cx="65" cy="40" r="4" fill="${glowColor}" />
+                <circle cx="45" cy="65" r="4" fill="${glowColor}" />
+                <circle cx="60" cy="60" r="4" fill="${glowColor}" />
                 <path d="M42,48 Q50,56 58,48" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" />`;
             break;
         case "Pedometer":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M30,30 L45,30 L45,55 L65,65 L60,75 L30,75 Z" fill="#00ffd2" opacity="0.3" />
-                <path d="M35,35 L45,35 L45,58 L60,68 L56,72 L35,72 Z" fill="none" stroke="#00ffd2" stroke-width="2" />
-                <path d="M65,30 A15,15 0 0,1 75,45" fill="none" stroke="#00ffd2" stroke-width="3" stroke-linecap="round" filter="url(#glow)" />
-                <path d="M72,25 A22,22 0 0,1 85,45" fill="none" stroke="#00ffd2" stroke-width="2" stroke-linecap="round" />`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M30,30 L45,30 L45,55 L65,65 L60,75 L30,75 Z" fill="${glowColor}" opacity="0.3" />
+                <path d="M35,35 L45,35 L45,58 L60,68 L56,72 L35,72 Z" fill="none" stroke="${glowColor}" stroke-width="2" />
+                <path d="M65,30 A15,15 0 0,1 75,45" fill="none" stroke="${glowColor}" stroke-width="3" stroke-linecap="round" filter="url(#glow)" />
+                <path d="M72,25 A22,22 0 0,1 85,45" fill="none" stroke="${glowColor}" stroke-width="2" stroke-linecap="round" />`;
             break;
         case "Cyber-Core Upgrade":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff7f00" stroke-width="4"/>
@@ -19540,19 +19631,19 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <circle cx="50" cy="55" r="7" fill="#fff" />`;
             break;
         case "Nano-Nurture Serum":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
-                <rect x="42" y="25" width="16" height="45" rx="2" fill="none" stroke="#ff00ff" stroke-width="3" />
-                <line x1="30" y1="20" x2="70" y2="20" stroke="#ff00ff" stroke-width="3" />
-                <line x1="50" y1="20" x2="50" y2="40" stroke="#ff00ff" stroke-width="4" />
-                <rect x="45" y="45" width="10" height="22" fill="#ff00ff" filter="url(#glow)" />
-                <line x1="50" y1="70" x2="50" y2="85" stroke="#ff00ff" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="42" y="25" width="16" height="45" rx="2" fill="none" stroke="${glowColor}" stroke-width="3" />
+                <line x1="30" y1="20" x2="70" y2="20" stroke="${glowColor}" stroke-width="3" />
+                <line x1="50" y1="20" x2="50" y2="40" stroke="${glowColor}" stroke-width="4" />
+                <rect x="45" y="45" width="10" height="22" fill="${glowColor}" filter="url(#glow)" />
+                <line x1="50" y1="70" x2="50" y2="85" stroke="${glowColor}" stroke-width="2" />
                 <circle cx="50" cy="85" r="2" fill="#fff" />`;
             break;
         case "DNA Stabilizer":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00f3ff" stroke-width="4"/>
                 <rect x="35" y="20" width="30" height="60" rx="15" fill="none" stroke="#00f3ff" stroke-width="3" />
                 <path d="M44,30 Q50,40 56,50 Q44,60 50,70" fill="none" stroke="#00f3ff" stroke-width="3" filter="url(#glow)" />
-                <path d="M56,30 Q44,40 50,50 Q56,60 44,70" fill="none" stroke="#00ff96" stroke-width="3" filter="url(#glow)" />
+                <path d="M56,30 Q44,40 50,50 Q56,60 44,70" fill="none" stroke="${glowColor}" stroke-width="3" filter="url(#glow)" />
                 <line x1="46" y1="36" x2="54" y2="34" stroke="#fff" stroke-width="1.5" />
                 <line x1="46" y1="46" x2="54" y2="44" stroke="#fff" stroke-width="1.5" />
                 <line x1="46" y1="56" x2="54" y2="54" stroke="#fff" stroke-width="1.5" />
@@ -19562,21 +19653,21 @@ window.getItemIconHTML = function(itemName, size = 24) {
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff7f00" stroke-width="4"/>
                 <rect x="25" y="30" width="50" height="45" rx="6" fill="#252525" stroke="#ff7f00" stroke-width="3" />
                 <line x1="25" y1="45" x2="75" y2="45" stroke="#ff7f00" stroke-width="4" stroke-dasharray="8,4" />
-                <rect x="42" y="55" width="16" height="12" rx="2" fill="#ffd700" />
-                <circle cx="50" cy="61" r="2" fill="#00ffd2" filter="url(#glow)" />`;
+                <rect x="42" y="55" width="16" height="12" rx="2" fill="${glowColor}" />
+                <circle cx="50" cy="61" r="2" fill="${glowColor}" filter="url(#glow)" />`;
             break;
         case "Mini Hospital":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff96" stroke-width="4"/>
-                <path d="M20,75 L80,75 L80,50 A30,30 0 0,0 20,50 Z" fill="#222" stroke="#00ff96" stroke-width="3" />
-                <rect x="46" y="44" width="8" height="24" fill="#00ff96" filter="url(#glow)" />
-                <rect x="38" y="52" width="24" height="8" fill="#00ff96" filter="url(#glow)" />`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M20,75 L80,75 L80,50 A30,30 0 0,0 20,50 Z" fill="#222" stroke="${glowColor}" stroke-width="3" />
+                <rect x="46" y="44" width="8" height="24" fill="${glowColor}" filter="url(#glow)" />
+                <rect x="38" y="52" width="24" height="8" fill="${glowColor}" filter="url(#glow)" />`;
             break;
         case "Mini Store":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
-                <rect x="22" y="30" width="56" height="48" rx="4" fill="#222" stroke="#ffd700" stroke-width="3" />
-                <polygon points="22,30 78,30 72,40 28,40" fill="#ffd700" />
-                <circle cx="50" cy="58" r="10" fill="none" stroke="#ffd700" stroke-width="2" />
-                <text x="50" y="61" font-family="'Courier New', monospace" font-size="11" font-weight="bold" fill="#ffd700" text-anchor="middle">$</text>`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="22" y="30" width="56" height="48" rx="4" fill="#222" stroke="${glowColor}" stroke-width="3" />
+                <polygon points="22,30 78,30 72,40 28,40" fill="${glowColor}" />
+                <circle cx="50" cy="58" r="10" fill="none" stroke="${glowColor}" stroke-width="2" />
+                <text x="50" y="61" font-family="'Courier New', monospace" font-size="11" font-weight="bold" fill="${glowColor}" text-anchor="middle">$</text>`;
             break;
         case "Mini Trade":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00f3ff" stroke-width="4"/>
@@ -19587,141 +19678,141 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <path d="M30,50 L35,58 M30,50 L22,54" stroke="#fff" stroke-width="3" stroke-linecap="round" />`;
             break;
         case "Mini PvP":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff3366" stroke-width="4"/>
-                <line x1="25" y1="75" x2="75" y2="25" stroke="#ff3366" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />
-                <line x1="75" y1="75" x2="25" y2="25" stroke="#00ffd2" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <line x1="25" y1="75" x2="75" y2="25" stroke="${glowColor}" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />
+                <line x1="75" y1="75" x2="25" y2="25" stroke="${glowColor}" stroke-width="4" stroke-linecap="round" filter="url(#glow)" />`;
             break;
         case "Mini Breeding Center":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
-                <rect x="35" y="25" width="30" height="40" rx="15" fill="#222" stroke="#ff00ff" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="35" y="25" width="30" height="40" rx="15" fill="#222" stroke="${glowColor}" stroke-width="2" />
                 <ellipse cx="50" cy="45" rx="8" ry="12" fill="#fff" filter="url(#glow)" />
-                <circle cx="46" cy="42" r="2" fill="#ff00ff" />
-                <circle cx="54" cy="48" r="1.5" fill="#ff00ff" />`;
+                <circle cx="46" cy="42" r="2" fill="${glowColor}" />
+                <circle cx="54" cy="48" r="1.5" fill="${glowColor}" />`;
             break;
 
         case "Neon Couch":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="20" y="50" width="60" height="20" fill="#1e1e2e" stroke="#00ffd2" stroke-width="3" filter="url(#glow)"/>
-                <rect x="15" y="45" width="70" height="15" fill="#181825" stroke="#00ffd2" stroke-width="3"/>
-                <rect x="15" y="50" width="10" height="25" fill="#1e1e2e" stroke="#00ffd2" stroke-width="2"/>
-                <rect x="75" y="50" width="10" height="25" fill="#1e1e2e" stroke="#00ffd2" stroke-width="2"/>`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="20" y="50" width="60" height="20" fill="#1e1e2e" stroke="${glowColor}" stroke-width="3" filter="url(#glow)"/>
+                <rect x="15" y="45" width="70" height="15" fill="#181825" stroke="${glowColor}" stroke-width="3"/>
+                <rect x="15" y="50" width="10" height="25" fill="#1e1e2e" stroke="${glowColor}" stroke-width="2"/>
+                <rect x="75" y="50" width="10" height="25" fill="#1e1e2e" stroke="${glowColor}" stroke-width="2"/>`;
             break;
 
         case "L-Couch":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M15,15 L40,15 L40,60 L85,60 L85,85 L15,85 Z" fill="#1e1e2e" stroke="#00ffd2" stroke-width="2" />
-                <rect x="15" y="35" width="10" height="40" fill="#2a2a3e" stroke="#00ffd2" stroke-width="1.5" />
-                <rect x="15" y="75" width="60" height="10" fill="#2a2a3e" stroke="#00ffd2" stroke-width="1.5" />
-                <rect x="15" y="15" width="25" height="10" fill="#3a3a4e" stroke="#00ffd2" stroke-width="1.5" rx="2" />
-                <rect x="75" y="60" width="10" height="25" fill="#3a3a4e" stroke="#00ffd2" stroke-width="1.5" rx="2" />
-                <rect x="25" y="25" width="15" height="25" fill="#1e1e2e" stroke="#00ffd2" stroke-width="1.5" rx="1" />
-                <rect x="25" y="50" width="15" height="25" fill="#1e1e2e" stroke="#00ffd2" stroke-width="1.5" rx="1" />
-                <rect x="40" y="60" width="17.5" height="15" fill="#1e1e2e" stroke="#00ffd2" stroke-width="1.5" rx="1" />
-                <rect x="57.5" y="60" width="17.5" height="15" fill="#1e1e2e" stroke="#00ffd2" stroke-width="1.5" rx="1" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M15,15 L40,15 L40,60 L85,60 L85,85 L15,85 Z" fill="#1e1e2e" stroke="${glowColor}" stroke-width="2" />
+                <rect x="15" y="35" width="10" height="40" fill="#2a2a3e" stroke="${glowColor}" stroke-width="1.5" />
+                <rect x="15" y="75" width="60" height="10" fill="#2a2a3e" stroke="${glowColor}" stroke-width="1.5" />
+                <rect x="15" y="15" width="25" height="10" fill="#3a3a4e" stroke="${glowColor}" stroke-width="1.5" rx="2" />
+                <rect x="75" y="60" width="10" height="25" fill="#3a3a4e" stroke="${glowColor}" stroke-width="1.5" rx="2" />
+                <rect x="25" y="25" width="15" height="25" fill="#1e1e2e" stroke="${glowColor}" stroke-width="1.5" rx="1" />
+                <rect x="25" y="50" width="15" height="25" fill="#1e1e2e" stroke="${glowColor}" stroke-width="1.5" rx="1" />
+                <rect x="40" y="60" width="17.5" height="15" fill="#1e1e2e" stroke="${glowColor}" stroke-width="1.5" rx="1" />
+                <rect x="57.5" y="60" width="17.5" height="15" fill="#1e1e2e" stroke="${glowColor}" stroke-width="1.5" rx="1" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["L-Couch"]}</span>`;
             break;
         case "Love Seat":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M30,60 L30,40 C30,35 35,30 40,30 L60,30 C65,30 70,35 70,40 L70,60 L75,60 C77.76,60 80,62.24 80,65 L80,75 C80,77.76 77.76,80 75,80 L25,80 C22.24,80 20,77.76 20,75 L20,65 C20,62.24 22.24,60 25,60 Z" fill="#ff5555" stroke="#00ffd2" stroke-width="2" />
-                <rect x="35" y="60" width="30" height="10" fill="#00ffd2" opacity="0.8" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M30,60 L30,40 C30,35 35,30 40,30 L60,30 C65,30 70,35 70,40 L70,60 L75,60 C77.76,60 80,62.24 80,65 L80,75 C80,77.76 77.76,80 75,80 L25,80 C22.24,80 20,77.76 20,75 L20,65 C20,62.24 22.24,60 25,60 Z" fill="#ff5555" stroke="${glowColor}" stroke-width="2" />
+                <rect x="35" y="60" width="30" height="10" fill="${glowColor}" opacity="0.8" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Love Seat"]}</span>`;
             break;
         case "Office Chair":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="40" y="30" width="20" height="30" rx="5" fill="#333" stroke="#00ffd2" stroke-width="2" />
-                <ellipse cx="50" cy="65" rx="15" ry="5" fill="#555" stroke="#00ffd2" stroke-width="2" />
-                <line x1="50" y1="70" x2="50" y2="85" stroke="#00ffd2" stroke-width="3" />
-                <line x1="40" y1="85" x2="60" y2="85" stroke="#00ffd2" stroke-width="3" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="40" y="30" width="20" height="30" rx="5" fill="#333" stroke="${glowColor}" stroke-width="2" />
+                <ellipse cx="50" cy="65" rx="15" ry="5" fill="#555" stroke="${glowColor}" stroke-width="2" />
+                <line x1="50" y1="70" x2="50" y2="85" stroke="${glowColor}" stroke-width="3" />
+                <line x1="40" y1="85" x2="60" y2="85" stroke="${glowColor}" stroke-width="3" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Office Chair"]}</span>`;
             break;
         case "Stool":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <ellipse cx="50" cy="40" rx="15" ry="8" fill="#ff007f" stroke="#00ffd2" stroke-width="2" />
-                <line x1="40" y1="45" x2="35" y2="75" stroke="#00ffd2" stroke-width="2" />
-                <line x1="60" y1="45" x2="65" y2="75" stroke="#00ffd2" stroke-width="2" />
-                <line x1="37" y1="65" x2="63" y2="65" stroke="#00ffd2" stroke-width="1.5" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <ellipse cx="50" cy="40" rx="15" ry="8" fill="#ff007f" stroke="${glowColor}" stroke-width="2" />
+                <line x1="40" y1="45" x2="35" y2="75" stroke="${glowColor}" stroke-width="2" />
+                <line x1="60" y1="45" x2="65" y2="75" stroke="${glowColor}" stroke-width="2" />
+                <line x1="37" y1="65" x2="63" y2="65" stroke="${glowColor}" stroke-width="1.5" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Stool"]}</span>`;
             break;
         case "Coffee Table":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="20" y="45" width="60" height="10" rx="2" fill="#553311" stroke="#00ffd2" stroke-width="2" />
-                <rect x="25" y="55" width="5" height="20" fill="#333" stroke="#00ffd2" stroke-width="1.5" />
-                <rect x="70" y="55" width="5" height="20" fill="#333" stroke="#00ffd2" stroke-width="1.5" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="20" y="45" width="60" height="10" rx="2" fill="#553311" stroke="${glowColor}" stroke-width="2" />
+                <rect x="25" y="55" width="5" height="20" fill="#333" stroke="${glowColor}" stroke-width="1.5" />
+                <rect x="70" y="55" width="5" height="20" fill="#333" stroke="${glowColor}" stroke-width="1.5" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Coffee Table"]}</span>`;
             break;
         case "Dining Table":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <ellipse cx="50" cy="40" rx="40" ry="15" fill="#885522" stroke="#00ffd2" stroke-width="2" />
-                <rect x="45" y="55" width="10" height="25" fill="#333" stroke="#00ffd2" stroke-width="2" />
-                <line x1="35" y1="80" x2="65" y2="80" stroke="#00ffd2" stroke-width="3" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <ellipse cx="50" cy="40" rx="40" ry="15" fill="#885522" stroke="${glowColor}" stroke-width="2" />
+                <rect x="45" y="55" width="10" height="25" fill="#333" stroke="${glowColor}" stroke-width="2" />
+                <line x1="35" y1="80" x2="65" y2="80" stroke="${glowColor}" stroke-width="3" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Dining Table"]}</span>`;
             break;
         case "Park Bench":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="15" y="55" width="70" height="8" rx="2" fill="#664422" stroke="#00ffd2" stroke-width="2" />
-                <rect x="15" y="40" width="70" height="15" rx="2" fill="#664422" stroke="#00ffd2" stroke-width="2" />
-                <rect x="20" y="63" width="5" height="15" fill="#333" stroke="#00ffd2" stroke-width="1.5" />
-                <rect x="75" y="63" width="5" height="15" fill="#333" stroke="#00ffd2" stroke-width="1.5" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="15" y="55" width="70" height="8" rx="2" fill="#664422" stroke="${glowColor}" stroke-width="2" />
+                <rect x="15" y="40" width="70" height="15" rx="2" fill="#664422" stroke="${glowColor}" stroke-width="2" />
+                <rect x="20" y="63" width="5" height="15" fill="#333" stroke="${glowColor}" stroke-width="1.5" />
+                <rect x="75" y="63" width="5" height="15" fill="#333" stroke="${glowColor}" stroke-width="1.5" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Park Bench"]}</span>`;
             break;
         case "Cyber Bench":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="15" y="50" width="70" height="10" rx="3" fill="#152238" stroke="#00ffd2" stroke-width="2" />
-                <line x1="20" y1="55" x2="80" y2="55" stroke="#00ff66" stroke-width="2" opacity="0.8" />
-                <polygon points="25,60 30,80 20,80" fill="#00ffd2" />
-                <polygon points="75,60 80,80 70,80" fill="#00ffd2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="15" y="50" width="70" height="10" rx="3" fill="#152238" stroke="${glowColor}" stroke-width="2" />
+                <line x1="20" y1="55" x2="80" y2="55" stroke="${glowColor}" stroke-width="2" opacity="0.8" />
+                <polygon points="25,60 30,80 20,80" fill="${glowColor}" />
+                <polygon points="75,60 80,80 70,80" fill="${glowColor}" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Bench"]}</span>`;
             break;
         case "Filing Cabinet":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="30" y="20" width="40" height="60" rx="3" fill="#444" stroke="#00ffd2" stroke-width="2" />
-                <rect x="35" y="25" width="30" height="15" rx="2" fill="#555" stroke="#00ffd2" stroke-width="1.5" />
-                <rect x="35" y="45" width="30" height="15" rx="2" fill="#555" stroke="#00ffd2" stroke-width="1.5" />
-                <rect x="35" y="65" width="30" height="10" rx="2" fill="#555" stroke="#00ffd2" stroke-width="1.5" />
-                <line x1="40" y1="32" x2="60" y2="32" stroke="#00ffd2" stroke-width="2" />
-                <line x1="40" y1="52" x2="60" y2="52" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="30" y="20" width="40" height="60" rx="3" fill="#444" stroke="${glowColor}" stroke-width="2" />
+                <rect x="35" y="25" width="30" height="15" rx="2" fill="#555" stroke="${glowColor}" stroke-width="1.5" />
+                <rect x="35" y="45" width="30" height="15" rx="2" fill="#555" stroke="${glowColor}" stroke-width="1.5" />
+                <rect x="35" y="65" width="30" height="10" rx="2" fill="#555" stroke="${glowColor}" stroke-width="1.5" />
+                <line x1="40" y1="32" x2="60" y2="32" stroke="${glowColor}" stroke-width="2" />
+                <line x1="40" y1="52" x2="60" y2="52" stroke="${glowColor}" stroke-width="2" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Filing Cabinet"]}</span>`;
             break;
         case "Display Cabinet":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="25" y="15" width="50" height="70" rx="2" fill="#222" stroke="#00ffd2" stroke-width="2" />
-                <rect x="30" y="20" width="40" height="60" fill="rgba(0,255,210,0.2)" stroke="#00ffd2" stroke-width="1" />
-                <line x1="30" y1="40" x2="70" y2="40" stroke="#00ffd2" stroke-width="1" opacity="0.5" />
-                <line x1="30" y1="60" x2="70" y2="60" stroke="#00ffd2" stroke-width="1" opacity="0.5" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="15" width="50" height="70" rx="2" fill="#222" stroke="${glowColor}" stroke-width="2" />
+                <rect x="30" y="20" width="40" height="60" fill="rgba(0,255,210,0.2)" stroke="${glowColor}" stroke-width="1" />
+                <line x1="30" y1="40" x2="70" y2="40" stroke="${glowColor}" stroke-width="1" opacity="0.5" />
+                <line x1="30" y1="60" x2="70" y2="60" stroke="${glowColor}" stroke-width="1" opacity="0.5" />
                 <circle cx="50" cy="50" r="5" fill="#ff007f" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Display Cabinet"]}</span>`;
             break;
         case "Nightstand":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="30" y="40" width="40" height="40" rx="3" fill="#332211" stroke="#00ffd2" stroke-width="2" />
-                <rect x="35" y="45" width="30" height="15" rx="2" fill="#443322" stroke="#00ffd2" stroke-width="1.5" />
-                <circle cx="50" cy="52" r="2" fill="#00ffd2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="30" y="40" width="40" height="40" rx="3" fill="#332211" stroke="${glowColor}" stroke-width="2" />
+                <rect x="35" y="45" width="30" height="15" rx="2" fill="#443322" stroke="${glowColor}" stroke-width="1.5" />
+                <circle cx="50" cy="52" r="2" fill="${glowColor}" />
                 <rect x="45" y="25" width="10" height="15" fill="#555" />
                 <circle cx="50" cy="20" r="5" fill="#ffff00" filter="url(#glow)" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Nightstand"]}</span>`;
             break;
         case "Corner Table":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <polygon points="20,40 80,40 50,70" fill="#553311" stroke="#00ffd2" stroke-width="2" />
-                <line x1="25" y1="40" x2="25" y2="75" stroke="#00ffd2" stroke-width="3" />
-                <line x1="75" y1="40" x2="75" y2="75" stroke="#00ffd2" stroke-width="3" />
-                <line x1="50" y1="70" x2="50" y2="85" stroke="#00ffd2" stroke-width="3" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <polygon points="20,40 80,40 50,70" fill="#553311" stroke="${glowColor}" stroke-width="2" />
+                <line x1="25" y1="40" x2="25" y2="75" stroke="${glowColor}" stroke-width="3" />
+                <line x1="75" y1="40" x2="75" y2="75" stroke="${glowColor}" stroke-width="3" />
+                <line x1="50" y1="70" x2="50" y2="85" stroke="${glowColor}" stroke-width="3" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Corner Table"]}</span>`;
             break;
         case "Bunk Bed":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="25" y="20" width="50" height="15" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="20" width="50" height="15" rx="2" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <rect x="30" y="20" width="20" height="8" fill="#ff007f" opacity="0.8" />
-                <rect x="25" y="55" width="50" height="15" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <rect x="25" y="55" width="50" height="15" rx="2" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <rect x="30" y="55" width="20" height="8" fill="#ff007f" opacity="0.8" />
-                <line x1="20" y1="15" x2="20" y2="85" stroke="#00ffd2" stroke-width="4" />
-                <line x1="80" y1="15" x2="80" y2="85" stroke="#00ffd2" stroke-width="4" />
-                <line x1="70" y1="35" x2="70" y2="55" stroke="#00ffd2" stroke-width="2" stroke-dasharray="4 2" />
+                <line x1="20" y1="15" x2="20" y2="85" stroke="${glowColor}" stroke-width="4" />
+                <line x1="80" y1="15" x2="80" y2="85" stroke="${glowColor}" stroke-width="4" />
+                <line x1="70" y1="35" x2="70" y2="55" stroke="${glowColor}" stroke-width="2" stroke-dasharray="4 2" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Bunk Bed"]}</span>`;
             break;
         case "King Bed":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="15" y="50" width="70" height="25" rx="4" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="15" y="50" width="70" height="25" rx="4" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <path d="M15,50 L85,50 L85,35 C85,25 15,25 15,35 Z" fill="rgba(0, 255, 210, 0.4)" />
                 <rect x="20" y="35" width="25" height="12" rx="4" fill="#ff007f" opacity="0.9" />
                 <rect x="55" y="35" width="25" height="12" rx="4" fill="#ff007f" opacity="0.9" />
@@ -19729,19 +19820,19 @@ window.getItemIconHTML = function(itemName, size = 24) {
             break;
 
         case "Cyber Desk":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="25" y="30" width="50" height="25" fill="#0a0a0a" stroke="#ff00ff" stroke-width="3" filter="url(#glow)"/>
-                <rect x="20" y="55" width="60" height="10" fill="#111" stroke="#00ffd2" stroke-width="2"/>
-                <rect x="35" y="60" width="30" height="5" fill="#00ffd2" filter="url(#glow)"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="30" width="50" height="25" fill="#0a0a0a" stroke="${glowColor}" stroke-width="3" filter="url(#glow)"/>
+                <rect x="20" y="55" width="60" height="10" fill="#111" stroke="${glowColor}" stroke-width="2"/>
+                <rect x="35" y="60" width="30" height="5" fill="${glowColor}" filter="url(#glow)"/>
                 <rect x="25" y="65" width="8" height="20" fill="#555"/>
                 <rect x="67" y="65" width="8" height="20" fill="#555"/>`;
             break;
         case "Glow Carpet":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff9f00" stroke-width="4"/>
                 <rect x="20" y="20" width="60" height="60" fill="#000" stroke="#ff9f00" stroke-width="4" filter="url(#glow)"/>
-                <rect x="35" y="35" width="30" height="30" fill="none" stroke="#00ffd2" stroke-width="3" filter="url(#glow)"/>
-                <line x1="50" y1="20" x2="50" y2="80" stroke="#00ffd2" stroke-width="2"/>
-                <line x1="20" y1="50" x2="80" y2="50" stroke="#00ffd2" stroke-width="2"/>`;
+                <rect x="35" y="35" width="30" height="30" fill="none" stroke="${glowColor}" stroke-width="3" filter="url(#glow)"/>
+                <line x1="50" y1="20" x2="50" y2="80" stroke="${glowColor}" stroke-width="2"/>
+                <line x1="20" y1="50" x2="80" y2="50" stroke="${glowColor}" stroke-width="2"/>`;
             break;
         case "Star Carpet":
             svgContent = `<polygon points="50,15 61,35 85,35 65,50 73,75 50,60 27,75 35,50 15,35 39,35" fill="url(#bgGrad)" stroke="#ffdf00" stroke-width="4"/>
@@ -19756,9 +19847,9 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <line x1="50" y1="10" x2="50" y2="90" stroke="#00d2ff" stroke-width="2" opacity="0.5"/>`;
             break;
         case "Hexagon Carpet":
-            svgContent = `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
-                <polygon points="50,25 70,37 70,63 50,75 30,63 30,37" fill="rgba(255, 0, 255, 0.2)" stroke="#ff00ff" stroke-width="2"/>
-                <circle cx="50" cy="50" r="10" fill="#ff00ff" filter="url(#glow)"/>`;
+            svgContent = `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <polygon points="50,25 70,37 70,63 50,75 30,63 30,37" fill="rgba(255, 0, 255, 0.2)" stroke="${glowColor}" stroke-width="2"/>
+                <circle cx="50" cy="50" r="10" fill="${glowColor}" filter="url(#glow)"/>`;
             break;
         case "Heart Carpet":
             svgContent = `<path d="M50,30 C50,10 20,10 20,40 C20,60 50,85 50,85 C50,85 80,60 80,40 C80,10 50,10 50,30 Z" fill="url(#bgGrad)" stroke="#ff0044" stroke-width="4"/>
@@ -19772,12 +19863,12 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <rect x="45" y="45" width="10" height="10" fill="#00ff00" transform="rotate(45, 50, 50)" filter="url(#glow)"/>`;
             break;
         case "Holo Bed":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
-                <rect x="25" y="20" width="50" height="60" fill="#222" stroke="#ff00ff" stroke-width="3"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="20" width="50" height="60" fill="#222" stroke="${glowColor}" stroke-width="3"/>
                 <rect x="30" y="40" width="40" height="40" fill="rgba(0, 255, 255, 0.5)" filter="url(#glow)"/>
-                <rect x="35" y="25" width="30" height="10" fill="#fff" stroke="#ff00ff" stroke-width="2"/>
-                <circle cx="25" cy="20" r="4" fill="#00ffd2" filter="url(#glow)"/>
-                <circle cx="75" cy="20" r="4" fill="#00ffd2" filter="url(#glow)"/>`;
+                <rect x="35" y="25" width="30" height="10" fill="#fff" stroke="${glowColor}" stroke-width="2"/>
+                <circle cx="25" cy="20" r="4" fill="${glowColor}" filter="url(#glow)"/>
+                <circle cx="75" cy="20" r="4" fill="${glowColor}" filter="url(#glow)"/>`;
             break;
 
         case "Storage Chest":
@@ -19788,73 +19879,73 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Storage Chest"]}</span>`;
             break;
         case "Mini Hospital":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="30" y="30" width="40" height="40" rx="5" fill="#152238" stroke="#00ffd2" stroke-width="2" />
-                <rect x="45" y="40" width="10" height="20" fill="#00ff66" />
-                <rect x="40" y="45" width="20" height="10" fill="#00ff66" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="30" y="30" width="40" height="40" rx="5" fill="#152238" stroke="${glowColor}" stroke-width="2" />
+                <rect x="45" y="40" width="10" height="20" fill="${glowColor}" />
+                <rect x="40" y="45" width="20" height="10" fill="${glowColor}" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini Hospital"]}</span>`;
             break;
         case "Mini Store":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="25" y="35" width="50" height="35" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
-                <path d="M20,35 L80,35 L75,25 L25,25 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="1" />
-                <rect x="35" y="45" width="30" height="15" fill="rgba(0, 255, 210, 0.2)" stroke="#00ffd2" stroke-width="1" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="35" width="50" height="35" rx="2" fill="#152238" stroke="${glowColor}" stroke-width="2" />
+                <path d="M20,35 L80,35 L75,25 L25,25 Z" fill="#ff007f" stroke="${glowColor}" stroke-width="1" />
+                <rect x="35" y="45" width="30" height="15" fill="rgba(0, 255, 210, 0.2)" stroke="${glowColor}" stroke-width="1" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini Store"]}</span>`;
             break;
         case "Mini Trade":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <circle cx="50" cy="50" r="25" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <circle cx="50" cy="50" r="25" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <path d="M40,35 L60,35 L55,45 L45,45 Z" fill="#ff007f" />
-                <path d="M40,65 L60,65 L55,55 L45,55 Z" fill="#00ff66" />
+                <path d="M40,65 L60,65 L55,55 L45,55 Z" fill="${glowColor}" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini Trade"]}</span>`;
             break;
         case "Mini PvP":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <path d="M30,30 L70,70" stroke="#ff007f" stroke-width="4" />
                 <path d="M30,70 L70,30" stroke="#ff007f" stroke-width="4" />
-                <circle cx="50" cy="50" r="10" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+                <circle cx="50" cy="50" r="10" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini PvP"]}</span>`;
             break;
         case "Mini Breeding Center":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <ellipse cx="50" cy="55" rx="15" ry="20" fill="#152238" stroke="#ff007f" stroke-width="2" />
-                <circle cx="50" cy="55" r="5" fill="#00ffd2" />
-                <path d="M30,70 L70,70" stroke="#00ffd2" stroke-width="2" />
+                <circle cx="50" cy="55" r="5" fill="${glowColor}" />
+                <path d="M30,70 L70,70" stroke="${glowColor}" stroke-width="2" />
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Mini Breeding Center"]}</span>`;
             break;
         case "Mini Challenge":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#bf55ec" stroke-width="4"/>
                 <path d="M30,75 L70,75 L60,55 L40,55 Z" fill="#333" stroke="#bf55ec" stroke-width="2" />
-                <path d="M35,35 L65,35 L68,20 L58,28 L50,15 L42,28 L32,20 Z" fill="#ffd700" filter="url(#glow)" />`;
+                <path d="M35,35 L65,35 L68,20 L58,28 L50,15 L42,28 L32,20 Z" fill="${glowColor}" filter="url(#glow)" />`;
             break;
         case "Dojo Tile":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
-                <rect x="25" y="32" width="50" height="6" fill="#ff3300" stroke="#ffd700" stroke-width="1.5" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="32" width="50" height="6" fill="#ff3300" stroke="${glowColor}" stroke-width="1.5" />
                 <rect x="30" y="44" width="40" height="4" fill="#ff3300" />
-                <rect x="34" y="32" width="6" height="48" fill="#ff3300" stroke="#ffd700" stroke-width="1" />
-                <rect x="60" y="32" width="6" height="48" fill="#ff3300" stroke="#ffd700" stroke-width="1" />`;
+                <rect x="34" y="32" width="6" height="48" fill="#ff3300" stroke="${glowColor}" stroke-width="1" />
+                <rect x="60" y="32" width="6" height="48" fill="#ff3300" stroke="${glowColor}" stroke-width="1" />`;
             break;
         case "Neon Couch":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M20,60 L20,40 C20,35 25,30 30,30 L70,30 C75,30 80,35 80,40 L80,60 L85,60 C87.76,60 90,62.24 90,65 L90,75 C90,77.76 87.76,80 85,80 L15,80 C12.24,80 10,77.76 10,75 L10,65 C10,62.24 12.24,60 15,60 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="2" />
-                <rect x="25" y="60" width="50" height="10" fill="#00ffd2" opacity="0.8" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M20,60 L20,40 C20,35 25,30 30,30 L70,30 C75,30 80,35 80,40 L80,60 L85,60 C87.76,60 90,62.24 90,65 L90,75 C90,77.76 87.76,80 85,80 L15,80 C12.24,80 10,77.76 10,75 L10,65 C10,62.24 12.24,60 15,60 Z" fill="#ff007f" stroke="${glowColor}" stroke-width="2" />
+                <rect x="25" y="60" width="50" height="10" fill="${glowColor}" opacity="0.8" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Couch"]}</span>`;
             break;
         case "Cyber Desk":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M15,70 L85,70 L80,85 L20,85 Z" fill="#333" stroke="#00ffd2" stroke-width="2" />
-                <rect x="35" y="25" width="30" height="20" rx="2" fill="#0b1424" stroke="#00ffd2" stroke-width="2" />
-                <rect x="48" y="45" width="4" height="25" fill="#00ffd2" />
-                <line x1="38" y1="35" x2="62" y2="35" stroke="#00ffd2" stroke-width="2" opacity="0.5" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M15,70 L85,70 L80,85 L20,85 Z" fill="#333" stroke="${glowColor}" stroke-width="2" />
+                <rect x="35" y="25" width="30" height="20" rx="2" fill="#0b1424" stroke="${glowColor}" stroke-width="2" />
+                <rect x="48" y="45" width="4" height="25" fill="${glowColor}" />
+                <line x1="38" y1="35" x2="62" y2="35" stroke="${glowColor}" stroke-width="2" opacity="0.5" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Desk"]}</span>`;
             break;
         case "Glow Carpet":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="15" y="40" width="70" height="40" rx="5" fill="#182d4d" stroke="#00ffd2" stroke-width="3" transform="skewX(-20)" />
-                <line x1="25" y1="50" x2="75" y2="50" stroke="#00ffd2" stroke-width="1.5" opacity="0.6" transform="skewX(-20)" />
-                <line x1="20" y1="65" x2="80" y2="65" stroke="#00ffd2" stroke-width="1.5" opacity="0.6" transform="skewX(-20)" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="15" y="40" width="70" height="40" rx="5" fill="#182d4d" stroke="${glowColor}" stroke-width="3" transform="skewX(-20)" />
+                <line x1="25" y1="50" x2="75" y2="50" stroke="${glowColor}" stroke-width="1.5" opacity="0.6" transform="skewX(-20)" />
+                <line x1="20" y1="65" x2="80" y2="65" stroke="${glowColor}" stroke-width="1.5" opacity="0.6" transform="skewX(-20)" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Glow Carpet"]}</span>`;
             break;
@@ -19873,9 +19964,9 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Round Cyber Carpet"]}</span>`;
             break;
         case "Hexagon Carpet":
-            svgContent = `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4" transform="scale(1, 0.6) translateY(30)"/>
-                <polygon points="50,25 70,37 70,63 50,75 30,63 30,37" fill="rgba(255, 0, 255, 0.2)" stroke="#ff00ff" stroke-width="2" transform="scale(1, 0.6) translateY(30)"/>
-                <circle cx="50" cy="50" r="10" fill="#ff00ff" filter="url(#glow)" transform="scale(1, 0.6) translateY(30)"/>
+            svgContent = `<polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4" transform="scale(1, 0.6) translateY(30)"/>
+                <polygon points="50,25 70,37 70,63 50,75 30,63 30,37" fill="rgba(255, 0, 255, 0.2)" stroke="${glowColor}" stroke-width="2" transform="scale(1, 0.6) translateY(30)"/>
+                <circle cx="50" cy="50" r="10" fill="${glowColor}" filter="url(#glow)" transform="scale(1, 0.6) translateY(30)"/>
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Hexagon Carpet"]}</span>`;
             break;
         case "Heart Carpet":
@@ -19892,44 +19983,44 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Diamond Carpet"]}</span>`;
             break;
         case "Holo Bed":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="20" y="55" width="60" height="20" rx="3" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="20" y="55" width="60" height="20" rx="3" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <path d="M20,55 L80,55 L80,45 C80,35 20,35 20,45 Z" fill="rgba(0, 255, 210, 0.3)" />
                 <rect x="25" y="45" width="20" height="10" rx="5" fill="#ff007f" opacity="0.8" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Bed"]}</span>`;
             break;
         case "Neon Chair":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M35,35 L65,35 L65,55 L35,55 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="2" />
-                <rect x="35" y="55" width="30" height="10" rx="3" fill="#00ffd2" />
-                <line x1="40" y1="65" x2="35" y2="85" stroke="#00ffd2" stroke-width="3" />
-                <line x1="60" y1="65" x2="65" y2="85" stroke="#00ffd2" stroke-width="3" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M35,35 L65,35 L65,55 L35,55 Z" fill="#ff007f" stroke="${glowColor}" stroke-width="2" />
+                <rect x="35" y="55" width="30" height="10" rx="3" fill="${glowColor}" />
+                <line x1="40" y1="65" x2="35" y2="85" stroke="${glowColor}" stroke-width="3" />
+                <line x1="60" y1="65" x2="65" y2="85" stroke="${glowColor}" stroke-width="3" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Chair"]}</span>`;
             break;
         case "Holo Table":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <ellipse cx="50" cy="45" rx="35" ry="15" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <ellipse cx="50" cy="45" rx="35" ry="15" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <ellipse cx="50" cy="40" rx="30" ry="10" fill="rgba(0, 255, 210, 0.4)" />
-                <line x1="30" y1="55" x2="30" y2="80" stroke="#00ffd2" stroke-width="3" />
-                <line x1="70" y1="55" x2="70" y2="80" stroke="#00ffd2" stroke-width="3" />
+                <line x1="30" y1="55" x2="30" y2="80" stroke="${glowColor}" stroke-width="3" />
+                <line x1="70" y1="55" x2="70" y2="80" stroke="${glowColor}" stroke-width="3" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Table"]}</span>`;
             break;
         case "Crystal Bonsai":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <!-- Intricate cyber pot -->
-                <path d="M30,85 L70,85 L75,65 L25,65 Z" fill="#111" stroke="#00ffd2" stroke-width="2"/>
-                <rect x="22" y="60" width="56" height="5" fill="#00ffd2"/>
-                <line x1="40" y1="65" x2="40" y2="85" stroke="#00ffd2" stroke-width="1.5" stroke-dasharray="2 2"/>
-                <line x1="60" y1="65" x2="60" y2="85" stroke="#00ffd2" stroke-width="1.5" stroke-dasharray="2 2"/>
+                <path d="M30,85 L70,85 L75,65 L25,65 Z" fill="#111" stroke="${glowColor}" stroke-width="2"/>
+                <rect x="22" y="60" width="56" height="5" fill="${glowColor}"/>
+                <line x1="40" y1="65" x2="40" y2="85" stroke="${glowColor}" stroke-width="1.5" stroke-dasharray="2 2"/>
+                <line x1="60" y1="65" x2="60" y2="85" stroke="${glowColor}" stroke-width="1.5" stroke-dasharray="2 2"/>
                 <!-- Trunk -->
                 <path d="M50,60 Q40,40 55,30 Q45,20 50,15" fill="none" stroke="#663300" stroke-width="6" stroke-linecap="round"/>
                 <!-- Crystal leaves/branches -->
-                <polygon points="50,15 45,25 55,25" fill="#00ffff" opacity="0.8"/>
-                <polygon points="55,30 65,25 60,35" fill="#00ffff" opacity="0.8"/>
-                <polygon points="45,40 35,35 40,45" fill="#00ffff" opacity="0.8"/>
+                <polygon points="50,15 45,25 55,25" fill="${glowColor}" opacity="0.8"/>
+                <polygon points="55,30 65,25 60,35" fill="${glowColor}" opacity="0.8"/>
+                <polygon points="45,40 35,35 40,45" fill="${glowColor}" opacity="0.8"/>
                 <circle cx="50" cy="15" r="3" fill="#fff" filter="url(#glow)"/>
                 <circle cx="65" cy="25" r="2" fill="#fff" filter="url(#glow)"/>
                 <circle cx="35" cy="35" r="2" fill="#fff" filter="url(#glow)"/>
@@ -19937,16 +20028,16 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Crystal Bonsai"]}</span>`;
             break;
         case "Neon Fern":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <!-- Sleek minimal pot -->
-                <path d="M35,85 L65,85 L65,65 L35,65 Z" fill="#222" stroke="#00ff66" stroke-width="2"/>
-                <rect x="30" y="65" width="40" height="4" fill="#00ff66"/>
+                <path d="M35,85 L65,85 L65,65 L35,65 Z" fill="#222" stroke="${glowColor}" stroke-width="2"/>
+                <rect x="30" y="65" width="40" height="4" fill="${glowColor}"/>
                 <!-- Fern fronds -->
-                <path d="M50,65 Q30,40 25,25" fill="none" stroke="#00ff66" stroke-width="3" stroke-linecap="round"/>
-                <path d="M50,65 Q70,40 75,25" fill="none" stroke="#00ff66" stroke-width="3" stroke-linecap="round"/>
-                <path d="M50,65 Q50,30 50,15" fill="none" stroke="#00ff66" stroke-width="4" stroke-linecap="round"/>
-                <path d="M50,65 Q40,50 35,40" fill="none" stroke="#00ff66" stroke-width="2" stroke-linecap="round"/>
-                <path d="M50,65 Q60,50 65,40" fill="none" stroke="#00ff66" stroke-width="2" stroke-linecap="round"/>
+                <path d="M50,65 Q30,40 25,25" fill="none" stroke="${glowColor}" stroke-width="3" stroke-linecap="round"/>
+                <path d="M50,65 Q70,40 75,25" fill="none" stroke="${glowColor}" stroke-width="3" stroke-linecap="round"/>
+                <path d="M50,65 Q50,30 50,15" fill="none" stroke="${glowColor}" stroke-width="4" stroke-linecap="round"/>
+                <path d="M50,65 Q40,50 35,40" fill="none" stroke="${glowColor}" stroke-width="2" stroke-linecap="round"/>
+                <path d="M50,65 Q60,50 65,40" fill="none" stroke="${glowColor}" stroke-width="2" stroke-linecap="round"/>
                 <!-- Glowing spores -->
                 <circle cx="25" cy="25" r="2" fill="#fff" filter="url(#glow)"/>
                 <circle cx="75" cy="25" r="2" fill="#fff" filter="url(#glow)"/>
@@ -19955,7 +20046,7 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Fern"]}</span>`;
             break;
         case "Plasma Cactus":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <!-- Hexagonal tech pot -->
                 <polygon points="35,85 65,85 75,65 25,65" fill="#333" stroke="#ff007f" stroke-width="2"/>
                 <line x1="35" y1="85" x2="25" y2="65" stroke="#ff007f" stroke-width="2"/>
@@ -19976,10 +20067,10 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Plasma Cactus"]}</span>`;
             break;
         case "Holo Orchid":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <!-- Floating base projector -->
-                <ellipse cx="50" cy="75" rx="20" ry="8" fill="#111" stroke="#00ffd2" stroke-width="2"/>
-                <ellipse cx="50" cy="72" rx="15" ry="5" fill="#00ffd2" opacity="0.5"/>
+                <ellipse cx="50" cy="75" rx="20" ry="8" fill="#111" stroke="${glowColor}" stroke-width="2"/>
+                <ellipse cx="50" cy="72" rx="15" ry="5" fill="${glowColor}" opacity="0.5"/>
                 <!-- Holographic projection beam -->
                 <polygon points="35,72 65,72 55,20 45,20" fill="rgba(0, 255, 210, 0.15)"/>
                 <!-- Stem -->
@@ -19994,107 +20085,107 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Orchid"]}</span>`;
             break;
         case "Cyber Plant":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M40,65 L60,65 L55,85 L45,85 Z" fill="#ff007f" stroke="#00ffd2" stroke-width="2" />
-                <path d="M50,65 C40,45 25,35 45,25 C45,45 50,55 50,65 Z" fill="#00ff66" opacity="0.8" />
-                <path d="M50,65 C60,45 75,35 55,25 C55,45 50,55 50,65 Z" fill="#00ff66" opacity="0.8" />
-                <path d="M50,65 C50,40 50,20 50,15 C45,20 55,20 50,65 Z" fill="#00ff66" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M40,65 L60,65 L55,85 L45,85 Z" fill="#ff007f" stroke="${glowColor}" stroke-width="2" />
+                <path d="M50,65 C40,45 25,35 45,25 C45,45 50,55 50,65 Z" fill="${glowColor}" opacity="0.8" />
+                <path d="M50,65 C60,45 75,35 55,25 C55,45 50,55 50,65 Z" fill="${glowColor}" opacity="0.8" />
+                <path d="M50,65 C50,40 50,20 50,15 C45,20 55,20 50,65 Z" fill="${glowColor}" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Plant"]}</span>`;
             break;
         case "Neon Lamp":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M35,80 L65,80 L60,75 L40,75 Z" fill="#333" stroke="#00ffd2" stroke-width="1.5" />
-                <line x1="50" y1="75" x2="50" y2="30" stroke="#00ffd2" stroke-width="3" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M35,80 L65,80 L60,75 L40,75 Z" fill="#333" stroke="${glowColor}" stroke-width="1.5" />
+                <line x1="50" y1="75" x2="50" y2="30" stroke="${glowColor}" stroke-width="3" />
                 <circle cx="50" cy="20" r="10" fill="#fff" filter="url(#glow)" />
                 <path d="M40,25 L60,25 L55,10 L45,10 Z" fill="none" stroke="#ff007f" stroke-width="2" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Lamp"]}</span>`;
             break;
         case "Server Rack":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="30" y="20" width="40" height="65" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="30" y="20" width="40" height="65" rx="2" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <line x1="35" y1="30" x2="65" y2="30" stroke="#ff007f" stroke-width="3" stroke-dasharray="4 2" />
-                <line x1="35" y1="45" x2="65" y2="45" stroke="#00ff66" stroke-width="3" stroke-dasharray="2 4 6 2" />
-                <line x1="35" y1="60" x2="65" y2="60" stroke="#00ffd2" stroke-width="3" stroke-dasharray="5 2 2 2" />
+                <line x1="35" y1="45" x2="65" y2="45" stroke="${glowColor}" stroke-width="3" stroke-dasharray="2 4 6 2" />
+                <line x1="35" y1="60" x2="65" y2="60" stroke="${glowColor}" stroke-width="3" stroke-dasharray="5 2 2 2" />
                 <line x1="35" y1="75" x2="65" y2="75" stroke="#ff007f" stroke-width="3" stroke-dasharray="1 1 1 5" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Server Rack"]}</span>`;
             break;
         case "Arcade Machine":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M35,20 L65,20 L65,40 L70,45 L70,85 L30,85 L30,45 L35,40 Z" fill="#333" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M35,20 L65,20 L65,40 L70,45 L70,85 L30,85 L30,45 L35,40 Z" fill="#333" stroke="${glowColor}" stroke-width="2" />
                 <rect x="40" y="25" width="20" height="15" fill="#0b1424" stroke="#ff007f" stroke-width="1.5" />
                 <circle cx="45" cy="42" r="2" fill="#ff007f" />
-                <rect x="52" y="41" width="8" height="3" fill="#00ff66" />
-                <rect x="35" y="55" width="30" height="25" fill="#152238" stroke="#00ffd2" stroke-width="1" />
+                <rect x="52" y="41" width="8" height="3" fill="${glowColor}" />
+                <rect x="35" y="55" width="30" height="25" fill="#152238" stroke="${glowColor}" stroke-width="1" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Arcade Machine"]}</span>`;
             break;
         case "Cyber TV":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="15" y="25" width="70" height="40" rx="2" fill="#0b1424" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="15" y="25" width="70" height="40" rx="2" fill="#0b1424" stroke="${glowColor}" stroke-width="2" />
                 <rect x="20" y="30" width="60" height="30" fill="rgba(0, 255, 210, 0.2)" />
                 <path d="M25,45 Q50,25 75,45 T75,45 Q50,65 25,45 Z" fill="none" stroke="#ff007f" stroke-width="1.5" opacity="0.8" />
-                <line x1="45" y1="65" x2="45" y2="80" stroke="#00ffd2" stroke-width="3" />
-                <line x1="55" y1="65" x2="55" y2="80" stroke="#00ffd2" stroke-width="3" />
-                <line x1="35" y1="80" x2="65" y2="80" stroke="#00ffd2" stroke-width="2" />
+                <line x1="45" y1="65" x2="45" y2="80" stroke="${glowColor}" stroke-width="3" />
+                <line x1="55" y1="65" x2="55" y2="80" stroke="${glowColor}" stroke-width="3" />
+                <line x1="35" y1="80" x2="65" y2="80" stroke="${glowColor}" stroke-width="2" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber TV"]}</span>`;
             break;
         case "Neon Shelf":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="25" y="15" width="50" height="70" rx="2" fill="none" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="15" width="50" height="70" rx="2" fill="none" stroke="${glowColor}" stroke-width="2" />
                 <line x1="25" y1="35" x2="75" y2="35" stroke="#ff007f" stroke-width="2" />
-                <line x1="25" y1="55" x2="75" y2="55" stroke="#00ff66" stroke-width="2" />
-                <line x1="25" y1="75" x2="75" y2="75" stroke="#00ffd2" stroke-width="2" />
+                <line x1="25" y1="55" x2="75" y2="55" stroke="${glowColor}" stroke-width="2" />
+                <line x1="25" y1="75" x2="75" y2="75" stroke="${glowColor}" stroke-width="2" />
                 <rect x="30" y="20" width="10" height="15" fill="#ff007f" opacity="0.6" />
-                <rect x="45" y="40" width="15" height="15" fill="#00ff66" opacity="0.6" />
-                <rect x="60" y="60" width="8" height="15" fill="#00ffd2" opacity="0.6" />
+                <rect x="45" y="40" width="15" height="15" fill="${glowColor}" opacity="0.6" />
+                <rect x="60" y="60" width="8" height="15" fill="${glowColor}" opacity="0.6" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Shelf"]}</span>`;
             break;
         case "Tech Bin":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M35,25 L65,25 L60,80 L40,80 Z" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M35,25 L65,25 L60,80 L40,80 Z" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <path d="M30,25 L70,25 L70,30 L30,30 Z" fill="#ff007f" />
-                <line x1="45" y1="40" x2="45" y2="70" stroke="#00ffd2" stroke-width="1.5" stroke-dasharray="4 2" />
-                <line x1="55" y1="40" x2="55" y2="70" stroke="#00ffd2" stroke-width="1.5" stroke-dasharray="4 2" />
+                <line x1="45" y1="40" x2="45" y2="70" stroke="${glowColor}" stroke-width="1.5" stroke-dasharray="4 2" />
+                <line x1="55" y1="40" x2="55" y2="70" stroke="${glowColor}" stroke-width="1.5" stroke-dasharray="4 2" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Tech Bin"]}</span>`;
             break;
         case "Neon Wardrobe":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="25" y="20" width="50" height="65" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
-                <line x1="50" y1="20" x2="50" y2="85" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="20" width="50" height="65" rx="2" fill="#152238" stroke="${glowColor}" stroke-width="2" />
+                <line x1="50" y1="20" x2="50" y2="85" stroke="${glowColor}" stroke-width="2" />
                 <rect x="40" y="50" width="5" height="15" fill="#ff007f" rx="1" />
                 <rect x="55" y="50" width="5" height="15" fill="#ff007f" rx="1" />
-                <line x1="25" y1="30" x2="75" y2="30" stroke="#00ffd2" stroke-width="1" opacity="0.5" />
+                <line x1="25" y1="30" x2="75" y2="30" stroke="${glowColor}" stroke-width="1" opacity="0.5" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Wardrobe"]}</span>`;
             break;
         case "Cyber Fridge":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="30" y="15" width="40" height="70" rx="3" fill="#152238" stroke="#00ffd2" stroke-width="2" />
-                <line x1="30" y1="45" x2="70" y2="45" stroke="#00ffd2" stroke-width="2" />
-                <rect x="35" y="25" width="4" height="15" fill="#00ff66" rx="1" />
-                <rect x="35" y="55" width="4" height="20" fill="#00ff66" rx="1" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="30" y="15" width="40" height="70" rx="3" fill="#152238" stroke="${glowColor}" stroke-width="2" />
+                <line x1="30" y1="45" x2="70" y2="45" stroke="${glowColor}" stroke-width="2" />
+                <rect x="35" y="25" width="4" height="15" fill="${glowColor}" rx="1" />
+                <rect x="35" y="55" width="4" height="20" fill="${glowColor}" rx="1" />
                 <rect x="50" y="25" width="15" height="10" fill="none" stroke="#ff007f" stroke-width="1.5" opacity="0.8" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Fridge"]}</span>`;
             break;
         case "Holo Display":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <path d="M30,85 L70,85 L65,75 L35,75 Z" fill="#333" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <path d="M30,85 L70,85 L65,75 L35,75 Z" fill="#333" stroke="${glowColor}" stroke-width="2" />
                 <path d="M20,25 L80,25 L65,75 L35,75 Z" fill="rgba(0, 255, 210, 0.15)" stroke="rgba(0, 255, 210, 0.5)" stroke-width="1" stroke-dasharray="3 3" />
                 <circle cx="50" cy="45" r="15" fill="none" stroke="#ff007f" stroke-width="2" opacity="0.8" />
-                <circle cx="50" cy="45" r="5" fill="#00ffd2" />
-                <line x1="35" y1="45" x2="65" y2="45" stroke="#00ff66" stroke-width="1" opacity="0.8" />
+                <circle cx="50" cy="45" r="5" fill="${glowColor}" />
+                <line x1="35" y1="45" x2="65" y2="45" stroke="${glowColor}" stroke-width="1" opacity="0.8" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Holo Display"]}</span>`;
             break;
         case "Lava Lamp":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <path d="M30,80 L70,80 L60,20 L40,20 Z" fill="rgba(255,0,0,0.2)" stroke="#ff0055" stroke-width="2" />
                 <rect x="25" y="80" width="50" height="10" fill="#333" />
                 <rect x="35" y="10" width="30" height="10" fill="#333" />
@@ -20105,8 +20196,8 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Lava Lamp"]}</span>`;
             break;
         case "Plasma Globe":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="35" y="75" width="30" height="15" fill="#222" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="35" y="75" width="30" height="15" fill="#222" stroke="${glowColor}" stroke-width="2" />
                 <circle cx="50" cy="45" r="30" fill="rgba(200, 0, 255, 0.1)" stroke="#d400ff" stroke-width="2" />
                 <circle cx="50" cy="45" r="5" fill="#fff" filter="url(#glow)" />
                 <path d="M50,45 L35,25 M50,45 L65,25 M50,45 L25,50 M50,45 L75,50 M50,45 L35,65 M50,45 L65,65" stroke="#d400ff" stroke-width="2" stroke-dasharray="2 2" filter="url(#glow)" />
@@ -20114,30 +20205,30 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Plasma Globe"]}</span>`;
             break;
         case "Cyber Poster":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="25" y="15" width="50" height="70" fill="#111" stroke="#ff00ff" stroke-width="2" />
-                <path d="M25,15 L75,15 L75,35 L25,35 Z" fill="#ff00ff" opacity="0.3" />
-                <circle cx="50" cy="50" r="10" fill="none" stroke="#00ffd2" stroke-width="2" />
-                <line x1="35" y1="70" x2="65" y2="70" stroke="#00ffd2" stroke-width="2" stroke-dasharray="4 2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="15" width="50" height="70" fill="#111" stroke="${glowColor}" stroke-width="2" />
+                <path d="M25,15 L75,15 L75,35 L25,35 Z" fill="${glowColor}" opacity="0.3" />
+                <circle cx="50" cy="50" r="10" fill="none" stroke="${glowColor}" stroke-width="2" />
+                <line x1="35" y1="70" x2="65" y2="70" stroke="${glowColor}" stroke-width="2" stroke-dasharray="4 2" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Cyber Poster"]}</span>`;
             break;
         case "Neon Sign":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <rect x="15" y="35" width="70" height="30" rx="5" fill="#111" stroke="#ff00aa" stroke-width="2" />
-                <path d="M25,50 C35,30 45,70 55,50 C60,40 70,60 75,50" fill="none" stroke="#00ffd2" stroke-width="3" filter="url(#glow)" />
+                <path d="M25,50 C35,30 45,70 55,50 C60,40 70,60 75,50" fill="none" stroke="${glowColor}" stroke-width="3" filter="url(#glow)" />
                 <line x1="30" y1="35" x2="30" y2="25" stroke="#555" stroke-width="2" />
                 <line x1="70" y1="35" x2="70" y2="25" stroke="#555" stroke-width="2" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Neon Sign"]}</span>`;
             break;
         case "Gaming PC":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="30" y="20" width="40" height="60" rx="2" fill="#152238" stroke="#00ffd2" stroke-width="2" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="30" y="20" width="40" height="60" rx="2" fill="#152238" stroke="${glowColor}" stroke-width="2" />
                 <rect x="35" y="25" width="30" height="50" fill="#000" />
                 <circle cx="50" cy="40" r="8" fill="none" stroke="#ff0055" stroke-width="2" filter="url(#glow)" />
                 <circle cx="50" cy="60" r="8" fill="none" stroke="#00ff55" stroke-width="2" filter="url(#glow)" />
-                <rect x="35" y="25" width="5" height="50" fill="#00ffd2" opacity="0.5" />
+                <rect x="35" y="25" width="5" height="50" fill="${glowColor}" opacity="0.5" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Gaming PC"]}</span>`;
             break;
@@ -20153,22 +20244,22 @@ window.getItemIconHTML = function(itemName, size = 24) {
         case "Lunar Lily":
         case "Cyber Tree":
         case "Neon Pine":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
                 <text x="50" y="65" font-family="Arial" font-size="50" text-anchor="middle" dominant-baseline="central">${emojiMap[itemName]}</text>
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap[itemName]}</span>`;
             break;
         case "Smart Mirror":
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <rect x="25" y="15" width="50" height="70" rx="25" fill="#aaccff" stroke="#00ffd2" stroke-width="3" opacity="0.8" />
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <rect x="25" y="15" width="50" height="70" rx="25" fill="#aaccff" stroke="${glowColor}" stroke-width="3" opacity="0.8" />
                 <line x1="35" y1="25" x2="65" y2="25" stroke="#fff" stroke-width="2" />
-                <circle cx="50" cy="75" r="3" fill="#ff00ff" filter="url(#glow)" />
+                <circle cx="50" cy="75" r="3" fill="${glowColor}" filter="url(#glow)" />
                 <path d="M30,40 L45,25 M30,55 L55,30" stroke="#fff" stroke-width="2" opacity="0.5" />
 
                 <span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emojiMap["Smart Mirror"]}</span>`;
             break;
         default:
-            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
-                <text x="50" y="55" font-family="'Courier New', monospace" font-size="40" fill="#00ffd2" text-anchor="middle">📦</text>`;
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="${glowColor}" stroke-width="4"/>
+                <text x="50" y="55" font-family="'Courier New', monospace" font-size="40" fill="${glowColor}" text-anchor="middle">📦</text>`;
             break;
     }
 
