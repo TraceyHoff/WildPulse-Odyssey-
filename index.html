@@ -24248,6 +24248,18 @@ window.deleteProgress = function(playerNum = 1) {
                 localStorage.removeItem(key);
             }
 
+            const sessionKeysToRemove = [];
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                if (key === STORAGE_KEY || (key.startsWith('wildpulse_') && key !== 'wildpulse_own_world_code' && key !== 'wildpulse_world_code')) {
+                    sessionKeysToRemove.push(key);
+                }
+            }
+
+            for (const key of sessionKeysToRemove) {
+                sessionStorage.removeItem(key);
+            }
+
             if (window.spawnPlayerHomes) {
                 window.spawnPlayerHomes(game && game.scene && game.scene.scenes[0]);
             }
@@ -24255,7 +24267,31 @@ window.deleteProgress = function(playerNum = 1) {
                 window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
             }
 
-            location.reload();
+            const performReload = () => {
+                location.reload();
+            };
+
+            const clearCachesAndIndexedDB = async () => {
+                try {
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map(key => caches.delete(key)));
+                    }
+                } catch (e) {
+                    console.error('Error clearing caches', e);
+                }
+
+                try {
+                    if (window.indexedDB && window.indexedDB.databases) {
+                        const dbs = await window.indexedDB.databases();
+                        dbs.forEach(db => window.indexedDB.deleteDatabase(db.name));
+                    }
+                } catch (e) {
+                    console.error('Error clearing IndexedDB', e);
+                }
+            };
+
+            clearCachesAndIndexedDB().finally(performReload);
         });
     } else {
         window.showConfirm(playerNum, 'ERASE DATA?', 'Are you sure? This will erase your singleplayer save data.', () => {
@@ -24270,6 +24306,18 @@ window.deleteProgress = function(playerNum = 1) {
 
             for (const key of keysToRemove) {
                 localStorage.removeItem(key);
+            }
+
+            const sessionKeysToRemove = [];
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                if (key === STORAGE_KEY || (key.startsWith('wildpulse_') && !key.includes('player2') && !key.includes('_p2') && !key.includes('p2_') && !key.endsWith('2') && key !== 'wildpulse_own_world_code' && key !== 'wildpulse_world_code' && key !== 'wildpulse_npc_trainer_data')) {
+                    sessionKeysToRemove.push(key);
+                }
+            }
+
+            for (const key of sessionKeysToRemove) {
+                sessionStorage.removeItem(key);
             }
 
             // Reset P1 NPC trainer data inside the JSON structure
@@ -24294,7 +24342,31 @@ window.deleteProgress = function(playerNum = 1) {
                 window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
             }
 
-            location.reload();
+            const performReload = () => {
+                location.reload();
+            };
+
+            const clearCachesAndIndexedDB = async () => {
+                try {
+                    if ('caches' in window) {
+                        const keys = await caches.keys();
+                        await Promise.all(keys.map(key => caches.delete(key)));
+                    }
+                } catch (e) {
+                    console.error('Error clearing caches', e);
+                }
+
+                try {
+                    if (window.indexedDB && window.indexedDB.databases) {
+                        const dbs = await window.indexedDB.databases();
+                        dbs.forEach(db => window.indexedDB.deleteDatabase(db.name));
+                    }
+                } catch (e) {
+                    console.error('Error clearing IndexedDB', e);
+                }
+            };
+
+            clearCachesAndIndexedDB().finally(performReload);
         });
     }
 };
