@@ -21522,25 +21522,81 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
             }
             const selectables = window.getNavigableElements(container);
             if (selectables.length > 0) {
-                let focusIndex = selectables.findIndex(el => el.classList.contains(`gamepad-focused-p${playerNum}`) || el === document.activeElement);
-                const oldEl = focusIndex !== -1 ? selectables[focusIndex] : null;
+                let oldEl = selectables.find(el => el.classList.contains(`gamepad-focused-p${playerNum}`));
+                if (!oldEl) {
+                    oldEl = selectables.find(el => el === document.activeElement);
+                }
 
-                if (focusIndex === -1) {
+                let newEl = null;
+
+                if (!oldEl) {
                     if (justUp || justLeft) {
-                        focusIndex = selectables.length - 1;
+                        newEl = selectables[selectables.length - 1];
                     } else {
-                        focusIndex = 0;
+                        newEl = selectables[0];
                     }
                 } else {
-                    if (justUp || justLeft) {
-                        focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
-                    } else if (justDown || justRight) {
-                        focusIndex = (focusIndex + 1) % selectables.length;
+                    const rect = oldEl.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+
+                    let bestDist = Infinity;
+                    let bestEl = null;
+
+                    selectables.forEach(el => {
+                        if (el === oldEl) return;
+                        const tRect = el.getBoundingClientRect();
+                        const tcx = tRect.left + tRect.width / 2;
+                        const tcy = tRect.top + tRect.height / 2;
+
+                        const dx = tcx - cx;
+                        const dy = tcy - cy;
+
+                        let isCandidate = false;
+                        let primaryDist = 0;
+                        let secondaryDist = 0;
+
+                        if (justUp && dy < -5) {
+                            isCandidate = true;
+                            primaryDist = -dy;
+                            secondaryDist = Math.abs(dx);
+                        } else if (justDown && dy > 5) {
+                            isCandidate = true;
+                            primaryDist = dy;
+                            secondaryDist = Math.abs(dx);
+                        } else if (justLeft && dx < -5) {
+                            isCandidate = true;
+                            primaryDist = -dx;
+                            secondaryDist = Math.abs(dy);
+                        } else if (justRight && dx > 5) {
+                            isCandidate = true;
+                            primaryDist = dx;
+                            secondaryDist = Math.abs(dy);
+                        }
+
+                        if (isCandidate) {
+                            const score = primaryDist + secondaryDist * 3;
+                            if (score < bestDist) {
+                                bestDist = score;
+                                bestEl = el;
+                            }
+                        }
+                    });
+
+                    if (bestEl) {
+                        newEl = bestEl;
+                    } else {
+                        let focusIndex = selectables.indexOf(oldEl);
+                        if (justUp || justLeft) {
+                            focusIndex = (focusIndex - 1 + selectables.length) % selectables.length;
+                        } else if (justDown || justRight) {
+                            focusIndex = (focusIndex + 1) % selectables.length;
+                        }
+                        newEl = selectables[focusIndex];
                     }
                 }
 
-                const newEl = selectables[focusIndex];
-                if (newEl !== oldEl) {
+                if (newEl && newEl !== oldEl) {
                     if (oldEl) {
                         oldEl.classList.remove(`gamepad-focused-p${playerNum}`);
                     }
