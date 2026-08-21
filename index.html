@@ -34764,14 +34764,17 @@ window.updateCreatureNameplate = function(scene, nameplateContainer, creatureDat
 window.adjustWildCreatureLevels = function() {
     let p1Party = (window.collectedCreatures || []).filter(c => !c.stored);
     let p1Max = p1Party.length > 0 ? Math.max(...p1Party.map(c => c.level || 1)) : 1;
+    let p1Min = p1Party.length > 0 ? Math.min(...p1Party.map(c => c.level || 1)) : 1;
     let p1Avg = p1Party.length > 0 ? Math.max(1, Math.floor(p1Party.reduce((sum, c) => sum + (c.level || 1), 0) / p1Party.length)) : 1;
 
     let p2Party = (window.collectedCreatures2 || []).filter(c => !c.stored);
     let p2Max = p2Party.length > 0 ? Math.max(...p2Party.map(c => c.level || 1)) : 1;
+    let p2Min = p2Party.length > 0 ? Math.min(...p2Party.map(c => c.level || 1)) : 1;
     let p2Avg = p2Party.length > 0 ? Math.max(1, Math.floor(p2Party.reduce((sum, c) => sum + (c.level || 1), 0) / p2Party.length)) : 1;
 
     let allParty = p1Party.concat(p2Party);
     let defaultMax = allParty.length > 0 ? Math.max(...allParty.map(c => c.level || 1)) : 1;
+    let defaultMin = allParty.length > 0 ? Math.min(...allParty.map(c => c.level || 1)) : 1;
     let defaultAvg = allParty.length > 0 ? Math.max(1, Math.floor(allParty.reduce((sum, c) => sum + (c.level || 1), 0) / allParty.length)) : 1;
 
     if (typeof creaturesGroup !== 'undefined' && creaturesGroup) {
@@ -34779,6 +34782,7 @@ window.adjustWildCreatureLevels = function() {
             let data = sprite.getData('creatureData');
             if (data) {
                 let targetMax = defaultMax;
+                let targetMin = defaultMin;
                 let targetAvg = defaultAvg;
 
                 if (window.coopActive && window.player && window.player2) {
@@ -34786,15 +34790,28 @@ window.adjustWildCreatureLevels = function() {
                     let dist2 = Phaser.Math.Distance.Between(sprite.x, sprite.y, window.player2.x, window.player2.y);
                     if (dist1 <= dist2) {
                         targetMax = p1Max;
+                        targetMin = p1Min;
                         targetAvg = p1Avg;
                     } else {
                         targetMax = p2Max;
+                        targetMin = p2Min;
                         targetAvg = p2Avg;
                     }
                 }
 
+                // Calculate pseudo-random level between min and max for this specific creature using its id
+                let pseudoRng = 0.5;
+                if (data.id) {
+                    let idSum = 0;
+                    for (let i = 0; i < data.id.length; i++) {
+                        idSum += data.id.charCodeAt(i);
+                    }
+                    pseudoRng = (idSum % 100) / 100;
+                }
+                let randomizedLevel = targetMin + Math.floor(pseudoRng * (targetMax - targetMin + 1));
+
                 let isInsideRift = (sprite.x >= 40000 && sprite.x <= 44000 && sprite.y >= 40000 && sprite.y <= 44000);
-                let targetLevel = data.isShiny ? targetAvg : targetMax;
+                let targetLevel = data.isShiny ? targetAvg : randomizedLevel;
                 if (isInsideRift) {
                     if (data.isShiny) {
                         targetLevel = targetLevel + 15;
@@ -34992,17 +35009,21 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     let p1Party = (window.collectedCreatures || []).filter(c => !c.stored);
     let p1Max = p1Party.length > 0 ? Math.max(...p1Party.map(c => c.level || 1)) : 1;
+    let p1Min = p1Party.length > 0 ? Math.min(...p1Party.map(c => c.level || 1)) : 1;
     let p1Avg = p1Party.length > 0 ? Math.max(1, Math.floor(p1Party.reduce((sum, c) => sum + (c.level || 1), 0) / p1Party.length)) : 1;
 
     let p2Party = (window.collectedCreatures2 || []).filter(c => !c.stored);
     let p2Max = p2Party.length > 0 ? Math.max(...p2Party.map(c => c.level || 1)) : 1;
+    let p2Min = p2Party.length > 0 ? Math.min(...p2Party.map(c => c.level || 1)) : 1;
     let p2Avg = p2Party.length > 0 ? Math.max(1, Math.floor(p2Party.reduce((sum, c) => sum + (c.level || 1), 0) / p2Party.length)) : 1;
 
     let allParty = p1Party.concat(p2Party);
     let defaultMax = allParty.length > 0 ? Math.max(...allParty.map(c => c.level || 1)) : 1;
+    let defaultMin = allParty.length > 0 ? Math.min(...allParty.map(c => c.level || 1)) : 1;
     let defaultAvg = allParty.length > 0 ? Math.max(1, Math.floor(allParty.reduce((sum, c) => sum + (c.level || 1), 0) / allParty.length)) : 1;
 
     let targetMax = defaultMax;
+    let targetMin = defaultMin;
     let targetAvg = defaultAvg;
 
     if (window.coopActive && window.player && window.player2) {
@@ -35010,14 +35031,18 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
         let dist2 = Phaser.Math.Distance.Between(x, y, window.player2.x, window.player2.y);
         if (dist1 <= dist2) {
             targetMax = p1Max;
+            targetMin = p1Min;
             targetAvg = p1Avg;
         } else {
             targetMax = p2Max;
+            targetMin = p2Min;
             targetAvg = p2Avg;
         }
     }
 
-    clonedData.level = clonedData.isShiny ? targetAvg : targetMax;
+    let randomizedLevel = targetMin + Math.floor(sRng() * (targetMax - targetMin + 1));
+
+    clonedData.level = clonedData.isShiny ? targetAvg : randomizedLevel;
 
     // Scale level if inside the Void Rift (Row 400-439, Col 400-439)
     if (isInsideRift) {
@@ -35039,8 +35064,11 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
     if (clonedData.isShiny) {
         if (window.gameStarted) {
             const shinyIcon = window.getShinyIconHTML ? window.getShinyIconHTML(16) : '✨';
-            if (window.showModernNotification) {
-                window.showModernNotification(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`, 6000);
+            if (window.showModernNotification && window.player && window.player.x !== undefined) {
+                let p1InsideRift = (window.player.x >= 40000 && window.player.x <= 44000 && window.player.y >= 40000 && window.player.y <= 44000);
+                if ((isInsideRift && p1InsideRift) || (!isInsideRift)) {
+                     window.showModernNotification(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`, 6000);
+                }
             } else {
                 console.log(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`);
             }

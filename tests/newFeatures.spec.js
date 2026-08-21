@@ -133,9 +133,24 @@ test.describe('New Features Tests', () => {
       // but let's pass a prototype with isShiny pre-set or we can mock sRng or seed
       // Check symbol text element for star symbol
       let createdTextVal = null;
+      mockScene.add.container = (x, y) => {
+        let containerData = {};
+        const cont = {
+          setDepth: () => cont,
+          add: () => cont,
+          removeAll: () => cont,
+          destroy: () => {},
+          setData: (k, v) => { containerData[k] = v; return cont; },
+          getData: (k) => containerData[k]
+        };
+        return cont;
+      };
+
       const originalAddText = mockScene.add.text;
       mockScene.add.text = (x, y, text, opts) => {
-        createdTextVal = text;
+        if(text === "⭐") {
+             createdTextVal = text;
+        }
         return originalAddText(x, y, text, opts);
       };
 
