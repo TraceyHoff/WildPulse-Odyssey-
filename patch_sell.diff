@@ -1,63 +1,13 @@
 <<<<<<< SEARCH
-window.calculateCreatureSellPrice = function(c) {
+            const sellPrice = Math.floor(item.price * 0.55);
+            const canSell = ownedCount > 0;
 =======
-window.sellStoreItem = function(playerNum, itemName, sellPrice) {
-    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
-    const stats = playerNum === 2 ? window.gameStats2 : window.gameStats;
-    if (!stats) return;
-
-    let itemIndex = -1;
-    let ownedCount = 0;
-    for (let i = 0; i < inv.length; i++) {
-        if (inv[i].name === itemName) {
-            itemIndex = i;
-            ownedCount = inv[i].quantity;
-            break;
-        }
-    }
-
-    if (itemIndex === -1 || ownedCount <= 0) {
-        window.showModernNotification(`❌ You do not have any ${itemName} to sell!`, 3000, playerNum);
-        return;
-    }
-
-    window.safeConfirm(playerNum, "SELL ITEM", `Sell ${itemName} for ${window.getCoinIconHTML(16)} ${sellPrice} coins?`, () => {
-        // Find the item again in case the inventory changed during confirmation
-        const currentInv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
-        let cIndex = -1;
-        for (let i = 0; i < currentInv.length; i++) {
-            if (currentInv[i].name === itemName) {
-                cIndex = i;
-                break;
+            let sellPrice = Math.floor(item.price * 0.55);
+            if (!item.price) {
+                if (item.name.startsWith("Uncommon")) sellPrice = 150;
+                else if (item.name.startsWith("Rare")) sellPrice = 300;
+                else if (item.name.startsWith("Exquisite")) sellPrice = 500;
+                else sellPrice = 50;
             }
-        }
-
-        if (cIndex === -1) {
-            window.showModernNotification(`❌ Item not found in inventory!`, 3000, playerNum);
-            return;
-        }
-
-        currentInv[cIndex].quantity--;
-        if (currentInv[cIndex].quantity <= 0) {
-            currentInv.splice(cIndex, 1);
-        }
-
-        if (window.saveInventory) window.saveInventory();
-
-        stats.coins = (stats.coins || 0) + sellPrice;
-        if (playerNum === 2) {
-            localStorage.setItem('wildpulse_stats2', JSON.stringify(stats));
-        } else {
-            if (window.saveStats) window.saveStats();
-        }
-
-        window.showModernNotification(`${window.getCoinIconHTML(20)} Sold ${itemName} for ${sellPrice} coins!`, 3000, playerNum);
-
-        if (window.updateMenuCoins) window.updateMenuCoins();
-        if (window.updateStoreUI) window.updateStoreUI();
-        if (window.updateInventoryUI) window.updateInventoryUI();
-    });
-};
-
-window.calculateCreatureSellPrice = function(c) {
+            const canSell = ownedCount > 0;
 >>>>>>> REPLACE
