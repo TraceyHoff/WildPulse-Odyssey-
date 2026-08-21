@@ -6,7 +6,8 @@
     "dompurify": "^3.4.13",
     "express": "^5.2.1",
     "jsdom": "^28.1.0",
-    "phaser": "^3.87.0"
+    "phaser": "^3.87.0",
+    "playwright": "^1.62.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

@@ -1828,6 +1828,15 @@
         100% { opacity: 0; transform: translateY(-30px); }
     }
 
+        @keyframes eggHatchGlow {
+            0% { box-shadow: 0 0 5px #00ffcc; }
+            50% { box-shadow: 0 0 20px #00ffcc; }
+            100% { box-shadow: 0 0 5px #00ffcc; }
+        }
+        .egg-hatch-glow {
+            animation: eggHatchGlow 1.5s infinite alternate;
+        }
+
     .shake {
         animation: shake 0.3s ease-in-out;
     }
@@ -20529,6 +20538,7 @@ window.updateInventoryUI = function() {
 
         for (let i = 0; i < 3; i++) {
             const slot = document.createElement('div');
+            slot.classList.add('egg-slot');
             slot.style.width = '60px';
             slot.style.height = '60px';
             slot.style.background = 'rgba(10, 15, 30, 0.9)';
@@ -20545,14 +20555,23 @@ window.updateInventoryUI = function() {
                 const progressPct = Math.min(100, Math.floor((egg.eggProgress || 0) / (egg.eggHatchSteps || 1000) * 100));
                 const ready = progressPct >= 100;
                 const icon = window.getItemIconHTML ? window.getItemIconHTML("Mysterious Egg", 32) : "🥚";
-                slot.style.borderColor = ready ? '#00ffcc' : '#ff007f';
+
+                slot.style.border = 'none';
+                slot.style.padding = '2px';
+                slot.style.background = `conic-gradient(${ready ? '#00ffcc' : '#ff007f'} ${progressPct}%, #555 ${progressPct}%)`;
+
+                if (ready) {
+                    slot.classList.add('egg-hatch-glow');
+                }
 
                 slot.innerHTML = `
-                    <div class="inventory-item-inner" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; position: relative;" title="Mysterious Egg: ${progressPct}%">
-                        ${icon}
-                        <span style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: ${ready ? '#00ffcc' : '#fff'}; border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: bold; line-height: 1;">
-                            ${progressPct}%
-                        </span>
+                    <div style="width: 100%; height: 100%; background: rgba(10, 15, 30, 0.9); border-radius: 6px; display: flex; align-items: center; justify-content: center; position: relative;">
+                        <div class="inventory-item-inner" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; position: relative;" title="Mysterious Egg: ${progressPct}%">
+                            ${icon}
+                            <span style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: ${ready ? '#00ffcc' : '#fff'}; border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: bold; line-height: 1;">
+                                ${progressPct}%
+                            </span>
+                        </div>
                     </div>
                 `;
                 slot.onclick = () => {
@@ -20862,7 +20881,7 @@ window.p2ActiveModal = null;
 
 window.getNavigableElements = function(container) {
     if (!container) return [];
-    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .party-card, .custom-color-slider, .custom-color-display');
+    const all = container.querySelectorAll('button, input, select, textarea, [onclick], .tab, h3[onclick], .party-card, .custom-color-slider, .custom-color-display, .egg-slot');
     return Array.from(all).filter(el => {
         // Must be visible
         if (el.offsetWidth === 0 && el.offsetHeight === 0) return false;
