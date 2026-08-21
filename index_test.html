@@ -31500,30 +31500,26 @@ window.createTypeIconTexture = function(scene, type) {
     dCanvas.height = 16;
     const ctx = dCanvas.getContext('2d');
 
-    const typeColors = {
-        'Fire': '#FF4500', 'Water': '#1E90FF', 'Grass': '#32CD32',
-        'Electric': '#FFD700', 'Ice': '#00BFFF', 'Fighting': '#C22E28',
-        'Poison': '#A040A0', 'Ground': '#E0C068', 'Flying': '#A890F0',
-        'Psychic': '#F85888', 'Bug': '#A8B820', 'Rock': '#B8A038',
-        'Ghost': '#705898', 'Dragon': '#7038F8', 'Dark': '#705848',
-        'Steel': '#B8B8D0', 'Fairy': '#EE99AC', 'Normal': '#A8A878'
-    };
+    const htmlString = window.getCreatureTypeIconHTML(type, 16);
+    const svgString = htmlString.replace(/style="[^"]*"/, "");
 
-    const color = typeColors[type] || '#A8A878';
-    const initial = (type && type.length > 0) ? type.charAt(0).toUpperCase() : '?';
-
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(8, 8, 8, 0, 2 * Math.PI);
-    ctx.fill();
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 10px "Courier New", Courier, monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(initial, 8, 8);
-
+    // Initially transparent or simple circle before SVG loads
+    ctx.clearRect(0, 0, 16, 16);
     scene.textures.addCanvas(key, dCanvas);
+
+    const img = new Image();
+    img.onload = () => {
+        ctx.clearRect(0, 0, 16, 16);
+        ctx.drawImage(img, 0, 0, 16, 16);
+        if (scene && scene.textures && scene.textures.exists(key)) {
+            const tex = scene.textures.get(key);
+            if (tex && tex.source && tex.source[0]) {
+                tex.source[0].update();
+            }
+        }
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+
     return key;
 };
 
