@@ -9234,7 +9234,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.gameStarted = true;
 
-        if (window.isNewGameSession && window.triggerMainTutorial) {
+        if ((window.isNewGameSession || window.needsTutorialTrigger) && window.triggerMainTutorial) {
+            window.needsTutorialTrigger = false;
             window.triggerMainTutorial(1);
             if (window.startMode === 'splitscreen') {
                 window.triggerMainTutorial(2);
@@ -10397,6 +10398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (allDone) {
                 window.isNewGameSetup = false;
+                window.needsTutorialTrigger = true;
                 const saveBtn = document.getElementById('saveCustomizationBtn');
                 if (saveBtn) saveBtn.innerText = 'Save';
                 const closeBtn = document.getElementById('closeCustomizationBtn');
