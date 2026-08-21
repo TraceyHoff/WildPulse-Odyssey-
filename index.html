@@ -8432,7 +8432,7 @@ window.WildPulseMusic = {
             }).connect(this.reverb);
             this.synths.crow.volume.value = -6;
 
-            // Woodpecker (Daytime)
+                        // Woodpecker (Daytime)
             this.synths.woodpecker = new Tone.MembraneSynth({
                 pitchDecay: 0.05,
                 octaves: 1,
@@ -8440,6 +8440,39 @@ window.WildPulseMusic = {
                 envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
             }).connect(this.reverb);
             this.synths.woodpecker.volume.value = -6;
+
+            // Songbird (Daytime) - Complex melodic chirp
+            this.synths.songbird = new Tone.FMSynth({
+                harmonicity: 1.5,
+                modulationIndex: 15,
+                oscillator: { type: "sine" },
+                envelope: { attack: 0.02, decay: 0.2, sustain: 0.1, release: 0.3 },
+                modulation: { type: "square" },
+                modulationEnvelope: { attack: 0.02, decay: 0.2, sustain: 0, release: 0.1 }
+            }).connect(this.reverb);
+            this.synths.songbird.volume.value = -4;
+
+            // Mourning Dove (Daytime) - Low coo
+            this.synths.dove = new Tone.FMSynth({
+                harmonicity: 1.0,
+                modulationIndex: 2,
+                oscillator: { type: "sine" },
+                envelope: { attack: 0.1, decay: 0.3, sustain: 0.4, release: 1.5 },
+                modulation: { type: "triangle" },
+                modulationEnvelope: { attack: 0.1, decay: 0.3, sustain: 0.4, release: 1.5 }
+            }).connect(this.reverb);
+            this.synths.dove.volume.value = -3;
+
+            // Warbler (Daytime) - Rapid trill
+            this.synths.warbler = new Tone.FMSynth({
+                harmonicity: 4.0,
+                modulationIndex: 20,
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.2 },
+                modulation: { type: "sine" },
+                modulationEnvelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
+            }).connect(this.reverb);
+            this.synths.warbler.volume.value = -5;
 
             // Crickets (Nighttime)
                         this.synths.crickets = new Tone.NoiseSynth({
@@ -8529,7 +8562,7 @@ window.WildPulseMusic = {
 
                         // Day: Birds
             if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.8) {
-                const chirpType = Math.floor(Math.random() * 6);
+                const chirpType = Math.floor(Math.random() * 10);
                 if (chirpType === 0) {
                     const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
                     this.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
@@ -8552,10 +8585,27 @@ window.WildPulseMusic = {
                     if (Math.random() < 0.5) {
                         this.synths.crow.triggerAttackRelease("A3", "8n", time + 0.3, 0.5);
                     }
-                } else { // Woodpecker
+                } else if (chirpType === 5) { // Woodpecker
                     for (let i = 0; i < 6; i++) {
                         this.synths.woodpecker.triggerAttackRelease("C5", "64n", time + (i * 0.05), 0.5);
                     }
+                } else if (chirpType === 6) { // Songbird melody
+                    this.synths.songbird.triggerAttackRelease("G5", "16n", time, 0.6);
+                    this.synths.songbird.triggerAttackRelease("C6", "16n", time + 0.1, 0.6);
+                    this.synths.songbird.triggerAttackRelease("E6", "8n", time + 0.2, 0.7);
+                } else if (chirpType === 7) { // Mourning Dove coo
+                    this.synths.dove.triggerAttackRelease("A3", "4n", time, 0.6);
+                    this.synths.dove.triggerAttackRelease("B3", "4n", time + 0.5, 0.7);
+                    this.synths.dove.triggerAttackRelease("A3", "2n", time + 1.0, 0.5);
+                } else if (chirpType === 8) { // Warbler rapid trill
+                    for (let i = 0; i < 8; i++) {
+                        const note = (i % 2 === 0) ? "D6" : "E6";
+                        this.synths.warbler.triggerAttackRelease(note, "64n", time + (i * 0.05), 0.5);
+                    }
+                } else { // Finch chatter (mixed)
+                    this.synths.songbird.triggerAttackRelease("E6", "32n", time, 0.5);
+                    this.synths.birds.triggerAttackRelease("C6", "32n", time + 0.05, 0.5);
+                    this.synths.songbird.triggerAttackRelease("G6", "32n", time + 0.1, 0.6);
                 }
             }
 
