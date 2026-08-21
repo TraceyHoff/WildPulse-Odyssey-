@@ -19411,6 +19411,18 @@ window.getPickupIconHTML = function(size = 16) {
     </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">⬆️</span>`;
 };
 
+window.getPortalIconHTML = function(size = 16) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #bf55ec); margin: 0 4px;">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#bf55ec" stroke-width="6" stroke-dasharray="10 5" opacity="0.8">
+            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="4s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="50" cy="50" r="30" fill="#bf55ec" opacity="0.4" stroke="#bf55ec" stroke-width="4">
+            <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="3s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="50" cy="50" r="15" fill="#bf55ec" opacity="0.9" />
+    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">🌀</span>`;
+};
+
 window.getLockIconHTML = function(size = 16) {
     return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:inline-block; vertical-align:middle; filter:drop-shadow(0 0 4px #ff3366); margin: 0 4px;">
         <rect x="25" y="45" width="50" height="40" rx="5" fill="#ff3366" opacity="0.2" stroke="#ff3366" stroke-width="5"/>
@@ -23495,10 +23507,16 @@ window.closePartyModal = function(playerNum = 1) {
     }
 };
 
+window.lastRenderedPartyState = "";
+
 window.renderPartyList = function() {
     const modal = document.getElementById('partyModal');
     const isVisible = window.coopActive ? (window.p1ActiveModal === 'partyModal' || window.p2ActiveModal === 'partyModal') : (modal && modal.style.display === 'block');
     if (!isVisible) return;
+
+    const currentPartyState = JSON.stringify({ p1: window.playerParty, p2: window.collectedCreatures2 });
+    if (currentPartyState === window.lastRenderedPartyState) return;
+    window.lastRenderedPartyState = currentPartyState;
 
     // Render Player 1
     renderPartyForPlayer(1);
@@ -23774,10 +23792,16 @@ function renderPartyForPlayer(playerNum = 1) {
     list.appendChild(fragment);
 }
 
+window.lastRenderedStorageState = "";
+
 window.renderStorageList = function() {
     const modal = document.getElementById('storageModal');
     const isVisible = window.coopActive ? (window.p1ActiveModal === 'storageModal' || window.p2ActiveModal === 'storageModal') : (modal && modal.style.display === 'block');
     if (!isVisible) return;
+
+    const currentStorageState = JSON.stringify({ p1: window.collectedCreatures, p2: window.collectedCreatures2 });
+    if (currentStorageState === window.lastRenderedStorageState) return;
+    window.lastRenderedStorageState = currentStorageState;
 
     // Render Player 1
     renderStorageForPlayer(1);
@@ -41257,7 +41281,7 @@ function update() {
         if (window.weatherPattern.includes('rain') || window.weatherPattern.includes('storm')) {
             if (window.weatherPattern === 'light_rain') targetRain = 20 * window.weatherIntensity;
             else if (window.weatherPattern === 'heavy_rain') targetRain = 60 * window.weatherIntensity;
-            else if (window.weatherPattern === 'thunderstorm') targetRain = 120 * window.weatherIntensity;
+            else if (window.weatherPattern === 'thunderstorm') targetRain = 60 * window.weatherIntensity;
 
             targetPollen = 0; targetLeafRed = 0; targetLeafYellow = 0; targetLeafMixed = 0;
             targetLeafGreen1 = 0; targetLeafGreen2 = 0;
