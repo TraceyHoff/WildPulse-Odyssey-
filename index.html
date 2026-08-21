@@ -24199,6 +24199,13 @@ window.deleteProgress = function(playerNum = 1) {
                 window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
             }
 
+            const ownCode = localStorage.getItem('wildpulse_own_world_code');
+            const worldCode = localStorage.getItem('wildpulse_world_code');
+            localStorage.clear();
+            if (ownCode) localStorage.setItem('wildpulse_own_world_code', ownCode);
+            if (worldCode) localStorage.setItem('wildpulse_world_code', worldCode);
+
+            sessionStorage.clear();
             location.reload();
         });
     } else {
@@ -24238,6 +24245,7 @@ window.deleteProgress = function(playerNum = 1) {
                 window.spawnMiniTiles(game && game.scene && game.scene.scenes[0]);
             }
 
+            sessionStorage.clear();
             location.reload();
         });
     }
