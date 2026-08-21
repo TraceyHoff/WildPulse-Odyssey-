@@ -33130,7 +33130,10 @@ function create() {
     });
 
     let shootingStarParticles = this.add.particles('shooting_star_particle');
-    shootingStarParticles.setDepth(4000);
+    shootingStarParticles.setDepth(0.06);
+    if (window.sharedWaterMask) {
+        shootingStarParticles.setMask(window.sharedWaterMask);
+    }
     window.shootingStarEmitter = shootingStarParticles.createEmitter({
         speedX: { min: -400, max: -600 },
         speedY: { min: 200, max: 300 },
