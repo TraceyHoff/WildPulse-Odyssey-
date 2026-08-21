@@ -95,9 +95,10 @@ test.describe('Introductory Onboarding and Dynamic Sell Price Tests', () => {
   });
 
   test('should calculate dynamic creature selling price based on stats, nature, and mood', async ({ page }) => {
-    // Skip intro modal for this unit-like check by seeding player color
+    // Skip intro modal for this unit-like check by seeding player color and intro seen flag
     await page.addInitScript(() => {
       localStorage.setItem('wildpulse_player_color', '#FFFFFF');
+      localStorage.setItem('wildpulse_has_seen_intro', 'true');
     });
     await page.goto('http://localhost:3000');
     await page.click('#startGameBtn');
