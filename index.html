@@ -1865,14 +1865,15 @@
         top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        background: linear-gradient(135deg, rgba(10, 40, 20, 0.95), rgba(0, 20, 40, 0.95));
+        background: rgba(0, 20, 40, 0.9);
         backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 10px 40px rgba(0, 255, 150, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1);
+        border: 1px solid #00ffff;
+        box-shadow: 0 0 10px #00ffff, inset 0 0 20px rgba(0, 255, 255, 0.2);
         padding: 15px 30px;
-        border-radius: 12px;
-        color: white;
-        font-family: sans-serif;
+        border-radius: 4px;
+        color: #00ffff;
+        font-family: 'Courier New', Courier, monospace;
+        text-shadow: 0 0 5px #00ffff;
         font-size: 18px;
         font-weight: bold;
         text-align: center;
@@ -1880,6 +1881,8 @@
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s ease-in-out;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     #playerNameInput:focus {
@@ -17658,6 +17661,34 @@ window.updatePlayerLabels = function() {
 };
 
 
+
+window.getCyberpunkIconHTML = function(type) {
+    const base = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">`;
+    const filter = `<defs><filter id="neon_glow_tutorial"><feGaussianBlur stdDeviation="1.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+    if (type === 'welcome') {
+        return `${base}${filter}<path d="M12 2L2 12h3v8h14v-8h3L12 2z" stroke="#00ffff" stroke-width="2" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'interact') {
+        return `${base}${filter}<path d="M9 11.24V7.5a2.5 2.5 0 015 0v4M14 11.24v-1.5a2.5 2.5 0 115 0v5.69a6 6 0 01-2 4.47l-1 1A6 6 0 0111.76 22H9.5a6 6 0 01-6-6v-4.5a2.5 2.5 0 015 0v4.24" stroke="#ff00ff" stroke-width="2" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'menu') {
+        return `${base}${filter}<circle cx="12" cy="12" r="8" stroke="#00ff00" stroke-width="2" stroke-dasharray="4 4" filter="url(#neon_glow_tutorial)"/><circle cx="12" cy="12" r="3" stroke="#00ff00" stroke-width="2" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'inventory') {
+        return `${base}${filter}<rect x="4" y="6" width="16" height="14" rx="2" stroke="#ff9900" stroke-width="2" filter="url(#neon_glow_tutorial)"/><path d="M8 6V4a2 2 0 014 0v2M8 12h8" stroke="#ff9900" stroke-width="2" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'map') {
+        return `${base}${filter}<path d="M3 6l6-3 6 3 6-3v12l-6 3-6-3-6 3V6z" stroke="#00ffff" stroke-width="2" filter="url(#neon_glow_tutorial)"/><path d="M9 3v12M15 6v12" stroke="#00ffff" stroke-width="2" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'home') {
+        return `${base}${filter}<path d="M3 10l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V10z" stroke="#00ffff" stroke-width="2" filter="url(#neon_glow_tutorial)"/><path d="M9 22V12h6v10" stroke="#00ffff" stroke-width="2" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'portal') {
+        return `${base}${filter}<rect x="6" y="4" width="12" height="16" rx="2" stroke="#ff00ff" stroke-width="2" filter="url(#neon_glow_tutorial)"/><path d="M12 4v16M8 12h8" stroke="#ff00ff" stroke-width="2" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'design') {
+        return `${base}${filter}<circle cx="12" cy="12" r="9" stroke="#ff9900" stroke-width="2" filter="url(#neon_glow_tutorial)"/><circle cx="8" cy="9" r="1.5" fill="#ff9900" filter="url(#neon_glow_tutorial)"/><circle cx="12" cy="7" r="1.5" fill="#ff9900" filter="url(#neon_glow_tutorial)"/><circle cx="16" cy="9" r="1.5" fill="#ff9900" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'furniture') {
+        return `${base}${filter}<path d="M4 18v2M20 18v2M4 12h16v6H4zM6 12V8a2 2 0 014 0v4M14 12V8a2 2 0 014 0v4" stroke="#00ff00" stroke-width="2" filter="url(#neon_glow_tutorial)"/></svg>`;
+    } else if (type === 'dpad') {
+        return `${base}${filter}<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3z" stroke="#00ffff" stroke-width="2" filter="url(#neon_glow_tutorial)"/><circle cx="12" cy="12" r="2" fill="#00ffff" filter="url(#neon_glow_tutorial)"/></svg>`;
+    }
+    return '';
+};
+
 window.triggerMainTutorial = function(playerNum) {
     const isP2 = (playerNum === 2);
 
@@ -17675,38 +17706,33 @@ window.triggerMainTutorial = function(playerNum) {
         const isMobile = window.isConsoleOrMobile() && (inputType === 'touch' || navigator.maxTouchPoints > 0);
 
         let moveText = "";
-        let sprintText = "";
-        let interactText = "";
+                let interactText = "";
         let menuText = "";
         let inventoryText = "";
 
         if (inputType === 'gamepad') {
             moveText = "Use the Left Stick or D-Pad to move around the world.";
-            sprintText = "Hold the Right Trigger or Bumper to sprint and move faster.";
             interactText = "Press the A Button to interact with NPCs, plants, and objects.";
             menuText = "Press the Y Button to open your Action Wheel for menus.";
             inventoryText = "Press the B Button to open your Backpack.";
         } else if (inputType === 'touch' || isMobile) {
             moveText = "Use the virtual joystick on the left side of the screen to move.";
-            sprintText = "Tap the Sprint button on the right to toggle running.";
             interactText = "Tap the Interact button (hand icon) to talk to NPCs or collect items.";
             menuText = "Tap the Action Wheel icon or double-tap the screen to open menus.";
             inventoryText = "Tap the Backpack icon to view your inventory.";
         } else { // keyboard
             moveText = "Use the W, A, S, D keys to move around the world.";
-            sprintText = "Hold the SHIFT key to sprint and move faster.";
             interactText = "Press the E key (or Space/Enter) to interact with NPCs and objects.";
             menuText = "Press the Q key to open your Action Wheel for menus.";
             inventoryText = "Hold the I key to open your Backpack.";
         }
 
         let msg = "";
-        if (step === 0) msg = `👋 Welcome to WildPulse on ${platformName}! Let's get you started using your ${inputType} controls. ${moveText}`;
-        else if (step === 1) msg = `🏃 ${sprintText}`;
-        else if (step === 2) msg = `✋ ${interactText}`;
-        else if (step === 3) msg = `⚙️ ${menuText}`;
-        else if (step === 4) msg = `🎒 ${inventoryText}`;
-        else if (step === 5) msg = `🗺️ You're all set! Explore the wilderness, catch creatures, and build your home!`;
+        if (step === 0) msg = `${window.getCyberpunkIconHTML('welcome')} Welcome to the Grid on ${platformName}. Initialize movement protocols. ${moveText}`;
+        else if (step === 1) msg = `${window.getCyberpunkIconHTML('interact')} ${interactText}`;
+        else if (step === 2) msg = `${window.getCyberpunkIconHTML('menu')} ${menuText}`;
+        else if (step === 3) msg = `${window.getCyberpunkIconHTML('inventory')} ${inventoryText}`;
+        else if (step === 4) msg = `${window.getCyberpunkIconHTML('map')} Initialization complete. Explore the digital frontier, capture rogue code, and establish your node!`;
 
         if (window.showModernNotification && msg) {
             window.showModernNotification(msg, 10000, playerNum);
@@ -17718,7 +17744,6 @@ window.triggerMainTutorial = function(playerNum) {
     setTimeout(() => showDynamicStep(2), 26000);
     setTimeout(() => showDynamicStep(3), 38000);
     setTimeout(() => showDynamicStep(4), 50000);
-    setTimeout(() => showDynamicStep(5), 62000);
 };
 
 window.triggerHomeTutorial = function(playerNum) {
@@ -17728,19 +17753,19 @@ window.triggerHomeTutorial = function(playerNum) {
     if (window.showModernNotification) {
         // Start home tutorial series
         setTimeout(() => {
-            window.showModernNotification("🏠 Home Base Unlocked! Step onto the home tile to enter your house.", 10000, playerNum);
+            window.showModernNotification(window.getCyberpunkIconHTML("home") + " Base Node Unlocked! Step onto the entry tile to access your subnet.", 10000, playerNum);
         }, 1000);
         setTimeout(() => {
-            window.showModernNotification("🚪 Inside your home, you can teleport back to the hospital area using the glowing exit pad.", 10000, playerNum);
+            window.showModernNotification(window.getCyberpunkIconHTML("portal") + " Inside your node, you can warp back to the central hub using the glowing exit pad.", 10000, playerNum);
         }, 13000);
         setTimeout(() => {
-            window.showModernNotification("🎨 Access the 'Design' menu on your Action Wheel inside to customize walls and floors.", 10000, playerNum);
+            window.showModernNotification(window.getCyberpunkIconHTML("design") + " Access the 'Design' interface on your Action Wheel inside to compile walls and floors.", 10000, playerNum);
         }, 25000);
         setTimeout(() => {
-            window.showModernNotification("🛋️ Use your inventory to place furniture! Press R (or Right Trigger) to rotate items.", 10000, playerNum);
+            window.showModernNotification(window.getCyberpunkIconHTML("furniture") + " Access your inventory to deploy assets! Press R (or Right Trigger) to orient items.", 10000, playerNum);
         }, 37000);
         setTimeout(() => {
-            window.showModernNotification("🎮 Pro Tip: During placement mode, use the D-Pad to make 1-pixel micro-adjustments for perfect positioning!", 10000, playerNum);
+            window.showModernNotification(window.getCyberpunkIconHTML("dpad") + " Pro Tip: During deployment mode, use the D-Pad to execute 1-pixel micro-adjustments for optimal coordinates!", 10000, playerNum);
         }, 49000);
     }
 };
