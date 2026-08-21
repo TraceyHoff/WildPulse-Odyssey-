@@ -9234,6 +9234,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.gameStarted = true;
 
+        if (window.isNewGameSession && window.triggerMainTutorial) {
+            window.triggerMainTutorial(1);
+            if (window.startMode === 'splitscreen') {
+                window.triggerMainTutorial(2);
+            }
+        }
+
         if (window.pendingShinyNotifications && window.pendingShinyNotifications.length > 0) {
             window.pendingShinyNotifications.forEach(name => {
                 const shinyIcon = window.getShinyIconHTML ? window.getShinyIconHTML(16) : '✨';
@@ -17648,6 +17655,69 @@ window.updatePlayerLabels = function() {
     }
 };
 
+
+window.triggerMainTutorial = function(playerNum) {
+    const isP2 = (playerNum === 2);
+
+    let platformName = "PC";
+    const ua = navigator.userAgent;
+    if (ua.match(/Xbox/i)) platformName = "Xbox";
+    else if (ua.match(/PlayStation/i)) platformName = "PlayStation";
+    else if (ua.match(/Nintendo/i) || ua.match(/Switch/i)) platformName = "Nintendo Switch";
+    else if (ua.match(/Android/i)) platformName = "Android";
+    else if (ua.match(/iPhone|iPad|iPod/i)) platformName = "iOS";
+    else if (ua.match(/Mac/i)) platformName = "Mac";
+
+    const showDynamicStep = (step) => {
+        const inputType = isP2 ? window.p2ActiveInput : window.p1ActiveInput;
+        const isMobile = window.isConsoleOrMobile() && (inputType === 'touch' || navigator.maxTouchPoints > 0);
+
+        let moveText = "";
+        let sprintText = "";
+        let interactText = "";
+        let menuText = "";
+        let inventoryText = "";
+
+        if (inputType === 'gamepad') {
+            moveText = "Use the Left Stick or D-Pad to move around the world.";
+            sprintText = "Hold the Right Trigger or Bumper to sprint and move faster.";
+            interactText = "Press the A Button to interact with NPCs, plants, and objects.";
+            menuText = "Press the Y Button to open your Action Wheel for menus.";
+            inventoryText = "Press the B Button to open your Backpack.";
+        } else if (inputType === 'touch' || isMobile) {
+            moveText = "Use the virtual joystick on the left side of the screen to move.";
+            sprintText = "Tap the Sprint button on the right to toggle running.";
+            interactText = "Tap the Interact button (hand icon) to talk to NPCs or collect items.";
+            menuText = "Tap the Action Wheel icon or double-tap the screen to open menus.";
+            inventoryText = "Tap the Backpack icon to view your inventory.";
+        } else { // keyboard
+            moveText = "Use the W, A, S, D keys to move around the world.";
+            sprintText = "Hold the SHIFT key to sprint and move faster.";
+            interactText = "Press the E key (or Space/Enter) to interact with NPCs and objects.";
+            menuText = "Press the Q key to open your Action Wheel for menus.";
+            inventoryText = "Hold the I key to open your Backpack.";
+        }
+
+        let msg = "";
+        if (step === 0) msg = `👋 Welcome to WildPulse on ${platformName}! Let's get you started using your ${inputType} controls. ${moveText}`;
+        else if (step === 1) msg = `🏃 ${sprintText}`;
+        else if (step === 2) msg = `✋ ${interactText}`;
+        else if (step === 3) msg = `⚙️ ${menuText}`;
+        else if (step === 4) msg = `🎒 ${inventoryText}`;
+        else if (step === 5) msg = `🗺️ You're all set! Explore the wilderness, catch creatures, and build your home!`;
+
+        if (window.showModernNotification && msg) {
+            window.showModernNotification(msg, 10000, playerNum);
+        }
+    };
+
+    setTimeout(() => showDynamicStep(0), 2000);
+    setTimeout(() => showDynamicStep(1), 14000);
+    setTimeout(() => showDynamicStep(2), 26000);
+    setTimeout(() => showDynamicStep(3), 38000);
+    setTimeout(() => showDynamicStep(4), 50000);
+    setTimeout(() => showDynamicStep(5), 62000);
+};
 
 window.triggerHomeTutorial = function(playerNum) {
     const isP2 = (playerNum === 2);
