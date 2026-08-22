@@ -7938,15 +7938,24 @@ function escapeHtml(unsafe) {
             </div>
 
             <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(255, 0, 127, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.05);">
-                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">⛩️ MODULE_04: GRID CONFLICTS & LOGISTICS</h3>
+                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">⛩️ MODULE_04: GRID CONFLICTS</h3>
                 <p>• <strong>Wandering Trainers:</strong> Challenge the 24 elite trainers scattered across the world to win gold. Defeated trainers display green nameplates and a <span style="color:#ffd700;">🏆 trophy</span>.</p>
                 <p>• <strong>Dojo Challenge:</strong> Defeat all 24 trainers to unlock the Dojo Tile in the shop for 920 gold. Placed Dojo Tiles let you fight the Dojo Leader in scalable boss battles.</p>
-                <p>• <strong>Item Catalog:</strong> Visit the store to buy recovery items, **Creature Licenses** (provides a passive 1.5x capture rate, consumed only on successful catch), and **Jank Juice** (increases shiny spawn rates for 6 minutes).</p>
-                <p>• <strong>Hidden Grove Portals ${window.getPortalIconHTML(16)}:</strong> Under specific environmental alignments (Fall Thunderstorms at Night, Winter Thundersnows at Night, Spring Rains at Sunrise, or Summer Storms at Sunset), 3 rare procedurally placed portals materialize across the map. Step through them to access the mysterious, high-stakes 40x40 Hidden Grove Portal World, filled with completely unique flora, glowing grass, much higher shiny rates, and high-level creatures! Step on the center return portal to return to safety.</p>
             </div>
 
             <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(255, 0, 127, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.05);">
-                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">📊 MODULE_05: DATABASE ARCHIVE</h3>
+                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;"><span id="helpIconHome"></span> MODULE_05: BASE NODE & LOGISTICS</h3>
+                <p>• <strong>Base Node:</strong> Unlock your personal subnet! Inside, access the <strong>Design</strong> interface <span id="helpIconDesign"></span> on your Action Wheel to compile walls and floors. Deploy <strong>Furniture</strong> <span id="helpIconFurniture"></span> directly from your inventory. During deployment mode, use the D-Pad <span id="helpIconDpad"></span> to execute precise 1-pixel micro-adjustments.</p>
+                <p>• <strong>Item Catalog:</strong> The store supplies basic recovery items, **Jank Juice** (boosts shiny rates), and **Creature Licenses** (grants a passive 1.5x capture rate, consumed only on success). Note that high-tier permanent stat boosters (Uncommon, Rare, Exquisite) are strictly obtainable as procedural quest rewards. When selling items with tiered prefixes, their values are dynamically calculated based on rarity.</p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(255, 0, 127, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.05);">
+                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;"><span id="helpIconPortal"></span> MODULE_06: ANOMALIES</h3>
+                <p>• <strong>Void Rift:</strong> After your first 14 in-game days, these rare anomalies may spawn under specific environmental conditions (up to twice per 120 in-game days, with a 14-day cooldown). Step inside to explore a mysterious 40x40 dimension with glowing flora, much higher shiny rates, and powerful Void creatures. Step on the center return pad to extract safely.</p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(255, 0, 127, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.05);">
+                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">📊 MODULE_07: DATABASE ARCHIVE</h3>
 
                 <h4 style="color: #ff007f; margin: 10px 0 5px 0; font-size: 13px; text-transform: uppercase;">Type Matchups</h4>
                 <div id="typeChartContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid rgba(255, 0, 127, 0.3); padding: 5px; margin-bottom: 15px; background: rgba(0,0,0,0.6); font-size: 13px; border-radius: 4px;"></div>
@@ -23342,6 +23351,18 @@ window.openHelpModal = function(playerNum = 1) {
     }).join('');
     let moodContainer = document.getElementById('moodsListContainer');
     if(moodContainer) moodContainer.innerHTML = '<ul style="margin:0; padding-left:20px; font-size:14px; color:#ddd;">' + moodsHtml + '</ul>';
+
+    // Inject SVG icons dynamically
+    const helpIconHome = document.getElementById('helpIconHome');
+    if(helpIconHome) helpIconHome.innerHTML = window.getCyberpunkIconHTML ? window.getCyberpunkIconHTML("home") : '';
+    const helpIconDesign = document.getElementById('helpIconDesign');
+    if(helpIconDesign) helpIconDesign.innerHTML = window.getCyberpunkIconHTML ? window.getCyberpunkIconHTML("design") : '';
+    const helpIconFurniture = document.getElementById('helpIconFurniture');
+    if(helpIconFurniture) helpIconFurniture.innerHTML = window.getCyberpunkIconHTML ? window.getCyberpunkIconHTML("furniture") : '';
+    const helpIconDpad = document.getElementById('helpIconDpad');
+    if(helpIconDpad) helpIconDpad.innerHTML = window.getCyberpunkIconHTML ? window.getCyberpunkIconHTML("dpad") : '';
+    const helpIconPortal = document.getElementById('helpIconPortal');
+    if(helpIconPortal) helpIconPortal.innerHTML = window.getPortalIconHTML ? window.getPortalIconHTML(20) : '';
 
     if (window.coopActive) {
         window.updateModalVisibility();
