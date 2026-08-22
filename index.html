@@ -27960,6 +27960,35 @@ function generateParticleTextures(scene) {
     pollenCtx.fillRect(0, 0, 8, 8);
     scene.textures.addCanvas('pollen_particle', pollenCanvas);
 
+    const sparkleCanvas = document.createElement('canvas');
+    sparkleCanvas.width = 32;
+    sparkleCanvas.height = 32;
+    const sparkleCtx = sparkleCanvas.getContext('2d');
+
+    // Core glow
+    let sparkleGrad = sparkleCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    sparkleGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    sparkleGrad.addColorStop(0.2, 'rgba(200, 255, 255, 0.8)'); // Cyan tint
+    sparkleGrad.addColorStop(0.5, 'rgba(255, 255, 150, 0.4)'); // Yellow tint
+    sparkleGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    sparkleCtx.fillStyle = sparkleGrad;
+    sparkleCtx.fillRect(0, 0, 32, 32);
+
+    // Star spikes
+    sparkleCtx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    sparkleCtx.beginPath();
+    sparkleCtx.moveTo(16, 2);
+    sparkleCtx.lineTo(18, 14);
+    sparkleCtx.lineTo(30, 16);
+    sparkleCtx.lineTo(18, 18);
+    sparkleCtx.lineTo(16, 30);
+    sparkleCtx.lineTo(14, 18);
+    sparkleCtx.lineTo(2, 16);
+    sparkleCtx.lineTo(14, 14);
+    sparkleCtx.fill();
+
+    scene.textures.addCanvas('sparkle_particle', sparkleCanvas);
+
     // Micro-detail textures
     const fireflyCanvas = document.createElement('canvas');
     fireflyCanvas.width = 64; // 4 frames x 16px
@@ -33284,6 +33313,21 @@ function create() {
         emitZone: window.sharedEmitZone
     });
 
+    let friendshipSparkleParticles = this.add.particles('sparkle_particle');
+    friendshipSparkleParticles.setDepth(3000);
+    window.friendshipSparkleEmitter = friendshipSparkleParticles.createEmitter({
+        speedY: { min: -100, max: 100 },
+        speedX: { min: -100, max: 100 },
+        lifespan: 1500,
+        quantity: 1,
+        frequency: 100,
+        scale: { start: 0.5, end: 0 },
+        alpha: { start: 0.8, end: 0 },
+        rotate: { start: 0, end: 360 },
+        blendMode: 'ADD',
+        emitting: false
+    });
+
     let snowflakeParticles = this.add.particles('snowflake_particle');
     snowflakeParticles.setDepth(3000);
     window.snowflakeEmitter = snowflakeParticles.createEmitter({
@@ -35277,19 +35321,40 @@ function updatePetFollow(scene, playerNum, playerObj, party) {
     // Follow physics and logic
     if (pet && pet.body) {
         let dist = Phaser.Math.Distance.Between(pet.x, pet.y, playerObj.x, playerObj.y);
-        if (dist > 1500) {
-            pet.setPosition(playerObj.x, playerObj.y);
-            if (pet.body.reset) pet.body.reset(playerObj.x, playerObj.y);
-            pet.body.setVelocity(0, 0);
-        } else if (dist > 60) {
-            let angle = Phaser.Math.Angle.Between(pet.x, pet.y, playerObj.x, playerObj.y);
+
+        let isDancing = window.friendshipFrames && window.friendshipFrames > 120;
+
+        if (isDancing) {
+            let time = Date.now() / 300; // Speed of dance
+            let offset = playerNum === 1 ? 0 : Math.PI; // Offset players so pets dance on opposite sides
+            let targetX = playerObj.x + Math.cos(time + offset) * 50;
+            let targetY = playerObj.y + Math.sin(time + offset) * 50;
+
+            let angle = Phaser.Math.Angle.Between(pet.x, pet.y, targetX, targetY);
+            let danceDist = Phaser.Math.Distance.Between(pet.x, pet.y, targetX, targetY);
+
             let petSpeed = 160;
-            if (dist > 120) {
-                petSpeed = 240;
+            if (danceDist > 30) {
+                pet.body.setVelocity(Math.cos(angle) * petSpeed, Math.sin(angle) * petSpeed);
+            } else {
+                pet.body.setVelocity(0, 0);
+                pet.setPosition(targetX, targetY); // Snap to circle path when close
             }
-            pet.body.setVelocity(Math.cos(angle) * petSpeed, Math.sin(angle) * petSpeed);
-        } else if (dist < 40) {
-            pet.body.setVelocity(0, 0);
+        } else {
+            if (dist > 1500) {
+                pet.setPosition(playerObj.x, playerObj.y);
+                if (pet.body.reset) pet.body.reset(playerObj.x, playerObj.y);
+                pet.body.setVelocity(0, 0);
+            } else if (dist > 60) {
+                let angle = Phaser.Math.Angle.Between(pet.x, pet.y, playerObj.x, playerObj.y);
+                let petSpeed = 160;
+                if (dist > 120) {
+                    petSpeed = 240;
+                }
+                pet.body.setVelocity(Math.cos(angle) * petSpeed, Math.sin(angle) * petSpeed);
+            } else if (dist < 40) {
+                pet.body.setVelocity(0, 0);
+            }
         }
 
         // Swimming Visuals for pet
@@ -41569,6 +41634,34 @@ function update() {
             activeTilesCount++;
         }
         console.log(`[Viewport Performance] Active Tiles: ${activeTilesCount} | Visible Entities: ${visibleCreatures + visiblePlayers + 1}`);
+    }
+
+    // Check Player Friendship Proximity
+    if (window.coopActive && window.player && window.player.body && window.player2 && window.player2.body) {
+        let dist = Phaser.Math.Distance.Between(window.player.x, window.player.y, window.player2.x, window.player2.y);
+        if (dist <= 200) {
+            window.friendshipFrames = (window.friendshipFrames || 0) + 1;
+        } else {
+            window.friendshipFrames = 0;
+        }
+    } else {
+        window.friendshipFrames = 0;
+    }
+
+    // Manage Sparkle Emitter
+    if (window.friendshipSparkleEmitter) {
+        if (window.friendshipFrames > 120) {
+            if (!window.friendshipSparkleEmitter.emitting) {
+                window.friendshipSparkleEmitter.start();
+            }
+            let midX = (window.player.x + window.player2.x) / 2;
+            let midY = (window.player.y + window.player2.y) / 2;
+            window.friendshipSparkleEmitter.setPosition(midX, midY - 20);
+        } else {
+            if (window.friendshipSparkleEmitter.emitting) {
+                window.friendshipSparkleEmitter.stop();
+            }
+        }
     }
 
     // Update Pets Following Players
