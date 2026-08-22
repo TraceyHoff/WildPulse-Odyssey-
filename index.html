@@ -4850,6 +4850,7 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
 
     // Choose quest type randomly, trying to avoid active quest types and recently generated types for this NPC if possible
     const types = ['catch', 'breed', 'defeat_trainer', 'challenge_tier', 'player_level', 'creature_level'];
+    if (pLevel >= 10) { types.push('place_furniture'); }
     let availableTypes = types.filter(t => !activeQuestTypes.has(t) && !sessionQuestTypes.has(t));
 
     if (availableTypes.length === 0) {
@@ -4872,7 +4873,9 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
 
     const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
     if (pLevel >= 10 && Math.random() < 0.15) {
-        rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+        do {
+            rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+        } while (questType === 'place_furniture' && rewardItem === targetValue);
     } else if (Math.random() < 0.35) {
         rewardItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
         if (rewardItem === "Stat Boosters") {
@@ -4924,6 +4927,11 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
         title = `Promotion: Lv. ${targetLvl}`;
         description = `Attain Trainer Level ${targetLvl} to secure higher cybernetic clearance.`;
         targetValue = targetLvl;
+    } else if (questType === 'place_furniture') {
+        const targetFurniture = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
+        title = `Decorate Home: ${targetFurniture}`;
+        description = `Acquire and place a ${targetFurniture} in your home territory tiles.`;
+        targetValue = targetFurniture;
     } else if (questType === 'creature_level') {
         // Find highest level in party
         const party = playerNum === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -4983,6 +4991,22 @@ window.evaluateActiveQuests = function(playerNum = 1) {
                 q.progress = q.targetCount;
                 changed = true;
                 window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, playerNum);
+            }
+        } else if (q.type === 'place_furniture') {
+            const targetFurnitureTileType = window.typeMapLocal && window.typeMapLocal[q.target] ? window.typeMapLocal[q.target] : null;
+            if (targetFurnitureTileType) {
+                const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
+                const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
+                for (const tile of miniTiles) {
+                    if (tile.type === targetFurnitureTileType) {
+                        if (q.progress < q.targetCount) {
+                            q.progress = q.targetCount;
+                            changed = true;
+                            window.showModernNotification(`📈 Quest Update: ${q.title} (${q.progress}/${q.targetCount})`, 4000, playerNum);
+                        }
+                        break;
+                    }
+                }
             }
         } else if (q.type === 'creature_level') {
             const target = parseInt(q.target);
@@ -20691,7 +20715,7 @@ window.updateInventoryUI = function() {
             slot.style.width = '60px';
             slot.style.height = '60px';
             slot.style.background = 'rgba(10, 15, 30, 0.9)';
-            slot.style.border = '2px solid #555';
+            slot.style.border = '2px solid #ffeb3b';
             slot.style.borderRadius = '8px';
             slot.style.display = 'flex';
             slot.style.alignItems = 'center';
@@ -20707,7 +20731,7 @@ window.updateInventoryUI = function() {
 
                 slot.style.border = 'none';
                 slot.style.padding = '2px';
-                slot.style.background = `conic-gradient(${ready ? '#00ffcc' : '#ff007f'} ${progressPct}%, #555 ${progressPct}%)`;
+                slot.style.background = `conic-gradient(${ready ? '#00ffcc' : '#ff007f'} ${progressPct}%, #ffeb3b ${progressPct}%)`;
 
                 if (ready) {
                     slot.classList.add('egg-hatch-glow');
@@ -20747,13 +20771,28 @@ window.updateInventoryUI = function() {
 
         container.innerHTML = "";
         const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+        const inventorySlots = 4;
+        for (let index = 0; index < inventorySlots; index++) {
+            const item = inv && index < inv.length ? inv[index] : null;
 
-        if (!inv || inv.length === 0) {
-            container.innerHTML = "<p style='color: #888; text-align: center; font-style: italic; width: 100%;'>Inventory is empty.</p>";
-            return;
-        }
+            if (!item) {
+                const emptyCard = document.createElement('div');
+                emptyCard.className = 'party-card empty-slot';
+                emptyCard.style.display = 'flex';
+                emptyCard.style.alignItems = 'center';
+                emptyCard.style.justifyContent = 'center';
+                emptyCard.style.background = 'rgba(10, 15, 30, 0.4)';
+                emptyCard.style.border = '1px dashed #555';
+                emptyCard.style.borderRadius = '8px';
+                emptyCard.style.padding = '10px';
+                emptyCard.style.height = '60px';
+                emptyCard.style.color = '#888';
+                emptyCard.style.fontStyle = 'italic';
+                emptyCard.innerHTML = 'Empty Slot';
+                container.appendChild(emptyCard);
+                continue;
+            }
 
-        inv.forEach((item, index) => {
             const card = document.createElement('div');
             card.className = 'party-card';
             card.style.display = 'flex';
@@ -20783,7 +20822,7 @@ window.updateInventoryUI = function() {
             };
 
             container.appendChild(card);
-        });
+        }
     };
 
     updateInventoryList(1, 'p1InventoryList');
@@ -30077,7 +30116,7 @@ function generateTileTextures(scene) {
         "Neon Couch", "L-Couch", "Love Seat", "Office Chair", "Stool", "Coffee Table", "Dining Table", "Park Bench", "Cyber Bench", "Filing Cabinet", "Display Cabinet", "Nightstand", "Corner Table", "Bunk Bed", "King Bed", "Cyber Desk", "Glow Carpet", "Star Carpet", "Round Cyber Carpet", "Hexagon Carpet", "Heart Carpet", "Diamond Carpet", "Holo Bed", "Neon Chair", "Holo Table", "Cyber Plant", "Crystal Bonsai", "Neon Fern", "Plasma Cactus", "Holo Orchid", "Potted Ficus", "Monstera Plant", "Cyber Bamboo", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Digi Sunflower", "Zen Bonsai", "Lunar Lily", "Cyber Tree", "Neon Pine", "Neon Lamp", "Server Rack", "Arcade Machine", "Cyber TV", "Neon Shelf", "Tech Bin", "Neon Wardrobe", "Cyber Fridge", "Holo Display", "Lava Lamp", "Plasma Globe", "Cyber Poster", "Neon Sign", "Gaming PC", "Smart Mirror"
     ];
 
-    const typeMapLocal = {
+    window.typeMapLocal = {
         "Neon Couch": "furniture_couch",
         "L-Couch": "furniture_lcouch",
         "Love Seat": "furniture_loveseat",
@@ -30143,7 +30182,7 @@ function generateTileTextures(scene) {
         const svgMatch = html.match(/<svg[^>]*>.*?<\/svg>/is);
         if (svgMatch) {
             let svgStr = svgMatch[0];
-            const tileKey = typeMapLocal[item];
+            const tileKey = window.typeMapLocal[item];
             if (!tileKey) return;
 
             // Clean up the SVG string if needed
