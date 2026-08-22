@@ -7885,10 +7885,40 @@ function escapeHtml(unsafe) {
         <div class="coop-column" style="flex: 1; text-align: left; max-height: 55vh; overflow-y: auto; padding-right: 5px;">
             <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
                 <h3 style="margin-top: 0; font-size: 15px; color: #00ffcc; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(0, 255, 204, 0.3); padding-bottom: 5px;">🎮 MODULE_01: CONTROL INTERFACE</h3>
-                <p>• <strong>Movement:</strong> Walk using <span style="color:#00ff96;">W, A, S, D</span> or <span style="color:#00ff96;">Arrow Keys</span> on PC, the <span style="color:#00ff96;">Left Stick / D-Pad</span> on Gamepads, or by touching and dragging on mobile viewports.</p>
-                <p>• <strong>Action Wheel:</strong> Tap <span style="color:#00ff96;">Q</span> on PC, hold <span style="color:#00ff96;">Right Bumper</span> on your Gamepad, or double-tap the screen on Mobile. Navigate choices using the D-Pad and press <span style="color:#00ff96;">A</span> to confirm.</p>
-                <p>• <strong>Inventory Wheel:</strong> Hold <span style="color:#00ff96;">I</span> on PC or the <span style="color:#00ff96;">Left Bumper</span> on Gamepads to access item slots quickly. Releasing the key or button closes the wheel.</p>
-                <p>• <strong>Virtual Cursor:</strong> Use the Gamepad <span style="color:#00ff96;">Right Stick</span> to move separate virtual cursors in menu screens. Select items with <span style="color:#00ff96;">A</span> and close menus with <span style="color:#00ff96;">B</span>.</p>
+
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
+                    <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; border-left: 2px solid #00ffcc;">
+                        <strong style="color: #00ffcc; font-size: 12px; display: block; margin-bottom: 4px;">💻 KEYBOARD & MOUSE</strong>
+                        <div style="display:grid; grid-template-columns: 100px 1fr; gap: 4px; font-size: 12px; color: #ddd;">
+                            <div>Move:</div><div><span style="color:#00ff96;">W, A, S, D</span> or <span style="color:#00ff96;">Arrows</span></div>
+                            <div>Menu:</div><div><span style="color:#00ff96;">ESC</span> or <span style="color:#00ff96;">M</span></div>
+                            <div>Inventory:</div><div><span style="color:#00ff96;">I</span></div>
+                            <div>Action Wheel:</div><div><span style="color:#00ff96;">Q</span></div>
+                            <div>Interact:</div><div><span style="color:#00ff96;">Left Click</span></div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; border-left: 2px solid #00ffcc;">
+                        <strong style="color: #00ffcc; font-size: 12px; display: block; margin-bottom: 4px;">🎮 GAMEPAD</strong>
+                        <div style="display:grid; grid-template-columns: 100px 1fr; gap: 4px; font-size: 12px; color: #ddd;">
+                            <div>Move:</div><div><span style="color:#00ff96;">Left Stick / D-Pad</span></div>
+                            <div>Inventory:</div><div><span style="color:#00ff96;">Hold LB</span></div>
+                            <div>Interact:</div><div><span style="color:#00ff96;">A Button</span></div>
+                            <div>Action Wheel:</div><div><span style="color:#00ff96;">Hold RB</span></div>
+                            <div>Menu:</div><div><span style="color:#00ff96;">Start Button</span></div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; border-left: 2px solid #00ffcc;">
+                        <strong style="color: #00ffcc; font-size: 12px; display: block; margin-bottom: 4px;">📱 MOBILE</strong>
+                        <div style="display:grid; grid-template-columns: 100px 1fr; gap: 4px; font-size: 12px; color: #ddd;">
+                            <div>Move:</div><div>Swipe / Tap relative pos</div>
+                            <div>Inventory:</div><div>Tap 'Inventory' in Menu</div>
+                            <div>Action Wheel:</div><div>Double-tap screen</div>
+                            <div>Interact:</div><div>Tap buttons directly</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
@@ -7900,34 +7930,36 @@ function escapeHtml(unsafe) {
         </div>
         <!-- Column 2 -->
         <div class="coop-column" style="flex: 1; text-align: left; max-height: 55vh; overflow-y: auto; padding-right: 5px;">
-            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(255, 0, 127, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.05);">
                 <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">🔬 MODULE_03: DNA SYNTHESIS & HATCHING</h3>
                 <p>• <strong>Breeding Program:</strong> Unlocks at <span style="color:#ff007f; font-weight:bold;">Player Level 7</span>. Combine traits by selecting one Male and one Female parent at the Breeding Center. Eggs themselves cannot breed.</p>
                 <p>• <strong>Mysterious Eggs:</strong> Eggs inherit dual-color linear gradients from their parents. Their stats, mutations, and temperaments are hidden under '???' until hatched. Keep them in your active party and walk <span style="color:#ff007f; font-weight:bold;">1000 steps</span> to hatch them.</p>
-                <p>• <strong>Pedometer 👣:</strong> Buy this from the shop for 220 gold. Use it to gain a 60-second buff that doubles your step speed toward hatching eggs.</p>
                 <p>• <strong>Mutations & Traits:</strong> Breeding yields chances to pass down any of 18 unique mutations (such as Bioluminescent Core or Double Helix) and 16 temperaments. Check these details on the full-size preview screen.</p>
             </div>
 
-            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);">
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(255, 0, 127, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.05);">
                 <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">⛩️ MODULE_04: GRID CONFLICTS & LOGISTICS</h3>
                 <p>• <strong>Wandering Trainers:</strong> Challenge the 24 elite trainers scattered across the world to win gold. Defeated trainers display green nameplates and a <span style="color:#ffd700;">🏆 trophy</span>.</p>
                 <p>• <strong>Dojo Challenge:</strong> Defeat all 24 trainers to unlock the Dojo Tile in the shop for 920 gold. Placed Dojo Tiles let you fight the Dojo Leader in scalable boss battles.</p>
-                <p>• <strong>Sanctuary Base:</strong> Once you reach <span style="color:#ff007f; font-weight:bold;">Player Level 10</span>, place your Home. Step inside and select '🎨 Design' on your Action Wheel to change walls, floors, and ambient glows.</p>
-                <p>• <strong>Storage Chest 🧳:</strong> Available at <span style="color:#ff007f; font-weight:bold;">Player Level 6</span>. Purchase for 620 gold and place up to 3 chests to store your extra item stacks (maximum 10 per slot).</p>
                 <p>• <strong>Item Catalog:</strong> Visit the store to buy recovery items, **Creature Licenses** (provides a passive 1.5x capture rate, consumed only on successful catch), and **Jank Juice** (increases shiny spawn rates for 6 minutes).</p>
                 <p>• <strong>Hidden Grove Portals ${window.getPortalIconHTML(16)}:</strong> Under specific environmental alignments (Fall Thunderstorms at Night, Winter Thundersnows at Night, Spring Rains at Sunrise, or Summer Storms at Sunset), 3 rare procedurally placed portals materialize across the map. Step through them to access the mysterious, high-stakes 40x40 Hidden Grove Portal World, filled with completely unique flora, glowing grass, much higher shiny rates, and high-level creatures! Step on the center return portal to return to safety.</p>
             </div>
 
-            <h3 style="color: #00ffcc; margin-top: 15px;">Type Chart & Natures</h3>
-            <h3>Type Matchups</h3>
-            <div id="typeChartContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid #00ffcc; padding: 5px; margin-bottom: 10px; background: rgba(0,0,0,0.6); font-size: 13px;"></div>
-            <h3>Natures</h3>
-            <div id="naturesListContainer" style="max-height: 100px; overflow-y: auto; border: 1px solid #00ffcc; padding: 5px; margin-bottom: 10px; background: rgba(0,0,0,0.6); font-size: 13px;"></div>
-            <h3>Moods</h3>
-            <div id="moodsListContainer" style="max-height: 100px; overflow-y: auto; border: 1px solid #00ffcc; padding: 5px; margin-bottom: 10px; background: rgba(0,0,0,0.6); font-size: 13px;"></div>
+            <div style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(255, 0, 127, 0.2); border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.05);">
+                <h3 style="margin-top: 0; font-size: 15px; color: #ff007f; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px dashed rgba(255, 0, 127, 0.3); padding-bottom: 5px;">📊 MODULE_05: DATABASE ARCHIVE</h3>
+
+                <h4 style="color: #ff007f; margin: 10px 0 5px 0; font-size: 13px; text-transform: uppercase;">Type Matchups</h4>
+                <div id="typeChartContainer" style="max-height: 120px; overflow-y: auto; border: 1px solid rgba(255, 0, 127, 0.3); padding: 5px; margin-bottom: 15px; background: rgba(0,0,0,0.6); font-size: 13px; border-radius: 4px;"></div>
+
+                <h4 style="color: #ff007f; margin: 10px 0 5px 0; font-size: 13px; text-transform: uppercase;">Natures</h4>
+                <div id="naturesListContainer" style="max-height: 100px; overflow-y: auto; border: 1px solid rgba(255, 0, 127, 0.3); padding: 5px; margin-bottom: 15px; background: rgba(0,0,0,0.6); font-size: 13px; border-radius: 4px;"></div>
+
+                <h4 style="color: #ff007f; margin: 10px 0 5px 0; font-size: 13px; text-transform: uppercase;">Moods</h4>
+                <div id="moodsListContainer" style="max-height: 100px; overflow-y: auto; border: 1px solid rgba(255, 0, 127, 0.3); padding: 5px; margin-bottom: 5px; background: rgba(0,0,0,0.6); font-size: 13px; border-radius: 4px;"></div>
+            </div>
         </div>
     </div>
-    <button class="close-help-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, #00ffcc, #004d40); border: 1px solid #00ffcc; color: white; border-radius: 6px; font-weight: bold; text-transform: uppercase;">Close Guide</button>
+    <button class="close-help-btn" style="display:block; width:100%; margin-top:15px; padding:10px; font-size:16px; cursor:pointer; background: linear-gradient(180deg, rgba(0, 255, 204, 0.2), rgba(0, 77, 64, 0.5)); border: 1px solid #00ffcc; color: #00ffcc; border-radius: 6px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; transition: all 0.2s;" onmouseover="this.style.background='linear-gradient(180deg, rgba(0, 255, 204, 0.4), rgba(0, 77, 64, 0.7))'; this.style.color='white';" onmouseout="this.style.background='linear-gradient(180deg, rgba(0, 255, 204, 0.2), rgba(0, 77, 64, 0.5))'; this.style.color='#00ffcc';">Close Terminal</button>
 </div>
 
 <div id="levelUpModal">
