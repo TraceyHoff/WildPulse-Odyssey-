@@ -1,0 +1,260 @@
+10073-        "Mini PvP": "pvp",
+10074-        "Mini Breeding Center": "breed",
+10075-        "Mini Challenge": "challenge",
+10076-        "Storage Chest": "storage_chest",
+10077-        "Dojo Tile": "dojo",
+10078:        "Neon Couch": "furniture_couch",
+10079-        "L-Couch": "furniture_lcouch",
+10080-        "Love Seat": "furniture_loveseat",
+10081-        "Office Chair": "furniture_officechair",
+10082-        "Stool": "furniture_stool",
+10083-        "Coffee Table": "furniture_coffeetable",
+10084-        "Dining Table": "furniture_diningtable",
+10085-        "Park Bench": "furniture_parkbench",
+10086-        "Cyber Bench": "furniture_cyberbench",
+10087-        "Filing Cabinet": "furniture_filingcabinet",
+10088-        "Display Cabinet": "furniture_displaycabinet",
+10089-        "Nightstand": "furniture_nightstand",
+10090-        "Corner Table": "furniture_cornertable",
+10091-        "Bunk Bed": "furniture_bunkbed",
+10092-        "King Bed": "furniture_kingbed",
+10093-        "Cyber Desk": "furniture_desk",
+10094-        "Glow Carpet": "furniture_carpet",
+10095-        "Star Carpet": "furniture_starcarpet",
+10096-        "Round Cyber Carpet": "furniture_roundcarpet",
+10097-        "Hexagon Carpet": "furniture_hexcarpet",
+10098-        "Heart Carpet": "furniture_heartcarpet",
+10099-        "Diamond Carpet": "furniture_diamondcarpet",
+10100-        "Holo Bed": "furniture_bed",
+10101-        "Neon Chair": "furniture_chair",
+10102-        "Holo Table": "furniture_table",
+10103-        "Cyber Plant": "furniture_plant",
+10104-        "Crystal Bonsai": "furniture_crystal_bonsai",
+10105-        "Neon Fern": "furniture_neon_fern",
+10106-        "Plasma Cactus": "furniture_plasma_cactus",
+10107-        "Holo Orchid": "furniture_holo_orchid",
+10108-        "Potted Ficus": "furniture_ficus",
+10109-        "Monstera Plant": "furniture_monstera",
+10110-        "Cyber Bamboo": "furniture_bamboo",
+10111-        "Neon Succulent": "furniture_succulent",
+10112-        "Holo Rose": "furniture_holorose",
+10113-        "Bio Mushroom": "furniture_mushroom",
+10114-        "Digi Sunflower": "furniture_sunflower",
+10115-        "Zen Bonsai": "furniture_zenbonsai",
+10116-        "Lunar Lily": "furniture_lunarlily",
+10117-        "Cyber Tree": "furniture_cybertree",
+10118-        "Neon Pine": "furniture_neonpine",
+10119-        "Neon Lamp": "furniture_lamp",
+10120-        "Server Rack": "furniture_server",
+10121-        "Arcade Machine": "furniture_arcade",
+10122-        "Cyber TV": "furniture_tv",
+10123-        "Neon Shelf": "furniture_shelf",
+10124-        "Tech Bin": "furniture_bin",
+10125-        "Neon Wardrobe": "furniture_wardrobe",
+10126-        "Cyber Fridge": "furniture_fridge",
+10127-        "Holo Display": "furniture_display",
+10128-        "Lava Lamp": "furniture_lavalamp",
+10129-        "Plasma Globe": "furniture_plasmaglobe",
+10130-        "Cyber Poster": "furniture_cyberposter",
+10131-        "Neon Sign": "furniture_neonsign",
+10132-        "Gaming PC": "furniture_gamingpc",
+10133-        "Smart Mirror": "furniture_smartmirror"
+10134-    };
+10135-                const prettyNames = Object.fromEntries(Object.entries(typeMap).map(([k, v]) => [v, k]));
+10136-                let pickerIdsToInit = [];
+10137-                listDiv.innerHTML = interiorTiles.map(t => {
+10138-                    let col = Math.floor(t.x / 100);
+10139-                    let row = Math.floor(t.y / 100);
+10140-                    let name = prettyNames[t.type] || t.type;
+10141-                    let colorInput = "";
+10142-                    if (t.type.startsWith('furniture_')) {
+10143-                        let originalIndex = miniTiles.indexOf(t);
+10144-                        let tint = t.tint || '#ffffff';
+10145-                        let pickerId = `furniture_color_p${playerNum}_${originalIndex}`;
+10146-                        // convert tint hex to hsl for initialization
+10147-                        let hsl = {h: 0, s: 100, l: 100}; // default white
+10148-                        if (typeof hexToHsl === 'function' && tint.startsWith('#')) {
+10149-                            hsl = hexToHsl(tint);
+10150-                        } else if (tint === '#ffffff') {
+10151-                            hsl = {h: 0, s: 0, l: 100};
+10152-                        }
+10153-
+10154-                        colorInput = `
+10155-                            <div class="custom-color-picker-wrapper" style="position: relative; width: 60px; margin-left: 10px;">
+10156-                                <div class="custom-color-display" id="${pickerId}_display" style="width: 100%; height: 20px; border: 1px solid #555; border-radius: 5px; background: ${tint}; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: monospace; font-size: 9px; text-shadow: 0 0 2px #000; color: ${hsl.l > 60 ? '#000' : '#FFF'}; box-shadow: inset 0 0 5px rgba(0,0,0,0.5);">
+10157-                                    COLOR
+10158-                                </div>
+--
+30076-    const furnitureItems = [
+30077-        "Neon Couch", "L-Couch", "Love Seat", "Office Chair", "Stool", "Coffee Table", "Dining Table", "Park Bench", "Cyber Bench", "Filing Cabinet", "Display Cabinet", "Nightstand", "Corner Table", "Bunk Bed", "King Bed", "Cyber Desk", "Glow Carpet", "Star Carpet", "Round Cyber Carpet", "Hexagon Carpet", "Heart Carpet", "Diamond Carpet", "Holo Bed", "Neon Chair", "Holo Table", "Cyber Plant", "Crystal Bonsai", "Neon Fern", "Plasma Cactus", "Holo Orchid", "Potted Ficus", "Monstera Plant", "Cyber Bamboo", "Neon Succulent", "Holo Rose", "Bio Mushroom", "Digi Sunflower", "Zen Bonsai", "Lunar Lily", "Cyber Tree", "Neon Pine", "Neon Lamp", "Server Rack", "Arcade Machine", "Cyber TV", "Neon Shelf", "Tech Bin", "Neon Wardrobe", "Cyber Fridge", "Holo Display", "Lava Lamp", "Plasma Globe", "Cyber Poster", "Neon Sign", "Gaming PC", "Smart Mirror"
+30078-    ];
+30079-
+30080-    const typeMapLocal = {
+30081:        "Neon Couch": "furniture_couch",
+30082-        "L-Couch": "furniture_lcouch",
+30083-        "Love Seat": "furniture_loveseat",
+30084-        "Office Chair": "furniture_officechair",
+30085-        "Stool": "furniture_stool",
+30086-        "Coffee Table": "furniture_coffeetable",
+30087-        "Dining Table": "furniture_diningtable",
+30088-        "Park Bench": "furniture_parkbench",
+30089-        "Cyber Bench": "furniture_cyberbench",
+30090-        "Filing Cabinet": "furniture_filingcabinet",
+30091-        "Display Cabinet": "furniture_displaycabinet",
+30092-        "Nightstand": "furniture_nightstand",
+30093-        "Corner Table": "furniture_cornertable",
+30094-        "Bunk Bed": "furniture_bunkbed",
+30095-        "King Bed": "furniture_kingbed",
+30096-        "Cyber Desk": "furniture_desk",
+30097-        "Glow Carpet": "furniture_carpet",
+30098-        "Star Carpet": "furniture_starcarpet",
+30099-        "Round Cyber Carpet": "furniture_roundcarpet",
+30100-        "Hexagon Carpet": "furniture_hexcarpet",
+30101-        "Heart Carpet": "furniture_heartcarpet",
+30102-        "Diamond Carpet": "furniture_diamondcarpet",
+30103-        "Holo Bed": "furniture_bed",
+30104-        "Neon Chair": "furniture_chair",
+30105-        "Holo Table": "furniture_table",
+30106-        "Cyber Plant": "furniture_plant",
+30107-        "Crystal Bonsai": "furniture_crystal_bonsai",
+30108-        "Neon Fern": "furniture_neon_fern",
+30109-        "Plasma Cactus": "furniture_plasma_cactus",
+30110-        "Holo Orchid": "furniture_holo_orchid",
+30111-        "Potted Ficus": "furniture_ficus",
+30112-        "Monstera Plant": "furniture_monstera",
+30113-        "Cyber Bamboo": "furniture_bamboo",
+30114-        "Neon Succulent": "furniture_succulent",
+30115-        "Holo Rose": "furniture_holorose",
+30116-        "Bio Mushroom": "furniture_mushroom",
+30117-        "Digi Sunflower": "furniture_sunflower",
+30118-        "Zen Bonsai": "furniture_zenbonsai",
+30119-        "Lunar Lily": "furniture_lunarlily",
+30120-        "Cyber Tree": "furniture_cybertree",
+30121-        "Neon Pine": "furniture_neonpine",
+30122-        "Neon Lamp": "furniture_lamp",
+30123-        "Server Rack": "furniture_server",
+30124-        "Arcade Machine": "furniture_arcade",
+30125-        "Cyber TV": "furniture_tv",
+30126-        "Neon Shelf": "furniture_shelf",
+30127-        "Tech Bin": "furniture_bin",
+30128-        "Neon Wardrobe": "furniture_wardrobe",
+30129-        "Cyber Fridge": "furniture_fridge",
+30130-        "Holo Display": "furniture_display",
+30131-        "Lava Lamp": "furniture_lavalamp",
+30132-        "Plasma Globe": "furniture_plasmaglobe",
+30133-        "Cyber Poster": "furniture_cyberposter",
+30134-        "Neon Sign": "furniture_neonsign",
+30135-        "Gaming PC": "furniture_gamingpc",
+30136-        "Smart Mirror": "furniture_smartmirror"
+30137-    };
+30138-
+30139-    furnitureItems.forEach(item => {
+30140-        if (!window.getItemIconHTML) return;
+30141-        const html = window.getItemIconHTML(item, 100);
+30142-        // Extract the <svg>...</svg> from the HTML
+30143-        const svgMatch = html.match(/<svg[^>]*>.*?<\/svg>/is);
+30144-        if (svgMatch) {
+30145-            let svgStr = svgMatch[0];
+30146-            const tileKey = typeMapLocal[item];
+30147-            if (!tileKey) return;
+30148-
+30149-            // Clean up the SVG string if needed
+30150-            svgStr = svgStr.replace(/<span.*?>.*?<\/span>/gi, '');
+30151-            svgStr = svgStr.replace(/<rect width="100" height="100" rx="20" fill="url\(#bgGrad\)" stroke=".*?" stroke-width="4"\/>/i, '');
+30152-
+30153-            const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+30154-            const canvas = document.createElement('canvas');
+30155-            canvas.width = 100;
+30156-            canvas.height = 100;
+30157-            const ctx = canvas.getContext('2d');
+30158-            const img = new Image();
+30159-            img.onload = function() {
+30160-                ctx.drawImage(img, 0, 0, 100, 100);
+30161-                if (scene && scene.textures) {
+--
+32512-        "Mini PvP": "pvp",
+32513-        "Mini Breeding Center": "breed",
+32514-        "Mini Challenge": "challenge",
+32515-        "Storage Chest": "storage_chest",
+32516-        "Dojo Tile": "dojo",
+32517:        "Neon Couch": "furniture_couch",
+32518-        "L-Couch": "furniture_lcouch",
+32519-        "Love Seat": "furniture_loveseat",
+32520-        "Office Chair": "furniture_officechair",
+32521-        "Stool": "furniture_stool",
+32522-        "Coffee Table": "furniture_coffeetable",
+32523-        "Dining Table": "furniture_diningtable",
+32524-        "Park Bench": "furniture_parkbench",
+32525-        "Cyber Bench": "furniture_cyberbench",
+32526-        "Filing Cabinet": "furniture_filingcabinet",
+32527-        "Display Cabinet": "furniture_displaycabinet",
+32528-        "Nightstand": "furniture_nightstand",
+32529-        "Corner Table": "furniture_cornertable",
+32530-        "Bunk Bed": "furniture_bunkbed",
+32531-        "King Bed": "furniture_kingbed",
+32532-        "Cyber Desk": "furniture_desk",
+32533-        "Glow Carpet": "furniture_carpet",
+32534-        "Star Carpet": "furniture_starcarpet",
+32535-        "Round Cyber Carpet": "furniture_roundcarpet",
+32536-        "Hexagon Carpet": "furniture_hexcarpet",
+32537-        "Heart Carpet": "furniture_heartcarpet",
+32538-        "Diamond Carpet": "furniture_diamondcarpet",
+32539-        "Holo Bed": "furniture_bed",
+32540-        "Neon Chair": "furniture_chair",
+32541-        "Holo Table": "furniture_table",
+32542-        "Cyber Plant": "furniture_plant",
+32543-        "Crystal Bonsai": "furniture_crystal_bonsai",
+32544-        "Neon Fern": "furniture_neon_fern",
+32545-        "Plasma Cactus": "furniture_plasma_cactus",
+32546-        "Holo Orchid": "furniture_holo_orchid",
+32547-        "Potted Ficus": "furniture_ficus",
+32548-        "Monstera Plant": "furniture_monstera",
+32549-        "Cyber Bamboo": "furniture_bamboo",
+32550-        "Neon Succulent": "furniture_succulent",
+32551-        "Holo Rose": "furniture_holorose",
+32552-        "Bio Mushroom": "furniture_mushroom",
+32553-        "Digi Sunflower": "furniture_sunflower",
+32554-        "Zen Bonsai": "furniture_zenbonsai",
+32555-        "Lunar Lily": "furniture_lunarlily",
+32556-        "Cyber Tree": "furniture_cybertree",
+32557-        "Neon Pine": "furniture_neonpine",
+32558-        "Neon Lamp": "furniture_lamp",
+32559-        "Server Rack": "furniture_server",
+32560-        "Arcade Machine": "furniture_arcade",
+32561-        "Cyber TV": "furniture_tv",
+32562-        "Neon Shelf": "furniture_shelf",
+32563-        "Tech Bin": "furniture_bin",
+32564-        "Neon Wardrobe": "furniture_wardrobe",
+32565-        "Cyber Fridge": "furniture_fridge",
+32566-        "Holo Display": "furniture_display",
+32567-        "Lava Lamp": "furniture_lavalamp",
+32568-        "Plasma Globe": "furniture_plasmaglobe",
+32569-        "Cyber Poster": "furniture_cyberposter",
+32570-        "Neon Sign": "furniture_neonsign",
+32571-        "Gaming PC": "furniture_gamingpc",
+32572-        "Smart Mirror": "furniture_smartmirror"
+32573-    };
+32574-    const tileType = typeMap[itemName];
+32575-
+32576-    const storageTypes = ['storage_chest', 'furniture_filingcabinet', 'furniture_displaycabinet', 'furniture_shelf', 'furniture_wardrobe'];
+32577-    if (storageTypes.includes(tileType)) {
+32578-        const count = miniTiles.filter(t => t.type === tileType).length;
+32579-        if (count >= 2) {
+32580-            window.showModernNotification(`${window.getLockIconHTML(16)} You can only place a maximum of 2 ${itemName}s in your home.`, 4000, playerNum);
+32581-            return;
+32582-        }
+32583-    }
+32584-
+32585-    miniTiles.push({ type: tileType, x: snappedX, y: snappedY, rotation: window[`p${playerNum}MiniTileRotation`] });
+32586-    localStorage.setItem(miniTilesKey, JSON.stringify(miniTiles));
+32587-
+32588-    // Consume the item from inventory!
+32589-    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+32590-    const item = inv[slotIndex];
+32591-    if (item) {
+32592-        item.quantity--;
+32593-        if (item.quantity <= 0) {
+32594-            inv.splice(slotIndex, 1);
+32595-        }
+32596-        window.saveInventory();
+32597-        if (window.updateInventoryUI) window.updateInventoryUI();

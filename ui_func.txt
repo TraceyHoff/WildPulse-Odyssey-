@@ -1,0 +1,211 @@
+20570-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+20571-                <feGaussianBlur stdDeviation="4" result="blur" />
+20572-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+20573-            </filter>
+20574-        </defs>
+20575-        ${svgContent}
+20576-    </svg><span style="position: absolute; left: -9999px; opacity: 0.001; font-size: 1px; pointer-events: none;">${emoji}</span>`;
+20577-};
+20578-
+20579-// Render Inventory UI
+20580:window.updateInventoryUI = function() {
+20581-    const itemIcons = {
+20582-        "Mini Hospital": "🏥",
+20583-        "Mini Store": "🏪",
+20584-        "Mini Trade": "🔄",
+20585-        "Mini PvP": "⚔️",
+20586-        "Mini Breeding Center": "🥚",
+20587-        "Mini Challenge": "👑",
+20588-        "Neon Couch": "🛋️",
+20589-
+20590-        "L-Couch": "🛋️",
+20591-        "Love Seat": "🛋️",
+20592-        "Office Chair": "💺",
+20593-        "Stool": "🪑",
+20594-        "Coffee Table": "🪵",
+20595-        "Dining Table": "🍽️",
+20596-        "Park Bench": "🪑",
+20597-        "Cyber Bench": "🪑",
+20598-        "Filing Cabinet": "🗄️",
+20599-        "Display Cabinet": "🗄️",
+20600-        "Nightstand": "🪑",
+20601-        "Corner Table": "🪵",
+20602-        "Bunk Bed": "🛏️",
+20603-        "King Bed": "🛏️",
+20604-        "Cyber Desk": "🖥️",
+20605-        "Glow Carpet": "🔲",
+20606-        "Star Carpet": "⭐",
+20607-        "Round Cyber Carpet": "🔵",
+20608-        "Hexagon Carpet": "💠",
+20609-        "Heart Carpet": "❤️",
+20610-        "Diamond Carpet": "♦️",
+20611-        "Holo Bed": "🛏️",
+20612-        "Dojo Tile": "⛩️",
+20613-        "Storage Chest": "🧳",
+20614-        "Lava Lamp": "🌋",
+20615-        "Plasma Globe": "🔮",
+20616-        "Cyber Poster": "📜",
+20617-        "Neon Sign": "🪧",
+20618-        "Gaming PC": "💻",
+20619-        "Smart Mirror": "🪞",
+20620-        "Repellent": "🧴",
+20621-        "HP Booster": "💚",
+20622-        "Attack Booster": "⚔️",
+20623-        "Defense Booster": "🛡️",
+20624-        "Speed Booster": "⚡",
+20625-        "Sp. Atk Booster": "🔮",
+20626-        "Sp. Def Booster": "🧿",
+20627-        "Jank Juice": "🧃",
+20628-        "Healing Juice Bottle": "🧪",
+20629-        "Healing Juice Jug": "🏺",
+20630-        "ExPALL": "✨",
+20631-        "Creature License": "🎫",
+20632-        "Uncommon HP Booster": "💚",
+20633-        "Uncommon Attack Booster": "⚔️",
+20634-        "Uncommon Defense Booster": "🛡️",
+20635-        "Uncommon Speed Booster": "⚡",
+20636-        "Uncommon Sp. Atk Booster": "🔮",
+20637-        "Uncommon Sp. Def Booster": "🧿",
+20638-        "Rare HP Booster": "💚",
+20639-        "Rare Attack Booster": "⚔️",
+20640-        "Rare Defense Booster": "🛡️",
+20641-        "Rare Speed Booster": "⚡",
+20642-        "Rare Sp. Atk Booster": "🔮",
+20643-        "Rare Sp. Def Booster": "🧿",
+20644-        "Exquisite HP Booster": "💚",
+20645-        "Exquisite Attack Booster": "⚔️",
+20646-        "Exquisite Defense Booster": "🛡️",
+20647-        "Exquisite Speed Booster": "⚡",
+20648-        "Exquisite Sp. Atk Booster": "🔮",
+20649-        "Exquisite Sp. Def Booster": "🧿",
+20650-        "Uncommon HP Booster": "💚",
+20651-        "Uncommon Attack Booster": "⚔️",
+20652-        "Uncommon Defense Booster": "🛡️",
+20653-        "Uncommon Speed Booster": "⚡",
+20654-        "Uncommon Sp. Atk Booster": "🔮",
+20655-        "Uncommon Sp. Def Booster": "🧿",
+20656-        "Rare HP Booster": "💚",
+20657-        "Rare Attack Booster": "⚔️",
+20658-        "Rare Defense Booster": "🛡️",
+20659-        "Rare Speed Booster": "⚡",
+20660-        "Rare Sp. Atk Booster": "🔮",
+20661-        "Rare Sp. Def Booster": "🧿",
+20662-        "Exquisite HP Booster": "💚",
+20663-        "Exquisite Attack Booster": "⚔️",
+20664-        "Exquisite Defense Booster": "🛡️",
+20665-        "Exquisite Speed Booster": "⚡",
+20666-        "Exquisite Sp. Atk Booster": "🔮",
+20667-        "Exquisite Sp. Def Booster": "🧿",
+20668-        "Creature Cookie": "🍪",
+20669-        "Pedometer": "👣",
+20670-        "Cyber-Core Upgrade": "🔘",
+20671-        "Nano-Nurture Serum": "💉",
+20672-        "DNA Stabilizer": "🧬",
+20673-        "NPC Dual Link": "📡",
+20674-        "Wild Dual Signal": "📶"
+20675-    };
+20676-
+20677-    const updatePlayerSlots = (playerNum, containerId) => {
+20678-        const container = document.getElementById(containerId);
+20679-        if (!container) return;
+20680-
+20681-        container.innerHTML = "";
+20682-
+20683-        const p1Party = (typeof window !== 'undefined' && window.collectedCreatures) ? window.collectedCreatures : [];
+20684-        const p2Party = (typeof window !== 'undefined' && window.collectedCreatures2) ? window.collectedCreatures2 : [];
+20685-        const party = playerNum === 2 ? p2Party : p1Party;
+20686-        const eggs = party.filter(c => c && c.isEgg && !c.stored);
+20687-
+20688-        for (let i = 0; i < 3; i++) {
+20689-            const slot = document.createElement('div');
+20690-            slot.classList.add('egg-slot');
+20691-            slot.style.width = '60px';
+20692-            slot.style.height = '60px';
+20693-            slot.style.background = 'rgba(10, 15, 30, 0.9)';
+20694-            slot.style.border = '2px solid #555';
+20695-            slot.style.borderRadius = '8px';
+20696-            slot.style.display = 'flex';
+20697-            slot.style.alignItems = 'center';
+20698-            slot.style.justifyContent = 'center';
+20699-            slot.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+20700-            slot.style.cursor = 'pointer';
+20701-
+20702-            const egg = eggs[i];
+20703-            if (egg) {
+20704-                const progressPct = Math.min(100, Math.floor((egg.eggProgress || 0) / (egg.eggHatchSteps || 1000) * 100));
+20705-                const ready = progressPct >= 100;
+20706-                const icon = window.getItemIconHTML ? window.getItemIconHTML("Mysterious Egg", 32) : "🥚";
+20707-
+20708-                slot.style.border = 'none';
+20709-                slot.style.padding = '2px';
+20710-                slot.style.background = `conic-gradient(${ready ? '#00ffcc' : '#ff007f'} ${progressPct}%, #555 ${progressPct}%)`;
+20711-
+20712-                if (ready) {
+20713-                    slot.classList.add('egg-hatch-glow');
+20714-                }
+20715-
+20716-                slot.innerHTML = `
+20717-                    <div style="width: 100%; height: 100%; background: rgba(10, 15, 30, 0.9); border-radius: 6px; display: flex; align-items: center; justify-content: center; position: relative;">
+20718-                        <div class="inventory-item-inner" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 24px; position: relative;" title="Mysterious Egg: ${progressPct}%">
+20719-                            ${icon}
+20720-                            <span style="position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: ${ready ? '#00ffcc' : '#fff'}; border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; padding: 1px 4px; font-size: 10px; font-weight: bold; line-height: 1;">
+20721-                                ${progressPct}%
+20722-                            </span>
+20723-                        </div>
+20724-                    </div>
+20725-                `;
+20726-                slot.onclick = () => {
+20727-                    if (ready) {
+20728-                        window.hatchEgg(egg, playerNum);
+20729-                    } else {
+20730-                        if (window.showModernNotification) {
+20731-                            window.showModernNotification('🥚 Egg Progress: ' + Math.floor(egg.eggProgress || 0) + ' / ' + (egg.eggHatchSteps || 1000) + ' (' + progressPct + '%)', 3000, playerNum);
+20732-                        }
+20733-                    }
+20734-                };
+20735-            }
+20736-            container.appendChild(slot);
+20737-        }
+20738-    };
+20739-
+20740-    updatePlayerSlots(1, 'p1InventoryEggSlots');
+20741-    updatePlayerSlots(2, 'p2InventoryEggSlots');
+20742-
+20743-    // Update main inventory lists
+20744-    const updateInventoryList = (playerNum, containerId) => {
+20745-        const container = document.getElementById(containerId);
+20746-        if (!container) return;
+20747-
+20748-        container.innerHTML = "";
+20749-        const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+20750-
+20751-        if (!inv || inv.length === 0) {
+20752-            container.innerHTML = "<p style='color: #888; text-align: center; font-style: italic; width: 100%;'>Inventory is empty.</p>";
+20753-            return;
+20754-        }
+20755-
+20756-        inv.forEach((item, index) => {
+20757-            const card = document.createElement('div');
+20758-            card.className = 'party-card';
+20759-            card.style.display = 'flex';
+20760-            card.style.alignItems = 'center';
+20761-            card.style.background = 'rgba(10, 15, 30, 0.9)';
+20762-            card.style.border = '1px solid #00ffcc';
+20763-            card.style.borderRadius = '8px';
+20764-            card.style.padding = '10px';
+20765-            card.style.boxShadow = '0 0 10px rgba(0,255,204,0.1)';
+20766-
+20767-            const iconStr = itemIcons[item.name] || '📦';
+20768-            const iconHtml = window.getItemIconHTML ? window.getItemIconHTML(item.name, 32) : iconStr;
+20769-
+20770-            card.innerHTML = `
+20771-                <div style="font-size: 32px; margin-right: 15px; width: 40px; text-align: center;">${iconHtml}</div>
+20772-                <div style="flex-grow: 1;">
+20773-                    <div style="color: #00ffcc; font-weight: bold; font-size: 14px;">${item.name}</div>
+20774-                    <div style="color: #aaa; font-size: 12px;">Quantity: <span style="color: #fff;">${item.quantity}</span></div>
+20775-                </div>
+20776-                <button class="inv-use-btn" style="background: linear-gradient(180deg, #4caf50, #2e7d32); border: 1px solid #a5d6a7; color: white; padding: 5px 15px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">Use</button>
+20777-            `;
+20778-
+20779-            const useBtn = card.querySelector('.inv-use-btn');
+20780-            useBtn.onclick = () => {
