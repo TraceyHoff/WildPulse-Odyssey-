@@ -1,5 +1,0 @@
-Wait, let's verify if Tone.FMSynth has the required parameters.
-Yes, FMSynth accepts harmonicity, modulationIndex, oscillator, modulation, envelope, modulationEnvelope.
-
-The plants Group was properly created (`if (!window.plantsGroup) window.plantsGroup = this.physics.add.group();`)
-And the overlaps added.

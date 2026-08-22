@@ -11347,7 +11347,7 @@ document.addEventListener('focusin', function(e) {
         }
 
         // Force the custom built keyboard on consoles and mobile devices
-        if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+        if (window.isConsoleOrMobile && window.isConsoleOrMobile() || window['p' + playerNum + 'ActiveInput'] === 'gamepad') {
             e.target.setAttribute('inputmode', 'none');
             e.target.readOnly = true;
         } else {
@@ -11365,7 +11365,7 @@ document.addEventListener('click', function(e) {
         }
 
         // Force the custom built keyboard on consoles and mobile devices
-        if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+        if (window.isConsoleOrMobile && window.isConsoleOrMobile() || window['p' + playerNum + 'ActiveInput'] === 'gamepad') {
             e.target.setAttribute('inputmode', 'none');
             e.target.readOnly = true;
         } else {
@@ -19031,7 +19031,7 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.closeActionWheel) window.closeActionWheel(playerNum);
         if (window.closeInventoryModal) window.closeInventoryModal();
 
-        if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+        if (window.isConsoleOrMobile && window.isConsoleOrMobile() || window['p' + playerNum + 'ActiveInput'] === 'gamepad') {
             const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
             if (controls) controls.style.display = 'flex';
         }
@@ -31998,7 +31998,7 @@ window.startHomePlacement = function(playerNum) {
         return;
     }
 
-    if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+    if (window.isConsoleOrMobile && window.isConsoleOrMobile() || window['p' + playerNum + 'ActiveInput'] === 'gamepad') {
         const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
         if (controls) controls.style.display = 'flex';
     }
@@ -32363,7 +32363,7 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
 };
 
 window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
-    if (window.isConsoleOrMobile && window.isConsoleOrMobile()) {
+    if (window.isConsoleOrMobile && window.isConsoleOrMobile() || window['p' + playerNum + 'ActiveInput'] === 'gamepad') {
         const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
         if (controls) controls.style.display = 'flex';
     }
@@ -33089,6 +33089,7 @@ function create() {
 
     // Controls
     cursors = this.input.keyboard.createCursorKeys();
+    window.cursors = cursors;
     window.wasdKeys = this.input.keyboard.addKeys({
         up: Phaser.Input.Keyboard.KeyCodes.W,
         down: Phaser.Input.Keyboard.KeyCodes.S,
