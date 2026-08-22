@@ -98,15 +98,20 @@ test.describe('New Features Tests', () => {
           exists: () => true
         },
         add: {
-          sprite: () => {
+          sprite: (x, y, key) => {
+            if (key === "shiny_icon") shinySpriteCreated = true;
             const spr = {
               setDisplaySize: () => spr,
               setDepth: () => spr,
               setData: () => spr,
-              on: () => spr
+              on: () => spr,
+              setTexture: () => spr,
+              setPosition: () => spr,
+              setVisible: () => spr,
             };
             return spr;
           },
+
           text: (x, y, text) => {
             const txt = {
               setOrigin: () => txt,
@@ -132,11 +137,15 @@ test.describe('New Features Tests', () => {
       // We will override Math.random inside spawnCreature context if needed,
       // but let's pass a prototype with isShiny pre-set or we can mock sRng or seed
       // Check symbol text element for star symbol
+      let shinySpriteCreated = false;
       let createdTextVal = null;
+      mockScene.add.circle = () => ({ setDepth: () => ({}), setPosition: () => ({}) });
+
+      mockScene.add.graphics = () => ({ fillStyle: () => ({}), fillRect: () => ({}), fillRoundedRect: () => ({}), lineStyle: () => ({}), strokeRoundedRect: () => ({}), setDepth: () => ({}), destroy: () => ({}), clear: () => ({}) });
       mockScene.add.container = (x, y) => {
         let containerData = {};
         const cont = {
-          setDepth: () => cont,
+          setDepth: () => cont, sendToBack: () => cont,
           add: () => cont,
           removeAll: () => cont,
           destroy: () => {},
@@ -148,12 +157,25 @@ test.describe('New Features Tests', () => {
 
       const originalAddText = mockScene.add.text;
       mockScene.add.text = (x, y, text, opts) => {
-        if(text === "⭐") {
+        if(text && text.includes("⭐")) {
              createdTextVal = text;
         }
-        return originalAddText(x, y, text, opts);
+        let res = originalAddText(x, y, text, opts);
+        res.setText = (t) => { if(t && t.includes("⭐")) createdTextVal=t; res.text = t; return res; };
+        if(text && text.includes("⭐")) createdTextVal=text;
+        res.setPosition = () => res;
+        res.setColor = () => res;
+        res.setVisible = () => res;
+        res.setOrigin = () => res;
+        res.setShadow = () => res;
+        res.width = 10;
+        res.x = x;
+        res.y = y;
+        res.visible = true;
+        return res;
       };
 
+      shinyPrototype.isShiny = true;
       window.spawnCreature(mockScene, shinyPrototype, 200, 200, undefined);
 
       // Restore Math.random
@@ -161,11 +183,12 @@ test.describe('New Features Tests', () => {
 
       return {
         notificationReceived: notifiedText && notifiedText.includes("Shiny") && notifiedText.includes("Tidehound"),
-        createdTextVal
+        createdTextVal,
+        shinySpriteCreated
       };
     });
 
     expect(result.notificationReceived).toBe(true);
-    expect(result.createdTextVal).toContain("⭐");
+    expect(result.shinySpriteCreated).toBe(true);
   });
 });

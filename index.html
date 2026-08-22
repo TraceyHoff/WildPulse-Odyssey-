@@ -17504,15 +17504,11 @@ window.calculateDamage = function(attacker, defender, power = 40) {
 
 
 window.getXpRequirement = function(level) {
-    const step = Math.floor((level - 1) / 2);
-    const req = 75 + step * 25;
-    return Math.min(req, 1000);
+    return Math.floor(100 * Math.pow(1.2, level - 1));
 };
 
 window.getPlayerXpRequirement = function(level) {
-    const step = Math.floor((level - 1) / 2);
-    const req = (75 + step * 25) * 3;
-    return Math.min(req, 3000);
+    return Math.floor(300 * Math.pow(1.2, level - 1));
 };
 
 window.gainXp = function(creature, amount) {
@@ -18292,11 +18288,6 @@ window.getItemSellPrice = function(itemName) {
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
         { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
         { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
-        { name: "Bundle of Wood", icon: "🪵", price: 120, desc: "A bundle of sturdy wood used for crafting home base foundations and walls." },
-        { name: "Bundle of Stone", icon: "🪨", price: 180, desc: "A bundle of solid stone blocks for advanced base building." },
-        { name: "Bundle of Metal", icon: "🔩", price: 250, desc: "A bundle of high-grade metal for constructing durable sci-fi base elements." },
-        { name: "Holo-Wall Blueprint", icon: "🖲️", price: 350, desc: "A blueprint to project a high-tech holographic wall for your home base." },
-        { name: "Solar Panel", icon: "🔋", price: 500, desc: "A solar panel that provides passive energy generation for home bases." },
         { name: "Storage Chest", icon: "🧳", price: 150, desc: "A secure chest to store items within your home base." },
         { name: "Wild Dual Signal", icon: "📶", price: 250, desc: "Guarantees encountering wild dual battles for 5 minutes." },
         { name: "NPC Dual Link", icon: "📡", price: 250, desc: "Guarantees encountering cooperative 2v2 NPC trainer battles for 5 minutes." }
@@ -21375,61 +21366,6 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
         }
     }
 
-
-    // Special handling for Base Placement Mode
-    if (window[`p${playerNum}BasePlacementMode`]) {
-        const rx = (pad.rightStick && typeof pad.rightStick.x === 'number') ? pad.rightStick.x : (pad.axes && typeof pad.axes[2] === 'number' ? pad.axes[2] : 0);
-        const ry = (pad.rightStick && typeof pad.rightStick.y === 'number') ? pad.rightStick.y : (pad.axes && typeof pad.axes[3] === 'number' ? pad.axes[3] : 0);
-        const speed = 12;
-        if (Math.abs(rx) > 0.15) window[`p${playerNum}BasePreviewX`] += rx * speed;
-        if (Math.abs(ry) > 0.15) window[`p${playerNum}BasePreviewY`] += ry * speed;
-
-        // Micro-adjustments with D-pad
-        if (currUp) window[`p${playerNum}BasePreviewY`] -= 1;
-        if (currDown) window[`p${playerNum}BasePreviewY`] += 1;
-        if (currLeft) window[`p${playerNum}BasePreviewX`] -= 1;
-        if (currRight) window[`p${playerNum}BasePreviewX`] += 1;
-
-        // X button cycles parts
-        if (justX) {
-            const parts = ['base_foundation', 'base_wall', 'base_wall_window', 'base_wall_door', 'base_stairs', 'base_ceiling', 'base_roof'];
-            let currentIdx = parts.indexOf(window[`p${playerNum}BasePlacementType`]);
-            let nextIdx = (currentIdx + 1) % parts.length;
-            window[`p${playerNum}BasePlacementType`] = parts[nextIdx];
-
-            if (window[`p${playerNum}BasePreviewSprite`]) {
-                window[`p${playerNum}BasePreviewSprite`].setTexture(window[`p${playerNum}BasePlacementType`]);
-            }
-        }
-
-        const previewSpriteId = `p${playerNum}BasePreviewSprite`;
-        if (window[previewSpriteId]) {
-            let col = Math.floor(window[`p${playerNum}BasePreviewX`] / 50);
-            let row = Math.floor(window[`p${playerNum}BasePreviewY`] / 50);
-            let snappedX = col * 50 + 25;
-            let snappedY = row * 50 + 25;
-            window[previewSpriteId].setPosition(snappedX, snappedY);
-        }
-
-        if (justA) {
-            window.tryPlaceBase(playerNum, window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
-        }
-
-        // Y button destroys piece under cursor
-        if (justY) {
-            window.tryDestroyBase(playerNum, window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
-        }
-
-        if (justB) {
-            window.cancelBasePlacement(playerNum);
-        }
-
-        prev.Y = currY; prev.X = currX; prev.B = currB; prev.A = currA;
-        prev.Start = currStart; prev.Up = currUp; prev.Down = currDown;
-        prev.Left = currLeft; prev.Right = currRight;
-        prev.LB = currLB; prev.RB = currRB;
-        return;
-    }
 
     // Special handling for Mini Tile Placement Mode
     if (window[`p${playerNum}MiniTilePlacementMode`]) {
@@ -26284,11 +26220,6 @@ window.triggerPlacementMove = function(playerNum, dx, dy) {
         window[`p${playerNum}HomePreviewY`] += dy;
         const sprite = window[`p${playerNum}HomePreviewSprite`];
         if (sprite) sprite.setPosition(window[`p${playerNum}HomePreviewX`], window[`p${playerNum}HomePreviewY`]);
-    } else if (window[`p${playerNum}BasePlacementMode`]) {
-        window[`p${playerNum}BasePreviewX`] += dx;
-        window[`p${playerNum}BasePreviewY`] += dy;
-        const sprite = window[`p${playerNum}BasePreviewSprite`];
-        if (sprite) sprite.setPosition(window[`p${playerNum}BasePreviewX`], window[`p${playerNum}BasePreviewY`]);
     }
 };
 
@@ -34026,20 +33957,6 @@ function create() {
     // PC pointer listener for Home Placement
     this.input.on('pointerdown', (pointer) => {
 
-        if (window.p1BasePlacementMode) {
-            let p1WorldX = this.cameras.main.scrollX + pointer.x;
-            let p1WorldY = this.cameras.main.scrollY + pointer.y;
-
-            // Left click to place
-            if (pointer.button === 0) {
-                window.tryPlaceBase(1, p1WorldX, p1WorldY);
-            } else if (pointer.button === 2) {
-                // Right click to destroy
-                window.tryDestroyBase(1, p1WorldX, p1WorldY);
-            }
-            return;
-        }
-
         if (window.p1HomePlacementMode) {
             let p1WorldX = this.cameras.main.scrollX + pointer.x;
             let p1WorldY = this.cameras.main.scrollY + pointer.y;
@@ -37561,7 +37478,7 @@ window.endBattle = function(result) {
             }
 
             let xpMultiplier = window.inChallengeBattle ? (1 + window.challengeTier * 0.1) : 1.0;
-            let xpGained = Math.floor(currentEnemy.level * 25 * xpMultiplier);
+            let xpGained = Math.floor(currentEnemy.level * 15 * xpMultiplier);
             logBattle(`<span style="color:#4caf50">Gained ${xpGained} XP!</span>`);
 
             // Add XP to the battling creature (currentPlayer) inside the activeParty!
@@ -37657,13 +37574,7 @@ window.endBattle = function(result) {
                         }
                     });
 
-                    if (playerLeveledUp) {
-                        const playerNum = window.activeBattlePlayer === 2 ? 2 : 1;
-                        const pLevel = playerNum === 2 ? window.p2Level : window.p1Level;
-                        const lvlUpIcon = window.getPlayerLevelUpIconHTML ? window.getPlayerLevelUpIconHTML(20) : (window.getLevelUpIconHTML ? window.getLevelUpIconHTML(20) : '🎉');
-                        let playerStatsHtml = `<div style="color: #ffeb3b; font-weight: bold; margin-bottom: 15px; font-size: 1.1em; display: flex; align-items: center; justify-content: center;">${lvlUpIcon} Player ${playerNum} leveled up to Level ${pLevel}! ${lvlUpIcon}</div>`;
-                        statsHtml = playerStatsHtml + statsHtml;
-                    }
+
 
                     if (window.coopActive) {
                         const targetPlayerNum = window.activeBattlePlayer === 2 ? 2 : 1;
@@ -38675,20 +38586,6 @@ function update() {
 
     // Update PC controls for Home Placement Mode
     if (activeScene && activeScene.input) {
-
-        if (window.p1BasePlacementMode) {
-            let p1WorldX = this.cameras.main.scrollX + pointer.x;
-            let p1WorldY = this.cameras.main.scrollY + pointer.y;
-
-            // Left click to place
-            if (pointer.button === 0) {
-                window.tryPlaceBase(1, p1WorldX, p1WorldY);
-            } else if (pointer.button === 2) {
-                // Right click to destroy
-                window.tryDestroyBase(1, p1WorldX, p1WorldY);
-            }
-            return;
-        }
 
         if (window.p1HomePlacementMode) {
             const pointer = activeScene.input.activePointer;
