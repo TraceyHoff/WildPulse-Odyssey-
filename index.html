@@ -4015,6 +4015,7 @@ window.totalElapsedMs = parseInt(localStorage.getItem('wildpulse_total_elapsed_m
 // Random Events System
 window.activeRandomEvent = localStorage.getItem('wildpulse_active_random_event') || 'None';
 window.activeRandomEventEndTime = parseInt(localStorage.getItem('wildpulse_active_random_event_end_time')) || 0;
+window.activeWeatherEvent = localStorage.getItem('wildpulse_active_weather_event') || 'None';
 
 window.getEventBoostedType = function(event) {
     if (!event) return null;
@@ -4108,11 +4109,9 @@ window.updateRandomEvents = function(scene) {
 
     if (isDynamicWeatherActive) {
         const targetEvent = isRainWeather ? 'Rain' : (isStormWeather ? 'Thunderstorm' : 'Flash Freeze');
-        if (window.activeRandomEvent !== targetEvent) {
-            window.activeRandomEvent = targetEvent;
-            window.activeRandomEventEndTime = window.weatherEventEndTime || (window.totalElapsedMs + 240000); // 4 minutes
-            localStorage.setItem('wildpulse_active_random_event', targetEvent);
-            localStorage.setItem('wildpulse_active_random_event_end_time', window.activeRandomEventEndTime.toString());
+        if (window.activeWeatherEvent !== targetEvent) {
+            window.activeWeatherEvent = targetEvent;
+            localStorage.setItem('wildpulse_active_weather_event', targetEvent);
 
             if (window.showModernNotification) {
                 let msg = "";
@@ -4129,23 +4128,14 @@ window.updateRandomEvents = function(scene) {
                 }
                 window.showModernNotification(msg, color);
             }
-        } else {
-            if (window.weatherEventEndTime) {
-                window.activeRandomEventEndTime = window.weatherEventEndTime;
-                localStorage.setItem('wildpulse_active_random_event_end_time', window.activeRandomEventEndTime.toString());
-            }
         }
-        return;
-    }
-
-    // No dynamic weather active. If we were in a weather-based random event, clear it back to None with a 10 minutes cooldown
-    if (window.activeRandomEvent === 'Rain' || window.activeRandomEvent === 'Thunderstorm' || window.activeRandomEvent === 'Flash Freeze') {
-        window.activeRandomEvent = 'None';
-        window.activeRandomEventEndTime = window.totalElapsedMs + 600000; // 10 minutes cooldown after weather
-        localStorage.setItem('wildpulse_active_random_event', 'None');
-        localStorage.setItem('wildpulse_active_random_event_end_time', window.activeRandomEventEndTime.toString());
-        if (window.showModernNotification) {
-            window.showModernNotification("🍃 The weather event has subsided. The world returns to normal.", "#4caf50");
+    } else {
+        if (window.activeWeatherEvent && window.activeWeatherEvent !== 'None') {
+            window.activeWeatherEvent = 'None';
+            localStorage.setItem('wildpulse_active_weather_event', 'None');
+            if (window.showModernNotification) {
+                window.showModernNotification("🍃 The weather event has subsided. The world returns to normal.", "#4caf50");
+            }
         }
     }
 
@@ -8567,9 +8557,13 @@ window.WildPulseMusic = {
             this.synths.crickets.volume.value = -10;
 
             // Player Steps
-            this.stepFilter = new Tone.Filter({ type: "lowpass", frequency: 1200 }).connect(this.reverb);
-            this.synths.steps = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } }).connect(this.stepFilter);
-            this.synths.steps.volume.value = -6;
+            this.synths.steps = new Tone.MembraneSynth({
+                pitchDecay: 0.01,
+                octaves: 2,
+                oscillator: { type: "square" },
+                envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 }
+            }).connect(this.musicBus);
+            this.synths.steps.volume.value = -8;
 
             // Leaves Rustling
             this.leafFilter = new Tone.Filter({ type: "bandpass", frequency: 2000, Q: 1.5 }).connect(this.reverb);
@@ -8741,7 +8735,7 @@ window.WildPulseMusic = {
             if (p1Moving) {
                 if (!this.lastStepTime || now - this.lastStepTime > 250) {
                     if (this.synths.steps) {
-                        this.synths.steps.triggerAttackRelease("16n", Tone.now(), 0.5);
+                        this.synths.steps.triggerAttackRelease("C1", "16n", Tone.now(), 0.5);
                     }
                     this.lastStepTime = now;
                 }
@@ -17484,6 +17478,12 @@ window.calculateDamage = function(attacker, defender, power = 40) {
             damage *= 1.5;
         }
     }
+    if (window.activeWeatherEvent && window.activeWeatherEvent !== 'None') {
+        const boostedType = window.getEventBoostedType(window.activeWeatherEvent);
+        if (boostedType && (attacker.type === boostedType || attacker.type2 === boostedType)) {
+            damage *= 1.5;
+        }
+    }
 
     // Passive: Earthquake Guard
     if (defender.mutation && defender.mutation.id === 'tectonic_plates') {
@@ -21990,6 +21990,17 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                             }
                         }
                     });
+
+                    if (oldEl && oldEl.classList.contains('custom-color-slider') && (justUp || justDown)) {
+                        // Explicit override for color picker sliders to prevent skipping to overlapping buttons
+                        const sliders = Array.from(container.querySelectorAll('.custom-color-slider')).filter(el => selectables.includes(el));
+                        if (sliders.length > 1) {
+                            let sIdx = sliders.indexOf(oldEl);
+                            if (justUp) sIdx = (sIdx - 1 + sliders.length) % sliders.length;
+                            else if (justDown) sIdx = (sIdx + 1) % sliders.length;
+                            bestEl = sliders[sIdx];
+                        }
+                    }
 
                     if (bestEl) {
                         newEl = bestEl;
@@ -40976,9 +40987,9 @@ function update() {
         window.lastWeatherCalcUpdate = now;
         const roomAgeMs = window.totalElapsedMs;
 
-        // 15-minute global cycle (900,000ms)
-        const CYCLE_DURATION = 900000;
-        const COOLDOWN_DURATION = 600000; // 10 minutes
+        // 7-minute global cycle (420,000ms)
+        const CYCLE_DURATION = 420000;
+        const COOLDOWN_DURATION = 120000; // 2 minutes
         const WEATHER_WINDOW = 300000;   // 5 minutes
         const RAMP_TIME = 30000;         // 30 seconds
 
