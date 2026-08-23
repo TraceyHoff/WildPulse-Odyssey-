@@ -9392,7 +9392,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             if (typeof window.timeText !== 'undefined' && window.timeText) window.timeText.setVisible(true);
-            if (window.coordText) window.coordText.setVisible(true);
+            // if (window.coordText) window.coordText.setVisible(true);
             if (window.weatherIcon) window.weatherIcon.setVisible(true);
             if (window.weatherLabel) window.weatherLabel.setVisible(true);
             if (window.WildPulseMusic) window.WildPulseMusic.start();
@@ -24969,30 +24969,41 @@ window.renderStatsTab = function(playerNum = 1) {
     const pXpReq = window.getPlayerXpRequirement(pLevel);
     const pXpPct = Math.min(100, (pXp / pXpReq) * 100);
 
+    const activePlayer = playerNum === 2 ? window.player2 : (typeof player !== 'undefined' ? player : null);
+    const coordStr = activePlayer ? `X: <span style="color:#00ffcc">${Math.floor(activePlayer.x / 100)}</span>, Y: <span style="color:#00ffcc">${Math.floor(activePlayer.y / 100)}</span>` : "Unknown";
+
     if (targetEl && stats) {
         targetEl.innerHTML = `
-            <div style="padding: 10px; background: rgba(0,0,0,0.5); border-radius: 8px;">
+            <div style="padding: 15px; background: rgba(10, 20, 30, 0.85); border: 1px solid #00ffcc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 255, 204, 0.3); font-family: 'Courier New', Courier, monospace;">
+                <h3 style="color: #00ffcc; text-shadow: 0 0 5px #00ffcc; margin-top: 0; border-bottom: 1px solid rgba(0,255,204,0.3); padding-bottom: 5px;">PLAYER ${playerNum} DIAGNOSTICS</h3>
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
-                    <span style="font-weight: bold; color: #2196F3; width: 80px;">Lvl ${pLevel} XP:</span>
-                    <div style="flex-grow: 1; height: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; overflow: hidden; max-width: 250px;">
-                        <div style="height: 100%; width: ${pXpPct}%; background: linear-gradient(90deg, #2196F3, #64b5f6); box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);"></div>
+                    <span style="font-weight: bold; color: #ff007f; width: 80px;">LVL ${pLevel}</span>
+                    <div style="flex-grow: 1; height: 12px; background: rgba(0,0,0,0.5); border: 1px solid #ff007f; border-radius: 2px; overflow: hidden; max-width: 250px;">
+                        <div style="height: 100%; width: ${pXpPct}%; background: linear-gradient(90deg, #ff007f, #ff66b2); box-shadow: 0 0 8px rgba(255, 0, 127, 0.5);"></div>
                     </div>
-                    <span style="color: #2196F3; font-weight: bold;">${Math.floor(pXp)} / ${pXpReq}</span>
+                    <span style="color: #ff007f; font-weight: bold;">${Math.floor(pXp)} / ${pXpReq}</span>
                 </div>
-                <p><strong>Time Played:</strong></p>
-                <p>Years: <span style="color:#2196F3">${years}</span></p>
-                <p>Months: <span style="color:#2196F3">${months}</span></p>
-                <p>Days: <span style="color:#2196F3">${days}</span></p>
-                <p><strong>Current Season:</strong> <span style="color:#ffb74d">${window.currentSeason}</span></p>
-                <p><strong>Current Time:</strong> <span style="color:#ffb74d">${timeStr}</span></p>
-
-                <p><strong>Game Stats (Player ${playerNum}):</strong></p>
-                <p>Battles Won: <span style="color:#4caf50">${stats.battlesWon || 0}</span></p>
-                <p>Battles Lost: <span style="color:#f44336">${stats.battlesLost || 0}</span></p>
-                <p>Creatures Traded: <span style="color:#2196F3">${stats.creaturesTraded || 0}</span></p>
-                <p>PvP Battles Won: <span style="color:#4caf50">${stats.pvpBattlesWon || 0}</span></p>
-                <p>PvP Battles Lost: <span style="color:#f44336">${stats.pvpBattlesLost || 0}</span></p>
-                <p>Distance Traveled: <span style="color:#2196F3">${Math.floor(stats.distanceTraveled || 0)}</span> px</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <p style="margin: 5px 0; color: #aaa;"><strong>Time Elapsed:</strong></p>
+                        <p style="margin: 2px 0;">Y: <span style="color:#00ffcc">${years}</span> M: <span style="color:#00ffcc">${months}</span> D: <span style="color:#00ffcc">${days}</span></p>
+                        <p style="margin: 5px 0;">Season: <span style="color:#ffb74d">${window.currentSeason}</span></p>
+                        <p style="margin: 2px 0;">Cycle: <span style="color:#ffb74d">${timeStr}</span></p>
+                    </div>
+                    <div>
+                        <p style="margin: 5px 0; color: #aaa;"><strong>Combat Record:</strong></p>
+                        <p style="margin: 2px 0;">Victories: <span style="color:#4caf50">${stats.battlesWon || 0}</span></p>
+                        <p style="margin: 2px 0;">Defeats: <span style="color:#f44336">${stats.battlesLost || 0}</span></p>
+                        <p style="margin: 5px 0; color: #aaa;"><strong>PvP Record:</strong></p>
+                        <p style="margin: 2px 0;">W: <span style="color:#4caf50">${stats.pvpBattlesWon || 0}</span> L: <span style="color:#f44336">${stats.pvpBattlesLost || 0}</span></p>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; border-top: 1px solid rgba(0,255,204,0.3); padding-top: 10px;">
+                    <p style="margin: 5px 0; color: #aaa;"><strong>Exploration:</strong></p>
+                    <p style="margin: 2px 0;">Creatures Traded: <span style="color:#00ffcc">${stats.creaturesTraded || 0}</span></p>
+                    <p style="margin: 2px 0;">Steps Taken: <span style="color:#00ffcc">${Math.floor(stats.distanceTraveled || 0)}</span> steps</p>
+                    <p style="margin: 2px 0;">Coordinates: ${coordStr}</p>
+                </div>
             </div>
         `;
     }
@@ -33219,7 +33230,7 @@ function create() {
     window.timeText = timeText;
 
     // World Coordinates UI
-    window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(5000).setVisible(false);
+    // window.coordText = this.add.text(window.innerWidth - 20, window.innerHeight - 40, "0, 0", { fontSize: '20px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setOrigin(1, 0).setScrollFactor(0).setDepth(5000).setVisible(false);
 
     // Weather UI (Top Left)
     window.weatherIcon = this.add.sprite(25, 25, 'weather_clear').setScrollFactor(0).setDepth(5000).setVisible(false).setScale(0.5);
@@ -34167,9 +34178,9 @@ function create() {
         if (timeText) {
             timeText.setPosition(20, window.innerHeight - 25);
         }
-        if (window.coordText) {
-            window.coordText.setPosition(window.innerWidth - 20, window.innerHeight - 40);
-        }
+        // if (window.coordText) {
+        //     window.coordText.setPosition(window.innerWidth - 20, window.innerHeight - 40);
+        // }
         if (window.sharedEmitZone && window.sharedEmitZone.source) {
             window.sharedEmitZone.source.width = window.innerWidth + 600;
             window.sharedEmitZone.source.height = window.innerHeight + 600;
@@ -39610,9 +39621,9 @@ function update() {
         if (timeText) timeText.setText(hStr + ":" + mStr + " " + period);
 
         // Update World Coordinates UI
-        if (window.coordText && player) {
-            window.coordText.setText(`X: ${Math.floor(player.x)}, Y: ${Math.floor(player.y)}`);
-        }
+        // if (window.coordText && player) {
+        //     window.coordText.setText(`X: ${Math.floor(player.x)}, Y: ${Math.floor(player.y)}`);
+        // }
 
         // Update Weather UI
         if (window.weatherIcon && window.weatherLabel && !window.weatherIcon.isTransitioning) {
@@ -40392,7 +40403,7 @@ function update() {
                 window.footprintEmitter.emitParticleAt(player.x, player.y + 20);
             }
         }
-        let distStep = speed * (1/60);
+        let distStep = (speed * (1/60)) / 100;
         window.gameStats.distanceTraveled += distStep; // approx distance based on frame rate
         if (Math.random() < 0.05) window.saveStats(); // Save periodically while moving
 
@@ -40643,7 +40654,7 @@ function update() {
 
         // Egg Hatching for Player 2
         if (p2MovedX || p2MovedY) {
-            let p2DistStep = p2Speed * (1/60);
+            let p2DistStep = (p2Speed * (1/60)) / 100;
 
             if (!window.gameStats2) {
                 window.gameStats2 = JSON.parse(localStorage.getItem('wildpulse_stats2')) || {
@@ -41435,7 +41446,15 @@ function update() {
             targetLeafYellow = fallCount;
             targetLeafMixed = fallCount;
             targetPollen = 2 + Math.floor(timeOscillation * 4);
+            targetButterflies = (!isNight && window.weatherPattern === 'none') ? 2 : 0;
             targetFireflies = (isNight && window.weatherPattern === 'none') ? 2 : 0;
+        }
+
+        // Strict Day/Night overrides for insects to ensure they never appear when they shouldn't
+        if (isNight) {
+            targetButterflies = 0;
+        } else {
+            targetFireflies = 0;
         }
 
         if (window.weatherPattern.includes('rain') || window.weatherPattern.includes('storm')) {
