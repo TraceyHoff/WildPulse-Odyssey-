@@ -19083,6 +19083,15 @@ window.useInventoryItem = function(playerNum, slotIndex) {
         if (window.updateStoreUI) window.updateStoreUI();
     };
 
+
+    if (window.furniturePool && window.furniturePool.includes(item.name)) {
+        if (window.closeActionWheel) window.closeActionWheel(playerNum);
+        if (window.closeInventoryModal) window.closeInventoryModal();
+
+        window.startMiniTilePlacement(playerNum, item.name, slotIndex);
+        return;
+    }
+
     if (item.name === "Bundle of Wood") {
         if (window.closeActionWheel) window.closeActionWheel(playerNum);
         if (window.closeInventoryModal) window.closeInventoryModal();
@@ -24412,34 +24421,6 @@ window.openActionWheel = function(playerNum) {
         document.getElementById('actionWheelModal').style.display = 'flex';
         window.p1ActiveModal = 'actionWheelModal';
     }
-
-    // Toggle Home button visibility dynamically based on level or inside home room state
-    const pLvl = playerNum === 2 ? window.p2Level : window.p1Level;
-    const homeBtn = document.getElementById(`actionWheelHome_p${playerNum}`);
-    if (homeBtn) {
-        if (window.isPlayerInsideHome(playerNum)) {
-            homeBtn.style.display = 'block';
-            homeBtn.innerHTML = window.getActionWheelIconHTML('design', '#bf55ec');
-        } else if (window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum)) {
-            homeBtn.style.display = 'none';
-        } else if (pLvl >= 10) {
-            homeBtn.style.display = 'block';
-            homeBtn.innerHTML = window.getActionWheelIconHTML('home', '#bf55ec');
-        } else {
-            homeBtn.style.display = 'none';
-        }
-    }
-
-    const removeHomeBtn = document.getElementById(`actionWheelRemoveHome_p${playerNum}`);
-    if (removeHomeBtn) {
-        const hasPlacedHome = !!localStorage.getItem(`wildpulse_p${playerNum}_home_x`);
-        if (hasPlacedHome && !window.isPlayerInsideHome(playerNum)) {
-            removeHomeBtn.style.display = 'block';
-        } else {
-            removeHomeBtn.style.display = 'none';
-        }
-    }
-
     // Default highlights
     window.highlightActionWheelOption(playerNum, 'pet');
 };
@@ -24467,7 +24448,6 @@ window.highlightActionWheelOption = function(playerNum, optionName) {
         el.style.borderColor = opt === 'pet' ? '#ff007f' :
                               opt === 'party' ? '#00ffcc' :
                               opt === 'help' ? '#ffd700' :
-                              opt === 'home' ? '#bf55ec' :
                               opt === 'screenshot' ? (playerNum === 2 ? '#ff00ff' : '#00ffff') : '#ffffff';
         el.style.boxShadow = '';
     });
@@ -24565,31 +24545,7 @@ window.useActionWheelOption = function(playerNum, optionName) {
     } else if (optionName === 'help') {
         if (window.openHelpModal) {
             window.openHelpModal(playerNum);
-        }
-    } else if (optionName === 'home') {
-        if (window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum)) {
-            window.showModernNotification("❌ You cannot design another player's home.", 3000, playerNum);
-            return;
-        }
-        if (window.isPlayerInsideHome(playerNum)) {
-            if (window.openHomeCustomizationModal) {
-                window.openHomeCustomizationModal(playerNum);
-            }
-        } else {
-            if (window.startHomePlacement) {
-                window.startHomePlacement(playerNum);
-            }
-        }
-    } else if (optionName === 'remove_home') {
-        window.showConfirm(playerNum, "Remove Home", "Are you sure you want to remove your placed home? All inside progress and structure will remain, but the home sprite will be deleted from the world map.", () => {
-            localStorage.removeItem(`wildpulse_p${playerNum}_home_x`);
-            localStorage.removeItem(`wildpulse_p${playerNum}_home_y`);
-            // Respawn homes
-            const scene = game.scene.scenes[0];
-            if (scene && window.spawnPlayerHomes) window.spawnPlayerHomes(scene);
-            window.showModernNotification("🏡 Your placed home has been removed successfully.", 3000, playerNum);
-        });
-    } else if (optionName === 'screenshot') {
+        }    } else if (optionName === 'screenshot') {
         window.takeScreenshot();
     }
 };
