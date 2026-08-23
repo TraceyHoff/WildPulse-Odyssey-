@@ -8800,7 +8800,7 @@ window.WildPulseMusic = {
             if (p1Moving) {
                 if (!this.lastStepTime || now - this.lastStepTime > 250) {
                     if (this.synths.steps) {
-                        this.synths.steps.triggerAttackRelease("C1", "16n", Tone.now(), 0.5);
+                        this.synths.steps.triggerAttackRelease("C1", "16n", undefined, 0.5);
                     }
                     this.lastStepTime = now;
                 }
@@ -8815,7 +8815,7 @@ window.WildPulseMusic = {
         // Sound effects
         if (!isInsideHome) {
             if (this.synths.leaves && window.windSpeed > 100 && Math.random() < (window.windSpeed / 2000)) {
-                this.synths.leaves.triggerAttackRelease("8n", Tone.now(), Math.random() * 0.3 + 0.2);
+                this.synths.leaves.triggerAttackRelease("8n", undefined, Math.random() * 0.3 + 0.2);
             }
         }
 
@@ -22008,7 +22008,7 @@ window.processGamepadInputForPlayer = function(playerNum, pad) {
                         }
 
                         if (isCandidate) {
-                            const score = primaryDist + secondaryDist * 3;
+                            const score = primaryDist + secondaryDist * 10;
                             if (score < bestDist) {
                                 bestDist = score;
                                 bestEl = el;
@@ -24755,91 +24755,21 @@ window.exitGame = function(playerNum) {
     }
 
     window.showConfirm(playerNum, 'EXIT GAME', 'Are you sure you want to exit to the main menu?', () => {
-        // Automatically exit fullscreen
-        if (document.fullscreenElement) {
-            if (game && game.scale && game.scale.isFullscreen) {
-                game.scale.stopFullscreen();
-            } else if (document.exitFullscreen) {
-                document.exitFullscreen().catch(err => {
-                    console.log(`Error attempting to exit fullscreen: ${err.message}`);
-                });
-            }
-        } else if (document.exitFullscreen) {
-            // Safe fallback to ensure exitFullscreen is called, helping test/mock environments cleanly
-            document.exitFullscreen().catch(err => {});
+        // Save elapsed time and current positions before exiting
+        if (window.totalElapsedMs !== undefined) {
+            localStorage.setItem('wildpulse_total_elapsed_ms', window.totalElapsedMs.toString());
+        }
+        if (typeof player !== 'undefined' && player) {
+            localStorage.setItem('wildpulse_player_x', player.x);
+            localStorage.setItem('wildpulse_player_y', player.y);
+        }
+        if (window.coopActive && window.player2) {
+            localStorage.setItem('wildpulse_player2_x', window.player2.x);
+            localStorage.setItem('wildpulse_player2_y', window.player2.y);
         }
 
-        // Disable co-op if active
-        if (window.coopActive && game && game.scene.scenes[0]) {
-            window.disableCoop(game.scene.scenes[0]);
-        }
-        if (window.updateCoopButtons) {
-            window.updateCoopButtons();
-        }
-
-        // Save elapsed time
-        localStorage.setItem('wildpulse_total_elapsed_ms', window.totalElapsedMs.toString());
-
-        // Clear notification timeout
-        if (window.notificationTimeout) {
-            clearTimeout(window.notificationTimeout);
-            window.notificationTimeout = null;
-        }
-        if (window.notificationTimeoutP1) {
-            clearTimeout(window.notificationTimeoutP1);
-            window.notificationTimeoutP1 = null;
-        }
-        if (window.notificationTimeoutP2) {
-            clearTimeout(window.notificationTimeoutP2);
-            window.notificationTimeoutP2 = null;
-        }
-
-        const n1 = document.getElementById('modernNotification');
-        if (n1) n1.style.opacity = '0';
-        const n2 = document.getElementById('modernNotification_p2');
-        if (n2) n2.style.opacity = '0';
-
-        // Hide all in-game modals
-        const modals = ['menuModal', 'partyModal', 'storageModal', 'helpModal', 'breedingModal', 'levelUpModal', 'tradeModal', 'pvpModal', 'journalModal', 'customizationModal'];
-        modals.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = 'none';
-        });
-
-        window.gameStarted = false;
-        const p1Arrow = document.getElementById('p1HospitalArrow');
-        const p2Arrow = document.getElementById('p2HospitalArrow');
-        if (p1Arrow) p1Arrow.style.display = 'none';
-        if (p2Arrow) p2Arrow.style.display = 'none';
-
-
-
-
-        window.cameraFollowsPlayer = false;
-        if (window.closeMenuModal) window.closeMenuModal();
-        document.getElementById('menuBtn').style.display = 'none';
-        document.getElementById('startModal').style.display = 'flex';
-        if (timeText) timeText.setVisible(false);
-        if (window.coordText) window.coordText.setVisible(false);
-        if (window.weatherIcon) {
-            window.weatherIcon.setVisible(false);
-            window.weatherIcon.setAlpha(0);
-        }
-        if (window.weatherLabel) {
-            window.weatherLabel.setVisible(false);
-            window.weatherLabel.setAlpha(0);
-        }
-        if (player && player.body) {
-            player.body.setVelocity(0, 0);
-        }
-        if (window.p1PetSprite) {
-            window.p1PetSprite.destroy();
-            window.p1PetSprite = null;
-        }
-        if (window.p2PetSprite) {
-            window.p2PetSprite.destroy();
-            window.p2PetSprite = null;
-        }
+        // To ensure a completely clean state and prevent black screens/freezes upon resuming
+        location.reload();
     }, () => {
         // If they click Cancel/No, reopen their main menu modal beautifully
         if (window.openMenuModal) {
@@ -26015,6 +25945,10 @@ const config = {
     preserveDrawingBuffer: true,
     render: {
         roundPixels: false
+    },
+    fps: {
+        target: 60,
+        panicMax: 120
     },
     physics: {
         default: 'arcade',
@@ -33903,7 +33837,7 @@ function create() {
             if (plantSprite.swayIntensity < 0.5) return;
 
             if (window.WildPulseMusic && window.WildPulseMusic.synths && window.WildPulseMusic.synths.leaves) {
-                try { window.WildPulseMusic.synths.leaves.triggerAttackRelease("16n", Tone.now(), (Math.random() * 0.4 + 0.3) * (plantSprite.swayIntensity / 8)); } catch(e){}
+                try { window.WildPulseMusic.synths.leaves.triggerAttackRelease("16n", undefined, (Math.random() * 0.4 + 0.3) * (plantSprite.swayIntensity / 8)); } catch(e){}
             }
 
             const sign = Math.random() > 0.5 ? 1 : -1;
@@ -37900,7 +37834,7 @@ window.enableCoop = function(scene) {
             if (plantSprite.swayIntensity < 0.5) return;
 
             if (window.WildPulseMusic && window.WildPulseMusic.synths && window.WildPulseMusic.synths.leaves) {
-                try { window.WildPulseMusic.synths.leaves.triggerAttackRelease("16n", Tone.now(), (Math.random() * 0.4 + 0.3) * (plantSprite.swayIntensity / 8)); } catch(e){}
+                try { window.WildPulseMusic.synths.leaves.triggerAttackRelease("16n", undefined, (Math.random() * 0.4 + 0.3) * (plantSprite.swayIntensity / 8)); } catch(e){}
             }
 
             const sign = Math.random() > 0.5 ? 1 : -1;
@@ -40171,11 +40105,11 @@ function update() {
                 // Left stick
                 const lx = p1Pad.leftStick.x;
                 const ly = p1Pad.leftStick.y;
-                if (Math.abs(lx) > 0.2) {
+                if (Math.abs(lx) > 0.3) {
                     targetVx = lx * moveSpeed;
                     movedX = true;
                 }
-                if (Math.abs(ly) > 0.2) {
+                if (Math.abs(ly) > 0.3) {
                     targetVy = ly * moveSpeed;
                     movedY = true;
                 }
@@ -40361,11 +40295,11 @@ function update() {
                 if (p2Pad) {
                     const lx = p2Pad.leftStick.x;
                     const ly = p2Pad.leftStick.y;
-                    if (Math.abs(lx) > 0.2) {
+                    if (Math.abs(lx) > 0.3) {
                         p2TargetVx = lx * p2Speed;
                         p2MovedX = true;
                     }
-                    if (Math.abs(ly) > 0.2) {
+                    if (Math.abs(ly) > 0.3) {
                         p2TargetVy = ly * p2Speed;
                         p2MovedY = true;
                     }
