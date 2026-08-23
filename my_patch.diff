@@ -1,79 +1,57 @@
-<<<<<<< SEARCH
-            // Birds (Daytime)
-            this.synths.birds = new Tone.Synth({
-                oscillator: { type: "sine" },
-                envelope: { attack: 0.05, decay: 0.1, sustain: 0.1, release: 0.5 }
-            }).connect(this.reverb);
-            this.synths.birds.volume.value = -20;
-=======
-            // Birds (Daytime)
-            this.synths.birds = new Tone.Synth({
-                oscillator: { type: "sine" },
-                envelope: { attack: 0.05, decay: 0.1, sustain: 0.1, release: 0.5 }
-            }).connect(this.reverb);
-            this.synths.birds.volume.value = -10;
->>>>>>> REPLACE
-<<<<<<< SEARCH
-            // Player Steps
-            this.stepFilter = new Tone.Filter({ type: "lowpass", frequency: 1200 }).connect(this.reverb);
-            this.synths.steps = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } }).connect(this.stepFilter);
-            this.synths.steps.volume.value = -30;
-=======
-            // Player Steps
-            this.stepFilter = new Tone.Filter({ type: "lowpass", frequency: 1200 }).connect(this.reverb);
-            this.synths.steps = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } }).connect(this.stepFilter);
-            this.synths.steps.volume.value = -12;
->>>>>>> REPLACE
-<<<<<<< SEARCH
-            // Day: Birds
-            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.05) {
-=======
-            // Day: Birds
-            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.1) {
->>>>>>> REPLACE
-<<<<<<< SEARCH
-        const now = Date.now();
-        if (this.lastMusicUpdate && now - this.lastMusicUpdate < 200) return;
-        this.lastMusicUpdate = now;
+diff --git a/index.html b/index.html
+index 5be0746..7132a8f 100644
+--- a/index.html
++++ b/index.html
+@@ -30155,32 +30155,6 @@ function generateTileTextures(scene) {
+                 if (scene && scene.textures) {
+                     if (scene.textures.exists(tileKey + '_tile')) scene.textures.remove(tileKey + '_tile');
+                     window.finalizeFurnitureTexture(scene, tileKey + '_tile', canvas);
+-
+-                    if (window.miniTilesGroup) {
+-                        window.miniTilesGroup.getChildren().forEach(sprite => {
+-                            if (sprite.miniTileType === item || sprite.miniTileType === tileKey || (sprite.texture && sprite.texture.key.startsWith(tileKey + '_tile'))) {
+-                                let textureToSet = tileKey + '_tile';
+-                                if (sprite.texture.key.includes('_90')) textureToSet += '_90';
+-                                else if (sprite.texture.key.includes('_180')) textureToSet += '_180';
+-                                else if (sprite.texture.key.includes('_270')) textureToSet += '_270';
+-                                sprite.setTexture(textureToSet);
+-                            }
+-                        });
+-                    }
+-                    if (window.p1MiniTilePreviewSprite && window.p1MiniTilePlacementMode === item) {
+-                        let texToSet = tileKey + '_tile';
+-                        if (window.p1MiniTilePreviewSprite.texture.key.includes('_90')) texToSet += '_90';
+-                        else if (window.p1MiniTilePreviewSprite.texture.key.includes('_180')) texToSet += '_180';
+-                        else if (window.p1MiniTilePreviewSprite.texture.key.includes('_270')) texToSet += '_270';
+-                        window.p1MiniTilePreviewSprite.setTexture(texToSet);
+-                    }
+-                    if (window.p2MiniTilePreviewSprite && window.p2MiniTilePlacementMode === item) {
+-                        let texToSet = tileKey + '_tile';
+-                        if (window.p2MiniTilePreviewSprite.texture.key.includes('_90')) texToSet += '_90';
+-                        else if (window.p2MiniTilePreviewSprite.texture.key.includes('_180')) texToSet += '_180';
+-                        else if (window.p2MiniTilePreviewSprite.texture.key.includes('_270')) texToSet += '_270';
+-                        window.p2MiniTilePreviewSprite.setTexture(texToSet);
+-                    }
+                 }
+             };
+             img.src = svgDataUrl;
+@@ -31882,8 +31856,10 @@ window.spawnMiniTiles = function(scene) {
 
-        const isInsideHome = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
-        // Sound effects
-        if (!isInsideHome) {
-            let p1Moving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0));
-            if (p1Moving && this.synths.steps && Math.random() < 0.2) {
-                this.synths.steps.triggerAttackRelease("16n", Tone.now(), Math.random() * 0.2 + 0.1);
-            }
+                 if (tile.type.includes('carpet')) {
+                     mSprite.setDepth(8.5);
++                } else if (window.smallItems && window.smallItems.includes(tile.type)) {
++                    mSprite.setDepth(9.5);
+                 } else {
+-                    mSprite.setDepth(10 + (tile.y / 10000));
++                    mSprite.setDepth(9);
+                 }
+                 mSprite.setScale(window.getRealisticScale(tile.type));
+                 mSprite.isMiniTile = true;
+@@ -32303,8 +32279,6 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
+     if (!mapData || !mapData[row] || col < 0 || col >= mapData[0].length) return false;
 
-            if (this.synths.leaves && window.windSpeed > 100 && Math.random() < (window.windSpeed / 2000)) {
-                this.synths.leaves.triggerAttackRelease("8n", Tone.now(), Math.random() * 0.3 + 0.2);
-            }
-        }
-=======
-        const now = Date.now();
-        const isInsideHome = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
-
-        // Fast-update precise sound effects
-        if (!isInsideHome) {
-            let p1Moving = (typeof window.playerVx !== 'undefined' && (window.playerVx !== 0 || window.playerVy !== 0));
-            if (p1Moving) {
-                if (!this.lastStepTime || now - this.lastStepTime > 250) {
-                    if (this.synths.steps) {
-                        this.synths.steps.triggerAttackRelease("16n", Tone.now(), 0.5);
-                    }
-                    this.lastStepTime = now;
-                }
-            } else {
-                this.lastStepTime = 0;
-            }
-        }
-
-        if (this.lastMusicUpdate && now - this.lastMusicUpdate < 200) return;
-        this.lastMusicUpdate = now;
-
-        // Sound effects
-        if (!isInsideHome) {
-            if (this.synths.leaves && window.windSpeed > 100 && Math.random() < (window.windSpeed / 2000)) {
-                this.synths.leaves.triggerAttackRelease("8n", Tone.now(), Math.random() * 0.3 + 0.2);
-            }
-        }
->>>>>>> REPLACE
+     const tileType = mapData[row][col];
+-    if (tileType === 'home_wall' || tileType === 'home_holo_wall' || tileType === 'water' || tileType === 'tree') return false;
+-
+     const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
+     const isInsideOtherHome = window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum);
