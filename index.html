@@ -1860,6 +1860,36 @@
     }
 
 
+    .event-bubbles-container {
+        position: fixed;
+        top: 65px;
+        left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 1000;
+        pointer-events: none;
+    }
+    .event-bubble {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(0, 20, 40, 0.9);
+        backdrop-filter: blur(10px);
+        border: 2px solid;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        animation: fadeInBubble 0.5s ease-out;
+        transition: opacity 0.5s;
+    }
+    @keyframes fadeInBubble {
+        from { opacity: 0; transform: scale(0.5); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
     .notification-popup {
         position: fixed;
         top: 20px;
@@ -3996,6 +4026,7 @@
 
 <div id="modernNotification" class="notification-popup"></div>
 <div id="modernNotification_p2" class="notification-popup"></div>
+<div id="eventBubblesContainer" class="event-bubbles-container"></div>
 
 <script>
 // ==================== SESSION INITIALIZATION ====================
@@ -7772,13 +7803,6 @@ window.showModernNotification = function(text, duration = 3000, playerNum = null
         }
     }
 
-    const elId = playerNum === 2 ? 'modernNotification_p2' : 'modernNotification';
-    const el = document.getElementById(elId);
-    if (!el) return;
-
-    el.innerHTML = DOMPurify.sanitize(text);
-    el.style.opacity = '1';
-
     const lowerTextForTop = (text || '').toLowerCase();
     const isWeatherOrEventNotification =
         lowerTextForTop.includes('solar event') ||
@@ -7795,10 +7819,97 @@ window.showModernNotification = function(text, duration = 3000, playerNum = null
         lowerTextForTop.includes('flash freeze');
 
     if (isWeatherOrEventNotification) {
-        el.style.top = '150px';
-    } else {
-        el.style.top = '20px';
+        if (lowerTextForTop.includes('subsided')) {
+            const container = document.getElementById('eventBubblesContainer');
+            if (container) {
+                const bubbles = Array.from(container.children);
+                if (lowerTextForTop.includes('atmospheric event has subsided')) {
+                    bubbles.forEach(b => {
+                        if (b.dataset.source === 'random') {
+                            b.style.opacity = '0';
+                            setTimeout(() => b.remove(), 500);
+                        }
+                    });
+                } else if (lowerTextForTop.includes('weather event has subsided')) {
+                    bubbles.forEach(b => {
+                        if (b.dataset.source === 'weather') {
+                            b.style.opacity = '0';
+                            setTimeout(() => b.remove(), 500);
+                        }
+                    });
+                }
+            }
+        } else {
+            const isWeatherPattern = lowerTextForTop.includes('downpour') || lowerTextForTop.includes('storm is surging') || lowerTextForTop.includes('flash freeze');
+            const source = isWeatherPattern ? 'weather' : 'random';
+
+            const dynamicEl = document.createElement('div');
+            dynamicEl.className = 'notification-popup dynamic-event-notification';
+            dynamicEl.innerHTML = DOMPurify.sanitize(text);
+            dynamicEl.style.opacity = '1';
+
+            const activeDynamic = document.querySelectorAll('.dynamic-event-notification').length;
+            dynamicEl.style.top = (150 + activeDynamic * 80) + 'px';
+
+            if (window.coopActive && playerNum === 2) {
+                dynamicEl.style.left = '75%';
+                dynamicEl.style.transform = 'translateX(-50%)';
+            } else if (window.coopActive && playerNum === 1) {
+                dynamicEl.style.left = '25%';
+                dynamicEl.style.transform = 'translateX(-50%)';
+            } else {
+                dynamicEl.style.left = '50%';
+                dynamicEl.style.transform = 'translateX(-50%)';
+            }
+
+            if (colorOverride) {
+                dynamicEl.style.borderColor = colorOverride;
+                dynamicEl.style.boxShadow = `0 10px 40px ${colorOverride}40, inset 0 0 20px ${colorOverride}20`;
+            } else {
+                dynamicEl.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                dynamicEl.style.boxShadow = '0 10px 40px rgba(0, 255, 150, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1)';
+            }
+
+            document.body.appendChild(dynamicEl);
+
+            setTimeout(() => {
+                dynamicEl.style.opacity = '0';
+                setTimeout(() => dynamicEl.remove(), 500);
+
+                const emojiMatch = text.match(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/);
+                const emoji = emojiMatch ? emojiMatch[0] : '✨';
+
+                const bubble = document.createElement('div');
+                bubble.className = 'event-bubble';
+                bubble.innerHTML = emoji;
+                bubble.dataset.source = source;
+                if (colorOverride) {
+                    bubble.style.borderColor = colorOverride;
+                    bubble.style.boxShadow = `0 0 10px ${colorOverride}`;
+                } else {
+                    bubble.style.borderColor = '#00ffff';
+                    bubble.style.boxShadow = '0 0 10px rgba(0,255,255,0.5)';
+                }
+
+                const container = document.getElementById('eventBubblesContainer');
+                if (container) {
+                    container.appendChild(bubble);
+                }
+            }, duration);
+
+            return; // Skip standard logic
+        }
     }
+
+    const elId = playerNum === 2 ? 'modernNotification_p2' : 'modernNotification';
+    const el = document.getElementById(elId);
+    if (!el) return;
+
+    el.innerHTML = DOMPurify.sanitize(text);
+    el.style.opacity = '1';
+
+    // For "subsided" notifications or any other notification that reaches here
+    el.style.top = isWeatherOrEventNotification ? '150px' : '20px';
 
     if (playerNum === 2) {
         const fallbackEl = document.getElementById('modernNotification');
