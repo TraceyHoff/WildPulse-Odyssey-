@@ -4871,7 +4871,7 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     let rewardXp = 50 + Math.floor(Math.random() * 50);
     let rewardItem = null;
 
-    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer"];
+    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer", "Cyber-Core Upgrade", "Nano-Nurture Serum", "DNA Stabilizer", "NPC Dual Link", "Wild Dual Signal"];
     if (pLevel >= 10 && Math.random() < 0.15) {
         do {
             rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
