@@ -3616,7 +3616,7 @@
         if (progress < targetProgress) {
             progress += 0.5 + (targetProgress - progress) * 0.08;
             if (progress > targetProgress) progress = targetProgress;
-        } else if (progress > targetProgress && targetProgress === 100) {
+        } else if (progress >= targetProgress && targetProgress === 100) {
             progress = 100;
         } else if (window.phaserInitComplete && currentStage >= stages.length) {
             progress += 1;
@@ -28818,20 +28818,20 @@ function generateTileTextures(scene) {
             let widthFt = 4;
             let heightFt = 4;
 
-            if (itemName.includes("Bed")) { widthFt = 6; heightFt = 7; }
-            else if (itemName.includes("Couch") || itemName.includes("Love Seat")) { widthFt = 7; heightFt = 4; }
-            else if (itemName.includes("Chair") || itemName.includes("Stool")) { widthFt = 2.5; heightFt = 2.5; }
-            else if (itemName.includes("Table") && !itemName.includes("Coffee") && !itemName.includes("Corner") && !itemName.includes("Nightstand")) { widthFt = 6; heightFt = 4; }
-            else if (itemName.includes("Coffee") || itemName.includes("Corner") || itemName.includes("Nightstand")) { widthFt = 3; heightFt = 3; }
-            else if (itemName.includes("Cabinet") || itemName.includes("Wardrobe") || itemName.includes("Rack") || itemName.includes("Fridge") || itemName.includes("Server")) { widthFt = 4; heightFt = 2.5; }
-            else if (itemName.includes("Plant") || itemName.includes("Bonsai") || itemName.includes("Fern") || itemName.includes("Cactus") || itemName.includes("Orchid") || itemName.includes("Ficus") || itemName.includes("Monstera") || itemName.includes("Bamboo") || itemName.includes("Succulent") || itemName.includes("Rose") || itemName.includes("Mushroom") || itemName.includes("Sunflower") || itemName.includes("Lily")) { widthFt = 2; heightFt = 2; }
-            else if (itemName.includes("Tree") || itemName.includes("Pine")) { widthFt = 4; heightFt = 4; }
-            else if (itemName.includes("Lamp") || itemName.includes("Bin") || itemName.includes("Globe")) { widthFt = 1.5; heightFt = 1.5; }
-            else if (itemName.includes("Bench")) { widthFt = 5; heightFt = 2.5; }
-            else if (itemName.includes("Carpet")) { widthFt = 8; heightFt = 8; }
-            else if (itemName.includes("Desk")) { widthFt = 5; heightFt = 3; }
-            else if (itemName.includes("Machine") || itemName.includes("PC")) { widthFt = 3; heightFt = 3; }
-            else if (itemName.includes("TV") || itemName.includes("Sign") || itemName.includes("Poster") || itemName.includes("Display") || itemName.includes("Mirror")) { widthFt = 4; heightFt = 1; }
+            if (item.includes("Bed")) { widthFt = 6; heightFt = 7; }
+            else if (item.includes("Couch") || item.includes("Love Seat")) { widthFt = 7; heightFt = 4; }
+            else if (item.includes("Chair") || item.includes("Stool")) { widthFt = 2.5; heightFt = 2.5; }
+            else if (item.includes("Table") && !item.includes("Coffee") && !item.includes("Corner") && !item.includes("Nightstand")) { widthFt = 6; heightFt = 4; }
+            else if (item.includes("Coffee") || item.includes("Corner") || item.includes("Nightstand")) { widthFt = 3; heightFt = 3; }
+            else if (item.includes("Cabinet") || item.includes("Wardrobe") || item.includes("Rack") || item.includes("Fridge") || item.includes("Server")) { widthFt = 4; heightFt = 2.5; }
+            else if (item.includes("Plant") || item.includes("Bonsai") || item.includes("Fern") || item.includes("Cactus") || item.includes("Orchid") || item.includes("Ficus") || item.includes("Monstera") || item.includes("Bamboo") || item.includes("Succulent") || item.includes("Rose") || item.includes("Mushroom") || item.includes("Sunflower") || item.includes("Lily")) { widthFt = 2; heightFt = 2; }
+            else if (item.includes("Tree") || item.includes("Pine")) { widthFt = 4; heightFt = 4; }
+            else if (item.includes("Lamp") || item.includes("Bin") || item.includes("Globe")) { widthFt = 1.5; heightFt = 1.5; }
+            else if (item.includes("Bench")) { widthFt = 5; heightFt = 2.5; }
+            else if (item.includes("Carpet")) { widthFt = 8; heightFt = 8; }
+            else if (item.includes("Desk")) { widthFt = 5; heightFt = 3; }
+            else if (item.includes("Machine") || item.includes("PC")) { widthFt = 3; heightFt = 3; }
+            else if (item.includes("TV") || item.includes("Sign") || item.includes("Poster") || item.includes("Display") || item.includes("Mirror")) { widthFt = 4; heightFt = 1; }
 
             const wPx = widthFt * 10;
             const hPx = heightFt * 10;
