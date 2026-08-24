@@ -68,8 +68,8 @@ test.describe('Home Customization & Plant Life System Tests', () => {
 
   test('should change styles and instantly trigger rebuild and ambient light overlays', async ({ page }) => {
     // Move inside
-    await page.evaluate(() => {
-      window.player.setPosition(58250, 58250);
+        await page.evaluate(() => {
+      if (window.player && window.player.setPosition) window.player.setPosition(58250, 58250);
       window.openHomeCustomizationModal(1);
     });
 
@@ -100,7 +100,7 @@ test.describe('Home Customization & Plant Life System Tests', () => {
   test('should enable placing mini-tiles inside home on floor tiles but block invalid placements', async ({ page }) => {
     // Walk inside
     await page.evaluate(() => {
-      window.player.setPosition(58250, 58250);
+      if (window.player && window.player.setPosition) window.player.setPosition(58250, 58250);
     });
 
     // Mock mini tile placement mode for "Storage Chest"
