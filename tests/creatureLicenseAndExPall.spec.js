@@ -105,9 +105,8 @@ test.describe('Creature License and ExPALL updates', () => {
     await page.evaluate(() => {
       const origRandom = Math.random;
       Math.random = () => 0.99; // very high value to trigger catch failure
-      window.doPlayerAction('catch', () => {
-        Math.random = origRandom;
-      });
+      window.doPlayerAction('catch', () => {});
+      Math.random = origRandom; // Restore immediately since doPlayerAction evaluates catch synchronously
     });
 
     // Verify Creature License is NOT consumed on catch failure
@@ -121,9 +120,8 @@ test.describe('Creature License and ExPALL updates', () => {
     await page.evaluate(() => {
       const origRandom = Math.random;
       Math.random = () => 0.0; // guarantees catch success
-      window.doPlayerAction('catch', () => {
-        Math.random = origRandom;
-      });
+      window.doPlayerAction('catch', () => {});
+      Math.random = origRandom; // Restore immediately
     });
 
     // Verify Creature License IS consumed on catch success
