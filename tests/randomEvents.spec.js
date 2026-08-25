@@ -128,6 +128,7 @@ test.describe('Random Events System', () => {
       window.gameStarted = true;
       window.activeRandomEvent = 'Flash Freeze';
       window.activeRandomEventEndTime = window.totalElapsedMs + 100000; // 100 seconds left
+      window.activeRandomEventStartTime = window.totalElapsedMs; // Fake recent start
       window.updateEventBadgeUI();
     });
     const badge1 = page.locator('#activeEventBadge');
@@ -141,6 +142,7 @@ test.describe('Random Events System', () => {
       window.gameStarted = true;
       window.activeRandomEvent = 'Gusty Winds';
       window.activeRandomEventEndTime = window.totalElapsedMs + 120000; // 120 seconds left
+      window.activeRandomEventStartTime = window.totalElapsedMs; // Fake recent start
       window.updateEventBadgeUI();
     });
     const badge2 = page.locator('#activeEventBadge');
@@ -154,6 +156,7 @@ test.describe('Random Events System', () => {
       window.gameStarted = true;
       window.activeRandomEvent = 'Earthquake';
       window.activeRandomEventEndTime = window.totalElapsedMs + 80000; // 80 seconds left
+      window.activeRandomEventStartTime = window.totalElapsedMs; // Fake recent start
       window.updateEventBadgeUI();
     });
     const badge3 = page.locator('#activeEventBadge');
@@ -167,6 +170,16 @@ test.describe('Random Events System', () => {
       window.gameStarted = true;
       window.activeRandomEvent = 'Bountiful Bloom';
       window.activeRandomEventEndTime = window.totalElapsedMs + 90000; // 90 seconds left
+      window.activeRandomEventStartTime = window.totalElapsedMs; // Fake recent start
+
+      // Inject fake bubble to test visual ring
+      const container = document.getElementById('eventBubblesContainer');
+      const bubble = document.createElement('div');
+      bubble.className = 'event-bubble';
+      bubble.dataset.source = 'random';
+      bubble.dataset.color = '#ff007f';
+      container.appendChild(bubble);
+
       window.updateEventBadgeUI();
     });
     const badge4 = page.locator('#activeEventBadge');
@@ -174,6 +187,12 @@ test.describe('Random Events System', () => {
     let text4 = await badge4.innerText();
     expect(text4.toUpperCase()).toContain('🌸 BLOOM');
     expect(text4).toContain('1:30');
+
+    const pct = await page.evaluate(() => {
+        const bubble = document.querySelector('.event-bubble');
+        return bubble.style.background;
+    });
+    expect(pct).toContain('conic-gradient');
   });
 
   test('applies visual dayNightOverlay color overrides', async ({ page }) => {

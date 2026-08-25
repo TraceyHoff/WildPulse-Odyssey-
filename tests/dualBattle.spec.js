@@ -32,12 +32,28 @@ test.describe('Cooperative Dual Battle Event', () => {
     await page.evaluate(() => {
         window.activeRandomEvent = 'Dual Battle';
         window.activeRandomEventEndTime = window.totalElapsedMs + 240000;
+        window.activeRandomEventStartTime = window.totalElapsedMs; // Fake recent start
+
+        // Inject fake bubble
+        const container = document.getElementById('eventBubblesContainer');
+        const bubble = document.createElement('div');
+        bubble.className = 'event-bubble';
+        bubble.dataset.source = 'random';
+        bubble.dataset.color = '#ff007f';
+        container.appendChild(bubble);
+
         window.updateEventBadgeUI();
     });
 
     const badge = page.locator('#activeEventBadge');
     await expect(badge).toBeVisible();
     await expect(badge).toContainText('Dual Battle Event!');
+
+    const pct = await page.evaluate(() => {
+        const bubble = document.querySelector('.event-bubble');
+        return bubble.style.background;
+    });
+    expect(pct).toContain('conic-gradient');
   });
 
   test('should successfully initialize and execute a Cooperative Dual Battle round', async ({ page }) => {
