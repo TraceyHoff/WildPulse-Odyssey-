@@ -1,34 +1,80 @@
 const fs = require('fs');
+let html = fs.readFileSync('index.html', 'utf8');
 
-let content = fs.readFileSync('index.html', 'utf8');
+const generateTileTexturesSearch = `
+            img.onload = function() {
+                ctx.drawImage(img, xOffset, yOffset, wPx, hPx);
+                if (scene && scene.textures) {
+                    if (scene.textures.exists(tileKey + '_tile')) scene.textures.remove(tileKey + '_tile');
+                    window.finalizeFurnitureTexture(scene, tileKey + '_tile', canvas);
+                }
+            };
+            img.src = svgDataUrl;`;
 
-// 1. Add `place_furniture` to `types` when `pLevel >= 10`
-content = content.replace(
-    "const types = ['catch', 'breed', 'defeat_trainer', 'challenge_tier', 'player_level', 'creature_level'];",
-    "const types = ['catch', 'breed', 'defeat_trainer', 'challenge_tier', 'player_level', 'creature_level'];\n    if (pLevel >= 10) { types.push('place_furniture'); }"
-);
+const generateTileTexturesReplace = `
+            img.onload = function() {
+                ctx.drawImage(img, xOffset, yOffset, wPx, hPx);
+                if (scene && scene.textures) {
+                    if (scene.textures.exists(tileKey + '_tile')) scene.textures.remove(tileKey + '_tile');
+                    window.finalizeFurnitureTexture(scene, tileKey + '_tile', canvas);
 
-// 2. Add quest generation logic for `place_furniture`
-const targetCondition = "    } else if (questType === 'creature_level') {";
-const questLogicReplacement = `    } else if (questType === 'place_furniture') {
-        const targetFurniture = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
-        title = \`Decorate Home: \${targetFurniture}\`;
-        description = \`Acquire and place a \${targetFurniture} in your home territory tiles.\`;
-        targetValue = targetFurniture;
-    } else if (questType === 'creature_level') {`;
+                    // Update existing sprites that were rendered as green boxes
+                    if (window.miniTilesGroup) {
+                        window.miniTilesGroup.getChildren().forEach(sprite => {
+                            if (sprite.miniTileType && window.typeMapLocal[sprite.miniTileType]) {
+                                // Some sprites store miniTileType as the friendly name like "Neon Couch", some store as "furniture_couch"
+                                // Actually, miniTileType is saved as "furniture_couch" in localStorage usually, let's just check if it matches tileKey
+                                if (sprite.miniTileType === tileKey) {
+                                    let rot = sprite.angle;
+                                    let actualRot = (rot % 360 + 360) % 360; // Normalize
+                                    if (actualRot === 0) {
+                                        sprite.setTexture(tileKey + '_tile');
+                                    } else {
+                                        sprite.setTexture(tileKey + '_tile_' + actualRot);
+                                    }
+                                    sprite.setAngle(0); // finalizeFurnitureTexture bakes rotation, so angle should be 0
+                                }
+                            } else if (sprite.miniTileType === tileKey) { // Fallback if typeMapLocal doesn't cover it directly this way
+                                let rot = sprite.angle;
+                                let actualRot = (rot % 360 + 360) % 360; // Normalize
+                                if (actualRot === 0) {
+                                    sprite.setTexture(tileKey + '_tile');
+                                } else {
+                                    sprite.setTexture(tileKey + '_tile_' + actualRot);
+                                }
+                                sprite.setAngle(0);
+                            }
+                        });
+                    }
 
-content = content.replace(targetCondition, questLogicReplacement);
+                    // Update preview sprites
+                    if (window.p1MiniTilePlacementMode && window.typeMapLocal[window.p1MiniTilePlacementMode] === tileKey && window.p1MiniTilePreviewSprite) {
+                        let rot = window.p1MiniTileRotation || 0;
+                        if (rot !== 0) {
+                            window.p1MiniTilePreviewSprite.setTexture(tileKey + '_tile_' + rot);
+                        } else {
+                            window.p1MiniTilePreviewSprite.setTexture(tileKey + '_tile');
+                        }
+                        window.p1MiniTilePreviewSprite.setAngle(0);
+                    }
+                    if (window.p2MiniTilePlacementMode && window.typeMapLocal[window.p2MiniTilePlacementMode] === tileKey && window.p2MiniTilePreviewSprite) {
+                        let rot = window.p2MiniTileRotation || 0;
+                        if (rot !== 0) {
+                            window.p2MiniTilePreviewSprite.setTexture(tileKey + '_tile_' + rot);
+                        } else {
+                            window.p2MiniTilePreviewSprite.setTexture(tileKey + '_tile');
+                        }
+                        window.p2MiniTilePreviewSprite.setAngle(0);
+                    }
+                }
+            };
+            img.src = svgDataUrl;`;
 
-// 3. Prevent `rewardItem` from matching the target furniture
-const rewardCondition = `    if (pLevel >= 10 && Math.random() < 0.15) {
-        rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];`;
+if (html.includes(generateTileTexturesSearch)) {
+    html = html.replace(generateTileTexturesSearch, generateTileTexturesReplace);
+    console.log("Successfully patched generateTileTextures.");
+} else {
+    console.log("Could not find generateTileTextures to patch.");
+}
 
-const rewardReplacement = `    if (pLevel >= 10 && Math.random() < 0.15) {
-        do {
-            rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
-        } while (questType === 'place_furniture' && rewardItem === targetValue);`;
-
-content = content.replace(rewardCondition, rewardReplacement);
-
-fs.writeFileSync('index.html', content);
-console.log('Successfully patched generateProceduralQuest');
+fs.writeFileSync('index.html', html, 'utf8');
