@@ -3573,13 +3573,14 @@
     const stageDurations = [350, 450, 350, 350];
     let currentStage = 0;
     const stages = [
-        { text: "INITIALIZING SYNAPSE CHANNELS...", target: 25 },
-        { text: "DECRYPTING BIOME SECTORS...", target: 55 },
-        { text: "SYNCHRONIZING CREATURE GENOME...", target: 80 },
-        { text: "STABILIZING WORLD GRID...", target: 95 }
+        { text: "INITIALIZING SYNAPSE CHANNELS...", subText: "LOADING TEXTURES...", target: 25 },
+        { text: "DECRYPTING BIOME SECTORS...", subText: "GENERATING WORLD GRID...", target: 55 },
+        { text: "SYNCHRONIZING CREATURE GENOME...", subText: "SPAWNING CREATURES...", target: 80 },
+        { text: "STABILIZING WORLD GRID...", subText: "FINALIZING NEURAL LINK...", target: 95 }
     ];
 
     const statusTextEl = document.getElementById('loadingStatusText');
+    const subTextEl = document.getElementById('loadingSubText');
     const barEl = document.getElementById('loadingBar');
     const loadingScreenEl = document.getElementById('loadingScreen');
 
@@ -3587,12 +3588,14 @@
         if (currentStage < stages.length) {
             const stage = stages[currentStage];
             if (statusTextEl) statusTextEl.innerText = stage.text;
+            if (subTextEl) subTextEl.innerText = stage.subText;
             targetProgress = stage.target;
             currentStage++;
             setTimeout(advanceStage, stageDurations[currentStage % stageDurations.length]);
         } else {
             if (window.phaserInitComplete) {
                 if (statusTextEl) statusTextEl.innerText = "READY TO ENTER SYSTEM";
+                if (subTextEl) subTextEl.innerText = "ALL SYSTEMS NOMINAL";
                 targetProgress = 100;
             } else {
                 targetProgress = 95 + Math.random() * 3;
@@ -37970,6 +37973,17 @@ function update() {
         window.lastTimerVisualUpdate = now;
     }
 
+    if (window.activeRandomEvent === 'Earthquake' || window.activeWeatherEvent === 'Earthquake') {
+        window.lastEarthquakeShakeMs = window.lastEarthquakeShakeMs || 0;
+        if (window.totalElapsedMs - window.lastEarthquakeShakeMs >= 10000) {
+            this.cameras.main.shake(300, 0.005);
+            if (window.camera2) {
+                window.camera2.shake(300, 0.005);
+            }
+            window.lastEarthquakeShakeMs = window.totalElapsedMs;
+        }
+    }
+
     if (window.waterLeaves) {
         window.waterLeaves = window.waterLeaves.filter(leaf => leaf.active);
         window.waterLeaves.forEach(leaf => {
@@ -38437,7 +38451,9 @@ function update() {
             fillColor = 0xcc3300;
         } else if (targetEventForVisual === 'Aurora') {
             targetAlpha = Math.max(targetAlpha, 0.40);
-            fillColor = 0x3a005c;
+            // Dynamically cycle through colors (hue 0 to 1 over 10 seconds)
+            let hue = (window.totalElapsedMs % 10000) / 10000;
+            fillColor = Phaser.Display.Color.HSVToRGB(hue, 1, 1).color;
         } else if (targetEventForVisual === 'Nighttime Eclipse') {
             targetAlpha = Math.max(targetAlpha, 0.50);
             fillColor = 0x050015;
