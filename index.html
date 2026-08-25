@@ -9978,6 +9978,7 @@ document.addEventListener('DOMContentLoaded', () => {
             display.innerText = hex;
             display.style.color = l > 60 ? '#000' : '#FFF';
 
+            hSlider.style.background = `linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red)`;
             sSlider.style.background = `linear-gradient(to right, ${hslToHex(h, 0, l)}, ${hslToHex(h, 100, l)})`;
             lSlider.style.background = `linear-gradient(to right, #000, ${hslToHex(h, s, 50)}, #fff)`;
 
@@ -9985,10 +9986,25 @@ document.addEventListener('DOMContentLoaded', () => {
             hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
         };
 
+        const updateFromSlidersInit = () => {
+            const h = parseInt(hSlider.value);
+            const s = parseInt(sSlider.value);
+            const l = parseInt(lSlider.value);
+
+            if (hVal) hVal.innerText = h + '°';
+            if (sVal) sVal.innerText = s + '%';
+            if (lVal) lVal.innerText = l + '%';
+
+            hSlider.style.background = `linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red)`;
+            sSlider.style.background = `linear-gradient(to right, ${hslToHex(h, 0, l)}, ${hslToHex(h, 100, l)})`;
+            lSlider.style.background = `linear-gradient(to right, #000, ${hslToHex(h, s, 50)}, #fff)`;
+        };
+
         [hSlider, sSlider, lSlider].forEach(slider => {
             slider.addEventListener('input', updateFromSliders);
             slider.addEventListener('change', updateFromSliders);
         });
+        updateFromSlidersInit();
     };
 
     window.syncCustomColorPickers = function(playerNum = 1) {
@@ -10197,9 +10213,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Populate placed mini-tiles list inside home
         const miniTilesKey = `wildpulse_p${playerNum}_mini_tiles`;
         const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
-        const minC = playerNum === 2 ? 590 : 580;
-        const maxC = playerNum === 2 ? 594 : 584;
-        const minR = 580, maxR = 584;
+        const minC = playerNum === 2 ? 583 : 573;
+        const maxC = playerNum === 2 ? 595 : 585;
+        const minR = playerNum === 2 ? 533 : 573;
+        const maxR = playerNum === 2 ? 545 : 585;
 
         const interiorTiles = miniTiles.filter(tile => {
             let col = Math.floor(tile.x / 100);
@@ -28966,6 +28983,55 @@ function generateTileTextures(scene) {
                 if (scene && scene.textures) {
                     if (scene.textures.exists(tileKey + '_tile')) scene.textures.remove(tileKey + '_tile');
                     window.finalizeFurnitureTexture(scene, tileKey + '_tile', canvas);
+
+                    // Update existing sprites that were rendered as green boxes
+                    if (window.miniTilesGroup) {
+                        window.miniTilesGroup.getChildren().forEach(sprite => {
+                            if (sprite.miniTileType && window.typeMapLocal[sprite.miniTileType]) {
+                                // Some sprites store miniTileType as the friendly name like "Neon Couch", some store as "furniture_couch"
+                                // Actually, miniTileType is saved as "furniture_couch" in localStorage usually, let's just check if it matches tileKey
+                                if (sprite.miniTileType === tileKey) {
+                                    let rot = sprite.angle;
+                                    let actualRot = (rot % 360 + 360) % 360; // Normalize
+                                    if (actualRot === 0) {
+                                        sprite.setTexture(tileKey + '_tile');
+                                    } else {
+                                        sprite.setTexture(tileKey + '_tile_' + actualRot);
+                                    }
+                                    sprite.setAngle(0); // finalizeFurnitureTexture bakes rotation, so angle should be 0
+                                }
+                            } else if (sprite.miniTileType === tileKey) { // Fallback if typeMapLocal doesn't cover it directly this way
+                                let rot = sprite.angle;
+                                let actualRot = (rot % 360 + 360) % 360; // Normalize
+                                if (actualRot === 0) {
+                                    sprite.setTexture(tileKey + '_tile');
+                                } else {
+                                    sprite.setTexture(tileKey + '_tile_' + actualRot);
+                                }
+                                sprite.setAngle(0);
+                            }
+                        });
+                    }
+
+                    // Update preview sprites
+                    if (window.p1MiniTilePlacementMode && window.typeMapLocal[window.p1MiniTilePlacementMode] === tileKey && window.p1MiniTilePreviewSprite) {
+                        let rot = window.p1MiniTileRotation || 0;
+                        if (rot !== 0) {
+                            window.p1MiniTilePreviewSprite.setTexture(tileKey + '_tile_' + rot);
+                        } else {
+                            window.p1MiniTilePreviewSprite.setTexture(tileKey + '_tile');
+                        }
+                        window.p1MiniTilePreviewSprite.setAngle(0);
+                    }
+                    if (window.p2MiniTilePlacementMode && window.typeMapLocal[window.p2MiniTilePlacementMode] === tileKey && window.p2MiniTilePreviewSprite) {
+                        let rot = window.p2MiniTileRotation || 0;
+                        if (rot !== 0) {
+                            window.p2MiniTilePreviewSprite.setTexture(tileKey + '_tile_' + rot);
+                        } else {
+                            window.p2MiniTilePreviewSprite.setTexture(tileKey + '_tile');
+                        }
+                        window.p2MiniTilePreviewSprite.setAngle(0);
+                    }
                 }
             };
             img.src = svgDataUrl;
