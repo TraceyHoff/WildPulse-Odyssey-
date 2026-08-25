@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+</head>
+<body>
+<div id="game-container"></div>
+<script>
+const config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    parent: 'game-container',
+    input: {
+        gamepad: true
+    },
+    scene: {
+        create: function () {
+            this.input.gamepad.on('connected', function (pad) {
+                console.log('Gamepad connected', pad.index, pad.id);
+            });
+            this.input.gamepad.on('disconnected', function (pad) {
+                console.log('Gamepad disconnected', pad.index, pad.id);
+            });
+        },
+        update: function () {
+            // console.log(this.input.gamepad.total);
+        }
+    }
+};
+
+const game = new Phaser.Game(config);
+</script>
+</body>
+</html>
