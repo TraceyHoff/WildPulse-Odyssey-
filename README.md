@@ -318,8 +318,8 @@ The in-game store automatically sorts items from cheapest to most expensive, uti
 10. **Pedometer** (👣, 220 Coins): Triggers player-specific 60-second buff timers that double egg hatching step progression rate.
 11. **Healing Juice Jug** (🍶, 250 Coins): Restores 150 HP to a selected creature (ignores egg objects).
 12. **Jank Juice** (🧃, 270 Coins): Doubles shiny encounter rates for a duration of 6 minutes (360,000ms).
-13. **ExPALL** (✨, 280 Coins): Doubles combat experience gained for 60 seconds.
-14. **Creature License** (🎫, 295 Coins): Grants a passive 1.5x catch rate multiplier while held, and exactly 1 is consumed only upon a successful catch.
+13. **ExPALL** (✨, 250 Coins): Grants a 3-minute buff that allows the whole party to receive battle experience.
+14. **Creature License** (🎫, 175 Coins): Grants a passive 1.25x catch rate multiplier while held, and exactly 1 is consumed only upon a successful catch. It assists in a successful capture but does not guarantee it.
 15. **Cyber-Core Upgrade** (💾, 320 Coins): Grants 150 XP instantly to a selected creature, triggering level-up evaluations.
 16. **DNA Stabilizer** (🧬, 420 Coins): Instantly hatches a selected Mysterious Egg in the active party.
 17. **Nano-Nurture Serum** (💉, 450 Coins): Instantly restores a selected creature's happiness to 100%.
@@ -377,7 +377,7 @@ When players speak to Quest NPCs, they share random, context-rich lore emphasizi
 - *"They say the Hidden Grove wasn't built, it was compiled. I once found an Astral Bloom out there—its petals pulsed with pure data."*
 - *"Keep your frequency stable, or the glitches will find you. If you hear thunder without clouds, you've likely wandered too close to a Void Rift."*
 - *"DNA splicing isn't just science, it's an art form out here. Taking two base codes and creating a perfect Gen 2 hybrid requires immense precision."*
-- *"Every signal you catch is a piece of a larger broadcast. If you ever find a Creature License, hold onto it—the 1.5x success multiplier is invaluable."*
+- *"Every signal you catch is a piece of a larger broadcast. If you ever find a Creature License, hold onto it—the 1.25x success multiplier is invaluable."*
 - *"Watch your back in the outer sectors; the firewall is weak there. A Wild Dual Signal can turn a simple patrol into a chaotic 2v2 skirmish."*
 - *"Some creatures remember the old world, before the pulse. You can see it in their eyes when the Autumn leaves start to fall and wither."*
 - *"Trust your instruments, but trust your companion more. I built my first shelter using simple Wood Foundations; it kept the midnight storms at bay."*
