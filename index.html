@@ -13568,6 +13568,12 @@ window.getCreatureColor = function(creature) {
     let g = Math.max(0, Math.min(255, baseCol.g + offset));
     let b = Math.max(0, Math.min(255, baseCol.b + offset));
 
+    if (creature.colorMutation) {
+        r = Math.max(0, Math.min(255, r + creature.colorMutation.r));
+        g = Math.max(0, Math.min(255, g + creature.colorMutation.g));
+        b = Math.max(0, Math.min(255, b + creature.colorMutation.b));
+    }
+
     return (r << 16) | (g << 8) | b;
 };
 
@@ -25151,8 +25157,23 @@ window.breed = function(parent1, parent2) {
     // Unique ID combining parent IDs and timestamp to avoid collisions
     const childId = `gen${childGeneration}_${parent1.id}_${parent2.id}_${Date.now()}`;
 
+    let childColorMutation = null;
+    let p1Mut = parent1.colorMutation;
+    let p2Mut = parent2.colorMutation;
+    if (p1Mut && p2Mut && p1Mut.r === p2Mut.r && p1Mut.g === p2Mut.g && p1Mut.b === p2Mut.b) {
+        childColorMutation = JSON.parse(JSON.stringify(p1Mut));
+    } else if (p1Mut || p2Mut) {
+        let pool = [];
+        if (p1Mut) pool.push(p1Mut);
+        if (p2Mut) pool.push(p2Mut);
+        let selectedMut = pool[Math.floor(Math.random() * pool.length)];
+        if (Math.random() < 0.5) {
+            childColorMutation = JSON.parse(JSON.stringify(selectedMut));
+        }
+    }
+
     // Blend colors simply by averaging RGB
-    const childColor = window.getCreatureColor({ type: childType, name: childName });
+    const childColor = window.getCreatureColor({ type: childType, name: childName, colorMutation: childColorMutation });
 
     const childShiny = (parent1.isShiny || parent2.isShiny) && Math.random() < 0.25;
     if (childShiny) {
@@ -25188,6 +25209,7 @@ window.breed = function(parent1, parent2) {
         type: childType,
         stats: childStats,
         generation: childGeneration,
+        colorMutation: childColorMutation,
         color: childColor,
         level: 1,
         xp: 0,
@@ -33815,6 +33837,15 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
 
     // Assign Ability Deterministically
     window.assignAbility(clonedData, sRng);
+
+    // Small chance at having a rare color mutation when spawning
+    if (sRng() < 0.05) { // 5% chance
+        clonedData.colorMutation = {
+            r: Math.floor(sRng() * 511) - 255,
+            g: Math.floor(sRng() * 511) - 255,
+            b: Math.floor(sRng() * 511) - 255
+        };
+    }
 
     let p1Party = (window.collectedCreatures || []).filter(c => !c.stored);
     let p1Max = p1Party.length > 0 ? Math.max(...p1Party.map(c => c.level || 1)) : 1;
