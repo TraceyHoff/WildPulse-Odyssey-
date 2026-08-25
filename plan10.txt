@@ -1,0 +1,18 @@
+Plan:
+1. Initialize `window.lastWeatherCalcUpdate = 0;` globally in `index.html` (e.g. near `window.weatherIntensity = 0;`).
+2. Update the `setTimeout` in `index.html` calling `this.synths.frogs.triggerAttackRelease` to use `undefined` instead of `Tone.now()`.
+3. Add realistic drop shadows (2.5D visual depth) for:
+   - Trees: In `generateTreeTextures`
+   - Plants: In `window.generatePlantTextures`
+   - Character Sprites: In `window.generatePlayerTexture`
+   - NPC Quest Givers: In `window.generateQuestNpcTexture`
+   - NPC Trainers / World sprites: In `window.renderCreatureCanvas` (when `drawBackground` is false)
+
+   To add realistic light shadowing, I will insert:
+   ```javascript
+   ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+   ctx.shadowBlur = 8;
+   ctx.shadowOffsetX = 4;
+   ctx.shadowOffsetY = 4;
+   ```
+   into each of those functions, right before they start drawing the main sprite on their offscreen canvas, and ensure the canvas has enough padding/size to not clip the shadow if necessary (usually they are big enough).
