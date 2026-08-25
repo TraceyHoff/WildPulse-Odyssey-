@@ -4816,6 +4816,11 @@ window.generateQuestNpcTexture = function(scene, textureKey) {
     canvas.height = 64;
     let ctx = canvas.getContext('2d');
 
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 4;
+    ctx.shadowOffsetY = 4;
+
     // Draw a beautiful, glowing golden-yellow star
     ctx.clearRect(0, 0, 64, 64);
 
@@ -6643,6 +6648,10 @@ window.generatePlantTextures = function(scene) {
     const plants = {
         'plant_cyber_fern': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Main organic main stem
             ctx.strokeStyle = '#00ffd2'; ctx.lineWidth = 2.5;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(46, 55, 52, 15); ctx.stroke();
@@ -6663,6 +6672,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_crystal_rose': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Elegant woody stem with thorns
             ctx.strokeStyle = '#203a27'; ctx.lineWidth = 2.5;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(55, 65, 50, 35); ctx.stroke();
@@ -6704,6 +6717,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_bio_orchid': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Rich violet stem system
             ctx.strokeStyle = '#3b1c5c'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 60, 45, 30); ctx.stroke();
@@ -6736,6 +6753,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_solar_lotus': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // [GRID REMOVED] Draws beautiful green leafy stalks rising up instead
             // Render lush leafy stalks base
             ctx.strokeStyle = '#1a4030'; ctx.lineWidth = 3;
@@ -6788,6 +6809,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_cosmic_shroom': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Detailed organic pale stems
             ctx.fillStyle = '#e5deff'; ctx.strokeStyle = '#4a154b'; ctx.lineWidth = 1;
             // Stems
@@ -6829,6 +6854,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_velvet_moss': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // [PLAIN OVAL REMOVED] Redesigned as a highly detailed lush bush with organic foliage layers
             // Base/back shadow layer
             ctx.fillStyle = '#061c0d';
@@ -6871,6 +6900,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_plasma_lily': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Green stems
             ctx.strokeStyle = '#164e63'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 60, 42, 35); ctx.stroke();
@@ -6907,6 +6940,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_neon_dahlia': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Thick dark green stalk
             ctx.strokeStyle = '#14532d'; ctx.lineWidth = 3;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 40); ctx.stroke();
@@ -6941,6 +6978,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_glow_tulip': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Long thin stems
             ctx.strokeStyle = '#065f46'; ctx.lineWidth = 1.8;
             ctx.beginPath(); ctx.moveTo(42, 95); ctx.quadraticCurveTo(35, 65, 40, 42); ctx.stroke();
@@ -6971,6 +7012,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_cyber_brier': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Redesigned bushy cluster of tangled branches
             ctx.strokeStyle = '#312e81'; ctx.lineWidth = 2.5;
             // Interlocking branches
@@ -7000,6 +7045,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_holo_iris': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Thick dark blue stem
             ctx.strokeStyle = '#1e1b4b'; ctx.lineWidth = 2.5;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 35); ctx.stroke();
@@ -7036,6 +7085,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_frost_shrub': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Highly detailed frosty/crystalline blue-silver bush
             ctx.fillStyle = '#1e3a8a'; // Deep blue shadow clumps
             [[34, 76, 16], [66, 76, 16], [50, 68, 18], [42, 65, 14], [58, 65, 14]].forEach(c => {
@@ -7063,6 +7116,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_amber_shrub': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Autumn detailed gold/amber bush
             ctx.fillStyle = '#78350f'; // Dark bronze shadow base
             [[32, 76, 16], [68, 76, 16], [50, 68, 18], [40, 64, 14], [60, 64, 14]].forEach(c => {
@@ -7085,6 +7142,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_tox_foliage': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Thick curving violet main stem
             ctx.strokeStyle = '#4c1d95'; ctx.lineWidth = 3;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 55, 45, 20); ctx.stroke();
@@ -7111,6 +7172,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_sunfire_blossom': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Slender curved dark green stems
             ctx.strokeStyle = '#064e3b'; ctx.lineWidth = 1.8;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(40, 60, 44, 30); ctx.stroke();
@@ -7142,6 +7207,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_vernal_bluebell_bud': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Stem
             ctx.strokeStyle = '#0f5132'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 55, 45, 25); ctx.stroke();
@@ -7161,6 +7230,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_vernal_bluebell_bloom': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Stem
             ctx.strokeStyle = '#0f5132'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(35, 55, 45, 25); ctx.stroke();
@@ -7195,6 +7268,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_solstice_sunflower_bud': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Stalk
             ctx.strokeStyle = '#1b4332'; ctx.lineWidth = 3;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 35); ctx.stroke();
@@ -7220,6 +7297,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_solstice_sunflower_bloom': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Stalk
             ctx.strokeStyle = '#1b4332'; ctx.lineWidth = 3;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.lineTo(50, 35); ctx.stroke();
@@ -7249,6 +7330,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_luna_lotus_closed': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Stems/base
             ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(45, 65, 50, 45); ctx.stroke();
@@ -7267,6 +7352,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_luna_lotus_bloom': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Stems/base
             ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(45, 65, 50, 45); ctx.stroke();
@@ -7297,6 +7386,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_night_phlox_closed': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Thin stems
             ctx.strokeStyle = '#1a052e'; ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(40, 60, 45, 35); ctx.stroke();
@@ -7309,6 +7402,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_night_phlox_bloom': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Thin stems
             ctx.strokeStyle = '#1a052e'; ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(40, 60, 45, 35); ctx.stroke();
@@ -7342,6 +7439,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_astral_bloom': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Thin glowing cosmic stalks
             ctx.strokeStyle = '#bf55ec'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(30, 50, 45, 25); ctx.stroke();
@@ -7364,6 +7465,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_void_tendril': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Spiral neon tendrils reaching up
             ctx.strokeStyle = '#ff007f'; ctx.lineWidth = 3;
             ctx.beginPath();
@@ -7394,6 +7499,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_nebula_fern': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Rich magenta main stem
             ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 2.5;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(54, 55, 48, 15); ctx.stroke();
@@ -7414,6 +7523,10 @@ window.generatePlantTextures = function(scene) {
         },
         'plant_aurora_spore': function(ctx) {
             ctx.fillStyle = 'rgba(0,0,0,0)'; ctx.fillRect(0,0,100,100);
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 4;
             // Thick alien mushroom stalk
             ctx.strokeStyle = '#00ffd2'; ctx.lineWidth = 4;
             ctx.beginPath(); ctx.moveTo(50, 95); ctx.quadraticCurveTo(48, 60, 50, 40); ctx.stroke();
@@ -8884,7 +8997,7 @@ window.WildPulseMusic = {
 
                 if (step === 0 && Math.random() < 0.05) {
                     this.synths.frogs.triggerAttackRelease("C2", "8n", time, 0.7);
-                    setTimeout(() => { if (this.synths.frogs) this.synths.frogs.triggerAttackRelease("E2", "8n", Tone.now(), 0.5); }, 200);
+                    setTimeout(() => { if (this.synths.frogs) this.synths.frogs.triggerAttackRelease("E2", "8n", undefined, 0.5); }, 200);
                 }
             }
         }, "16n").start(0));
@@ -13627,6 +13740,12 @@ window.renderCreatureCanvas = function(canvas, creature, size = 100, drawBackgro
 
     // Virtual coordinate scaling: all drawing code runs inside a virtual 100x100 space!
     ctx.scale(size / 100, size / 100);
+    if (!drawBackground) {
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 4;
+        ctx.shadowOffsetY = 4;
+    }
 
     if (creature && creature.isEgg) {
         if (drawBackground) {
@@ -27780,6 +27899,10 @@ function generateTreeTextures(scene) {
         treeCanvas.width = 100;
         treeCanvas.height = isTall ? 200 : 150;
         const treeCtx = treeCanvas.getContext('2d');
+        treeCtx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        treeCtx.shadowBlur = 8;
+        treeCtx.shadowOffsetX = 4;
+        treeCtx.shadowOffsetY = 4;
 
         const hOffset = isTall ? 50 : 0;
 
@@ -29056,6 +29179,10 @@ function generateMiscTextures(scene) {
         pCanvas.width = 40;
         pCanvas.height = 40;
         const pCtx = pCanvas.getContext('2d');
+        pCtx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        pCtx.shadowBlur = 8;
+        pCtx.shadowOffsetX = 4;
+        pCtx.shadowOffsetY = 4;
 
         // Draw base color with selected shape
         pCtx.save();
@@ -31846,6 +31973,7 @@ function create() {
     window.cloudCoverage = 'clear'; // clear, partly_cloudy, cloudy
     window.weatherPattern = 'none'; // none, light_rain, heavy_rain, thunderstorm
     window.weatherIntensity = 0;
+window.lastWeatherCalcUpdate = 0;
 
     window.sharedEmitZone = { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth + 600, window.innerHeight + 600) };
 
@@ -39727,6 +39855,7 @@ function update() {
     } else if (!window.roomSeed) {
         window.weatherPattern = 'none';
         window.weatherIntensity = 0;
+window.lastWeatherCalcUpdate = 0;
         window.cloudCoverage = 'partly_cloudy';
     }
 
