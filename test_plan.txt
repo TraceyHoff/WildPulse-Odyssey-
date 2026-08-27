@@ -1,0 +1,4 @@
+1. We need to add items that players can use against other players in battle for a tactical advantage in the shop. Each item needs a unique SVG icon.
+2. Specifically, I'll add new items in the `getItemSellPrice`, `updateStoreUI` to list them in the shop, and create SVG icons in `getItemIconHTML`.
+3. The new items will apply tactical advantages in PvP. I'll need to update `window.useInventoryItem` or battle logic where items are used in `index.html`.
+4. The items should be sold for 400 coins. I'll add them to the store listing with the correct price and descriptions.

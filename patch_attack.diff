@@ -1,0 +1,15 @@
+<<<<<<< SEARCH
+    if (action === 'attack') {
+        window.triggerAnimation('playerCombatant', 'lunge-right', 200);
+=======
+    if (action === 'attack') {
+        if (currentPlayer.battleStats && currentPlayer.battleStats.skipTurn) {
+            currentPlayer.battleStats.skipTurn = false;
+            logBattle(`<span style="color:#ffd700; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name} is stunned and couldn't move!</span>`);
+            updateBattleUI();
+            if (callback) setTimeout(callback, 300);
+            return;
+        }
+
+        window.triggerAnimation('playerCombatant', 'lunge-right', 200);
+>>>>>>> REPLACE

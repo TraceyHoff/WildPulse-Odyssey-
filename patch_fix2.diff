@@ -1,0 +1,99 @@
+<<<<<<< SEARCH
+    if (window.isLocalPvp) {
+        if (window.localPvpTurn === 1) {
+            if (action === 'catch') {
+                window.logBattle(`<span style="color:#f44336">You cannot catch other players' creatures!</span>`);
+                window.isActionRunning = false;
+                return;
+            }
+            if (action === 'run') {
+                window.logBattle(`${window.getP1Name()} fled! ${window.getP2Name()} wins!`);
+                window.endBattle('loss');
+                return;
+            }
+            if (action === 'swap') {
+                window.playerParty = window.collectedCreatures;
+                window.openBattleSwapModal();
+                window.isActionRunning = false;
+                return;
+            }
+
+            window.localPvpActions.p1 = action;
+            window.localPvpTurn = 2;
+            window.isActionRunning = false;
+            window.logBattle(`${window.getP2Name()}'s Turn: Choose action!`);
+            window.updateBattleUI();
+            return;
+        } else if (window.localPvpTurn === 2) {
+            if (action === 'catch') {
+                window.logBattle(`<span style="color:#f44336">You cannot catch other players' creatures!</span>`);
+                window.isActionRunning = false;
+                return;
+            }
+            if (action === 'run') {
+                window.logBattle(`${window.getP2Name()} fled! ${window.getP1Name()} wins!`);
+                window.endBattle('win');
+                return;
+            }
+            if (action === 'swap') {
+                window.playerParty = window.collectedCreatures2;
+                window.openBattleSwapModal();
+                window.isActionRunning = false;
+                return;
+            }
+
+            window.localPvpActions.p2 = action;
+            window.executeLocalPvpRound();
+            return;
+        }
+    }
+=======
+    if (window.isLocalPvp) {
+        if (window.localPvpTurn === 1) {
+            if (action === 'catch') {
+                window.logBattle(`<span style="color:#f44336">You cannot catch other players' creatures!</span>`);
+                window.isActionRunning = false;
+                return;
+            }
+            if (action === 'run') {
+                window.logBattle(`${window.getP1Name()} fled! ${window.getP2Name()} wins!`);
+                window.endBattle('loss');
+                return;
+            }
+            if (action === 'swap') {
+                window.playerParty = window.collectedCreatures;
+                window.openBattleSwapModal();
+                window.isActionRunning = false;
+                return;
+            }
+
+            window.localPvpActions.p1 = action;
+            window.localPvpTurn = 2;
+            window.isActionRunning = false;
+            window.logBattle(`${window.getP2Name()}'s Turn: Choose action!`);
+            window.updateBattleUI();
+            return;
+        } else if (window.localPvpTurn === 2) {
+            if (action === 'catch') {
+                window.logBattle(`<span style="color:#f44336">You cannot catch other players' creatures!</span>`);
+                window.isActionRunning = false;
+                return;
+            }
+            if (action === 'run') {
+                window.logBattle(`${window.getP2Name()} fled! ${window.getP1Name()} wins!`);
+                window.endBattle('win');
+                return;
+            }
+            if (action === 'swap') {
+                window.playerParty = window.collectedCreatures2;
+                window.openBattleSwapModal();
+                window.isActionRunning = false;
+                return;
+            }
+
+            window.localPvpActions.p2 = action;
+            window.executeLocalPvpRound();
+            return;
+        }
+    }
+>>>>>>> REPLACE
