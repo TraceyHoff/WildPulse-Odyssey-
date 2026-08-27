@@ -4056,6 +4056,7 @@ window.gameSeed = window.roomSeed;
 window.initialRoomSeed = window.roomSeed;
 
 window.totalElapsedMs = parseInt(localStorage.getItem('wildpulse_total_elapsed_ms')) || 0;
+window.lastWeatherCalcUpdate = window.performance ? window.performance.now() : Date.now();
 
 // Random Events System
 window.activeRandomEvent = localStorage.getItem('wildpulse_active_random_event') || 'None';
@@ -32159,7 +32160,6 @@ function create() {
     window.cloudCoverage = 'clear'; // clear, partly_cloudy, cloudy
     window.weatherPattern = 'none'; // none, light_rain, heavy_rain, thunderstorm
     window.weatherIntensity = 0;
-window.lastWeatherCalcUpdate = 0;
 
     window.sharedEmitZone = { type: 'random', source: new Phaser.Geom.Rectangle(0, 0, window.innerWidth + 600, window.innerHeight + 600) };
 
@@ -32307,6 +32307,7 @@ window.lastWeatherCalcUpdate = 0;
         constructor(scene) {
             this.scene = scene;
             this.sprites = [];
+            this.inactiveSprites = [];
             this.active = false;
             this._currentQuantity = 0;
             this.maxFireflies = 0;
@@ -32323,16 +32324,18 @@ window.lastWeatherCalcUpdate = 0;
             } else if (this.sprites.length > this.maxFireflies) {
                 let removed = this.sprites.pop();
                 if (removed) {
-                    if (removed.trail) removed.trail.remove();
-                    removed.destroy();
+                    removed.setVisible(false);
+                    if (removed.trail) removed.trail.pause();
+                    this.inactiveSprites.push(removed);
                 }
             }
         }
 
         killAll() {
             this.sprites.forEach(s => {
-                if (s.trail) s.trail.remove();
-                s.destroy();
+                s.setVisible(false);
+                if (s.trail) s.trail.pause();
+                this.inactiveSprites.push(s);
             });
             this.sprites = [];
             this._currentQuantity = 0;
@@ -32351,9 +32354,34 @@ window.lastWeatherCalcUpdate = 0;
             const x = cx + Math.cos(angle) * radius;
             const y = cy + Math.sin(angle) * radius;
 
-            let sprite = this.scene.add.sprite(x, y, 'firefly_particles', Math.floor(Math.random() * 4));
-            sprite.setDepth(3000);
+            let sprite;
+            if (this.inactiveSprites.length > 0) {
+                sprite = this.inactiveSprites.pop();
+                sprite.x = x;
+                sprite.y = y;
+                sprite.setVisible(true);
+                if (sprite.trail) sprite.trail.resume();
+            } else {
+                sprite = this.scene.add.sprite(x, y, 'firefly_particles', Math.floor(Math.random() * 4));
+                sprite.setDepth(3000);
+
+                sprite.trail = this.particleManager.createEmitter({
+                    frame: sprite.frame.name,
+                    speed: 0,
+                    lifespan: 500,
+                    scale: { start: sprite.scale || 1, end: 0 },
+                    alpha: { start: 0.5, end: 0 },
+                    frequency: 100,
+                    blendMode: 'ADD'
+                });
+                sprite.trail.startFollow(sprite);
+            }
+
             sprite.setScale(Math.random() * 0.5 + 0.5);
+            if (sprite.trail) {
+                 sprite.trail.setScale({ start: sprite.scaleX, end: 0 });
+            }
+
             sprite.bState = 'wandering';
 
             // Initial velocity towards center
@@ -32366,18 +32394,6 @@ window.lastWeatherCalcUpdate = 0;
             sprite.timer = 0;
             sprite.target = null;
             sprite.flyTime = Math.random() * 100;
-
-            // Trail
-            sprite.trail = this.particleManager.createEmitter({
-                frame: sprite.frame.name,
-                speed: 0,
-                lifespan: 500,
-                scale: { start: sprite.scale, end: 0 },
-                alpha: { start: 0.5, end: 0 },
-                frequency: 100,
-                blendMode: 'ADD'
-            });
-            sprite.trail.startFollow(sprite);
 
             this.sprites.push(sprite);
         }
@@ -32529,6 +32545,7 @@ window.lastWeatherCalcUpdate = 0;
         constructor(scene) {
             this.scene = scene;
             this.sprites = [];
+            this.inactiveSprites = [];
             this.active = false;
             this._currentQuantity = 0;
             this.maxButterflies = 0;
@@ -32541,12 +32558,18 @@ window.lastWeatherCalcUpdate = 0;
                 this.spawnButterfly();
             } else if (this.sprites.length > this.maxButterflies) {
                 let removed = this.sprites.pop();
-                if (removed) removed.destroy();
+                if (removed) {
+                    removed.setVisible(false);
+                    this.inactiveSprites.push(removed);
+                }
             }
         }
 
         killAll() {
-            this.sprites.forEach(s => s.destroy());
+            this.sprites.forEach(s => {
+                s.setVisible(false);
+                this.inactiveSprites.push(s);
+            });
             this.sprites = [];
             this._currentQuantity = 0;
             this.maxButterflies = 0;
@@ -32557,8 +32580,16 @@ window.lastWeatherCalcUpdate = 0;
             const cam = this.scene.cameras.main;
             const x = cam.scrollX + Math.random() * cam.width;
             const y = cam.scrollY + Math.random() * cam.height;
-            let sprite = this.scene.add.sprite(x, y, 'butterfly_particles', Math.floor(Math.random() * 4));
-            sprite.setDepth(3000);
+            let sprite;
+            if (this.inactiveSprites.length > 0) {
+                sprite = this.inactiveSprites.pop();
+                sprite.x = x;
+                sprite.y = y;
+                sprite.setVisible(true);
+            } else {
+                sprite = this.scene.add.sprite(x, y, 'butterfly_particles', Math.floor(Math.random() * 4));
+                sprite.setDepth(3000);
+            }
             sprite.setScale(Math.random() * 0.4 + 1.2);
             sprite.bState = 'wandering';
             sprite.vx = (Math.random() - 0.5) * 40;
@@ -40401,7 +40432,7 @@ function update() {
     } else if (!window.roomSeed) {
         window.weatherPattern = 'none';
         window.weatherIntensity = 0;
-window.lastWeatherCalcUpdate = 0;
+        window.lastWeatherCalcUpdate = now;
         window.cloudCoverage = 'partly_cloudy';
     }
 
