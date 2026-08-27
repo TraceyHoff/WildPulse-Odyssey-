@@ -1,0 +1,29 @@
+<<<<<<< SEARCH
+            row.querySelector('.use-battle-item-btn').onclick = () => {
+                document.getElementById(playerNum === 2 ? 'battleItemModal_p2' : 'battleItemModal').style.display = 'none';
+                window.handlePlayerTurn('item:' + item.name);
+            };
+=======
+            row.querySelector('.use-battle-item-btn').onclick = () => {
+                document.getElementById(playerNum === 2 ? 'battleItemModal_p2' : 'battleItemModal').style.display = 'none';
+                if (window.isLocalPvp) {
+                    if (window.localPvpTurn === 1 && playerNum === 1) {
+                        window.handlePlayerTurn('item:' + item.name);
+                    } else if (window.localPvpTurn === 2 && playerNum === 2) {
+                        window.handlePlayerTurn('item:' + item.name);
+                    } else {
+                        window.showModernNotification("❌ It's not your turn!", 2000, playerNum);
+                    }
+                } else if (window.isDualBattle) {
+                     if (window.dualBattleTurn === 1 && playerNum === 1) {
+                         window.handlePlayerTurn('item:' + item.name);
+                     } else if (window.dualBattleTurn === 2 && playerNum === 2) {
+                         window.handlePlayerTurn('item:' + item.name);
+                     } else {
+                         window.showModernNotification("❌ It's not your turn!", 2000, playerNum);
+                     }
+                } else {
+                    window.handlePlayerTurn('item:' + item.name);
+                }
+            };
+>>>>>>> REPLACE

@@ -1054,7 +1054,7 @@
         .battle-log .status { color: #d500f9; }
         .battle-log .critical { color: #ff9800; font-weight: bold; }
         .battle-log .miss { color: #aaaaaa; font-style: italic; }
-        .battle-controls { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+        .battle-controls { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px; }
         .battle-controls button { font-size: 16px; padding: 8px; cursor: pointer; border: none; font-family: monospace; font-weight: bold; border-radius: 8px; transition: all 0.2s ease; }
         .battle-controls button:hover { transform: scale(1.05); filter: brightness(1.2); box-shadow: 0 0 10px rgba(0,255,255,0.8); }
         .btn-attack { background: linear-gradient(180deg, #ef5350, #c62828); color: white; }
@@ -1062,6 +1062,7 @@
         .btn-defend { background: linear-gradient(180deg, #42a5f5, #1565c0); color: white; }
         .btn-catch { background: linear-gradient(180deg, #66bb6a, #2e7d32); color: white; }
         .btn-run { background: linear-gradient(180deg, #bdbdbd, #616161); color: white; }
+        .btn-item { background: linear-gradient(180deg, #ab47bc, #6a1b9a); color: white; }
 
         .swap-item {
             display: flex;
@@ -3792,6 +3793,7 @@
         <button class="btn-swap">Swap</button>
         <button id="battleCatchBtn" class="btn-catch">Catch</button>
         <button class="btn-run">Run</button>
+        <button class="btn-item">Item</button>
     </div>
 </div>
 
@@ -3847,7 +3849,20 @@
         <button class="btn-swap">Swap</button>
         <button id="battleCatchBtn_p2" class="btn-catch">Catch</button>
         <button class="btn-run">Run</button>
+        <button class="btn-item">Item</button>
     </div>
+</div>
+
+<div id="battleItemModal" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(20,25,40,0.95); padding:20px; border:2px solid #00ffcc; border-radius:10px; z-index:5000; width: 80%; max-width: 400px; color: white;">
+    <button class="close-btn" id="closeItemBtn" aria-label="Close Items" style="position: absolute; right: 10px; top: 10px; background: none; color: white; border: none; font-size: 20px; cursor: pointer;">X</button>
+    <h2 style="font-size: 24px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0,255,150,0.5);">Use Item</h2>
+    <div id="battleItemList" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;"></div>
+</div>
+
+<div id="battleItemModal_p2" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(20,25,40,0.95); padding:20px; border:2px solid #ff00ff; border-radius:10px; z-index:5000; width: 80%; max-width: 400px; color: white;">
+    <button class="close-btn" id="closeItemBtn_p2" aria-label="Close Items" style="position: absolute; right: 10px; top: 10px; background: none; color: white; border: none; font-size: 20px; cursor: pointer;">X</button>
+    <h2 style="font-size: 24px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,0,255,0.5);">Use Item</h2>
+    <div id="battleItemList_p2" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;"></div>
 </div>
 
 <div id="battleSwapModal" style="display:none;">
@@ -4937,7 +4952,7 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     let rewardXp = 50 + Math.floor(Math.random() * 50);
     let rewardItem = null;
 
-    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer", "Cyber-Core Upgrade", "Nano-Nurture Serum", "DNA Stabilizer", "NPC Dual Link", "Wild Dual Signal"];
+    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer", "Cyber-Core Upgrade", "Nano-Nurture Serum", "DNA Stabilizer", "NPC Dual Link", "Wild Dual Signal", "Stun Grenade", "Smoke Bomb", "Adrenaline Shot"];
     if (pLevel >= 10 && Math.random() < 0.15) {
         do {
             rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
@@ -9729,9 +9744,16 @@ document.addEventListener('DOMContentLoaded', () => {
         window.activeBattlePlayer = 1;
         if (window.handlePlayerTurn) window.handlePlayerTurn('run');
     });
+    document.querySelector('#battleModal .btn-item')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 1;
+        if (window.openBattleItemModal) window.openBattleItemModal(1);
+    });
     document.getElementById('closeSwapBtn')?.addEventListener('click', () => {
         window.activeBattlePlayer = 1;
         if (window.closeBattleSwapModal) window.closeBattleSwapModal();
+    });
+    document.getElementById('closeItemBtn')?.addEventListener('click', () => {
+        document.getElementById('battleItemModal').style.display = 'none';
     });
 
     // Player 2 Battle Click Listeners
@@ -9751,9 +9773,16 @@ document.addEventListener('DOMContentLoaded', () => {
         window.activeBattlePlayer = 2;
         if (window.handlePlayerTurn) window.handlePlayerTurn('run');
     });
+    document.querySelector('#battleModal_p2 .btn-item')?.addEventListener('click', () => {
+        window.activeBattlePlayer = 2;
+        if (window.openBattleItemModal) window.openBattleItemModal(2);
+    });
     document.getElementById('closeSwapBtn_p2')?.addEventListener('click', () => {
         window.activeBattlePlayer = 2;
         if (window.closeBattleSwapModal) window.closeBattleSwapModal();
+    });
+    document.getElementById('closeItemBtn_p2')?.addEventListener('click', () => {
+        document.getElementById('battleItemModal_p2').style.display = 'none';
     });
 
     document.getElementById('menuBtn')?.addEventListener('click', () => { if (window.openMenuModal) window.openMenuModal(1); });
@@ -18543,6 +18572,9 @@ window.getItemSellPrice = function(itemName) {
         { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
+        { name: "Stun Grenade", icon: "💥", price: 400, desc: "Skip the opponent's next turn in PvP battles." },
+        { name: "Smoke Bomb", icon: "💨", price: 400, desc: "Decreases opponent's accuracy in PvP battles." },
+        { name: "Adrenaline Shot", icon: "💉", price: 400, desc: "Increases your attack for 3 turns in PvP battles." },
         { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
         { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
         { name: "Storage Chest", icon: "🧳", price: 150, desc: "A secure chest to store items within your home base." },
@@ -18711,6 +18743,9 @@ window.updateStoreUI = function() {
         { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
+        { name: "Stun Grenade", icon: "💥", price: 400, desc: "Skip the opponent's next turn in PvP battles." },
+        { name: "Smoke Bomb", icon: "💨", price: 400, desc: "Decreases opponent's accuracy in PvP battles." },
+        { name: "Adrenaline Shot", icon: "💉", price: 400, desc: "Increases your attack for 3 turns in PvP battles." },
         { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
         { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
         { name: "NPC Dual Link", icon: "📡", price: 400, desc: "Guarantees a 100% chance of an NPC Trainer Dual Battle for 5 minutes." },
@@ -19826,6 +19861,12 @@ window.getItemIconHTML = function(itemName, size = 24) {
         glowColor = '#00ffd2';
     } else if (itemName === "Wild Dual Signal") {
         glowColor = '#ff4400';
+    } else if (itemName === "Stun Grenade") {
+        glowColor = '#ffd700';
+    } else if (itemName === "Smoke Bomb") {
+        glowColor = '#cccccc';
+    } else if (itemName === "Adrenaline Shot") {
+        glowColor = '#ff0033';
     } else if (itemName.startsWith("Mini") || itemName.includes("Tile") || itemName === "Storage Chest") {
         glowColor = '#00ffd2';
         if (itemName === "Storage Chest") glowColor = '#ff7f00';
@@ -20032,6 +20073,37 @@ window.getItemIconHTML = function(itemName, size = 24) {
                 <path d="M50,20 Q65,10 75,5 Q60,5 50,15" fill="#ff3300" opacity="0.5" />
                 <circle cx="70" cy="8" r="3" fill="#ff3300" />
                 <circle cx="78" cy="12" r="2" fill="#ff3300" />`;
+            break;
+        case "Stun Grenade":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffd700" stroke-width="4"/>
+                <circle cx="50" cy="60" r="25" fill="#222" stroke="#ffd700" stroke-width="3" />
+                <path d="M40,35 L60,35 L55,20 L45,20 Z" fill="#444" stroke="#ffd700" stroke-width="2" />
+                <circle cx="50" cy="60" r="10" fill="none" stroke="#ffd700" stroke-width="2" stroke-dasharray="4,4" />
+                <path d="M45,15 Q60,5 75,15" fill="none" stroke="#ccc" stroke-width="3" stroke-linecap="round" />
+                <circle cx="75" cy="15" r="4" fill="#ffd700" filter="url(#glow)" />
+                <path d="M30,50 L40,60 L30,70" fill="none" stroke="#ffd700" stroke-width="2" />
+                <path d="M70,50 L60,60 L70,70" fill="none" stroke="#ffd700" stroke-width="2" />`;
+            break;
+        case "Smoke Bomb":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#cccccc" stroke-width="4"/>
+                <circle cx="50" cy="65" r="22" fill="#333" stroke="#cccccc" stroke-width="3" />
+                <rect x="42" y="30" width="16" height="15" fill="#222" stroke="#cccccc" stroke-width="2" />
+                <circle cx="50" cy="30" r="12" fill="none" stroke="#cccccc" stroke-width="2" />
+                <circle cx="50" cy="25" r="3" fill="#ff0000" filter="url(#glow)" />
+                <path d="M35,65 Q25,50 35,35" fill="none" stroke="rgba(200,200,200,0.7)" stroke-width="4" filter="url(#glow)" />
+                <path d="M65,65 Q75,50 65,35" fill="none" stroke="rgba(200,200,200,0.7)" stroke-width="4" filter="url(#glow)" />
+                <circle cx="50" cy="65" r="8" fill="rgba(200,200,200,0.5)" filter="url(#glow)" />`;
+            break;
+        case "Adrenaline Shot":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff0033" stroke-width="4"/>
+                <rect x="38" y="30" width="24" height="45" rx="5" fill="#111" stroke="#ff0033" stroke-width="3" />
+                <rect x="42" y="45" width="16" height="25" fill="#ff0033" opacity="0.8" filter="url(#glow)" />
+                <path d="M45,30 L45,20 L55,20 L55,30" fill="none" stroke="#aaa" stroke-width="3" />
+                <rect x="42" y="10" width="16" height="10" fill="#444" stroke="#ccc" stroke-width="2" />
+                <line x1="50" y1="75" x2="50" y2="90" stroke="#ccc" stroke-width="3" stroke-linecap="round" />
+                <circle cx="50" cy="90" r="2" fill="#ff0033" filter="url(#glow)" />
+                <path d="M25,50 Q40,30 25,20" fill="none" stroke="#ff0033" stroke-width="2" opacity="0.6" filter="url(#glow)" />
+                <path d="M75,50 Q60,30 75,20" fill="none" stroke="#ff0033" stroke-width="2" opacity="0.6" filter="url(#glow)" />`;
             break;
         case "HP Booster":
         case "Uncommon HP Booster":
@@ -22673,6 +22745,8 @@ window.closeAllModals = function(exceptId) {
         { id: 'challengeModal', close: () => { if (window.closeChallengeModal) window.closeChallengeModal(); } },
         { id: 'dojoModal', close: () => { if (window.closeDojoModal) window.closeDojoModal(); } },
         { id: 'battleSwapModal', close: () => { if (window.closeBattleSwapModal) window.closeBattleSwapModal(); } },
+        { id: 'battleItemModal', close: () => { document.getElementById('battleItemModal').style.display = 'none'; } },
+        { id: 'battleItemModal_p2', close: () => { document.getElementById('battleItemModal_p2').style.display = 'none'; } },
         { id: 'tradeModal', close: () => { if (window.closeTradeModal) window.closeTradeModal(); } },
         { id: 'pvpModal', close: () => { if (window.closePvpModal) window.closePvpModal(); } },
         { id: 'inventoryModal', close: () => { if (window.closeInventoryModal) window.closeInventoryModal(); } },
@@ -34715,6 +34789,11 @@ window.doPlayerAction = function(action, callback) {
             window.triggerAbilityVisualEffect(true, { color: '#ff5722' });
         }
         let accuracy = currentPlayer.battleStats ? currentPlayer.battleStats.accuracyMod : 1.0;
+        if (currentPlayer.battleStats && currentPlayer.battleStats.accuracyDecrease) {
+            accuracy *= 0.5;
+            currentPlayer.battleStats.accuracyDecrease = false;
+        }
+
         let enemyEvasion = currentEnemy.battleStats ? currentEnemy.battleStats.accuracyMod : 1.0;
         let hitChance = Math.max(0.1, Math.min(1.0, 0.95 * (accuracy / enemyEvasion)));
 
@@ -34788,6 +34867,12 @@ window.doPlayerAction = function(action, callback) {
 
         let atkMod = currentPlayer.battleStats ? currentPlayer.battleStats.attackMod : 1.0;
         let damage = window.calculateDamage(currentPlayer, currentEnemy, power) * damageMultiplier * atkMod;
+
+        if (currentPlayer.battleStats && currentPlayer.battleStats.adrenalineTurns > 0) {
+            damage *= 1.5;
+            currentPlayer.battleStats.adrenalineTurns--;
+            logBattle(`<span style="color:#ff0033; font-weight:bold;">Adrenaline rush amplified the attack!</span>`);
+        }
 
         // Recoil logic is now decoupled
         let enemyRecoilTriggered = currentEnemy.ability && currentEnemy.ability.type === 'damage_recoil' && (!currentEnemy.battleStats || currentEnemy.battleStats.abilityUses < 4) && Math.random() < currentEnemy.ability.chance;
@@ -35009,6 +35094,11 @@ window.doEnemyAction = function(callback) {
         window.triggerAbilityVisualEffect(false, { color: '#ff5722' });
     }
     let accuracy = currentEnemy.battleStats ? currentEnemy.battleStats.accuracyMod : 1.0;
+    if (currentEnemy.battleStats && currentEnemy.battleStats.accuracyDecrease) {
+        accuracy *= 0.5;
+        currentEnemy.battleStats.accuracyDecrease = false;
+    }
+
     let playerEvasion = currentPlayer.battleStats ? currentPlayer.battleStats.accuracyMod : 1.0;
     let hitChance = Math.max(0.1, Math.min(1.0, 0.95 * (accuracy / playerEvasion)));
 
@@ -35083,6 +35173,12 @@ window.doEnemyAction = function(callback) {
     let atkMod = currentEnemy.battleStats ? currentEnemy.battleStats.attackMod : 1.0;
     let damage = window.calculateDamage(currentEnemy, currentPlayer, power) * damageMultiplier * atkMod;
 
+    if (currentEnemy.battleStats && currentEnemy.battleStats.adrenalineTurns > 0) {
+        damage *= 1.5;
+        currentEnemy.battleStats.adrenalineTurns--;
+        logBattle(`<span style="color:#ff0033; font-weight:bold;">Adrenaline rush amplified the attack!</span>`);
+    }
+
     // Recoil logic
     let playerRecoilTriggered = currentPlayer.ability && currentPlayer.ability.type === 'damage_recoil' && (!currentPlayer.battleStats || currentPlayer.battleStats.abilityUses < 4) && Math.random() < currentPlayer.ability.chance;
 
@@ -35155,6 +35251,71 @@ window.doEnemyAction = function(callback) {
         window.isActionRunning = false;
         if (callback) callback();
     }
+};
+
+window.openBattleItemModal = function(playerNum) {
+    if (window.battleEnding || window.isActionRunning) return;
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const tacticalItems = ["Stun Grenade", "Smoke Bomb", "Adrenaline Shot"];
+    const pvpItems = inv.filter(i => tacticalItems.includes(i.name) && i.quantity > 0);
+
+    const listId = playerNum === 2 ? 'battleItemList_p2' : 'battleItemList';
+    const listEl = document.getElementById(listId);
+    listEl.innerHTML = '';
+
+    if (pvpItems.length === 0) {
+        listEl.innerHTML = '<div style="color:#aaa; text-align:center; padding:20px;">No tactical items available.</div>';
+    } else {
+        pvpItems.forEach(item => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.justifyContent = 'space-between';
+            row.style.background = 'rgba(0,0,0,0.5)';
+            row.style.padding = '10px';
+            row.style.borderRadius = '5px';
+
+            const iconHtml = window.getItemIconHTML(item.name, 24);
+            row.innerHTML = `
+                <div style="display:flex; align-items:center;">
+                    ${iconHtml}
+                    <span style="margin-left:10px;">${item.name} (x${item.quantity})</span>
+                </div>
+                <button class="use-battle-item-btn" style="background:#ab47bc; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Use</button>
+            `;
+
+            row.querySelector('.use-battle-item-btn').onclick = () => {
+                document.getElementById(playerNum === 2 ? 'battleItemModal_p2' : 'battleItemModal').style.display = 'none';
+                if (window.isLocalPvp) {
+                    if (window.localPvpTurn === 1 && playerNum === 1) {
+                        window.handlePlayerTurn('item:' + item.name);
+                    } else if (window.localPvpTurn === 2 && playerNum === 2) {
+                        window.handlePlayerTurn('item:' + item.name);
+                    } else {
+                        window.showModernNotification("❌ It's not your turn!", 2000, playerNum);
+                    }
+                } else if (window.isDualBattle) {
+                     if (window.dualBattleTurn === 1 && playerNum === 1) {
+                         window.handlePlayerTurn('item:' + item.name);
+                     } else if (window.dualBattleTurn === 2 && playerNum === 2) {
+                         window.handlePlayerTurn('item:' + item.name);
+                     } else {
+                         window.showModernNotification("❌ It's not your turn!", 2000, playerNum);
+                     }
+                } else {
+                    if (playerNum === window.activeBattlePlayer) {
+                        window.handlePlayerTurn('item:' + item.name);
+                    } else {
+                        window.showModernNotification("❌ It's not your turn!", 2000, playerNum);
+                    }
+                }
+            };
+            listEl.appendChild(row);
+        });
+    }
+
+    const modalId = playerNum === 2 ? 'battleItemModal_p2' : 'battleItemModal';
+    document.getElementById(modalId).style.display = 'block';
 };
 
 window.openBattleSwapModal = function() {
@@ -35772,25 +35933,84 @@ window.executeLocalPvpRound = function() {
 
 function runLocalPvpAction(playerNum, action, callback) {
     if (playerNum === 1) {
+        if (window.currentPlayer.battleStats && window.currentPlayer.battleStats.skipTurn) {
+            window.currentPlayer.battleStats.skipTurn = false;
+            window.logBattle(`<span style="color:#ffd700; font-weight:bold;">${window.currentPlayer.nickname || window.currentPlayer.name} is stunned and couldn't move!</span>`);
+            window.updateBattleUI();
+            if (callback) setTimeout(callback, 300);
+            return;
+        }
+
         if (action === 'defend') {
             window.currentPlayer.isDefending = true;
             window.logBattle(`<span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span> is <span style="color:#42a5f5">defending!</span>`);
             window.updateBattleUI();
             if (callback) callback();
+        } else if (action.startsWith('item:')) {
+            window.useBattleItemAction(1, action.split(':')[1]);
+            if (callback) callback();
         } else {
             window.doPlayerAction('attack', callback);
         }
     } else {
+        if (window.currentEnemy.battleStats && window.currentEnemy.battleStats.skipTurn) {
+            window.currentEnemy.battleStats.skipTurn = false;
+            window.logBattle(`<span style="color:#ffd700; font-weight:bold;">${window.currentEnemy.nickname || window.currentEnemy.name} is stunned and couldn't move!</span>`);
+            window.updateBattleUI();
+            if (callback) setTimeout(callback, 300);
+            return;
+        }
+
         if (action === 'defend') {
             window.currentEnemy.isDefending = true;
             window.logBattle(`<span style="color:#f44336">${window.currentEnemy.nickname || window.currentEnemy.name}</span> is <span style="color:#42a5f5">defending!</span>`);
             window.updateBattleUI();
+            if (callback) callback();
+        } else if (action.startsWith('item:')) {
+            window.useBattleItemAction(2, action.split(':')[1]);
             if (callback) callback();
         } else {
             window.doEnemyAction(callback);
         }
     }
 }
+
+window.useBattleItemAction = function(playerNum, itemName) {
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const itemIdx = inv.findIndex(i => i.name === itemName && i.quantity > 0);
+    if (itemIdx === -1) return;
+
+    inv[itemIdx].quantity--;
+    if (inv[itemIdx].quantity <= 0) inv.splice(itemIdx, 1);
+
+    if (playerNum === 2) {
+        localStorage.setItem('wildpulse_inventory2', JSON.stringify(inv));
+        if (window.updateInventoryUI) window.updateInventoryUI();
+    } else {
+        localStorage.setItem('wildpulse_inventory', JSON.stringify(inv));
+        if (window.updateInventoryUI) window.updateInventoryUI();
+    }
+
+    const actorName = playerNum === 2 ? window.getP2Name() : window.getP1Name();
+    const actorCombatant = playerNum === 2 ? window.currentEnemy : window.currentPlayer;
+    const targetCombatant = playerNum === 2 ? window.currentPlayer : window.currentEnemy;
+
+    if (!actorCombatant.battleStats) actorCombatant.battleStats = {};
+    if (!targetCombatant.battleStats) targetCombatant.battleStats = {};
+
+    window.logBattle(`<span style="color:#ab47bc; font-weight:bold;">${actorName} used a ${itemName}!</span>`);
+
+    if (itemName === "Stun Grenade") {
+        targetCombatant.battleStats.skipTurn = true;
+        window.logBattle(`<span style="color:#ffd700;">${targetCombatant.nickname || targetCombatant.name} was stunned and will skip their next turn!</span>`);
+    } else if (itemName === "Smoke Bomb") {
+        targetCombatant.battleStats.accuracyDecrease = true;
+        window.logBattle(`<span style="color:#cccccc;">${targetCombatant.nickname || targetCombatant.name}'s accuracy was severely reduced!</span>`);
+    } else if (itemName === "Adrenaline Shot") {
+        actorCombatant.battleStats.adrenalineTurns = 3;
+        window.logBattle(`<span style="color:#ff0033;">${actorCombatant.nickname || actorCombatant.name} is pumped with Adrenaline! Attacks will deal more damage!</span>`);
+    }
+};
 
 function checkLocalPvpFaintsOrEnd(nextTurnCallback) {
     if (window.currentPlayer.currentHp <= 0) {

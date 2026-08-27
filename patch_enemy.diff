@@ -1,0 +1,27 @@
+<<<<<<< SEARCH
+        return;
+    }
+
+    if (currentEnemy.battleStats && currentEnemy.battleStats.skipTurn) {
+        currentEnemy.battleStats.skipTurn = false;
+        logBattle(`<span style="color:#ffd700; font-weight:bold;">${currentEnemy.nickname || currentEnemy.name} is stunned and couldn't move!</span>`);
+        updateBattleUI();
+        if (callback) setTimeout(callback, 300);
+        return;
+    }
+
+    window.triggerAnimation('enemyCombatant', 'lunge-left', 200);
+=======
+        return;
+    }
+
+    if (currentEnemy.battleStats && currentEnemy.battleStats.skipTurn) {
+        currentEnemy.battleStats.skipTurn = false;
+        logBattle(`<span style="color:#ffd700; font-weight:bold;">${currentEnemy.nickname || currentEnemy.name} is stunned and couldn't move!</span>`);
+        updateBattleUI();
+        if (callback) setTimeout(callback, 300);
+        return;
+    }
+
+    window.triggerAnimation('enemyCombatant', 'lunge-left', 200);
+>>>>>>> REPLACE

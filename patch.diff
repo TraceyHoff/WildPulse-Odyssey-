@@ -1,0 +1,48 @@
+<<<<<<< SEARCH
+window.openBattleSwapModal = function() {
+=======
+window.openBattleItemModal = function(playerNum) {
+    if (window.battleEnding || window.isActionRunning) return;
+    const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
+    const tacticalItems = ["Stun Grenade", "Smoke Bomb", "Adrenaline Shot"];
+    const pvpItems = inv.filter(i => tacticalItems.includes(i.name) && i.quantity > 0);
+
+    const listId = playerNum === 2 ? 'battleItemList_p2' : 'battleItemList';
+    const listEl = document.getElementById(listId);
+    listEl.innerHTML = '';
+
+    if (pvpItems.length === 0) {
+        listEl.innerHTML = '<div style="color:#aaa; text-align:center; padding:20px;">No tactical items available.</div>';
+    } else {
+        pvpItems.forEach(item => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.justifyContent = 'space-between';
+            row.style.background = 'rgba(0,0,0,0.5)';
+            row.style.padding = '10px';
+            row.style.borderRadius = '5px';
+
+            const iconHtml = window.getItemIconHTML(item.name, 24);
+            row.innerHTML = `
+                <div style="display:flex; align-items:center;">
+                    ${iconHtml}
+                    <span style="margin-left:10px;">${item.name} (x${item.quantity})</span>
+                </div>
+                <button class="use-battle-item-btn" style="background:#ab47bc; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Use</button>
+            `;
+
+            row.querySelector('.use-battle-item-btn').onclick = () => {
+                document.getElementById(playerNum === 2 ? 'battleItemModal_p2' : 'battleItemModal').style.display = 'none';
+                window.handlePlayerTurn('item:' + item.name);
+            };
+            listEl.appendChild(row);
+        });
+    }
+
+    const modalId = playerNum === 2 ? 'battleItemModal_p2' : 'battleItemModal';
+    document.getElementById(modalId).style.display = 'block';
+};
+
+window.openBattleSwapModal = function() {
+>>>>>>> REPLACE
