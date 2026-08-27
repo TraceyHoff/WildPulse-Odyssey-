@@ -4952,7 +4952,7 @@ window.generateProceduralQuest = function(npcId, playerNum = 1) {
     let rewardXp = 50 + Math.floor(Math.random() * 50);
     let rewardItem = null;
 
-    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer", "Cyber-Core Upgrade", "Nano-Nurture Serum", "DNA Stabilizer", "NPC Dual Link", "Wild Dual Signal", "Stun Grenade", "Smoke Bomb", "Adrenaline Shot"];
+    const itemsPool = ["Healing Juice Bottle", "Healing Juice Jug", "Stat Boosters", "Creature Cookie", "Repellent", "Jank Juice", "ExPALL", "Pedometer", "Cyber-Core Upgrade", "Nano-Nurture Serum", "DNA Stabilizer", "NPC Dual Link", "Wild Dual Signal", "Stun Grenade", "Smoke Bomb", "Adrenaline Shot", "EMP Grenade", "Nanite Swarm", "Holo-Decoy", "Mirror Shield", "Tactical Analyzer", "EM Scrambler"];
     if (pLevel >= 10 && Math.random() < 0.15) {
         do {
             rewardItem = window.furniturePool[Math.floor(Math.random() * window.furniturePool.length)];
@@ -18575,6 +18575,12 @@ window.getItemSellPrice = function(itemName) {
         { name: "Stun Grenade", icon: "💥", price: 400, desc: "Skip the opponent's next turn in PvP battles." },
         { name: "Smoke Bomb", icon: "💨", price: 400, desc: "Decreases opponent's accuracy in PvP battles." },
         { name: "Adrenaline Shot", icon: "💉", price: 400, desc: "Increases your attack for 3 turns in PvP battles." },
+        { name: "EMP Grenade", icon: "⚡", price: 400, desc: "Bypasses opponent's shields and deals a small amount of guaranteed damage." },
+        { name: "Nanite Swarm", icon: "🦠", price: 400, desc: "Applies a damage-over-time effect to the opponent." },
+        { name: "Holo-Decoy", icon: "👤", price: 400, desc: "Significantly boosts your evasion for the next attack." },
+        { name: "Mirror Shield", icon: "🪞", price: 400, desc: "Reflects the opponent's next attack back at them." },
+        { name: "Tactical Analyzer", icon: "🕶️", price: 400, desc: "Guarantees your next attack will be a critical hit." },
+        { name: "EM Scrambler", icon: "📻", price: 400, desc: "Passive: While in inventory, negates all tactical items used on you (consumes item but still takes opponent's turn)." },
         { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
         { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
         { name: "Storage Chest", icon: "🧳", price: 150, desc: "A secure chest to store items within your home base." },
@@ -18746,6 +18752,12 @@ window.updateStoreUI = function() {
         { name: "Stun Grenade", icon: "💥", price: 400, desc: "Skip the opponent's next turn in PvP battles." },
         { name: "Smoke Bomb", icon: "💨", price: 400, desc: "Decreases opponent's accuracy in PvP battles." },
         { name: "Adrenaline Shot", icon: "💉", price: 400, desc: "Increases your attack for 3 turns in PvP battles." },
+        { name: "EMP Grenade", icon: "⚡", price: 400, desc: "Bypasses opponent's shields and deals a small amount of guaranteed damage." },
+        { name: "Nanite Swarm", icon: "🦠", price: 400, desc: "Applies a damage-over-time effect to the opponent." },
+        { name: "Holo-Decoy", icon: "👤", price: 400, desc: "Significantly boosts your evasion for the next attack." },
+        { name: "Mirror Shield", icon: "🪞", price: 400, desc: "Reflects the opponent's next attack back at them." },
+        { name: "Tactical Analyzer", icon: "🕶️", price: 400, desc: "Guarantees your next attack will be a critical hit." },
+        { name: "EM Scrambler", icon: "📻", price: 400, desc: "Passive: While in inventory, negates all tactical items used on you (consumes item but still takes opponent's turn)." },
         { name: "Nano-Nurture Serum", icon: "💉", price: 450, desc: "Advanced neon serum that completely restores happiness (100 pts) of one selected creature." },
         { name: "DNA Stabilizer", icon: "🧬", price: 420, desc: "Quantum stabilizer that instantly hatches a selected egg in your party." },
         { name: "NPC Dual Link", icon: "📡", price: 400, desc: "Guarantees a 100% chance of an NPC Trainer Dual Battle for 5 minutes." },
@@ -19867,6 +19879,18 @@ window.getItemIconHTML = function(itemName, size = 24) {
         glowColor = '#cccccc';
     } else if (itemName === "Adrenaline Shot") {
         glowColor = '#ff0033';
+    } else if (itemName === "EMP Grenade") {
+        glowColor = '#00ffff';
+    } else if (itemName === "Nanite Swarm") {
+        glowColor = '#00ff66';
+    } else if (itemName === "Holo-Decoy") {
+        glowColor = '#00ccff';
+    } else if (itemName === "Mirror Shield") {
+        glowColor = '#ffffff';
+    } else if (itemName === "Tactical Analyzer") {
+        glowColor = '#ff00ff';
+    } else if (itemName === "EM Scrambler") {
+        glowColor = '#ff6600';
     } else if (itemName.startsWith("Mini") || itemName.includes("Tile") || itemName === "Storage Chest") {
         glowColor = '#00ffd2';
         if (itemName === "Storage Chest") glowColor = '#ff7f00';
@@ -19996,11 +20020,72 @@ window.getItemIconHTML = function(itemName, size = 24) {
         "Nano-Nurture Serum": "💉",
         "DNA Stabilizer": "🧬",
         "NPC Dual Link": "📡",
-        "Wild Dual Signal": "📶"
+        "Wild Dual Signal": "📶",
+        "EMP Grenade": "⚡",
+        "Nanite Swarm": "🦠",
+        "Holo-Decoy": "👤",
+        "Mirror Shield": "🪞",
+        "Tactical Analyzer": "🕶️",
+        "EM Scrambler": "📻"
     };
     const emoji = emojiMap[itemName] || "📦";
 
     switch (itemName) {
+        case "EMP Grenade":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffff" stroke-width="4"/>
+                <circle cx="50" cy="50" r="30" fill="#111" stroke="#00ffff" stroke-width="3" />
+                <path d="M50,15 L50,85 M15,50 L85,50" stroke="#00ffff" stroke-width="2" opacity="0.5" stroke-dasharray="4 4" />
+                <circle cx="50" cy="50" r="10" fill="#00ffff" />
+                <path d="M45,45 L40,30 L60,30 L55,45 Z" fill="#00ffff" opacity="0.8" />
+                <path d="M45,55 L40,70 L60,70 L55,55 Z" fill="#00ffff" opacity="0.8" />
+                <path d="M55,45 L70,40 L70,60 L55,55 Z" fill="#00ffff" opacity="0.8" />
+                <path d="M45,45 L30,40 L30,60 L45,55 Z" fill="#00ffff" opacity="0.8" />`;
+            break;
+        case "Nanite Swarm":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ff66" stroke-width="4"/>
+                <circle cx="30" cy="30" r="8" fill="#00ff66" />
+                <circle cx="70" cy="40" r="6" fill="#00ff66" />
+                <circle cx="50" cy="70" r="10" fill="#00ff66" />
+                <circle cx="80" cy="80" r="4" fill="#00ff66" />
+                <circle cx="20" cy="60" r="5" fill="#00ff66" />
+                <path d="M25,25 L15,15 M35,35 L45,45 M65,35 L55,25 M75,45 L85,55 M45,65 L35,55 M55,75 L65,85" stroke="#00ff66" stroke-width="2" />
+                <path d="M20,30 Q40,10 60,30 T80,50" fill="none" stroke="#00ff66" stroke-width="2" opacity="0.4" stroke-dasharray="2 4" />`;
+            break;
+        case "Holo-Decoy":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ccff" stroke-width="4"/>
+                <circle cx="50" cy="35" r="15" fill="none" stroke="#00ccff" stroke-width="3" stroke-dasharray="5 5" opacity="0.8" />
+                <path d="M30,85 Q50,55 70,85 Z" fill="none" stroke="#00ccff" stroke-width="3" stroke-dasharray="5 5" opacity="0.8" />
+                <path d="M10,90 L90,90 L50,50 Z" fill="url(#bgGrad)" stroke="#00ccff" stroke-width="2" opacity="0.3" />
+                <ellipse cx="50" cy="90" rx="30" ry="10" fill="none" stroke="#00ccff" stroke-width="2" opacity="0.6" />
+                <circle cx="50" cy="90" r="4" fill="#00ccff" />`;
+            break;
+        case "Mirror Shield":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ffffff" stroke-width="4"/>
+                <polygon points="50,15 85,35 75,80 50,95 25,80 15,35" fill="#222" stroke="#ffffff" stroke-width="3" />
+                <polygon points="50,25 75,40 65,75 50,85 35,75 25,40" fill="#444" stroke="#ffffff" stroke-width="2" opacity="0.8" />
+                <path d="M30,30 Q60,10 80,60" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" opacity="0.6" />
+                <path d="M40,50 L60,50 M50,40 L50,60" stroke="#ffffff" stroke-width="2" opacity="0.4" />`;
+            break;
+        case "Tactical Analyzer":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff00ff" stroke-width="4"/>
+                <path d="M20,40 Q50,20 80,40 Q50,60 20,40" fill="none" stroke="#ff00ff" stroke-width="4" />
+                <circle cx="50" cy="40" r="10" fill="#ff00ff" />
+                <path d="M45,40 L55,40 M50,35 L50,45" stroke="#222" stroke-width="2" />
+                <rect x="20" y="70" width="15" height="10" fill="#ff00ff" opacity="0.6" />
+                <rect x="42" y="60" width="15" height="20" fill="#ff00ff" opacity="0.8" />
+                <rect x="65" y="65" width="15" height="15" fill="#ff00ff" />
+                <path d="M10,40 L30,40 M70,40 L90,40" stroke="#ff00ff" stroke-width="2" opacity="0.5" stroke-dasharray="2 2" />`;
+            break;
+        case "EM Scrambler":
+            svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#ff6600" stroke-width="4"/>
+                <rect x="25" y="30" width="50" height="55" rx="5" fill="#333" stroke="#ff6600" stroke-width="3" />
+                <circle cx="50" cy="55" r="15" fill="none" stroke="#ff6600" stroke-width="3" />
+                <path d="M40,55 L60,55 M50,45 L50,65" stroke="#ff6600" stroke-width="2" />
+                <path d="M35,30 L35,15 M65,30 L65,20" stroke="#ff6600" stroke-width="3" stroke-linecap="round" />
+                <circle cx="35" cy="15" r="4" fill="#ff6600" />
+                <circle cx="65" cy="20" r="4" fill="#ff6600" />
+                <path d="M10,50 Q30,30 50,50 T90,50" fill="none" stroke="#ff6600" stroke-width="2" opacity="0.6" stroke-dasharray="4 4" />`;
+            break;
         case "NPC Dual Link":
             svgContent = `<rect width="100" height="100" rx="20" fill="url(#bgGrad)" stroke="#00ffd2" stroke-width="4"/>
                 <!-- Cyber background grid & circuits -->
@@ -34771,6 +34856,17 @@ window.doPlayerAction = function(action, callback) {
         return;
     }
 
+    if (currentPlayer.battleStats && currentPlayer.battleStats.naniteTurns > 0) {
+        let nDmg = 10;
+        currentPlayer.currentHp = Math.max(0, currentPlayer.currentHp - nDmg);
+        currentPlayer.battleStats.naniteTurns--;
+        logBattle(`<span style="color:#00ff66;">Nanite Swarm damaged ${currentPlayer.nickname || currentPlayer.name} for ${nDmg} HP!</span>`);
+        setTimeout(() => {
+            window.triggerAnimation('playerCombatant', 'shake', 150);
+            window.showFloatingText('playerCombatant', '-' + nDmg, '#00ff66');
+        }, 100);
+    }
+
     if (action === 'attack') {
         window.triggerAnimation('playerCombatant', 'lunge-right', 200);
 
@@ -34796,6 +34892,12 @@ window.doPlayerAction = function(action, callback) {
 
         let enemyEvasion = currentEnemy.battleStats ? currentEnemy.battleStats.accuracyMod : 1.0;
         let hitChance = Math.max(0.1, Math.min(1.0, 0.95 * (accuracy / enemyEvasion)));
+
+        if (currentEnemy.battleStats && currentEnemy.battleStats.holoDecoy) {
+            hitChance *= 0.25; // Drastically reduce hit chance
+            currentEnemy.battleStats.holoDecoy = false;
+            logBattle(`<span style="color:#00ccff; font-weight:bold;">${currentEnemy.nickname || currentEnemy.name}'s Holo-Decoy distracted the attacker!</span>`);
+        }
 
         if (Math.random() > hitChance) {
             logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">missed the attack!</span>`);
@@ -34877,9 +34979,14 @@ window.doPlayerAction = function(action, callback) {
         // Recoil logic is now decoupled
         let enemyRecoilTriggered = currentEnemy.ability && currentEnemy.ability.type === 'damage_recoil' && (!currentEnemy.battleStats || currentEnemy.battleStats.abilityUses < 4) && Math.random() < currentEnemy.ability.chance;
 
-        if (Math.random() < 0.10) {
+        if ((currentPlayer.battleStats && currentPlayer.battleStats.guaranteedCrit) || Math.random() < 0.10) {
             damage *= 1.5;
-            logBattle("<span class=\"critical\">Critical Hit!</span>");
+            if (currentPlayer.battleStats && currentPlayer.battleStats.guaranteedCrit) {
+                currentPlayer.battleStats.guaranteedCrit = false;
+                logBattle("<span class=\"critical\" style=\"color:#ff00ff;\">Tactical Critical Hit!</span>");
+            } else {
+                logBattle("<span class=\"critical\">Critical Hit!</span>");
+            }
         }
 
         if (currentEnemy.battleStats && currentEnemy.battleStats.shieldTurns > 0) {
@@ -34889,7 +34996,16 @@ window.doPlayerAction = function(action, callback) {
         }
 
         const isWaterAttacker = currentPlayer.type && currentPlayer.type.split('-')[0] === 'Water';
-        if (currentEnemy.mutation && currentEnemy.mutation.id === 'sponge_skin' && isWaterAttacker) {
+
+        if (currentEnemy.battleStats && currentEnemy.battleStats.mirrorShield) {
+            currentEnemy.battleStats.mirrorShield = false;
+            currentPlayer.currentHp -= damage;
+            setTimeout(() => {
+                window.triggerAnimation('playerCombatant', 'shake', 150);
+                window.showFloatingText('playerCombatant', '-' + damage.toFixed(1), '#ff5555');
+            }, 100);
+            logBattle(`<span style="color:#ffffff; font-weight:bold;">${currentEnemy.nickname || currentEnemy.name}'s Mirror Shield reflected the attack back! Dealt ${damage.toFixed(1)} damage!</span>`);
+        } else if (currentEnemy.mutation && currentEnemy.mutation.id === 'sponge_skin' && isWaterAttacker) {
             let maxVal = window.getEffectiveStat(currentEnemy, 'health');
             let healAmt = Math.floor(maxVal * 0.15);
             currentEnemy.currentHp = Math.min(maxVal, (currentEnemy.currentHp || maxVal) + healAmt);
@@ -34907,8 +35023,8 @@ window.doPlayerAction = function(action, callback) {
                 window.triggerClawSlashAnimation(false);
                 window.showFloatingText('enemyCombatant', '-' + damage.toFixed(1), '#ff5555');
             }, 100);
+            logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
         }
-        logBattle(`<span style="color:#2196F3">${currentPlayer.nickname || currentPlayer.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
         if (damage > 0 && currentPlayer.mutation && currentPlayer.mutation.id === 'siphon_claws') {
             let healAmt = Math.floor(damage * 0.20);
@@ -35059,6 +35175,18 @@ window.doEnemyAction = function(callback) {
             return;
         }
         let canMove = processStatuses(currentEnemy);
+
+        if (currentEnemy.battleStats && currentEnemy.battleStats.naniteTurns > 0) {
+            let nDmg = 10;
+            currentEnemy.currentHp = Math.max(0, currentEnemy.currentHp - nDmg);
+            currentEnemy.battleStats.naniteTurns--;
+            logBattle(`<span style="color:#00ff66;">Nanite Swarm damaged ${currentEnemy.nickname || currentEnemy.name} for ${nDmg} HP!</span>`);
+            setTimeout(() => {
+                window.triggerAnimation('enemyCombatant', 'shake', 150);
+                window.showFloatingText('enemyCombatant', '-' + nDmg, '#00ff66');
+            }, 100);
+        }
+
         if (!canMove) {
         updateBattleUI();
         if (currentPlayer.currentHp <= 0) {
@@ -35101,6 +35229,12 @@ window.doEnemyAction = function(callback) {
 
     let playerEvasion = currentPlayer.battleStats ? currentPlayer.battleStats.accuracyMod : 1.0;
     let hitChance = Math.max(0.1, Math.min(1.0, 0.95 * (accuracy / playerEvasion)));
+
+    if (currentPlayer.battleStats && currentPlayer.battleStats.holoDecoy) {
+        hitChance *= 0.25; // Drastically reduce hit chance
+        currentPlayer.battleStats.holoDecoy = false;
+        logBattle(`<span style="color:#00ccff; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Holo-Decoy distracted the attacker!</span>`);
+    }
 
     if (Math.random() > hitChance) {
         logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">missed the attack!</span>`);
@@ -35182,9 +35316,14 @@ window.doEnemyAction = function(callback) {
     // Recoil logic
     let playerRecoilTriggered = currentPlayer.ability && currentPlayer.ability.type === 'damage_recoil' && (!currentPlayer.battleStats || currentPlayer.battleStats.abilityUses < 4) && Math.random() < currentPlayer.ability.chance;
 
-    if (Math.random() < 0.10) {
+    if ((currentEnemy.battleStats && currentEnemy.battleStats.guaranteedCrit) || Math.random() < 0.10) {
         damage *= 1.5;
-        logBattle("<span class=\"critical\">Critical Hit by enemy!</span>");
+        if (currentEnemy.battleStats && currentEnemy.battleStats.guaranteedCrit) {
+            currentEnemy.battleStats.guaranteedCrit = false;
+            logBattle("<span class=\"critical\" style=\"color:#ff00ff;\">Tactical Critical Hit by enemy!</span>");
+        } else {
+            logBattle("<span class=\"critical\">Critical Hit by enemy!</span>");
+        }
     }
 
     if (currentPlayer.battleStats && currentPlayer.battleStats.shieldTurns > 0) {
@@ -35194,7 +35333,16 @@ window.doEnemyAction = function(callback) {
     }
 
     const isWaterAttacker = currentEnemy.type && currentEnemy.type.split('-')[0] === 'Water';
-    if (currentPlayer.mutation && currentPlayer.mutation.id === 'sponge_skin' && isWaterAttacker) {
+
+    if (currentPlayer.battleStats && currentPlayer.battleStats.mirrorShield) {
+        currentPlayer.battleStats.mirrorShield = false;
+        currentEnemy.currentHp -= damage;
+        setTimeout(() => {
+            window.triggerAnimation('enemyCombatant', 'shake', 150);
+            window.showFloatingText('enemyCombatant', '-' + damage.toFixed(1), '#ff5555');
+        }, 100);
+        logBattle(`<span style="color:#ffffff; font-weight:bold;">${currentPlayer.nickname || currentPlayer.name}'s Mirror Shield reflected the attack back! Dealt ${damage.toFixed(1)} damage!</span>`);
+    } else if (currentPlayer.mutation && currentPlayer.mutation.id === 'sponge_skin' && isWaterAttacker) {
         let maxVal = window.getEffectiveStat(currentPlayer, 'health');
         let healAmt = Math.floor(maxVal * 0.15);
         currentPlayer.currentHp = Math.min(maxVal, (currentPlayer.currentHp || maxVal) + healAmt);
@@ -35212,8 +35360,8 @@ window.doEnemyAction = function(callback) {
             window.triggerClawSlashAnimation(true);
             window.showFloatingText('playerCombatant', '-' + damage.toFixed(1), '#ff5555');
         }, 100);
+        logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
     }
-    logBattle(`Wild <span style="color:#f44336">${currentEnemy.name}</span> <span style="color:#ffb74d">used Attack!</span> Dealt <span class="damage">${damage.toFixed(1)} damage</span>.`);
 
     if (damage > 0 && currentEnemy.mutation && currentEnemy.mutation.id === 'siphon_claws') {
         let healAmt = Math.floor(damage * 0.20);
@@ -35256,7 +35404,7 @@ window.doEnemyAction = function(callback) {
 window.openBattleItemModal = function(playerNum) {
     if (window.battleEnding || window.isActionRunning) return;
     const inv = playerNum === 2 ? window.p2Inventory : window.p1Inventory;
-    const tacticalItems = ["Stun Grenade", "Smoke Bomb", "Adrenaline Shot"];
+    const tacticalItems = ["Stun Grenade", "Smoke Bomb", "Adrenaline Shot", "EMP Grenade", "Nanite Swarm", "Holo-Decoy", "Mirror Shield", "Tactical Analyzer", "EM Scrambler"];
     const pvpItems = inv.filter(i => tacticalItems.includes(i.name) && i.quantity > 0);
 
     const listId = playerNum === 2 ? 'battleItemList_p2' : 'battleItemList';
@@ -36000,6 +36148,23 @@ window.useBattleItemAction = function(playerNum, itemName) {
 
     window.logBattle(`<span style="color:#ab47bc; font-weight:bold;">${actorName} used a ${itemName}!</span>`);
 
+    // Check if item is offensive (used on target)
+    const offensiveItems = ["Stun Grenade", "Smoke Bomb", "EMP Grenade", "Nanite Swarm"];
+    if (offensiveItems.includes(itemName)) {
+        const targetInv = playerNum === 2 ? window.p1Inventory : window.p2Inventory;
+        const targetInvKey = playerNum === 2 ? 'wildpulse_inventory' : 'wildpulse_inventory2';
+        const scramblerIdx = targetInv.findIndex(i => i.name === "EM Scrambler" && i.quantity > 0);
+        if (scramblerIdx !== -1) {
+            targetInv[scramblerIdx].quantity--;
+            if (targetInv[scramblerIdx].quantity <= 0) targetInv.splice(scramblerIdx, 1);
+            localStorage.setItem(targetInvKey, JSON.stringify(targetInv));
+            if (window.updateInventoryUI) window.updateInventoryUI();
+
+            window.logBattle(`<span style="color:#ff6600; font-weight:bold;">${targetCombatant.nickname || targetCombatant.name}'s EM Scrambler intercepted and neutralized the ${itemName}!</span>`);
+            return; // Exit early, item effect is negated
+        }
+    }
+
     if (itemName === "Stun Grenade") {
         targetCombatant.battleStats.skipTurn = true;
         window.logBattle(`<span style="color:#ffd700;">${targetCombatant.nickname || targetCombatant.name} was stunned and will skip their next turn!</span>`);
@@ -36009,6 +36174,28 @@ window.useBattleItemAction = function(playerNum, itemName) {
     } else if (itemName === "Adrenaline Shot") {
         actorCombatant.battleStats.adrenalineTurns = 3;
         window.logBattle(`<span style="color:#ff0033;">${actorCombatant.nickname || actorCombatant.name} is pumped with Adrenaline! Attacks will deal more damage!</span>`);
+    } else if (itemName === "EMP Grenade") {
+        const dmg = 15;
+        targetCombatant.currentHp = Math.max(0, targetCombatant.currentHp - dmg);
+        window.logBattle(`<span style="color:#00ffff; font-weight:bold;">EMP Grenade shocked ${targetCombatant.nickname || targetCombatant.name} for ${dmg} damage!</span>`);
+        setTimeout(() => {
+            window.triggerAnimation(playerNum === 2 ? 'playerCombatant' : 'enemyCombatant', 'shake', 150);
+            window.showFloatingText(playerNum === 2 ? 'playerCombatant' : 'enemyCombatant', '-' + dmg, '#00ffff');
+        }, 100);
+    } else if (itemName === "Nanite Swarm") {
+        targetCombatant.battleStats.naniteTurns = 3;
+        window.logBattle(`<span style="color:#00ff66;">Nanites swarmed ${targetCombatant.nickname || targetCombatant.name} and will deal damage over time!</span>`);
+    } else if (itemName === "Holo-Decoy") {
+        actorCombatant.battleStats.holoDecoy = true;
+        window.logBattle(`<span style="color:#00ccff;">${actorCombatant.nickname || actorCombatant.name} deployed a Holo-Decoy, drastically increasing evasion!</span>`);
+    } else if (itemName === "Mirror Shield") {
+        actorCombatant.battleStats.mirrorShield = true;
+        window.logBattle(`<span style="color:#ffffff;">${actorCombatant.nickname || actorCombatant.name} deployed a Mirror Shield to reflect the next attack!</span>`);
+    } else if (itemName === "Tactical Analyzer") {
+        actorCombatant.battleStats.guaranteedCrit = true;
+        window.logBattle(`<span style="color:#ff00ff;">${actorCombatant.nickname || actorCombatant.name} used a Tactical Analyzer! The next attack will critically hit!</span>`);
+    } else if (itemName === "EM Scrambler") {
+        window.logBattle(`<span style="color:#ff6600;">EM Scrambler is a passive item. It was used but had no active effect.</span>`);
     }
 };
 

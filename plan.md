@@ -1,28 +1,29 @@
-1. **Define new items**: Add 3 tactical PvP items in `window.getItemSellPrice` and `window.updateStoreUI` in `index.html`.
-   - "Stun Grenade" (Price 400): "Skip the opponent's next turn in PvP battles."
-   - "Smoke Bomb" (Price 400): "Decreases opponent's accuracy in PvP battles."
-   - "Adrenaline Shot" (Price 400): "Increases your attack for 3 turns in PvP battles."
-   These items will be sold for 400 coins.
-
-2. **Add SVG icons**: Update `window.getItemIconHTML` to return unique, highly detailed SVG icons for these 3 items.
-
-3. **Battle UI Update**:
-   - Add a `<button class="btn-item">Item</button>` to the `.battle-controls` sections (`#battleControls` and `#battleControls_p2`) in `index.html`.
-
-4. **Item Modal in Battle**:
-   - Add a UI modal (`#battleItemModal` and `#battleItemModal_p2`) that opens when the new "Item" button is clicked. This modal lists the player's available tactical items (from `window.p1Inventory` and `window.p2Inventory`).
-   - Selecting an item from the modal triggers `window.useBattleItem(playerNum, itemName)`.
-
-5. **Action Logic**:
-   - Create `window.useBattleItem(playerNum, itemName)` to handle the item usage logic. It will deduct the item from the player's inventory, display a battle log message, and apply a buff/debuff.
-   - For "Stun Grenade": Set a flag like `currentEnemy.battleStats.skipTurn = true`.
-   - For "Smoke Bomb": Set a flag like `currentEnemy.battleStats.accuracyDecrease = true`.
-   - For "Adrenaline Shot": Set a flag like `currentPlayer.battleStats.adrenalineTurns = 3`.
-   - Update `window.doPlayerAction` and `window.doEnemyAction` (or the top-level turn processing logic inside `window.handlePlayerTurn` / `window.executeLocalPvpRound`) to respect these new statuses. For example, if `skipTurn` is true, the player/enemy cannot attack that turn. If `accuracyDecrease` is true, there is a chance their attack misses. If `adrenalineTurns` > 0, their attack does extra damage.
-
-6. **Verification**:
-   - Use `read_file` or `run_in_bash_session` with `cat index.html` to confirm that the new items, UI modals, and battle logic were correctly added.
-
-7. **Test the changes**: Start the local server and run the tests using `npx playwright test` to ensure the changes are correct and no regressions were introduced.
-
-8. Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.
+1. **Update `itemsPool`**:
+    - In `index.html`, add `"EMP Grenade", "Nanite Swarm", "Holo-Decoy", "Mirror Shield", "Tactical Analyzer", "EM Scrambler"` to `itemsPool`.
+2. **Update store UI/prices**:
+    - Add to `items` array in `window.getItemSellPrice` and `window.updateStoreUI`. Ensure `price` is 400 for all new tactical items.
+3. **Update icons**:
+    - Update `getItemIconHTML` logic to handle the new items (assign `glowColor`).
+    - Add them to `emojiMap`.
+    - Create SVG representations in the `switch (itemName)` statement for the new items.
+4. **Update `tacticalItems` array**:
+    - Add them to `tacticalItems` in `window.openBattleItemModal`.
+5. **Implement `useBattleItemAction`**:
+    - In `useBattleItemAction`, before applying an effect to the target, check if the target has an "EM Scrambler" in their inventory.
+    - If they do:
+        - Decrement the target's "EM Scrambler" quantity (and remove if 0, save to localStorage).
+        - Log a message: `<span style="color:#00ffd2;">EM Scrambler negated the effects of ${itemName}!</span>`
+        - Do *not* apply the item's effects. The item is still consumed from the user, and the turn is taken.
+    - Else (or for self-buffs), apply the item's effects by setting `battleStats` flags:
+        - `EMP Grenade`: `targetCombatant.battleStats.empDamage = true;`
+        - `Nanite Swarm`: `targetCombatant.battleStats.naniteTurns = 3;`
+        - `Holo-Decoy`: `actorCombatant.battleStats.holoDecoy = true;`
+        - `Mirror Shield`: `actorCombatant.battleStats.mirrorShield = true;`
+        - `Tactical Analyzer`: `actorCombatant.battleStats.guaranteedCrit = true;`
+6. **Implement battle logic hooks**:
+    - **EMP Grenade**: Wait, tactical items take up a turn, so when you *use* the EMP Grenade, it should just deal the damage immediately during `useBattleItemAction` rather than modifying `battleStats`. Let me check if `useBattleItemAction` handles damage. It modifies `battleStats`. But to show floating text and shake, maybe I should apply damage directly in `useBattleItemAction`. Wait, `doPlayerAction` and `doEnemyAction` execute attacks. If EMP Grenade is used, the turn is skiped? No, in `runLocalPvpAction`, using an item takes the turn, then calls `callback()`. So I can apply damage directly in `useBattleItemAction`. "Bypasses opponent's shields and deals a small amount of guaranteed damage."
+    - **Nanite Swarm**: Hook into the end of `doPlayerAction`/`doEnemyAction` (or start) to apply DoT. Let's add a function to process turn end effects, or just process it after damage. Wait, `runLocalPvpAction` calls `callback` after `doPlayerAction`. We need to be careful with dual battle/pvp.
+    - Actually, maybe Nanites do damage right before the affected player attacks. In `doPlayerAction`/`doEnemyAction`, if `naniteTurns > 0`, deal damage.
+    - **Holo-Decoy**: "Significantly boosts your evasion for the next attack." In `doPlayerAction` (and `doEnemyAction`), when calculating hit chance, if the target has `holoDecoy`, boost their evasion significantly, then remove `holoDecoy`.
+    - **Mirror Shield**: "Reflects the opponent's next attack back at them." In `doPlayerAction`/`doEnemyAction`, when applying damage to `currentEnemy`, if `currentEnemy.battleStats.mirrorShield`, reflect it back to `currentPlayer` and remove `mirrorShield`.
+    - **Tactical Analyzer**: "Guarantees your next attack will be a critical hit." In `doPlayerAction`/`doEnemyAction`, check `guaranteedCrit`. If true, set damage multiplier for crit, log it, and remove `guaranteedCrit`.
