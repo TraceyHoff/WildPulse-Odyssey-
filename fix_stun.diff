@@ -1,0 +1,73 @@
+<<<<<<< SEARCH
+function runLocalPvpAction(playerNum, action, callback) {
+    if (playerNum === 1) {
+        if (action === 'defend') {
+            window.currentPlayer.isDefending = true;
+            window.logBattle(`<span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span> is <span style="color:#42a5f5">defending!</span>`);
+            window.updateBattleUI();
+            if (callback) callback();
+        } else if (action.startsWith('item:')) {
+            window.useBattleItemAction(1, action.split(':')[1]);
+            if (callback) callback();
+        } else {
+            window.doPlayerAction('attack', callback);
+        }
+    } else {
+        if (action === 'defend') {
+            window.currentEnemy.isDefending = true;
+            window.logBattle(`<span style="color:#f44336">${window.currentEnemy.nickname || window.currentEnemy.name}</span> is <span style="color:#42a5f5">defending!</span>`);
+            window.updateBattleUI();
+            if (callback) callback();
+        } else if (action.startsWith('item:')) {
+            window.useBattleItemAction(2, action.split(':')[1]);
+            if (callback) callback();
+        } else {
+            window.doEnemyAction(callback);
+        }
+    }
+}
+=======
+function runLocalPvpAction(playerNum, action, callback) {
+    if (playerNum === 1) {
+        if (window.currentPlayer.battleStats && window.currentPlayer.battleStats.skipTurn) {
+            window.currentPlayer.battleStats.skipTurn = false;
+            window.logBattle(`<span style="color:#ffd700; font-weight:bold;">${window.currentPlayer.nickname || window.currentPlayer.name} is stunned and couldn't move!</span>`);
+            window.updateBattleUI();
+            if (callback) setTimeout(callback, 300);
+            return;
+        }
+
+        if (action === 'defend') {
+            window.currentPlayer.isDefending = true;
+            window.logBattle(`<span style="color:#2196F3">${window.currentPlayer.nickname || window.currentPlayer.name}</span> is <span style="color:#42a5f5">defending!</span>`);
+            window.updateBattleUI();
+            if (callback) callback();
+        } else if (action.startsWith('item:')) {
+            window.useBattleItemAction(1, action.split(':')[1]);
+            if (callback) callback();
+        } else {
+            window.doPlayerAction('attack', callback);
+        }
+    } else {
+        if (window.currentEnemy.battleStats && window.currentEnemy.battleStats.skipTurn) {
+            window.currentEnemy.battleStats.skipTurn = false;
+            window.logBattle(`<span style="color:#ffd700; font-weight:bold;">${window.currentEnemy.nickname || window.currentEnemy.name} is stunned and couldn't move!</span>`);
+            window.updateBattleUI();
+            if (callback) setTimeout(callback, 300);
+            return;
+        }
+
+        if (action === 'defend') {
+            window.currentEnemy.isDefending = true;
+            window.logBattle(`<span style="color:#f44336">${window.currentEnemy.nickname || window.currentEnemy.name}</span> is <span style="color:#42a5f5">defending!</span>`);
+            window.updateBattleUI();
+            if (callback) callback();
+        } else if (action.startsWith('item:')) {
+            window.useBattleItemAction(2, action.split(':')[1]);
+            if (callback) callback();
+        } else {
+            window.doEnemyAction(callback);
+        }
+    }
+}
+>>>>>>> REPLACE
