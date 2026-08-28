@@ -28756,6 +28756,77 @@ function generateParticleTextures(scene) {
     }
     scene.textures.addSpriteSheet('butterfly_particles', butterflyCanvas, { frameWidth: 16, frameHeight: 16 });
 
+    const birdCanvas = document.createElement('canvas');
+    birdCanvas.width = 128; // 4 frames x 32px
+    birdCanvas.height = 96; // 3 bird types x 32px
+    const birdCtx = birdCanvas.getContext('2d');
+
+    const birdColors = [
+        { body: '#1e90ff', wing: '#4169e1', belly: '#87cefa', head: '#0000cd', beak: '#ffd700', tail: '#00008b' }, // Blue Jayish
+        { body: '#dc143c', wing: '#8b0000', belly: '#ff6347', head: '#dc143c', beak: '#ffa500', tail: '#800000' }, // Cardinal
+        { body: '#ffd700', wing: '#000000', belly: '#ffffff', head: '#ffd700', beak: '#ffa500', tail: '#000000' }  // Goldfinch
+    ];
+
+    for (let s = 0; s < birdColors.length; s++) {
+        const colors = birdColors[s];
+        const sy = s * 32;
+
+        for (let f = 0; f < 4; f++) {
+            const sx = f * 32;
+            const cX = sx + 16;
+            const cY = sy + 16;
+
+            // tail
+            birdCtx.fillStyle = colors.tail;
+            birdCtx.beginPath();
+            birdCtx.moveTo(cX - 7, cY);
+            birdCtx.lineTo(cX - 14, cY - 2);
+            birdCtx.lineTo(cX - 14, cY + 2);
+            birdCtx.fill();
+
+            // body
+            birdCtx.fillStyle = colors.body;
+            birdCtx.beginPath();
+            birdCtx.ellipse(cX, cY, 8, 5, 0, 0, Math.PI * 2);
+            birdCtx.fill();
+
+            // belly
+            birdCtx.fillStyle = colors.belly;
+            birdCtx.beginPath();
+            birdCtx.ellipse(cX, cY + 2, 6, 3, 0, 0, Math.PI * 2);
+            birdCtx.fill();
+
+            // head
+            birdCtx.fillStyle = colors.head;
+            birdCtx.beginPath();
+            birdCtx.ellipse(cX + 6, cY - 3, 4, 4, 0, 0, Math.PI * 2);
+            birdCtx.fill();
+
+            // beak
+            birdCtx.fillStyle = colors.beak;
+            birdCtx.beginPath();
+            birdCtx.moveTo(cX + 9, cY - 3);
+            birdCtx.lineTo(cX + 12, cY - 2);
+            birdCtx.lineTo(cX + 9, cY - 1);
+            birdCtx.fill();
+
+            // eye
+            birdCtx.fillStyle = '#000';
+            birdCtx.beginPath();
+            birdCtx.arc(cX + 7, cY - 4, 1, 0, Math.PI * 2);
+            birdCtx.fill();
+
+            // wing
+            birdCtx.fillStyle = colors.wing;
+            let wingY = f % 2 === 0 ? cY - 6 : cY + 4;
+            birdCtx.beginPath();
+            birdCtx.ellipse(cX, wingY, 4, 7, Math.PI / 4, 0, Math.PI * 2);
+            birdCtx.fill();
+        }
+    }
+
+    scene.textures.addSpriteSheet('bird_particles', birdCanvas, { frameWidth: 32, frameHeight: 32 });
+
     const dustCanvas = document.createElement('canvas');
     dustCanvas.width = 16;
     dustCanvas.height = 16;
@@ -30040,18 +30111,30 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 treeReflection.baseTreeType = treeType;
                 sprites.push(treeReflection);
             }
-        } else if ((isStartScreenShorePlant || (hash >= 15 && hash < 35)) && window.treesGroup && !isAboveHospital) {
-            // Check for adjacent water
+        } else if (window.treesGroup && !isAboveHospital) {
+            // Check for adjacent water to drastically increase spawn rates on shores
             let isAdjacentToWater = false;
+            let isVeryCloseToWater = false;
             if (mapData && mapData.length > 0) {
-                for (let dr = -1; dr <= 1; dr++) {
-                    for (let dc = -1; dc <= 1; dc++) {
+                for (let dr = -2; dr <= 2; dr++) {
+                    for (let dc = -2; dc <= 2; dc++) {
                         if (mapData[r + dr] && mapData[r + dr][c + dc] === 'obs') {
                             isAdjacentToWater = true;
+                            if (Math.abs(dr) <= 1 && Math.abs(dc) <= 1) {
+                                isVeryCloseToWater = true;
+                            }
                         }
                     }
                 }
             }
+
+            let shouldSpawnPlant = isStartScreenShorePlant || (hash >= 15 && hash < 35);
+            if (isVeryCloseToWater && hash % 100 < 60) {
+                // High chance to spawn plants directly on the water's edge
+                shouldSpawnPlant = true;
+            }
+
+            if (!shouldSpawnPlant) return sprites;
 
             // Plant life spawning!
             const normalPlantTypes = [
@@ -30065,8 +30148,11 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             const waterPlantTypes = ['plant_cattail', 'plant_pampas_grass'];
 
             let plantType;
-            if (isAdjacentToWater && ((r * 17 + c * 31) % 100 < 80)) {
-                // High chance to spawn water plants if next to water
+            if (isVeryCloseToWater && ((r * 17 + c * 31) % 100 < 90)) {
+                // Almost guaranteed to be a water plant if on the edge
+                plantType = waterPlantTypes[(r * 31 + c * 17) % waterPlantTypes.length];
+            } else if (isAdjacentToWater && ((r * 17 + c * 31) % 100 < 60)) {
+                // High chance to spawn water plants if somewhat close to water
                 plantType = waterPlantTypes[(r * 31 + c * 17) % waterPlantTypes.length];
             } else {
                 plantType = normalPlantTypes[(r * 31 + c * 17) % normalPlantTypes.length];
@@ -33112,7 +33198,238 @@ function create() {
         }
     }
 
+    class BirdManager {
+        constructor(scene) {
+            this.scene = scene;
+            this.sprites = [];
+            this.inactiveSprites = [];
+            this.active = false;
+            this.maxBirds = 0;
+        }
+
+        setQuantity(q) {
+            this.maxBirds = Math.floor(q);
+            if (this.sprites.length < this.maxBirds && Math.random() < 0.1) {
+                this.spawnBird();
+            } else if (this.sprites.length > this.maxBirds) {
+                let removed = this.sprites.pop();
+                if (removed) {
+                    removed.setVisible(false);
+                    this.inactiveSprites.push(removed);
+                }
+            }
+        }
+
+        killAll() {
+            this.sprites.forEach(s => {
+                s.setVisible(false);
+                this.inactiveSprites.push(s);
+            });
+            this.sprites = [];
+            this.maxBirds = 0;
+        }
+
+        spawnBird() {
+            if (!this.scene || !this.scene.cameras.main) return;
+            const cam = this.scene.cameras.main;
+            const x = cam.scrollX + Math.random() * cam.width;
+            const y = cam.scrollY + Math.random() * cam.height;
+            let sprite;
+            const species = Math.floor(Math.random() * 3); // 0, 1, or 2
+
+            if (this.inactiveSprites.length > 0) {
+                sprite = this.inactiveSprites.pop();
+                sprite.x = x;
+                sprite.y = y;
+                sprite.setVisible(true);
+            } else {
+                sprite = this.scene.add.sprite(x, y, 'bird_particles');
+                sprite.setDepth(3100);
+            }
+            sprite.species = species;
+            sprite.setScale(Math.random() * 0.2 + 0.8);
+            sprite.bState = 'wandering';
+            sprite.vx = (Math.random() - 0.5) * 150;
+            sprite.vy = (Math.random() - 0.5) * 150;
+            sprite.timer = 0;
+            sprite.target = null;
+            sprite.targetPos = null;
+            sprite.flapTime = Math.random() * 100;
+            this.sprites.push(sprite);
+        }
+
+        update(dt) {
+            if (!this.active && this.sprites.length === 0) return;
+
+            const cam = this.scene.cameras.main;
+
+            // Find visible trees
+            let activeTrees = [];
+            if (window.treesGroup && Math.random() < 0.05) {
+                let trees = window.treesGroup.getChildren();
+                for (let i = 0; i < trees.length; i++) {
+                    let tree = trees[i];
+                    if (tree && tree.visible && tree.alpha > 0) {
+                        // Check if tree is within camera bounds + buffer
+                        if (tree.x > cam.scrollX - 200 && tree.x < cam.scrollX + cam.width + 200 &&
+                            tree.y > cam.scrollY - 200 && tree.y < cam.scrollY + cam.height + 200) {
+                            activeTrees.push(tree);
+                        }
+                    }
+                }
+                this.cachedTrees = activeTrees;
+            } else {
+                activeTrees = this.cachedTrees || [];
+            }
+
+            for (let i = this.sprites.length - 1; i >= 0; i--) {
+                let sprite = this.sprites[i];
+                if (!sprite.active) {
+                    this.sprites.splice(i, 1);
+                    continue;
+                }
+
+                sprite.timer += dt || 16;
+                sprite.flapTime += (dt || 16) * 0.02; // Faster flap than butterflies
+
+                if (sprite.x < cam.scrollX - 400 || sprite.x > cam.scrollX + cam.width + 400 ||
+                    sprite.y < cam.scrollY - 400 || sprite.y > cam.scrollY + cam.height + 400) {
+                    sprite.destroy();
+                    this.sprites.splice(i, 1);
+                    continue;
+                }
+
+                // Animation logic
+                let baseFrame = sprite.species * 4;
+                if (sprite.bState.startsWith('landing') || sprite.bState === 'playing') {
+                    // Grounded, maybe hop
+                    if (sprite.bState === 'playing' && Math.random() < 0.1) {
+                         sprite.setFrame(baseFrame + 1); // hop frame
+                         sprite.y -= 2; // tiny visual hop
+                         setTimeout(() => { if (sprite && sprite.active) { sprite.y += 2; sprite.setFrame(baseFrame); } }, 100);
+                    } else {
+                        sprite.setFrame(baseFrame); // resting frame
+                    }
+                    sprite.scaleX = sprite.vx > 0 ? -Math.abs(sprite.scaleX) : Math.abs(sprite.scaleX);
+                    sprite.rotation = 0; // Upright when landed
+                } else {
+                    // Flying
+                    let animFrame = Math.floor(sprite.flapTime) % 4;
+                    sprite.setFrame(baseFrame + animFrame);
+
+                    // Rotation based on velocity
+                    if (Math.abs(sprite.vx) > 0.1 || Math.abs(sprite.vy) > 0.1) {
+                        let targetRot = Math.atan2(sprite.vy, sprite.vx);
+                        if (sprite.vx < 0) {
+                            sprite.scaleX = -Math.abs(sprite.scaleX);
+                            sprite.rotation = targetRot + Math.PI;
+                        } else {
+                            sprite.scaleX = Math.abs(sprite.scaleX);
+                            sprite.rotation = targetRot;
+                        }
+                    }
+                }
+
+                if (sprite.bState === 'wandering') {
+                    sprite.x += sprite.vx * ((dt || 16) / 1000);
+                    sprite.y += sprite.vy * ((dt || 16) / 1000);
+
+                    if (Math.random() < 0.05) {
+                        sprite.vx += (Math.random() - 0.5) * 50;
+                        sprite.vy += (Math.random() - 0.5) * 50;
+                    }
+
+                    let speed = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
+                    if (speed > 150) {
+                        sprite.vx = (sprite.vx / speed) * 150;
+                        sprite.vy = (sprite.vy / speed) * 150;
+                    }
+                    if (speed < 50) {
+                        sprite.vx = (sprite.vx / speed) * 50;
+                        sprite.vy = (sprite.vy / speed) * 50;
+                    }
+
+                    if (sprite.timer > 3000 && Math.random() < 0.05) {
+                        sprite.timer = 0;
+
+                        // Look for another bird of same species to play with
+                        let sameSpeciesGrounded = this.sprites.find(s => s !== sprite && s.species === sprite.species && (s.bState === 'landing_ground' || s.bState === 'playing'));
+
+                        if (sameSpeciesGrounded && Math.random() < 0.6) {
+                            sprite.bState = 'seeking_bird';
+                            sprite.target = sameSpeciesGrounded;
+                        } else if (activeTrees.length > 0 && Math.random() < 0.4) {
+                            sprite.bState = 'seeking_tree';
+                            let t = activeTrees[Math.floor(Math.random() * activeTrees.length)];
+                            sprite.targetPos = { x: t.x + (Math.random() * 60 - 30), y: t.y - (Math.random() * 100 + 50) };
+                        } else if (Math.random() < 0.3) {
+                            sprite.bState = 'seeking_ground';
+                            sprite.targetPos = { x: sprite.x + (Math.random() * 200 - 100), y: sprite.y + (Math.random() * 200 - 100) };
+                        }
+                    }
+                } else if (sprite.bState.startsWith('seeking')) {
+                    let tx, ty;
+                    if (sprite.bState === 'seeking_bird') {
+                        if (!sprite.target || !sprite.target.active || (sprite.target.bState !== 'landing_ground' && sprite.target.bState !== 'playing')) {
+                            sprite.bState = 'wandering';
+                            continue;
+                        }
+                        tx = sprite.target.x + (Math.random() > 0.5 ? 15 : -15);
+                        ty = sprite.target.y;
+                    } else {
+                        tx = sprite.targetPos.x;
+                        ty = sprite.targetPos.y;
+                    }
+
+                    let dx = tx - sprite.x;
+                    let dy = ty - sprite.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if (dist < 10) {
+                        if (sprite.bState === 'seeking_bird') {
+                            sprite.bState = 'playing';
+                            sprite.target.bState = 'playing';
+                            sprite.target.timer = 0;
+                        } else if (sprite.bState === 'seeking_tree') {
+                            sprite.bState = 'landing_tree';
+                        } else {
+                            sprite.bState = 'landing_ground';
+                        }
+                        sprite.vx = (Math.random() > 0.5 ? 1 : -1); // Just to face a direction
+                        sprite.vy = 0;
+                        sprite.timer = 0;
+                    } else {
+                        // Fast flying towards target
+                        sprite.vx = (dx / dist) * 180;
+                        sprite.vy = (dy / dist) * 180;
+                        sprite.x += sprite.vx * ((dt || 16) / 1000);
+                        sprite.y += sprite.vy * ((dt || 16) / 1000);
+                    }
+                } else if (sprite.bState.startsWith('landing') || sprite.bState === 'playing') {
+                    if (sprite.timer > (sprite.bState === 'playing' ? 8000 : 4000) && Math.random() < 0.05) {
+                        sprite.bState = 'wandering';
+                        sprite.target = null;
+                        sprite.targetPos = null;
+                        sprite.timer = 0;
+                        sprite.vx = (Math.random() - 0.5) * 150;
+                        sprite.vy = -100; // Take off upwards
+                    } else if (sprite.bState === 'playing' && Math.random() < 0.02) {
+                        // Occasionally hop towards the other bird while playing
+                        if (sprite.target && sprite.target.active) {
+                            let dx = sprite.target.x - sprite.x;
+                            if (Math.abs(dx) > 20) {
+                                sprite.x += (dx > 0 ? 5 : -5);
+                                sprite.scaleX = (dx > 0 ? -Math.abs(sprite.scaleX) : Math.abs(sprite.scaleX));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     window.butterflyEmitter = new ButterflyManager(this);
+    window.birdEmitter = new BirdManager(this);
 
     let dustParticles = this.add.particles('dust_particle');
     dustParticles.setDepth(2000);
@@ -39770,6 +40087,10 @@ function update() {
         this.lastTime = this.time.now;
     }
 
+    if (window.birdEmitter && typeof window.birdEmitter.update === 'function') {
+        window.birdEmitter.update(this.time.now - (this.lastTime || this.time.now));
+    }
+
     if (window.fireflyEmitter && typeof window.fireflyEmitter.update === 'function') {
         window.fireflyEmitter.update(this.time.now - (this.lastTime || this.time.now));
     }
@@ -41080,12 +41401,15 @@ function update() {
         const isNight = (dayNightTime >= 19 || dayNightTime < 5);
         const isClearNight = isNight && window.weatherPattern === 'none';
 
+        let targetBirds = 0;
+
         if (window.currentSeason === 'Spring') {
             let springCount = 1 + Math.floor(timeOscillation * 2);
             targetLeafGreen1 = springCount;
             targetLeafGreen2 = springCount;
             targetPollen = 4 + Math.floor(timeOscillation * 8);
             targetButterflies = (!isNight && window.weatherPattern === 'none') ? 2 : 0;
+            targetBirds = (!isNight && window.weatherPattern === 'none') ? 3 : 0;
             targetFireflies = (isNight && window.weatherPattern === 'none') ? 4 : 0;
         } else if (window.currentSeason === 'Summer') {
             let greenCount = 1 + Math.floor(timeOscillation * 2);
@@ -41093,6 +41417,7 @@ function update() {
             targetLeafGreen2 = greenCount;
             targetPollen = 2 + Math.floor(timeOscillation * 4);
             targetButterflies = (!isNight && window.weatherPattern === 'none') ? 3 : 0;
+            targetBirds = (!isNight && window.weatherPattern === 'none') ? 4 : 0;
             targetFireflies = (isNight && window.weatherPattern === 'none') ? 6 : 0;
         } else if (window.currentSeason === 'Fall') {
             let fallCount = 1 + Math.floor(timeOscillation * 2);
@@ -41101,12 +41426,14 @@ function update() {
             targetLeafMixed = fallCount;
             targetPollen = 2 + Math.floor(timeOscillation * 4);
             targetButterflies = (!isNight && window.weatherPattern === 'none') ? 2 : 0;
+            targetBirds = (!isNight && window.weatherPattern === 'none') ? 2 : 0;
             targetFireflies = (isNight && window.weatherPattern === 'none') ? 2 : 0;
         }
 
         // Strict Day/Night overrides for insects to ensure they never appear when they shouldn't
         if (isNight) {
             targetButterflies = 0;
+            targetBirds = 0;
         } else {
             targetFireflies = 0;
         }
@@ -41185,6 +41512,7 @@ function update() {
         lerpQuantity(window.snowflakeEmitter, targetSnow);
         lerpQuantity(window.fireflyEmitter, targetFireflies);
         lerpQuantity(window.butterflyEmitter, targetButterflies);
+        lerpQuantity(window.birdEmitter, targetBirds);
 
         let targetWind = (window.weatherPattern !== 'none') ? 5 * window.weatherIntensity : 0;
         if (allInside) {
