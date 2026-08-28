@@ -8833,10 +8833,10 @@ window.WildPulseMusic = {
 
             // Thunder
             this.synths.thunderStrike = new Tone.MembraneSynth({ pitchDecay: 0.05, octaves: 4, oscillator: { type: "square" }, envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4 } }).connect(this.reverb);
-            this.synths.thunderStrike.volume.value = -5;
+            this.synths.thunderStrike.volume.value = -2;
             let thunderDist = new Tone.Distortion(0.8).connect(new Tone.Filter(300, "lowpass").connect(this.reverb));
             this.synths.thunder = new Tone.NoiseSynth({ noise: { type: 'brown' }, envelope: { attack: 0.1, decay: 1, sustain: 0.5, release: 4 } }).connect(thunderDist);
-            this.synths.thunder.volume.value = -5;
+            this.synths.thunder.volume.value = -2;
 
             // Birds (Daytime)
                         this.synths.birds = new Tone.FMSynth({
@@ -8912,7 +8912,7 @@ window.WildPulseMusic = {
                 oscillator: { type: "square" },
                 envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 }
             }).connect(this.musicBus);
-            this.synths.steps.volume.value = -8;
+            this.synths.steps.volume.value = -12;
 
             // Leaves Rustling
             this.leafFilter = new Tone.Filter({ type: "bandpass", frequency: 2000, Q: 1.5 }).connect(this.reverb);
@@ -9182,11 +9182,11 @@ window.WildPulseMusic = {
         const inside = window.isPlayerInsideHome ? window.isPlayerInsideHome(1) : false;
         const volOffset = inside ? -10 : 0;
         if (this.synths.thunderStrike) {
-            this.synths.thunderStrike.volume.value = -5 + volOffset;
+            this.synths.thunderStrike.volume.value = -2 + volOffset;
             this.synths.thunderStrike.triggerAttackRelease("C1", "8n");
         }
         if (this.synths.thunder) {
-            this.synths.thunder.volume.value = -5 + volOffset;
+            this.synths.thunder.volume.value = -2 + volOffset;
             this.synths.thunder.triggerAttackRelease("1n");
         }
     },
@@ -32130,15 +32130,37 @@ function create() {
     sunSprite.setScrollFactor(0);
 
     moonSprite = this.add.sprite(0, 0, 'moon_reflection');
-    moonSprite.setBlendMode(Phaser.BlendModes.ADD);
     moonSprite.setDepth(0.05);
     moonSprite.setMask(mask);
     moonSprite.setVisible(false);
     moonSprite.setScrollFactor(0);
 
-    // Day and Night Cycle
-    dayNightOverlay = this.add.rectangle(0, 0, window.innerWidth, window.innerHeight, 0x000033).setOrigin(0).setScrollFactor(0).setDepth(4000).setAlpha(0);
+    // Day and Night Cycle (RenderTexture for dynamic lighting)
+    dayNightOverlay = this.add.renderTexture(0, 0, window.innerWidth, window.innerHeight).setOrigin(0).setScrollFactor(0).setDepth(4000).setAlpha(0);
     window.dayNightOverlay = dayNightOverlay;
+
+    // Create a radial light mask for the overlay
+    const lightCanvas = document.createElement('canvas');
+    lightCanvas.width = 400;
+    lightCanvas.height = 400;
+    const lightCtx = lightCanvas.getContext('2d');
+    const lightGrad = lightCtx.createRadialGradient(200, 200, 0, 200, 200, 200);
+    lightGrad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    lightGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    lightCtx.fillStyle = lightGrad;
+    lightCtx.fillRect(0, 0, 400, 400);
+    this.textures.addCanvas('light_mask', lightCanvas);
+
+    const lightCanvasSmall = document.createElement('canvas');
+    lightCanvasSmall.width = 100;
+    lightCanvasSmall.height = 100;
+    const lightCtxSmall = lightCanvasSmall.getContext('2d');
+    const lightGradSmall = lightCtxSmall.createRadialGradient(50, 50, 0, 50, 50, 50);
+    lightGradSmall.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    lightGradSmall.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    lightCtxSmall.fillStyle = lightGradSmall;
+    lightCtxSmall.fillRect(0, 0, 100, 100);
+    this.textures.addCanvas('light_mask_small', lightCanvasSmall);
     timeText = this.add.text(20, window.innerHeight - 25, "12:00 PM", { fontSize: '12px', fill: '#00FFFF', stroke: '#000000', strokeThickness: 4 }).setScrollFactor(0).setDepth(5000).setVisible(false);
     window.timeText = timeText;
 
@@ -33117,7 +33139,7 @@ function create() {
             window.starSprite.setSize(window.innerWidth, window.innerHeight);
         }
         if (dayNightOverlay) {
-            dayNightOverlay.setSize(window.innerWidth, window.innerHeight);
+            dayNightOverlay.resize(window.innerWidth, window.innerHeight);
         }
         if (timeText) {
             timeText.setPosition(20, window.innerHeight - 25);
@@ -39051,7 +39073,7 @@ function update() {
 
     // Calculate smooth day/night alpha
     let dayNightAlpha = 0;
-    const maxNightAlpha = 0.45;
+    const maxNightAlpha = 0.85;
 
     if (dayNightTime >= 21 || dayNightTime <= 6) {
         dayNightAlpha = maxNightAlpha;
@@ -39117,7 +39139,35 @@ function update() {
     const visualOverlayScale = (window.getParticleScale ? window.getParticleScale() : 1.0);
     if (visualOverlayScale > 0) {
         if (dayNightOverlay) {
-            dayNightOverlay.setFillStyle(fillColor);
+            dayNightOverlay.clear();
+            dayNightOverlay.fill(fillColor);
+
+            // Draw light mask around local players to simulate visibility
+            if (targetAlpha > 0) {
+                if (window.player && window.player.active) {
+                    const px = window.player.x - window.camera.worldView.x;
+                    const py = window.player.y - window.camera.worldView.y;
+                    dayNightOverlay.erase('light_mask', px - 200, py - 200);
+                }
+                if (window.player2 && window.player2.active) {
+                    const px = window.player2.x - window.camera.worldView.x;
+                    const py = window.player2.y - window.camera.worldView.y;
+                    dayNightOverlay.erase('light_mask', px - 200, py - 200);
+                }
+
+                // Fireflies light contribution
+                if (window.butterfliesGroup) {
+                    window.butterfliesGroup.getChildren().forEach(bf => {
+                        if (bf.active && bf.isFirefly && bf.visible) {
+                            const bfx = bf.x - window.camera.worldView.x;
+                            const bfy = bf.y - window.camera.worldView.y;
+
+                            dayNightOverlay.erase('light_mask_small', bfx - 50, bfy - 50);
+                        }
+                    });
+                }
+            }
+
             dayNightOverlay.setAlpha(dayNightOverlay.alpha + (targetAlpha - dayNightOverlay.alpha) * 0.05);
         }
 

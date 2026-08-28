@@ -206,6 +206,11 @@ test.describe('Random Events System', () => {
           window.dayNightOverlay = {
             alpha: 0,
             fillColor: 0,
+            clear() {},
+            fill(color) { this.fillColor = color; },
+            draw() { return this; },
+            drawFrame() { return this; },
+            erase() { return this; },
             setFillStyle(color) { this.fillColor = color; },
             setAlpha(val) { this.alpha = val; }
           };
