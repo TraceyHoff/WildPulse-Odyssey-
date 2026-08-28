@@ -32618,11 +32618,33 @@ window.doPlayerAction = function(action, callback) {
         let base_rate = 1.0;
 
         const inv = window.activeBattlePlayer === 2 ? window.p2Inventory : window.p1Inventory;
-        const hasLicense = inv && inv.some(item => item.name === "Creature License" && item.quantity > 0);
+        let bestLicense = null;
+        let licenseMultiplier = 1.0;
+        let licenseBoostPercent = 0;
 
-        if (hasLicense) {
-            base_rate *= 1.25;
-            logBattle("<span style='color:#ffd700; font-weight:bold;'>🎫 Creature License: Capture success rate boosted by 25%!</span>");
+        if (inv) {
+            if (inv.some(item => item.name === "Exquisite Creature License" && item.quantity > 0)) {
+                bestLicense = "Exquisite Creature License";
+                licenseMultiplier = 1.75;
+                licenseBoostPercent = 75;
+            } else if (inv.some(item => item.name === "Rare Creature License" && item.quantity > 0)) {
+                bestLicense = "Rare Creature License";
+                licenseMultiplier = 1.55;
+                licenseBoostPercent = 55;
+            } else if (inv.some(item => item.name === "Uncommon Creature License" && item.quantity > 0)) {
+                bestLicense = "Uncommon Creature License";
+                licenseMultiplier = 1.35;
+                licenseBoostPercent = 35;
+            } else if (inv.some(item => item.name === "Creature License" && item.quantity > 0)) {
+                bestLicense = "Creature License";
+                licenseMultiplier = 1.25;
+                licenseBoostPercent = 25;
+            }
+        }
+
+        if (bestLicense) {
+            base_rate *= licenseMultiplier;
+            logBattle(`<span style='color:#ffd700; font-weight:bold;'>🎫 ${bestLicense}: Capture success rate boosted by ${licenseBoostPercent}%!</span>`);
         }
 
         const activeListForCatch = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
@@ -32646,8 +32668,8 @@ window.doPlayerAction = function(action, callback) {
         if ((Math.random() * 100) < catchChance) {
             logBattle(`<b><span style="color:#4caf50">Success! Caught </span><span style="color:#f44336">${currentEnemy.name}</span><span style="color:#4caf50">!</span></b>`);
 
-            if (hasLicense) {
-                const licenseItem = inv.find(item => item.name === "Creature License");
+            if (bestLicense) {
+                const licenseItem = inv.find(item => item.name === bestLicense);
                 if (licenseItem) {
                     licenseItem.quantity--;
                     if (licenseItem.quantity <= 0) {
