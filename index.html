@@ -8399,27 +8399,27 @@ function escapeHtml(unsafe) {
     <button class="close-btn close-store-btn" aria-label="Close Store">X</button>
     <div class="coop-columns">
         <!-- Player 1 Store Column -->
-        <div class="coop-column p1-col">
+        <div class="coop-column p1-col" style="display: flex; flex-direction: column; max-height: 100%;">
             <button class="close-btn close-store-btn" aria-label="Close Store">X</button>
-            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 5px;">Player 1 Store</h2>
-            <div style="display: flex; margin-bottom: 15px; border-radius: 4px; overflow: hidden; padding-bottom: 2px;">
+            <h2 style="color: #4caf50; margin-top: 0; margin-bottom: 5px; flex-shrink: 0;">Player 1 Store</h2>
+            <div style="display: flex; margin-bottom: 15px; border-radius: 4px; overflow: hidden; padding-bottom: 2px; flex-shrink: 0;">
                 <button class="store-tab store-tab-items-p1 active" onclick="window.switchStoreTab(1, 'items')" style="flex: 1; padding: 8px; background: rgba(76,175,80,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 4px 0 0 4px; outline: 1px solid white; outline-offset: -2px;">Items</button>
                 <button class="store-tab store-tab-home-p1" onclick="window.switchStoreTab(1, 'home')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #4caf50; color: white; cursor: pointer; border-radius: 0 4px 4px 0; outline: 1px solid white; outline-offset: -2px;">Home</button>
             </div>
-            <div id="storeContent">
+            <div id="storeContent" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                 <p>Welcome to the store! (Features coming soon)</p>
             </div>
         </div>
 
         <!-- Player 2 Store Column -->
-        <div class="coop-column p2-col">
+        <div class="coop-column p2-col" style="display: flex; flex-direction: column; max-height: 100%;">
             <button class="close-btn close-store-btn" aria-label="Close Store">X</button>
-            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 5px;">Player 2 Store</h2>
-            <div style="display: flex; margin-bottom: 15px; border-radius: 4px; overflow: hidden; padding-bottom: 2px;">
+            <h2 style="color: #ff9800; margin-top: 0; margin-bottom: 5px; flex-shrink: 0;">Player 2 Store</h2>
+            <div style="display: flex; margin-bottom: 15px; border-radius: 4px; overflow: hidden; padding-bottom: 2px; flex-shrink: 0;">
                 <button class="store-tab store-tab-items-p2 active" onclick="window.switchStoreTab(2, 'items')" style="flex: 1; padding: 8px; background: rgba(255,152,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 4px 0 0 4px; outline: 1px solid white; outline-offset: -2px;">Items</button>
                 <button class="store-tab store-tab-home-p2" onclick="window.switchStoreTab(2, 'home')" style="flex: 1; padding: 8px; background: rgba(0,0,0,0.5); border: 1px solid #ff9800; color: white; cursor: pointer; border-radius: 0 4px 4px 0; outline: 1px solid white; outline-offset: -2px;">Home</button>
             </div>
-            <div id="storeContent_P2">
+            <div id="storeContent_P2" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                 <p>Welcome to the store! (Features coming soon)</p>
             </div>
         </div>
@@ -10848,9 +10848,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Healing Juice Jug", icon: "🏺", desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", desc: "Boosts wild capture success rate by 25%. Consumed only on success." },
-        { name: "Uncommon Creature License", icon: "🎫", desc: "Boosts wild capture success rate by 50%. Consumed only on success." },
-        { name: "Rare Creature License", icon: "🎫", desc: "Boosts wild capture success rate by 75%. Consumed only on success." },
-        { name: "Exquisite Creature License", icon: "🎫", desc: "Boosts wild capture success rate by 100%. Consumed only on success." },
+        { name: "Uncommon Creature License", icon: "🎫", desc: "Boosts wild capture success rate by 35%. Consumed only on success." },
+        { name: "Rare Creature License", icon: "🎫", desc: "Boosts wild capture success rate by 55%. Consumed only on success." },
+        { name: "Exquisite Creature License", icon: "🎫", desc: "Boosts wild capture success rate by 75%. Consumed only on success." },
         { name: "Creature Cookie", icon: "🍪", desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -18567,9 +18567,9 @@ window.getItemSellPrice = function(itemName) {
         { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures." },
         { name: "ExPALL", icon: "✨", price: 250, desc: "Allows whole party to receive battle experience for 180s." },
         { name: "Creature License", icon: "🎫", price: 175, desc: "Boosts wild capture success rate by 25%. Consumed only on success." },
-        { name: "Uncommon Creature License", icon: "🎫", price: 350, desc: "Boosts wild capture success rate by 50%. Consumed only on success." },
-        { name: "Rare Creature License", icon: "🎫", price: 700, desc: "Boosts wild capture success rate by 75%. Consumed only on success." },
-        { name: "Exquisite Creature License", icon: "🎫", price: 1400, desc: "Boosts wild capture success rate by 100%. Consumed only on success." },
+        { name: "Uncommon Creature License", icon: "🎫", price: 350, desc: "Boosts wild capture success rate by 35%. Consumed only on success." },
+        { name: "Rare Creature License", icon: "🎫", price: 700, desc: "Boosts wild capture success rate by 55%. Consumed only on success." },
+        { name: "Exquisite Creature License", icon: "🎫", price: 1400, desc: "Boosts wild capture success rate by 75%. Consumed only on success." },
         { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)" },
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds." },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature." },
@@ -18744,9 +18744,9 @@ window.updateStoreUI = function() {
         { name: "Healing Juice Jug", icon: "🏺", price: 240, desc: "Fully heals and revives all active party creatures.", type: "Consumable" },
         { name: "ExPALL", icon: "✨", price: 250, desc: "Allows whole party to receive battle experience for 180s.", type: "Consumable" },
         { name: "Creature License", icon: "🎫", price: 175, desc: "Boosts wild capture success rate by 25%. Consumed only on success.", type: "Consumable" },
-        { name: "Uncommon Creature License", icon: "🎫", price: 350, desc: "Boosts wild capture success rate by 50%. Consumed only on success.", type: "Consumable" },
-        { name: "Rare Creature License", icon: "🎫", price: 700, desc: "Boosts wild capture success rate by 75%. Consumed only on success.", type: "Consumable" },
-        { name: "Exquisite Creature License", icon: "🎫", price: 1400, desc: "Boosts wild capture success rate by 100%. Consumed only on success.", type: "Consumable" },
+        { name: "Uncommon Creature License", icon: "🎫", price: 350, desc: "Boosts wild capture success rate by 35%. Consumed only on success.", type: "Consumable" },
+        { name: "Rare Creature License", icon: "🎫", price: 700, desc: "Boosts wild capture success rate by 55%. Consumed only on success.", type: "Consumable" },
+        { name: "Exquisite Creature License", icon: "🎫", price: 1400, desc: "Boosts wild capture success rate by 75%. Consumed only on success.", type: "Consumable" },
         { name: "Creature Cookie", icon: "🍪", price: 150, desc: "Adds a small amount of happiness when used on a creature. (5 min cooldown)", type: "Consumable" },
         { name: "Pedometer", icon: "👣", price: 220, desc: "Gains double egg hatching progress when moving for 60 seconds.", type: "Consumable" },
         { name: "Cyber-Core Upgrade", icon: "🔘", price: 320, desc: "A core upgrade chip that instantly grants 150 XP to one selected creature.", type: "Consumable" },
@@ -18887,10 +18887,10 @@ window.updateStoreUI = function() {
         let displayedItems = currentTab === 'home' ? homeItems : activeItems;
 
         let html = `
-            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700;">
+            <div style="font-size: 15px; font-weight: bold; margin-bottom: 15px; color: #ffd700; flex-shrink: 0;">
                 ${window.getCoinIconHTML(20)} Coins: <span style="font-size: 18px;">${coins}</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 10px; max-height: calc(100vh - 280px); overflow-y: auto; padding-right: 5px;">
+            <div style="display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; padding-right: 5px; min-height: 0;">
         `;
 
         let currentCategory = null;
@@ -18992,7 +18992,7 @@ window.updateStoreUI = function() {
 
         // Sell section
         html += `
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 15px; padding-top: 15px; text-align: left;">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 15px; padding-top: 15px; text-align: left; flex-shrink: 0;">
                 <h3 style="color: #ffd700; margin-top: 0; font-size: 14px; margin-bottom: 8px;">Sell Creatures</h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <button class="sell-btn" id="sellCreatureBtn_P${playerNum}" style="flex: 1; padding: 6px 12px; font-size: 12px; border-radius: 6px; background: linear-gradient(180deg, #e91e63, #c2185b); border: 1px solid #f48fb1; color: white; cursor: pointer; height: 32px; transition: all 0.2s;">
@@ -35197,11 +35197,33 @@ window.doPlayerAction = function(action, callback) {
         let base_rate = 1.0;
 
         const inv = window.activeBattlePlayer === 2 ? window.p2Inventory : window.p1Inventory;
-        const hasLicense = inv && inv.some(item => item.name === "Creature License" && item.quantity > 0);
+        let bestLicense = null;
+        let licenseMultiplier = 1.0;
+        let licenseBoostPercent = 0;
 
-        if (hasLicense) {
-            base_rate *= 1.25;
-            logBattle("<span style='color:#ffd700; font-weight:bold;'>🎫 Creature License: Capture success rate boosted by 25%!</span>");
+        if (inv) {
+            if (inv.some(item => item.name === "Exquisite Creature License" && item.quantity > 0)) {
+                bestLicense = "Exquisite Creature License";
+                licenseMultiplier = 1.75;
+                licenseBoostPercent = 75;
+            } else if (inv.some(item => item.name === "Rare Creature License" && item.quantity > 0)) {
+                bestLicense = "Rare Creature License";
+                licenseMultiplier = 1.55;
+                licenseBoostPercent = 55;
+            } else if (inv.some(item => item.name === "Uncommon Creature License" && item.quantity > 0)) {
+                bestLicense = "Uncommon Creature License";
+                licenseMultiplier = 1.35;
+                licenseBoostPercent = 35;
+            } else if (inv.some(item => item.name === "Creature License" && item.quantity > 0)) {
+                bestLicense = "Creature License";
+                licenseMultiplier = 1.25;
+                licenseBoostPercent = 25;
+            }
+        }
+
+        if (bestLicense) {
+            base_rate *= licenseMultiplier;
+            logBattle(`<span style='color:#ffd700; font-weight:bold;'>🎫 ${bestLicense}: Capture success rate boosted by ${licenseBoostPercent}%!</span>`);
         }
 
         const activeListForCatch = window.activeBattlePlayer === 2 ? window.collectedCreatures2 : window.collectedCreatures;
