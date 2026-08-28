@@ -39073,7 +39073,7 @@ function update() {
 
     // Calculate smooth day/night alpha
     let dayNightAlpha = 0;
-    const maxNightAlpha = 0.85;
+    const maxNightAlpha = 0.55;
 
     if (dayNightTime >= 21 || dayNightTime <= 6) {
         dayNightAlpha = maxNightAlpha;
@@ -39145,13 +39145,14 @@ function update() {
             // Draw light mask around local players to simulate visibility
             if (targetAlpha > 0) {
                 if (window.player && window.player.active) {
-                    const px = window.player.x - window.camera.worldView.x;
-                    const py = window.player.y - window.camera.worldView.y;
+                    const px = window.player.x - this.cameras.main.worldView.x;
+                    const py = window.player.y - this.cameras.main.worldView.y;
                     dayNightOverlay.erase('light_mask', px - 200, py - 200);
                 }
                 if (window.player2 && window.player2.active) {
-                    const px = window.player2.x - window.camera.worldView.x;
-                    const py = window.player2.y - window.camera.worldView.y;
+                    let p2Cam = (window.coopActive && window.camera2) ? window.camera2 : this.cameras.main;
+                    const px = window.player2.x - p2Cam.worldView.x;
+                    const py = window.player2.y - p2Cam.worldView.y;
                     dayNightOverlay.erase('light_mask', px - 200, py - 200);
                 }
 
@@ -39159,8 +39160,9 @@ function update() {
                 if (window.butterfliesGroup) {
                     window.butterfliesGroup.getChildren().forEach(bf => {
                         if (bf.active && bf.isFirefly && bf.visible) {
-                            const bfx = bf.x - window.camera.worldView.x;
-                            const bfy = bf.y - window.camera.worldView.y;
+                            // Assuming fireflies are visible in main camera for now
+                            const bfx = bf.x - this.cameras.main.worldView.x;
+                            const bfy = bf.y - this.cameras.main.worldView.y;
 
                             dayNightOverlay.erase('light_mask_small', bfx - 50, bfy - 50);
                         }
