@@ -17973,7 +17973,7 @@ window.getXpRequirement = function(level) {
 };
 
 window.getPlayerXpRequirement = function(level) {
-    return Math.floor(300 * Math.pow(1.2, level - 1));
+    return Math.floor(250 * Math.pow(1.15, level - 1));
 };
 
 window.gainXp = function(creature, amount) {
@@ -27768,14 +27768,31 @@ function generateCelestialReflections(scene) {
     moonCanvas.width = 400;
     moonCanvas.height = 400;
     const moonCtx = moonCanvas.getContext('2d');
+
+    // Moon Aura
     let moonGrad = moonCtx.createRadialGradient(200, 200, 0, 200, 200, 200);
     moonGrad.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-    moonGrad.addColorStop(0.3, 'rgba(180, 220, 255, 0.6)');
+    moonGrad.addColorStop(0.1, 'rgba(180, 220, 255, 0.3)');
     moonGrad.addColorStop(1, 'rgba(180, 220, 255, 0)');
     moonCtx.fillStyle = moonGrad;
     moonCtx.beginPath();
     moonCtx.arc(200, 200, 200, 0, Math.PI * 2);
     moonCtx.fill();
+
+    // Moon Craters
+    moonCtx.fillStyle = 'rgba(150, 150, 150, 0.4)';
+    moonCtx.beginPath();
+    moonCtx.arc(170, 160, 20, 0, Math.PI * 2);
+    moonCtx.fill();
+
+    moonCtx.beginPath();
+    moonCtx.arc(230, 210, 25, 0, Math.PI * 2);
+    moonCtx.fill();
+
+    moonCtx.beginPath();
+    moonCtx.arc(180, 240, 15, 0, Math.PI * 2);
+    moonCtx.fill();
+
     scene.textures.addCanvas('moon_reflection', moonCanvas);
 }
 
@@ -38842,15 +38859,37 @@ function update() {
             }
 
             let shimmer = 1 + Math.sin(this.time.now / 300) * 0.05;
+            let isDayForRefl = (dayNightTime >= 6 && dayNightTime < 20);
             let rX = cam.width / 2;
-            let rY = cam.height / 2 - cam.height * 0.35;
+            let playerOffsetX = player ? ((player.x - (cam.scrollX + cam.width/2)) / cam.width) * 200 : 0;
+            let playerOffsetY = player ? ((player.y - (cam.scrollY + cam.height/2)) / cam.height) * 100 : 0;
 
-            if (sunSprite) {
-                sunSprite.setPosition(rX, rY);
-                sunSprite.setScale(shimmer * 0.4);
-                sunSprite.setVisible(true);
+            if (isDayForRefl) {
+                let dayProgress = (dayNightTime - 6) / 14;
+                let adjustedProgress = dayProgress < 0.4285 ? (dayProgress / 0.4285) * 0.5 : 0.5 + ((dayProgress - 0.4285) / 0.5715) * 0.5;
+                rX = (cam.width / 2) + cam.width * 0.5 * ((adjustedProgress - 0.5) * 2) - playerOffsetX;
+            } else {
+                let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
+                let adjustedNightProgress = nightProgress < 0.4 ? (nightProgress / 0.4) * 0.5 : 0.5 + ((nightProgress - 0.4) / 0.6) * 0.5;
+                rX = (cam.width / 2) + cam.width * 0.5 * ((adjustedNightProgress - 0.5) * 2) - playerOffsetX;
             }
-            if (moonSprite) moonSprite.setVisible(false);
+            let rY = cam.height / 2 - cam.height * 0.35 - playerOffsetY;
+
+            if (isDayForRefl) {
+                if (sunSprite) {
+                    sunSprite.setPosition(rX, rY);
+                    sunSprite.setScale(shimmer * 0.4);
+                    sunSprite.setVisible(true);
+                }
+                if (moonSprite) moonSprite.setVisible(false);
+            } else {
+                if (moonSprite) {
+                    moonSprite.setPosition(rX, rY);
+                    moonSprite.setScale(shimmer * 0.3);
+                    moonSprite.setVisible(true);
+                }
+                if (sunSprite) sunSprite.setVisible(false);
+            }
         } else {
             if (window.waterMaskGraphics) window.waterMaskGraphics.clear();
             if (sunSprite) sunSprite.setVisible(false);
@@ -39798,7 +39837,7 @@ function update() {
 
     // Calculate smooth day/night alpha
     let dayNightAlpha = 0;
-    const maxNightAlpha = 0.55;
+    const maxNightAlpha = 0.70;
 
     if (dayNightTime >= 21 || dayNightTime <= 6) {
         dayNightAlpha = maxNightAlpha;
@@ -40081,9 +40120,13 @@ function update() {
         if (isDay) {
             let dayProgress = (dayNightTime - 6) / 14;
             let adjustedProgress = dayProgress < 0.4285 ? (dayProgress / 0.4285) * 0.5 : 0.5 + ((dayProgress - 0.4285) / 0.5715) * 0.5;
-            // Cycle purely from left to right, removing the south-to-north vertical arc
-            let rX = (cam.width / 2) + cam.width * 0.5 * ((adjustedProgress - 0.5) * 2);
-            let rY = cam.height / 2 - cam.height * 0.35;
+
+            // Allow dynamic tracking based on player position relative to center of map
+            let playerOffsetX = player ? ((player.x - (cam.scrollX + cam.width/2)) / cam.width) * 200 : 0;
+            let playerOffsetY = player ? ((player.y - (cam.scrollY + cam.height/2)) / cam.height) * 100 : 0;
+
+            let rX = (cam.width / 2) + cam.width * 0.5 * ((adjustedProgress - 0.5) * 2) - playerOffsetX;
+            let rY = cam.height / 2 - cam.height * 0.35 - playerOffsetY;
 
             sunSprite.setPosition(rX, rY);
             sunSprite.setScale(shimmer * 0.4); // Make it large enough
@@ -40092,9 +40135,13 @@ function update() {
         } else {
             let nightProgress = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
             let adjustedNightProgress = nightProgress < 0.4 ? (nightProgress / 0.4) * 0.5 : 0.5 + ((nightProgress - 0.4) / 0.6) * 0.5;
-            // Cycle purely from left to right, removing the south-to-north vertical arc
-            let rX = (cam.width / 2) + cam.width * 0.5 * ((adjustedNightProgress - 0.5) * 2);
-            let rY = cam.height / 2 - cam.height * 0.35;
+
+            // Allow dynamic tracking based on player position relative to center of map
+            let playerOffsetX = player ? ((player.x - (cam.scrollX + cam.width/2)) / cam.width) * 200 : 0;
+            let playerOffsetY = player ? ((player.y - (cam.scrollY + cam.height/2)) / cam.height) * 100 : 0;
+
+            let rX = (cam.width / 2) + cam.width * 0.5 * ((adjustedNightProgress - 0.5) * 2) - playerOffsetX;
+            let rY = cam.height / 2 - cam.height * 0.35 - playerOffsetY;
 
             moonSprite.setPosition(rX, rY);
             moonSprite.setScale(shimmer * 0.3);
