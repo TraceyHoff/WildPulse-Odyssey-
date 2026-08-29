@@ -1,1 +1,0 @@
-grep "isPlayerTarget" index.html

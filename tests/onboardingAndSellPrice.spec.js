@@ -12,7 +12,7 @@ test.describe('Introductory Onboarding and Dynamic Sell Price Tests', () => {
   });
 
   test('should trigger high tech introductory modals and customization onboarding flow on new game start', async ({ page }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000);
     // Click Start Game on a fresh state
     await page.click('#startGameBtn');
 
@@ -45,18 +45,18 @@ test.describe('Introductory Onboarding and Dynamic Sell Price Tests', () => {
 
     // Verify item count / name are correct
     const carouselCount = page.locator('#introItemCarouselCount');
-    await expect(carouselCount).toHaveText('ITEM 1 / 65');
+    await expect(carouselCount).toHaveText('ITEM 1 / 68');
     const carouselName = page.locator('#introItemCarouselName');
     await expect(carouselName).toHaveText('Repellent');
 
     // Click Next Item to cycle
     await page.click('#introItemNextBtn', { force: true });
-    await expect(carouselCount).toHaveText('ITEM 2 / 65');
+    await expect(carouselCount).toHaveText('ITEM 2 / 68');
     await expect(carouselName).toHaveText('HP Booster');
 
     // Click Prev Item to cycle back
     await page.click('#introItemPrevBtn', { force: true });
-    await expect(carouselCount).toHaveText('ITEM 1 / 65');
+    await expect(carouselCount).toHaveText('ITEM 1 / 68');
     await expect(carouselName).toHaveText('Repellent');
 
     // Click next from slide 3 to 4

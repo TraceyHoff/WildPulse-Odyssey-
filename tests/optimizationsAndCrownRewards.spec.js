@@ -78,6 +78,8 @@ test.describe('Optimizations and Crown Challenge Rewards', () => {
     // Skip onboarding to go straight into game
     await page.addInitScript(() => {
       localStorage.setItem('wildpulse_player_color', '#FFFFFF');
+      localStorage.setItem('wildpulse_has_seen_intro', 'true');
+      window.__test_onboarding = false;
     });
     await page.goto('http://localhost:3000');
     await page.click('#startGameBtn');
@@ -122,6 +124,8 @@ test.describe('Optimizations and Crown Challenge Rewards', () => {
     // Skip onboarding to go straight into game
     await page.addInitScript(() => {
       localStorage.setItem('wildpulse_player_color', '#FFFFFF');
+      localStorage.setItem('wildpulse_has_seen_intro', 'true');
+      window.__test_onboarding = false;
     });
     await page.goto('http://localhost:3000');
     await page.click('#startGameBtn');
