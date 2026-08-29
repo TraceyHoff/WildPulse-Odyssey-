@@ -9201,54 +9201,7 @@ window.WildPulseMusic = {
                 this.synths.windChimes.triggerAttackRelease("32n", time, Math.random() * 0.3 + 0.1);
             }
 
-                        // Day: Birds
-            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.8) {
-                const chirpType = Math.floor(Math.random() * 10);
-                if (chirpType === 0) {
-                    const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
-                    this.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
-                    if (Math.random() < 0.5) {
-                         this.synths.birds.triggerAttackRelease("E6", "16n", time + 0.1, Math.random() * 0.5 + 0.5);
-                    }
-                } else if (chirpType === 1) { // Trill
-                    this.synths.birds.triggerAttackRelease("G6", "32n", time, 0.6);
-                    this.synths.birds.triggerAttackRelease("A6", "32n", time + 0.05, 0.6);
-                    this.synths.birds.triggerAttackRelease("G6", "32n", time + 0.1, 0.6);
-                    this.synths.birds.triggerAttackRelease("A6", "32n", time + 0.15, 0.6);
-                } else if (chirpType === 2) { // Long swoop
-                    this.synths.birds.triggerAttackRelease("E6", "8n", time, 0.7);
-                    this.synths.birds.triggerAttackRelease("C6", "8n", time + 0.2, 0.5);
-                } else if (chirpType === 3) { // High peep
-                    this.synths.birds.triggerAttackRelease("D7", "32n", time, 0.4);
-                    this.synths.birds.triggerAttackRelease("D7", "32n", time + 0.2, 0.4);
-                } else if (chirpType === 4) { // Crow
-                    this.synths.crow.triggerAttackRelease("A3", "8n", time, 0.6);
-                    if (Math.random() < 0.5) {
-                        this.synths.crow.triggerAttackRelease("A3", "8n", time + 0.3, 0.5);
-                    }
-                } else if (chirpType === 5) { // Woodpecker
-                    for (let i = 0; i < 6; i++) {
-                        this.synths.woodpecker.triggerAttackRelease("C5", "64n", time + (i * 0.05), 0.5);
-                    }
-                } else if (chirpType === 6) { // Songbird melody
-                    this.synths.songbird.triggerAttackRelease("G5", "16n", time, 0.6);
-                    this.synths.songbird.triggerAttackRelease("C6", "16n", time + 0.1, 0.6);
-                    this.synths.songbird.triggerAttackRelease("E6", "8n", time + 0.2, 0.7);
-                } else if (chirpType === 7) { // Mourning Dove coo
-                    this.synths.dove.triggerAttackRelease("A3", "4n", time, 0.6);
-                    this.synths.dove.triggerAttackRelease("B3", "4n", time + 0.5, 0.7);
-                    this.synths.dove.triggerAttackRelease("A3", "2n", time + 1.0, 0.5);
-                } else if (chirpType === 8) { // Warbler rapid trill
-                    for (let i = 0; i < 8; i++) {
-                        const note = (i % 2 === 0) ? "D6" : "E6";
-                        this.synths.warbler.triggerAttackRelease(note, "64n", time + (i * 0.05), 0.5);
-                    }
-                } else { // Finch chatter (mixed)
-                    this.synths.songbird.triggerAttackRelease("E6", "32n", time, 0.5);
-                    this.synths.birds.triggerAttackRelease("C6", "32n", time + 0.05, 0.5);
-                    this.synths.songbird.triggerAttackRelease("G6", "32n", time + 0.1, 0.6);
-                }
-            }
+                        // Day: Birds ambient sounds removed, now tied to visible birds in BirdManager
 
                         // Night: Crickets, Owls & Frogs
             if (isNight) {
@@ -28770,7 +28723,7 @@ function generateParticleTextures(scene) {
     ];
 
     const birdCanvas = document.createElement('canvas');
-    birdCanvas.width = 128; // 4 frames x 32px
+    birdCanvas.width = 160; // 5 frames x 32px
     birdCanvas.height = window.birdColors.length * 32;
     const birdCtx = birdCanvas.getContext('2d');
 
@@ -28830,6 +28783,49 @@ function generateParticleTextures(scene) {
             birdCtx.ellipse(cX, wingY, 4, 7, Math.PI / 4, 0, Math.PI * 2);
             birdCtx.fill();
         }
+
+        // Frame 4: Top-down view (flying vertically)
+        const cX_top = 128 + 16;
+        const cY_top = sy + 16;
+
+        // Tail
+        birdCtx.fillStyle = colors.tail;
+        birdCtx.beginPath();
+        birdCtx.moveTo(cX_top - 12, cY_top - 4);
+        birdCtx.lineTo(cX_top - 12, cY_top + 4);
+        birdCtx.lineTo(cX_top - 4, cY_top);
+        birdCtx.fill();
+
+        // Left Wing
+        birdCtx.fillStyle = colors.wing;
+        birdCtx.beginPath();
+        birdCtx.ellipse(cX_top - 2, cY_top - 6, 6, 4, -Math.PI / 6, 0, Math.PI * 2);
+        birdCtx.fill();
+
+        // Right Wing
+        birdCtx.beginPath();
+        birdCtx.ellipse(cX_top - 2, cY_top + 6, 6, 4, Math.PI / 6, 0, Math.PI * 2);
+        birdCtx.fill();
+
+        // Body
+        birdCtx.fillStyle = colors.body;
+        birdCtx.beginPath();
+        birdCtx.ellipse(cX_top, cY_top, 7, 5, 0, 0, Math.PI * 2);
+        birdCtx.fill();
+
+        // Head
+        birdCtx.fillStyle = colors.head;
+        birdCtx.beginPath();
+        birdCtx.ellipse(cX_top + 6, cY_top, 4, 3, 0, 0, Math.PI * 2);
+        birdCtx.fill();
+
+        // Beak
+        birdCtx.fillStyle = colors.beak;
+        birdCtx.beginPath();
+        birdCtx.moveTo(cX_top + 9, cY_top - 2);
+        birdCtx.lineTo(cX_top + 13, cY_top);
+        birdCtx.lineTo(cX_top + 9, cY_top + 2);
+        birdCtx.fill();
     }
 
     scene.textures.addSpriteSheet('bird_particles', birdCanvas, { frameWidth: 32, frameHeight: 32 });
@@ -30152,14 +30148,16 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 'plant_lush_bush', 'plant_wildflower_patch', 'plant_desert_succulent', 'plant_weeping_willow_shrub',
                 'plant_thorny_bramble', 'plant_tropical_pitcher'
             ];
-            const waterPlantTypes = ['plant_cattail', 'plant_pampas_grass'];
+            const waterPlantTypes = ['plant_pampas_grass'];
+            const strictWaterPlants = ['plant_cattail'];
 
             let plantType;
             if (isVeryCloseToWater && ((r * 17 + c * 31) % 100 < 90)) {
-                // Almost guaranteed to be a water plant if on the edge
-                plantType = waterPlantTypes[(r * 31 + c * 17) % waterPlantTypes.length];
+                // Cattails strictly spawn immediately adjacent to water
+                const combinedWaterPlants = [...strictWaterPlants, ...waterPlantTypes];
+                plantType = combinedWaterPlants[(r * 31 + c * 17) % combinedWaterPlants.length];
             } else if (isAdjacentToWater && ((r * 17 + c * 31) % 100 < 60)) {
-                // High chance to spawn water plants if somewhat close to water
+                // High chance to spawn water plants if somewhat close to water (but not cattails)
                 plantType = waterPlantTypes[(r * 31 + c * 17) % waterPlantTypes.length];
             } else {
                 plantType = normalPlantTypes[(r * 31 + c * 17) % normalPlantTypes.length];
@@ -33318,6 +33316,47 @@ function create() {
                     continue;
                 }
 
+                // Tie bird sounds to visible birds
+                if (sprite.active && sprite.x > cam.scrollX && sprite.x < cam.scrollX + cam.width &&
+                    sprite.y > cam.scrollY && sprite.y < cam.scrollY + cam.height) {
+                    if (Math.random() < 0.005 && window.WildPulseMusic && window.WildPulseMusic.synths) { // Roughly 1 in 200 frames (once per 3-4 seconds per visible bird)
+                        let time = undefined; // play immediately
+                        try {
+                            if (sprite.species === 0) { // Bluebird -> Songbird melody
+                                window.WildPulseMusic.synths.songbird.triggerAttackRelease("G5", "16n", time, 0.6);
+                                window.WildPulseMusic.synths.songbird.triggerAttackRelease("C6", "16n", time + 0.1, 0.6);
+                                window.WildPulseMusic.synths.songbird.triggerAttackRelease("E6", "8n", time + 0.2, 0.7);
+                            } else if (sprite.species === 1) { // Cardinal -> Trill
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease("G6", "32n", time, 0.6);
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease("A6", "32n", time + 0.05, 0.6);
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease("G6", "32n", time + 0.1, 0.6);
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease("A6", "32n", time + 0.15, 0.6);
+                            } else if (sprite.species === 2) { // Goldfinch -> High peep
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease("D7", "32n", time, 0.4);
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease("D7", "32n", time + 0.2, 0.4);
+                            } else if (sprite.species === 3) { // Snow Bunting -> Long swoop
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease("E6", "8n", time, 0.7);
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease("C6", "8n", time + 0.2, 0.5);
+                            } else if (sprite.species === 4) { // Crow -> Crow
+                                window.WildPulseMusic.synths.crow.triggerAttackRelease("A3", "8n", time, 0.6);
+                                if (Math.random() < 0.5) window.WildPulseMusic.synths.crow.triggerAttackRelease("A3", "8n", time + 0.3, 0.5);
+                            } else if (sprite.species === 5) { // Woodpecker -> Woodpecker
+                                for (let j = 0; j < 6; j++) window.WildPulseMusic.synths.woodpecker.triggerAttackRelease("C5", "64n", time + (j * 0.05), 0.5);
+                            } else if (sprite.species === 6) { // Dove -> Mourning Dove coo
+                                window.WildPulseMusic.synths.dove.triggerAttackRelease("A3", "4n", time, 0.6);
+                                window.WildPulseMusic.synths.dove.triggerAttackRelease("B3", "4n", time + 0.5, 0.7);
+                                window.WildPulseMusic.synths.dove.triggerAttackRelease("A3", "2n", time + 1.0, 0.5);
+                            } else { // Fallback -> Random
+                                const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
+                                window.WildPulseMusic.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
+                            }
+                        } catch(e) {}
+                    }
+                }
+
+
+
+
                 sprite.timer += dt || 16;
                 sprite.flapTime += (dt || 16) * 0.02; // Faster flap than butterflies
 
@@ -33329,7 +33368,7 @@ function create() {
                 }
 
                 // Animation logic
-                let baseFrame = sprite.species * 4;
+                let baseFrame = sprite.species * 5;
                 if (sprite.bState.startsWith('landing') || sprite.bState === 'playing') {
                     // Grounded, maybe hop
                     if (sprite.bState === 'playing' && Math.random() < 0.1) {
@@ -33349,12 +33388,20 @@ function create() {
                     // Rotation based on velocity
                     if (Math.abs(sprite.vx) > 0.1 || Math.abs(sprite.vy) > 0.1) {
                         let targetRot = Math.atan2(sprite.vy, sprite.vx);
-                        if (sprite.vx < 0) {
-                            sprite.scaleX = -Math.abs(sprite.scaleX);
-                            sprite.rotation = targetRot + Math.PI;
-                        } else {
+
+                        // If flying vertically, show the back frame
+                        if (Math.abs(sprite.vy) > Math.abs(sprite.vx) * 1.5) {
+                            sprite.setFrame(baseFrame + 4);
                             sprite.scaleX = Math.abs(sprite.scaleX);
                             sprite.rotation = targetRot;
+                        } else {
+                            if (sprite.vx < 0) {
+                                sprite.scaleX = -Math.abs(sprite.scaleX);
+                                sprite.rotation = targetRot + Math.PI;
+                            } else {
+                                sprite.scaleX = Math.abs(sprite.scaleX);
+                                sprite.rotation = targetRot;
+                            }
                         }
                     }
                 }
