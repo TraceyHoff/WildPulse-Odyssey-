@@ -8493,14 +8493,7 @@ window.WildPulseMusic = {
 
             if (inside) return;
 
-            // Day: Birds
-            if (isDay && (window.weatherPattern === 'none' || !window.weatherPattern) && Math.random() < 0.05) {
-                const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
-                this.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
-                if (Math.random() < 0.5) {
-                     this.synths.birds.triggerAttackRelease("E6", "16n", time + 0.1, Math.random() * 0.5 + 0.5);
-                }
-            }
+            // Day: Birds ambient sounds removed, now tied to visible birds
 
             // Night: Crickets & Owls
             if (isNight) {
@@ -28068,11 +28061,26 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 'plant_lush_bush', 'plant_wildflower_patch', 'plant_desert_succulent', 'plant_weeping_willow_shrub',
                 'plant_thorny_bramble', 'plant_tropical_pitcher'
             ];
-            const waterPlantTypes = ['plant_cattail', 'plant_pampas_grass'];
+            const waterPlantTypes = ['plant_pampas_grass'];
+            const strictWaterPlants = ['plant_cattail'];
 
             let plantType;
-            if (isAdjacentToWater && ((r * 17 + c * 31) % 100 < 80)) {
-                // High chance to spawn water plants if next to water
+            // index_test.html only has isAdjacentToWater, but we need to compute isVeryCloseToWater
+            let isVeryCloseToWaterLocal = false;
+            if (mapData && mapData.length > 0) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (mapData[r + dr] && mapData[r + dr][c + dc] === 'obs') {
+                            isVeryCloseToWaterLocal = true;
+                        }
+                    }
+                }
+            }
+
+            if (isVeryCloseToWaterLocal && ((r * 17 + c * 31) % 100 < 90)) {
+                const combinedWaterPlants = [...strictWaterPlants, ...waterPlantTypes];
+                plantType = combinedWaterPlants[(r * 31 + c * 17) % combinedWaterPlants.length];
+            } else if (isAdjacentToWater && ((r * 17 + c * 31) % 100 < 80)) {
                 plantType = waterPlantTypes[(r * 31 + c * 17) % waterPlantTypes.length];
             } else {
                 plantType = normalPlantTypes[(r * 31 + c * 17) % normalPlantTypes.length];
@@ -30685,6 +30693,18 @@ function create() {
 
             for (let i = this.sprites.length - 1; i >= 0; i--) {
                 let sprite = this.sprites[i];
+
+                // Tie bird sounds to visible birds
+                if (sprite.active && sprite.x > cam.scrollX && sprite.x < cam.scrollX + cam.width &&
+                    sprite.y > cam.scrollY && sprite.y < cam.scrollY + cam.height) {
+                    if (Math.random() < 0.005 && window.WildPulseMusic && window.WildPulseMusic.synths) {
+                        let time = undefined;
+                        try {
+                            const note = ["C6", "E6", "G6", "C7"][Math.floor(Math.random() * 4)];
+                            window.WildPulseMusic.synths.birds.triggerAttackRelease(note, "16n", time, Math.random() * 0.5 + 0.5);
+                        } catch(e) {}
+                    }
+                }
                 if (!sprite.active) {
                     this.sprites.splice(i, 1);
                     continue;
