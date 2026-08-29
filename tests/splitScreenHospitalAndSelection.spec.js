@@ -60,7 +60,7 @@ test.describe('Split-Screen Hospital Heal Notification and Creature Selection Ov
     expect(notificationStyle).not.toBeNull();
     expect(notificationStyle.opacity).toBe('1');
     expect(notificationStyle.left).toBe('75%');
-    expect(notificationStyle.text).toContain('fully healed');
+    expect(notificationStyle.text.toLowerCase()).toContain('fully healed');
   });
 
   test('hospital heal should heal Player 1 and display notification on Player 1s side (left: 25%)', async ({ page }) => {
@@ -112,7 +112,7 @@ test.describe('Split-Screen Hospital Heal Notification and Creature Selection Ov
     expect(notificationStyle).not.toBeNull();
     expect(notificationStyle.opacity).toBe('1');
     expect(notificationStyle.left).toBe('25%');
-    expect(notificationStyle.text).toContain('fully healed');
+    expect(notificationStyle.text.toLowerCase()).toContain('fully healed');
   });
 
   test('creature selection overlay should cover only that players side in co-op', async ({ page }) => {

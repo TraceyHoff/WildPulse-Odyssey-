@@ -31686,13 +31686,13 @@ window.flatTopItems = ["furniture_table", "furniture_desk", "furniture_shelf", "
 window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
     let col = Math.floor(x / 100);
     let row = Math.floor(y / 100);
-    if (!mapData || !mapData[row] || col < 0 || col >= mapData[0].length) return false;
+    if (!mapData || !mapData[row] || col < 0 || col >= mapData[0].length) return { valid: false, reason: 'Out of bounds' };
 
     const tileType = mapData[row][col];
     const isInside = window.isPlayerInsideHome && window.isPlayerInsideHome(playerNum);
     const isInsideOtherHome = window.isPlayerInsideOtherPlayerHome && window.isPlayerInsideOtherPlayerHome(playerNum);
 
-    if (isInsideOtherHome) return false;
+    if (isInsideOtherHome) return { valid: false, reason: "Cannot place in another player's home" };
 
     const HALF_SIZE = 25;
     const tileRect = { left: x - HALF_SIZE, right: x + HALF_SIZE, top: y - HALF_SIZE, bottom: y + HALF_SIZE };
@@ -31709,16 +31709,23 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
         const homeMaxY = (maxR + 1) * 100;
 
         if (tileRect.left < homeMinX || tileRect.right > homeMaxX || tileRect.top < homeMinY || tileRect.bottom > homeMaxY) {
-            return false;
+            return { valid: false, reason: 'Must be placed within your Home' };
+        }
+
+        if (tileType === 'home_wall' || tileType === 'home_holo_wall') {
+            return { valid: false, reason: 'Cannot place on walls' };
         }
     } else {
+        if (tileType === 'water') return { valid: false, reason: 'Cannot place on water' };
+        if (tileType === 'tree') return { valid: false, reason: 'Cannot place on trees' };
+
         // Check if tile is grass
-        if (tileType !== 'grass') return false;
+        if (tileType !== 'grass') return { valid: false, reason: 'Must be placed on grass' };
 
         // Check if there is a tree on this grass tile
         let hash = (row * 31 + col * 17) % 100;
         const isAboveHospital = (row === 99 && col === 100);
-        if (hash < 12 && !isAboveHospital) return false;
+        if (hash < 12 && !isAboveHospital) return { valid: false, reason: 'Cannot place on trees' };
     }
 
     // Check other homes/structures and other mini tiles
@@ -31729,10 +31736,10 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
         if (hx && hy) {
             let hRow = Math.floor(parseFloat(hy) / 100);
             let hCol = Math.floor(parseFloat(hx) / 100);
-            if (hRow === row && hCol === col) return false;
+            if (hRow === row && hCol === col) return { valid: false, reason: 'Overlaps with home' };
         }
         // check existing mini tiles for overlaps
-        const miniTilesKey = `wildpulse_p${pNum}_mini_tiles`;
+        const miniTilesKey = 'wildpulse_p' + pNum + '_mini_tiles';
         const miniTiles = JSON.parse(localStorage.getItem(miniTilesKey)) || [];
         for (let tile of miniTiles) {
             const otherRect = { left: tile.x - HALF_SIZE, right: tile.x + HALF_SIZE, top: tile.y - HALF_SIZE, bottom: tile.y + HALF_SIZE };
@@ -31743,11 +31750,11 @@ window.isValidMiniTileLocation = function(x, y, playerNum, itemName) {
                     continue; // allow placement
                 }
 
-                return false; // overlapping
+                return { valid: false, reason: 'Overlaps with another item' }; // overlapping
             }
         }
     }
-    return true;
+    return { valid: true, reason: '' };
 };
 
 window.startMiniTilePlacement = function(playerNum, itemName, slotIndex) {
@@ -31899,8 +31906,9 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
     }
 
     // 2. Validate location
-    if (!window.isValidMiniTileLocation(x, y, playerNum, itemName)) {
-        window.showModernNotification("❌ Invalid location! Cannot place on water, trees, walls, or existing structures.", 3000, playerNum);
+    const validity = window.isValidMiniTileLocation(x, y, playerNum, itemName);
+    if (!validity.valid) {
+        window.showModernNotification("❌ Invalid location! " + validity.reason, 3000, playerNum);
         return;
     }
 
@@ -32016,13 +32024,18 @@ window.tryPlaceMiniTile = function(playerNum, x, y) {
 };
 
 window.exitMiniTilePlacementMode = function(playerNum) {
-    window[`p${playerNum}MiniTilePlacementMode`] = null;
-    window[`p${playerNum}MiniTileSlotIndex`] = null;
-    const sprite = window[`p${playerNum}MiniTilePreviewSprite`];
+    window['p' + playerNum + 'MiniTilePlacementMode'] = null;
+    window['p' + playerNum + 'MiniTileSlotIndex'] = null;
+    const sprite = window['p' + playerNum + 'MiniTilePreviewSprite'];
     if (sprite) {
         sprite.setVisible(false);
+        sprite.clearTint();
     }
-    const controls = document.getElementById(`mobilePlacementControls_p${playerNum}`);
+    const reasonText = window['p' + playerNum + 'MiniTileReasonText'];
+    if (reasonText) {
+        reasonText.setVisible(false);
+    }
+    const controls = document.getElementById('mobilePlacementControls_p' + playerNum);
     if (controls) controls.style.display = 'none';
 };
 
@@ -38927,6 +38940,21 @@ function update() {
 
             if (window.p1MiniTilePreviewSprite) {
                 window.p1MiniTilePreviewSprite.setPosition(window.p1MiniTilePreviewX, window.p1MiniTilePreviewY);
+                const validity = window.isValidMiniTileLocation(window.p1MiniTilePreviewX, window.p1MiniTilePreviewY, 1, window.p1MiniTilePlacementMode);
+                if (!validity.valid) {
+                    window.p1MiniTilePreviewSprite.setTint(0xff0000);
+                    if (!window.p1MiniTileReasonText) {
+                        window.p1MiniTileReasonText = activeScene.add.text(window.p1MiniTilePreviewX, window.p1MiniTilePreviewY - 40, validity.reason, { fontSize: '16px', fill: '#ff0000', backgroundColor: 'rgba(0,0,0,0.7)', padding: {x: 4, y: 4} }).setOrigin(0.5).setDepth(200);
+                        if (window.coopActive && window.camera2) window.camera2.ignore(window.p1MiniTileReasonText);
+                    } else {
+                        window.p1MiniTileReasonText.setText(validity.reason);
+                        window.p1MiniTileReasonText.setPosition(window.p1MiniTilePreviewX, window.p1MiniTilePreviewY - 40);
+                        window.p1MiniTileReasonText.setVisible(true);
+                    }
+                } else {
+                    window.p1MiniTilePreviewSprite.clearTint();
+                    if (window.p1MiniTileReasonText) window.p1MiniTileReasonText.setVisible(false);
+                }
             }
 
             // Check for cancel and rotate keys
@@ -38973,6 +39001,21 @@ function update() {
 
             if (window.p2MiniTilePreviewSprite) {
                 window.p2MiniTilePreviewSprite.setPosition(window.p2MiniTilePreviewX, window.p2MiniTilePreviewY);
+                const validity = window.isValidMiniTileLocation(window.p2MiniTilePreviewX, window.p2MiniTilePreviewY, 2, window.p2MiniTilePlacementMode);
+                if (!validity.valid) {
+                    window.p2MiniTilePreviewSprite.setTint(0xff0000);
+                    if (!window.p2MiniTileReasonText) {
+                        window.p2MiniTileReasonText = activeScene.add.text(window.p2MiniTilePreviewX, window.p2MiniTilePreviewY - 40, validity.reason, { fontSize: '16px', fill: '#ff0000', backgroundColor: 'rgba(0,0,0,0.7)', padding: {x: 4, y: 4} }).setOrigin(0.5).setDepth(200);
+                        if (window.coopActive && activeScene.cameras.main) activeScene.cameras.main.ignore(window.p2MiniTileReasonText);
+                    } else {
+                        window.p2MiniTileReasonText.setText(validity.reason);
+                        window.p2MiniTileReasonText.setPosition(window.p2MiniTilePreviewX, window.p2MiniTilePreviewY - 40);
+                        window.p2MiniTileReasonText.setVisible(true);
+                    }
+                } else {
+                    window.p2MiniTilePreviewSprite.clearTint();
+                    if (window.p2MiniTileReasonText) window.p2MiniTileReasonText.setVisible(false);
+                }
             }
 
             // Check for cancel and rotate keys
