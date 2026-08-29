@@ -4079,16 +4079,24 @@ window.getEventBoostedType = function(event) {
 };
 
 window.rollRandomEvent = function() {
-    const activeEvents = ['Heat Wave', 'Aurora', 'Gusty Winds', 'Earthquake', 'Bountiful Bloom'];
-    const time = (typeof dayNightTime !== 'undefined') ? dayNightTime : 12.0;
-    if (time >= 6 && time < 20) {
-        activeEvents.push('Daytime Radiance');
-    } else {
-        activeEvents.push('Nighttime Eclipse');
+    const activeEvents = ['Heat Wave', 'Aurora', 'Gusty Winds', 'Earthquake', 'Bountiful Bloom', 'Daytime Radiance', 'Nighttime Eclipse', 'Dual Battle'];
+
+    // Shuffle bag logic for random events
+    let bag = [];
+    try {
+        const storedBag = localStorage.getItem('wildpulse_random_event_bag');
+        if (storedBag) bag = JSON.parse(storedBag);
+    } catch (e) {}
+
+    if (!bag || !Array.isArray(bag) || bag.length === 0) {
+        bag = [...activeEvents];
+        // Shuffle
+        for (let i = bag.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [bag[i], bag[j]] = [bag[j], bag[i]];
+        }
     }
-    if (window.coopActive) {
-        activeEvents.push('Dual Battle');
-    }
+
     let chosen = 'None';
     let duration = 600000; // 10 minutes default cooldown
 
@@ -4098,7 +4106,10 @@ window.rollRandomEvent = function() {
         duration = 600000; // 10 minutes
     } else {
         // If we were in cooldown, roll an active random event for 4 minutes
-        chosen = activeEvents[Math.floor(Math.random() * activeEvents.length)];
+        chosen = bag.pop();
+        try {
+            localStorage.setItem('wildpulse_random_event_bag', JSON.stringify(bag));
+        } catch (e) {}
         duration = 240000; // 4 minutes
     }
 
@@ -4323,6 +4334,10 @@ window.updateEventBadgeUI = function() {
             if (source === 'random') {
                 const remainingMs = window.activeRandomEventEndTime - window.totalElapsedMs;
                 pct = Math.max(0, Math.min(100, (remainingMs / 240000) * 100));
+            } else if (source === 'weather') {
+                const remainingMs = window.weatherEventEndTime - window.totalElapsedMs;
+                const duration = window.weatherEventDuration || 180000;
+                pct = Math.max(0, Math.min(100, (remainingMs / duration) * 100));
             }
             bubble.style.border = '2px solid transparent';
             bubble.style.background = `linear-gradient(rgba(0, 20, 40, 0.9), rgba(0, 20, 40, 0.9)) padding-box, conic-gradient(${color} ${pct}%, rgba(255,255,255,0.1) 0) border-box`;
@@ -28778,7 +28793,7 @@ function generateParticleTextures(scene) {
 
             // wing
             birdCtx.fillStyle = colors.wing;
-            let wingY = f % 2 === 0 ? cY - 6 : cY + 4;
+            let wingY = f % 2 === 0 ? cY + 4 : cY - 6;
             birdCtx.beginPath();
             birdCtx.ellipse(cX, wingY, 4, 7, Math.PI / 4, 0, Math.PI * 2);
             birdCtx.fill();
@@ -41289,6 +41304,7 @@ function update() {
         const eventEndTime = eventStartTime + eventDuration;
 
         window.weatherEventEndTime = cycleIndex * CYCLE_DURATION + eventEndTime;
+        window.weatherEventDuration = eventDuration;
 
         let targetPattern = 'none';
         let targetIntensity = 0;
@@ -41302,16 +41318,22 @@ function update() {
         } else if (timeInCycle >= eventStartTime && timeInCycle <= eventEndTime) {
             // Weather is active
             targetCloud = 'cloudy';
-            const rWeather = cycleRng();
-            if (window.currentSeason === 'Winter') {
-                if (rWeather < 0.4) targetPattern = 'light_snow';
-                else if (rWeather < 0.8) targetPattern = 'heavy_snow';
-                else targetPattern = 'thundersnow';
-            } else {
-                if (rWeather < 0.4) targetPattern = 'light_rain';
-                else if (rWeather < 0.8) targetPattern = 'heavy_rain';
-                else targetPattern = 'thunderstorm';
+
+            // Deterministic shuffle bag based on cycleIndex
+            const allPatterns = ['light_snow', 'heavy_snow', 'thundersnow', 'light_rain', 'heavy_rain', 'thunderstorm'];
+            let bag = [];
+            // Re-seed the bag generation using the initial room seed to be deterministic, block by block
+            let bagCycle = Math.floor(cycleIndex / allPatterns.length);
+            let bagIndex = cycleIndex % allPatterns.length;
+
+            const bagRng = mulberry32(window.roomSeed + bagCycle * 1000);
+            bag = [...allPatterns];
+            for (let i = bag.length - 1; i > 0; i--) {
+                const j = Math.floor(bagRng() * (i + 1));
+                [bag[i], bag[j]] = [bag[j], bag[i]];
             }
+
+            targetPattern = bag[bagIndex];
 
             // Calculate intensity with 30s ramp up/down
             const timeSinceStart = timeInCycle - eventStartTime;
