@@ -7288,9 +7288,6 @@ window.updatePlantVisualState = function(sprite) {
 
     if (sprite.texture.key !== targetTexture) {
         sprite.setTexture(targetTexture);
-        if (sprite.shadowSprite && sprite.shadowSprite.active) {
-            sprite.shadowSprite.setTexture(targetTexture);
-        }
     }
 
     // Dynamic Season styling: dying in winter, regrowing in spring
@@ -7345,16 +7342,6 @@ window.updatePlantVisualState = function(sprite) {
         sprite.setTint(targetTint);
     } else {
         sprite.clearTint();
-    }
-
-    if (sprite.shadowSprite && sprite.shadowSprite.active) {
-        sprite.shadowSprite.setScale(finalScale, 0.45 * finalScale);
-        sprite.shadowSprite.setAlpha(0.2 * targetAlpha);
-        if (targetAlpha === 0) {
-            sprite.shadowSprite.setVisible(false);
-        } else {
-            sprite.shadowSprite.setVisible(true);
-        }
     }
 };
 
@@ -26102,7 +26089,7 @@ function setupDynamicGrass(scene) {
                 }
                 for (let chunkKey in activeTiles) {
                     activeTiles[chunkKey].forEach(sprite => {
-                        if ((sprite.isTreeReflection || sprite.isTreeShadow) && sprite.baseTreeType) {
+                        if (sprite.isTreeReflection && sprite.baseTreeType) {
                             sprite.setTexture(sprite.baseTreeType + '_' + window.currentSeason);
                             if (sprite.isTreeReflection) {
                                 sprite.setVisible(window.currentSeason !== 'Winter');
@@ -27999,15 +27986,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             const treeTypes = ['tree_pine', 'tree_oak', 'tree_birch', 'tree_maple', 'tree_cherry', 'tree_willow'];
             const treeType = treeTypes[hash % treeTypes.length];
             const seasonKey = treeType + '_' + (window.currentSeason || 'Summer');
-            let treeShadow = scene.add.sprite(posX, posY, seasonKey);
-            treeShadow.setScale(1.25);
-            treeShadow.setTintFill(0x000000);
-            treeShadow.setAlpha(0.3);
-            treeShadow.setOrigin(0.5, 1.0);
-            treeShadow.setDepth(1); // just above ground
-            treeShadow.isTreeShadow = true;
-            treeShadow.baseTreeType = treeType; // for seasonal texture updates
-            sprites.push(treeShadow);
 
             let tree = window.treesGroup.create(posX, posY, seasonKey);
             tree.setScale(1.25);
@@ -28086,15 +28064,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
                 plantType = normalPlantTypes[(r * 31 + c * 17) % normalPlantTypes.length];
             }
 
-            // Subtle shadow sprite - scaled down to 0.8 to make flowers/plants smaller
-            let shadow = scene.add.sprite(posX, posY + 15, plantType);
-            shadow.setTintFill(0x000000);
-            shadow.setAlpha(0.2);
-            shadow.setOrigin(0.5, 0.8);
-            shadow.setScale(1.2, 0.45 * 1.2);
-            shadow.setDepth(1);
-            sprites.push(shadow);
-
             // Plant sprite - scaled down to 0.8 to make flowers/plants smaller
             let plant = scene.add.sprite(posX, posY + 15, plantType);
             plant.setOrigin(0.5, 0.8);
@@ -28102,7 +28071,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             plant.setDepth(10 + (posY + 15) / 10000);
             plant.isPlant = true;
             plant.plantType = plantType;
-            plant.shadowSprite = shadow;
 
             // Initialize the texture based on active season and time of day
             if (window.updatePlantVisualState) {
@@ -28270,15 +28238,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             ];
             const plantType = grovePlantTypes[(r * 43 + c * 29) % grovePlantTypes.length];
 
-            // Subtle shadow sprite - scaled down to 0.8 to make plants smaller
-            let shadow = scene.add.sprite(posX, posY + 15, plantType);
-            shadow.setTintFill(0x000000);
-            shadow.setAlpha(0.2);
-            shadow.setOrigin(0.5, 0.8);
-            shadow.setScale(1.2, 0.45 * 1.2);
-            shadow.setDepth(1);
-            sprites.push(shadow);
-
             // Plant sprite - scaled down to 0.8 to make plants smaller
             let plant = scene.add.sprite(posX, posY + 15, plantType);
             plant.setOrigin(0.5, 0.8);
@@ -28286,7 +28245,6 @@ function spawnTile(scene, r, c, tileSize, cols, rows) {
             plant.setDepth(10 + (posY + 15) / 10000);
             plant.isPlant = true;
             plant.plantType = plantType;
-            plant.shadowSprite = shadow;
 
             // Swaying tween
             scene.tweens.add({
@@ -36295,7 +36253,7 @@ function update() {
 
             for (let chunkKey in activeTiles) {
                 activeTiles[chunkKey].forEach(sprite => {
-                    if ((sprite.isTreeReflection || sprite.isTreeShadow) && sprite.baseTreeType) {
+                    if (sprite.isTreeReflection && sprite.baseTreeType) {
                         const r = Math.floor(sprite.y / 100);
                         const c = Math.floor(sprite.x / 100);
                         const threshold = ((r * 17 + c * 31) % 100) / 100;
@@ -36508,35 +36466,7 @@ function update() {
     const frame16fps = Math.floor(this.time.now / 125) % 16;
     let treeRotation = Math.sin(this.time.now / 500) * (window.windSpeed / 5000);
 
-    // Performance: Throttle shadow parameter calculations (once per frame for all trees)
-    if (!window.shadowParams || Math.abs(dayNightTime - (window.lastShadowDayNightTime || 0)) > 0.005) {
-        window.lastShadowDayNightTime = dayNightTime;
-        let sScaleY = 1.0;
-        let sAngle = 0;
-        let sAlpha = 0.0;
 
-        if (dayNightTime >= 6 && dayNightTime < 20) {
-            let tp = (dayNightTime - 6) / 14;
-            sAngle = -Math.PI/2 + (Math.PI * tp);
-            let sunElevation = Math.sin(Math.PI * tp);
-            sScaleY = 0.5 + (1 - sunElevation) * 0.8;
-
-            if (dayNightTime >= 7 && dayNightTime <= 19) {
-                sAlpha = 0.4 * sunElevation;
-            } else if (dayNightTime > 6 && dayNightTime < 7) {
-                sAlpha = 0.4 * sunElevation * (dayNightTime - 6);
-            } else if (dayNightTime > 19 && dayNightTime < 20) {
-                sAlpha = 0.4 * sunElevation * (20 - dayNightTime);
-            }
-        } else {
-            let tp = dayNightTime >= 20 ? (dayNightTime - 20) / 10 : (dayNightTime + 4) / 10;
-            sAngle = -Math.PI/2 + (Math.PI * tp);
-            sAlpha = 0;
-        }
-        window.shadowParams = { sScaleY, sAngle, sAlpha };
-    }
-
-    const { sScaleY, sAngle, sAlpha } = window.shadowParams;
     for (const key in activeTiles) {
         const sprites = activeTiles[key];
         sprites.forEach(sprite => {
@@ -36569,13 +36499,6 @@ function update() {
                 // Depth is now set once upon creation, not per-frame
             } else if (sprite.isTreeReflection) {
                 sprite.setRotation(treeRotation); // Reverse rotation for reflection
-            } else if (sprite.isTreeShadow) {
-                // Use throttled shadow parameters (destructured outside loop for performance)
-                sprite.setScale(1, sScaleY);
-                sprite.setRotation(sAngle + treeRotation);
-                sprite.setAlpha(sAlpha);
-                sprite.setVisible(sAlpha > 0);
-                sprite.setTintFill(0x000000);
             } else if (sprite.isPlant) {
                 if (window.updatePlantVisualState) {
                     window.updatePlantVisualState(sprite);

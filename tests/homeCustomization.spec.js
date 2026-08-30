@@ -194,16 +194,14 @@ test.describe('Home Customization & Plant Life System Tests', () => {
       window.dayNightTime = 12.0; // Noon
       window.updatePlantVisualState(mockLotus);
       results.lunaLotusInDay = {
-        plantKey: mockLotus.texture.key,
-        shadowKey: mockLotusShadow.texture.key
+        plantKey: mockLotus.texture.key
       };
 
       // Night time check
       window.dayNightTime = 23.0; // Night
       window.updatePlantVisualState(mockLotus);
       results.lunaLotusAtNight = {
-        plantKey: mockLotus.texture.key,
-        shadowKey: mockLotusShadow.texture.key
+        plantKey: mockLotus.texture.key
       };
 
       // Cleanup mock sprites
@@ -216,15 +214,11 @@ test.describe('Home Customization & Plant Life System Tests', () => {
     });
 
     expect(testVisualUpdates.bluebellInSpring.plantKey).toBe('plant_vernal_bluebell_bloom');
-    expect(testVisualUpdates.bluebellInSpring.shadowKey).toBe('plant_vernal_bluebell_bloom');
 
     expect(testVisualUpdates.bluebellInSummer.plantKey).toBe('plant_vernal_bluebell_bud');
-    expect(testVisualUpdates.bluebellInSummer.shadowKey).toBe('plant_vernal_bluebell_bud');
 
     expect(testVisualUpdates.lunaLotusInDay.plantKey).toBe('plant_luna_lotus_closed');
-    expect(testVisualUpdates.lunaLotusInDay.shadowKey).toBe('plant_luna_lotus_closed');
 
     expect(testVisualUpdates.lunaLotusAtNight.plantKey).toBe('plant_luna_lotus_bloom');
-    expect(testVisualUpdates.lunaLotusAtNight.shadowKey).toBe('plant_luna_lotus_bloom');
   });
 });
