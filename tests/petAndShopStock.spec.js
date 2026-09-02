@@ -28,7 +28,9 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
         if (window.renderPartyList) window.renderPartyList();
     });
 
-    await page.waitForTimeout(2000);
+    await page.evaluate(() => {
+        window.updatePetFollow(window.game.scene.scenes[0], 1, window.player, window.collectedCreatures);
+    });
 
     const debugInfo = await page.evaluate(() => {
         return {
@@ -61,6 +63,7 @@ test.describe('Companion and Shop Stock Replenishment Systems', () => {
         window.collectedCreatures[0] = window.collectedCreatures[1];
         window.collectedCreatures[1] = temp;
         if (window.renderPartyList) window.renderPartyList();
+        window.updatePetFollow(window.game.scene.scenes[0], 1, window.player, window.collectedCreatures);
     });
 
     await page.waitForTimeout(500);
