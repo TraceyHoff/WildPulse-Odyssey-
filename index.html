@@ -9179,7 +9179,6 @@ window.WildPulseMusic = {
             this.setupLoops();
             Tone.Transport.bpm.value = this.bpm;
             Tone.Transport.start();
-            console.log("[Music] Advanced procedural ambient sound engine started.");
         } catch (e) {
             console.warn("[Music] Failed to start Tone.js:", e);
         }
@@ -9439,7 +9438,6 @@ window.getP2Name = function() {
 };
 
 window.runPerformanceCheck = function() {
-    console.log("%c=== WILD PULSE PERFORMANCE AUDIT ===", "color: #00e5ff; font-weight: bold; font-size: 14px;");
 
     const diagnostics = {
         timestamp: new Date().toISOString(),
@@ -9490,8 +9488,6 @@ window.runPerformanceCheck = function() {
     };
 
     // Print to console beautifully
-    console.table(diagnostics);
-    console.log("%c=====================================", "color: #00e5ff; font-weight: bold;");
 
     // Display high-tech visual notification overlay
     let fpsStr = diagnostics.phaser.actualFps ? `FPS: ${diagnostics.phaser.actualFps}` : 'FPS: N/A';
@@ -9773,7 +9769,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.showModernNotification) {
                     window.showModernNotification(`${shinyIcon} A wild Shiny ${name} has spawned in the world! ${shinyIcon}`, 6000);
                 } else {
-                    console.log(`${shinyIcon} A wild Shiny ${name} has spawned in the world! ${shinyIcon}`);
                 }
             });
             window.pendingShinyNotifications = [];
@@ -9786,7 +9781,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasSeenIntro = localStorage.getItem('wildpulse_has_seen_intro') === 'true';
         const isAutomation = typeof navigator !== 'undefined' && navigator.webdriver;
         const forceOnboarding = typeof window !== 'undefined' && window.__test_onboarding;
-        console.log("[DEBUG Onboarding] isNewGame:", isNewGame, "hasSeenIntro:", hasSeenIntro, "isAutomation:", isAutomation, "forceOnboarding:", forceOnboarding, "color:", localStorage.getItem('wildpulse_player_color'));
 
         // Request fullscreen automatically on game entry
         if (!document.fullscreenElement) {
@@ -9794,7 +9788,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 game.scale.startFullscreen();
             } else {
                 document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
                 });
             }
         }
@@ -9829,7 +9822,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 game.scale.startFullscreen();
             } else {
                 document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
                 });
             }
         }
@@ -10044,7 +10036,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
                 });
             } else {
                 if (document.exitFullscreen) {
@@ -21518,7 +21509,6 @@ if (collectedCreatures.length === 0 && window.baseCreatures && window.baseCreatu
         collectedCreaturesIds.add(starter.id);
         collectedCreatures.push(starter);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(collectedCreatures));
-        console.log("[Starter Selection] Random Player 1 starter selected: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
     }
 }
 
@@ -21562,7 +21552,6 @@ if (window.collectedCreatures2.length === 0 && window.baseCreatures && window.ba
         window.collectedCreaturesIds2.add(starter.id);
         window.collectedCreatures2.push(starter);
         localStorage.setItem('wildpulse_collected_creatures2', JSON.stringify(window.collectedCreatures2));
-        console.log("[Starter Selection] Random Player 2 starter selected: " + starter.name + " (" + starter.type + " type, ID: " + starter.id + ")");
     }
 }
 
@@ -31036,7 +31025,6 @@ window.handlePortalOverlap = function(playerNum, portalSprite) {
         const insideX = 420 * 100 + 50;
         const insideY = 420 * 100 + 50;
 
-        console.log(`[Portal] Teleporting player ${playerNum} to Rift World center at: ${insideX}, ${insideY}`);
 
         playerObj.setPosition(insideX, insideY);
         if (playerObj.body) {
@@ -31110,7 +31098,6 @@ window.handleReturnPortalOverlap = function(playerNum, rPortalSprite) {
     // Retrieve previous coordinates, fallback to default (X=10000, Y=10000) if undefined
     const prePos = window[`p${playerNum}PrePortalPos`] || { x: 10000, y: 10000 };
 
-    console.log(`[Portal] Returning player to pre-portal pos: ${prePos.x}, ${prePos.y}`);
 
     playerObj.setPosition(prePos.x, prePos.y);
     if (playerObj.body) {
@@ -31168,7 +31155,6 @@ window.handleHomeTeleporterOverlap = function(playerNum, tile) {
         window.showModernNotification(`${window.getPortalIconHTML(24)} Teleported to Hospital Area!`, 3000, playerNum);
     }
 
-    console.log(`[HomeTeleport] Player ${playerNum} moving to ${destX}, ${destY}`);
 
     playerObj.setPosition(destX, destY);
     if (playerObj.body) {
@@ -34927,7 +34913,6 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
                      window.showModernNotification(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`, 6000);
                 }
             } else {
-                console.log(`${shinyIcon} A wild Shiny ${clonedData.name} has spawned in the world! ${shinyIcon}`);
             }
         } else {
             window.pendingShinyNotifications = window.pendingShinyNotifications || [];
@@ -34943,7 +34928,6 @@ function spawnCreature(scene, creatureData, forceX, forceY, spawnIndex) {
                     window.showModernNotification(`👑 A Legendary ${clonedData.name} has spawned in the Hidden Grove! 👑`, 6000, 2, '#ffeb3b');
                 }
             } else {
-                console.log(`👑 A Legendary ${clonedData.name} has spawned in the Hidden Grove! 👑`);
             }
         } else {
             window.pendingShinyNotifications = window.pendingShinyNotifications || [];
@@ -41870,7 +41854,6 @@ function update() {
         for (const key in activeTiles) {
             activeTilesCount++;
         }
-        console.log(`[Viewport Performance] Active Tiles: ${activeTilesCount} | Visible Entities: ${visibleCreatures + visiblePlayers + 1}`);
     }
 
     // Check Player Friendship Proximity
